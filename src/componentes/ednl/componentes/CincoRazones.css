@@ -1,0 +1,39 @@
+.container-cinco-razones {
+    padding: clamp(10px, 1.8vw, 18px) 0 clamp(10px, 1.8vw, 18px) 0;
+}
+
+.cinco-razones-item {
+    display: flex;
+    /*align-items: baseline;*/
+    margin: 20px 0px -10px 0px;
+    align-items: center;
+    justify-content: left;
+}
+
+.cinco-razones-cuerpo {
+    display: flex;
+    align-items:center;
+    gap: clamp(8px, 1vw, 10px);
+}
+
+.container-cinco-razones h4 {
+    background-color: black;
+    color: white;
+    font-size: clamp(24px, 2vw, 28px);
+    width: clamp(28px, 3.5vw, 38px);
+    height: clamp(28px, 3.5vw, 38px);
+    min-width: clamp(28px, 3.5vw, 38px);
+    min-height: clamp(28px, 3.5vw, 38px);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container-cinco-razones p {
+    font-size: clamp(20px, 1.8vw, 18px);
+}
+
+.container-cinco-razones b {
+    font-size: clamp(10px, 1.6vw, 20px);
+}

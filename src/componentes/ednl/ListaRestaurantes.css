@@ -1,0 +1,123 @@
+.lista-restaurantes {
+    width: 100%;
+    max-width: 1080px !important;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.lista-logos {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    justify-items: stretch;
+    gap: 10px;
+    text-align: center;
+    padding: 0px 0px 30px 0px;
+}
+
+.lista-logos img {
+    height: clamp(30px, 7.4vw, 50px);
+    object-fit: contain;
+    max-width: 100%;
+}
+
+.lista-logos img:nth-child(2) {
+    height: clamp(60px, 9.2vw, 200px);
+}
+
+/*.lista-restaurantes p {  TEXTO DEL PARRAFO ORIGINAL AL INICIO DE LA PAGINA
+    font-size: clamp(16px, 2.4vw, 26px);
+}*/ 
+
+/* Lista de categorias de restaurantes */
+
+.categorias-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(10px, 2.8vw, 40px);
+    margin-top: clamp(20px, 5vw, 30px);
+}
+
+.categoria-grupo {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: clamp(20px, 3.7vw, 40px);
+}
+
+.categoria-contenido {
+    display: flex;
+    gap: clamp(1px, .3vw, 2px);
+    align-items: flex-start;
+}
+
+.categoria-contenido ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.categoria-columna {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.categoria-grupo-titulo {
+    background-color: rgb(0, 0, 0);
+    height: clamp(35px, 4.6vw, 50px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.categoria-grupo ul {
+    flex-grow: 1;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.categoria-grupo li {
+    margin-bottom: 0.6em;
+    list-style: none;
+    text-align: right;
+    width: 100%;
+}
+
+/* Estilos específicos para el enlace */
+.categoria-grupo li .enlace-restaurante {
+    line-height: 1;
+    text-decoration: underline;
+    font-weight: bold !important; 
+    letter-spacing: 1.2px;
+    color: rgb(43, 43, 43);
+    display: block; /* Para que herede el width: 100% del li */
+    font-size: clamp(.8rem, 2vw, 1.3rem);
+}
+
+.categoria-imagen {
+    width: clamp(48px, 12vw, 140px);
+    height: auto;
+    flex-shrink: 0;
+
+    border-radius: 200px;
+}
+
+.categoria-contenido ul li {
+    white-space: wrap;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .categorias-container {
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 columnas en desktop */
+    }
+}

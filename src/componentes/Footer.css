@@ -1,0 +1,26 @@
+/* Footer.css */
+.container-footer {
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between; /* Separa los elementos a los extremos */
+    align-items: center; /* Centra verticalmente */
+    max-width: 1280px; /* O ajusta al ancho de tu diseño */
+    margin: 0 auto; /* Centra el contenedor */
+    width: 100%;
+}
+
+/* Barcode - Ocupa el espacio disponible */
+.container-footer img:first-child {
+    width: 70%; /* Ancho del código de barras */
+    max-width: 900px; /* Máximo crecimiento */
+    height: auto;
+    object-fit: contain;
+}
+
+/* Logo Estrellas - Tamaño fijo */
+.container-footer img:last-child{
+    width: 25%; /* Ancho del logo */
+    max-width: 300px; /* Máximo crecimiento */
+    height: auto;
+    object-fit: contain;
+}

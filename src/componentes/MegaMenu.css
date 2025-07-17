@@ -1,0 +1,74 @@
+.secciones-container-celular {
+    display: none;
+}
+
+.contenedor-header-4 button {
+    display: none;
+}
+
+.ednl {
+    max-width: 120px;
+}
+
+.b2b {
+    max-width: 58px;
+}
+
+@media (max-width: 800px) {
+    header {}
+
+    .contenedor-header-1 {}
+
+    .contenedor-header-2 {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 16px;
+    }
+
+    .contenedor-header-3 {
+        display: flex;
+    }
+
+    .contenedor-header-3 button {
+        display: none;
+    }
+
+    .contenedor-header-4 button {
+        display: flex;
+        padding: 0;
+    }
+
+    .contenedor-header-4 button {
+        display: flex;
+    }
+}
+
+/* Estilos solo para el menu desplegable */
+
+@media (max-width: 910px) {
+
+    /* Apartir de aqui el mega menu se hace pequeño*/
+    .secciones-container-computadora {
+        display: none;
+    }
+
+    .secciones-container-celular {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contenedor-header-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .ednl {
+        max-width: 100px;
+    }
+
+    .b2b {
+        max-width: 60px;
+        height: 20px
+    }
+}

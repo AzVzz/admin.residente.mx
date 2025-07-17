@@ -1,0 +1,7 @@
+.container-restaurante {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}

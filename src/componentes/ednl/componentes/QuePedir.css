@@ -1,0 +1,37 @@
+.container-que-pedir {
+    padding: clamp(10px, 1.8vw, 18px) 0 clamp(10px, 1.8vw, 18px) 0;
+}
+
+.que-pedir-item {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    /* 1 para celular, 2 para computadora */
+    grid-template-rows: repeat(3, 1fr);
+    gap: clamp(6px, 0.52vw, 10px);
+}
+
+.div1 {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1vw, 10px);
+}
+
+.div1 h4 {
+    background-color: black;
+    color: white;
+    font-size: clamp(24px, 2vw, 28px);
+    width: clamp(28px,3.5vw,38px);
+    height: clamp(28px,3.5vw,38px);
+    min-width: clamp(28px,3.5vw,38px);
+    min-height: clamp(28px,3.5vw,38px);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .que-pedir-item {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

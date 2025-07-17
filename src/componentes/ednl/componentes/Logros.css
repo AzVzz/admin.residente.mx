@@ -1,0 +1,11 @@
+.container-logros {
+    padding: clamp(10px, 1.8vw, 18px) 0 clamp(10px, 1.8vw, 18px) 0;
+}
+
+.logros-item {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(10px, 1.38vw, 15px);
+    padding-bottom: 10px;
+    margin-bottom: 0px;
+}

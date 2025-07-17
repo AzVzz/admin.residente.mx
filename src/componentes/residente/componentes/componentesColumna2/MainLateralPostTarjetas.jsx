@@ -1,0 +1,46 @@
+import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
+
+const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick }) => {
+    const safePosts = (notasDestacadas || []).filter(post => post).slice(0, 5);
+    return (
+        <section className="mb-5 h-[725px] flex flex-col">
+            <div>
+                <h3 className="pb-5 text-5xl">Lo más visto</h3>
+            </div>
+            <div className="flex-grow">
+                <ul className="h-full flex flex-col justify-between gap-5">
+                    {safePosts.map((post, index) => (
+                        <li
+                            key={post.id}
+                            className="h-[calc(20%-0.625rem)] min-h-[100px] relative"
+                        >
+                            <div
+                                className="flex items-center cursor-pointer h-full w-full transition-shadow"
+                                onClick={() => onCardClick(post)}
+                            >
+                                <div className="w-1/3 h-full">
+                                    <img
+                                        src={post.imagen || SinFoto}
+                                        alt={post.titulo}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div className="w-2/3 pl-4 h-full flex flex-col justify-center">
+                                    <p className="text-xs text-gray-500 mb-1">{post.fecha}</p>
+                                    <h4 className="font-bold text-sm">{post.titulo}</h4>
+                                </div>
+                            </div>
+
+                            {/* Línea divisoria (excepto para el último elemento) */}
+                            {index < safePosts.length - 1 && (
+                                <div className="absolute -bottom-2.5 left-0 right-0 h-px bg-black"></div>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </section>
+    )
+}
+
+export default MainLateralPostTarjetas;

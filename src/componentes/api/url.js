@@ -1,0 +1,1 @@
+export const urlApi = 'https://estrellasdenuevoleon.com.mx/';

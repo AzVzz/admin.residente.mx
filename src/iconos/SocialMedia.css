@@ -1,0 +1,68 @@
+/* SocialMedia.css */
+.social-media-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Forzar distribución igual */
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.1rem, 0.5vw, 0.3rem); /* Reducir gap */
+  width: 100%; /* Ocupar todo el espacio disponible */
+  height: 100%; /* Aprovechar altura máxima */
+  padding: 0;
+
+  place-items: center; /* Combina justify-items y align-items */
+  justify-content: center;
+  align-content: center;
+}
+
+.social-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: clamp(40px, 8.5vw, 80px); /* Aumentar tamaño base */
+  height: clamp(40px, 8.5vw, 80px);
+  transition: transform 0.3s ease;
+  border-radius: 100px;
+  background-color: #000;
+  color: white;
+}
+
+.social-media-container svg,
+.custom-icon {
+  width: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  height: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  padding: 3px;
+}
+
+.didi-food-icon {
+  width: clamp(2.5rem, 2rem + 2vw, 4rem);
+  height: clamp(2.5rem, 2rem + 2vw, 4rem);
+  padding: 0px;
+}
+
+/* Ajuste de color para Uber Eats */
+.uber-eats-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Efecto hover mejorado */
+.social-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* SocialMedia.css */
+.social-icon {
+  /* Estilos base existentes */
+  transition: all 0.3s ease;
+}
+
+.disabled-icon {
+  opacity: 0.5;
+  filter: grayscale(100%);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Para íconos de imágenes */
+.disabled-icon .custom-icon {
+  opacity: 0.6;
+}

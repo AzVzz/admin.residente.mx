@@ -1,0 +1,521 @@
+/*
+
+
+
+
+
+
+Generales y de Radio
+
+
+
+
+
+
+*/
+
+.tipo-de-restaurante fieldset,
+.categorias fieldset,
+.info fieldset,
+.form-redes-sociales fieldset,
+.form-ocasion-ideal fieldset,
+.form-codigo-vestir fieldset,
+.form-sucursales fieldset,
+.form-ubicacion-principal fieldset,
+.form-zonas-habilitadas fieldset,
+.form-resena fieldset,
+.form-logros fieldset,
+.form-historia fieldset,
+.form-cinco-razones fieldset,
+.form-que-pido fieldset,
+.form-expertos-opinan fieldset,
+.form-testimonios fieldset {
+    border: 2px solid #000000;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 1.8rem 0;
+}
+
+.tipo-de-restaurante legend,
+.categorias legend,
+.info legend,
+.form-redes-sociales legend,
+.form-ocasion-ideal legend,
+.form-codigo-vestir legend,
+.form-sucursales legend,
+.form-ubicacion-principal legend,
+.form-zonas-habilitadas legend,
+.form-resena legend,
+.form-logros legend,
+.form-historia legend,
+.form-cinco-razones legend,
+.form-que-pido legend,
+.form-expertos-opinan legend,
+.form-testimonios legend {
+    color: #000000;
+    font-weight: 700;
+    padding: 0 1rem;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+}
+
+.info label,
+.form-redes-sociales label,
+.form-resena label,
+.form-cinco-razones label,
+.form-que-pido label,
+.form-testimonios label {
+    font-size: clamp(20px, 2.5vw, 1.8rem);
+}
+
+.tipo-de-restaurante label,
+.categorias label,
+.form-ocasion-ideal label,
+.form-codigo-vestir label,
+.form-sucursales label,
+.form-ubicacion-principal label {
+    font-size: 1.2rem;
+}
+
+.tipo-de-restaurante .radio-group,
+.categorias .radio-group,
+.form-ocasion-ideal .radio-group,
+.form-codigo-vestir .radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.tipo-de-restaurante input[type="radio"],
+.categorias input[type="radio"],
+.form-ocasion-ideal input[type="radio"],
+.form-codigo-vestir input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+}
+
+.tipo-de-restaurante label,
+.categorias label,
+.form-ocasion-ideal label,
+.form-codigo-vestir label {
+    display: flex;
+    align-items: center;
+    padding: 12px 12px 12px 40px;
+    border: 2px solid #ffedd5;
+    height: 100%;
+    justify-content: flex-start;
+    /* Borde de la opcion*/
+    border-radius: 8px;
+    background: #fff7ed;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Círculo exterior */
+.tipo-de-restaurante label::before,
+.categorias label::before,
+.form-ocasion-ideal label::before,
+.form-codigo-vestir label::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    /* Borde del radio */
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+/* Punto interior cuando está seleccionado */
+.tipo-de-restaurante input[type="radio"]:checked+label::after,
+.categorias input[type="radio"]:checked+label::after,
+.form-ocasion-ideal input[type="radio"]:checked+label::after,
+.form-codigo-vestir input[type="radio"]:checked+label::after {
+    content: "";
+    position: absolute;
+    left: 17px;
+    /* 12px + 5px de ajuste */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: #f97316;
+    border-radius: 50%;
+}
+
+.tipo-de-restaurante input[type="radio"]:checked+label,
+.categorias input[type="radio"]:checked+label,
+.form-ocasion-ideal input[type="radio"]:checked+label,
+.form-codigo-vestir input[type="radio"]:checked+label {
+    border-color: #f97316;
+    background: #fff;
+    color: #f97316;
+}
+
+/* Efecto hover */
+.tipo-de-restaurante label:hover,
+.categorias label:hover,
+.form-ocasion-ideal label:hover,
+.form-codigo-vestir label:hover {
+    background: #fff;
+    transform: translateY(-2px);
+}
+
+/* Foco visible */
+.tipo-de-restaurante input[type="radio"]:focus-visible+label,
+.categorias input[type="radio"]:focus-visible+label,
+.form-ocasion-ideal input[type="radio"]:focus-visible+label,
+.form-codigo-vestir input[type="radio"]:focus-visible+label {
+    outline: 2px solid #fdba74;
+    outline-offset: 2px;
+}
+
+
+/* 
+
+
+
+
+
+Textos  
+
+
+
+
+
+
+*/
+
+.info .input-group,
+.form-redes-sociales .input-group,
+.form-resena .input-group,
+.form-logros .input-group,
+.form-cinco-razones .input-group,
+.form-que-pido .input-group,
+.form-expertos-opinan .input-group,
+.form-testimonios .input-group {
+    margin: 1rem 0;
+}
+
+.info label,
+.form-redes-sociales label,
+.form-resena label,
+.form-logros label,
+.form-cinco-razones label,
+.form-que-pido label,
+.form-expertos-opinan label,
+.form-testimonios label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #000000;
+    font-weight: 500;
+    padding-left: 0 !important;
+}
+
+.info input,
+.form-redes-sociales input,
+.form-resena input,
+.form-logros input,
+.form-cinco-razones input,
+.form-que-pido input,
+.form-expertos-opinan input,
+.form-testimonios input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ffedd5;
+    border-radius: 8px;
+    background: #fff7ed;
+    transition: all 0.3s ease;
+}
+
+.info input:focus,
+.form-redes-sociales input:focus,
+.form-logros input:focus,
+.form-cinco-razones input:focus,
+.form-que-pido input:focus,
+.form-expertos-opinan input:focus,
+.form-testimonios input:focus {
+    border-color: #f97316;
+    outline: none;
+    box-shadow: 0 0 0 3px #fdba74;
+}
+
+/* Mantener estos estilos de error consistentes */
+.error {
+    color: #dc2626;
+    font-size: clamp(18px, 1.6vw, 1.4rem);
+    margin-top: .2rem;
+    margin-bottom: .8rem;
+    text-decoration: underline;
+    text-decoration-color: #dc2626;
+    text-underline-offset: 3px;
+}
+
+.error-border {
+    border-color: #dc2626 !important;
+}
+
+/* 
+
+
+
+
+
+Checkbox 
+
+
+
+
+
+
+*/
+
+/* Estilos específicos para checkboxes */
+.form-sucursales input[type="checkbox"],
+.form-ubicacion-principal input[type="checkbox"],
+.form-zonas-habilitadas input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+}
+
+.form-sucursales label::before,
+.form-ubicacion-principal label::before,
+.form-zonas-habilitadas label::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 4px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.form-sucursales input[type="checkbox"]:checked+label::after,
+.form-ubicacion-principal input[type="checkbox"]:checked+label::after,
+.form-zonas-habilitadas input[type="checkbox"]:checked+label::after {
+    content: "✓";
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f97316;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.form-sucursales input[type="checkbox"]:checked+label,
+.form-ubicacion-principal input[type="checkbox"]:checked+label,
+.form-zonas-habilitadas input[type="checkbox"]:checked+label {
+    border-color: #f97316;
+    background: #fff7ed;
+    color: #f97316;
+}
+
+/* Mantener los mismos estilos base */
+.form-sucursales .checkbox-group,
+.form-ubicacion-principal .checkbox-group,
+.form-zonas-habilitadas .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.form-sucursales label,
+.form-ubicacion-principal label,
+.form-zonas-habilitadas label {
+    display: block;
+    padding: 12px;
+    padding-left: 40px;
+    border: 2px solid #ffedd5;
+    border-radius: 8px;
+    background: #fff7ed;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.form-sucursales label:hover,
+.form-ubicacion-principal label:hover,
+.form-zonas-habilitadas label:hover {
+    background: #ffedd5;
+    transform: translateY(-2px);
+}
+
+.form-sucursales input[type="checkbox"]:focus-visible+label,
+.form-ubicacion-principal input[type="checkbox"]:focus-visible+label,
+.form-zonas-habilitadas input[type="checkbox"]:focus-visible+label {
+    outline: 2px solid #fdba74;
+    outline-offset: 2px;
+}
+
+
+/*
+
+Boton
+
+*/
+/* 
+═══════════════════════════════════════════════════
+BOTÓN PRINCIPAL
+═══════════════════════════════════════════════════
+*/
+
+.form-button {
+    width: 100%;
+    height: 60px;
+    background: #f97316;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 2rem 0;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-button:hover {
+    background: #ea580c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+}
+
+.form-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.25);
+}
+
+.form-button:focus-visible {
+    outline: 3px solid #fdba74;
+    outline-offset: 2px;
+}
+
+.form-button:disabled {
+    background: #ffedd5;
+    color: #fb923c;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+
+/*
+
+═══════════════════════════════════════════════════
+
+Acomodar despues
+
+═══════════════════════════════════════════════════
+
+*/
+
+.input-grande {
+    /*  Limitar */
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ffedd5;
+    border-radius: 8px;
+    background: #fff7ed;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 220px;
+    max-height: 220px;
+
+}
+
+.input-grande:focus {
+    border-color: #f97316;
+    outline: none;
+    box-shadow: 0 0 0 3px #fdba74;
+}
+
+.contador-caracteres {
+    float: right;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: normal;
+}
+
+/* Parte de los 5 logros */
+
+/* Contenedor principal de par de inputs */
+.input-pair {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    /* Mejor alineación para labels */
+    width: 100%;
+}
+
+/* Contenedores específicos - Ajusta estos valores según necesites */
+.year-container {
+    flex: 0 0 100px;
+    /* Ancho fijo para años (100px) */
+    min-width: 100px;
+    /* Previene colapso en móviles */
+}
+
+.titulo-container {
+    flex: 0 0 180px;
+    /* Ancho fijo para títulos */
+    min-width: 180px;
+}
+
+.description-container,
+.cuerpo-container {
+    flex: 1;
+    /* Ocupa espacio restante */
+    min-width: 200px;
+    /* Mínimo para buena legibilidad */
+}
+
+/* Todos los inputs */
+.year-container input,
+.description-container input,
+.titulo-container input,
+.cuerpo-container input {
+    width: 100%;
+    padding: 8px 12px;
+    /* Añade padding consistente */
+    box-sizing: border-box;
+    height: 40px;
+    /* Altura uniforme */
+}
+
+/* Labels */
+.year-container label,
+.description-container label,
+.titulo-container label,
+.cuerpo-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #333;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .input-pair {
+        flex-direction: column;
+    }
+    
+    .year-container,
+    .titulo-container {
+        flex: 1;
+        width: 100%;
+        min-width: auto;
+    }
+}
+

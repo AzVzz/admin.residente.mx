@@ -1,0 +1,8 @@
+.container-expertos-opinan {
+    padding: clamp(10px, 1.8vw, 18px) 0 clamp(10px, 1.8vw, 18px) 0;
+}
+
+.expertos-opinan-item {
+    display: flex;
+    flex-direction: column;
+}

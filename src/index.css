@@ -1,0 +1,147 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'NeueHaasGroteskDisplayW02Bold';
+  src: url('fonts/Neue Haas Grotesk Display W02 Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NeueHaasGroteskDisplayPro55Roman';
+  src: url('fonts/NHaasGroteskDSPro-55Rg.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NeueHaasGroteskDisplayPro75Bold';
+  src: url('fonts/NHaasGroteskDSPro-75Bd.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NeueHaasGroteskDisplayW02Regular';
+  src: url('src/fonts/NHaasGroteskDSP W02 Reg.woff2') format('woff2');
+}
+
+@theme {
+  --font-haas: Haas, "sans-serif";
+  --font-roman: Roman, "sans-serif";
+  --font-grotesk: Grotesk, "sans-serif";
+  --font-groteskregular: GroteskRegular, "sans-serif";
+  --font-family-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
+  --font-family-roman: "NeueHaasGroteskDisplayPro55Roman", sans-serif;
+  --font-family-grotesk: "NeueHaasGroteskDisplayPro75Bold", sans-serif;
+  --font-family-serif: sans-serif;
+}
+
+/*
+h1, h2, h3 {
+  font-family: 'NeueHaasGroteskDisplayW02Bold', sans-serif;
+  font-weight: bold;
+}
+
+p, li, span {
+  font-family: 'NeueHaasGroteskDisplayPro55Roman', sans-serif;
+} */
+
+/*b, strong {
+  font-family: 'NeueHaasGroteskDisplayPro75Bold', sans-serif;
+}*/
+
+/** {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}*/
+
+:root {
+  --font-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
+  --font-roman: "NeueHaasGroteskDisplayPro55Roman", sans-serif;
+  --font-grotesk: "NeueHaasGroteskDisplayPro75Bold", sans-serif;
+  --font-serif: sans-serif;
+
+  --text-28px: clamp(1.2rem, 2.6vw, 1.75rem);
+
+
+  /* Para textos de las categorias */
+
+  font-family: NeueHaasGroteskDisplayW02Bold, NeueHaasGroteskDisplayPro55Roman, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /*line-height: 1.5;
+  font-weight: 400;*/
+  min-width: 400px;
+
+  color-scheme: light;
+  color: black;
+  background-color: #FFF200;
+
+  font-synthesis: weight;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Despues tenemos que cambiar estas variables a otro archivo */
+
+.text-28 {
+  font-size: var(--text-28px);
+}
+
+
+/* Este estilo es para las categorias de RestaruantePage, Reconocimientos, 5 Razones, etc...*/
+
+.text-categoria {
+  font-size: var(--text-28px);
+  color: white;
+  background-color: rgb(0, 0, 0);
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  margin-bottom: clamp(20px, 2vw, 22px);
+  padding: 5px 20px;
+  box-sizing: border-box;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
+
+/* Estilos para el contenedor de cada categoria */
+.contenedor-categoria {
+  padding: clamp(10px, 1.8vw, 18px) 0 clamp(10px, 1.8vw, 18px) 0;
+}
+
+/* Este estilo es para las fechas que se muestran en un recadro nero con el texto blanco */
+.text-fecha {
+  font-size: clamp(10px, 2.8vw, 18px);
+  color: white;
+  background-color: rgb(0, 0, 0);
+  min-height: clamp(1rem, 3.2vw, 2rem);
+  min-width: clamp(3.4rem, 5.2vw, 9rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  white-space: nowrap;
+  font-family: 'NeueHaasGroteskDisplayW02Bold';
+}
+
+/* Texto normal de la mayoria de la página */
+.text-global {
+  font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+  font-family: var(--font-roman);
+  line-height: var(--leading-tight);
+  color: rgb(0, 0, 0);
+  text-transform: none;
+}
+
+.lista-categorias {
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  color: #ffffff;
+  width: 100%;
+  max-width: 100%;
+  font-weight: 600;
+}

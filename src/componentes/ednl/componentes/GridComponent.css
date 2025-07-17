@@ -1,0 +1,289 @@
+.flex-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(clamp(60px, 10vw, 80px), auto); /* Altura responsiva */
+    padding-top: clamp(10px, 1.5vw, 20px); /* Padding superior reducido */
+    gap: clamp(3px, 0.5vw, 6px); /* Gap más ajustado */
+
+    /* Mantener fondo de puntos */
+    background-image: 
+        linear-gradient(to right, transparent 5px, #000 5px, transparent 0px),
+        linear-gradient(to bottom, transparent 5px, #00000000 5px, transparent 0px);
+    background-size: 12px 100%, 100% 12px;
+}
+
+
+.costo { /* 1 "Ticket x persona" y costo $$ */
+    grid-column: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: row;
+    border-bottom: clamp(4px, .55vw, 6px) dotted black;
+    padding: clamp(3px, 1.85vw, 20px);
+}
+
+.costo-imagen {
+    width: clamp(30%, 50vw - 200px, 40%);
+}
+
+.costo-imagen img{
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.costo-info {
+    width: 60%;
+}
+
+.costo-info h3{ /* Ticket */
+    font-size: clamp(10px , 2.2vw ,20px);
+}
+
+.costo-info h4{ /* Precio */
+    font-size: clamp(30px ,5.5vw ,60px);
+}
+
+
+.redes-sociales { /* 2 Redes sociales */
+    grid-column: 3 / 5;
+    border-bottom: clamp(4px, .55vw, 6px) dotted black;
+    border-left: clamp(4px, .55vw, 6px) dotted black;
+    box-sizing: border-box;
+
+    
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+
+    padding: clamp(3px, 1.85vw, 20px);
+}
+
+.sucursales { /* 3 Sucursales */
+    grid-column: 1;
+    grid-row: 2 / 4;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centra vertical */
+    border-right: clamp(4px, .55vw, 6px) dotted rgb(0, 0, 0);
+    padding: clamp(3px, 1.85vw, 20px);
+    /*height: clamp(150px, 35vw, 320px);*/
+}
+
+.numero-sucursales {
+    background-color: rgb(0, 0, 0);
+    text-align: center;
+    font-size: clamp(12px, 3.8vw, 30px);
+    border-radius: 50%;
+    color: white;
+    width: clamp(22px, 5.8vw, 50px);
+    height: clamp(22px, 5.8vw, 50px);
+
+    /* Centrado absoluto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Para separar de otros elementos */
+    margin: clamp(5px, .92vw, 10px) 0;
+}
+
+.sucursales h3 {
+    font-size: clamp(12px ,3vw ,22px);
+    color: white;
+    background-color: black;
+    padding: 0px clamp(2px, .92vw, 10px) 0px clamp(2px, .92vw, 10px);
+    text-transform: uppercase;
+    margin-bottom: clamp(4px, 1.2vw, 10px);
+}
+
+.sucursales p {
+    font-size: clamp(10px, 2.6vw, 18px);
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+.horario { /* 4 Horario */
+    grid-column: 2 / 4;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(5px, .92vw, 10px);
+}
+
+.horario h3 {
+    font-size: clamp(12px, 2.4vw, 28px);
+    text-transform: uppercase;
+    color: white;
+    background-color: black;
+    padding: 0px clamp(7px, .92vw, 10px) 0px clamp(7px, .92vw, 10px);
+
+    /* Centrado absoluto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.reloj {
+    font-size: clamp( 40px, 15vw ,120px);
+    background-color: white;
+    border-radius: 50%;
+    padding: clamp(3px, 0.92vw, 10px);
+}
+
+.div5y6 { /* 5 y 6 Contenedor teléfono y ocasión */
+    border-left: clamp(4px, .55vw, 6px) dotted rgb(0, 0, 0);
+}
+
+.telefono { /* 5 Teléfono */
+    grid-column: 4;
+    grid-row: 2;
+    border-bottom: clamp(4px, .55vw, 6px) dotted rgb(0, 0, 0);
+
+    display: flex;
+    align-items: center; /* centra vertical */
+    justify-content: center; /* centra horizontal */
+}
+
+.telefono h3 {
+    font-size: clamp(10px, 2.8vw, 18px);
+    white-space: nowrap;
+}
+
+.telefono img { 
+    width: clamp(20px, 4.62vw, 50px);
+    object-fit: contain; /* Ajusta sin recortar */
+    margin: 5px; /* Centra la imagen */
+}
+
+.ocasion { /* 6 "Ocasión ideal" */
+    grid-column: 4;
+    grid-row: 3;
+
+    padding: clamp(5px, 1.85vw, 20px);
+    
+}
+
+.ocasion h3{ /* "Ocasión ideal */
+    font-size: clamp(12px, 3.4vw, 22px);
+    white-space: nowrap; 
+}
+
+.ocasion li {
+    list-style: none;
+    font-size: clamp(10px, 2.6vw, 18px);
+    position: relative;
+    padding-left: 1em; /* espacio para el bullet */
+    line-height: 1.2;  /* para mejor alineación */
+}
+
+.ocasion li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.4em; /* tamaño del punto */
+    color: black;
+    line-height: 1;
+}
+
+.info-adicional { /* 7 Tipo de vestimenta y comedor */
+    grid-column: 2 / 5; /* Ocupa columnas 2 a 5 */
+    grid-row: 3;
+    border-top: clamp(4px, .55vw, 6px) dotted rgb(0, 0, 0);
+    gap: clamp(4px, .92vw, 10px); /* Espacio entre columnas (opcional) */
+    padding: clamp(3px, 0.92vw, 10px);
+    display: flex;
+    flex-direction: row;
+    /*height: clamp(50px, 15vw, 110px);*/
+}
+
+.vestimenta, .comedor {
+    display: flex;
+    width: 100%;
+    height: auto;
+}
+
+.vestimenta div, .comedor div{
+    display: flex;
+    justify-content: center;
+    flex-direction:column;
+}
+
+.info-adicional h3 {
+    font-size: clamp(10px, 3vw, 20px);
+    white-space: nowrap; 
+}
+
+.info-adicional p {
+    font-size: clamp(10px, 1.8vw, 18px);
+}
+
+.vestimenta img, 
+.comedor img {
+    width: clamp(30px, 7.6vw, 60px);
+}
+
+/* Codigo de css que se acomoda bien en row 
+
+@media (max-width: 768px) {
+    .flex-container {
+
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 10px;
+    }
+
+    .costo,
+    .div2,
+    .sucursales,
+    .div4,
+    .div5y6,
+    .div7 {
+        grid-column: 1 !important;
+        grid-row: auto !important;
+        border: none !important;
+        border-bottom: 3px dotted black !important;
+    }
+
+    .costo {
+        flex-direction: column;
+        padding: 10px 0;
+    }
+
+    .costo-imagen {
+        width: 100%;
+        text-align: center;
+    }
+
+    .costo-info {
+        width: 100%;
+        text-align: center;
+    }
+
+    .sucursales {
+        border-right: none !important;
+        padding: 10px;
+    }
+
+    .div2 {
+        border-left: none !important;
+        padding: 10px 0;
+    }
+
+    .div5y6 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+*/

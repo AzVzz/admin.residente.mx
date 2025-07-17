@@ -1,0 +1,267 @@
+.container-platillo-estrella {
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  /* Altura responsive usando clamp */
+  height: clamp(200px, 45vw, 390px); /* Mínimo 250px, máximo 400px */
+}
+
+.imagen-fondo {
+  position: relative;
+  width: 100%;
+  height: 100%; /* Ocupa toda la altura del contenedor padre */
+  overflow: hidden; /* Oculta cualquier contenido que sobresalga */
+}
+
+/* Contenedor para cada slide */
+.imagen-fondo .slick-slider,
+.imagen-fondo .slick-list,
+.imagen-fondo .slick-track {
+  height: 100%; /* Asegura que todos los elementos del slider tengan la altura completa */
+}
+
+.imagen-fondo .slick-slide {
+  height: 100%;
+}
+
+.imagen-fondo .slick-slide > div {
+  height: 100%;
+}
+
+.imagen-fondo .slick-slide > div > div {
+  height: 100%;
+}
+
+.imagen-fondo .slick-dots {
+  bottom: 20px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagen-fondo .slick-dots li {
+  margin: 0 4px;
+  width: 12px;
+  height: 12px;
+}
+
+.imagen-fondo .slick-dots li button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.imagen-fondo .slick-dots li button:before {
+  color: white;
+  opacity: 0.7;
+  font-size: clamp(6px, .74vw ,8px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Sombra oscura */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.589)); /* Sombra difuminada */
+  transition: all 0.3s ease;
+}
+
+.imagen-fondo .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+  transform: scale(1.3); /* Agrandar el punto activo */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+/* Nuevos estilos para mejor visibilidad */
+.imagen-fondo .slick-dots li button:before {
+  background: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Sombra exterior */
+  padding: 2px;
+}
+
+.imagen-principal {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Mantiene la proporción y cubre todo el espacio */
+  object-position: center; /* Centra la imagen */
+  display: block;
+}
+
+/* Modificar la posición de la estrella decorativa */
+.estrella-decorativa {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: clamp(280px, 32vw, 390px);
+  height: auto;
+  /* Ajustar transform para que sobresalga más */
+  transform: translateX(-25%) translateY(25%);
+  z-index: 2;
+}
+
+.contenedor-textos {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 4;
+}
+
+/* Modificar la posición del badge para que esté dentro de la estrella */
+.badge-estrella {
+  position: absolute;
+  /* Ajustar posición para que coincida con la estrella */
+  left: clamp(-10px, -2vw, 25px);
+  bottom: clamp(0px, -1vw, 70px);
+  transform: rotate(-20deg);
+  z-index: 3;
+  width: clamp(140px, 16vw, 180px);
+  text-align: center;
+}
+
+.estrellas {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 5px;
+}
+
+.estrellas svg {
+  fill: #fff200;
+  width: clamp(12px, 1.5vw, 18px);
+  height: clamp(12px, 1.5vw, 18px);
+}
+
+.badge-estrella h4 {
+  color: #fff200;
+  font-size: clamp(12px, 1.2vw, 14px);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.titulo-platillo {
+  color: white;
+  font-weight: bold;
+  /*font-size: clamp(14px, 1.6vw, 20px);*/
+  line-height: 1.1;
+  margin: 5px 0 0 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 0 15px;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ajustes para los controles del carrusel */
+.imagen-fondo .slick-dots {
+  bottom: 10px;
+}
+
+.imagen-fondo .slick-dots li button:before {
+  color: white;
+  opacity: 0.7;
+}
+
+.imagen-fondo .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/* Estilos para las flechas personalizadas */
+.slick-prev, .slick-next {
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+}
+
+.slick-prev {
+  left: 10px;
+}
+
+.slick-next {
+  right: 10px;
+}
+
+/* Mejor contraste para los dots */
+.slick-dots li button:before {
+  color: black !important;
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+}
+
+.slick-dots li.slick-active button:before {
+  color: black !important;
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Asegurar que los dots sean visibles en diferentes fondos */
+.slick-dots {
+  bottom: 15px !important;
+}
+
+.slick-dots li {
+  margin: 0 4px;
+  width: 12px;
+  height: 12px;
+}
+
+.slick-dots li button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.slick-dots li button:before {
+  font-size: 10px;
+  line-height: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .container-platillo-estrella {
+    height: 250px;
+  }
+
+
+  .estrella-decorativa {
+    width: clamp(200px, 40vw, 280px);
+  }
+
+
+  .badge-estrella {
+    left: clamp(-7px, -2vw, 20px);
+    bottom: clamp(0px, -1vw, 50px);
+    width: clamp(100px, 20vw, 140px);
+  }
+
+  .titulo-platillo {
+    /*font-size: clamp(12px, 1.4vw, 16px);*/
+  }
+
+  .badge-estrella h4 {
+    font-size: clamp(8px, 1vw, 12px);
+  }
+
+  .estrellas svg {
+    width: clamp(10px, 1.2vw, 14px);
+    height: clamp(10px, 1.2vw, 14px);
+  }
+}
+
+@media (max-width: 480px) {
+  .container-platillo-estrella {
+    height: 200px;
+  }
+}
+  
