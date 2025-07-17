@@ -1,19 +1,27 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { notaCrear, notaEditar, notaImagenPut } from '../../../../componentes/api/notaCrearPostPut.js';
-import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
+import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 
 const FormNotaMain = () => {
     const { register, handleSubmit, setValue, watch, reset } = useForm();
     const [secciones, setSecciones] = useState([]);
+    const [tipoNota, setTipoNota] = useState([]);
+    const [imagen, setImagen] = useState(null);
+
 
     const titulo = watch('titulo');
     const descripcion = watch('descripcion');
-    const seccionCategoria = watch({});
+    const seccionCategoria = watch('seccionCategoria');
+    const tipoNotaSeleccionado = watch('tipoNota');
+    const descripcionNota = watch('descripcionNota');
+    const autor = watch('autor');
+    const fechaPublicacion = watch('fechaPublicacion');
 
     // Traer la info de las secciones con las categorias y guardarlo
     useEffect(() => {
         catalogoSeccionesGet().then((data) => setSecciones(data));
+        catalogoTipoNotaGet().then((data) => setTipoNota(data));
     }, [])
 
     // Guarda la info en localStorage para que no se piera
@@ -27,14 +35,40 @@ const FormNotaMain = () => {
         if (seccionCategoria !== undefined) {
             localStorage.setItem('form_secciones_categorias', JSON.stringify(seccionCategoria));
         }
-    }, [titulo, descripcion, seccionCategoria]);
+        if (tipoNotaSeleccionado !== undefined) {
+            localStorage.setItem('form_tipo_nota', tipoNotaSeleccionado);
+        }
+        if (descripcionNota !== undefined) {
+            localStorage.setItem('form_descripcion_nota', descripcionNota);
+        }
+        if (autor !== undefined) {
+            localStorage.setItem('form_autor', autor);
+        }
+        if (fechaPublicacion !== undefined) {
+            localStorage.setItem('form_fecha_publicacion', fechaPublicacion);
+        }
+    }, [titulo, descripcion, seccionCategoria, tipoNotaSeleccionado, descripcionNota,
+        autor, fechaPublicacion]);
 
     // Al cargar el componente, precargar si hay algo en localStorage
     useEffect(() => {
+        // Recuperar los datos del localStorage
         const tituloGuardado = localStorage.getItem('form_titulo');
         const subtituloGuardado = localStorage.getItem('form_descripcion');
+        const seccionCategoria = localStorage.getItem('form_secciones_categorias');
+        const tipoNotaGuardado = localStorage.getItem('form_tipo_nota');
+        const descripcionNotaGuardado = localStorage.getItem('form_descripcion_nota');
+        const autorGuardado = localStorage.getItem('form_autor');
+        const fechaPublicacionGuardada = localStorage.getItem('form_fecha_publicacion');
+
+        // Si hay datos guardados, precargar los valores en el formulario
         if (tituloGuardado) setValue('titulo', tituloGuardado);
         if (subtituloGuardado) setValue('descripcion', subtituloGuardado);
+        if (seccionCategoria) setValue('seccionCategoria', JSON.parse(seccionCategoria));
+        if (tipoNotaGuardado) setValue('tipoNota', tipoNotaGuardado);
+        if (descripcionNotaGuardado) setValue('descripcionNota', descripcionNotaGuardado);
+        if (autorGuardado) setValue('autor', autorGuardado);
+        if (fechaPublicacionGuardada) setValue('fechaPublicacion', fechaPublicacionGuardada);
     }, [setValue]);
 
     // Al momento de enviar el formulario
@@ -68,8 +102,53 @@ const FormNotaMain = () => {
                 <label>Subtitulo de la Nota</label>
                 <input
                     type="text"
-                    {...register('descripcion', { required: 'El sub...' })}
+                    {...register('descripcion', { required: 'El subtitulo es obligatorio' })}
                     placeholder="Escribe un subtitulo"
+                />
+            </div>
+
+            <div>
+                <label className="block text-gray-700 mb-1">Autor</label>
+                <input
+                    type="text"
+                    {...register('autor', { required: 'El autor es obligatorio' })}
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    placeholder="Escribe el nombre del autor"
+                />
+            </div>
+
+            <div>
+                <label className="block text-gray-700 mb-1">Descripcion de la Nota</label>
+                <textarea
+                    {...register('descripcionNota', { required: 'La descripción es obligatoria' })}
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    placeholder="Escribe una descripción"
+                    rows="4"
+                ></textarea>
+            </div>
+
+            <div>
+                <label className="block text-gray-700 mb-1">Tipo de Nota</label>
+                {tipoNota.map((tipo) => ( 
+                    <label key={tipo.nombre} className="block">
+                        <input
+                            type="radio"
+                            {...register('tipoNota')}
+                            value={tipo.nombre}
+                            className="mr-2"
+                        />
+                        {tipo.nombre}
+                    </label>
+                ))}
+            </div>
+
+            <div>
+                <label className="block text-gray-700 mb-1">Imagen de la Nota</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    {...register('imagen')}
+                    className="w-full border border-gray-300 rounded px-3 py-2"
                 />
             </div>
 
@@ -89,8 +168,27 @@ const FormNotaMain = () => {
                 </div>
             ))}
 
+            <div>
+                <label className="block text-gray-700 mb-1">Programar Publicacion</label>
+                <input
+                    type="datetime-local"
+                    {...register('fechaPublicacion')}
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+            </div>
+             
+            <div>
+                <label className="block text-gray-700 mb-1">Estatus</label>
+                <select {...register('estatus')} className="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="">Selecciona un estatus</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="publicada">Publicada</option>
+                    <option value="privada">Privada</option>
+                </select>
+            </div>
+
             <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                Publicar
+                Publicar 
             </button>
         </form>
     )
