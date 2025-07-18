@@ -10,11 +10,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut } from '../../../../componentes/api/notaCrearPostPut.js';
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
 import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
+import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
+import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
+import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
+import AlertaNota from './componentes/AlertaNota.jsx';
 
 const FormMainResidente = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // Configuración de React Hook Form
   const methods = useForm({
     defaultValues: {
@@ -29,9 +33,9 @@ const FormMainResidente = () => {
       imagen: null
     }
   });
-  
+
   const { handleSubmit, reset, control, watch, setValue } = methods;
-  
+
   // Estados para manejo de API
   const [notaId, setNotaId] = useState(null);
   const [secciones, setSecciones] = useState([]);
@@ -41,6 +45,7 @@ const FormMainResidente = () => {
   const [postResponse, setPostResponse] = useState(null);
   const [cargandoNota, setCargandoNota] = useState(!!id);
   const [catalogosCargados, setCatalogosCargados] = useState(false);
+  const [imagenActual, setImagenActual] = useState(null);
 
   // Observar cambios en opción de publicación
   const opcionPublicacion = watch('opcionPublicacion');
@@ -62,9 +67,7 @@ const FormMainResidente = () => {
         if (!id) {
           const inicialCategorias = {};
           seccionesRes.forEach(seccion => {
-            if (seccion.categorias?.length > 0) {
-              inicialCategorias[seccion.seccion] = seccion.categorias[0].nombre;
-            }
+            inicialCategorias[seccion.seccion] = ""; // <-- Ninguna seleccionada
           });
           setValue('categoriasSeleccionadas', inicialCategorias);
         }
@@ -87,7 +90,7 @@ const FormMainResidente = () => {
           if (!data) throw new Error('Nota no encontrada');
 
           setNotaId(data.id);
-          
+
           // Resetear formulario con los datos de la nota
           reset({
             titulo: data.titulo,
@@ -102,6 +105,7 @@ const FormMainResidente = () => {
               return acc;
             }, {}) || {}
           });
+          setImagenActual(data.imagen || null);
         } catch (error) {
           console.error('Error detallado:', error);
           setPostError('Error cargando nota: ' + error.message);
@@ -131,7 +135,7 @@ const FormMainResidente = () => {
         subtitulo: data.subtitulo,
         autor: data.autor,
         descripcion: data.contenido,
-        estatus: "publicada",
+        estatus: data.opcionPublicacion === 'programar' ? 'programada' : 'publicada',
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null
       };
 
@@ -180,129 +184,39 @@ const FormMainResidente = () => {
               </div>
 
               <div className="px-6 py-6 space-y-6">
-                {postResponse && (
-                  <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm text-green-700">
-                          {notaId ? '¡Nota actualizada correctamente!' : '¡Nota creada correctamente!'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <AlertaNota postResponse={postResponse} postError={postError} notaId={notaId} />
 
-                {postError && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm text-red-700">
-                          Error: {postError}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-5">
-                  <div className="p-5 border-1">
-                    <p className="mb-1 text-xl">Tipo de Nota</p>
-                    {tipoDeNota.map((opcion, idx) => (
-                      <label key={idx} className="block mb-2">
-                        <Controller
-                          name="tipoDeNotaSeleccionada"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              type="radio"
-                              value={opcion.nombre}
-                              checked={field.value === opcion.nombre}
-                              onChange={() => field.onChange(opcion.nombre)}
-                              className="mr-1"
-                            />
-                          )}
-                        />
-                        {opcion.nombre}
-                      </label>
-                    ))}
-                  </div>
-                  
-                  {secciones.map((seccion) => (
-                    <div key={seccion.seccion} className="p-5 border-1">
-                      <h2 className="font-bold mb-2 text-xl">{seccion.seccion}</h2>
-                      {seccion.categorias.map((categoria) => (
-                        <label
-                          key={`${seccion.seccion}-${categoria.nombre}`}
-                          className="block mb-1"
-                        >
-                          <Controller
-                            name={`categoriasSeleccionadas.${seccion.seccion}`}
-                            control={control}
-                            render={({ field }) => (
-                              <input
-                                type="radio"
-                                value={categoria.nombre}
-                                checked={field.value === categoria.nombre}
-                                onChange={() => field.onChange(categoria.nombre)}
-                                className="mr-2"
-                              />
-                            )}
-                          />
-                          {categoria.nombre}
-                        </label>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                
-                <Titulo />
-                <Subtitulo />
-                <Autor />
-                <Contenido />
-                
-                <OpcionesPublicacion
-                  opcionSeleccionada={opcionPublicacion}
+                <ImagenNotaSelector
+                  imagenActual={imagenActual}
+                  notaId={notaId}
+                  onImagenEliminada={() => setImagenActual(null)}
                 />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Imagen de la nota
-                  </label>
-                  <Controller
-                    name="imagen"
-                    control={control}
-                    render={({ field }) => (
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files[0])}
-                        className="block w-full text-sm text-gray-700"
-                      />
-                    )}
-                  />
-                </div>
+                <CategoriasTipoNotaSelector
+                  tipoDeNota={tipoDeNota}
+                  secciones={secciones}
+                />
+                <Titulo />
 
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
-                    disabled={isPosting}
-                  >
-                    {isPosting
-                      ? (notaId ? 'Actualizando...' : 'Publicando...')
-                      : (notaId ? 'Actualizar Nota' : 'Publicar Nota')}
-                  </button>
-                </div>
+                <Subtitulo />
+
+                <Autor />
+
+                <Contenido />
+
+                <OpcionesPublicacion
+                  opcionSeleccionada={opcionPublicacion}
+                  onOpcionChange={value => setValue('opcionPublicacion', value)}
+                  fechaProgramada={watch('fechaProgramada')}
+                  onFechaChange={value => setValue('fechaProgramada', value)}
+                />
+
+
+
+                <BotonSubmitNota
+                  isPosting={isPosting}
+                  notaId={notaId}
+                />
               </div>
             </div>
           </form>

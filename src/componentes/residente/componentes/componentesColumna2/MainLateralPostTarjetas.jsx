@@ -8,7 +8,7 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick }) => {
                 <h3 className="pb-5 text-5xl">Lo más visto</h3>
             </div>
             <div className="flex-grow">
-                <ul className="h-full flex flex-col justify-between gap-5">
+                <ul className="h-full flex flex-col gap-5">
                     {safePosts.map((post, index) => (
                         <li
                             key={post.id}
@@ -26,7 +26,7 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick }) => {
                                     />
                                 </div>
                                 <div className="w-2/3 pl-4 h-full flex flex-col justify-center">
-                                    <p className="text-xs text-gray-500 mb-1">{post.fecha}</p>
+                                    <p className="text-xs text-gray-600 mb-1">{post.fecha}</p>
                                     <h4 className="font-bold text-sm">{post.titulo}</h4>
                                 </div>
                             </div>
