@@ -12,7 +12,6 @@ import FondoCulturallAccess from './imagenes/Culturall access Logos/BACKGROUND-C
 import ResidenteMain from './componentes/residente/ResidenteMain';
 import FormMainResidente from './componentes/residente/componentes/compFormularioMain/FormMainResidente';
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
-import FormNotaMain from './componentes/residente/componentes/formularioNotasMain/FormNotaMain';
 
 function App() {
 
@@ -107,6 +106,7 @@ function App() {
       </main>
 
       <footer>
+        
       </footer>
     </div>
   )
