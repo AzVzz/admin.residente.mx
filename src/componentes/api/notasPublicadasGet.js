@@ -16,6 +16,19 @@ export const catalogoNotasGet = async (page = 1, limit = 15) => {
     }
 };
 
+// GET:ID de las notas
+export const notasPublicadasPorId = async (id) => {
+    try {
+        const response = await fetch(`${urlApi}/api/notas/${id}`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
+        const result = await response.json();
+        return result;
+    } catch {
+        console.error("Error al obtener la nota get/notas/:id", error);
+        throw error;
+    }
+}
+
 // Obtener las notas más populares (destacadas/top)
 export const notasDestacadasTopGet = async () => {
     try {

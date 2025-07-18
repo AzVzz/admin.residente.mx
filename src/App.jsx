@@ -49,8 +49,8 @@ function App() {
 
           <Route path="notas/nueva" element={
             <div className="max-w-[1080px] mx-auto">
-              <FormNotaMain/>
-              {/*<FormMainResidente />*/}
+              {/*<FormNotaMain/>*/}
+              <FormMainResidente />
             </div>
           } />
 
