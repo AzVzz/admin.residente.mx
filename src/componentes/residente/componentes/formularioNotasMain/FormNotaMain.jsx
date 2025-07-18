@@ -12,11 +12,12 @@ const FormNotaMain = () => {
 
     const titulo = watch('titulo');
     const descripcion = watch('descripcion');
-    const seccionCategoria = watch('seccionCategoria');
+    const categorias = watch('categorias');
     const tipoNotaSeleccionado = watch('tipoNota');
     const descripcionNota = watch('descripcionNota');
     const autor = watch('autor');
     const fechaPublicacion = watch('fechaPublicacion');
+    const estatus = watch('estatus');
 
     // Traer la info de las secciones con las categorias y guardarlo
     useEffect(() => {
@@ -32,8 +33,8 @@ const FormNotaMain = () => {
         if (descripcion !== undefined) {
             localStorage.setItem('form_descripcion', descripcion);
         }
-        if (seccionCategoria !== undefined) {
-            localStorage.setItem('form_secciones_categorias', JSON.stringify(seccionCategoria));
+        if (categorias !== undefined) {
+            localStorage.setItem('form_categorias', JSON.stringify(categorias));
         }
         if (tipoNotaSeleccionado !== undefined) {
             localStorage.setItem('form_tipo_nota', tipoNotaSeleccionado);
@@ -47,28 +48,33 @@ const FormNotaMain = () => {
         if (fechaPublicacion !== undefined) {
             localStorage.setItem('form_fecha_publicacion', fechaPublicacion);
         }
-    }, [titulo, descripcion, seccionCategoria, tipoNotaSeleccionado, descripcionNota,
-        autor, fechaPublicacion]);
+        if (estatus !== undefined) {
+            localStorage.setItem('form_estatus', estatus);
+        }
+    }, [titulo, descripcion, categorias, tipoNotaSeleccionado, descripcionNota,
+        autor, fechaPublicacion , estatus]);
 
     // Al cargar el componente, precargar si hay algo en localStorage
     useEffect(() => {
         // Recuperar los datos del localStorage
         const tituloGuardado = localStorage.getItem('form_titulo');
         const subtituloGuardado = localStorage.getItem('form_descripcion');
-        const seccionCategoria = localStorage.getItem('form_secciones_categorias');
+        const categoriasGuardadas = localStorage.getItem('form_categorias');
         const tipoNotaGuardado = localStorage.getItem('form_tipo_nota');
         const descripcionNotaGuardado = localStorage.getItem('form_descripcion_nota');
         const autorGuardado = localStorage.getItem('form_autor');
         const fechaPublicacionGuardada = localStorage.getItem('form_fecha_publicacion');
+        const estatusGuardado = localStorage.getItem('form_estatus');
 
         // Si hay datos guardados, precargar los valores en el formulario
         if (tituloGuardado) setValue('titulo', tituloGuardado);
         if (subtituloGuardado) setValue('descripcion', subtituloGuardado);
-        if (seccionCategoria) setValue('seccionCategoria', JSON.parse(seccionCategoria));
+        if (categoriasGuardadas) setValue('categorias', JSON.parse(categoriasGuardadas));
         if (tipoNotaGuardado) setValue('tipoNota', tipoNotaGuardado);
         if (descripcionNotaGuardado) setValue('descripcionNota', descripcionNotaGuardado);
         if (autorGuardado) setValue('autor', autorGuardado);
         if (fechaPublicacionGuardada) setValue('fechaPublicacion', fechaPublicacionGuardada);
+        if (estatusGuardado) setValue('estatus', estatusGuardado);
     }, [setValue]);
 
     // Al momento de enviar el formulario
@@ -148,6 +154,17 @@ const FormNotaMain = () => {
                     type="file"
                     accept="image/*"
                     {...register('imagen')}
+                    onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            setImagen(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                setValue('imagenPreview', reader.result);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }}
                     className="w-full border border-gray-300 rounded px-3 py-2"
                 />
             </div>

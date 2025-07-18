@@ -11,6 +11,8 @@ import PostPrincipal from './componentesColumna2/PostPrincipal';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId } from '../../api/notasPublicadasGet';
+import EnPortada from './componentesColumna2/EnPortada';
+import SeccionesPrincipales from './SeccionesPrincipales';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -209,7 +211,9 @@ const BannerRevista = () => {
                                         <OpcionesExtra />
                                     </div>
                                 </div>
-                                <VideosHorizontal />
+                                {(tipo === "Food & Drink" || tipo === "Antojos") && <VideosHorizontal />}
+                                {tipo === "Restaurantes" && <EnPortada />}
+                                {tipo === "Experiencias" &&  <SeccionesPrincipales/>}
                             </div>
                         );
                     })}
