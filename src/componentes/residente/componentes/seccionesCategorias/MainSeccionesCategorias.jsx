@@ -45,7 +45,7 @@ const MainSeccionesCategorias = () => {
                     <p className="text-[21px] leading-[1.6rem]">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
                 </div>
                 <div className="col-span-4">
-                    <CarruselPosts />
+                    <CarruselPosts restaurantes={restaurantes.slice(0, 5)}  />
                 </div>
             </div>
             <div className="grid grid-cols-6 gap-5 mt-5 mb-5">
