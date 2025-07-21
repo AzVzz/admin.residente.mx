@@ -9,6 +9,7 @@ import TarjetaHorizontalPost from '../../../../componentes/residente/componentes
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 
+
 const MainSeccionesCategorias = () => {
     const location = useLocation();
     const params = useParams();
@@ -17,6 +18,7 @@ const MainSeccionesCategorias = () => {
     const [notas, setNotas] = useState([]);
     const [restaurantes, setRestaurantes] = useState([]); // <-- Nuevo estado
     const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         if (!seccion || !categoria) return;
@@ -43,7 +45,7 @@ const MainSeccionesCategorias = () => {
                     <p className="text-[21px] leading-[1.6rem]">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
                 </div>
                 <div className="col-span-4">
-                    <CarruselPosts />
+                    <CarruselPosts restaurantes={restaurantes.slice(0, 5)} />
                 </div>
             </div>
             <div className="grid grid-cols-6 gap-5 mt-5 mb-5">
@@ -70,9 +72,18 @@ const MainSeccionesCategorias = () => {
                     <span>No hay restaurantes</span>
                 )}
             </div>
-            <div className="mb-5 bg-black text-white px-3 py-2"> {/** Que el texto vaya caminando  */}
-                Noticias y más recomendaciones de {categoria}
+
+            <div className="mb-5 bg-black text-white px-3 py-2 overflow-hidden relative">
+                <div className="flex animate-marquee">
+                    <span className="whitespace-nowrap">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[800px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                </div>
             </div>
+
             <div className="grid grid-cols-2 gap-5">
                 <div className="col-span-1 flex flex-col gap-5">
                     {notas.map(nota => (

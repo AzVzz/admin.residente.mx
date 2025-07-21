@@ -1,5 +1,17 @@
 @import 'tailwindcss';
 
+/* index.css */
+@keyframes marquee {
+  0% { transform: translateX(-100%);}
+  100% { transform: translateX(100%);}
+}
+.animate-marquee {
+  display: inline-block;
+  min-width: 100%;
+  animation: marquee 12s linear infinite;
+}
+
+
 @font-face {
   font-family: 'NeueHaasGroteskDisplayW02Bold';
   src: url('fonts/Neue Haas Grotesk Display W02 Bold.woff2') format('woff2');

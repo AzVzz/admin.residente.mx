@@ -1,6 +1,7 @@
 //src/componentes/promociones/componentes/FormularioPromo.jsx
 import { useState, useRef, useEffect } from 'react';
 
+
 const FormularioPromo = ({ formData, onFieldChange }) => {
 
     const textareaRef = useRef(null);
