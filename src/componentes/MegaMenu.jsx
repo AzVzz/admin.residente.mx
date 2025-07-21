@@ -149,18 +149,6 @@ const MegaMenu = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-
-                            <a
-                                href="https://estrellasdenuevoleon.com.mx"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-shrink-0"
-                            >
-                                <img src={ednllogo || "/placeholder.svg"}
-                                    alt="Estrellas de Nuevo León"
-                                    className="object-contain h-9 w-auto ednl"
-                                />
-                            </a>
                             <a
                                 href="https://www.estrellasdenuevoleon.com/b2b" target="_blank"
                                 rel="noopener noreferrer"

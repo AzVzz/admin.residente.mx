@@ -71,10 +71,10 @@ const MainSeccionesCategorias = () => {
                 )}
             </div>
             <div className="mb-5 bg-black text-white px-3 py-2"> {/** Que el texto vaya caminando  */}
-                Noticias y más recomendaciones de {categoria} 
+                Noticias y más recomendaciones de {categoria}
             </div>
             <div className="grid grid-cols-2 gap-5">
-                <div className="col-span-1">
+                <div className="col-span-1 flex flex-col gap-5">
                     {notas.map(nota => (
                         <TarjetaHorizontalPost key={nota.id} post={nota} />
                     ))}

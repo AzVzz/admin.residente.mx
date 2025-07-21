@@ -39,7 +39,7 @@ function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 80) {
+      if (window.scrollY > 200) {
         setShowMegaMenu(true);
       } else {
         setShowMegaMenu(false);
@@ -51,12 +51,13 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!showMegaMenu && <Header />}
-      {showMegaMenu && (
-        <div className="sticky top-0 z-50 w-full">
-          <MegaMenu />
-        </div>
-      )}
+      <div className={`transition-all duration-300 relative z-50 ${showMegaMenu ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+        <Header />
+      </div>
+      {/* MegaMenu con transición de entrada */}
+      <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+        <MegaMenu />
+      </div>
       <main className="flex-grow overflow-x-hidden px-0 w-full relative z-10">
         <Routes>
           <Route path="/residente" element={
@@ -121,7 +122,7 @@ function App() {
         </Routes>
       </main>
       <footer>
-        <FooterPrincipal/>
+        <FooterPrincipal />
         {/* FooterPrincipal.jsx */}
       </footer>
     </div>

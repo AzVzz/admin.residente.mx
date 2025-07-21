@@ -2,15 +2,16 @@ import { useState } from "react";
 import { Link } from 'react-router-dom';
 
 import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
-import apodaca from '../imagenes/Iconografia/apo.png';
-import escobedo from '../imagenes/Iconografia/esc.png';
-import guadalupe from '../imagenes/Iconografia/gpe.png';
-import monterrey from '../imagenes/Iconografia/mty.png';
-import sannicolas from '../imagenes/Iconografia/snn.png';
-import sanpedro from '../imagenes/Iconografia/spg.png';
-import santacatarina from '../imagenes/Iconografia/sta.png';
-import ResidenteNegro from '../imagenes/FoodDrinkMedia_Logo_Negro.png'
-import RCiruculoN from '../imagenes/R_Circulo_Logo_Negro.png'
+import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
+import escobedo from '../imagenes/Iconografia/negroBlanco/esc.png';
+import guadalupe from '../imagenes/Iconografia/negroBlanco/gpe.png';
+import monterrey from '../imagenes/Iconografia/negroBlanco/mty.png';
+import sannicolas from '../imagenes/Iconografia/negroBlanco/snn.png';
+import sanpedro from '../imagenes/Iconografia/negroBlanco/spg.png';
+import santacatarina from '../imagenes/Iconografia/negroBlanco/sta.png';
+import ResidenteNegro from '../imagenes/FoodDrinkMedia_Logo_Negro.png';
+import LogoCirculoResidente from '../imagenes/R_Circulo_Logo_Negro.png';
+import b2blogo from "../imagenes/logos/blancos/B2BSoluciones_Logo_Blanco.png";
 
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 
@@ -71,6 +72,14 @@ const menuSections = {
       { name: "Valle Poniente", url: "#" },
     ],
   },
+  franquicias: {
+    title: "Franquicias Nacionales",
+    items: [
+      { name: "Residente Rivera Maya", url: "#" },
+      { name: "Residente Saltillo", url: "#" },
+      { name: "Residente Ciudad de México", url: "#" },
+    ],
+  },
   anunciate: {
     title: "Anúnciate",
     items: [
@@ -89,87 +98,94 @@ const Header = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
 
   return (
-    <header className="bg-[#fff200] border-b border-gray-300 w-full">
+    <header className="bg-[#fff200] w-full">
       <div className="max-w-[1080px] mx-auto w-full">
-        {/* Primer div: RCirculo y ResidenteFoodLetras */}
-        <div className="flex items-end px-6 py-3 gap-2">
-          <img src={RCiruculoN} alt="RCiruculoN" className="h-20 w-20 self-end" />
-          <img src={ResidenteNegro} alt="ResidenteNegro" className="h-12 ml-3" />
-          {/* Bloque derecho: iconos, título/fecha y portada */}
-          <div className="flex items-center ml-auto">
-            {/* Iconos zonales */}
-            <div className="flex flex-col justify-center items-end mr-4 gap-8">
-              <div className="flex gap-2 items-center -mt-2 mb-2 w-40 justify-end">
-                {iconosZonales.map((icon, idx) => (
-                  <img key={idx} src={icon.src} alt={icon.alt} className="h-6 w-6 shadow-md rounded-full" />
-                ))}
-              </div>
-              {/* Título y fecha al lado izquierdo de la portada */}
-              <div className="flex flex-col justify-center w-40 items-end text-right">
-                <div className="text-xs font-semibold">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
-                <div className="text-xs text-gray-500">{fechaActual}</div>
+        <div className="flex pb-8 pt-5">
+          <div className="flex justify-end pr-3">
+            <img src={LogoCirculoResidente} alt="Logo Residente Circulo" className="h-24 w-24 self-end object-contain" />
+          </div>
+          <div className="w-full">
+            <div className="flex items-end pb-3 gap-2"> {/* Primer div: RCirculo y ResidenteFoodLetras */}
+
+              <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
+              {/* Bloque derecho: iconos, título/fecha y portada */}
+              <div className="flex items-center ml-auto">
+                {/* Iconos zonales */}
+                <div className="flex flex-col justify-center items-end mr-4 gap-8">
+                  <div className="flex gap-2 items-center -mt-2 mb-2 w-40 justify-end">
+                    {iconosZonales.map((icon, idx) => (
+                      <img key={idx} src={icon.src} alt={icon.alt} className="h-6 w-6 shadow-md rounded-full" />
+                    ))}
+                  </div>
+                  {/* Título y fecha al lado izquierdo de la portada */}
+                  <div className="flex flex-col justify-center w-40 items-end text-right">
+                    <div className="text-xs font-semibold font-sans">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
+                    <div className="text-xs text-gray-500 font-sans">{fechaActual}</div>
+                  </div>
+                </div>
+                {/* Portada revista al final derecho */}
+                <img src={PortadaRevista} alt="Portada Revista" className="h-40 w-32 object-cover" />
               </div>
             </div>
-            {/* Portada revista al final derecho */}
-            <img src={PortadaRevista} alt="Portada Revista" className="h-40 w-32 object-cover" />
+
+            <div className="flex flex-col flex-1"> {/* Segundo div: menú y líneas */}
+              {/* Línea superior */}
+              <div className="border-black my-0 ml-25" />
+              {/* Menú principal con submenús tipo hover */}
+              <div className="flex justify-between items-center px-5 py-2 bg-black">
+                <div className="flex gap-6 items-center text-sm font-semibold bg">
+                  {Object.entries(menuSections).map(([key, section]) => (
+                    key === "anunciate" ? (
+                      <a
+                        key={key}
+                        href={section.items[0].url}
+                        className="hover:underline text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {section.title}
+                      </a>
+                    ) : (
+                      <div
+                        key={key}
+                        className="relative group"
+                      >
+                        <a href="#" className="hover:underline text-white">{section.title}</a>
+                        {/* Submenú desplegable */}
+                        <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+                          <ul>
+                            {section.items.map((item, idx) => (
+                              <li key={idx}>
+                                <a
+                                  href={item.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block px-4 py-2 text-black hover:bg-yellow-100"
+                                >
+                                  {item.name}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  <img src={b2blogo} className="object-contain h-4 w-auto b2b cursor-pointer"/>
+                  <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-white hover:text-gray-400" /></a>
+                  <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-white hover:text-gray-400" /></a>
+                  <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-white hover:text-gray-400" /></a>
+                  <a href="tel:+528114186985" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-4 h-4 text-white hover:text-gray-400" /></a>
+                  <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!"><FaEnvelope className="w-4 h-4 text-white hover:text-gray-400" /></a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        {/* Segundo div: menú y líneas */}
-        <div className="flex flex-col flex-1 px-6">
-  {/* Línea superior */}
-  <div className="border-t border-black my-0 ml-25" />
-  {/* Menú principal con submenús tipo hover */}
-  <div className="flex justify-between items-center px-0 py-2">
-    <div className="flex gap-6 items-center text-sm font-semibold ml-25 bg">
-      {Object.entries(menuSections).map(([key, section]) => (
-        key === "anunciate" ? (
-          <a
-            key={key}
-            href={section.items[0].url}
-            className="hover:underline text-white"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {section.title}
-          </a>
-        ) : (
-          <div
-            key={key}
-            className="relative group"
-          >
-            <a href="#" className="hover:underline text-white">{section.title}</a>
-            {/* Submenú desplegable */}
-            <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
-              <ul>
-                {section.items.map((item, idx) => (
-                  <li key={idx}>
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block px-4 py-2 text-black hover:bg-yellow-100"
-                    >
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )
-      ))}
-    </div>
-    <div className="flex gap-3 items-center">
-      <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-5 h-5 text-black hover:text-gray-600" /></a>
-      <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-5 h-5 text-black hover:text-gray-600" /></a>
-      <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-5 h-5 text-black hover:text-gray-600" /></a>
-      <a href="tel:+528114186987" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-5 h-5 text-black hover:text-gray-600" /></a>
-      <a href="mailto:contacto@residente.mx"><FaEnvelope className="w-5 h-5 text-black hover:text-gray-600" /></a>
-    </div>
-  </div>
-  {/* Línea inferior */}
-  <div className="border-t border-black my-0 mb-2 ml-25" />
-</div>
+
+
       </div>
     </header>
   );

@@ -3,15 +3,15 @@ import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
 const TarjetaPost = ({ post, onClick }) => {
   return (
     <div
-      className="group relative bg-white shadow-md transition-all duration-300 overflow-hidden cursor-pointer mb-3"
+      className="group relative bg-[#FFF200] shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
       onClick={onClick}
     >
       {/* Contenedor principal */}
-      <div className="flex p-2">
+      <div className="flex">
         {/* Contenedor de imagen */}
         <div className="relative flex-shrink-0 overflow-hidden ">
           {/* Etiqueta de fecha */}
-          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-.5  shadow-md font-serif uppercase">
+          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-.5 shadow-md font-serif uppercase">
             {post?.fecha || 'Sin fecha'}
           </div>
 
@@ -20,7 +20,7 @@ const TarjetaPost = ({ post, onClick }) => {
             <img
               src={post?.imagen || SinFoto}
               alt={post?.titulo || "Imagen del post"}
-              className="h-40 w-48 object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-34 w-44 object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
@@ -30,7 +30,7 @@ const TarjetaPost = ({ post, onClick }) => {
         <div className="flex flex-col ml-2 flex-1 justify-center">
           {/* Categoría */}
           <div className="mb-1">
-            <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-.5 shadow-md">
+            <span className="font-serif inline-block bg-black text-white text-[11px] px-1.5 py-.5 shadow-md">
               {post?.tipo_nota || 'Sin categoría'}
             </span>
           </div>

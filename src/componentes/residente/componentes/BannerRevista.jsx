@@ -172,7 +172,6 @@ const BannerRevista = () => {
                             <OpcionesExtra />
                         </div>
                     </div>
-                    <VideosHorizontal />
                 </div>
             ) : (
                 <div className="flex flex-col">
@@ -212,7 +211,7 @@ const BannerRevista = () => {
                                         <OpcionesExtra />
                                     </div>
                                 </div>
-                                {(tipo === "Food & Drink" || tipo === "Antojos") && <VideosHorizontal />}
+                                {tipo === "Food & Drink" && <VideosHorizontal />}
                                 {tipo === "Restaurantes" && <EnPortada />}
                                 {tipo === "Experiencias" && <SeccionesPrincipales />}
                             </div>
