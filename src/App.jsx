@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ListaRestaurantes from './componentes/ednl/ListaRestaurantes';
 import RestaurantePage from './componentes/ednl/RestaurantePage';
 import Header from './componentes/Header';
@@ -13,10 +13,12 @@ import ResidenteMain from './componentes/residente/ResidenteMain';
 import FormMainResidente from './componentes/residente/componentes/compFormularioMain/FormMainResidente';
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
+import FooterPrincipal from './componentes/FooterPrincipal';
 
 function App() {
 
   const location = useLocation();
+  const [showMegaMenu, setShowMegaMenu] = useState(false);
 
   useEffect(() => {
     if (location.pathname === '/culturallaccess') {
@@ -34,32 +36,45 @@ function App() {
       document.body.style.backgroundColor = '#FFF200';
     };
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 80) {
+        setShowMegaMenu(true);
+      } else {
+        setShowMegaMenu(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <MegaMenu />
-      {/*<Header />*/}
+      {!showMegaMenu && <Header />}
+      {showMegaMenu && (
+        <div className="sticky top-0 z-50 w-full">
+          <MegaMenu />
+        </div>
+      )}
       <main className="flex-grow overflow-x-hidden px-0 w-full relative z-10">
         <Routes>
-
           <Route path="/residente" element={
             <div className="max-w-[1080px] mx-auto">
               <ResidenteMain />
             </div>
           } />
-
           <Route path="notas/nueva" element={
             <div className="max-w-[1080px] mx-auto">
               {/*<FormNotaMain/>*/}
               <FormMainResidente />
             </div>
           } />
-
           <Route path="notas/editar/:id" element={
             <div className="max-w-[1080px] mx-auto">
               <FormMainResidente />
             </div>
           } />
-
           <Route path="/notas" element={
             <div className="max-w-[1080px] mx-auto">
               <ListaNotas />
@@ -71,7 +86,6 @@ function App() {
               <MainSeccionesCategorias />
             </div>
           } />
-
 
 
           <Route path="/" element={
@@ -99,11 +113,6 @@ function App() {
               <PromoMain />
             </div>
           } />
-
-
-
-
-
           <Route path="/culturallaccess" element={
             <div className="max-w-[1080px] mx-auto py-10">
               <CulturalAcessForm />
@@ -111,9 +120,9 @@ function App() {
           } />
         </Routes>
       </main>
-
       <footer>
-
+        <FooterPrincipal/>
+        {/* FooterPrincipal.jsx */}
       </footer>
     </div>
   )

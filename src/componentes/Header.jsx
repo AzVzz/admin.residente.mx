@@ -1,219 +1,176 @@
+import { useState } from "react";
 import { Link } from 'react-router-dom';
 
-import residenteAmarillo from '../imagenes/FoodDrinkMedia_Logo_Amarillo.png'
-import ednllogo from '../imagenes/logos/blancos/Logo estrellas de NL_Mesa de trabajo 1 copia 3.png';
-import b2blogo from '../imagenes/logos/blancos/B2BSoluciones_Logo_Blanco.png';
-import { useState, useRef, useEffect } from "react";
+import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
+import apodaca from '../imagenes/Iconografia/apo.png';
+import escobedo from '../imagenes/Iconografia/esc.png';
+import guadalupe from '../imagenes/Iconografia/gpe.png';
+import monterrey from '../imagenes/Iconografia/mty.png';
+import sannicolas from '../imagenes/Iconografia/snn.png';
+import sanpedro from '../imagenes/Iconografia/spg.png';
+import santacatarina from '../imagenes/Iconografia/sta.png';
+import ResidenteNegro from '../imagenes/FoodDrinkMedia_Logo_Negro.png'
+import RCiruculoN from '../imagenes/R_Circulo_Logo_Negro.png'
 
+import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 
-import { FaInstagram } from "react-icons/fa";
-import { FaFacebook } from "react-icons/fa6";
-import { FaYoutube } from "react-icons/fa";
-import { FaWhatsapp } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+const iconosZonales = [
+  { src: apodaca, alt: "Apodaca" },
+  { src: escobedo, alt: "Escobedo" },
+  { src: guadalupe, alt: "Guadalupe" },
+  { src: monterrey, alt: "Monterrey" },
+  { src: sannicolas, alt: "San Nicolás" },
+  { src: sanpedro, alt: "San Pedro" },
+  { src: santacatarina, alt: "Santa Catarina" },
+];
+
+// Ejemplo de estructura de submenús (puedes adaptar según tu MegaMenu)
+const menuSections = {
+  residente: {
+    title: "Residente",
+    items: [
+      { name: "Nuestros medios", url: "https://www.estrellasdenuevoleon.com/" },
+      { name: "Historia", url: "https://www.estrellasdenuevoleon.com/historia" },
+      { name: "Misión", url: "https://www.estrellasdenuevoleon.com/mision" },
+      { name: "Trabajo", url: "https://www.estrellasdenuevoleon.com/trabajo" },
+      { name: "Anúnciate", url: "https://www.estrellasdenuevoleon.com/anunciate" },
+      { name: "Input OpEd", url: "https://residente.mx/registro/" },
+      { name: "Input media", url: "https://residente.mx/colaboradores/" },
+      { name: "Input promo", url: "https://www.estrellasdenuevoleon.com/promo" },
+      { name: "Guía crítica", url: "https://residente.mx/guia-critica/" },
+    ],
+  },
+  noticias: {
+    title: "Noticias",
+    items: [
+      { name: "Opinion", url: "#" },
+      { name: "Cultura restaurantera", url: "https://residente.mx/category/cultura-restaurantera/" },
+      { name: "Postres y snacks", url: "https://residente.mx/category/postres-y-snacks/" },
+      { name: "Comida y bebida", url: "https://residente.mx/category/comida-y-bebida/" },
+      { name: "Perfiles y entrevistas", url: "https://residente.mx/category/perfiles-y-entrevistas/" },
+    ],
+  },
+  cultura: {
+    title: "Cultura Gastronómica",
+    items: [
+      { name: "Estrellas de Nuevo León", url: "https://estrellasdenuevoleon.com.mx" },
+      { name: "Mapa Restaurantero de Nuevo León", url: "#" },
+      { name: "Platillos icónicos de Nuevo León", url: "https://www.estrellasdenuevoleon.com/platillos" },
+      { name: "Los rostros detrás del sabor", url: "https://www.estrellasdenuevoleon.com/rostros" },
+      { name: "Cuponera Residente", url: "#" },
+      { name: "Etiqueta Restaurantera", url: "https://residente.mx/2022/01/13/del-restaurant-al-comensal/" },
+      { name: "Recetario Residente", url: "#" },
+    ],
+  },
+  guias: {
+    title: "Guías Zonales",
+    items: [
+      { name: "Santiago", url: "#" },
+      { name: "Centrito valle", url: "#" },
+      { name: "Barrio Antiguo", url: "https://residente.mx/category/barrio-antiguo/" },
+      { name: "Valle Poniente", url: "#" },
+    ],
+  },
+  anunciate: {
+    title: "Anúnciate",
+    items: [
+      { name: "Contacto", url: "https://www.estrellasdenuevoleon.com/anunciate" }
+    ],
+  }
+};
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const buttonRef = useRef(null);
+  const fechaActual = new Date().toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      // Verificar si el clic fue fuera del menú Y fuera del botón
-      if (dropdownRef.current &&
-        !dropdownRef.current.contains(e.target) &&
-        !buttonRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Función para alternar el menú
-  const toggleMenu = () => {
-    setIsOpen(prev => !prev);
-  };
-
+  const [hoveredMenu, setHoveredMenu] = useState(null);
 
   return (
-    <header className="bg-[#3B3B3C] relativ flex justify-center items-center h-[97px]">
-      <div className="header-content max-w-[1080px] w-full">
-        <div className="bg-red-600 flex justify-between items-stretch">
-
-          {/* Logo "Residente. Food&DRinkMEdia" */}
-          <Link to="/" className="w-120">
-            <img
-              src={residenteAmarillo}
-              alt="Logo Principal"
-              className="w-[100%]"
-            />
-          </Link>
-
-          <button
-            ref={buttonRef}
-            onClick={toggleMenu}
-            className="text-white text-2xl z-50 px-4 py-2 bg-gray-700 rounded-md"
+    <header className="bg-[#fff200] border-b border-gray-300 w-full">
+      <div className="max-w-[1080px] mx-auto w-full">
+        {/* Primer div: RCirculo y ResidenteFoodLetras */}
+        <div className="flex items-end px-6 py-3 gap-2">
+          <img src={RCiruculoN} alt="RCiruculoN" className="h-20 w-20 self-end" />
+          <img src={ResidenteNegro} alt="ResidenteNegro" className="h-12 ml-3" />
+          {/* Bloque derecho: iconos, título/fecha y portada */}
+          <div className="flex items-center ml-auto">
+            {/* Iconos zonales */}
+            <div className="flex flex-col justify-center items-end mr-4 gap-8">
+              <div className="flex gap-2 items-center -mt-2 mb-2 w-40 justify-end">
+                {iconosZonales.map((icon, idx) => (
+                  <img key={idx} src={icon.src} alt={icon.alt} className="h-6 w-6 shadow-md rounded-full" />
+                ))}
+              </div>
+              {/* Título y fecha al lado izquierdo de la portada */}
+              <div className="flex flex-col justify-center w-40 items-end text-right">
+                <div className="text-xs font-semibold">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
+                <div className="text-xs text-gray-500">{fechaActual}</div>
+              </div>
+            </div>
+            {/* Portada revista al final derecho */}
+            <img src={PortadaRevista} alt="Portada Revista" className="h-40 w-32 object-cover" />
+          </div>
+        </div>
+        {/* Segundo div: menú y líneas */}
+        <div className="flex flex-col flex-1 px-6">
+  {/* Línea superior */}
+  <div className="border-t border-black my-0 ml-25" />
+  {/* Menú principal con submenús tipo hover */}
+  <div className="flex justify-between items-center px-0 py-2">
+    <div className="flex gap-6 items-center text-sm font-semibold ml-25 bg">
+      {Object.entries(menuSections).map(([key, section]) => (
+        key === "anunciate" ? (
+          <a
+            key={key}
+            href={section.items[0].url}
+            className="hover:underline text-white"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {isOpen ? "X" : "☰"}
-          </button>
-
-          <div className="flex flex-row justify-center items-center bg-amber-500">
-            <div className="flex flex-row">
-              <img className=" w-[clamp(50px,9vw,100px)] h-auto" src={ednllogo} alt="Estrellas de Nuevo León" />
-              <img className=" w-[clamp(50px,9vw,100px)] h-auto" src={b2blogo} alt="B2B Soluciones para la industria" />
-            </div>
-            <div className="flex flex-row gap-2">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaInstagram className="text-white w-5 h-auto" />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                <FaFacebook className="text-white w-5 h-auto" />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                <FaYoutube className="text-white w-5 h-auto" />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                <FaWhatsapp className="text-white w-5 h-auto" />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                <MdEmail className="text-white w-5 h-auto" />
-              </a>
+            {section.title}
+          </a>
+        ) : (
+          <div
+            key={key}
+            className="relative group"
+          >
+            <a href="#" className="hover:underline text-white">{section.title}</a>
+            {/* Submenú desplegable */}
+            <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+              <ul>
+                {section.items.map((item, idx) => (
+                  <li key={idx}>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-4 py-2 text-black hover:bg-yellow-100"
+                    >
+                      {item.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
+        )
+      ))}
+    </div>
+    <div className="flex gap-3 items-center">
+      <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-5 h-5 text-black hover:text-gray-600" /></a>
+      <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-5 h-5 text-black hover:text-gray-600" /></a>
+      <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-5 h-5 text-black hover:text-gray-600" /></a>
+      <a href="tel:+528114186987" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-5 h-5 text-black hover:text-gray-600" /></a>
+      <a href="mailto:contacto@residente.mx"><FaEnvelope className="w-5 h-5 text-black hover:text-gray-600" /></a>
+    </div>
+  </div>
+  {/* Línea inferior */}
+  <div className="border-t border-black my-0 mb-2 ml-25" />
+</div>
       </div>
-
-      {isOpen && (
-        <div
-          ref={dropdownRef}
-          className="fixed inset-0 z-40 pt-[97px]"
-        >
-          <div className="mx-auto px-4 py-8 bg-[#3B3B3C] grid grid-cols-2 md:grid-cols-4 gap-8 max-h-[calc(100vh-97px)] overflow-y-auto">
-            <div>
-              <p className="text-[#FFF200] mb-3 text-lg font-bold">Residente</p>
-              <nav className="flex flex-col gap-2">
-                {[
-                  ["Nuestros medios", "https://www.estrellasdenuevoleon.com"],
-                  ["Historia", "https://www.estrellasdenuevoleon.com/historia"],
-                  ["Misión", "https://www.estrellasdenuevoleon.com/mision"],
-                  ["Trabajo", "https://www.estrellasdenuevoleon.com/trabajo"],
-                  ["Anúnciate", "https://www.estrellasdenuevoleon.com/anunciate"],
-                  ["Input OpEd", "https://residente.mx/registro/"],
-                  ["Input media", "https://residente.mx/colaboradores/"],
-                  ["Input promo", "https://www.estrellasdenuevoleon.com/promo"],
-                  ["Guía crítica", "https://residente.mx/guia-critica/"]
-                ].map(([text, url]) => (
-                  <Link
-                    key={text}
-                    to={url}
-                    className="text-white hover:text-yellow-400"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {text}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <p className="text-[#FFF200] mb-3 text-lg font-bold">Noticias</p>
-              <nav className="flex flex-col gap-2">
-                {[
-                  ["Opinión", ""],
-                  ["Cultura restaurantera", "https://residente.mx/category/cultura-restaurantera/"],
-                  ["Postres y snacks", "https://residente.mx/category/postres/"],
-                  ["Comida y bebida", "https://residente.mx/category/fooddrink/"],
-                  ["Perfiles y entrevistas", "https://residente.mx/category/perfiles/"],
-                  ["Gastro destinos", "https://residente.mx/category/gastro-destinos/"]
-                ].map(([text, url]) => (
-                  <Link
-                    key={text}
-                    to={url}
-                    className="text-white hover:text-yellow-400"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {text}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <p className="text-[#FFF200] mb-3 text-lg font-bold">Cultura gastronómica</p>
-              <nav className="flex flex-col gap-2">
-                {[
-                  ["Estrellas de Nuevo León", "https://www.estrellasdenuevoleon.com.mx"],
-                  ["Mapa Restaurantero de Nuevo León", ""],
-                  ["Platillos Icónicos de Nuevo León", "https://www.estrellasdenuevoleon.com/platillos"],
-                  ["Los rostros detrás del sabor", "https://www.estrellasdenuevoleon.com/rostros"],
-                  ["Cuponera Residente", ""],
-                  ["Etiqueta Restaurantera", "https://residente.mx/2022/01/13/del-restaurant-al-comensal/"],
-                  ["Recetario Residente", ""]
-                ].map(([text, url]) => (
-                  <Link
-                    key={text}
-                    to={url}
-                    className="text-white hover:text-yellow-400"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {text}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <p className="text-[#FFF200] mb-3 text-lg font-bold">Guías zonales</p>
-                <nav className="flex flex-col gap-2">
-                  {[
-                    ["Santiago", ""],
-                    ["Centrito Valle", ""],
-                    ["Barrio Antiguo", "https://residente.mx/category/barrio-antiguo/"],
-                    ["Valle Poniente", ""]
-                  ].map(([text, url]) => (
-                    <Link
-                      key={text}
-                      to={url}
-                      className="text-white hover:text-yellow-400"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {text}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-              <div>
-                <p className="text-[#FFF200] mb-3 text-lg font-bold">Franquicias Nacionales</p>
-                <nav className="flex flex-col gap-2">
-                  {[
-                    ["Residente Rivera Maya", ""],
-                    ["Residente Saltillo", ""],
-                    ["Residente Ciudad de México", ""]
-                  ].map(([text, url]) => (
-                    <Link
-                      key={text}
-                      to={url}
-                      className="text-white hover:text-yellow-400"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {text}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
     </header>
   );
 };
