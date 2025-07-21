@@ -9,6 +9,7 @@ import TarjetaHorizontalPost from '../../../../componentes/residente/componentes
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 
+
 const MainSeccionesCategorias = () => {
     const location = useLocation();
     const params = useParams();
@@ -17,6 +18,7 @@ const MainSeccionesCategorias = () => {
     const [notas, setNotas] = useState([]);
     const [restaurantes, setRestaurantes] = useState([]); // <-- Nuevo estado
     const [loading, setLoading] = useState(true);
+    
 
     useEffect(() => {
         if (!seccion || !categoria) return;
@@ -70,9 +72,16 @@ const MainSeccionesCategorias = () => {
                     <span>No hay restaurantes</span>
                 )}
             </div>
-            <div className="mb-5 bg-black text-white px-3 py-2"> {/** Que el texto vaya caminando  */}
-                Noticias y más recomendaciones de {categoria} 
-            </div>
+            <div className="mb-5 bg-black text-white px-3 py-2 overflow-hidden relative">
+                <div className="flex animate-marquee">
+                    <span className="whitespace-nowrap">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[800px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                </div>
+</div>
             <div className="grid grid-cols-2 gap-5">
                 <div className="col-span-1">
                     {notas.map(nota => (
