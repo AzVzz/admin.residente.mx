@@ -13,6 +13,7 @@ import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjet
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId } from '../../api/notasPublicadasGet';
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
+import DirectorioVertical from './componentesColumna2/DirectorioVertical';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -125,8 +126,6 @@ const BannerRevista = () => {
 
     return (
         <div ref={topRef} className="pt-4">
-            <img src={Banner} alt="Banner Revista" className="w-full" />
-            
             {showDetail ? (
                 <div className="flex flex-col">
                     <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
@@ -189,6 +188,7 @@ const BannerRevista = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
                                     {/* Columna Principal */}
                                     <div>
+                                        <img src={Banner} alt="Banner Revista" className="w-full pb-5" />
                                         {postsFiltrados[0] && (
                                             <PostPrincipal
                                                 post={postsFiltrados[0]}
@@ -196,13 +196,14 @@ const BannerRevista = () => {
                                             />
                                         )}
                                         <TresTarjetas
-                                            posts={postsFiltrados.slice(1, 4)}
+                                            posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}
                                         />
                                     </div>
 
                                     {/* Columna lateral */}
                                     <div className="space-y-6">
+                                        <DirectorioVertical />
                                         <MainLateralPostTarjetas
                                             notasDestacadas={destacadasFiltradas}
                                             onCardClick={(post) => handleCardClick(post.id)}
@@ -213,7 +214,7 @@ const BannerRevista = () => {
                                 </div>
                                 {(tipo === "Food & Drink" || tipo === "Antojos") && <VideosHorizontal />}
                                 {tipo === "Restaurantes" && <EnPortada />}
-                                {tipo === "Experiencias" &&  <SeccionesPrincipales/>}
+                                {tipo === "Experiencias" && <SeccionesPrincipales />}
                             </div>
                         );
                     })}

@@ -158,6 +158,8 @@ const FormMainResidente = () => {
     } finally {
       setIsPosting(false);
     }
+
+
   };
 
   if (cargandoNota) {

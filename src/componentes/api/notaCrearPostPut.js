@@ -8,21 +8,17 @@ import { urlApi } from './url.js';
  */
 
 // Crear una nueva nota (POST)
-export const notaCrear = async (notaData) => {
-    try {
-        const response = await fetch(`${urlApi}api/notas`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(notaData)
-        });
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("Error creando nota:", error);
-        throw error;
+export const notaCrear = async (datosNota) => {
+    const response = await fetch(`${urlApi}api/notas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosNota)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al crear la nota');
     }
+    return await response.json();
 };
 
 // Editar una nota existente (PUT)
@@ -53,7 +49,7 @@ export const notaImagenPut = async (id, file) => {
             body: formData
         });
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        return await response.json(); 
+        return await response.json();
     } catch (error) {
         console.error("Error actualizando imagen de nota:", error);
         throw error;

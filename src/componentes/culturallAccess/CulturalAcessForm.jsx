@@ -288,23 +288,6 @@ const CulturalAccessForm = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="municipio" className="block text-white font-medium text-sm">
-                  MUNICIPIO *
-                </label>
-                <input
-                  id="municipio"
-                  type="text"
-                  value={formData.municipio}
-                  onChange={(e) => handleInputChange("municipio", e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
                 <label htmlFor="colonia" className="block text-white font-medium text-sm">
                   COLONIA *
                 </label>
@@ -313,6 +296,24 @@ const CulturalAccessForm = () => {
                   type="text"
                   value={formData.colonia}
                   onChange={(e) => handleInputChange("colonia", e.target.value)}
+                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="municipio" className="block text-white font-medium text-sm">
+                  MUNICIPIO *
+                </label>
+                <input
+                  id="municipio"
+                  type="text"
+                  value={formData.municipio}
+                  onChange={(e) => handleInputChange("municipio", e.target.value)}
                   className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
                   required
                   disabled={isSubmitting}
@@ -836,7 +837,7 @@ const CulturalAccessForm = () => {
               </label>
             </div>
 
-                        <div className="flex items-start space-x-2">
+            <div className="flex items-start space-x-2">
               <input
                 type="checkbox"
                 className="w-4 h-4 mt-1 text-orange-500 border-white rounded bg-transparent focus:ring-white focus:ring-2"

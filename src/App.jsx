@@ -12,6 +12,7 @@ import FondoCulturallAccess from './imagenes/Culturall access Logos/BACKGROUND-C
 import ResidenteMain from './componentes/residente/ResidenteMain';
 import FormMainResidente from './componentes/residente/componentes/compFormularioMain/FormMainResidente';
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
+import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 
 function App() {
 
@@ -65,6 +66,12 @@ function App() {
             </div>
           } />
 
+          <Route path="/seccion/:seccion/categoria/:categoria" element={
+            <div className="max-w-[1080px] mx-auto">
+              <MainSeccionesCategorias />
+            </div>
+          } />
+
 
 
           <Route path="/" element={
@@ -106,7 +113,7 @@ function App() {
       </main>
 
       <footer>
-        
+
       </footer>
     </div>
   )

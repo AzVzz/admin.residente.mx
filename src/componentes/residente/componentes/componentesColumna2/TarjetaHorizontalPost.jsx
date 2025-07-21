@@ -1,5 +1,5 @@
 import imagenTarjeta from "../../../../imagenes/cola-de-caballo.jpg"
-
+import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
 const TarjetaPost = ({ post, onClick }) => {
   return (
     <div
@@ -12,14 +12,14 @@ const TarjetaPost = ({ post, onClick }) => {
         <div className="relative flex-shrink-0 overflow-hidden ">
           {/* Etiqueta de fecha */}
           <div className="absolute top-2 left-2 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-.5  shadow-md font-serif uppercase">
-            {post.fecha}
+            {post?.fecha || 'Sin fecha'}
           </div>
 
           {/* Imagen con overlay sutil */}
           <div className="relative">
             <img
-              src={imagenTarjeta || "/placeholder.svg"}
-              alt="Cola de Caballo"
+              src={post?.imagen || SinFoto}
+              alt={post?.titulo || "Imagen del post"}
               className="h-40 w-48 object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -31,19 +31,19 @@ const TarjetaPost = ({ post, onClick }) => {
           {/* Categoría */}
           <div className="mb-1">
             <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-.5 shadow-md">
-              {post.categoria}
+              {post?.tipo_nota || 'Sin categoría'}
             </span>
           </div>
 
           {/* Título */}
           <h3 className="font-grotesk text-xl font-bold text-gray-900 leading-5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
-            {post.titulo}
+            {post?.titulo || 'Sin título'}
           </h3>
 
-          {/* Descripción */}
+          {/* Descripción 
           <p className="text-gray-600 font-roman text-sm leading-tight mb-1">
-            {post.descripcion}
-          </p>
+            {post?.descripcion || post?.contenido?.substring(0, 150) + '...' || 'Sin descripción'}
+          </p>*/}
 
           {/* Botón de acción sutil */}
           <div className="flex items-center text-gray-600 text-sm font-semibold group-hover:text-gray-900 transition-colors duration-200">

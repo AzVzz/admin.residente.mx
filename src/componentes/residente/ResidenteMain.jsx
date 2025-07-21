@@ -5,7 +5,7 @@ const ResidenteMain = () => {
 
     return (
         <div>
-            <SeccionesPrincipales /> {/* Directorio */}
+            {/*<SeccionesPrincipales />  Directorio */}
             <BannerRevista/>
             
             <div className="flex flex-col gap-5">
