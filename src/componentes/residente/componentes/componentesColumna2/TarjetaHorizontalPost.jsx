@@ -1,6 +1,6 @@
 import imagenTarjeta from "../../../../imagenes/cola-de-caballo.jpg"
 import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
-const TarjetaPost = ({ post, onClick }) => {
+const TarjetaHorizontalPost = ({ post, onClick }) => {
   return (
     <div
       className="group relative bg-[#FFF200] shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
@@ -63,4 +63,4 @@ const TarjetaPost = ({ post, onClick }) => {
   )
 }
 
-export default TarjetaPost
+export default TarjetaHorizontalPost;

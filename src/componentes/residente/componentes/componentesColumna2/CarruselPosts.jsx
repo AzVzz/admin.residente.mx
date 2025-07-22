@@ -40,8 +40,8 @@ const CarruselPosts = ({ restaurantes }) => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
             <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center overflow-hidden">
-              <span className="inline-block bg-white/60 px-4 py-2 rounded font-bold text-center text-8xl tracking-tight">
-                {rest.nombre_restaurante}
+              <span className="inline-block bg-white/60 px-4 py-2 rounded font-bold text-center text-6xl tracking-tight">
+                {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
               </span>
             </div>
           </div>
