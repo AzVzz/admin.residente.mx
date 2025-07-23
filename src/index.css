@@ -2,13 +2,11 @@
 
 /* index.css */
 @keyframes marquee {
-  0% { transform: translateX(-100%);}
-  100% { transform: translateX(100%);}
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 .animate-marquee {
-  display: inline-block;
-  min-width: 100%;
-  animation: marquee 12s linear infinite;
+  animation: marquee 30s linear infinite;
 }
 
 

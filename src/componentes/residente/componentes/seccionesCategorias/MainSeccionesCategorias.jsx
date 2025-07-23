@@ -165,7 +165,22 @@ const MainSeccionesCategorias = () => {
                     <span className="whitespace-nowrap">
                         Noticias y más recomendaciones de {categoria}
                     </span>
-                    <span className="whitespace-nowrap ml-[800px]">
+                    <span className="whitespace-nowrap ml-[100px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[100px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[100px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[100px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[100px]">
+                        Noticias y más recomendaciones de {categoria}
+                    </span>
+                    <span className="whitespace-nowrap ml-[100px]">
                         Noticias y más recomendaciones de {categoria}
                     </span>
                 </div>
