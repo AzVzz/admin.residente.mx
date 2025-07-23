@@ -8,10 +8,13 @@ import { urlApi } from './url.js';
  */
 
 // Crear una nueva nota (POST)
-export const notaCrear = async (datosNota) => {
+export const notaCrear = async (datosNota, token) => {
     const response = await fetch(`${urlApi}api/notas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` })
+        },
         body: JSON.stringify(datosNota)
     });
     if (!response.ok) {
@@ -22,12 +25,13 @@ export const notaCrear = async (datosNota) => {
 };
 
 // Editar una nota existente (PUT)
-export const notaEditar = async (id, notaData) => {
+export const notaEditar = async (id, notaData, token) => {
     try {
         const response = await fetch(`${urlApi}api/notas/${id}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` })
             },
             body: JSON.stringify(notaData)
         });
@@ -39,13 +43,16 @@ export const notaEditar = async (id, notaData) => {
     }
 };
 
-export const notaImagenPut = async (id, file) => {
+export const notaImagenPut = async (id, file, token) => {
     const formData = new FormData();
     formData.append('imagen', file); // 'imagen' debe coincidir con la key que espera tu backend
 
     try {
         const response = await fetch(`${urlApi}api/notas/imagen/${id}`, {
             method: 'PUT',
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` })
+            },
             body: formData
         });
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);

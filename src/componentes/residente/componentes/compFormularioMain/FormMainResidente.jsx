@@ -1,5 +1,9 @@
 // src/componentes/residente/componentes/compFormularioMain/FormMainResidente.jsx
 import { useForm, FormProvider, Controller } from 'react-hook-form';
+
+import { useAuth } from '../../../../componentes/Context';
+import Login from '../../../../componentes/login';
+
 import Autor from "./componentes/Autor";
 import Contenido from "./componentes/Contenido";
 import OpcionesPublicacion from "./componentes/OpcionesPublicacion";
@@ -18,6 +22,18 @@ import AlertaNota from './componentes/AlertaNota.jsx';
 const FormMainResidente = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { token } = useAuth(); // 3. Obtén el token
+
+  // Si no hay token, muestra el login
+  if (!token) {
+    return (
+      <div className="max-w-[400px] mx-auto mt-10">
+        <Login />
+      </div>
+    );
+  }
+
 
   // Configuración de React Hook Form
   const methods = useForm({
@@ -141,14 +157,14 @@ const FormMainResidente = () => {
 
       let resultado;
       if (notaId) {
-        resultado = await notaEditar(notaId, datosNota);
+        resultado = await notaEditar(notaId, datosNota, token); // <--- agrega token aquí
       } else {
-        resultado = await notaCrear(datosNota);
+        resultado = await notaCrear(datosNota, token); // <--- agrega token aquí
         setNotaId(resultado.id);
       }
 
       if (data.imagen && (notaId || resultado.id)) {
-        await notaImagenPut(notaId || resultado.id, data.imagen);
+        await notaImagenPut(notaId || resultado.id, data.imagen, token); // <--- agrega token aquí
       }
 
       setPostResponse(resultado);

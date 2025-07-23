@@ -61,6 +61,7 @@ const menuSections = {
       { name: "Cuponera Residente", url: "#" },
       { name: "Etiqueta Restaurantera", url: "https://residente.mx/2022/01/13/del-restaurant-al-comensal/" },
       { name: "Recetario Residente", url: "#" },
+      { name: "Mamá de Rocco", url: "/mama-de-rocco" },
     ],
   },
   guias: {
@@ -68,7 +69,7 @@ const menuSections = {
     items: [
       { name: "Santiago", url: "#" },
       { name: "Centrito valle", url: "#" },
-      { name: "Barrio Antiguo", url: "https://residente.mx/category/barrio-antiguo/" },
+      { name: "Barrio Antiguo", url: "/barrio-antiguo" },
       { name: "Valle Poniente", url: "#" },
     ],
   },
@@ -102,12 +103,15 @@ const Header = () => {
       <div className="max-w-[1080px] mx-auto w-full">
         <div className="flex pb-8 pt-5">
           <div className="flex justify-end pr-3">
-            <img src={LogoCirculoResidente} alt="Logo Residente Circulo" className="h-24 w-24 self-end object-contain" />
+            <Link to="/residente" className="h-24 w-24 self-end object-contain">
+              <img src={LogoCirculoResidente} alt="Logo Residente Circulo" />
+            </Link>
           </div>
           <div className="w-full">
             <div className="flex items-end pb-3 gap-2"> {/* Primer div: RCirculo y ResidenteFoodLetras */}
-
-              <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
+              <Link to="/residente">
+                <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
+              </Link>
               {/* Bloque derecho: iconos, título/fecha y portada */}
               <div className="flex items-center ml-auto">
                 {/* Iconos zonales */}
@@ -140,7 +144,6 @@ const Header = () => {
                         key={key}
                         href={section.items[0].url}
                         className="hover:underline text-white"
-                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         {section.title}
@@ -158,7 +161,6 @@ const Header = () => {
                               <li key={idx}>
                                 <a
                                   href={item.url}
-                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="block px-4 py-2 text-black hover:bg-yellow-100"
                                 >
@@ -173,7 +175,7 @@ const Header = () => {
                   ))}
                 </div>
                 <div className="flex gap-1.5">
-                  <img src={b2blogo} className="object-contain h-4 w-auto b2b cursor-pointer"/>
+                  <img src={b2blogo} className="object-contain h-4 w-auto b2b cursor-pointer" />
                   <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-white hover:text-gray-400" /></a>

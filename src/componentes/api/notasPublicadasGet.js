@@ -41,3 +41,11 @@ export const notasDestacadasTopGet = async () => {
         throw error;
     }
 };
+
+export const notasPorTipoNota = async (tipoNota) => {
+    // Convierte espacios a guiones para la URL
+    const tipoNotaUrl = tipoNota.toLowerCase().replace(/ /g, '-');
+    const response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaUrl}`);
+    if (!response.ok) throw new Error('Error al obtener notas por tipo_nota');
+    return await response.json();
+};

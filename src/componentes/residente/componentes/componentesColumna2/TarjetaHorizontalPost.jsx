@@ -63,4 +63,4 @@ const TarjetaPost = ({ post, onClick }) => {
   )
 }
 
-export default TarjetaPost
+export default TarjetaPost;

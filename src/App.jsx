@@ -14,6 +14,9 @@ import FormMainResidente from './componentes/residente/componentes/compFormulari
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 import FooterPrincipal from './componentes/FooterPrincipal';
+import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
+import NoEncontrado from './componentes/NoEncontrado';
+import Login from './componentes/login';
 
 function App() {
 
@@ -48,6 +51,8 @@ function App() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -88,6 +93,13 @@ function App() {
             </div>
           } />
 
+          <Route path="/:nombreCliente" element={
+            <div className="max-w-[1080px] mx-auto">
+              <PaginaCliente />
+            </div>
+          } />
+
+
 
           <Route path="/" element={
             <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
@@ -117,6 +129,14 @@ function App() {
           <Route path="/culturallaccess" element={
             <div className="max-w-[1080px] mx-auto py-10">
               <CulturalAcessForm />
+            </div>
+          } />
+
+          <Route path="*" element={<NoEncontrado />} />
+
+          <Route path="/login" element={
+            <div className="max-w-[1080px] mx-auto py-10">
+              <Login />
             </div>
           } />
         </Routes>

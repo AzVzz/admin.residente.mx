@@ -1,14 +1,14 @@
 //src/componentes/api/notasCompletas.js
 import { urlApi } from './url.js';
 
-export const notasTodasGet = async (page = 1, limit = 15) => {
+export const notasTodasGet = async (token) => {
     try {
-        const response = await fetch(`${urlApi}api/notas/todas?page=${page}&limit=${limit}`);
+        const response = await fetch(`${urlApi}api/notas/todas`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        const data = await response.json();
-        return data; // Tu API regresa un array, no un objeto con "notas"
+        return await response.json();
     } catch (error) {
-        console.error("Error fetching notas:", error);
         throw error;
     }
 };

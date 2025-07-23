@@ -10,7 +10,7 @@ import Platillos_Logo_Blanco from '../imagenes/logos/blancos/Platillos_Logo_Blan
 import ResearchData_Logo_Blanco from '../imagenes/logos/blancos/ResearchData_Logo_Blanco.png';
 import Rostros_Logo_Blanco from '../imagenes/logos/blancos/Rostros_Logo_Blanco.png';
 import usda_blanco from '../imagenes/logos/blancos/usda_blanco.png';
-import Video_Logo_Blanco from '../imagenes/logos/blancos/Video_Logo_Blanco.png'; 
+import Video_Logo_Blanco from '../imagenes/logos/blancos/Video_Logo_Blanco.png';
 import FoodDrinkMedia_Logo_Blanco from '../imagenes/logos/blancos/FoodDrinkMedia_Logo_Blanco.png';
 import Endeavor_Logo_Blanco from '../imagenes/logos/blancos/Endeavor_Logo_Blanco.png';
 import RELEVANT_Logo_Blanco from '../imagenes/logos/blancos/RELEVANT_Logo_Blanco.png';
@@ -41,19 +41,33 @@ const FooterPrincipal = () => {
                     <div>
                         <h4 className="font-bold mb-2">Productos al consumidor</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={Magazine_Logo_Blanco} alt="Magazine" className="w-25 h-10" />
-                            <img src={Guia_Logo_Blanco} alt="Guia" className="w-25 h-8" />
-                            <img src={DiscPromo_Logo_Blanco} alt="DiscPromo" className="w-25 h-10" />
-                            <img src={Books_Logo_Blanco} alt="Books" className="w-25 h-10" />
-                            <img src={Video_Logo_Blanco} alt="Video" className="w-25 h-10" />
+                            <img src={Magazine_Logo_Blanco} alt="Magazine"
+                                className="w-25 h-10 object-contain"
+                            />
+                            <img src={Guia_Logo_Blanco} alt="Guia"
+                                className="w-25 h-10 object-contain"
+                            />
+                            <img src={DiscPromo_Logo_Blanco} alt="DiscPromo"
+                                className="w-25 h-10 object-contain"
+                            />
+                            <img src={Books_Logo_Blanco} alt="Books"
+                                className="w-25 h-10 object-contain"
+                            />
+                            <img src={Video_Logo_Blanco} alt="Video"
+                                className="w-25 h-10 object-contain"
+                            />
                         </div>
                     </div>
                     {/* Columna 2 */}
                     <div>
                         <h4 className="font-bold mb-2">Soluciones para la industria</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={Newsletter_Logo_Blanco} alt="Newsletter" className="w-20 h-8" />
-                            <img src={ResearchData_Logo_Blanco} alt="ResearchData" className="w-25 h-8" />
+                            <img src={Newsletter_Logo_Blanco} alt="Newsletter"
+                                className="w-20 h-8 object-contain"
+                            />
+                            <img src={ResearchData_Logo_Blanco} alt="ResearchData"
+                                className="w-25 h-8 object-contain"
+                            />
                         </div>
                     </div>
                     {/* Columna 3 */}
