@@ -14,8 +14,6 @@ import FormMainResidente from './componentes/residente/componentes/compFormulari
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 import FooterPrincipal from './componentes/FooterPrincipal';
-import DetallePostWrapper from './componentes/residente/componentes/DetallePostWrapper';
-
 function App() {
 
   const location = useLocation();
@@ -117,11 +115,6 @@ function App() {
           <Route path="/culturallaccess" element={
             <div className="max-w-[1080px] mx-auto py-10">
               <CulturalAcessForm />
-            </div>
-          } />
-          <Route path="/nota/:id"  element={
-            <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
-              <DetallePostWrapper />
             </div>
           } />
         </Routes>
