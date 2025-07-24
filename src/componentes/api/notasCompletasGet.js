@@ -6,7 +6,11 @@ export const notasTodasGet = async (token) => {
         const response = await fetch(`${urlApi}api/notas/todas`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        if (!response.ok) {
+            const error = new Error('Error al obtener notas');
+            error.status = response.status;
+            throw error;
+        }
         return await response.json();
     } catch (error) {
         throw error;

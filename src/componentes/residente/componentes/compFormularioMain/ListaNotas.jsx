@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../../Context";
 import Login from "../../../login"; // Ajusta la ruta si es necesario
 import { notasTodasGet } from "../../../api/notasCompletasGet"; // Ajusta la ruta si es necesario
@@ -7,6 +7,7 @@ import { notaDelete } from "../../../api/notaDelete";
 
 const ListaNotas = () => {
   const { token } = useAuth();
+  const location = useLocation();
   const [notas, setNotas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +18,7 @@ const ListaNotas = () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token); // pasa el token aquí
+      const data = await notasTodasGet(token);
       setNotas(data);
     } catch (err) {
       setError(err);
@@ -48,11 +49,11 @@ const ListaNotas = () => {
     }
   };
 
-  // Mostrar si no hay token
-  if (!token) {
+  // Mostrar si no hay token o si el error es 403 (token inválido)
+  if (!token || (error && (error.status === 403 || error.status === 401))) {
     return (
       <div className="max-w-[400px] mx-auto mt-10">
-        <Login />
+        <Login redirectTo={location.pathname} />
       </div>
     );
   }

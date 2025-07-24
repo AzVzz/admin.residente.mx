@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({ redirectTo = "/notas" }) => {
     const [nombre_usuario, setNombreUsuario] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const { saveToken, token } = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,6 +19,7 @@ const Login = () => {
             const token = await loginPost(nombre_usuario, password);
             saveToken(token);
             setSuccess(true);
+            navigate(redirectTo, { replace: true });
         } catch (err) {
             setError(err.message);
         }

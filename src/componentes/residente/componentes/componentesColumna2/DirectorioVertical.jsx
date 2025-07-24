@@ -16,6 +16,20 @@ const DirectorioVertical = () => {
     const [openIndex, setOpenIndex] = useState(null);
     const buttonRefs = useRef([]);
     const navigate = useNavigate(); // <-- inicializa el hook
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        if (openIndex === null) return
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpenIndex(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openIndex]);
 
     useEffect(() => {
         catalogoSeccionesGet()
@@ -33,7 +47,7 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div className="bg-black text-white flex flex-col p-5 gap-5 relative">
+        <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-5 relative">
             <img src={GuiaNl} className="w-48 h-auto" />
             <p className="text-xl leading-5.5">El directorio gastronómico diseñado para ayudarte a <br />decidir dónde ir a comer hoy.</p>
             <ol className="flex flex-col gap-3">

@@ -6,6 +6,8 @@ import OpcionesExtra from '../../../componentes/residente/componentes/componente
 import Carrusel from './componentes/Carrusel';
 import TarjetaHorizontalPost from '../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import BarrioAntiguoGifs from "./componentes/BarrioAntiguoGifs.jsx";
+import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical.jsx";
+import SeccionesPrincipales from "../componentes/SeccionesPrincipales.jsx";
 
 const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
 
@@ -26,24 +28,30 @@ const PaginaCliente = () => {
         return <Navigate to="*" replace />;
     }
 
+    // Separa la primera nota y el resto
+    const [primeraNota, ...restoNotas] = notas;
+
     return (
-        <div className="mb-20">
+        <div className="my-15">
             <h1 className="text-3xl font-bold">Página de {nombreCliente}</h1>
-            <div className="grid grid-cols-12 gap-5">
+            <div className="grid grid-cols-12 gap-5 mb-5">
                 <div className="col-span-3">
                     <BarrioAntiguoGifs />
                 </div>
                 <div className="flex flex-col col-span-6 gap-5">
-                    <Carrusel />
-                    {/* Muestra cada nota con el diseño de TarjetaHorizontalPost */}
-                    {notas.map(nota => (
+                    {/* Pasa la primera nota al Carrusel */}
+                    <Carrusel nota={primeraNota} />
+                    {/* El resto de las notas */}
+                    {restoNotas.map(nota => (
                         <TarjetaHorizontalPost key={nota.id} post={nota} />
                     ))}
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-3 flex flex-col gap-5">
                     <OpcionesExtra />
                 </div>
+
             </div>
+            <SeccionesPrincipales />
         </div>
     );
 };

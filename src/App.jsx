@@ -14,45 +14,43 @@ import FormMainResidente from './componentes/residente/componentes/compFormulari
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 import FooterPrincipal from './componentes/FooterPrincipal';
+
 import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
 import Login from './componentes/login';
+
 
 function App() {
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
 
+  const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+
   useEffect(() => {
+    // Extrae el primer segmento del path (sin '/')
+    const pathCliente = location.pathname.split('/')[1];
+
     if (location.pathname === '/culturallaccess') {
       document.body.style.backgroundImage = `url(${FondoCulturallAccess})`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundRepeat = 'no-repeat';
       document.body.style.backgroundColor = '';
+    } else if (CLIENTES_VALIDOS.includes(pathCliente)) {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#fff'; // Fondo blanco
     } else {
+      document.body.style.backgroundImage = '';
       document.body.style.backgroundColor = '#FFF200'; // Amarillo
     }
 
     // Limpiar al desmontar el componente
     return () => {
+      document.body.style.backgroundImage = '';
       document.body.style.backgroundColor = '#FFF200';
     };
   }, [location.pathname]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 200) {
-        setShowMegaMenu(true);
-      } else {
-        setShowMegaMenu(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,7 +84,6 @@ function App() {
               <ListaNotas />
             </div>
           } />
-
           <Route path="/seccion/:seccion/categoria/:categoria" element={
             <div className="max-w-[1080px] mx-auto">
               <MainSeccionesCategorias />
