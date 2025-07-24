@@ -138,7 +138,7 @@ const MainSeccionesCategorias = () => {
         <div className="mt-5 mb-5">
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
-                <div ref={categoriaH1ContainerRef} className="col-span-2 p-5 shadow-md min-w-0 overflow-hidden flex flex-col h-[470px]">
+                <div ref={categoriaH1ContainerRef} className="col-span-2 p-5 rounded-lg shadow-md min-w-0 overflow-hidden flex flex-col h-full">
                     <h1
                         ref={categoriaH1Ref}
                         className="font-bold mb-4 leading-30 tracking-tight w-full"
@@ -156,11 +156,11 @@ const MainSeccionesCategorias = () => {
             </div>
             <div className="grid grid-cols-6 gap-5 mt-5 mb-5">
                 {restaurantes.length > 0 ? (
-                    restaurantes.slice(0, 6).map(rest => (
+                    restaurantes.map(rest => (
                         <Link
                             key={rest.id}
                             to={`/restaurante/${rest.slug}`}
-                            className="relative items-center block group"
+                            className="relative items-center block group" // block para que el Link envuelva todo
                         >
                             <div className="relative h-60">
                                 {/* Etiqueta flotante con el nombre */}
@@ -181,8 +181,24 @@ const MainSeccionesCategorias = () => {
                 ) : (
                     <span>No hay restaurantes</span>
                 )}
-
             </div>
+
+            <div className="mb-8">
+                <h2 className="text-xl font-bold mb-2 text-center">Más recomendaciones de {categoria}</h2>
+                <ul className="flex flex-row justify-center items-center flex-wrap gap-4">
+                    {restaurantes.map(rest => (
+                        <li key={rest.id} className="mb-0 text-xl">
+                            <Link
+                                to={`/restaurante/${rest.slug}`}
+                                className="text-black-600 hover:underline"
+                            >
+                                {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
             <div className="mb-5 bg-black text-white px-3 py-2 overflow-hidden relative">
                 <div className="flex animate-marquee">
                     <span className="whitespace-nowrap">
@@ -208,44 +224,42 @@ const MainSeccionesCategorias = () => {
                     </span>
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-5" ref={notasRef}>
-                <div className="col-span-1 space-y-5">
-                    {selectedNota ? (
-                        <DetallePost
-                            post={selectedNota}
-                            onVolver={handleVolver}
-                        />
-                    ) : (
-                        notas.map(nota => (
-                            <TarjetaHorizontalPost
-                                key={nota.id}
-                                post={nota}
-                                onClick={() => handleNotaClick(nota)}
-                            />
-                        ))
-                    )}
+
+            <div
+                className="grid gap-5"
+                style={{ gridTemplateColumns: '0.9fr 2fr 1.1fr' }}
+                ref={notasRef}
+            >
+                {/* Cuponera */}
+                <div className="flex flex-col items-start justify-start ">
+                    <h2 className="text-xl font-bold mb-2">Cuponera</h2>
                 </div>
-                <div className="col-span-1">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <h2 className="text-xl font-bold mb-2">Más recomendaciones de <br />{categoria}</h2>
-                            <ul>
-                                {restaurantes.map(rest => (
-                                    <li key={rest.id} className="mb-2 text-xl">
-                                        <Link
-                                            to={`/restaurante/${rest.slug}`}
-                                            className="text-black-600 hover:underline"
-                                        >
-                                            {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div>
-                            <OpcionesExtra />
-                        </div>
+                {/* Notas */}
+                <div className="flex flex-col items-center justify-start">
+                    <div className="w-full">
+                        {selectedNota ? (
+                            <DetallePost
+                                post={selectedNota}
+                                onVolver={handleVolver}
+                            />
+                        ) : (
+                            notas.map(nota => (
+                                <TarjetaHorizontalPost
+                                    key={nota.id}
+                                    post={nota}
+                                    onClick={() => handleNotaClick(nota)}
+                                />
+                            ))
+                        )}
                     </div>
+                </div>
+                {/* OpcionesExtra */}
+                <div className="flex flex-col items-end justify-start">
+                    <DirectorioVertical
+                        categoria={categoria}
+                        restaurantes={restaurantes}
+                    />
+                    <OpcionesExtra />
                 </div>
             </div>
         </div>
