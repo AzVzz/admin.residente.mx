@@ -6,20 +6,38 @@ import { notasTodasGet } from "../../../api/notasCompletasGet"; // Ajusta la rut
 import { notaDelete } from "../../../api/notaDelete";
 
 const ListaNotas = () => {
-  const { token } = useAuth();
+  const { token, usuario } = useAuth(); // usuario.permisos debe estar disponible
   const location = useLocation();
   const [notas, setNotas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
+  const tipoNotaPorPermiso = {
+    "mama-de-rocco": "Mamá de Rocco",
+    "barrio-antiguo": "Barrio Antiguo",
+    // agrega más si tienes
+  };
+
   // Traer notas
+
   const fetchNotas = async () => {
     setCargando(true);
     setError(null);
     try {
       const data = await notasTodasGet(token);
-      setNotas(data);
+
+      // Si el usuario tiene permisos "todos", muestra todas las notas
+      if (usuario?.permisos === "todos") {
+        setNotas(data);
+        return;
+      }
+
+      const tipoNotaFiltro = tipoNotaPorPermiso[usuario?.permisos];
+      const notasFiltradas = tipoNotaFiltro
+        ? data.filter(nota => nota.tipo_nota === tipoNotaFiltro)
+        : [];
+      setNotas(notasFiltradas);
     } catch (err) {
       setError(err);
     } finally {
@@ -29,12 +47,9 @@ const ListaNotas = () => {
 
   useEffect(() => {
     if (!token) return;
-    setCargando(true);
-    notasTodasGet(token)
-      .then(setNotas)
-      .catch(setError)
-      .finally(() => setCargando(false));
-  }, [token]);
+    fetchNotas();
+    // eslint-disable-next-line
+  }, [token, usuario]);
 
   // Eliminar nota
   const eliminarNota = async (id) => {
@@ -189,11 +204,10 @@ const ListaNotas = () => {
                   </p>
                 </div>
                 <span
-                  className={`px-2 py-1 text-xs rounded-full ${
-                    nota.estatus === "publicada"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+                  className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
+                    }`}
                 >
                   {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
                 </span>

@@ -1,7 +1,7 @@
 // src/componentes/residente/componentes/compFormularioMain/FormMainResidente.jsx
-import { useForm, FormProvider, Controller } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { useAuth } from '../../../../componentes/Context';
+import { useAuth } from '../../../Context';
 import Login from '../../../../componentes/login';
 
 import Autor from "./componentes/Autor";
@@ -19,11 +19,20 @@ import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
 
+const tipoNotaPorPermiso = {
+  "mama-de-rocco": "Mamá de Rocco",
+  "barrio-antiguo": "Barrio Antiguo",
+  // agrega más si tienes
+};
+
 const FormMainResidente = () => {
+  const { usuario, token } = useAuth(); // usuario viene del contexto
+
+  // Determina el tipo de nota por el permiso del usuario
+  const tipoNotaUsuario = usuario ? tipoNotaPorPermiso[usuario.permisos] : '';
+
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const { token } = useAuth(); // 3. Obtén el token
 
   // Si no hay token, muestra el login
   if (!token) {
@@ -34,7 +43,6 @@ const FormMainResidente = () => {
     );
   }
 
-
   // Configuración de React Hook Form
   const methods = useForm({
     defaultValues: {
@@ -44,7 +52,7 @@ const FormMainResidente = () => {
       contenido: '',
       opcionPublicacion: 'publicada',
       fechaProgramada: '',
-      tipoDeNotaSeleccionada: '',
+      tipoDeNotaSeleccionada: tipoNotaUsuario || '',
       categoriasSeleccionadas: {},
       imagen: null
     }
@@ -115,7 +123,7 @@ const FormMainResidente = () => {
             contenido: data.descripcion,
             opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
             fechaProgramada: data.programar_publicacion || '',
-            tipoDeNotaSeleccionada: data.tipo_nota || '',
+            tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '', // ← aquí
             categoriasSeleccionadas: data.secciones_categorias?.reduce((acc, { seccion, categoria }) => {
               acc[seccion] = categoria;
               return acc;
@@ -133,6 +141,14 @@ const FormMainResidente = () => {
     }
   }, [id, catalogosCargados, reset]);
 
+  // 2. Cuando obtengas tipoNotaUsuario del contexto, actualiza el valor del formulario
+  useEffect(() => {
+    // Si hay tipoNotaUsuario, fuerza el valor en el formulario
+    if (tipoNotaUsuario) {
+      setValue('tipoDeNotaSeleccionada', tipoNotaUsuario);
+    }
+  }, [tipoNotaUsuario, setValue]);
+
   // Manejar envío del formulario
   const onSubmit = async (data) => {
     setIsPosting(true);
@@ -144,8 +160,11 @@ const FormMainResidente = () => {
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
+      // Fuerza el tipo de nota correcto
+      const tipoNotaFinal = tipoNotaUsuario || data.tipoDeNotaSeleccionada;
+
       const datosNota = {
-        tipo_nota: data.tipoDeNotaSeleccionada,
+        tipo_nota: tipoNotaFinal,
         secciones_categorias: seccionesCategorias,
         titulo: data.titulo,
         subtitulo: data.subtitulo,
@@ -157,14 +176,14 @@ const FormMainResidente = () => {
 
       let resultado;
       if (notaId) {
-        resultado = await notaEditar(notaId, datosNota, token); // <--- agrega token aquí
+        resultado = await notaEditar(notaId, datosNota, token);
       } else {
-        resultado = await notaCrear(datosNota, token); // <--- agrega token aquí
+        resultado = await notaCrear(datosNota, token);
         setNotaId(resultado.id);
       }
 
       if (data.imagen && (notaId || resultado.id)) {
-        await notaImagenPut(notaId || resultado.id, data.imagen, token); // <--- agrega token aquí
+        await notaImagenPut(notaId || resultado.id, data.imagen, token);
       }
 
       setPostResponse(resultado);
@@ -174,8 +193,6 @@ const FormMainResidente = () => {
     } finally {
       setIsPosting(false);
     }
-
-
   };
 
   if (cargandoNota) {
@@ -210,10 +227,23 @@ const FormMainResidente = () => {
                   onImagenEliminada={() => setImagenActual(null)}
                 />
 
+                {/* Solo muestra el selector si NO hay tipoNotaUsuario */}
+
                 <CategoriasTipoNotaSelector
                   tipoDeNota={tipoDeNota}
                   secciones={secciones}
+                  ocultarTipoNota={!!tipoNotaUsuario}
                 />
+
+
+                {/* Si hay tipoNotaUsuario, muéstralo como texto */}
+                {tipoNotaUsuario && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">Tipo de nota:</label>
+                    <div className="text-lg font-bold">{tipoNotaUsuario}</div>
+                  </div>
+                )}
+
                 <Titulo />
 
                 <Subtitulo />
