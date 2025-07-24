@@ -63,6 +63,8 @@ const CulturalAccessForm = () => {
 
     try {
       // Mapear los campos del frontend al formato del backend
+      const estudiosValue = formData.estudios === "sin-estudios" ? null : formData.estudios;
+
       const dataToSend = {
         nombre: formData.nombre,
         apellido_paterno: formData.apellidoPaterno,
@@ -75,7 +77,7 @@ const CulturalAccessForm = () => {
         colonia: formData.colonia,
         codigo_postal: formData.codigoPostal,
         edad: formData.edad,
-        estudios: formData.estudios,
+        estudios: estudiosValue,
         curp: curpOption === "curp" ? formData.curp : null,
         estado_nacimiento: formData.estadoNacimiento,
         diaNacimiento: formData.diaNacimiento,
@@ -154,6 +156,95 @@ const CulturalAccessForm = () => {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
   )
+
+  const estadosMexico = [
+    { value: "aguascalientes", label: "Aguascalientes" },
+    { value: "baja-california", label: "Baja California" },
+    { value: "baja-california-sur", label: "Baja California Sur" },
+    { value: "campeche", label: "Campeche" },
+    { value: "chiapas", label: "Chiapas" },
+    { value: "chihuahua", label: "Chihuahua" },
+    { value: "cdmx", label: "Ciudad de México" },
+    { value: "coahuila", label: "Coahuila" },
+    { value: "colima", label: "Colima" },
+    { value: "durango", label: "Durango" },
+    { value: "guanajuato", label: "Guanajuato" },
+    { value: "guerrero", label: "Guerrero" },
+    { value: "hidalgo", label: "Hidalgo" },
+    { value: "jalisco", label: "Jalisco" },
+    { value: "mexico", label: "México" },
+    { value: "michoacan", label: "Michoacán" },
+    { value: "morelos", label: "Morelos" },
+    { value: "nayarit", label: "Nayarit" },
+    { value: "nuevo-leon", label: "Nuevo León" },
+    { value: "oaxaca", label: "Oaxaca" },
+    { value: "puebla", label: "Puebla" },
+    { value: "queretaro", label: "Querétaro" },
+    { value: "quintana-roo", label: "Quintana Roo" },
+    { value: "san-luis-potosi", label: "San Luis Potosí" },
+    { value: "sinaloa", label: "Sinaloa" },
+    { value: "sonora", label: "Sonora" },
+    { value: "tabasco", label: "Tabasco" },
+    { value: "tamaulipas", label: "Tamaulipas" },
+    { value: "tlaxcala", label: "Tlaxcala" },
+    { value: "veracruz", label: "Veracruz" },
+    { value: "yucatan", label: "Yucatán" },
+    { value: "zacatecas", label: "Zacatecas" }
+  ];
+
+  const municipiosNuevoLeon = [
+    { value: "abasolo", label: "Abasolo" },
+    { value: "agualeguas", label: "Agualeguas" },
+    { value: "allende", label: "Allende" },
+    { value: "anahuac", label: "Anáhuac" },
+    { value: "apodaca", label: "Apodaca" },
+    { value: "aramberri", label: "Aramberri" },
+    { value: "bustamante", label: "Bustamante" },
+    { value: "cadereyta-jimenez", label: "Cadereyta Jiménez" },
+    { value: "cerralvo", label: "Cerralvo" },
+    { value: "cienega-de-flores", label: "Ciénega de Flores" },
+    { value: "china", label: "China" },
+    { value: "doctor-arroyo", label: "Doctor Arroyo" },
+    { value: "doctor-coss", label: "Doctor Coss" },
+    { value: "doctor-gonzalez", label: "Doctor González" },
+    { value: "el-carmen", label: "El Carmen" },
+    { value: "galeana", label: "Galeana" },
+    { value: "garcia", label: "García" },
+    { value: "general-bravo", label: "General Bravo" },
+    { value: "general-escobedo", label: "General Escobedo" },
+    { value: "general-teran", label: "General Terán" },
+    { value: "general-trevino", label: "General Treviño" },
+    { value: "general-zaragoza", label: "General Zaragoza" },
+    { value: "general-zuazua", label: "General Zuazua" },
+    { value: "guadalupe", label: "Guadalupe" },
+    { value: "hidalgo", label: "Hidalgo" },
+    { value: "higueras", label: "Higueras" },
+    { value: "hualahuises", label: "Hualahuises" },
+    { value: "iturbide", label: "Iturbide" },
+    { value: "juarez", label: "Juárez" },
+    { value: "lampazos-de-naranjo", label: "Lampazos de Naranjo" },
+    { value: "linares", label: "Linares" },
+    { value: "los-aldamas", label: "Los Aldamas" },
+    { value: "los-herreras", label: "Los Herreras" },
+    { value: "los-ramones", label: "Los Ramones" },
+    { value: "marin", label: "Marín" },
+    { value: "melchor-ocampo", label: "Melchor Ocampo" },
+    { value: "mier-y-noriega", label: "Mier y Noriega" },
+    { value: "mina", label: "Mina" },
+    { value: "montemorelos", label: "Montemorelos" },
+    { value: "monterrey", label: "Monterrey" },
+    { value: "paras", label: "Parás" },
+    { value: "pesqueria", label: "Pesquería" },
+    { value: "rayones", label: "Rayones" },
+    { value: "sabinas-hidalgo", label: "Sabinas Hidalgo" },
+    { value: "salinas-victoria", label: "Salinas Victoria" },
+    { value: "san-nicolas-de-los-garza", label: "San Nicolás de los Garza" },
+    { value: "san-pedro-garza-garcia", label: "San Pedro Garza García" },
+    { value: "santa-catarina", label: "Santa Catarina" },
+    { value: "santiago", label: "Santiago" },
+    { value: "vallecillo", label: "Vallecillo" },
+    { value: "villaldama", label: "Villaldama" }
+  ];
 
   return (
     <div>
@@ -309,15 +400,23 @@ const CulturalAccessForm = () => {
                 <label htmlFor="municipio" className="block text-white font-medium text-sm">
                   MUNICIPIO *
                 </label>
-                <input
+                <select
                   id="municipio"
-                  type="text"
                   value={formData.municipio}
                   onChange={(e) => handleInputChange("municipio", e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white focus:border-white focus:outline-none appearance-none transition-colors"
                   required
                   disabled={isSubmitting}
-                />
+                >
+                  <option value="" className="text-gray-800">
+                    Selecciona municipio
+                  </option>
+                  {municipiosNuevoLeon.map((mun) => (
+                    <option key={mun.value} value={mun.value} className="text-gray-800">
+                      {mun.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <label htmlFor="estado" className="block text-white font-medium text-sm">
@@ -335,102 +434,11 @@ const CulturalAccessForm = () => {
                     <option value="" className="text-gray-800">
                       Selecciona estado
                     </option>
-                    <option value="aguascalientes" className="text-gray-800">
-                      Aguascalientes
-                    </option>
-                    <option value="baja-california" className="text-gray-800">
-                      Baja California
-                    </option>
-                    <option value="baja-california-sur" className="text-gray-800">
-                      Baja California Sur
-                    </option>
-                    <option value="campeche" className="text-gray-800">
-                      Campeche
-                    </option>
-                    <option value="chiapas" className="text-gray-800">
-                      Chiapas
-                    </option>
-                    <option value="chihuahua" className="text-gray-800">
-                      Chihuahua
-                    </option>
-                    <option value="cdmx" className="text-gray-800">
-                      Ciudad de México
-                    </option>
-                    <option value="coahuila" className="text-gray-800">
-                      Coahuila
-                    </option>
-                    <option value="colima" className="text-gray-800">
-                      Colima
-                    </option>
-                    <option value="durango" className="text-gray-800">
-                      Durango
-                    </option>
-                    <option value="guanajuato" className="text-gray-800">
-                      Guanajuato
-                    </option>
-                    <option value="guerrero" className="text-gray-800">
-                      Guerrero
-                    </option>
-                    <option value="hidalgo" className="text-gray-800">
-                      Hidalgo
-                    </option>
-                    <option value="jalisco" className="text-gray-800">
-                      Jalisco
-                    </option>
-                    <option value="mexico" className="text-gray-800">
-                      México
-                    </option>
-                    <option value="michoacan" className="text-gray-800">
-                      Michoacán
-                    </option>
-                    <option value="morelos" className="text-gray-800">
-                      Morelos
-                    </option>
-                    <option value="nayarit" className="text-gray-800">
-                      Nayarit
-                    </option>
-                    <option value="nuevo-leon" className="text-gray-800">
-                      Nuevo León
-                    </option>
-                    <option value="oaxaca" className="text-gray-800">
-                      Oaxaca
-                    </option>
-                    <option value="puebla" className="text-gray-800">
-                      Puebla
-                    </option>
-                    <option value="queretaro" className="text-gray-800">
-                      Querétaro
-                    </option>
-                    <option value="quintana-roo" className="text-gray-800">
-                      Quintana Roo
-                    </option>
-                    <option value="san-luis-potosi" className="text-gray-800">
-                      San Luis Potosí
-                    </option>
-                    <option value="sinaloa" className="text-gray-800">
-                      Sinaloa
-                    </option>
-                    <option value="sonora" className="text-gray-800">
-                      Sonora
-                    </option>
-                    <option value="tabasco" className="text-gray-800">
-                      Tabasco
-                    </option>
-                    <option value="tamaulipas" className="text-gray-800">
-                      Tamaulipas
-                    </option>
-                    <option value="tlaxcala" className="text-gray-800">
-                      Tlaxcala
-                    </option>
-                    <option value="veracruz" className="text-gray-800">
-                      Veracruz
-                    </option>
-                    <option value="yucatan" className="text-gray-800">
-                      Yucatán
-                    </option>
-                    <option value="zacatecas" className="text-gray-800">
-                      Zacatecas
-                    </option>
+                    {estadosMexico.map((estado) => (
+                      <option key={estado.value} value={estado.value} className="text-gray-800">
+                        {estado.label}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDownIcon />
                 </div>

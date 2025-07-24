@@ -8,16 +8,18 @@ const Login = ({ redirectTo = "/notas" }) => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
-    const { saveToken, token } = useAuth();
+    const { saveToken, saveUsuario, token } = useAuth(); // ← FALTABA IMPORTAR saveUsuario
     const navigate = useNavigate();
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess(false);
         try {
-            const token = await loginPost(nombre_usuario, password);
-            saveToken(token);
+            const respuesta = await loginPost(nombre_usuario, password);
+            saveToken(respuesta.token);
+            saveUsuario(respuesta.usuario); // Guarda el usuario completo
             setSuccess(true);
             navigate(redirectTo, { replace: true });
         } catch (err) {
