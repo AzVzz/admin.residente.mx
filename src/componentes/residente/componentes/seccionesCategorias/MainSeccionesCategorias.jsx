@@ -10,6 +10,10 @@ import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 import DetallePost from '../DetallePost.jsx';
 import Banner from '../../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
+import BarraMarquee from './componentes/BarraMarquee.jsx';
+import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
+import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
+import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -165,92 +169,28 @@ const MainSeccionesCategorias = () => {
         <div className="mt-5 mb-5">
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
-                <div ref={categoriaH1ContainerRef} className="col-span-2 p-5 rounded-lg shadow-md min-w-0 overflow-hidden flex flex-col h-full">
-                    <h1
-                        ref={categoriaH1Ref}
-                        className="font-bold mb-4 leading-30 tracking-tight w-full"
-                        style={{ fontSize: `${categoriaFontSize}px`, lineHeight: 1.1 }}
-                    >
-                        {renderCategoriaH1(categoria)}
-                    </h1>
-                    <p className="text-[21px] leading-[1.6rem] mt-auto">
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                    </p>
-                </div>
+                <CategoriaHeader
+                    categoriaH1ContainerRef={categoriaH1ContainerRef}
+                    categoriaH1Ref={categoriaH1Ref}
+                    categoriaFontSize={categoriaFontSize}
+                    renderCategoriaH1={renderCategoriaH1}
+                    categoria={categoria}
+                />
                 <div className="col-span-4">
                     <CarruselPosts restaurantes={restaurantes.slice(0, 5)} />
                 </div>
             </div>
-            <div className="grid grid-cols-5 gap-5 mt-5 mb-5">
-                {restaurantes.length > 0 ? (
-                    restaurantes.slice(0, 5).map(rest => (
-                        <Link
-                            key={rest.id}
-                            to={`/restaurante/${rest.slug}`}
-                            className="relative items-center block group"
-                        >
-                            <div className="relative h-60">
-                                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[14px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap group-hover:bg-yellow-400 group-hover:text-black transition">
-                                    {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
-                                </div>
-                                <img
-                                    src={rest.imagenes && rest.imagenes.length > 0
-                                        ? urlApi.replace(/\/$/, '') + rest.imagenes[0].src
-                                        : "https://via.placeholder.com/180x120?text=Sin+Imagen"}
-                                    className="w-full h-full object-cover transition-all duration-500 ease-in-out"
-                                    alt={rest.nombre_restaurante}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
-                            </div>
-                        </Link>
-                    ))
-                ) : (
-                    <span>No hay restaurantes</span>
-                )}
-            </div>
 
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-3 text-center">Más recomendaciones de {categoria}</h2>
-                <ul className="flex flex-row justify-center items-center flex-wrap gap-x-5 gap-y-1">
-                    {restaurantes.map(rest => (
-                        <li key={rest.id} className="bg-black text-white text-[14px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap ">
-                            <Link
-                                to={`/restaurante/${rest.slug}`}
-                                className="text-black-600 hover:underline"
-                            >
-                                {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            {/* Los 5 restaurantes destacados en imagenes */}
+            <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
-            <div className="mb-5 bg-black text-white px-3 py-2 overflow-hidden relative">
-                <div className="flex animate-marquee">
-                    <span className="whitespace-nowrap">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                    <span className="whitespace-nowrap ml-[100px]">
-                        Noticias y más recomendaciones de {categoria}
-                    </span>
-                </div>
-            </div>
+            {/* Recomendaciones de restaurantes */}
+            <RecomendacionesRestaurantes categoria={categoria} restaurantes={restaurantes} />
 
+            {/* Barra negra que se mueve Barra marquee*/}
+            <BarraMarquee categoria={categoria} />
+
+            {/* Body con 3 columnas, Cuponera, Notas y Directorio con cosas extra */}
             <div
                 className="grid gap-5"
                 style={{ gridTemplateColumns: '0.9fr 2fr 1.1fr' }}
@@ -260,6 +200,7 @@ const MainSeccionesCategorias = () => {
                 <div className="flex flex-col items-start justify-start">
                     <h2 className="text-xl font-bold mb-2">Cuponera</h2>
                 </div>
+                
                 {/* Notas */}
                 <div className="flex flex-col items-center justify-start">
                     <div className="w-full gap-5 flex flex-col">
@@ -282,7 +223,7 @@ const MainSeccionesCategorias = () => {
                                         <img
                                             src={Banner}
                                             alt="Banner Revista"
-                                            className="w-full my-4"
+                                            className="w-full mt-5"
                                         />
                                     )}
                                 </div>
@@ -307,6 +248,7 @@ const MainSeccionesCategorias = () => {
                         </div>
                     )}
                 </div>
+                
                 {/* OpcionesExtra */}
                 <div className="flex flex-col items-end justify-start gap-5">
                     <DirectorioVertical

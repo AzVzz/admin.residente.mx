@@ -30,11 +30,6 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick }) => {
                                     <h4 className="font-bold text-sm leading-3.5">{post.titulo}</h4>
                                 </div>
                             </div>
-
-                            {/* Línea divisoria (excepto para el último elemento) */}
-                            {index < safePosts.length - 1 && (
-                                <div className="absolute -bottom-2.5 left-0 right-0 h-px bg-black"></div>
-                            )}
                         </li>
                     ))}
                 </ul>

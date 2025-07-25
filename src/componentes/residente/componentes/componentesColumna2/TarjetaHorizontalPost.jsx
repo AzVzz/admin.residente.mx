@@ -3,7 +3,7 @@ import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
 const TarjetaHorizontalPost = ({ post, onClick }) => {
   return (
     <div
-      className="group relative bg-[#FFF200] shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group relative bg-transparent shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
       onClick={onClick}
     >
       {/* Contenedor principal */}
@@ -11,8 +11,17 @@ const TarjetaHorizontalPost = ({ post, onClick }) => {
         {/* Contenedor de imagen */}
         <div className="relative flex-shrink-0 overflow-hidden ">
           {/* Etiqueta de fecha */}
-          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-.5 shadow-md font-serif uppercase">
-            {post?.fecha || 'Sin fecha'}
+          <div className="absolute top-2 left-2 z-10 bg-[#ffff20] backdrop-blur-sm text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-sans">
+            {(() => {
+              const fecha = post?.fecha || 'Sin fecha';
+              const [primera, ...resto] = fecha.split(' ');
+              return (
+                <>
+                  <span className="capitalize">{primera}</span>
+                  {resto.length > 0 && ' ' + resto.join(' ')}
+                </>
+              );
+            })()}
           </div>
 
           {/* Imagen con overlay sutil */}
@@ -27,7 +36,7 @@ const TarjetaHorizontalPost = ({ post, onClick }) => {
         </div>
 
         {/* Contenido de texto */}
-        <div className="flex flex-col ml-2 flex-1 justify-center">
+        <div className="flex flex-col ml-2 mr-2 flex-1 justify-center">
           {/* Categoría */}
           <div className="mb-1">
             <span className="font-serif inline-block bg-black text-white text-[11px] px-1.5 py-.5 shadow-md">

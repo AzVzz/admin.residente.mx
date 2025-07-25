@@ -1,5 +1,7 @@
 //src/componentes/api/CatalogoNotasGet.js
-import { urlApi } from './url.js'
+import { urlApi } from './url.js';
+
+// Puro Gets a notasPublicadas
 
 export const catalogoNotasGet = async (page = 1, limit = 15) => {
     try {

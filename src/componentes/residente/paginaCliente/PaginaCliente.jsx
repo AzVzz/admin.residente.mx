@@ -34,11 +34,14 @@ const PaginaCliente = () => {
     return (
         <div className="my-15">
             <h1 className="text-3xl font-bold">Página de {nombreCliente}</h1>
-            <div className="grid grid-cols-12 gap-5 mb-5">
-                <div className="col-span-3">
+            <div
+                className="grid gap-5 mb-5"
+                style={{ gridTemplateColumns: '0.9fr 2fr 1.1fr' }}
+            >
+                <div>
                     <BarrioAntiguoGifs />
                 </div>
-                <div className="flex flex-col col-span-6 gap-5">
+                <div className="flex flex-col gap-5">
                     {/* Pasa la primera nota al Carrusel */}
                     <Carrusel nota={primeraNota} />
                     {/* El resto de las notas */}
@@ -46,10 +49,10 @@ const PaginaCliente = () => {
                         <TarjetaHorizontalPost key={nota.id} post={nota} />
                     ))}
                 </div>
-                <div className="col-span-3 flex flex-col gap-5">
+                <div className="flex flex-col gap-5">
+                    <DirectorioVertical />
                     <OpcionesExtra />
                 </div>
-
             </div>
             <SeccionesPrincipales />
         </div>
