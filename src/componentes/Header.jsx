@@ -108,12 +108,12 @@ const Header = () => {
             </Link>
           </div>
           <div className="w-full">
-            <div className="flex items-end pb-3 gap-2"> {/* Primer div: RCirculo y ResidenteFoodLetras */}
+            <div className="flex items-end pb-3 gap-2 "> {/* Primer div: RCirculo y ResidenteFoodLetras */}
               <Link to="/residente">
                 <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
               </Link>
               {/* Bloque derecho: iconos, título/fecha y portada */}
-              <div className="flex items-center ml-auto">
+              <div className="flex items-center ml-auto" >
                 {/* Iconos zonales */}
                 <div className="flex flex-col justify-center items-end mr-4 gap-8">
                   <div className="flex gap-2 items-center -mt-2 mb-2 w-40 justify-end">

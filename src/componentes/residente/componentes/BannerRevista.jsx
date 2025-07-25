@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
+import 
+Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
 import CarruselPosts from './componentesColumna2/CarruselPosts';
@@ -201,7 +202,7 @@ const BannerRevista = () => {
                                     </div>
 
                                     {/* Columna lateral */}
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 relative -top-16.5">
                                         <DirectorioVertical />
                                         <MainLateralPostTarjetas
                                             notasDestacadas={destacadasFiltradas}
