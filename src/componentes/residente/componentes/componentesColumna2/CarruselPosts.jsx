@@ -28,25 +28,25 @@ const CarruselPosts = ({ restaurantes }) => {
         {restaurantes.map((rest, i) => (
           <div
             key={rest.id}
-            className={`absolute inset-0 transition-opacity duration-700 ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+            className={`absolute inset-0 transition-transform duration-300 ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           >
             <Link to={`/restaurante/${rest.slug}`} className="block h-full">
-            <img
-              src={
-                rest.imagenes && rest.imagenes.length > 0
-                  ? urlApi.replace(/\/$/, '') + rest.imagenes[0].src
-                  : "https://via.placeholder.com/800x440?text=Sin+Imagen"
-              }
-              className="h-full w-full object-cover group-hover:scale-105"
-              alt={rest.nombre_restaurante}
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500 pointer-events-none"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-            <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center overflow-hidden">
-              <span className="inline-block bg-white/60 px-4 py-2 rounded font-bold text-center text-6xl tracking-tight">
-                {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
-              </span>
-            </div>
+              <img
+                src={
+                  rest.imagenes && rest.imagenes.length > 0
+                    ? urlApi.replace(/\/$/, '') + rest.imagenes[0].src
+                    : "https://via.placeholder.com/800x440?text=Sin+Imagen"
+                }
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                alt={rest.nombre_restaurante}
+              />
+              <div className="absolute inset-0 bg-black/0 transition-all duration-700 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+              <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center overflow-hidden">
+                <span className="inline-block bg-white/60 px-4 py-2 rounded font-bold text-center text-6xl tracking-tight">
+                  {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
+                </span>
+              </div>
             </Link>
           </div>
         ))}

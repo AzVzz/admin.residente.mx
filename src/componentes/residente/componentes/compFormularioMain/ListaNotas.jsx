@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../../Context";
-import Login from "../../../login"; // Ajusta la ruta si es necesario
-import { notasTodasGet } from "../../../api/notasCompletasGet"; // Ajusta la ruta si es necesario
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Login from "../../../login";
+import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
+import { FaUser } from "react-icons/fa6";
 
 const ListaNotas = () => {
-  const { token, usuario } = useAuth(); // usuario.permisos debe estar disponible
+  const { token, usuario, saveToken, saveUsuario } = useAuth(); // ← SOLO AQUÍ
   const location = useLocation();
+  const navigate = useNavigate();
   const [notas, setNotas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
-  const tipoNotaPorPermiso = {
-    "mama-de-rocco": "Mamá de Rocco",
-    "barrio-antiguo": "Barrio Antiguo",
-    // agrega más si tienes
-  };
+  // Redirige si no está logeado
+  useEffect(() => {
+    if (!token || !usuario) {
+      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+    }
+  }, [token, usuario, location, navigate]);
 
   // Traer notas
-
   const fetchNotas = async () => {
     setCargando(true);
     setError(null);
@@ -32,7 +34,12 @@ const ListaNotas = () => {
         setNotas(data);
         return;
       }
-
+      const tipoNotaPorPermiso = {
+        "barrio-antiguo": "Barrio Antiguo",
+        "mama-de-rocco": "Mamá de Rocco",
+        "todos": null,
+        // ...otros permisos
+      };
       const tipoNotaFiltro = tipoNotaPorPermiso[usuario?.permisos];
       const notasFiltradas = tipoNotaFiltro
         ? data.filter(nota => nota.tipo_nota === tipoNotaFiltro)
@@ -165,27 +172,51 @@ const ListaNotas = () => {
   // Mostrar la lista de notas
   return (
     <div className="space-y-6 py-5">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Lista de Notas</h1>
-        <Link
-          to="/notas/nueva"
-          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <svg
-            className="-ml-1 mr-2 h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+      <div className="flex flex-row gap-0 justify-between">
+        <div className="bg-black flex items-center">
+          <h1 className="text-2xl font-bold text-white px-5">Lista de Notas</h1>
+        </div>
+        <div className="flex gap-5">
+          <Link
+            to="/notas/nueva"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            <path
-              fillRule="evenodd"
-              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Nueva Nota
-        </Link>
+            <svg
+              className="-ml-1 mr-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Nueva Nota
+          </Link>
+          {usuario && (
+            <div className="flex items-center gap-5">
+              <button
+                onClick={() => {
+                  saveToken(null);
+                  saveUsuario(null);
+                  navigate("/");
+                }}
+                className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold "
+                title="Cerrar sesión"
+              >
+                Cerrar sesión
+              </button>
+              <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black">
+                <FaUser className="text-sm -mt-0.5 mr-2" />
+                <span className="flex items-center">{usuario?.nombre_usuario}</span>
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {notas.map((nota) => (
