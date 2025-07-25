@@ -11,6 +11,7 @@ import TarjetaHorizontalPost from '../../../../componentes/residente/componentes
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 import DetallePost from '../DetallePost.jsx';
+import Banner from '../../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 
 const MainSeccionesCategorias = () => {
     const location = useLocation();
@@ -34,12 +35,24 @@ const MainSeccionesCategorias = () => {
             if (notasRef.current) {
                 notasRef.current.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'end'
+                    block: 'start'
                 });
             }
         }, 100); // ← AGREGA ESTO
     };
     const notasRef = useRef(null);
+
+
+
+    useEffect(() => {
+        if (selectedNota && notasRef.current) {
+            notasRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, [selectedNota]);
+
 
 
     useEffect(() => {
@@ -231,7 +244,7 @@ const MainSeccionesCategorias = () => {
                 ref={notasRef}
             >
                 {/* Cuponera */}
-                <div className="flex flex-col items-start justify-start ">
+                <div className="flex flex-col items-start justify-start">
                     <h2 className="text-xl font-bold mb-2">Cuponera</h2>
                 </div>
                 {/* Notas */}
@@ -243,12 +256,20 @@ const MainSeccionesCategorias = () => {
                                 onVolver={handleVolver}
                             />
                         ) : (
-                            notas.map(nota => (
-                                <TarjetaHorizontalPost
-                                    key={nota.id}
-                                    post={nota}
-                                    onClick={() => handleNotaClick(nota)}
-                                />
+                            notas.map((nota, idx) => (
+                                <div key={nota.id}>
+                                    <TarjetaHorizontalPost
+                                        post={nota}
+                                        onClick={() => handleNotaClick(nota)}
+                                    />
+                                    {([2, 5, 8].includes(idx)) && (
+                                        <img
+                                            src={Banner}
+                                            alt="Banner Revista"
+                                            className="w-full my-4"
+                                        />
+                                    )}
+                                </div>
                             ))
                         )}
                     </div>
