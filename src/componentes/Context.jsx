@@ -38,10 +38,10 @@ export const AuthProvider = ({ children }) => {
     const saveUsuario = (datosUsuario) => {
         setUsuario(datosUsuario);
         if (datosUsuario) {
-           // localStorage.setItem('usuario', JSON.stringify(datosUsuario));
+            localStorage.setItem('usuario', JSON.stringify(datosUsuario)); // ← DESCOMENTA ESTA LÍNEA
             setTipoNotaUsuario(tipoNotaPorPermiso[datosUsuario.permisos] || null);
         } else {
-            //localStorage.removeItem('usuario');
+            localStorage.removeItem('usuario'); // ← DESCOMENTA ESTA LÍNEA
             setTipoNotaUsuario(null);
         }
     };

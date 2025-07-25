@@ -167,9 +167,9 @@ const MainSeccionesCategorias = () => {
                     <CarruselPosts restaurantes={restaurantes.slice(0, 5)} />
                 </div>
             </div>
-            <div className="grid grid-cols-6 gap-5 mt-5 mb-5">
+            <div className="grid grid-cols-5 gap-5 mt-5 mb-5">
                 {restaurantes.length > 0 ? (
-                    restaurantes.map(rest => (
+                    restaurantes.slice(0, 5).map(rest => (
                         <Link
                             key={rest.id}
                             to={`/restaurante/${rest.slug}`}
@@ -177,14 +177,14 @@ const MainSeccionesCategorias = () => {
                         >
                             <div className="relative h-60">
                                 {/* Etiqueta flotante con el nombre */}
-                                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[10px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap group-hover:bg-yellow-400 group-hover:text-black transition">
+                                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[14px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap group-hover:bg-yellow-400 group-hover:text-black transition">
                                     {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
                                 </div>
                                 <img
                                     src={rest.imagenes && rest.imagenes.length > 0
                                         ? urlApi.replace(/\/$/, '') + rest.imagenes[0].src
                                         : "https://via.placeholder.com/180x120?text=Sin+Imagen"}
-                                    className="w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+                                    className="w-full h-full object-cover transition-all duration-500 ease-in-out"
                                     alt={rest.nombre_restaurante}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
@@ -197,10 +197,10 @@ const MainSeccionesCategorias = () => {
             </div>
 
             <div className="mb-8">
-                <h2 className="text-xl font-bold mb-2 text-center">Más recomendaciones de {categoria}</h2>
-                <ul className="flex flex-row justify-center items-center flex-wrap gap-4">
+                <h2 className="text-xl font-bold mb-3 text-center">Más recomendaciones de {categoria}</h2>
+                <ul className="flex flex-row justify-center items-center flex-wrap gap-x-5 gap-y-1">
                     {restaurantes.map(rest => (
-                        <li key={rest.id} className="mb-0 text-xl">
+                        <li key={rest.id} className="bg-black text-white text-[14px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap ">
                             <Link
                                 to={`/restaurante/${rest.slug}`}
                                 className="text-black-600 hover:underline"
@@ -249,7 +249,7 @@ const MainSeccionesCategorias = () => {
                 </div>
                 {/* Notas */}
                 <div className="flex flex-col items-center justify-start">
-                    <div className="w-full">
+                    <div className="w-full gap-5 flex flex-col">
                         {selectedNota ? (
                             <DetallePost
                                 post={selectedNota}
@@ -275,7 +275,7 @@ const MainSeccionesCategorias = () => {
                     </div>
                 </div>
                 {/* OpcionesExtra */}
-                <div className="flex flex-col items-end justify-start">
+                <div className="flex flex-col items-end justify-start gap-5">
                     <DirectorioVertical
                         categoria={categoria}
                         restaurantes={restaurantes}
