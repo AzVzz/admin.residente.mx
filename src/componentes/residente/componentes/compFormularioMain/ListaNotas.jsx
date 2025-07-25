@@ -5,6 +5,8 @@ import Login from "../../../login";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { FaUser } from "react-icons/fa6";
+import SinNotas from "./componentesListaNotas/SinNotas";
+import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth(); // ← SOLO AQUÍ
@@ -15,12 +17,20 @@ const ListaNotas = () => {
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
-  // Redirige si no está logeado
+  // Si expiro el token(error 403) o lo borra(401) se borra el token y el ususario
   useEffect(() => {
+    // Si hay error 403/401, borra token y usuario y redirige a login
+    if (error && (error.status === 403 || error.status === 401)) {
+      saveToken(null);
+      saveUsuario(null);
+      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      return;
+    }
+    // Si no hay token o usuario, redirige a login
     if (!token || !usuario) {
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
     }
-  }, [token, usuario, location, navigate]);
+  }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
   // Traer notas
   const fetchNotas = async () => {
@@ -71,14 +81,7 @@ const ListaNotas = () => {
     }
   };
 
-  // Mostrar si no hay token o si el error es 403 (token inválido)
-  if (!token || (error && (error.status === 403 || error.status === 401))) {
-    return (
-      <div className="max-w-[400px] mx-auto mt-10">
-        <Login redirectTo={location.pathname} />
-      </div>
-    );
-  }
+
 
   // Mostrar estado de carga
   if (cargando) {
@@ -91,82 +94,12 @@ const ListaNotas = () => {
 
   // Mostrar errores
   if (error) {
-    return (
-      <div className="bg-red-900 border-l-4 border-red-500 p-4 my-6">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-red-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-red-700">Error: {error.message}</p>
-            <button
-              onClick={fetchNotas}
-              className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Reintentar
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <ErrorNotas error={error} onRetry={fetchNotas} />;
   }
 
   // Mostrar mensaje si no hay notas
   if (!notas || notas.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <svg
-          className="mx-auto h-12 w-12 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900">
-          No hay notas disponibles
-        </h3>
-        <p className="mt-1 text-sm text-gray-500">
-          Comienza creando una nueva nota.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/notas/nueva"
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg
-              className="-ml-1 mr-2 h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Nueva Nota
-          </Link>
-        </div>
-      </div>
-    );
+    return <SinNotas />;
   }
 
   // Mostrar la lista de notas
