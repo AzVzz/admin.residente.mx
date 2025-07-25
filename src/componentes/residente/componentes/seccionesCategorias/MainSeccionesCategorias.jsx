@@ -1,10 +1,8 @@
 import { urlApi } from '../../../api/url';
-import { Link } from 'react-router-dom';
-import { useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
-
 
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
@@ -12,6 +10,8 @@ import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 import DetallePost from '../DetallePost.jsx';
 import Banner from '../../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
+
+const NOTAS_POR_PAGINA = 12;
 
 const MainSeccionesCategorias = () => {
     const location = useLocation();
@@ -25,24 +25,35 @@ const MainSeccionesCategorias = () => {
     const categoriaH1ContainerRef = useRef(null);
     const [categoriaFontSize, setCategoriaFontSize] = useState(150);
     const [selectedNota, setSelectedNota] = useState(null);
+    const [paginaActual, setPaginaActual] = useState(1);
+    const notasRef = useRef(null);
+    const notaRefs = useRef({});
+
+    const totalPaginas = Math.ceil(notas.length / NOTAS_POR_PAGINA);
+    const notasPagina = notas.slice(
+        (paginaActual - 1) * NOTAS_POR_PAGINA,
+        paginaActual * NOTAS_POR_PAGINA
+    );
+
     const handleNotaClick = (nota) => {
         setSelectedNota(nota);
     };
     const handleVolver = () => {
-        console.log("Volviendo al listado...");
         setSelectedNota(null);
         setTimeout(() => {
-            if (notasRef.current) {
+            if (selectedNota && notaRefs.current[selectedNota.id]) {
+                notaRefs.current[selectedNota.id].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else if (notasRef.current) {
                 notasRef.current.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
             }
-        }, 100); // ← AGREGA ESTO
+        }, 100);
     };
-    const notasRef = useRef(null);
-
-
 
     useEffect(() => {
         if (selectedNota && notasRef.current) {
@@ -53,8 +64,6 @@ const MainSeccionesCategorias = () => {
         }
     }, [selectedNota]);
 
-
-
     useEffect(() => {
         if (!seccion || !categoria) return;
         setLoading(true);
@@ -63,14 +72,13 @@ const MainSeccionesCategorias = () => {
             restaurantesPorSeccionCategoriaGet(seccion, categoria)
         ])
             .then(([notasData, restaurantesData]) => {
-                setNotas(notasData);
-                setRestaurantes(restaurantesData);
+                setNotas(Array.isArray(notasData) ? notasData : []);
+                setRestaurantes(Array.isArray(restaurantesData) ? restaurantesData : []);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
     }, [seccion, categoria]);
 
-    // Función para renderizar el h1 con salto de línea solo si hay dos palabras
     function renderCategoriaH1(texto) {
         const palabras = texto.trim().split(/\s+/);
         if (palabras.length === 2) {
@@ -83,9 +91,6 @@ const MainSeccionesCategorias = () => {
         return texto;
     }
 
-
-
-    // Ajuste de tamaño de fuente reactivo usando ResizeObserver
     useLayoutEffect(() => {
         const adjustFontSizeForH1 = () => {
             const ref = categoriaH1Ref;
@@ -145,6 +150,15 @@ const MainSeccionesCategorias = () => {
         };
     }, [categoria, restaurantes]);
 
+    useEffect(() => {
+        if (notasRef.current) {
+            notasRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, [paginaActual]);
+
     if (loading) return <div>Cargando...</div>;
 
     return (
@@ -173,10 +187,9 @@ const MainSeccionesCategorias = () => {
                         <Link
                             key={rest.id}
                             to={`/restaurante/${rest.slug}`}
-                            className="relative items-center block group" // block para que el Link envuelva todo
+                            className="relative items-center block group"
                         >
                             <div className="relative h-60">
-                                {/* Etiqueta flotante con el nombre */}
                                 <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[14px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap group-hover:bg-yellow-400 group-hover:text-black transition">
                                     {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
                                 </div>
@@ -256,8 +269,11 @@ const MainSeccionesCategorias = () => {
                                 onVolver={handleVolver}
                             />
                         ) : (
-                            notas.map((nota, idx) => (
-                                <div key={nota.id}>
+                            notasPagina.map((nota, idx) => (
+                                <div
+                                    key={nota.id}
+                                    ref={el => notaRefs.current[nota.id] = el}
+                                >
                                     <TarjetaHorizontalPost
                                         post={nota}
                                         onClick={() => handleNotaClick(nota)}
@@ -273,6 +289,23 @@ const MainSeccionesCategorias = () => {
                             ))
                         )}
                     </div>
+                    {/* Botones de paginación */}
+                    {!selectedNota && totalPaginas > 1 && (
+                        <div className="flex gap-2 mt-6">
+                            {Array.from({ length: totalPaginas }, (_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setPaginaActual(i + 1)}
+                                    className={`w-8 h-8 items-center justify-center ${paginaActual === i + 1
+                                        ? 'bg-black text-white' // Página actual
+                                        : 'bg-gray-200 text-black hover:bg-gray-300' // Botón por seleccionar
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
                 {/* OpcionesExtra */}
                 <div className="flex flex-col items-end justify-start gap-5">

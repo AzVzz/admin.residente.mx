@@ -115,14 +115,14 @@ const Header = () => {
               {/* Bloque derecho: iconos, título/fecha y portada */}
               <div className="flex items-center ml-auto" >
                 {/* Iconos zonales */}
-                <div className="flex flex-col justify-center items-end mr-4 gap-8">
-                  <div className="flex gap-2 items-center -mt-2 mb-2 w-40 justify-end">
+                <div className="flex flex-col justify-center items-end mr-4 gap-2">
+                  <div className="flex gap-1 items-center relative -top-7 mb-2 w-40 justify-end">
                     {iconosZonales.map((icon, idx) => (
-                      <img key={idx} src={icon.src} alt={icon.alt} className="h-6 w-6 shadow-md rounded-full" />
+                      <img key={idx} src={icon.src} alt={icon.alt} className="h-7 w-7 shadow-md rounded-full" />
                     ))}
                   </div>
                   {/* Título y fecha al lado izquierdo de la portada */}
-                  <div className="flex flex-col justify-center w-40 items-end text-right">
+                  <div className="flex flex-col justify-center w-40 items-end text-right relative -top-3">
                     <div className="text-xs font-semibold font-sans">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
                     <div className="text-xs text-gray-500 font-sans">{fechaActual}</div>
                   </div>
