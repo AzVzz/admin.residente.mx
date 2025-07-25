@@ -6,7 +6,8 @@ import SinFoto from '../../../imagenes/ResidenteColumna1/SinFoto.png';
 const DetallePost = ({ post, onVolver }) => {
     return (
         <div className="flex flex-col shadow-md">
-            <div className="flex flex-col cursor-pointer h-[725px] overflow-hidden mb-5">
+            {/** h-[725px]  mb-5 */}
+            <div className="flex flex-col cursor-pointer overflow-hidden">
                 {/* Imagen - idéntica a PostPrincipal */}
                 <div className="h-[400px] overflow-hidden">
                     <div className="relative h-full">
@@ -21,8 +22,8 @@ const DetallePost = ({ post, onVolver }) => {
                     </div>
                 </div>
 
-                {/* Sección negra - idéntica a PostPrincipal */}
-                <div className="bg-black p-10 flex flex-col h-[325px]">
+                {/* Sección negra - idéntica a PostPrincipal h-[325px]*/}
+                <div className="bg-black p-10 flex flex-col ">
                     <div className="mb-2">
                         <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
                             {post.tipo_nota}

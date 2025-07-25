@@ -55,7 +55,7 @@ const DirectorioVertical = () => {
                     <li key={seccion.seccion} className="relative">
                         <button
                             ref={el => buttonRefs.current[i] = el}
-                            className="w-full flex items-center justify-between text-left font-bold py-2 px-3 rounded bg-gray-800 hover:bg-gray-700 transition"
+                            className="w-full flex items-center justify-between text-left font-bold py-2 px-3 rounded hover:bg-gray-700 transition"
                             onClick={() => setOpenIndex(openIndex === i ? null : i)}
                         >
                             <img
