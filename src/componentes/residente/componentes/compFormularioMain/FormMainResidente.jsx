@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut } from '../../../../componentes/api/notaCrearPostPut.js';
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
-import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
+import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/catalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
 import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
