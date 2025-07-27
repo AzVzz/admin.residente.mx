@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import
+import 
 Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
@@ -165,7 +165,6 @@ const BannerRevista = () => {
                         {/* Columna lateral - Mantenemos igual */}
                         <div className="space-y-6">
                             {/* Como no tenemos contexto de categoría, mostramos todas las destacadas */}
-                            <DirectorioVertical />
                             <MainLateralPostTarjetas
                                 notasDestacadas={notasDestacadas}
                                 onCardClick={(post) => handleCardClick(post.id)}

@@ -175,7 +175,7 @@ const Header = () => {
                   ))}
                 </div>
                 <div className="flex gap-1.5">
-                  <img src={b2blogo} className="object-contain h-4 w-auto b2b cursor-pointer" />
+                  <img src={b2blogo} className="object-contain h-4 w-12 b2b cursor-pointer" />
                   <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-white hover:text-gray-400" /></a>

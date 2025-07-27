@@ -18,6 +18,7 @@ import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector
 import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
+import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -251,6 +252,8 @@ const FormMainResidente = () => {
                 <Autor />
 
                 <Contenido />
+
+                <FormularioPromoExt />
 
                 <OpcionesPublicacion
                   opcionSeleccionada={opcionPublicacion}
