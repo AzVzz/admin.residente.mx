@@ -32,7 +32,7 @@ const PaginaCliente = () => {
     const [primeraNota, ...restoNotas] = notas;
 
     return (
-        <div className="my-15">
+        <div className="my-0">
             <h1 className="text-3xl font-bold">Página de {nombreCliente}</h1>
             <div
                 className="grid gap-5 mb-5"

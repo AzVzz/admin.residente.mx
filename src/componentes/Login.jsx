@@ -3,12 +3,14 @@ import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Login = ({ redirectTo }) => {
     const [nombre_usuario, setNombreUsuario] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const { saveToken, saveUsuario, token, usuario } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -75,15 +77,29 @@ const Login = ({ redirectTo }) => {
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
                             Contraseña
                         </label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                            placeholder="Contraseña"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            autoComplete="current-password"
-                        />
+                        <div className="relative">
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline pr-10"
+                                placeholder="Contraseña"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                autoComplete="current-password"
+                            />
+                            <button
+                                type="button"
+                                tabIndex={-1}
+                                className="absolute inset-y-0 right-0 flex items-center h-10 px-2 text-gray-500"
+                                onClick={() => setShowPassword(v => !v)}
+                            >
+                                {showPassword ? (
+                                    <FaRegEye className="h-5 w-5" />
+                                ) : (
+                                    <FaRegEyeSlash className="h-5 w-5" />
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <button
                         type="submit"

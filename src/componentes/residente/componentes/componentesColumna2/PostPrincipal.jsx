@@ -21,20 +21,21 @@ const PostPrincipal = ({ post, onClick }) => {
                     />
                 </div>
             </div>
-            <div className="bg-black p-10 flex flex-col h-[325px]">
-                <div className="mb-2 flex items-center justify-between">
+            <div className="bg-black p-10 flex flex-col h-[325px] relative">
+                <div className="mb-1 flex items-center justify-between">
                     <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
                         {post.tipo_nota}
                     </span>
-                    <div className="flex gap-5   ml-4">
-                        <img src={real} alt="Monterrey" className="h-5 w-5 rounded-full shadow" />
-                        <img src={calidad} alt="San Nicolás" className="h-5 w-5 rounded-full shadow" />
+                    {/* Iconos en posición absoluta */}
+                    <div className="absolute top-6 right-9 flex gap-4 z-10">
+                        <img src={real} alt="Monterrey" className="h-12 w-12 rounded-full shadow" />
+                        <img src={calidad} alt="San Nicolás" className="h-12 w-12 rounded-full shadow" />
                     </div>
                 </div>
                 <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
                     {post.titulo}
                 </h1>
-                <p className="text-white mt-3 font-light">{`de ${post.autor}`}</p>
+                <p className="text-white font-light">{`de ${post.autor}`}</p>
             </div>
         </div>
     )

@@ -23,7 +23,7 @@ const SeccionesPrincipales = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black mb-3 py-5 ">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5 ">
             <div className="grid grid-cols-6 max-w-[1080px] mb-5 w-full mx-auto py-0 gap-8">
                 <img
                     src={GuiaNl}
