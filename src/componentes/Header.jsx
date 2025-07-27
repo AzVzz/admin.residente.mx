@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { catalogoHeadersGet } from './api/catalogoSeccionesGet';
 
 import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
 import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
@@ -25,70 +26,6 @@ const iconosZonales = [
   { src: santacatarina, alt: "Santa Catarina" },
 ];
 
-// Ejemplo de estructura de submenús (puedes adaptar según tu MegaMenu)
-const menuSections = {
-  residente: {
-    title: "Residente",
-    items: [
-      { name: "Nuestros medios", url: "https://www.estrellasdenuevoleon.com/" },
-      { name: "Historia", url: "https://www.estrellasdenuevoleon.com/historia" },
-      { name: "Misión", url: "https://www.estrellasdenuevoleon.com/mision" },
-      { name: "Trabajo", url: "https://www.estrellasdenuevoleon.com/trabajo" },
-      { name: "Anúnciate", url: "https://www.estrellasdenuevoleon.com/anunciate" },
-      { name: "Input OpEd", url: "https://residente.mx/registro/" },
-      { name: "Input media", url: "https://residente.mx/colaboradores/" },
-      { name: "Input promo", url: "https://www.estrellasdenuevoleon.com/promo" },
-      { name: "Guía crítica", url: "https://residente.mx/guia-critica/" },
-    ],
-  },
-  noticias: {
-    title: "Noticias",
-    items: [
-      { name: "Opinion", url: "#" },
-      { name: "Cultura restaurantera", url: "https://residente.mx/category/cultura-restaurantera/" },
-      { name: "Postres y snacks", url: "https://residente.mx/category/postres-y-snacks/" },
-      { name: "Comida y bebida", url: "https://residente.mx/category/comida-y-bebida/" },
-      { name: "Perfiles y entrevistas", url: "https://residente.mx/category/perfiles-y-entrevistas/" },
-    ],
-  },
-  cultura: {
-    title: "Cultura Gastronómica",
-    items: [
-      { name: "Estrellas de Nuevo León", url: "https://estrellasdenuevoleon.com.mx" },
-      { name: "Mapa Restaurantero de Nuevo León", url: "#" },
-      { name: "Platillos icónicos de Nuevo León", url: "https://www.estrellasdenuevoleon.com/platillos" },
-      { name: "Los rostros detrás del sabor", url: "https://www.estrellasdenuevoleon.com/rostros" },
-      { name: "Cuponera Residente", url: "#" },
-      { name: "Etiqueta Restaurantera", url: "https://residente.mx/2022/01/13/del-restaurant-al-comensal/" },
-      { name: "Recetario Residente", url: "#" },
-      { name: "Mamá de Rocco", url: "/mama-de-rocco" },
-    ],
-  },
-  guias: {
-    title: "Guías Zonales",
-    items: [
-      { name: "Santiago", url: "#" },
-      { name: "Centrito valle", url: "#" },
-      { name: "Barrio Antiguo", url: "/barrio-antiguo" },
-      { name: "Valle Poniente", url: "#" },
-    ],
-  },
-  franquicias: {
-    title: "Franquicias Nacionales",
-    items: [
-      { name: "Residente Rivera Maya", url: "#" },
-      { name: "Residente Saltillo", url: "#" },
-      { name: "Residente Ciudad de México", url: "#" },
-    ],
-  },
-  anunciate: {
-    title: "Anúnciate",
-    items: [
-      { name: "Contacto", url: "https://www.estrellasdenuevoleon.com/anunciate" }
-    ],
-  }
-};
-
 const Header = () => {
   const fechaActual = new Date().toLocaleDateString('es-MX', {
     day: 'numeric',
@@ -96,7 +33,13 @@ const Header = () => {
     year: 'numeric'
   });
 
-  const [hoveredMenu, setHoveredMenu] = useState(null);
+  const [menuHeader, setMenuHeader] = useState([]);
+
+  useEffect(() => {
+    catalogoHeadersGet()
+      .then(data => setMenuHeader(data))
+      .catch(() => setMenuHeader([]));
+  }, []);
 
   return (
     <header className="bg-[#fff200] w-full">
@@ -108,71 +51,69 @@ const Header = () => {
             </Link>
           </div>
           <div className="w-full">
-            <div className="flex items-end pb-3 gap-2 "> {/* Primer div: RCirculo y ResidenteFoodLetras */}
+            <div className="flex items-end pb-3 gap-2 ">
               <Link to="/residente">
                 <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
               </Link>
-              {/* Bloque derecho: iconos, título/fecha y portada */}
               <div className="flex items-center ml-auto" >
-                {/* Iconos zonales */}
                 <div className="flex flex-col justify-center items-end mr-4 gap-2">
                   <div className="flex gap-1 items-center relative -top-7 mb-2 w-40 justify-end">
                     {iconosZonales.map((icon, idx) => (
                       <img key={idx} src={icon.src} alt={icon.alt} className="h-7 w-7 shadow-md rounded-full" />
                     ))}
                   </div>
-                  {/* Título y fecha al lado izquierdo de la portada */}
                   <div className="flex flex-col justify-center w-40 items-end text-right relative -top-3">
                     <div className="text-xs font-semibold font-sans">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
                     <div className="text-xs text-gray-500 font-sans">{fechaActual}</div>
                   </div>
                 </div>
-                {/* Portada revista al final derecho */}
                 <img src={PortadaRevista} alt="Portada Revista" className="h-40 w-32 object-cover" />
               </div>
             </div>
 
-            <div className="flex flex-col flex-1"> {/* Segundo div: menú y líneas */}
-              {/* Línea superior */}
+            <div className="flex flex-col flex-1">
               <div className="border-black my-0 ml-25" />
-              {/* Menú principal con submenús tipo hover */}
               <div className="flex justify-between items-center px-5 py-2 bg-black">
                 <div className="flex gap-6 items-center text-sm font-semibold bg">
-                  {Object.entries(menuSections).map(([key, section]) => (
-                    key === "anunciate" ? (
+                  {menuHeader.map((section, idx) =>
+                    section.url ? (
                       <a
-                        key={key}
-                        href={section.items[0].url}
+                        key={idx}
+                        href={section.url}
                         className="hover:underline text-white"
                         rel="noopener noreferrer"
+                        target={section.url.startsWith('http') ? '_blank' : undefined}
                       >
-                        {section.title}
+                        {section.seccion}
                       </a>
                     ) : (
                       <div
-                        key={key}
+                        key={idx}
                         className="relative group"
                       >
-                        <a href="#" className="hover:underline text-white">{section.title}</a>
+                        <a href="#" className="hover:underline text-white">{section.seccion}</a>
                         {/* Submenú desplegable */}
-                        <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
-                          <ul>
-                            {section.items.map((item, idx) => (
-                              <li key={idx}>
-                                <a
-                                  href={item.url}
-                                  rel="noopener noreferrer"
-                                  className="block px-4 py-2 text-black hover:bg-yellow-100"
-                                >
-                                  {item.name}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        {section.submenu && (
+                          <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+                            <ul>
+                              {section.submenu.map((item, subIdx) => (
+                                <li key={subIdx}>
+                                  <a
+                                    href={item.url}
+                                    rel="noopener noreferrer"
+                                    className="block px-4 py-2 text-black hover:bg-yellow-100"
+                                    target={item.url.startsWith('http') ? '_blank' : undefined}
+                                  >
+                                    {item.nombre}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     )
-                  ))}
+                  )}
                 </div>
                 <div className="flex gap-1.5">
                   <img src={b2blogo} className="object-contain h-4 w-12 b2b cursor-pointer" />
@@ -186,8 +127,6 @@ const Header = () => {
             </div>
           </div>
         </div>
-
-
       </div>
     </header>
   );
