@@ -26,3 +26,16 @@ export const catalogoTipoNotaGet = async () => {
         throw error;
     }
 }
+
+export const catalogoHeadersGet = async () => {
+    try {
+        const response = await fetch(`${urlApi}api/catalogo/headers`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        const result = await response.json();
+        if (!result.success) throw new Error("La API no devolvió success:true");
+        return result.data;
+    } catch (error) {
+        console.error("Error fetching data", error);
+        throw error;
+    }
+}
