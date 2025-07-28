@@ -1,9 +1,24 @@
 import PostComentarios from "./PostComentarios";
 import ShowComentarios from "./ShowComentarios";
 import SinFoto from '../../../imagenes/ResidenteColumna1/SinFoto.png';
+import { Iconografia } from '../../utils/Iconografia.jsx';
 
 // DetallePost.jsx
 const DetallePost = ({ post, onVolver, sinFecha = false }) => {
+    // Verificar si el post tiene stickers
+    const iconosDisponibles = [
+        ...Iconografia.categorias,
+        ...Iconografia.ocasiones,
+        ...Iconografia.zonas
+    ];
+
+    // Filtrar iconos que están en el post
+    const stickers = Array.isArray(post.sticker)
+        ? post.sticker
+        : post.sticker
+            ? [post.sticker]
+            : [];
+
     return (
         <div className="flex flex-col shadow-md">
             {/** h-[725px]  mb-5 */}
@@ -26,10 +41,24 @@ const DetallePost = ({ post, onVolver, sinFecha = false }) => {
 
                 {/* Sección negra - idéntica a PostPrincipal h-[325px]*/}
                 <div className="bg-black p-10 flex flex-col ">
-                    <div className="mb-2">
+                    <div className="mb-1 flex items-center justify-between">
                         <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
                             {post.tipo_nota}
                         </span>
+                        {/* Iconos seleccionados dinamicamente*/}
+                        <div className="flex gap-4 z-10">
+                            {stickers.map(clave => {
+                                const icono = iconosDisponibles.find(i => i.clave === clave);
+                                return icono ? (
+                                    <img
+                                        key={clave}
+                                        src={icono.icono}
+                                        alt={icono.nombre}
+                                        className="h-12 w-12 rounded-full shadow"
+                                    />
+                                ) : null;
+                            })}
+                        </div>
                     </div>
                     <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
                         {post.titulo}
