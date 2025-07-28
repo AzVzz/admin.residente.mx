@@ -23,8 +23,8 @@ const CarruselPosts = ({ restaurantes }) => {
   const goNext = () => setIndex((prev) => (prev + 1) % total);
 
   return (
-    <div className="relative mb-3 group">
-      <div className="relative overflow-hidden h-[470px] w-full">
+    <div className="relative group">
+      <div className="relative overflow-hidden h-[400px] w-full">
         {restaurantes.map((rest, i) => (
           <div
             key={rest.id}

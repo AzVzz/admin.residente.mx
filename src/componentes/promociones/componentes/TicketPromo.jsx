@@ -6,6 +6,7 @@ import perforatedTop from '../../../imagenes/orilla-ticket-top.png';
 import perforatedBottom from '../../../imagenes/orilla-ticket-bottom.png'
 
 const TicketPromo = forwardRef((props, ref) => {
+    const { className = "", ...rest } = props;
     const {
         nombreRestaurante,
         nombrePromo,
@@ -96,7 +97,7 @@ const TicketPromo = forwardRef((props, ref) => {
     return (
         <div
             ref={ref}
-            className="relative pt-2 pb-2 pr-11"
+            className={`relative pt-2 pb-2 pr-11 ${className}`}
             style={{
                 background: 'transparent', // Fondo transparente
             }}
@@ -104,13 +105,16 @@ const TicketPromo = forwardRef((props, ref) => {
             <div
                 ref={containerRef}
                 className="flex flex-col bg-white w-90 h-[670px] shadow-lg mx-auto relative"
+                style={{
+                    boxShadow: '-2px 3px 3px rgba(0,0,0,0.25)'
+                }}
             >
                 {
                     stickerUrl && (
                         <img
                             src={stickerUrl}
                             alt="Sticker"
-                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]"
+                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]" 
                         />
                     )
                 }
@@ -126,7 +130,7 @@ const TicketPromo = forwardRef((props, ref) => {
 
 
                 {/* Main content */}
-                <div className="px-5 py-4 pt-6 flex-1 flex flex-col ">
+                <div className="px-5 py-4 pt-6 flex-1 flex flex-col">
                     <div className="mb-4 z-20">
                         <img
                             src={ResidenteDiscyPromo || "/placeholder.svg"}
@@ -161,7 +165,7 @@ const TicketPromo = forwardRef((props, ref) => {
 
                             <h3
                                 ref={burgersRef}
-                                className="uppercase font-black text-center whitespace-nowrap overflow-hidden"
+                                className="font-black text-center whitespace-nowrap overflow-hidden"
                                 style={{
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
@@ -182,7 +186,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 </div>
                 {/* Bottom section */}
                 <div className="bg-[#FFF200] px-5 py-3 pb-3 mt-auto relative">
-                    <h2 className="text-xl mb-2 bg-black text-white text-center font-light font-roman">
+                    <h2 className="text-xl mb-2 bg-black text-white text-center font-light font-roman leading-5 py-2">
                         {validezPromo}
                     </h2>
                     <img

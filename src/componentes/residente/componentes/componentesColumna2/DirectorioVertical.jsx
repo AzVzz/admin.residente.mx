@@ -47,23 +47,23 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-5 relative">
-            <img src={GuiaNl} className="w-48 h-auto" />
-            <p className="text-xl leading-5.5">El directorio gastronómico diseñado para ayudarte a <br />decidir dónde ir a comer hoy.</p>
-            <ol className="flex flex-col gap-3">
+        <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-4 relative">
+            <img src={GuiaNl} className="w-37 h-auto" />
+            <p className="text-base leading-4.5">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos</p>
+            <ol className="flex flex-col gap-2.5">
                 {data.map((seccion, i) => (
                     <li key={seccion.seccion} className="relative">
                         <button
                             ref={el => buttonRefs.current[i] = el}
-                            className="w-full flex items-center justify-between text-left font-bold py-2 px-3 rounded hover:bg-gray-700 transition"
+                            className="w-full flex items-center justify-between text-left font-bold rounded hover:bg-gray-700 transition"
                             onClick={() => setOpenIndex(openIndex === i ? null : i)}
                         >
                             <img
                                 src={iconos[i]}
                                 alt={seccion.seccion}
-                                className="w-6 h-6 mr-3 flex-shrink-0"
+                                className="w-8 h-8 mr-2 flex-shrink-0"
                             />
-                            <span className="flex-1">Busca por {seccion.seccion.toLowerCase()}</span>
+                            <span className="flex-1 text-sm">Búsqueda por {seccion.seccion.toLowerCase()}</span>
                             <span className="ml-2">
                                 <svg
                                     className={`w-4 h-4 transition-transform duration-200 ${openIndex === i ? 'rotate-90' : 'rotate-0'}`}

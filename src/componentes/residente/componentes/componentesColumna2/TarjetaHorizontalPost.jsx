@@ -1,35 +1,37 @@
 import imagenTarjeta from "../../../../imagenes/cola-de-caballo.jpg"
 import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
-const TarjetaHorizontalPost = ({ post, onClick }) => {
+const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
   return (
     <div
-      className="group relative bg-transparent shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer"
       onClick={onClick}
     >
       {/* Contenedor principal */}
-      <div className="flex">
+      <div className="flex ">
         {/* Contenedor de imagen */}
         <div className="relative flex-shrink-0 overflow-hidden ">
           {/* Etiqueta de fecha */}
-          <div className="absolute top-2 left-2 z-10 bg-[#ffff20] backdrop-blur-sm text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-sans">
-            {(() => {
-              const fecha = post?.fecha || 'Sin fecha';
-              const [primera, ...resto] = fecha.split(' ');
-              return (
-                <>
-                  <span className="capitalize">{primera}</span>
-                  {resto.length > 0 && ' ' + resto.join(' ')}
-                </>
-              );
-            })()}
-          </div>
+          {!sinFecha && (
+            <div className="absolute top-2 left-2 z-10 bg-[#ffff20] backdrop-blur-sm text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 font-sans">
+              {(() => {
+                const fecha = post?.fecha || 'Sin fecha';
+                const [primera, ...resto] = fecha.split(' ');
+                return (
+                  <>
+                    <span className="capitalize">{primera}</span>
+                    {resto.length > 0 && ' ' + resto.join(' ')}
+                  </>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Imagen con overlay sutil */}
           <div className="relative">
             <img
               src={post?.imagen || SinFoto}
               alt={post?.titulo || "Imagen del post"}
-              className="h-34 w-44 object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-27 w-35 object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
@@ -45,7 +47,7 @@ const TarjetaHorizontalPost = ({ post, onClick }) => {
           </div>
 
           {/* Título */}
-          <h3 className="font-grotesk text-xl font-bold text-gray-900 leading-5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
+          <h3 className="font-grotesk text-[22px] font-bold text-gray-900 leading-5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
             {post?.titulo || 'Sin título'}
           </h3>
 
@@ -54,7 +56,7 @@ const TarjetaHorizontalPost = ({ post, onClick }) => {
             {post?.descripcion || post?.contenido?.substring(0, 150) + '...' || 'Sin descripción'}
           </p>*/}
 
-          {/* Botón de acción sutil */}
+          {/* Botón de acción sutil }
           <div className="flex items-center text-gray-600 text-sm font-semibold group-hover:text-gray-900 transition-colors duration-200">
             <span>Leer más</span>
             <svg
@@ -65,7 +67,9 @@ const TarjetaHorizontalPost = ({ post, onClick }) => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </div>
+          </div>*/}
+
+
         </div>
       </div>
     </div>

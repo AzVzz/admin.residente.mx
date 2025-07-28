@@ -3,7 +3,7 @@ import ShowComentarios from "./ShowComentarios";
 import SinFoto from '../../../imagenes/ResidenteColumna1/SinFoto.png';
 
 // DetallePost.jsx
-const DetallePost = ({ post, onVolver }) => {
+const DetallePost = ({ post, onVolver, sinFecha = false }) => {
     return (
         <div className="flex flex-col shadow-md">
             {/** h-[725px]  mb-5 */}
@@ -11,9 +11,11 @@ const DetallePost = ({ post, onVolver }) => {
                 {/* Imagen - idéntica a PostPrincipal */}
                 <div className="h-[400px] overflow-hidden">
                     <div className="relative h-full">
-                        <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
-                            {post.fecha}
-                        </div>
+                        {!sinFecha && (
+                            <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
+                                {post.fecha}
+                            </div>
+                        )}
                         <img
                             src={post.imagen || SinFoto}
                             className="w-full h-full object-cover"

@@ -1,4 +1,5 @@
 import { urlApi } from '../../../api/url';
+import React from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
@@ -14,6 +15,9 @@ import BarraMarquee from './componentes/BarraMarquee.jsx';
 import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
 import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
+import TicketPromo from '../../../promociones/componentes/TicketPromo.jsx';
+import Cupones from './componentes/Cupones.jsx';
+import SeccionesPrincipales from '../SeccionesPrincipales.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -102,7 +106,7 @@ const MainSeccionesCategorias = () => {
             const initialSize = 150;
             const minSize = 20;
             const step = 2;
-            const paddingCompensation = 40;
+            const paddingCompensation = 0; //antes 40
 
             if (!ref.current || !containerRef.current) return;
 
@@ -166,7 +170,7 @@ const MainSeccionesCategorias = () => {
     if (loading) return <div>Cargando...</div>;
 
     return (
-        <div className="mt-5 mb-5">
+        <div className="mb-5">
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
                 <CategoriaHeader
@@ -181,83 +185,115 @@ const MainSeccionesCategorias = () => {
                 </div>
             </div>
 
+
             {/* Los 5 restaurantes destacados en imagenes */}
             <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
-            {/* Recomendaciones de restaurantes */}
-            <RecomendacionesRestaurantes categoria={categoria} restaurantes={restaurantes} />
-
             {/* Barra negra que se mueve Barra marquee*/}
-            <BarraMarquee categoria={categoria} />
+            <BarraMarquee categoria={categoria} /> 
+
+            {/* Recomendaciones de restaurantes 
+            <RecomendacionesRestaurantes categoria={categoria} restaurantes={restaurantes} />*/}
 
             {/* Body con 3 columnas, Cuponera, Notas y Directorio con cosas extra */}
             <div
                 className="grid gap-5"
-                style={{ gridTemplateColumns: '0.9fr 2fr 1.1fr' }}
+                style={{ gridTemplateColumns: '2.9fr 1.1fr' }}
                 ref={notasRef}
             >
-                {/* Cuponera */}
-                <div className="flex flex-col items-start justify-start">
-                    <h2 className="text-xl font-bold mb-2">Cuponera</h2>
-                </div>
                 
-                {/* Notas */}
+
+                {/* Notas y bloques extendidos */}
                 <div className="flex flex-col items-center justify-start">
+                    
                     <div className="w-full gap-5 flex flex-col">
+                        <img
+                            src={Banner}
+                            alt="Banner Revista"
+                            className="w-full"
+                        />
+
                         {selectedNota ? (
                             <DetallePost
                                 post={selectedNota}
                                 onVolver={handleVolver}
+                                sinFecha
                             />
                         ) : (
-                            notasPagina.map((nota, idx) => (
-                                <div
-                                    key={nota.id}
-                                    ref={el => notaRefs.current[nota.id] = el}
-                                >
-                                    <TarjetaHorizontalPost
-                                        post={nota}
-                                        onClick={() => handleNotaClick(nota)}
-                                    />
-                                    {([2, 5, 8].includes(idx)) && (
-                                        <img
-                                            src={Banner}
-                                            alt="Banner Revista"
-                                            className="w-full mt-5"
-                                        />
-                                    )}
-                                </div>
-                            ))
+                            <>
+                                {/* Primer bloque de 8 notas con Banner en medio */}
+                                {notasPagina.slice(0, 8).map((nota, idx) => (
+                                    <React.Fragment key={nota.id}>
+                                        {/* Mostrar Banner después de la cuarta nota */}
+                                        {idx === 4 && (
+                                            <img
+                                                src={Banner}
+                                                alt="Banner Revista"
+                                                className="w-full"
+                                            />
+                                        )}
+                                        <div ref={el => notaRefs.current[nota.id] = el}>
+                                            <TarjetaHorizontalPost
+                                                post={nota}
+                                                onClick={() => handleNotaClick(nota)}
+                                                sinFecha
+                                            />
+                                        </div>
+                                    </React.Fragment>
+                                ))}
+                            </>
                         )}
                     </div>
-                    {/* Botones de paginación */}
-                    {!selectedNota && totalPaginas > 1 && (
-                        <div className="flex gap-2 mt-6">
-                            {Array.from({ length: totalPaginas }, (_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setPaginaActual(i + 1)}
-                                    className={`w-8 h-8 items-center justify-center ${paginaActual === i + 1
-                                        ? 'bg-black text-white' // Página actual
-                                        : 'bg-gray-200 text-black hover:bg-gray-300' // Botón por seleccionar
-                                        }`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                        </div>
-                    )}
+
                 </div>
-                
+
                 {/* OpcionesExtra */}
                 <div className="flex flex-col items-end justify-start gap-5">
                     <DirectorioVertical
                         categoria={categoria}
                         restaurantes={restaurantes}
                     />
-                    <OpcionesExtra />
+                    {/*<OpcionesExtra />*/}
                 </div>
             </div>
+
+
+            {/* Barra horizontal extendida */}
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-5">
+                <div className="max-w-[1080px] mx-auto w-full my-3">
+                    <h3 className="text-[22px]">Más recomendaciones de restaurantes por {categoria} {">"}</h3>
+                    <ImagenesRestaurantesDestacados restaurantes={restaurantes} small cantidad={6} />
+                    <ImagenesRestaurantesDestacados restaurantes={restaurantes} small cantidad={6} />
+                </div>
+            </div>
+
+            {/* Barra horizontal extendida */}
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5">
+                <div className="max-w-[1080px] mx-auto flex flex-col items-left">
+                    <h3 className="text-white text-[22px]">Descuentos y promociones de restaurantes entre {categoria} {">"} </h3>
+                    <div className="flex flex-wrap justify-center gap-6 w-full py-1">
+                        <Cupones />
+                    </div>
+                </div>
+            </div>
+
+            {/* Botones de paginación */}
+            {!selectedNota && totalPaginas > 1 && (
+                <div className="flex gap-2 mt-6 justify-center">
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setPaginaActual(i + 1)}
+                            className={`w-8 h-8 items-center justify-center ${paginaActual === i + 1
+                                ? 'bg-black text-white' // Página actual
+                                : 'bg-gray-200 text-black hover:bg-gray-300' // Botón por seleccionar
+                                }`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

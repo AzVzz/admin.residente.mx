@@ -4,7 +4,8 @@ import { toPng } from 'html-to-image';
 import FormularioPromo from "./componentes/FormularioPromo";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
-import { ticketCrear } from '../../componentes/api/ticketCrearPost'; // Importa tu función
+import { ticketCrear } from '../../componentes/api/ticketCrearPost';
+import { restaurantesBasicosGet } from '../../componentes/api/restaurantesBasicosGet.js';
 
 const PromoMain = () => {
     const [formData, setFormData] = useState({
@@ -20,7 +21,27 @@ const PromoMain = () => {
     const [saveError, setSaveError] = useState(null);
     const [isPosting, setIsPosting] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
+    const [restaurantes, setRestaurantes] = useState([]);
+    const [selectedRestauranteId, setSelectedRestauranteId] = useState("");
+    const [restauranteInfo, setRestauranteInfo] = useState(null);
     const ticketRef = useRef(null);
+
+    useEffect(() => {
+        restaurantesBasicosGet()
+            .then(data => setRestaurantes(data))
+            .catch(err => console.error("Error cargando restaurantes:", err));
+    }, []);
+
+    const handleRestauranteChange = (e) => {
+        const id = e.target.value;
+        setSelectedRestauranteId(id);
+        const info = restaurantes.find(r => String(r.id) === String(id));
+        setRestauranteInfo(info || null);
+        setFormData(prev => ({
+            ...prev,
+            restaurantName: info ? info.nombre_restaurante : ""
+        }));
+    };
 
     const handleFieldChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -51,19 +72,23 @@ const PromoMain = () => {
     };
 
     const prepareApiData = () => {
+        // Busca el restaurante seleccionado
+        const restauranteSeleccionado = restaurantes.find(r => String(r.id) === String(selectedRestauranteId));
         return {
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
             subtitulo: formData.promoSubtitle,
             descripcion: formData.descPromo,
             icon: selectedSticker ? selectedSticker.split('/').pop().split('.')[0] : '',
-            email: 'promociones@estrellasdenuevoleon.com.mx',
+            email: formData.emailPromo || "",
             tipo: 'promo',
-            link: '',
+            link: formData.urlPromo || "",
             metadata: JSON.stringify({
                 fecha_validez: formData.fechaValidez,
                 sticker_url: selectedSticker
-            })
+            }),
+            // Solo agrega secciones_categorias si existe el restaurante y la propiedad
+            secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined
         };
     };
 
@@ -73,7 +98,7 @@ const PromoMain = () => {
         setIsPosting(true);
         try {
             const apiData = prepareApiData();
-            console.log("Datos enviados a ticketCrear:", apiData); // <-- Agrega este log
+            console.log("Datos enviados a ticketCrear:", apiData);
             await ticketCrear(apiData);
             setSaveSuccess(true);
         } catch (error) {
@@ -101,18 +126,20 @@ const PromoMain = () => {
 
     return (
         <div>
-            <div className="flex flex-row gap-5">
+            <div className="grid grid-cols-2 gap-5">
                 <FormularioPromo
                     formData={formData}
                     onFieldChange={handleFieldChange}
+                    restaurantes={restaurantes}
+                    selectedRestauranteId={selectedRestauranteId}
+                    onRestauranteChange={handleRestauranteChange}
                 />
-                <div className="bg-[#3B3B3C] w-auto h-auto px-14 pr-3 pt-10 pb-10 rounded-4xl shadow-lg relative">
+                <div className="bg-[#3B3B3C] w-auto h-auto px-14 pr-3 pt-10 pb-10 shadow-lg relative flex flex-col">
                     {/* Mensajes de éxito/error flotantes con transición */}
                     {(saveSuccess || saveError) && (
                         <div
-                            className={`absolute top-3 left-1/2 transform -translate-x-1/2 z-20 w-[90%] transition-opacity duration-300 ${
-                                showMessage ? 'opacity-100' : 'opacity-0'
-                            }`}
+                            className={`absolute top-3 left-1/2 transform -translate-x-1/2 z-20 w-[90%] transition-opacity duration-300 ${showMessage ? 'opacity-100' : 'opacity-0'
+                                }`}
                         >
                             {saveSuccess && (
                                 <div className="p-3 bg-green-100 text-green-700 rounded-md text-center shadow-lg">
@@ -136,10 +163,10 @@ const PromoMain = () => {
                         validezPromo={formData.fechaValidez}
                         stickerUrl={selectedSticker}
                     />
-                    <div className="flex flex-row w-full gap-2 pt-5 pr-11">
+                    <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">
                         <button
                             onClick={handleDownload}
-                            className="flex-1  bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-pointer"
+                            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-pointer"
                         >
                             Descargar (PNG)
                         </button>

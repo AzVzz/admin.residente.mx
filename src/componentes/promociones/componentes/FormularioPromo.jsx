@@ -2,7 +2,13 @@
 import { useState, useRef, useEffect } from 'react';
 
 
-const FormularioPromo = ({ formData, onFieldChange }) => {
+const FormularioPromo = ({
+    formData,
+    onFieldChange,
+    restaurantes = [],
+    selectedRestauranteId = "",
+    onRestauranteChange
+}) => {
 
     const textareaRef = useRef(null);
 
@@ -23,11 +29,27 @@ const FormularioPromo = ({ formData, onFieldChange }) => {
     }, [formData.descPromo]);
 
     return (
-        <div className="flex flex-col w-auto h-205 justify-between">
-            <div className="flex flex-col">
-                <h2 className="text-5xl">Noticiero de Descuentos</h2>
-                <p className="text-xl leading-tight font-roman font-medium">Llene usted el formato que a continuación aparece, tenga en cuenta  que este texto se adaptará al diseño en formato de historias de Instagram y Facebook, mostrado a la derecha de la pantalla. Recuerde que todas las promociones deben de ser mensuales.</p>
+        <div className="flex flex-col justify-around">
+            {/* Dropdown de restaurantes */}
+            <div className="">
+                <label className="block text-gray-950 text-xl font-bold mb-1">
+                    Selecciona un restaurante:
+                </label>
+                <select
+                    className="text-xl rounded px-3 py-2 w-full bg-white border-0"
+                    value={selectedRestauranteId}
+                    onChange={onRestauranteChange}
+                >
+                    <option value="">-- Elige uno --</option>
+                    {restaurantes.map(r => (
+                        <option key={r.id} value={r.id}>
+                            {r.nombre_restaurante}
+                        </option>
+                    ))}
+                </select>
             </div>
+
+            {/* Campo nombre del restaurante */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Nombre del restaurante *</label>
                 <input
@@ -41,12 +63,13 @@ const FormularioPromo = ({ formData, onFieldChange }) => {
 
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Nombre de la promoción *</label>
-                <input
-                    type="text"
+                <textarea
                     value={formData.promoName}
                     onChange={(e) => onFieldChange("promoName", e.target.value)}
-                    placeholder="Ej. 2x1, 2x$99, etc."
-                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                    placeholder="Ej. 2x1&#10;Hamburguesas"
+                    rows={2}
+                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg resize-none"
+                    style={{ minHeight: 48, maxHeight: 120 }}
                 />
             </div>
 
@@ -91,6 +114,29 @@ const FormularioPromo = ({ formData, onFieldChange }) => {
                     value={formData.fechaValidez}
                     onChange={(e) => onFieldChange("fechaValidez", e.target.value)}
                     placeholder="Ej. Hasta el 5 de Octubre / Solo en auto servicio"
+                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                />
+            </div>
+            {/* Campo URL de promoción */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Url de promoción (si aplica)</label>
+                <input
+                    type="url"
+                    value={formData.urlPromo || ""}
+                    onChange={(e) => onFieldChange("urlPromo", e.target.value)}
+                    placeholder="Ej. https://promocion.com"
+                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                />
+            </div>
+
+            {/* Campo correo electrónico */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Correo electrónico</label>
+                <input
+                    type="email"
+                    value={formData.emailPromo || ""}
+                    onChange={(e) => onFieldChange("emailPromo", e.target.value)}
+                    placeholder="Ej. contacto@promocion.com"
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
                 />
             </div>
