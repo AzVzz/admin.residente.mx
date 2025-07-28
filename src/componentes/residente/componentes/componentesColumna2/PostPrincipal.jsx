@@ -1,9 +1,21 @@
 // PostPrincipal.jsx
 import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png';
-import real from '../../../../imagenes/Iconografia/4real.png'
-import calidad from '../../../../imagenes/Iconografia/calidad.png'
+import { Iconografia } from '../../../utils/Iconografia.jsx'; 
 
 const PostPrincipal = ({ post, onClick }) => {
+    const iconosDisponibles = [
+        ...Iconografia.categorias,
+        ...Iconografia.ocasiones,
+        ...Iconografia.zonas
+    ];
+
+    // Filtrar iconos que están en el post
+    const stickers = Array.isArray(post.sticker)
+        ? post.sticker
+        : post.sticker
+            ? [post.sticker]
+            : [];
+
     return (
         <div
             className="flex flex-col cursor-pointer h-[725px] overflow-hidden mb-5"
@@ -26,10 +38,19 @@ const PostPrincipal = ({ post, onClick }) => {
                     <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
                         {post.tipo_nota}
                     </span>
-                    {/* Iconos en posición absoluta */}
+                    {/* Mostrar los stickers seleccionados */}
                     <div className="absolute top-6 right-9 flex gap-4 z-10">
-                        <img src={real} alt="Monterrey" className="h-12 w-12 rounded-full shadow" />
-                        <img src={calidad} alt="San Nicolás" className="h-12 w-12 rounded-full shadow" />
+                        {stickers.map(clave => {
+                            const icono = iconosDisponibles.find(i => i.clave === clave);
+                            return icono ? (
+                                <img
+                                    key={clave}
+                                    src={icono.icono}
+                                    alt={icono.nombre}
+                                    className="h-12 w-12 rounded-full shadow"
+                                />
+                            ) : null;
+                        })}
                     </div>
                 </div>
                 <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">

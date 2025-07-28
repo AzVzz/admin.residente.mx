@@ -1,6 +1,4 @@
-// src/componentes/residente/componentes/compFormularioMain/FormMainResidente.jsx
 import { useForm, FormProvider } from 'react-hook-form';
-
 import { useAuth } from '../../../Context';
 import Login from '../../../../componentes/login';
 
@@ -51,6 +49,7 @@ const FormMainResidente = () => {
       subtitulo: '',
       autor: '',
       contenido: '',
+      sticker: [],
       opcionPublicacion: 'publicada',
       fechaProgramada: '',
       tipoDeNotaSeleccionada: tipoNotaUsuario || '',
@@ -128,7 +127,8 @@ const FormMainResidente = () => {
             categoriasSeleccionadas: data.secciones_categorias?.reduce((acc, { seccion, categoria }) => {
               acc[seccion] = categoria;
               return acc;
-            }, {}) || {}
+            }, {}) || {},
+            sticker: data.sticker || '', // <-- importante para edición
           });
           setImagenActual(data.imagen || null);
         } catch (error) {
@@ -140,7 +140,7 @@ const FormMainResidente = () => {
       };
       cargarNota();
     }
-  }, [id, catalogosCargados, reset]);
+  }, [id, catalogosCargados, reset, tipoNotaUsuario]);
 
   // 2. Cuando obtengas tipoNotaUsuario del contexto, actualiza el valor del formulario
   useEffect(() => {
@@ -171,6 +171,7 @@ const FormMainResidente = () => {
         subtitulo: data.subtitulo,
         autor: data.autor,
         descripcion: data.contenido,
+        sticker: data.sticker, // <-- aquí se envía la clave seleccionada
         estatus: data.opcionPublicacion === 'programar' ? 'programada' : 'publicada',
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null
       };
@@ -229,13 +230,11 @@ const FormMainResidente = () => {
                 />
 
                 {/* Solo muestra el selector si NO hay tipoNotaUsuario */}
-
                 <CategoriasTipoNotaSelector
                   tipoDeNota={tipoDeNota}
                   secciones={secciones}
                   ocultarTipoNota={!!tipoNotaUsuario}
                 />
-
 
                 {/* Si hay tipoNotaUsuario, muéstralo como texto */}
                 {tipoNotaUsuario && (
@@ -253,7 +252,14 @@ const FormMainResidente = () => {
 
                 <Contenido />
 
-                <FormularioPromoExt />
+                <FormularioPromoExt
+                  onStickerSelect={clave => setValue('sticker', clave)}
+                  stickerSeleccionado={watch('sticker')}
+                />
+                {/* Mostrar el sticker seleccionado */}
+                <div className="mt-2 text-sm text-gray-700">
+                  Sticker seleccionado: {watch('sticker')}
+                </div>
 
                 <OpcionesPublicacion
                   opcionSeleccionada={opcionPublicacion}
@@ -261,8 +267,6 @@ const FormMainResidente = () => {
                   fechaProgramada={watch('fechaProgramada')}
                   onFechaChange={value => setValue('fechaProgramada', value)}
                 />
-
-
 
                 <BotonSubmitNota
                   isPosting={isPosting}
