@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { catalogoHeadersGet } from './api/catalogoSeccionesGet';
+import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 
 import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
 import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
@@ -45,36 +45,39 @@ const Header = () => {
     <header className="bg-[#fff200] w-full">
       <div className="max-w-[1080px] mx-auto w-full">
         <div className="flex pb-8 pt-5">
-          <div className="flex justify-end pr-3">
+          <div className="sm:flex pr-3 hidden">
             <Link to="/residente" className="h-24 w-24 self-end object-contain">
               <img src={LogoCirculoResidente} alt="Logo Residente Circulo" />
             </Link>
           </div>
           <div className="w-full">
-            <div className="flex items-end pb-3 gap-2 ">
-              <Link to="/residente">
-                <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10" />
+
+            <div className="flex flex-col-reverse sm:flex-row  pb-3 gap-2">
+              <Link to="/residente" className="flex flex-col justify-end">
+                <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10 object-contain" />
               </Link>
-              <div className="flex items-center ml-auto" >
-                <div className="flex flex-col justify-center items-end mr-4 gap-2">
-                  <div className="flex gap-1 items-center relative -top-7 mb-2 w-40 justify-end">
+
+              <div className="flex flex-1 w-full justify-end items-start">
+
+                <div className="flex flex-col gap-2 mr-auto">
+                  <div className="flex gap-1.5">
                     {iconosZonales.map((icon, idx) => (
-                      <img key={idx} src={icon.src} alt={icon.alt} className="h-7 w-7 shadow-md rounded-full" />
+                      <img key={idx} src={icon.src} alt={icon.alt} className="h-7.5 w-7.5 shadow-md rounded-full" />
                     ))}
                   </div>
-                  <div className="flex flex-col justify-center w-40 items-end text-right relative -top-3">
+                  <div className="flex flex-col text-right">
                     <div className="text-xs font-semibold font-sans">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
                     <div className="text-xs text-gray-500 font-sans">{fechaActual}</div>
                   </div>
                 </div>
-                <img src={PortadaRevista} alt="Portada Revista" className="h-40 w-32 object-cover" />
+                <img src={PortadaRevista} alt="Portada Revista" className="h-auto sm:w-32 w-22 object-cover" />
+
               </div>
             </div>
 
             <div className="flex flex-col flex-1">
-              <div className="border-black my-0 ml-25" />
-              <div className="flex justify-between items-center px-5 py-2 bg-black">
-                <div className="flex gap-6 items-center text-sm font-semibold bg">
+              <div className="sm:flex justify-between items-center sm:px-5 px-2 sm:py-2 py-1 bg-black hidden">
+                <div className="flex gap-1 sm:gap-6 items-center sm:text-sm text-[8px] font-semibold">
                   {menuHeader.map((section, idx) =>
                     section.url ? (
                       <a
@@ -115,7 +118,7 @@ const Header = () => {
                     )
                   )}
                 </div>
-                <div className="flex gap-1.5">
+                <div className="sm:flex gap-1.5 hidden">
                   <img src={b2blogo} className="object-contain h-4 w-12 b2b cursor-pointer" />
                   <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-white hover:text-gray-400" /></a>

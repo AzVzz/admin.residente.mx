@@ -89,20 +89,20 @@ const FormularioPromo = ({
                     <label className="block text-xl font-medium text-gray-950 mb-1">
                         Descripción de la promoción *
                     </label>
-                    <span className={`text-sm ${formData.descPromo?.length >= 350 ? 'text-red-500' : 'text-gray-500'}`}>
-                        {formData.descPromo?.length || 0}/350
+                    <span className={`text-sm ${formData.descPromo?.length >= 300 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {formData.descPromo?.length || 0}/300
                     </span>
                 </div>
                 <textarea
                     ref={textareaRef}
                     value={formData.descPromo}
                     onChange={(e) => {
-                        if (e.target.value.length <= 350) {
+                        if (e.target.value.length <= 300) {
                             onFieldChange("descPromo", e.target.value)
                         }
                     }}
                     placeholder="Ej. Llévate una Whopper Jr. sin queso, una hamburguesa con queso y una Rodeo Burger por $99 pesos"
-                    maxLength={350}
+                    maxLength={300}
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg min-h-[150px] max-h-[330px] overflow-hidden resize-none"
                 />
             </div>

@@ -2,7 +2,7 @@ import { urlApi } from '../../../api/url';
 import React from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
-import { notasPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
+import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
 
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
@@ -18,6 +18,7 @@ import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
 import TicketPromo from '../../../promociones/componentes/TicketPromo.jsx';
 import Cupones from './componentes/Cupones.jsx';
 import SeccionesPrincipales from '../SeccionesPrincipales.jsx';
+import MainLateralPostTarjetas from '../../componentes/componentesColumna2/MainLateralPostTarjetas';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -36,6 +37,7 @@ const MainSeccionesCategorias = () => {
     const [paginaActual, setPaginaActual] = useState(1);
     const notasRef = useRef(null);
     const notaRefs = useRef({});
+    const [notasTop, setNotasTop] = useState([]);
 
     const totalPaginas = Math.ceil(notas.length / NOTAS_POR_PAGINA);
     const notasPagina = notas.slice(
@@ -77,11 +79,13 @@ const MainSeccionesCategorias = () => {
         setLoading(true);
         Promise.all([
             notasPorSeccionCategoriaGet(seccion, categoria),
-            restaurantesPorSeccionCategoriaGet(seccion, categoria)
+            restaurantesPorSeccionCategoriaGet(seccion, categoria),
+            notasTopPorSeccionCategoriaGet(seccion, categoria)
         ])
-            .then(([notasData, restaurantesData]) => {
+            .then(([notasData, restaurantesData, notasTopData]) => {
                 setNotas(Array.isArray(notasData) ? notasData : []);
                 setRestaurantes(Array.isArray(restaurantesData) ? restaurantesData : []);
+                setNotasTop(Array.isArray(notasTopData) ? notasTopData : []);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
@@ -189,8 +193,8 @@ const MainSeccionesCategorias = () => {
             {/* Los 5 restaurantes destacados en imagenes */}
             <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
-            {/* Barra negra que se mueve Barra marquee*/}
-            <BarraMarquee categoria={categoria} /> 
+            {/* Barra negra que se mueve Barra marquee
+            <BarraMarquee categoria={categoria} /> */}
 
             {/* Recomendaciones de restaurantes 
             <RecomendacionesRestaurantes categoria={categoria} restaurantes={restaurantes} />*/}
@@ -201,17 +205,22 @@ const MainSeccionesCategorias = () => {
                 style={{ gridTemplateColumns: '2.9fr 1.1fr' }}
                 ref={notasRef}
             >
-                
+
 
                 {/* Notas y bloques extendidos */}
                 <div className="flex flex-col items-center justify-start">
-                    
-                    <div className="w-full gap-5 flex flex-col">
-                        <img
-                            src={Banner}
-                            alt="Banner Revista"
-                            className="w-full"
-                        />
+
+                    <div className="w-full gap-4 flex flex-col">
+                        <div className="flex flex-col gap-4">
+                            <img
+                                src={Banner}
+                                alt="Banner Revista"
+                                className="w-full"
+                            />
+                            <div className="w-192.5">
+                                <BarraMarquee categoria={categoria} />
+                            </div>
+                        </div>
 
                         {selectedNota ? (
                             <DetallePost
@@ -248,14 +257,41 @@ const MainSeccionesCategorias = () => {
                 </div>
 
                 {/* OpcionesExtra */}
-                <div className="flex flex-col items-end justify-start gap-5">
+                <div className="flex flex-col items-end justify-start gap-10">
                     <DirectorioVertical
                         categoria={categoria}
                         restaurantes={restaurantes}
                     />
+
+                    {/* Top 5 más vistas */}
+                    <MainLateralPostTarjetas
+                        notasDestacadas={notasTop}
+                        onCardClick={handleNotaClick}
+                        cantidadNotas={5}
+                        sinFecha
+                    />
+
                     {/*<OpcionesExtra />*/}
                 </div>
             </div>
+
+            {/* Botones de paginación */}
+            {!selectedNota && totalPaginas > 1 && (
+                <div className="flex gap-2 mt-6 justify-center">
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setPaginaActual(i + 1)}
+                            className={`w-8 h-8 items-center justify-center ${paginaActual === i + 1
+                                ? 'bg-black text-white' // Página actual
+                                : 'bg-gray-200 text-black hover:bg-gray-300' // Botón por seleccionar
+                                }`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+            )}
 
 
             {/* Barra horizontal extendida */}
@@ -277,23 +313,7 @@ const MainSeccionesCategorias = () => {
                 </div>
             </div>
 
-            {/* Botones de paginación */}
-            {!selectedNota && totalPaginas > 1 && (
-                <div className="flex gap-2 mt-6 justify-center">
-                    {Array.from({ length: totalPaginas }, (_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setPaginaActual(i + 1)}
-                            className={`w-8 h-8 items-center justify-center ${paginaActual === i + 1
-                                ? 'bg-black text-white' // Página actual
-                                : 'bg-gray-200 text-black hover:bg-gray-300' // Botón por seleccionar
-                                }`}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-                </div>
-            )}
+
         </div>
     );
 };

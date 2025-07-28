@@ -31,7 +31,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
             <img
               src={post?.imagen || SinFoto}
               alt={post?.titulo || "Imagen del post"}
-              className="h-27 w-35 object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-28 w-35 object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
@@ -41,13 +41,13 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
         <div className="flex flex-col ml-2 mr-2 flex-1 justify-center">
           {/* Categoría */}
           <div className="mb-1">
-            <span className="font-serif inline-block bg-black text-white text-[11px] px-1.5 py-.5 shadow-md">
+            <span className="font-serif inline-block bg-black text-[#fff300] text-[11px] px-1.5 py-.5 shadow-md">
               {post?.tipo_nota || 'Sin categoría'}
             </span>
           </div>
 
           {/* Título */}
-          <h3 className="font-grotesk text-[22px] font-bold text-gray-900 leading-5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
+          <h3 className="font-grotesk text-[22px] font-bold text-gray-900 leading-5.5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
             {post?.titulo || 'Sin título'}
           </h3>
 

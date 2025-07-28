@@ -142,13 +142,13 @@ const TicketPromo = forwardRef((props, ref) => {
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-0 whitespace-nowrap overflow-hidden"
+                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-2 whitespace-nowrap overflow-hidden"
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
                         </h1>
 
-                        <div className="text-center mb-0">
+                        <div className="text-center">
                             <h3
                                 ref={promoTextRef}
                                 className="whitespace-nowrap overflow-hidden font-black text-center"
@@ -156,6 +156,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${promoFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
+                                    marginBottom: 4,
                                     padding: 0,
                                     display: 'block'
                                 }}
@@ -170,8 +171,9 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
+                                    marginBottom: 2,
+                                    marginTop: 6,
                                     padding: 0,
-                                    marginTop: '-0.1em',
                                     display: 'block'
                                 }}
                             >
@@ -179,7 +181,7 @@ const TicketPromo = forwardRef((props, ref) => {
                             </h3>
                         </div>
 
-                        <p className="leading-[18px] text-[18px] text-gray-800 font-black font-roman mt-0">
+                        <p className="leading-[20px] text-[18px] text-gray-800 font-black font-roman mt-2">
                             {descripcionPromo}
                         </p>
                     </div>

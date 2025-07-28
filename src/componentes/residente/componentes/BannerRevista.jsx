@@ -183,7 +183,7 @@ const BannerRevista = () => {
                         if (postsFiltrados.length === 0) return null;
 
                         return (
-                            <div key={tipo} className="flex flex-col">
+                            <div key={tipo} className="flex flex-col ">
                                 <h2 className="text-2xl font-bold mb-4">{tipo}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
                                     {/* Columna Principal */}
@@ -207,6 +207,7 @@ const BannerRevista = () => {
                                         <MainLateralPostTarjetas
                                             notasDestacadas={destacadasFiltradas}
                                             onCardClick={(post) => handleCardClick(post.id)}
+                                            sinCategoria
                                         />
                                         <BotonesAnunciateSuscribirme />
                                         <OpcionesExtra />

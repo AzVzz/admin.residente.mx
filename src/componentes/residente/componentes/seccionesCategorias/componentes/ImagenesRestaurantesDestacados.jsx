@@ -21,11 +21,22 @@ const ImagenesRestaurantesDestacados = ({ restaurantes, small = false, cantidad 
               className="w-full h-full object-cover transition-all duration-500 ease-in-out"
               alt={rest.nombre_restaurante}
             />
-            <div className="absolute inset-0 via-transparent to-transparent"></div>
-          </div>
-          <div className={`w-full text-center bg-[#fff300] text-black ${small ? 'text-[16px] px-1 py-1' : 'text-[22px] px-2 py-2'} whitespace-nowrap group-hover:bg-[#FFF400] group-hover:text-black transition leading-6`}>
-            {rest.nombre_restaurante.charAt(0).toUpperCase() +
-              rest.nombre_restaurante.slice(1).toLowerCase()}
+            {/* Nombre dentro de la foto, parte inferior */}
+            <div
+              className={`
+                absolute bottom-3 left-1/2 transform -translate-x-1/2
+                max-w-[90%] text-center rounded
+                bg-black/70 text-[#fff300]
+                ${small ? 'text-[12px] px-2 py-0.5' : 'text-[15px] px-3 py-1'}
+                whitespace-nowrap group-hover:bg-[#FFF300] group-hover:text-black
+                group-hover:shadow-2xl
+                transition leading-5
+              `}
+              style={{ backdropFilter: 'blur(2px)' }}
+            >
+              {rest.nombre_restaurante.charAt(0).toUpperCase() +
+                rest.nombre_restaurante.slice(1).toLowerCase()}
+            </div>
           </div>
         </Link>
       ))
