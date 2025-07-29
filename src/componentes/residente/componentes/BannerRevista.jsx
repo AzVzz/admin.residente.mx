@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import 
+import
 Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
@@ -15,7 +15,8 @@ import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId } from '.
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
-
+import RestauranteLogo from '../../../imagenes/logos/grises/ResidenteRestaurantMedia.png';
+import Antojos from '../../../imagenes/logos/grises/Antojos.png'
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -126,7 +127,7 @@ const BannerRevista = () => {
     };
 
     return (
-        <div ref={topRef} className="pt-4">
+        <div ref={topRef} className="">
             {showDetail ? (
                 <div className="flex flex-col">
                     <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
@@ -176,25 +177,37 @@ const BannerRevista = () => {
                 </div>
             ) : (
                 <div className="flex flex-col">
-                    {["Restaurantes", "Food & Drink", "Experiencias", "Antojos"].map((tipo) => {
+                    {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
                         const postsFiltrados = filtrarPostsPorTipoNota(tipo);
                         const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
 
                         if (postsFiltrados.length === 0) return null;
 
+                        let tipoLogo = null;
+                        if (tipo === "Restaurantes") tipoLogo = RestauranteLogo;
+                        if (tipo === "Antojos") tipoLogo = Antojos;
+
                         return (
-                            <div key={tipo} className="flex flex-col ">
-                                <h2 className="text-2xl font-bold mb-4">{tipo}</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
+                            <div key={tipo} className="flex flex-col pt-9">
+                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5">
                                     {/* Columna Principal */}
                                     <div>
-                                        <img src={Banner} alt="Banner Revista" className="w-full pb-5" />
+                                        <div className="relative flex justify-center items-center mb-4">
+
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+
+                                            <div className="relative z-10 px-4 bg-[#fff300]">
+                                                <img src={tipoLogo} alt={tipo} className="h-auto w-80 object-contain" />
+                                            </div>
+                                        </div>
+
                                         {postsFiltrados[0] && (
                                             <PostPrincipal
                                                 post={postsFiltrados[0]}
                                                 onClick={() => handleCardClick(postsFiltrados[0].id)}
                                             />
                                         )}
+                                        <img src={Banner} alt="Banner Revista" className="w-full pb-4" />
                                         <TresTarjetas
                                             posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}
@@ -202,13 +215,15 @@ const BannerRevista = () => {
                                     </div>
 
                                     {/* Columna lateral */}
-                                    <div className="space-y-6 relative -top-16.5">
-                                        <DirectorioVertical />
-                                        <MainLateralPostTarjetas
-                                            notasDestacadas={destacadasFiltradas}
-                                            onCardClick={(post) => handleCardClick(post.id)}
-                                            sinCategoria
-                                        />
+                                    <div>
+                                        <div className="flex flex-col items-end justify-start gap-10">
+                                            <DirectorioVertical />
+                                            <MainLateralPostTarjetas
+                                                notasDestacadas={destacadasFiltradas}
+                                                onCardClick={(post) => handleCardClick(post.id)}
+                                                sinCategoria
+                                            />
+                                        </div>
                                         <BotonesAnunciateSuscribirme />
                                         <OpcionesExtra />
                                     </div>

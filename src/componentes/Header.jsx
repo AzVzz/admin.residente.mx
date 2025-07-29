@@ -44,7 +44,7 @@ const Header = () => {
   return (
     <header className="bg-[#fff200] w-full">
       <div className="max-w-[1080px] mx-auto w-full">
-        <div className="flex pb-8 pt-5">
+        <div className="flex pb-0 pt-5"> 
           <div className="sm:flex pr-3 hidden">
             <Link to="/residente" className="h-24 w-24 self-end object-contain">
               <img src={LogoCirculoResidente} alt="Logo Residente Circulo" />

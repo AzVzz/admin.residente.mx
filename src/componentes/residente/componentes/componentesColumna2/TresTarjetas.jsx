@@ -27,7 +27,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
                 </div>
 
                 {/* Contenido de texto */}
-                <div className="flex flex-col p-4">
+                <div className="flex flex-col py-2">
                     {/* Categoría 
           <div className="mb-2">
             <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
@@ -42,15 +42,6 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 
                     {/* Botón de acción sutil */}
                     <div className="flex items-center text-gray-600 text-sm font-semibold group-hover:text-gray-900 transition-colors duration-200 mt-auto">
-                        <span>Leer más</span>
-                        <svg
-                            className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
                     </div>
                 </div>
             </div>
