@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut } from '../../../../componentes/api/notaCrearPostPut.js';
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
-import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/catalogoSeccionesGet.js';
+import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
 import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
@@ -123,12 +123,14 @@ const FormMainResidente = () => {
             contenido: data.descripcion,
             opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
             fechaProgramada: data.programar_publicacion || '',
-            tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '', // ← aquí
-            categoriasSeleccionadas: data.secciones_categorias?.reduce((acc, { seccion, categoria }) => {
-              acc[seccion] = categoria;
-              return acc;
-            }, {}) || {},
-            sticker: data.sticker || '', // <-- importante para edición
+            tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
+            categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
+              ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
+                acc[seccion] = categoria;
+                return acc;
+              }, {})
+              : {},
+            sticker: data.sticker || '',
           });
           setImagenActual(data.imagen || null);
         } catch (error) {
@@ -164,17 +166,22 @@ const FormMainResidente = () => {
       // Fuerza el tipo de nota correcto
       const tipoNotaFinal = tipoNotaUsuario || data.tipoDeNotaSeleccionada;
 
-      const datosNota = {
-        tipo_nota: tipoNotaFinal,
-        secciones_categorias: seccionesCategorias,
-        titulo: data.titulo,
-        subtitulo: data.subtitulo,
-        autor: data.autor,
-        descripcion: data.contenido,
-        sticker: data.sticker, // <-- aquí se envía la clave seleccionada
-        estatus: data.opcionPublicacion === 'programar' ? 'programada' : 'publicada',
-        programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null
-      };
+const datosNota = {
+  tipo_nota: tipoNotaFinal,
+  secciones_categorias: seccionesCategorias,
+  titulo: data.titulo,
+  subtitulo: data.subtitulo,
+  autor: data.autor,
+  descripcion: data.contenido,
+  sticker: data.sticker,
+  estatus:
+    data.opcionPublicacion === 'programar'
+      ? 'programada'
+      : data.opcionPublicacion === 'borrador'
+      ? 'borrador'
+      : 'publicada',
+  programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null
+};
 
       let resultado;
       if (notaId) {
@@ -255,6 +262,7 @@ const FormMainResidente = () => {
                 <FormularioPromoExt
                   onStickerSelect={clave => setValue('sticker', clave)}
                   stickerSeleccionado={watch('sticker')}
+                  maxStickers={2}
                 />
                 {/* Mostrar el sticker seleccionado */}
                 <div className="mt-2 text-sm text-gray-700">

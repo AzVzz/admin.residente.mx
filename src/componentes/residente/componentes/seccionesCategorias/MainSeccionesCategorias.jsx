@@ -174,7 +174,7 @@ const MainSeccionesCategorias = () => {
     if (loading) return <div>Cargando...</div>;
 
     return (
-        <div className="mb-5">
+        <div className="mb-5 mt-9">
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
                 <CategoriaHeader
@@ -307,11 +307,14 @@ const MainSeccionesCategorias = () => {
             <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5">
                 <div className="max-w-[1080px] mx-auto flex flex-col items-left">
                     <h3 className="text-white text-[22px]">Descuentos y promociones de restaurantes entre {categoria} {">"} </h3>
+
                     <div className="flex flex-wrap justify-center gap-6 w-full py-1">
                         <Cupones />
                     </div>
                 </div>
             </div>
+
+
 
 
         </div>

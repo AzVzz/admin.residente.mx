@@ -32,7 +32,7 @@ const PostPrincipal = ({ post, onClick }) => {
                         alt={post.titulo}
                     />
                     {/* Mostrar los stickers seleccionados */}
-                    <div className="absolute top-7 right-9 flex gap-2 z-10">
+                    <div className="absolute top-7 right-9 flex gap-1 z-10">
                         {stickers.map(clave => {
                             const icono = iconosDisponibles.find(i => i.clave === clave);
                             return icono ? (

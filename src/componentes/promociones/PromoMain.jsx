@@ -6,7 +6,7 @@ import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
 import { ticketCrear } from '../../componentes/api/ticketCrearPost';
 import { restaurantesBasicosGet } from '../../componentes/api/restaurantesBasicosGet.js';
-
+import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
 const PromoMain = () => {
     const [formData, setFormData] = useState({
         restaurantName: "",
@@ -16,7 +16,7 @@ const PromoMain = () => {
         fechaValidez: ""
     });
 
-    const [selectedSticker, setSelectedSticker] = useState(null);
+    const [selectedStickers, setSelectedStickers] = useState([]);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [isPosting, setIsPosting] = useState(false);
@@ -47,8 +47,19 @@ const PromoMain = () => {
         setFormData(prev => ({ ...prev, [field]: value }));
     }
 
-    const handleStickerSelect = (stickerUrl) => {
-        setSelectedSticker(stickerUrl);
+    const handleStickerSelect = (claves) => {
+        setSelectedStickers(claves);
+    };
+    const getStickerUrls = () => {
+        const allStickers = [
+            ...Iconografia.categorias,
+            ...Iconografia.ocasiones,
+            ...Iconografia.zonas
+        ];
+        return selectedStickers.map(clave => {
+            const found = allStickers.find(item => item.clave === clave);
+            return found ? found.icono : null;
+        }).filter(Boolean);
     };
 
     const handleDownload = async () => {
@@ -72,22 +83,21 @@ const PromoMain = () => {
     };
 
     const prepareApiData = () => {
-        // Busca el restaurante seleccionado
         const restauranteSeleccionado = restaurantes.find(r => String(r.id) === String(selectedRestauranteId));
+        const stickerClave = selectedStickers[0] || ""; // <-- usa el primer sticker seleccionado
         return {
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
             subtitulo: formData.promoSubtitle,
             descripcion: formData.descPromo,
-            icon: selectedSticker ? selectedSticker.split('/').pop().split('.')[0] : '',
+            icon: stickerClave, // <-- guarda la clave, no la url
             email: formData.emailPromo || "",
             tipo: 'promo',
             link: formData.urlPromo || "",
             metadata: JSON.stringify({
                 fecha_validez: formData.fechaValidez,
-                sticker_url: selectedSticker
+                sticker_url: stickerClave // o puedes guardar la url si prefieres
             }),
-            // Solo agrega secciones_categorias si existe el restaurante y la propiedad
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined
         };
     };
@@ -161,7 +171,7 @@ const PromoMain = () => {
                         subPromo={formData.promoSubtitle}
                         descripcionPromo={formData.descPromo}
                         validezPromo={formData.fechaValidez}
-                        stickerUrl={selectedSticker}
+                        stickerUrl={getStickerUrls()[0]}
                     />
                     <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">
                         <button
@@ -183,6 +193,7 @@ const PromoMain = () => {
             </div>
             <div className="pt-4">
                 <FormularioPromoExt
+                    stickerSeleccionado={selectedStickers}
                     onStickerSelect={handleStickerSelect}
                 />
             </div>

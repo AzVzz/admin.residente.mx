@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cuponesGet } from "../../../../api/cuponesGet";
 import TicketPromo from "../../../../promociones/componentes/TicketPromo";
+import { Iconografia } from "../../../../utils/Iconografia.jsx";
 
 const Cupones = () => {
     const [cupones, setCupones] = useState([]);
@@ -13,6 +14,16 @@ const Cupones = () => {
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
+
+    const getStickerUrl = (clave) => {
+        const allStickers = [
+            ...Iconografia.categorias,
+            ...Iconografia.ocasiones,
+            ...Iconografia.zonas,
+        ];
+        const found = allStickers.find(item => item.clave === clave);
+        return found ? found.icono : null;
+    };
 
     return (
         <div className=" h-71 overflow-hidden flex flex-row">
@@ -27,7 +38,7 @@ const Cupones = () => {
                     subPromo={cupon.subtitulo}
                     descripcionPromo={cupon.descripcion}
                     validezPromo={cupon.metadata?.fecha_validez || ""}
-                    stickerUrl={cupon.icon}
+                    stickerUrl={getStickerUrl(cupon.icon)} // <-- usa la función aquí
                     className="scale-40 w-43 h-1"
                 />
             ))}

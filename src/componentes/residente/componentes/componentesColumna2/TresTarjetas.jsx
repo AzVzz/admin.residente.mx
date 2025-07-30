@@ -3,7 +3,7 @@ import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
         <div
-            className="group relative bg-[#FFF200] shadow-sm transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
+            className="group relative bg-[#FFF200] transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
             onClick={onClick}
         >
             {/* Contenedor principal vertical */}

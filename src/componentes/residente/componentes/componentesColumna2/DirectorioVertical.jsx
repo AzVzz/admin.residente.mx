@@ -49,7 +49,7 @@ const DirectorioVertical = () => {
     return (
         <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-4 relative">
             <img src={GuiaNl} className="w-37 h-auto" />
-            <p className="text-base leading-4.5">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos</p>
+            <p className="text-sm leading-4.5">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos.</p>
             <ol className="flex flex-col gap-2.5">
                 {data.map((seccion, i) => (
                     <li key={seccion.seccion} className="relative">

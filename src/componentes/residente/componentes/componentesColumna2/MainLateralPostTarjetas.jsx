@@ -3,7 +3,7 @@ import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
 const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNotas, sinFecha = false, sinCategoria = false }) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 4);
     return (
-        <section className="mb-5 h-[450px] flex flex-col">
+        <section className={`mb-5  h-[450px] flex flex-col ${cantidadNotas === 5 ? 'h-[490px]' : 'h-[450px]'}`}>
             <div>
                 <h3 className="pb-5 text-[40px] leading-4">Lo más visto</h3>
             </div>

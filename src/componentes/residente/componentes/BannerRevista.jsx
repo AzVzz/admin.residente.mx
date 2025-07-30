@@ -16,7 +16,11 @@ import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
 import RestauranteLogo from '../../../imagenes/logos/grises/ResidenteRestaurantMedia.png';
-import Antojos from '../../../imagenes/logos/grises/Antojos.png'
+import Antojos from '../../../imagenes/logos/grises/Antojos.png';
+import BarraMarquee from '../../../componentes/residente/componentes/seccionesCategorias/componentes/BarraMarquee.jsx';
+import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
+import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
+
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -184,21 +188,43 @@ const BannerRevista = () => {
                         if (postsFiltrados.length === 0) return null;
 
                         let tipoLogo = null;
-                        if (tipo === "Restaurantes") tipoLogo = RestauranteLogo;
-                        if (tipo === "Antojos") tipoLogo = Antojos;
+                        let marqueeTexto = "";
+                        if (tipo === "Restaurantes") {
+                            tipoLogo = RestauranteLogo;
+                            marqueeTexto = "Encuentra aqui la información al momento de los mejores restaurantes de Nuevo León";
+                        }
+                        if (tipo === "Food & Drink") {
+                            tipoLogo = FoodDrinkMedia;
+                            marqueeTexto = "Postres, Snacks, Café, Cerveza, Vino, Té, Mixología, Recetas, Platillos y Alimentos";
+                        }
+                        if (tipo === "Antojos") {
+                            tipoLogo = Antojos;
+                            marqueeTexto = "Taquerias iconicas de Nuevo León, comida callejera, puestos, carritos, changarros y similares";
+                        }
 
                         return (
                             <div key={tipo} className="flex flex-col pt-9">
-                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5">
+                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5 mb-9">
                                     {/* Columna Principal */}
                                     <div>
                                         <div className="relative flex justify-center items-center mb-4">
-
                                             <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-
                                             <div className="relative z-10 px-4 bg-[#fff300]">
-                                                <img src={tipoLogo} alt={tipo} className="h-auto w-80 object-contain" />
+                                                <img
+                                                    src={tipoLogo}
+                                                    alt={tipo}
+                                                    className={
+                                                        tipo === "Antojos"
+                                                            ? "h-auto w-60 object-contain" // más pequeño para Antojos
+                                                            : "h-auto w-80 object-contain" // tamaño normal para los demás
+                                                    }
+                                                />
                                             </div>
+                                        </div>
+
+
+                                        <div className="w-176.5 mb-3">
+                                            <BarraMarquee categoria={marqueeTexto} />
                                         </div>
 
                                         {postsFiltrados[0] && (
@@ -212,6 +238,7 @@ const BannerRevista = () => {
                                             posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}
                                         />
+
                                     </div>
 
                                     {/* Columna lateral */}
@@ -222,15 +249,27 @@ const BannerRevista = () => {
                                                 notasDestacadas={destacadasFiltradas}
                                                 onCardClick={(post) => handleCardClick(post.id)}
                                                 sinCategoria
+                                                cantidadNotas={5}
                                             />
                                         </div>
                                         <BotonesAnunciateSuscribirme />
-                                        <OpcionesExtra />
                                     </div>
+
                                 </div>
+                                {tipo === "Restaurantes" && (
+                                    <>
+                                        <div className="relative flex justify-center items-center mb-4">
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                            <div className="relative z-10 px-4 bg-[#fff300]">
+                                                <h3 className="text-2xl">Recomendaciones Restaurantes</h3>
+                                            </div>
+                                        </div>
+                                        <EnPortada />
+                                    </>
+                                )}
                                 {tipo === "Food & Drink" && <VideosHorizontal />}
-                                {tipo === "Restaurantes" && <EnPortada />}
                                 {tipo === "Experiencias" && <SeccionesPrincipales />}
+
                             </div>
                         );
                     })}

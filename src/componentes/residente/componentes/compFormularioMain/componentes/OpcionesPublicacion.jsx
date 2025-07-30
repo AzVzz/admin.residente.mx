@@ -54,6 +54,20 @@ const OpcionesPublicacion = () => {
             required={opcionSeleccionada === "programar"}
           />
         </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="radio"
+            id="borrador"
+            value="borrador"
+            {...register("opcionPublicacion")}
+            checked={opcionSeleccionada === "borrador"}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+          />
+          <label htmlFor="borrador" className="text-sm text-gray-700 cursor-pointer">
+            Guardar como borrador
+          </label>
+        </div>
       </div>
     </div>
   );
