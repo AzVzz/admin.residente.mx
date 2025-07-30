@@ -11,7 +11,7 @@ import DetallePost from './DetallePost';
 import PostPrincipal from './componentesColumna2/PostPrincipal';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
-import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId } from '../../api/notasPublicadasGet';
+import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
@@ -264,7 +264,7 @@ const BannerRevista = () => {
                                                 <h3 className="text-2xl">Recomendaciones Restaurantes</h3>
                                             </div>
                                         </div>
-                                        <EnPortada />
+                                        <EnPortada notasResidenteGet={notasResidenteGet}/>
                                     </>
                                 )}
                                 {tipo === "Food & Drink" && <VideosHorizontal />}

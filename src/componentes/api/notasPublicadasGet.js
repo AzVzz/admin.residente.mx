@@ -51,3 +51,14 @@ export const notasPorTipoNota = async (tipoNota) => {
     if (!response.ok) throw new Error('Error al obtener notas por tipo_nota');
     return await response.json();
 };
+
+export const notasResidenteGet = async () => {
+    try {
+        const response = await fetch(`${urlApi}api/notas/residente`);
+        if (!response.ok) throw new Error('Error al obtener notas tipo Residente');
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching notas tipo Residente:", error);
+        throw error;
+    }
+};
