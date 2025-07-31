@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
+import { revistaGetUltima } from "./api/revistasGet";
 
 import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
 import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
@@ -34,31 +35,33 @@ const Header = () => {
   });
 
   const [menuHeader, setMenuHeader] = useState([]);
+  const [revistaActual, setRevistaActual] = useState(null);
+
 
   useEffect(() => {
     catalogoHeadersGet()
       .then(data => setMenuHeader(data))
       .catch(() => setMenuHeader([]));
+    revistaGetUltima()
+      .then(data => setRevistaActual(data))
+      .catch(() => setRevistaActual(null));
   }, []);
 
   return (
     <header className="bg-[#fff200] w-full">
       <div className="max-w-[1080px] mx-auto w-full">
-        <div className="flex pb-0 pt-5"> 
+        <div className="flex pb-0 pt-5">
           <div className="sm:flex pr-3 hidden">
             <Link to="/residente" className="h-24 w-24 self-end object-contain">
               <img src={LogoCirculoResidente} alt="Logo Residente Circulo" />
             </Link>
           </div>
           <div className="w-full">
-
-            <div className="flex flex-col-reverse sm:flex-row  pb-3 gap-2">
+            <div className="flex flex-col-reverse sm:flex-row pb-3 gap-2">
               <Link to="/residente" className="flex flex-col justify-end">
                 <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10 object-contain" />
               </Link>
-
               <div className="flex flex-1 w-full justify-end items-start">
-
                 <div className="flex flex-col gap-2 mr-auto">
                   <div className="flex gap-1.5">
                     {iconosZonales.map((icon, idx) => (
@@ -66,12 +69,30 @@ const Header = () => {
                     ))}
                   </div>
                   <div className="flex flex-col text-right">
-                    <div className="text-xs font-semibold font-sans">COLEMAN <br /> Deliciosas propuestas de comida oriental</div>
+                    <div className="text-xs font-semibold font-sans">
+                      {revistaActual ? revistaActual.titulo : "COLEMAN"}<br />
+                      {revistaActual ? revistaActual.descripcion : "Deliciosas propuestas de comida oriental"}
+                    </div>
                     <div className="text-xs text-gray-500 font-sans">{fechaActual}</div>
                   </div>
                 </div>
-                <img src={PortadaRevista} alt="Portada Revista" className="h-auto sm:w-32 w-22 object-cover" />
-
+                {/*descarga el PDF*/}
+                {revistaActual && revistaActual.pdf ? (
+                  <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                    <img
+                      src={revistaActual.imagen_portada}
+                      alt="Portada Revista"
+                      className="h-auto sm:w-32 w-22 object-cover cursor-pointer"
+                      title="Descargar PDF"
+                    />
+                  </a>
+                ) : (
+                  <img
+                    src={revistaActual ? revistaActual.imagen_portada : PortadaRevista}
+                    alt="Portada Revista"
+                    className="h-auto sm:w-32 w-22 object-cover"
+                  />
+                )}
               </div>
             </div>
 

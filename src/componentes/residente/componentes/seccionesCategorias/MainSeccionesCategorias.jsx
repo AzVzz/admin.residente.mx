@@ -4,6 +4,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
+import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
 
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
@@ -38,6 +39,14 @@ const MainSeccionesCategorias = () => {
     const notasRef = useRef(null);
     const notaRefs = useRef({});
     const [notasTop, setNotasTop] = useState([]);
+
+    const [revistaActual, setRevistaActual] = useState(null);
+
+    useEffect(() => {
+        revistaGetUltima()
+            .then(data => setRevistaActual(data))
+            .catch(() => setRevistaActual(null));
+    }, []);
 
     const totalPaginas = Math.ceil(notas.length / NOTAS_POR_PAGINA);
     const notasPagina = notas.slice(
@@ -213,7 +222,7 @@ const MainSeccionesCategorias = () => {
                     <div className="w-full gap-4 flex flex-col">
                         <div className="flex flex-col gap-4">
                             <img
-                                src={Banner}
+                                src={revistaActual?.imagen_banner || Banner}
                                 alt="Banner Revista"
                                 className="w-full"
                             />
@@ -236,7 +245,7 @@ const MainSeccionesCategorias = () => {
                                         {/* Mostrar Banner después de la cuarta nota */}
                                         {idx === 4 && (
                                             <img
-                                                src={Banner}
+                                                src={revistaActual?.imagen_banner || Banner}
                                                 alt="Banner Revista"
                                                 className="w-full"
                                             />

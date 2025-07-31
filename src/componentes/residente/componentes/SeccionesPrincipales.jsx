@@ -48,9 +48,8 @@ const SeccionesPrincipales = () => {
                         className={`${seccion.cols === 2 ? 'md:col-span-2' : 'md:col-span-1'}`}
                     >
                         <h3 className="font-bold mb-2 text-xl border-b-1 border-white border-dotted text-white">{seccion.seccion}</h3>
-                        <ul className={`
-    text-base text-gray-300 font-roman
-    ${seccion.cols === 2
+                        <ul className={`text-base text-gray-300 font-roman
+                        ${seccion.cols === 2
                                 ? 'grid grid-cols-2 gap-1'
                                 : 'space-y-0.5'
                             }`

@@ -14,7 +14,7 @@ import FormMainResidente from './componentes/residente/componentes/compFormulari
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 import FooterPrincipal from './componentes/FooterPrincipal';
-
+import FormularioRevistaBannerNueva from './componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner';
 import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
 import Login from './componentes/login';
@@ -27,31 +27,31 @@ function App() {
 
   const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
 
-useEffect(() => {
-  const pathCliente = location.pathname.split('/')[1];
+  useEffect(() => {
+    const pathCliente = location.pathname.split('/')[1];
 
-  if (location.pathname === '/culturallaccess') {
-    document.body.style.backgroundImage = `url(${FondoCulturallAccess})`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundColor = '';
-  } else if (
-    CLIENTES_VALIDOS.includes(pathCliente) ||
-    location.pathname.startsWith('/seccion/')
-  ) {
-    document.body.style.backgroundImage = '';
-    document.body.style.backgroundColor = '#FFF200'; // Fondo Gris 15% #D9D9D9
-  } else {
-    document.body.style.backgroundImage = '';
-    document.body.style.backgroundColor = '#FFF200'; // Amarillo
-  }
+    if (location.pathname === '/culturallaccess') {
+      document.body.style.backgroundImage = `url(${FondoCulturallAccess})`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundColor = '';
+    } else if (
+      CLIENTES_VALIDOS.includes(pathCliente) ||
+      location.pathname.startsWith('/seccion/')
+    ) {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#FFF200'; // Fondo Gris 15% #D9D9D9
+    } else {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#FFF200'; // Amarillo
+    }
 
-  return () => {
-    document.body.style.backgroundImage = '';
-    document.body.style.backgroundColor = '#FFF200';
-  };
-}, [location.pathname]);
+    return () => {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#FFF200';
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -149,7 +149,7 @@ useEffect(() => {
               <Login />
             </div>
           } />
-        </Routes>
+          <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} />        </Routes>
       </main>
       <footer>
         <FooterPrincipal />
