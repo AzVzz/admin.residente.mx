@@ -11,8 +11,9 @@ const Titulo = () => {
       </label>
       <input
         type="text"
+        placeholder="Agrega el título"
         {...register('titulo', { required: 'El título es obligatorio' })}
-        className={`w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+        className={`w-full px-3 py-2 border rounded-md  ${
           errors.titulo ? 'border-red-500' : 'border-gray-300'
         }`}
       />

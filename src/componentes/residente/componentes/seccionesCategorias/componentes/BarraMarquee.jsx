@@ -11,6 +11,12 @@ const BarraMarquee = ({ categoria, repeticiones = 7 }) => (
                     {categoria}
                 </span>
             ))}
+            {/* Duplicado para animación continua */}
+            {Array.from({ length: repeticiones }).map((_, idx) => (
+                <span key={`dup-${idx}`} className={`whitespace-nowrap${idx > 0 ? " ml-[150px]" : ""}`}>
+                    {categoria}
+                </span>
+            ))}
         </div>
     </div>
 );

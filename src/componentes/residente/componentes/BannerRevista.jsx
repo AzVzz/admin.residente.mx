@@ -20,6 +20,7 @@ import Antojos from '../../../imagenes/logos/grises/Antojos.png';
 import BarraMarquee from '../../../componentes/residente/componentes/seccionesCategorias/componentes/BarraMarquee.jsx';
 import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
 import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
+import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -264,7 +265,10 @@ const BannerRevista = () => {
                                                 <h3 className="text-2xl">Recomendaciones Restaurantes</h3>
                                             </div>
                                         </div>
-                                        <EnPortada notasResidenteGet={notasResidenteGet}/>
+                                        <div className="pb-5">
+                                            <CincoNotasRRR />
+                                        </div>
+                                        <EnPortada notasResidenteGet={notasResidenteGet} />
                                     </>
                                 )}
                                 {tipo === "Food & Drink" && <VideosHorizontal />}

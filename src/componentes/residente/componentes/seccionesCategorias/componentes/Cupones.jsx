@@ -37,9 +37,9 @@ const Cupones = () => {
                     nombrePromo={cupon.titulo}
                     subPromo={cupon.subtitulo}
                     descripcionPromo={cupon.descripcion}
-                    validezPromo={cupon.metadata?.fecha_validez || ""}
+                    validezPromo={cupon.fecha_validez || "Sin validez"}
                     stickerUrl={getStickerUrl(cupon.icon)} // <-- usa la función aquí
-                    className="scale-40 w-43 h-1"
+                    className="scale-40 w-50 h-1"
                 />
             ))}
         </div>

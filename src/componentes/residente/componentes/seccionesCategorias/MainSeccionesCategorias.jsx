@@ -19,6 +19,7 @@ import TicketPromo from '../../../promociones/componentes/TicketPromo.jsx';
 import Cupones from './componentes/Cupones.jsx';
 import SeccionesPrincipales from '../SeccionesPrincipales.jsx';
 import MainLateralPostTarjetas from '../../componentes/componentesColumna2/MainLateralPostTarjetas';
+import TicketPromoMini from './componentes/TicketPromoMini.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -218,7 +219,7 @@ const MainSeccionesCategorias = () => {
                                 className="w-full"
                             />
                             <div className="w-192.5">
-                                <BarraMarquee categoria={categoria} />
+                                <BarraMarquee categoria={`Noticias y más recomendaciones de ${categoria}`} />
                             </div>
                         </div>
 
@@ -311,12 +312,15 @@ const MainSeccionesCategorias = () => {
                     <div className="flex flex-wrap justify-center gap-6 w-full py-1">
                         <Cupones />
                     </div>
+                    <div className="flex flex-row justify-between">
+                        <TicketPromoMini />
+                        <TicketPromoMini />
+                        <TicketPromoMini />
+                        <TicketPromoMini />
+                        <TicketPromoMini />
+                    </div>
                 </div>
             </div>
-
-
-
-
         </div>
     );
 };

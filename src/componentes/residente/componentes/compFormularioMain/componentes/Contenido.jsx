@@ -37,21 +37,21 @@ const Contenido = () => {
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().toggleBold().run()}
-                                className={editor.isActive('bold') ? 'font-grotesk text-blue-600 font-bold border-1 w-8 rounded bg-gray-100' : 'font-roman rounded w-8 border-1'}
+                                className={editor.isActive('bold') ? 'font-grotesk text-blue-600 font-bold border-1 w-8 rounded bg-gray-50' : 'font-roman rounded w-8 border-1'}
                             >
                                 B
                             </button>
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().toggleBulletList().run()}
-                                className={editor.isActive('bulletList') ? 'font-grotesk text-blue-600 font-bold' : 'font-roman'}
+                                className={editor.isActive('bulletList') ? 'font-roman text-blue-600 w-15 border-1 rounded bg-gray-50' : 'font-roman rounded w-15 border-1'}
                             >
                                 • Lista
                             </button>
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                                className={editor.isActive('orderedList') ? 'font-grotesk text-blue-600 font-bold' : 'font-roman'}
+                                className={editor.isActive('orderedList') ? 'font-roman text-blue-600 w-15 border-1 rounded bg-gray-50' : 'font-roman rounded w-15 border-1'}
                             >
                                 1. Lista
                             </button>
@@ -62,28 +62,33 @@ const Contenido = () => {
                             >
                                 P
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                                className={editor.isActive('heading', { level: 2 }) ? 'font-grotesk text-blue-600 font-bold' : 'font-roman'}
-                            >
-                                H2
-                            </button>
                         </div>
                         <EditorContent
                             editor={editor}
-                            className="font-roman border-1"
+                            className="font-roman border-1 rounded-md "
                         />
                         {/* Custom styles for editor content */}
                         <style>{`
-                            .ProseMirror {
-                                font-family: var(--font-roman, Arial), sans-serif;
-                                font-size: 1rem;
-                            }
-                            .ProseMirror strong {
-                                font-family: var(--font-grotesk, Arial Black), sans-serif;
-                                font-weight: bold;
-                            }
+                        .ProseMirror {
+                            font-family: var(--font-roman, Arial), sans-serif;
+                            font-size: 1rem;
+                            min-height: 120px;
+                            background: #fff;
+                            padding: 12px;
+                            border-radius: 8px;
+                            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+                        }
+                        .ProseMirror ul,
+                        .ProseMirror ol {
+                            margin-left: 1.5em;
+                            padding-left: 0;
+                        }
+                        .ProseMirror ul {
+                            list-style-type: disc;
+                        }
+                        .ProseMirror ol {
+                            list-style-type: decimal;
+                        }
                         `}</style>
                     </div>
                 )}
