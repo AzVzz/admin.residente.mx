@@ -1,18 +1,18 @@
 //src/componentes/promociones/componentes/TicketPromo.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import ResidenteDiscyPromo from '../../../imagenes/logos/grises/DiscPromo_Logo_Gris.png';
-import BarCode from '../../../imagenes/barcode.avif';
-import perforatedTop from '../../../imagenes/orilla-ticket-top.png';
-import perforatedBottom from '../../../imagenes/orilla-ticket-bottom.png'
+import ResidenteDiscyPromo from '../../../../../imagenes/logos/grises/DiscPromo_Logo_Gris.png';
+import BarCode from '../../../../../imagenes/barcode.avif';
+import perforatedTop from '../../../../../imagenes/orilla-ticket-top.png';
+import perforatedBottom from '../../../../../imagenes/orilla-ticket-bottom.png'
 
-const TicketPromo = forwardRef((props, ref) => {
+const TicketPromoMini = forwardRef((props, ref) => {
     const { className = "", ...rest } = props;
     const {
-        nombreRestaurante,
-        nombrePromo,
-        subPromo,
-        descripcionPromo,
-        validezPromo,
+        nombreRestaurante = "McDonals",
+        nombrePromo = "2x122",
+        subPromo = "Pizza",
+        descripcionPromo = "Antojo $69 INCLUYE: 2 GORDITAS DE LA CATEGORÍA CLÁSICAS + 1 AGUA FRESCA REFILL. PRODUCTO EXCLUSIVO PARA COMEDOR, NO APLICA PARA LLEVAR NI OTRO CANAL DE VENTAS. NO SE PUEDEN HACER CAMBIOS EN LA ORDEN. SUJETO A DISPONIBILIDAD DE TIENDA.",
+        validezPromo = "Vigencia hasta el 5 de octubre del 2025",
         stickerUrl
     } = props;
     // Referencias para los elementos del DOM
@@ -46,13 +46,13 @@ const TicketPromo = forwardRef((props, ref) => {
         setRestaurantNameText(nombreRestaurante);
     }, [nombreRestaurante]);
 
-    // Función para ajustar el tamaño de fuente de un elemento
+    // Función para ajustar el tamaño de fuente de un elemento (crecimiento bidireccional)
     const adjustFontSize = (ref, setSize, initialSize, minSize, step = 1) => {
         if (!ref.current || !containerRef.current) return;
 
         const container = containerRef.current;
         const text = ref.current;
-        const containerWidth = container.offsetWidth - 40; // Considerar padding
+        const containerWidth = container.offsetWidth - 20; // Considerar padding en la tarjeta normal 40
 
         // Guardar estilos originales
         const originalDisplay = text.style.display;
@@ -62,13 +62,28 @@ const TicketPromo = forwardRef((props, ref) => {
         text.style.display = 'inline-block';
         text.style.visibility = 'hidden';
 
+        // Primero intentamos con el tamaño inicial
         let currentSize = initialSize;
         text.style.fontSize = `${currentSize}px`;
-
-        // Reducir el tamaño hasta que quepa o se alcance el mínimo
+        
+        // Si el texto es demasiado grande, lo reducimos
         while (text.scrollWidth > containerWidth && currentSize > minSize) {
             currentSize -= step;
             text.style.fontSize = `${currentSize}px`;
+        }
+        
+        // Si hay espacio extra, intentamos aumentar el tamaño
+        const maxSize = initialSize * 1.5; // Permitimos hasta 50% más grande que el inicial
+        while (text.scrollWidth < containerWidth * 0.9 && currentSize < maxSize) {
+            currentSize += step;
+            text.style.fontSize = `${currentSize}px`;
+            
+            // Si se vuelve demasiado grande, retrocedemos un paso
+            if (text.scrollWidth > containerWidth) {
+                currentSize -= step;
+                text.style.fontSize = `${currentSize}px`;
+                break;
+            }
         }
 
         setSize(currentSize);
@@ -81,7 +96,7 @@ const TicketPromo = forwardRef((props, ref) => {
     // Efecto para ajustar todos los textos
     useEffect(() => {
         const adjustAll = () => {
-            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, 38, 10);
+            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, 58, 10);
             adjustFontSize(promoTextRef, setPromoFontSize, 200, 20, 2);
             adjustFontSize(burgersRef, setBurgersFontSize, 150, 15);
         };
@@ -102,9 +117,17 @@ const TicketPromo = forwardRef((props, ref) => {
                 background: 'transparent', // Fondo transparente
             }}
         >
+
+            {/* Perforated top edge */}
+            <img
+                src={perforatedTop}
+                alt="Perforado superior"
+                className="w-45 h-auto"
+            />
+
             <div
-                ref={containerRef} 
-                className="flex flex-col bg-white w-90 min-h-[670px] h-auto shadow-lg mx-auto relative mb-2" //h-[670]
+                ref={containerRef}
+                className="flex flex-col bg-white w-45 "
                 style={{
                     boxShadow: '-2px 3px 3px rgba(0,0,0,0.25)'
                 }}
@@ -114,35 +137,26 @@ const TicketPromo = forwardRef((props, ref) => {
                         <img
                             src={stickerUrl}
                             alt="Sticker"
-                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]" 
+                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]"
                         />
                     )
                 }
 
-                {/* Perforated top edge */}
-                <div className="absolute left-0 right-0 z-20 -top-2">
-                    <img
-                        src={perforatedTop}
-                        alt="Perforado superior"
-                        className="w-full"
-                    />
-                </div>
-
 
                 {/* Main content */}
-                <div className="px-5 py-4 pt-6 flex-1 flex flex-col">
-                    <div className="mb-4 z-20">
+                <div className="flex-1 flex flex-col">
+                    <div className="mb-2 z-20 px-2 pt-2">
                         <img
                             src={ResidenteDiscyPromo || "/placeholder.svg"}
                             alt="Residente Discy Promo Logo"
-                            className="h-12"
+                            className="w-14"
                         />
                     </div>
 
-                    <div className="flex-grow flex flex-col justify-end">
+                    <div className="flex-grow flex flex-col justify-end px-2">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-2 whitespace-nowrap overflow-hidden"
+                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden"
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
@@ -156,7 +170,6 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${promoFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
-                                    marginBottom: 4,
                                     padding: 0,
                                     display: 'block'
                                 }}
@@ -171,8 +184,6 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
-                                    marginBottom: 2,
-                                    marginTop: 6,
                                     padding: 0,
                                     display: 'block'
                                 }}
@@ -181,36 +192,29 @@ const TicketPromo = forwardRef((props, ref) => {
                             </h3>
                         </div>
 
-                        <p className="leading-[20px] text-[18px] text-gray-800 font-black font-roman mt-2">
+                        <p className="leading-[10px] text-[10px] text-gray-800 font-black font-roman">
                             {descripcionPromo}
                         </p>
                     </div>
                 </div>
                 {/* Bottom section */}
-                <div className="bg-[#FFF200] px-5 py-3 pb-3 mt-auto relative">
-                    <h2 className="text-xl mb-2 bg-black text-white text-center font-light font-roman leading-5 py-2">
+                <div className="bg-[#FFF200] px-2 py-1.5 mt-auto relative">
+                    <h2 className="text-[8px] mb-1 bg-black text-white text-center font-light font-roman leading-tight py-0.5">
                         {validezPromo}
                     </h2>
                     <img
                         src={BarCode || "/placeholder.svg"}
                         alt="Código de barras"
-                        className="w-full h-20 object-fill z-30 relative"
+                        className="w-full h-8.5 object-fill z-30 relative"
                     />
-                    {/* Borde inferior perforado - AHORA DENTRO del contenedor */}
-                    <div className="absolute left-0 right-0 bottom-[-8px] z-20">
-                        <img
-                            src={perforatedBottom}
-                            alt="Perforado inferior"
-                            className="w-full"
-                        />
-                    </div>
+
                 </div>
 
-                {/* Perforated bottom edge */}
-
             </div>
+            {/* Perforated bottom edge */}
+            <img src={perforatedBottom} alt="Perforado inferior" className="w-45 h-auto" />
         </div>
     );
 });
 
-export default TicketPromo;
+export default TicketPromoMini;

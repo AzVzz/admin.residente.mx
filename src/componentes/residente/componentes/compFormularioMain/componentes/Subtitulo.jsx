@@ -9,10 +9,10 @@ const Subtitulo = () => {
             </label>
             <textarea
                 id="subtitulo"
-                placeholder="Agrega un subtítulo descriptivo"
+                placeholder="Agrega un subtítulo"
                 {...register('subtitulo', { required: 'El subtítulo es obligatorio' })}
                 rows={1}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-24 max-h-50 min-h-24 ${
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 h-24 max-h-50 min-h-24 ${
                     errors.subtitulo ? 'border-red-500' : 'border-gray-300'
                 }`}
             />

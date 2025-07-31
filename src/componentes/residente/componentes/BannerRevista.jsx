@@ -10,7 +10,7 @@ import DetallePost from './DetallePost';
 import PostPrincipal from './componentesColumna2/PostPrincipal';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
-import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId } from '../../api/notasPublicadasGet';
+import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
@@ -20,6 +20,7 @@ import BarraMarquee from '../../../componentes/residente/componentes/seccionesCa
 import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
 import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
 import { revistaGetUltima } from '../../api/revistasGet.js';
+import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -275,7 +276,10 @@ const BannerRevista = () => {
                                                 <h3 className="text-2xl">Recomendaciones Restaurantes</h3>
                                             </div>
                                         </div>
-                                        <EnPortada />
+                                        <div className="pb-5">
+                                            <CincoNotasRRR />
+                                        </div>
+                                        <EnPortada notasResidenteGet={notasResidenteGet} />
                                     </>
                                 )}
                                 {tipo === "Food & Drink" && <VideosHorizontal />}

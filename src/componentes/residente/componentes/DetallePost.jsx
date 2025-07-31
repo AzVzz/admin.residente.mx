@@ -70,7 +70,10 @@ const DetallePost = ({ post, onVolver, sinFecha = false }) => {
             {/* Contenido adicional específico del detalle */}
             <div className="flex flex-col gap-5 px-10 py-6">
                 <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
-                <p className="text-xl font-roman">{post.descripcion}</p>
+                <div
+                    className="text-xl font-roman"
+                    dangerouslySetInnerHTML={{ __html: post.descripcion }}
+                />
                 <span>&copy; 2025 Residente. Todos los derechos reservados.</span>
 
                 <PostComentarios />

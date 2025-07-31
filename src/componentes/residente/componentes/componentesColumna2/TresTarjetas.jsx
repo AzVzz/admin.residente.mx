@@ -36,7 +36,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
           </div>*/}
 
                     {/* Título */}
-                    <h3 className="text-xl font-bold text-gray-900 leading-[1] mb-2 group-hover:text-gray-700 transition-colors duration-200">
+                    <h3 className="text-xl font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200">
                         {post.titulo}
                     </h3>
 

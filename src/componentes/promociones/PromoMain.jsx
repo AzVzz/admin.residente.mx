@@ -94,8 +94,8 @@ const PromoMain = () => {
             email: formData.emailPromo || "",
             tipo: 'promo',
             link: formData.urlPromo || "",
+            fecha_validez: formData.fechaValidez,
             metadata: JSON.stringify({
-                fecha_validez: formData.fechaValidez,
                 sticker_url: stickerClave // o puedes guardar la url si prefieres
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined
