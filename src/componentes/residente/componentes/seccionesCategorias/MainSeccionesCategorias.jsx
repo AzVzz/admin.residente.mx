@@ -11,7 +11,6 @@ import TarjetaHorizontalPost from '../../../../componentes/residente/componentes
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 import DetallePost from '../DetallePost.jsx';
-import Banner from '../../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BarraMarquee from './componentes/BarraMarquee.jsx';
 import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
@@ -223,7 +222,7 @@ const MainSeccionesCategorias = () => {
                     <div className="w-full gap-4 flex flex-col">
                         <div className="flex flex-col gap-4">
                             <img
-                                src={revistaActual?.imagen_banner || Banner}
+                                src={revistaActual?.imagen_banner}
                                 alt="Banner Revista"
                                 className="w-full"
                             />
@@ -246,7 +245,7 @@ const MainSeccionesCategorias = () => {
                                         {/* Mostrar Banner después de la cuarta nota */}
                                         {idx === 4 && (
                                             <img
-                                                src={revistaActual?.imagen_banner || Banner}
+                                                src={revistaActual?.imagen_banner}
                                                 alt="Banner Revista"
                                                 className="w-full"
                                             />

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 
-import PortadaRevista from '../imagenes/bannerRevista/PortadaRevista.jpg';
 import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
 import escobedo from '../imagenes/Iconografia/negroBlanco/esc.png';
 import guadalupe from '../imagenes/Iconografia/negroBlanco/gpe.png';
@@ -88,7 +87,7 @@ const Header = () => {
                   </a>
                 ) : (
                   <img
-                    src={revistaActual ? revistaActual.imagen_portada : PortadaRevista}
+                    src={revistaActual}
                     alt="Portada Revista"
                     className="h-auto sm:w-32 w-22 object-cover"
                   />
