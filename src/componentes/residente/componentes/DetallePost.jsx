@@ -1,10 +1,49 @@
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { notasPublicadasPorId } from "../../api/notasPublicadasGet"; // Ajusta el path si es necesario
 import PostComentarios from "./PostComentarios";
 import ShowComentarios from "./ShowComentarios";
 import SinFoto from '../../../imagenes/ResidenteColumna1/SinFoto.png';
 import { Iconografia } from '../../utils/Iconografia.jsx';
 
 // DetallePost.jsx
-const DetallePost = ({ post, onVolver, sinFecha = false }) => {
+const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [post, setPost] = useState(postProp);
+    const [loading, setLoading] = useState(!postProp);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!postProp && id) {
+            setLoading(true);
+            notasPublicadasPorId(id)
+                .then(data => setPost(data))
+                .catch(err => setError(err))
+                .finally(() => setLoading(false));
+        }
+    }, [id, postProp]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-red-500 p-4">Error al cargar la nota: {error.message}</div>
+        );
+    }
+
+    if (!post) {
+        return (
+            <div className="text-gray-500 p-4">Nota no encontrada.</div>
+        );
+    }
+
     // Verificar si el post tiene stickers
     const iconosDisponibles = [
         ...Iconografia.categorias,
@@ -80,12 +119,7 @@ const DetallePost = ({ post, onVolver, sinFecha = false }) => {
 
                 <ShowComentarios />
 
-                <button
-                    onClick={onVolver}
-                    className="mt-4 mb-4 text-blue-600 font-medium flex items-center cursor-pointer"
-                >
-                    ← Volver al listado
-                </button>
+                <button onClick={() => navigate(-1)}>← Volver al listado</button>
             </div>
         </div>
     );

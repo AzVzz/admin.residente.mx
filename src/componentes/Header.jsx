@@ -2,19 +2,22 @@ import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
+import { urlApi } from './api/url';
 
-import apodaca from '../imagenes/Iconografia/negroBlanco/apo.png';
-import escobedo from '../imagenes/Iconografia/negroBlanco/esc.png';
-import guadalupe from '../imagenes/Iconografia/negroBlanco/gpe.png';
-import monterrey from '../imagenes/Iconografia/negroBlanco/mty.png';
-import sannicolas from '../imagenes/Iconografia/negroBlanco/snn.png';
-import sanpedro from '../imagenes/Iconografia/negroBlanco/spg.png';
-import santacatarina from '../imagenes/Iconografia/negroBlanco/sta.png';
+
 import ResidenteNegro from '../imagenes/FoodDrinkMedia_Logo_Negro.png';
 import LogoCirculoResidente from '../imagenes/R_Circulo_Logo_Negro.png';
 import b2blogo from "../imagenes/logos/blancos/B2BSoluciones_Logo_Blanco.png";
 
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+
+const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
+const escobedo = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/esc.webp`;
+const guadalupe = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/gpe.webp`;
+const monterrey = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/mty.webp`;
+const sannicolas = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/snn.webp`;
+const sanpedro = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/spg.webp`;
+const santacatarina = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/sta.webp`;
 
 const iconosZonales = [
   { src: apodaca, alt: "Apodaca" },

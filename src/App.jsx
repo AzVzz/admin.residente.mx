@@ -20,6 +20,8 @@ import Login from './componentes/login';
 import { urlApi } from './componentes/api/url.js';
 
 
+import DetallePost from './componentes/residente/componentes/DetallePost';
+import BannerRevista from './componentes/residente/componentes/BannerRevista';
 
 function App() {
 
@@ -82,6 +84,23 @@ function App() {
               <ResidenteMain />
             </div>
           } />
+
+          <Route path="/notas/*" element={
+            <div className="max-w-[1080px] mx-auto">
+              <BannerRevista />
+            </div>
+          } />
+          <Route path="/notas/:id" element={
+            <div className="max-w-[1080px] mx-auto">
+              <BannerRevista />
+            </div>
+          } />
+          <Route path="/notas/:id" element={
+            <div className="max-w-[1080px] mx-auto">
+              <DetallePost />
+            </div>
+          } />
+
           <Route path="notas/nueva" element={
             <div className="max-w-[1080px] mx-auto">
               {/*<FormNotaMain/>*/}
@@ -98,7 +117,12 @@ function App() {
               <ListaNotas />
             </div>
           } />
-          <Route path="/seccion/:seccion/categoria/:categoria" element={
+          <Route path="/seccion/:seccion/categoria/:categoria/*" element={
+            <div className="max-w-[1080px] mx-auto">
+              <MainSeccionesCategorias />
+            </div>
+          } />
+          <Route path="/seccion/:seccion/categoria/:categoria/nota/:id" element={
             <div className="max-w-[1080px] mx-auto">
               <MainSeccionesCategorias />
             </div>

@@ -8,7 +8,7 @@ import ResidenteNewsLetter from '../../../../imagenes/logos/grises/ResidenteRest
 import { urlApi } from '../../../../componentes/api/url.js'
 const BotonesAnunciateSuscribirme = () => {
     return (
-        <div className="flex flex-col mb-5 gap-3  mx-10">
+        <div className="flex flex-col gap-3 m-10">
             <div className="flex justify-between gap-3">
                 <img src={`${urlApi}/fotos/fotos-estaticas/componente-news-letter/Newsletter.webp`} className="h-60 object-contain " />
                 <div className="flex flex-col justify-between items-end">

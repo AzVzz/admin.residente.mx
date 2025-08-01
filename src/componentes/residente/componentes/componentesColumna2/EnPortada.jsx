@@ -3,10 +3,10 @@ import { notasResidenteGet } from "../../../api/notasPublicadasGet";
 import ResidenteRestaurantMagazine from '../../../../imagenes/logos/ResidenteRestaurantMagazine.png';
 import { revistaGetUltima } from "../../../api/revistasGet";
 
-const EnPortada = ({ notasResidenteGet }) => {
+const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     const [nota, setNota] = useState(null);
     const [loading, setLoading] = useState(true);
-     const [revistaActual, setRevistaActual] = useState(null);
+    const [revistaActual, setRevistaActual] = useState(null);
 
     useEffect(() => {
         const fetchRevista = async () => {
@@ -76,9 +76,16 @@ const EnPortada = ({ notasResidenteGet }) => {
                                     y comunidad en la escena<br />
                                     gastronómica de Monterrey.
                                 </h2>
-                                <span className="text-[#fff300] text-[18px] pt-3 cursor-pointer hover:underline mt-2">
-                                    Descarga aqui {">"}
-                                </span>
+                                <a
+                                    href={revistaActual?.pdf}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download
+                                >
+                                    <span className="text-[#fff300] text-[18px] pt-3 cursor-pointer hover:underline mt-2">
+                                        Descarga aqui {">"}
+                                    </span>
+                                </a>
                             </div>
 
                         </div>
@@ -86,14 +93,15 @@ const EnPortada = ({ notasResidenteGet }) => {
                     </div>
                     {/* Columna Derecha */}
                     <div className="flex flex-row justify-end gap-6">
-                        {[0, 1, 2].map(idx => (
-                            <div className="relative w-40" key={idx}>
-                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover shadow-lg" />
-                                <div className="flex flex-col mt-4">
-                                    <h2 className="text-white text-[14px] leading-5">{nota.titulo}</h2>
-                                </div>
+                        <div
+                            className="relative w-40 cursor-pointer"
+                            onClick={() => onCardClick && onCardClick(nota)}
+                        >
+                            <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover shadow-lg" />
+                            <div className="flex flex-col mt-4">
+                                <h2 className="text-white text-[14px] leading-5">{nota.titulo}</h2>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
             </div>

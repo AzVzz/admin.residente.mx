@@ -33,6 +33,8 @@ const FormMainResidente = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  
+
   // Si no hay token, muestra el login
   if (!token) {
     return (
@@ -54,7 +56,8 @@ const FormMainResidente = () => {
       fechaProgramada: '',
       tipoDeNotaSeleccionada: tipoNotaUsuario || '',
       categoriasSeleccionadas: {},
-      imagen: null
+      imagen: null,
+      destacada: false
     }
   });
 
@@ -166,22 +169,23 @@ const FormMainResidente = () => {
       // Fuerza el tipo de nota correcto
       const tipoNotaFinal = tipoNotaUsuario || data.tipoDeNotaSeleccionada;
 
-const datosNota = {
-  tipo_nota: tipoNotaFinal,
-  secciones_categorias: seccionesCategorias,
-  titulo: data.titulo,
-  subtitulo: data.subtitulo,
-  autor: data.autor,
-  descripcion: data.contenido,
-  sticker: data.sticker,
-  estatus:
-    data.opcionPublicacion === 'programar'
-      ? 'programada'
-      : data.opcionPublicacion === 'borrador'
-      ? 'borrador'
-      : 'publicada',
-  programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null
-};
+      const datosNota = {
+        tipo_nota: tipoNotaFinal,
+        secciones_categorias: seccionesCategorias,
+        titulo: data.titulo,
+        subtitulo: data.subtitulo,
+        autor: data.autor,
+        descripcion: data.contenido,
+        sticker: data.sticker,
+        estatus:
+          data.opcionPublicacion === 'programar'
+            ? 'programada'
+            : data.opcionPublicacion === 'borrador'
+              ? 'borrador'
+              : 'publicada',
+        programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
+        destacada: data.destacada || false,
+      };
 
       let resultado;
       if (notaId) {
@@ -211,6 +215,9 @@ const datosNota = {
       </div>
     );
   }
+
+  // Obteniendo el valor seleccionado del tipo de nota
+  const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
 
   return (
     <div className="py-8">
@@ -242,6 +249,20 @@ const datosNota = {
                   secciones={secciones}
                   ocultarTipoNota={!!tipoNotaUsuario}
                 />
+
+                {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
+                {(tipoNotaSeleccionada === "Restaurantes") && (
+                  <div className="mb-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        {...methods.register("destacada")}
+                        className="form-checkbox h-5 w-5 text-yellow-500"
+                      />
+                      <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                    </label>
+                  </div>
+                )}
 
                 {/* Si hay tipoNotaUsuario, muéstralo como texto */}
                 {tipoNotaUsuario && (

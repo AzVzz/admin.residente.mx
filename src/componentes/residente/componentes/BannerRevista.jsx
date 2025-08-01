@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
 import CarruselPosts from './componentesColumna2/CarruselPosts';
@@ -22,14 +23,16 @@ import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import { revistaGetUltima } from '../../api/revistasGet.js';
 
 const BannerRevista = () => {
+    const { id } = useParams();
     const [selectedPost, setSelectedPost] = useState(null);
-    const [showDetail, setShowDetail] = useState(false);
     const [posts, setPosts] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
     const [detalleCargando, setDetalleCargando] = useState(false);
     const [errorDetalle, setErrorDetalle] = useState(null);
     const topRef = useRef(null);
+
+    const navigate = useNavigate();
 
     const [notasDestacadas, setNotasDestacadas] = useState([]);
     const [cargandoDestacadas, setCargandoDestacadas] = useState(true);
@@ -74,33 +77,28 @@ const BannerRevista = () => {
         fetchPosts();
     }, []);
 
-    const handleCardClick = async (id) => {
-        setDetalleCargando(true);
-        setErrorDetalle(null);
-        setShowDetail(true);
-
-        try {
-            const postCompleto = await notasPublicadasPorId(id);
-            setSelectedPost(postCompleto);
-        } catch (err) {
-            setErrorDetalle(err);
-            console.error("Error al cargar el detalle de la nota:", err);
-        } finally {
-            setDetalleCargando(false);
+    // Si hay id en la URL, carga el detalle
+    useEffect(() => {
+        if (id) {
+            setDetalleCargando(true);
+            setErrorDetalle(null);
+            setSelectedPost(null);
+            notasPublicadasPorId(id)
+                .then(post => setSelectedPost(post))
+                .catch(err => setErrorDetalle(err))
+                .finally(() => setDetalleCargando(false));
         }
+    }, [id]);
+
+    const handleCardClick = async (id) => {
+        navigate(`/notas/${id}`);
     };
 
     const handleVolver = () => {
-        setShowDetail(false);
+        navigate('/notas');
         setSelectedPost(null);
         setErrorDetalle(null);
     };
-
-    useEffect(() => {
-        if (showDetail && topRef.current) {
-            topRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [showDetail]);
 
     if (cargando) {
         return (
@@ -139,10 +137,10 @@ const BannerRevista = () => {
 
     return (
         <div ref={topRef} className="">
-            {showDetail ? (
+            {id ? (
                 <div className="flex flex-col">
                     <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-4">
-                        {/* Columna Principal - Solo DetallePost */}
+                        {/* Columna Principal - Detalle */}
                         <div>
                             {detalleCargando ? (
                                 <div className="flex justify-center py-12">
@@ -158,7 +156,7 @@ const BannerRevista = () => {
                                         </div>
                                         <div className="ml-3">
                                             <p className="text-sm text-red-700">
-                                                Error al cargar el detalle: {errorDetalle.message}
+                                                Error al cargar el detalle: {errorDetalle?.message}
                                             </p>
                                         </div>
                                     </div>
@@ -173,10 +171,8 @@ const BannerRevista = () => {
                                 <DetallePost post={selectedPost} onVolver={handleVolver} />
                             )}
                         </div>
-
-                        {/* Columna lateral - Mantenemos igual */}
+                        {/* Columna lateral */}
                         <div className="space-y-6">
-                            {/* Como no tenemos contexto de categoría, mostramos todas las destacadas */}
                             <MainLateralPostTarjetas
                                 notasDestacadas={notasDestacadas}
                                 onCardClick={(post) => handleCardClick(post.id)}
@@ -187,6 +183,7 @@ const BannerRevista = () => {
                     </div>
                 </div>
             ) : (
+                // Listado normal
                 <div className="flex flex-col">
                     {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
                         const postsFiltrados = filtrarPostsPorTipoNota(tipo);
@@ -222,13 +219,12 @@ const BannerRevista = () => {
                                                     alt={tipo}
                                                     className={
                                                         tipo === "Antojos"
-                                                            ? "h-auto w-60 object-contain" // más pequeño para Antojos
-                                                            : "h-auto w-80 object-contain" // tamaño normal para los demás
+                                                            ? "h-auto w-60 object-contain"
+                                                            : "h-auto w-80 object-contain"
                                                     }
                                                 />
                                             </div>
                                         </div>
-
 
                                         <div className="w-176.5 mb-3">
                                             <BarraMarquee categoria={marqueeTexto} />
@@ -255,14 +251,12 @@ const BannerRevista = () => {
                                                 alt="Banner Revista"
                                                 className="w-full mb-4"
                                             />
-
                                         )}
 
                                         <TresTarjetas
                                             posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}
                                         />
-
                                     </div>
 
                                     {/* Columna lateral */}
@@ -278,7 +272,6 @@ const BannerRevista = () => {
                                         </div>
                                         <BotonesAnunciateSuscribirme />
                                     </div>
-
                                 </div>
                                 {tipo === "Restaurantes" && (
                                     <>
@@ -289,14 +282,16 @@ const BannerRevista = () => {
                                             </div>
                                         </div>
                                         <div className="pb-5">
-                                            <CincoNotasRRR />
+                                            <CincoNotasRRR onCardClick={(nota) => handleCardClick(nota.id)} />
                                         </div>
-                                        <EnPortada notasResidenteGet={notasResidenteGet} />
+                                        <EnPortada
+                                            notasResidenteGet={notasResidenteGet}
+                                            onCardClick={(nota) => handleCardClick(nota.id)}
+                                        />
                                     </>
                                 )}
                                 {tipo === "Antojos" && <VideosHorizontal />}
                                 {tipo === "Food & Drink" && <SeccionesPrincipales />}
-
                             </div>
                         );
                     })}

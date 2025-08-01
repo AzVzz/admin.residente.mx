@@ -62,3 +62,9 @@ export const notasResidenteGet = async () => {
         throw error;
     }
 };
+
+export const notasDestacadasRestaurantesGet = async () => {
+    const response = await fetch(`${urlApi}api/notas/destacadas/restaurantes`);
+    if (!response.ok) throw new Error('Error al obtener notas destacadas de Restaurantes');
+    return await response.json();
+};
