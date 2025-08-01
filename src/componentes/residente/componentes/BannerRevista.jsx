@@ -241,11 +241,24 @@ const BannerRevista = () => {
                                                 onClick={() => handleCardClick(postsFiltrados[0].id)}
                                             />
                                         )}
-                                        <img
-                                            src={revistaActual?.imagen_banner || Banner}
-                                            alt="Banner Revista"
-                                            className="w-full mb-4"
-                                        />
+                                        {revistaActual && revistaActual.pdf ? (
+                                            <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                                <img
+                                                    src={revistaActual.imagen_banner || Banner}
+                                                    alt="Banner Revista"
+                                                    className="w-full mb-4 cursor-pointer"
+                                                    title="Descargar Revista"
+                                                />
+                                            </a>
+                                        ) : (
+                                            <img
+                                                src={revistaActual?.imagen_banner || Banner}
+                                                alt="Banner Revista"
+                                                className="w-full mb-4"
+                                            />
+
+                                        )}
+
                                         <TresTarjetas
                                             posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}

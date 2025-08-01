@@ -222,11 +222,22 @@ const MainSeccionesCategorias = () => {
 
                     <div className="w-full gap-4 flex flex-col">
                         <div className="flex flex-col gap-4">
-                            <img
-                                src={revistaActual?.imagen_banner || Banner}
-                                alt="Banner Revista"
-                                className="w-full"
-                            />
+                            {revistaActual && revistaActual.pdf ? (
+                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                    <img
+                                        src={revistaActual.imagen_banner || Banner}
+                                        alt="Banner Revista"
+                                        className="w-full cursor-pointer"
+                                        title="Descargar PDF"
+                                    />
+                                </a>
+                            ) : (
+                                <img
+                                    src={revistaActual?.imagen_banner || Banner}
+                                    alt="Banner Revista"
+                                    className="w-full"
+                                />
+                            )}
                             <div className="w-192.5">
                                 <BarraMarquee categoria={`Noticias y más recomendaciones de ${categoria}`} />
                             </div>
@@ -245,11 +256,22 @@ const MainSeccionesCategorias = () => {
                                     <React.Fragment key={nota.id}>
                                         {/* Mostrar Banner después de la cuarta nota */}
                                         {idx === 4 && (
-                                            <img
-                                                src={revistaActual?.imagen_banner || Banner}
-                                                alt="Banner Revista"
-                                                className="w-full"
-                                            />
+                                            revistaActual && revistaActual.pdf ? (
+                                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                                    <img
+                                                        src={revistaActual.imagen_banner || Banner}
+                                                        alt="Banner Revista"
+                                                        className="w-full cursor-pointer"
+                                                        title="Descargar PDF"
+                                                    />
+                                                </a>
+                                            ) : (
+                                                <img
+                                                    src={revistaActual?.imagen_banner || Banner}
+                                                    alt="Banner Revista"
+                                                    className="w-full"
+                                                />
+                                            )
                                         )}
                                         <div ref={el => notaRefs.current[nota.id] = el}>
                                             <TarjetaHorizontalPost
