@@ -1,9 +1,9 @@
 //src/componentes/api/notasCompletas.js
 import { urlApi } from './url.js';
 
-export const notasTodasGet = async (token) => {
+export const notasTodasGet = async (token, page = 1, limit = 12) => {
     try {
-        const response = await fetch(`${urlApi}api/notas/todas`, {
+        const response = await fetch(`${urlApi}api/notas/todas?page=${page}&limit=${limit}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         if (!response.ok) {
@@ -16,7 +16,6 @@ export const notasTodasGet = async (token) => {
         throw error;
     }
 };
-
 // Obtener una nota por ID
 export const notaGetById = async (id) => {
     try {

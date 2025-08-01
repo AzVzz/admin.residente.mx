@@ -142,7 +142,7 @@ const BannerRevista = () => {
         <div ref={topRef} className="">
             {showDetail ? (
                 <div className="flex flex-col">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-4">
                         {/* Columna Principal - Solo DetallePost */}
                         <div>
                             {detalleCargando ? (
@@ -212,7 +212,7 @@ const BannerRevista = () => {
 
                         return (
                             <div key={tipo} className="flex flex-col pt-9">
-                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5 mb-9">
+                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 mb-9">
                                     {/* Columna Principal */}
                                     <div>
                                         <div className="relative flex justify-center items-center mb-4">
@@ -244,7 +244,7 @@ const BannerRevista = () => {
                                         <img
                                             src={revistaActual?.imagen_banner || Banner}
                                             alt="Banner Revista"
-                                            className="w-full"
+                                            className="w-full mb-4"
                                         />
                                         <TresTarjetas
                                             posts={postsFiltrados.slice(1, 7)}
@@ -282,8 +282,8 @@ const BannerRevista = () => {
                                         <EnPortada notasResidenteGet={notasResidenteGet} />
                                     </>
                                 )}
-                                {tipo === "Food & Drink" && <VideosHorizontal />}
-                                {tipo === "Experiencias" && <SeccionesPrincipales />}
+                                {tipo === "Antojos" && <VideosHorizontal />}
+                                {tipo === "Food & Drink" && <SeccionesPrincipales />}
 
                             </div>
                         );

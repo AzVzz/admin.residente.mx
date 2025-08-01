@@ -16,6 +16,9 @@ const ListaNotas = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
+  const [pagina, setPagina] = useState(1);
+  const [totalNotas, setTotalNotas] = useState(0);
+  const pageSize = 9;
 
   // Si expiro el token(error 403) o lo borra(401) se borra el token y el ususario
   useEffect(() => {
@@ -37,24 +40,10 @@ const ListaNotas = () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token);
-
-      // Si el usuario tiene permisos "todos", muestra todas las notas
-      if (usuario?.permisos === "todos") {
-        setNotas(data);
-        return;
-      }
-      const tipoNotaPorPermiso = {
-        "barrio-antiguo": "Barrio Antiguo",
-        "mama-de-rocco": "Mamá de Rocco",
-        "todos": null,
-        // ...otros permisos
-      };
-      const tipoNotaFiltro = tipoNotaPorPermiso[usuario?.permisos];
-      const notasFiltradas = tipoNotaFiltro
-        ? data.filter(nota => nota.tipo_nota === tipoNotaFiltro)
-        : [];
-      setNotas(notasFiltradas);
+      const data = await notasTodasGet(token, pagina);
+      // Update to handle the new response format
+      setNotas(data.notas);
+      setTotalNotas(data.paginacion.total);
     } catch (err) {
       setError(err);
     } finally {
@@ -62,11 +51,12 @@ const ListaNotas = () => {
     }
   };
 
+
   useEffect(() => {
     if (!token) return;
-    fetchNotas();
+    fetchNotas(pagina);
     // eslint-disable-next-line
-  }, [token, usuario]);
+  }, [token, usuario, pagina]);
 
   // Eliminar nota
   const eliminarNota = async (id) => {
@@ -99,7 +89,44 @@ const ListaNotas = () => {
 
   // Mostrar mensaje si no hay notas
   if (!notas || notas.length === 0) {
-    return <SinNotas />;
+    return (
+      <div className="space-y-6 py-5">
+        <div className="flex flex-row gap-0 justify-between">
+          <div className="bg-black flex items-center">
+            <h1 className="text-2xl font-bold text-white px-5">Lista de Notas</h1>
+          </div>
+          <div className="flex gap-5">
+            <Link
+              to="/notas/nueva"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {/* ...icono... */}
+              Nueva Nota
+            </Link>
+            {usuario && (
+              <div className="flex items-center gap-5">
+                <button
+                  onClick={() => {
+                    saveToken(null);
+                    saveUsuario(null);
+                    navigate("/");
+                  }}
+                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer"
+                  title="Cerrar sesión"
+                >
+                  Cerrar sesión
+                </button>
+                <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black">
+                  <FaUser className="text-sm -mt-0.5 mr-2" />
+                  <span className="flex items-center">{usuario?.nombre_usuario}</span>
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+        <SinNotas />
+      </div>
+    );
   }
 
   // Mostrar la lista de notas
@@ -154,7 +181,7 @@ const ListaNotas = () => {
                   saveUsuario(null);
                   navigate("/");
                 }}
-                className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold "
+                className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer"
                 title="Cerrar sesión"
               >
                 Cerrar sesión
@@ -278,6 +305,29 @@ const ListaNotas = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Add pagination controls */}
+      <div className="mt-6 flex justify-center">
+        <nav className="flex items-center space-x-2">
+          <button
+            onClick={() => setPagina(p => Math.max(p - 1, 1))}
+            disabled={pagina === 1}
+            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-gray-700">
+            Página {pagina} de {Math.ceil(totalNotas / pageSize)}
+          </span>
+          <button
+            onClick={() => setPagina(p => Math.min(p + 1, Math.ceil(totalNotas / pageSize)))}
+            disabled={pagina === Math.ceil(totalNotas / pageSize)}
+            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Siguiente
+          </button>
+        </nav>
       </div>
     </div>
   );

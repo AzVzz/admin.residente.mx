@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { catalogoSeccionesGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
 import GuiaNl from '../../../imagenes/logos/blancos/Guia_Logo_Blanco.png';
 
+
+//                <p className="flex col-span-3 text-xl leading-5.5 text-white justify-center items-center">El directorio gastronómico diseñado para <br /> ayudarte a decidir dónde ir a comer hoy.</p>
 const SeccionesPrincipales = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,14 +25,14 @@ const SeccionesPrincipales = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5 ">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-8 ">
             <div className="grid grid-cols-6 max-w-[1080px] mb-5 w-full mx-auto py-0 gap-8">
                 <img
                     src={GuiaNl}
                     className="col-span-1 w-auto h-15 object-contain"
                 />
 
-                <p className="flex col-span-3 text-xl leading-5.5 text-white justify-center items-center">El directorio gastronómico diseñado para <br /> ayudarte a decidir dónde ir a comer hoy.</p>
+                <p className="flex col-span-3 text-xl leading-5.5 text-white justify-center items-center">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos.</p>
 
                 <div className="col-span-2 flex items-center justify-center">
                     <input

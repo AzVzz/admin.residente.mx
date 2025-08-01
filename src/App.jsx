@@ -93,7 +93,7 @@ function App() {
             </div>
           } />
           <Route path="/notas" element={
-            <div className="max-w-[1080px] mx-auto">
+            <div className="max-w-[1600px] mx-auto">
               <ListaNotas />
             </div>
           } />
