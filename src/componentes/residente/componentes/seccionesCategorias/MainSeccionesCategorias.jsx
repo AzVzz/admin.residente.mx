@@ -1,6 +1,6 @@
 import { urlApi } from '../../../api/url';
 import React from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
@@ -26,8 +26,10 @@ const NOTAS_POR_PAGINA = 12;
 const MainSeccionesCategorias = () => {
     const location = useLocation();
     const params = useParams();
+    const navigate = useNavigate();
     const seccion = location.state?.seccion || params.seccion;
     const categoria = location.state?.categoria || params.categoria;
+    const { id } = params;
     const [notas, setNotas] = useState([]);
     const [restaurantes, setRestaurantes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,6 +37,8 @@ const MainSeccionesCategorias = () => {
     const categoriaH1ContainerRef = useRef(null);
     const [categoriaFontSize, setCategoriaFontSize] = useState(150);
     const [selectedNota, setSelectedNota] = useState(null);
+    const [detalleCargando, setDetalleCargando] = useState(false);
+    const [errorDetalle, setErrorDetalle] = useState(null);
     const [paginaActual, setPaginaActual] = useState(1);
     const notasRef = useRef(null);
     const notaRefs = useRef({});
@@ -54,24 +58,35 @@ const MainSeccionesCategorias = () => {
         paginaActual * NOTAS_POR_PAGINA
     );
 
-    const handleNotaClick = (nota) => {
-        setSelectedNota(nota);
-    };
-    const handleVolver = () => {
-        setSelectedNota(null);
-        setTimeout(() => {
-            if (selectedNota && notaRefs.current[selectedNota.id]) {
-                notaRefs.current[selectedNota.id].scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            } else if (notasRef.current) {
-                notasRef.current.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+    // Cuando hay id en la URL, carga la nota
+    useEffect(() => {
+        if (id) {
+            setDetalleCargando(true);
+            setErrorDetalle(null);
+            // Busca la nota en las ya cargadas o pídela a la API
+            const notaExistente = notas.find(n => String(n.id) === String(id));
+            if (notaExistente) {
+                setSelectedNota(notaExistente);
+                setDetalleCargando(false);
+            } else {
+                // Si no está, podrías pedirla a la API (agrega tu función si la tienes)
+                // notasPorId(id).then(nota => setSelectedNota(nota)).catch(err => setErrorDetalle(err)).finally(() => setDetalleCargando(false));
+                setDetalleCargando(false);
             }
-        }, 100);
+        } else {
+            setSelectedNota(null);
+        }
+    }, [id, notas]);
+
+    // Cuando el usuario hace click en una nota, navega a la URL
+    const handleNotaClick = (nota) => {
+        navigate(`/seccion/${seccion}/categoria/${categoria}/nota/${nota.id}`);
+    };
+
+    // Cuando el usuario quiere volver al listado
+    const handleVolver = () => {
+        navigate(`/seccion/${seccion}/categoria/${categoria}`);
+        setSelectedNota(null);
     };
 
     useEffect(() => {
@@ -221,17 +236,10 @@ const MainSeccionesCategorias = () => {
 
                     <div className="w-full gap-4 flex flex-col">
                         <div className="flex flex-col gap-4">
-<<<<<<< HEAD
-                            <img
-                                src={revistaActual?.imagen_banner}
-                                alt="Banner Revista"
-                                className="w-full"
-                            />
-=======
                             {revistaActual && revistaActual.pdf ? (
                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                     <img
-                                        src={revistaActual.imagen_banner || Banner}
+                                        src={revistaActual.imagen_banner}
                                         alt="Banner Revista"
                                         className="w-full cursor-pointer"
                                         title="Descargar PDF"
@@ -239,23 +247,30 @@ const MainSeccionesCategorias = () => {
                                 </a>
                             ) : (
                                 <img
-                                    src={revistaActual?.imagen_banner || Banner}
+                                    src={revistaActual?.imagen_banner}
                                     alt="Banner Revista"
                                     className="w-full"
                                 />
                             )}
->>>>>>> 127c413d1f64e5958964ba2575463e8e42479a6c
                             <div className="w-192.5">
                                 <BarraMarquee categoria={`Noticias y más recomendaciones de ${categoria}`} />
                             </div>
                         </div>
 
-                        {selectedNota ? (
-                            <DetallePost
-                                post={selectedNota}
-                                onVolver={handleVolver}
-                                sinFecha
-                            />
+                        {id ? (
+                            detalleCargando ? (
+                                <div className="flex justify-center py-12">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                                </div>
+                            ) : errorDetalle ? (
+                                <div className="text-red-500 p-4">Error al cargar la nota: {errorDetalle?.message}</div>
+                            ) : (
+                                <DetallePost
+                                    post={selectedNota}
+                                    onVolver={handleVolver}
+                                    sinFecha
+                                />
+                            )
                         ) : (
                             <>
                                 {/* Primer bloque de 8 notas con Banner en medio */}
@@ -263,17 +278,10 @@ const MainSeccionesCategorias = () => {
                                     <React.Fragment key={nota.id}>
                                         {/* Mostrar Banner después de la cuarta nota */}
                                         {idx === 4 && (
-<<<<<<< HEAD
-                                            <img
-                                                src={revistaActual?.imagen_banner}
-                                                alt="Banner Revista"
-                                                className="w-full"
-                                            />
-=======
                                             revistaActual && revistaActual.pdf ? (
                                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                                     <img
-                                                        src={revistaActual.imagen_banner || Banner}
+                                                        src={revistaActual.imagen_banner}
                                                         alt="Banner Revista"
                                                         className="w-full cursor-pointer"
                                                         title="Descargar PDF"
@@ -281,12 +289,11 @@ const MainSeccionesCategorias = () => {
                                                 </a>
                                             ) : (
                                                 <img
-                                                    src={revistaActual?.imagen_banner || Banner}
+                                                    src={revistaActual?.imagen_banner}
                                                     alt="Banner Revista"
                                                     className="w-full"
                                                 />
                                             )
->>>>>>> 127c413d1f64e5958964ba2575463e8e42479a6c
                                         )}
                                         <div ref={el => notaRefs.current[nota.id] = el}>
                                             <TarjetaHorizontalPost
