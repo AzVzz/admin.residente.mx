@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import
-Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
+import Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
 import CarruselPosts from './componentesColumna2/CarruselPosts';
@@ -21,6 +20,7 @@ import BarraMarquee from '../../../componentes/residente/componentes/seccionesCa
 import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
 import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
+import { revistaGetUltima } from '../../api/revistasGet.js';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -35,6 +35,13 @@ const BannerRevista = () => {
     const [notasDestacadas, setNotasDestacadas] = useState([]);
     const [cargandoDestacadas, setCargandoDestacadas] = useState(true);
     const [errorDestacadas, setErrorDestacadas] = useState(null);
+    const [revistaActual, setRevistaActual] = useState(null);
+
+    useEffect(() => {
+        revistaGetUltima()
+            .then(data => setRevistaActual(data))
+            .catch(() => setRevistaActual(null));
+    }, []);
 
     useEffect(() => {
         const fetchDestacadas = async () => {
@@ -135,7 +142,7 @@ const BannerRevista = () => {
         <div ref={topRef} className="">
             {showDetail ? (
                 <div className="flex flex-col">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-4">
                         {/* Columna Principal - Solo DetallePost */}
                         <div>
                             {detalleCargando ? (
@@ -205,7 +212,7 @@ const BannerRevista = () => {
 
                         return (
                             <div key={tipo} className="flex flex-col pt-9">
-                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5 mb-9">
+                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 mb-9">
                                     {/* Columna Principal */}
                                     <div>
                                         <div className="relative flex justify-center items-center mb-4">
@@ -234,7 +241,11 @@ const BannerRevista = () => {
                                                 onClick={() => handleCardClick(postsFiltrados[0].id)}
                                             />
                                         )}
-                                        <img src={Banner} alt="Banner Revista" className="w-full pb-4" />
+                                        <img
+                                            src={revistaActual?.imagen_banner || Banner}
+                                            alt="Banner Revista"
+                                            className="w-full mb-4"
+                                        />
                                         <TresTarjetas
                                             posts={postsFiltrados.slice(1, 7)}
                                             onCardClick={(post) => handleCardClick(post.id)}
@@ -271,8 +282,8 @@ const BannerRevista = () => {
                                         <EnPortada notasResidenteGet={notasResidenteGet} />
                                     </>
                                 )}
-                                {tipo === "Food & Drink" && <VideosHorizontal />}
-                                {tipo === "Experiencias" && <SeccionesPrincipales />}
+                                {tipo === "Antojos" && <VideosHorizontal />}
+                                {tipo === "Food & Drink" && <SeccionesPrincipales />}
 
                             </div>
                         );
