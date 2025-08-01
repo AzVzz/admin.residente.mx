@@ -11,7 +11,6 @@ import TarjetaHorizontalPost from '../../../../componentes/residente/componentes
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import OpcionesExtra from '../componentesColumna3/OpcionesExtra.jsx';
 import DetallePost from '../DetallePost.jsx';
-import Banner from '../../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BarraMarquee from './componentes/BarraMarquee.jsx';
 import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
@@ -225,7 +224,7 @@ const MainSeccionesCategorias = () => {
                             {revistaActual && revistaActual.pdf ? (
                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                     <img
-                                        src={revistaActual.imagen_banner || Banner}
+                                        src={revistaActual.imagen_banner }
                                         alt="Banner Revista"
                                         className="w-full cursor-pointer"
                                         title="Descargar PDF"
@@ -233,7 +232,7 @@ const MainSeccionesCategorias = () => {
                                 </a>
                             ) : (
                                 <img
-                                    src={revistaActual?.imagen_banner || Banner}
+                                    src={revistaActual?.imagen_banner }
                                     alt="Banner Revista"
                                     className="w-full"
                                 />
@@ -259,7 +258,7 @@ const MainSeccionesCategorias = () => {
                                             revistaActual && revistaActual.pdf ? (
                                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                                     <img
-                                                        src={revistaActual.imagen_banner || Banner}
+                                                        src={revistaActual.imagen_banner}
                                                         alt="Banner Revista"
                                                         className="w-full cursor-pointer"
                                                         title="Descargar PDF"
@@ -267,10 +266,11 @@ const MainSeccionesCategorias = () => {
                                                 </a>
                                             ) : (
                                                 <img
-                                                    src={revistaActual?.imagen_banner || Banner}
+                                                    src={revistaActual?.imagen_banner}
                                                     alt="Banner Revista"
                                                     className="w-full"
                                                 />
+                                                
                                             )
                                         )}
                                         <div ref={el => notaRefs.current[nota.id] = el}>

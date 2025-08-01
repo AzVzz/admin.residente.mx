@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
-import tonysTacos from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/tonystacos.jpeg';
-import PortadaRevista from '../../../../imagenes/bannerRevista/PortadaRevista.jpg';
-import ResidenteRestaurantMagazine from '../../../../imagenes/logos/ResidenteRestaurantMagazine.png'
-import FotoBannerPrueba from '../../../../imagenes/FotoBannerPrueba.png';
+import ResidenteRestaurantMagazine from '../../../../imagenes/logos/ResidenteRestaurantMagazine.png';
+import { revistaGetUltima } from "../../../api/revistasGet";
 
 const EnPortada = ({ notasResidenteGet }) => {
     const [nota, setNota] = useState(null);
     const [loading, setLoading] = useState(true);
+     const [revistaActual, setRevistaActual] = useState(null);
+
+    useEffect(() => {
+        const fetchRevista = async () => {
+            try {
+                const data = await revistaGetUltima();
+                setRevistaActual(data);
+            } catch (error) {
+                setRevistaActual(null);
+            }
+        };
+        fetchRevista();
+    }, []);
 
     useEffect(() => {
         const fetchNota = async () => {
@@ -42,7 +53,22 @@ const EnPortada = ({ notasResidenteGet }) => {
                     {/* Columna Izquierda */}
                     <div className="flex flex-col justify-start items-start">
                         <div className="flex flex-row">
-                            <img src={PortadaRevista} alt="Portada Revista" className="w-52 h-auto shadow-lg" />
+                            {revistaActual && revistaActual.pdf ? (
+                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                    <img
+                                        src={revistaActual.imagen_portada}
+                                        alt="Portada Revista"
+                                        className="w-50 h-full object-cover cursor-pointer"
+                                        title="Descargar PDF"
+                                    />
+                                </a>
+                            ) : (
+                                <img
+                                    src={revistaActual}
+                                    alt="Portada Revista"
+                                    className="h-auto sm:w-32 w-22 object-cover"
+                                />
+                            )}
                             <div className="flex flex-col ml-6 justify-between">
                                 <h3 className="text-2xl font-bold text-[#fff300] ">En Portada</h3>
                                 <h2 className="text-white text-[22px] leading-6.5">

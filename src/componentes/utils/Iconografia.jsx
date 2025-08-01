@@ -1,61 +1,36 @@
-import fourreal from '../../imagenes/Iconografia/4real.png';
-import corazon from '../../imagenes/Iconografia/corazon.png';
-import tendencia from '../../imagenes/Iconografia/tendencia.png';
-import icon from '../../imagenes/Iconografia/icon.png';
-import newIcon from '../../imagenes/Iconografia/new.png';
-import estrellas from '../../imagenes/Iconografia/estrellas.png';
-import calidad from '../../imagenes/Iconografia/calidad.png';
-import calidadPrecio from '../../imagenes/Iconografia/calidad-precio.png';
-import desayunos from '../../imagenes/Iconografia/desayunos.png';
-import amigos from '../../imagenes/Iconografia/amigos.png';
-import cumpleaños from '../../imagenes/Iconografia/cumpleaños.png';
-import noche from '../../imagenes/Iconografia/noche.png';
-import familiar from '../../imagenes/Iconografia/familiar.png';
-import negocios from '../../imagenes/Iconografia/negocios.png';
-import yum from '../../imagenes/Iconografia/yum.png';
-import enPareja from '../../imagenes/Iconografia/en-pareja.png';
-import munch from '../../imagenes/Iconografia/munch.png';
-import mty from '../../imagenes/Iconografia/mty.png';
-import sta from '../../imagenes/Iconografia/sta.png';
-import apo from '../../imagenes/Iconografia/apo.png';
-import mtyPte from '../../imagenes/Iconografia/mty-pte.png';
-import spg from '../../imagenes/Iconografia/spg.png';
-import esc from '../../imagenes/Iconografia/esc.png';
-import mtySur from '../../imagenes/Iconografia/mty-sur.png';
-import gpe from '../../imagenes/Iconografia/gpe.png';
-import snn from '../../imagenes/Iconografia/snn.png';
+import { urlApi } from '../../componentes/api/url.js';
 
 export const Iconografia = {
     categorias: [
-        { nombre: "Autenticidad", icono: fourreal, clave: "fourreal" },
-        { nombre: "Garantía", icono: corazon, clave: "corazon" },
-        { nombre: "Tendencia", icono: tendencia, clave: "tendencia" },
-        { nombre: "Iconico", icono: icon, clave: "icon" },
-        { nombre: "Nuevo", icono: newIcon, clave: "newIcon" },
-        { nombre: "Memorable", icono: estrellas, clave: "estrellas" },
-        { nombre: "Calidad", icono: calidad, clave: "calidad" },
-        { nombre: "Calidad Precio", icono: calidadPrecio, clave: "calidadPrecio" },
+        { nombre: "Autenticidad", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/4real.webp`, clave: "fourreal" },
+        { nombre: "Garantía", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/corazon.webp`, clave: "corazon" },
+        { nombre: "Tendencia", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/tendencia.webp`, clave: "tendencia" },
+        { nombre: "Iconico", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/icon.webp`, clave: "icon" },
+        { nombre: "Nuevo", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/new.webp`, clave: "newIcon" },
+        { nombre: "Memorable", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/estrellas.webp`, clave: "estrellas" },
+        { nombre: "Calidad", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/calidad.webp`, clave: "calidad" },
+        { nombre: "Calidad Precio", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/calidad-precio.webp`, clave: "calidadPrecio" },
     ],
     ocasiones: [
-        { nombre: "Desayunos", icono: desayunos, clave: "desayunos" },
-        { nombre: "Amigos", icono: amigos, clave: "amigos" },
-        { nombre: "Cumpleaños", icono: cumpleaños, clave: "cumpleaños" },
-        { nombre: "Night", icono: noche, clave: "noche" },
-        { nombre: "Familiar", icono: familiar, clave: "familiar" },
-        { nombre: "Negocios", icono: negocios, clave: "negocios" },
-        { nombre: "Antojo", icono: yum, clave: "yum" },
-        { nombre: "En pareja", icono: enPareja, clave: "enPareja" },
-        { nombre: "Munch", icono: munch, clave: "munch" },
+        { nombre: "Desayunos", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/desayunos.webp`, clave: "desayunos" },
+        { nombre: "Amigos", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/amigos.webp`, clave: "amigos" },
+        { nombre: "Cumpleaños", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/cumpleaños.webp`, clave: "cumpleaños" },
+        { nombre: "Night", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/noche.webp`, clave: "noche" },
+        { nombre: "Familiar", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/familiar.webp`, clave: "familiar" },
+        { nombre: "Negocios", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/negocios.webp`, clave: "negocios" },
+        { nombre: "Antojo", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/yum.webp`, clave: "yum" },
+        { nombre: "En pareja", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/en-pareja.webp`, clave: "enPareja" },
+        { nombre: "Munch", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/munch.webp`, clave: "munch" },
     ],
     zonas: [
-        { nombre: "Monterrey", icono: mty, clave: "mty" },
-        { nombre: "Santa Catarina", icono: sta, clave: "sta" },
-        { nombre: "Apodaca", icono: apo, clave: "apo" },
-        { nombre: "Poniente", icono: mtyPte, clave: "mtyPte" },
-        { nombre: "San Pedro", icono: spg, clave: "spg" },
-        { nombre: "Escobedo", icono: esc, clave: "esc" },
-        { nombre: "Sur", icono: mtySur, clave: "mtySur" },
-        { nombre: "Guadalupe", icono: gpe, clave: "gpe" },
-        { nombre: "San Nicolás", icono: snn, clave: "snn" },
+        { nombre: "Monterrey", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/mty.webp`, clave: "mty" },
+        { nombre: "Santa Catarina", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/sta.webp`, clave: "sta" },
+        { nombre: "Apodaca", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/apo.webp`, clave: "apo" },
+        { nombre: "Poniente", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/mty-pte.webp`, clave: "mtyPte" },
+        { nombre: "San Pedro", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/spg.webp`, clave: "spg" },
+        { nombre: "Escobedo", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/esc.webp`, clave: "esc" },
+        { nombre: "Sur", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/mty-sur.webp`, clave: "mtySur" },
+        { nombre: "Guadalupe", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/gpe.webp`, clave: "gpe" },
+        { nombre: "San Nicolás", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/snn.webp`, clave: "snn" },
     ]
 };

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import Banner from '../../../imagenes/bannerRevista/Banner-Jun-Jul-2025.png';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
 import CarruselPosts from './componentesColumna2/CarruselPosts';
@@ -19,8 +18,8 @@ import Antojos from '../../../imagenes/logos/grises/Antojos.png';
 import BarraMarquee from '../../../componentes/residente/componentes/seccionesCategorias/componentes/BarraMarquee.jsx';
 import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
 import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
-import { revistaGetUltima } from '../../api/revistasGet.js';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
+import { revistaGetUltima } from '../../api/revistasGet.js';
 
 const BannerRevista = () => {
     const [selectedPost, setSelectedPost] = useState(null);
@@ -244,7 +243,7 @@ const BannerRevista = () => {
                                         {revistaActual && revistaActual.pdf ? (
                                             <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                                 <img
-                                                    src={revistaActual.imagen_banner || Banner}
+                                                    src={revistaActual.imagen_banner}
                                                     alt="Banner Revista"
                                                     className="w-full mb-4 cursor-pointer"
                                                     title="Descargar Revista"
@@ -252,7 +251,7 @@ const BannerRevista = () => {
                                             </a>
                                         ) : (
                                             <img
-                                                src={revistaActual?.imagen_banner || Banner}
+                                                src={revistaActual?.imagen_banner}
                                                 alt="Banner Revista"
                                                 className="w-full mb-4"
                                             />

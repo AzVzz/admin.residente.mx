@@ -8,7 +8,6 @@ import FormularioMainPage from './componentes/formulario100estrellas/FormularioM
 import MegaMenu from './componentes/MegaMenu';
 import PromoMain from './componentes/promociones/PromoMain';
 import CulturalAcessForm from './componentes/culturallAccess/CulturalAcessForm';
-import FondoCulturallAccess from './imagenes/Culturall access Logos/BACKGROUND-CulturallAccess.png'
 import ResidenteMain from './componentes/residente/ResidenteMain';
 import FormMainResidente from './componentes/residente/componentes/compFormularioMain/FormMainResidente';
 import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
@@ -18,6 +17,8 @@ import FormularioRevistaBannerNueva from './componentes/residente/componentes/co
 import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
 import Login from './componentes/login';
+import { urlApi } from './componentes/api/url.js';
+
 
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
     const pathCliente = location.pathname.split('/')[1];
 
     if (location.pathname === '/culturallaccess') {
-      document.body.style.backgroundImage = `url(${FondoCulturallAccess})`;
+      document.body.style.backgroundImage = `url(${urlApi}fotos/fotos-estaticas/componente-cultural/background-cultural-access.webp)`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundRepeat = 'no-repeat';
@@ -93,7 +94,7 @@ function App() {
             </div>
           } />
           <Route path="/notas" element={
-            <div className="max-w-[1600px] mx-auto">
+            <div className="max-w-[1080px] mx-auto">
               <ListaNotas />
             </div>
           } />

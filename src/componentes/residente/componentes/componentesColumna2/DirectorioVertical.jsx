@@ -2,12 +2,14 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- importa esto
 import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import GuiaNl from '../../../../imagenes/logos/blancos/Guia_Logo_Blanco.png';
-import CalidadPrecio from '../../../../imagenes/Iconografia/calidad-precio.png';
-import Yum from '../../../../imagenes/Iconografia/yum.png';
-import Mty from '../../../../imagenes/Iconografia/mty.png';
-import Memorable from '../../../../imagenes/Iconografia/estrellas.png';
+import { urlApi } from '../../../../componentes/api/url.js';
 
-const iconos = [CalidadPrecio, Yum, Mty, Memorable];
+const iconos = [
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/calidad.webp`,
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/yum.webp`,
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/mty.webp`,
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/estrellas.webp`
+];
 
 const DirectorioVertical = () => {
     const [data, setData] = useState([]);

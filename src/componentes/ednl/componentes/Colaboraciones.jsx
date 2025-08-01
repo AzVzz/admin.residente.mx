@@ -1,6 +1,5 @@
 import React from 'react';
-import CocaColaLogo from '../../../imagenes/colaboraciones/ColaboracionCocaCola.png';
-import ModeloLogo from '../../../imagenes/colaboraciones/ColaboracionModelo.png';
+import { urlApi } from '../../../componentes/api/url.js';
 
 const Colaboraciones = ({ colaboracion_coca_cola, colaboracion_modelo }) => {
   // Si no hay colaboraciones, no mostrar nada
@@ -14,7 +13,7 @@ const Colaboraciones = ({ colaboracion_coca_cola, colaboracion_modelo }) => {
         {colaboracion_coca_cola && (
           <div className="w-full max-w-2xl"> {/* Contenedor ancho para la imagen */}
             <img
-              src={CocaColaLogo}
+              src={`${urlApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-coca-cola.webp`}
               alt="Coca Cola"
               className="w-full h-auto max-h-40 object-contain mx-auto" /* Imagen responsiva */
             />
@@ -24,7 +23,7 @@ const Colaboraciones = ({ colaboracion_coca_cola, colaboracion_modelo }) => {
         {colaboracion_modelo && (
           <div className="w-full max-w-2xl"> {/* Contenedor ancho para la imagen */}
             <img
-              src={ModeloLogo}
+              src={`${urlApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-modelo.webp`}
               alt="Modelo"
               className="w-full h-auto max-h-40 object-contain mx-auto" /* Imagen responsiva */
             />
