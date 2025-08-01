@@ -1,4 +1,3 @@
-import NewsLetter from '../../../../imagenes/bannerRevista/Newsletter.webp';
 import LogoNewsLetter from '../../../../imagenes/logos/grises/LogoNewsLetter.png';
 import ResidenteNewsLetter from '../../../../imagenes/logos/grises/ResidenteRestaurantNewsLetter.png'
 //            <p className="text-[20px]">Suscríbete a nuestro newsletter</p>
