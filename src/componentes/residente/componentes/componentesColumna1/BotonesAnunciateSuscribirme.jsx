@@ -17,7 +17,7 @@ const BotonesAnunciateSuscribirme = () => {
                 </div>
             </div>
             {/* Solo este div tiene padding */}
-            <div className="flex flex-row items-center justify-end">
+            <div className="flex flex-row items-center justify-end mt-2">
                 <div className="flex items-center rounded  max-w-[320px] w-full gap-3">
                     <input
                         type="text"

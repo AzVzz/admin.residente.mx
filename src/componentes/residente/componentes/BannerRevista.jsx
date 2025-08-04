@@ -270,7 +270,9 @@ const BannerRevista = () => {
                                                 cantidadNotas={5}
                                             />
                                         </div>
+                                        <hr className="border-t border-gray-800/80 my-5 border-dotted" />
                                         <BotonesAnunciateSuscribirme />
+                                        <hr className="border-t border-gray-800/80 my-5 border-dotted" />
                                     </div>
                                 </div>
                                 {tipo === "Restaurantes" && (
@@ -278,11 +280,15 @@ const BannerRevista = () => {
                                         <div className="relative flex justify-center items-center mb-4">
                                             <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                             <div className="relative z-10 px-4 bg-[#fff300]">
-                                                <h3 className="text-2xl">Recomendaciones Restaurantes</h3>
+                                                <div className="flex flex-row justify-center items-center gap-2">
+                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
+                                                    <h3 className="text-4xl">Favoritos Residente</h3>
+                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="pb-5">
-                                            <CincoNotasRRR onCardClick={(nota) => handleCardClick(nota.id)} />
+                                            <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
                                         </div>
                                         <EnPortada
                                             notasResidenteGet={notasResidenteGet}
@@ -290,8 +296,27 @@ const BannerRevista = () => {
                                         />
                                     </>
                                 )}
-                                {tipo === "Antojos" && <VideosHorizontal />}
-                                {tipo === "Food & Drink" && <SeccionesPrincipales />}
+                                {tipo === "Antojos" && (
+                                    <>
+                                        <VideosHorizontal />
+                                    </>
+                                )}
+                                {tipo === "Food & Drink" && (
+                                    <>
+                                        <div className="relative flex justify-center items-center mb-4">
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                            <div className="relative z-10 px-4 bg-[#fff300]">
+                                                <div className="flex flex-row justify-center items-center gap-3">
+                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pb-5">
+                                            <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
+                                        </div>
+                                        <SeccionesPrincipales />
+                                    </>
+                                )}
                             </div>
                         );
                     })}

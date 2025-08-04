@@ -4,7 +4,7 @@ import ResidenteRestaurantMagazine from '../../../../imagenes/logos/ResidenteRes
 import { revistaGetUltima } from "../../../api/revistasGet";
 
 const EnPortada = ({ notasResidenteGet, onCardClick }) => {
-    const [nota, setNota] = useState(null);
+    const [notas, setNotas] = useState([]); // Cambia a array
     const [loading, setLoading] = useState(true);
     const [revistaActual, setRevistaActual] = useState(null);
 
@@ -24,10 +24,9 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
         const fetchNota = async () => {
             try {
                 const data = await notasResidenteGet();
-                console.log("EnPortada data:", data); // <-- Agrega esto
-                setNota(Array.isArray(data) ? data[0] : null);
+                setNotas(Array.isArray(data) ? data : []);
             } catch (error) {
-                setNota(null);
+                setNotas([]);
             } finally {
                 setLoading(false);
             }
@@ -43,7 +42,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
         );
     }
 
-    if (!nota) return null;
+    if (!notas.length) return null;
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
@@ -93,15 +92,18 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                     </div>
                     {/* Columna Derecha */}
                     <div className="flex flex-row justify-end gap-6">
-                        <div
-                            className="relative w-40 cursor-pointer"
-                            onClick={() => onCardClick && onCardClick(nota)}
-                        >
-                            <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover shadow-lg" />
-                            <div className="flex flex-col mt-4">
-                                <h2 className="text-white text-[14px] leading-5">{nota.titulo}</h2>
+                        {notas.slice(0, 3).map((nota) => (
+                            <div
+                                key={nota.id}
+                                className="relative w-40 cursor-pointer"
+                                onClick={() => onCardClick && onCardClick(nota)}
+                            >
+                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover shadow-lg" />
+                                <div className="flex flex-col mt-4">
+                                    <h2 className="text-white text-[14px] leading-5">{nota.titulo}</h2>
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>

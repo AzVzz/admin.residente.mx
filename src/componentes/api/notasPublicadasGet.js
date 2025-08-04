@@ -63,8 +63,10 @@ export const notasResidenteGet = async () => {
     }
 };
 
-export const notasDestacadasRestaurantesGet = async () => {
-    const response = await fetch(`${urlApi}api/notas/destacadas/restaurantes`);
-    if (!response.ok) throw new Error('Error al obtener notas destacadas de Restaurantes');
+export const notasDestacadasPorTipoGet = async (tipoNota) => {
+    // Convierte espacios a guiones para la URL
+    const tipoNotaUrl = tipoNota.toLowerCase().replace(/ /g, '-');
+    const response = await fetch(`${urlApi}api/notas/destacadas/${tipoNotaUrl}`);
+    if (!response.ok) throw new Error(`Error al obtener notas destacadas de ${tipoNota}`);
     return await response.json();
 };

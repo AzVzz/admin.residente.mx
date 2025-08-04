@@ -293,6 +293,7 @@ const MainSeccionesCategorias = () => {
                                                     alt="Banner Revista"
                                                     className="w-full"
                                                 />
+
                                             )
                                         )}
                                         <div ref={el => notaRefs.current[nota.id] = el}>
