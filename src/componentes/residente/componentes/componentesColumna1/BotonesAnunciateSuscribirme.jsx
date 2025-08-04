@@ -1,5 +1,3 @@
-import LogoNewsLetter from '../../../../imagenes/logos/grises/LogoNewsLetter.png';
-import ResidenteNewsLetter from '../../../../imagenes/logos/grises/ResidenteRestaurantNewsLetter.png'
 //            <p className="text-[20px]">Suscríbete a nuestro newsletter</p>
 //            <label className="block text-sm font-medium text-gray-900 mb-1">
 //                Correo electrónico *
@@ -12,7 +10,7 @@ const BotonesAnunciateSuscribirme = () => {
             <div className="flex justify-between gap-3">
                 <img src={`${urlApi}/fotos/fotos-estaticas/componente-news-letter/Newsletter.webp`} className="h-60 object-contain " />
                 <div className="flex flex-col justify-between items-end">
-                    <img src={ResidenteNewsLetter} className="" />
+                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-news-letter.webp`} className="" />
                     <p className="leading-4.5 text-[16px]">Todos los jueves sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León.</p>
                 </div>
             </div>

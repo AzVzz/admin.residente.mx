@@ -1,30 +1,26 @@
-import labikiniBotanero from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/labikinabotanero.jpeg'
-import lasRudasMx from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/lasrudasmx.jpeg'
-import losDogos from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/losdogossannicolas.jpeg'
-import nuevaEdicionResidente from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/nuevaedcionResidente.gif'
-import tonysTacos from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/tonystacos.jpeg'
+import { urlApi } from '../../../api/url'
 
 const MiniaturasVideos = () => {
     return (
         <div className="flex flex-col gap-3">
             <img 
-                src={labikiniBotanero}
+                src={`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/labikinabotanero.webp`}
                 className="h-55 object-cover"
             />
             <img 
-                src={lasRudasMx}
+                src={`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/lasrudasmx.webp`}
                 className="h-55 object-cover"
             />
             <img 
-                src={losDogos}
+                src={`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/los-dogos-san-nicolas.webp`}
                 className="h-55 object-cover"
             />
             <img 
-                src={nuevaEdicionResidente}
+                src={`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/nueva-edicion-residente.webp`}
                 className="h-55 object-cover"
             />
             <img 
-                src={tonysTacos}
+                src={`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/tonys-tacos.webp`}
                 className="h-55 object-cover"
             />
         </div>

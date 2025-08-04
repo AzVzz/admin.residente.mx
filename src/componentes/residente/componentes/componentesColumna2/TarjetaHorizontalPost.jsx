@@ -1,5 +1,5 @@
-import imagenTarjeta from "../../../../imagenes/cola-de-caballo.jpg"
-import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
+import { urlApi } from "../../../api/url.js";
+
 const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
   return (
     <div
@@ -29,7 +29,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
           {/* Imagen con overlay sutil */}
           <div className="relative">
             <img
-              src={post?.imagen || SinFoto}
+              src={post?.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp` || SinFoto}
               alt={post?.titulo || "Imagen del post"}
               className="h-28 w-35 object-cover transition-transform duration-300 group-hover:scale-105"
             />

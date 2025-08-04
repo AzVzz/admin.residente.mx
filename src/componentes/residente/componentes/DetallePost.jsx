@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { notasPublicadasPorId } from "../../api/notasPublicadasGet"; // Ajusta el path si es necesario
 import PostComentarios from "./PostComentarios";
 import ShowComentarios from "./ShowComentarios";
-import SinFoto from '../../../imagenes/ResidenteColumna1/SinFoto.png';
 import { Iconografia } from '../../utils/Iconografia.jsx';
+import { urlApi } from "../../api/url.js";
 
 // DetallePost.jsx
 const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
@@ -71,7 +71,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
                             </div>
                         )}
                         <img
-                            src={post.imagen || SinFoto}
+                            src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                             className="w-full h-full object-cover"
                             alt={post.titulo}
                         />

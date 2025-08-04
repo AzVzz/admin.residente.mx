@@ -1,9 +1,6 @@
 //src/componentes/promociones/componentes/TicketPromo.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import ResidenteDiscyPromo from '../../../imagenes/logos/grises/DiscPromo_Logo_Gris.png';
-import BarCode from '../../../imagenes/barcode.avif';
-import perforatedTop from '../../../imagenes/orilla-ticket-top.png';
-import perforatedBottom from '../../../imagenes/orilla-ticket-bottom.png'
+import { urlApi } from '../../api/url';
 
 const TicketPromo = forwardRef((props, ref) => {
     const { className = "", ...rest } = props;
@@ -103,7 +100,7 @@ const TicketPromo = forwardRef((props, ref) => {
             }}
         >
             <div
-                ref={containerRef} 
+                ref={containerRef}
                 className="flex flex-col bg-white w-90 min-h-[670px] h-auto shadow-lg mx-auto relative mb-2" //h-[670]
                 style={{
                     boxShadow: '-2px 3px 3px rgba(0,0,0,0.25)'
@@ -114,7 +111,7 @@ const TicketPromo = forwardRef((props, ref) => {
                         <img
                             src={stickerUrl}
                             alt="Sticker"
-                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]" 
+                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]"
                         />
                     )
                 }
@@ -122,7 +119,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 {/* Perforated top edge */}
                 <div className="absolute left-0 right-0 z-20 -top-2">
                     <img
-                        src={perforatedTop}
+                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
                         alt="Perforado superior"
                         className="w-full"
                     />
@@ -133,7 +130,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 <div className="px-5 py-4 pt-6 flex-1 flex flex-col">
                     <div className="mb-4 z-20">
                         <img
-                            src={ResidenteDiscyPromo || "/placeholder.svg"}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp` || "/placeholder.svg"}
                             alt="Residente Discy Promo Logo"
                             className="h-12"
                         />
@@ -192,14 +189,14 @@ const TicketPromo = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src={BarCode || "/placeholder.svg"}
+                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif` || "/placeholder.svg"}
                         alt="Código de barras"
                         className="w-full h-20 object-fill z-30 relative"
                     />
                     {/* Borde inferior perforado - AHORA DENTRO del contenedor */}
                     <div className="absolute left-0 right-0 bottom-[-8px] z-20">
                         <img
-                            src={perforatedBottom}
+                            src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
                             alt="Perforado inferior"
                             className="w-full"
                         />

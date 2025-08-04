@@ -1,9 +1,5 @@
 //src/componentes/promociones/componentes/TicketPromo.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import ResidenteDiscyPromo from '../../../../../imagenes/logos/grises/DiscPromo_Logo_Gris.png';
-import BarCode from '../../../../../imagenes/barcode.avif';
-import perforatedTop from '../../../../../imagenes/orilla-ticket-top.png';
-import perforatedBottom from '../../../../../imagenes/orilla-ticket-bottom.png'
 
 const TicketPromoMini = forwardRef((props, ref) => {
     const { className = "", ...rest } = props;
@@ -120,7 +116,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
 
             {/* Perforated top edge */}
             <img
-                src={perforatedTop}
+                src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
                 alt="Perforado superior"
                 className="w-45 h-auto"
             />
@@ -147,7 +143,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                 <div className="flex-1 flex flex-col">
                     <div className="mb-2 z-20 px-2 pt-2">
                         <img
-                            src={ResidenteDiscyPromo || "/placeholder.svg"}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp` || "/placeholder.svg"}
                             alt="Residente Discy Promo Logo"
                             className="w-14"
                         />
@@ -203,7 +199,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src={BarCode || "/placeholder.svg"}
+                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif` || "/placeholder.svg"}
                         alt="Código de barras"
                         className="w-full h-8.5 object-fill z-30 relative"
                     />
@@ -212,7 +208,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
 
             </div>
             {/* Perforated bottom edge */}
-            <img src={perforatedBottom} alt="Perforado inferior" className="w-45 h-auto" />
+            <img src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`} alt="Perforado inferior" className="w-45 h-auto" />
         </div>
     );
 });

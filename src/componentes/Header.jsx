@@ -5,10 +5,6 @@ import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
 
 
-import ResidenteNegro from '../imagenes/FoodDrinkMedia_Logo_Negro.png';
-import LogoCirculoResidente from '../imagenes/R_Circulo_Logo_Negro.png';
-import b2blogo from "../imagenes/logos/blancos/B2BSoluciones_Logo_Blanco.png";
-
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 
 const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
@@ -55,13 +51,13 @@ const Header = () => {
         <div className="flex pb-0 pt-5">
           <div className="sm:flex pr-3 hidden">
             <Link to="/residente" className="h-24 w-24 self-end object-contain">
-              <img src={LogoCirculoResidente} alt="Logo Residente Circulo" />
+              <img src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/r-circulo-logo-negro.webp`} alt="Logo Residente Circulo" />
             </Link>
           </div>
           <div className="w-full">
             <div className="flex flex-col-reverse sm:flex-row pb-3 gap-2">
               <Link to="/residente" className="flex flex-col justify-end">
-                <img src={ResidenteNegro} alt="ResidenteNegro" className="h-10 object-contain" />
+                <img src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/fooddrinkmedia-logo-negro.webp`} alt="ResidenteNegro" className="h-10 object-contain" />
               </Link>
               <div className="flex flex-1 w-full justify-end items-start">
                 <div className="flex flex-col gap-2 mr-auto">
@@ -142,7 +138,7 @@ const Header = () => {
                   )}
                 </div>
                 <div className="sm:flex gap-1.5 hidden">
-                  <img src={b2blogo} className="object-contain h-4 w-12 b2b cursor-pointer" />
+                  <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
                   <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-white hover:text-gray-400" /></a>
                   <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-white hover:text-gray-400" /></a>

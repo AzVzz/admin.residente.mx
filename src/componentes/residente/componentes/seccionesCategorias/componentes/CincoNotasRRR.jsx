@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { notasDestacadasRestaurantesGet } from '../../../../../componentes/api/notasPublicadasGet.js';
-import SinFoto from '../../../../../imagenes/ResidenteColumna1/SinFoto.png';
+import { urlApi } from '../../../../../componentes/api/url.js';
 
 const TarjetaVerticalPost = ({ nota, onClick }) => (
     <div
@@ -13,7 +13,7 @@ const TarjetaVerticalPost = ({ nota, onClick }) => (
             </div>
             <div className="h-48 w-full overflow-hidden">
                 <img
-                    src={nota.imagen || SinFoto}
+                    src={nota.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                     alt={nota.titulo}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />

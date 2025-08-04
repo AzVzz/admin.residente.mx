@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
-import ResidenteRestaurantMagazine from '../../../../imagenes/logos/ResidenteRestaurantMagazine.png';
 import { revistaGetUltima } from "../../../api/revistasGet";
+import { urlApi } from "../../../api/url.js";
 
 const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     const [nota, setNota] = useState(null);
@@ -48,7 +48,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
             <div className="max-w-[1080px] mx-auto my-7">
-                <img src={ResidenteRestaurantMagazine} className="w-85 h-full mb-8 object-contain" />
+                <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/residente-restaurant-magazine.webp`} className="w-85 h-full mb-8 object-contain" />
                 <div className="grid grid-cols-[1.5fr_2fr] gap-10">
                     {/* Columna Izquierda */}
                     <div className="flex flex-col justify-start items-start">

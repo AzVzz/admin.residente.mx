@@ -1,17 +1,13 @@
-import Cafeterias from '../../../../imagenes/gifsBarrioAntiguo/CAFETERIAS-BARRIO-ANTIGUO.gif';
-import Tardear from '../../../../imagenes/gifsBarrioAntiguo/Copia-de-TARDEAR-BARRIO-ANTIGUO.gif';
-import Tadicional from '../../../../imagenes/gifsBarrioAntiguo/Copia-de-TRADICIONAL-MEXICANA-BARRIO-ANTIGUO.gif';
-import Vida from '../../../../imagenes/gifsBarrioAntiguo/Copia-de-VIDA-LENTA-BARRIO-ANTIGUO.gif';
-import Experiencias from '../../../../imagenes/gifsBarrioAntiguo/EXPERIENCIAS-BARRIO-ANTIGUO.gif';
+import { urlApi } from '../../../api/url';
 
 const BarrioAntiguoGifs = () => {
     return (
         <div className="flex flex-col gap-5">
-            <img className="h-full w-full object-contain" src={Cafeterias}/>
-            <img className="h-full w-full object-contain" src={Tardear}/>
-            <img className="h-full w-full object-contain" src={Tadicional}/>
-            <img className="h-full w-full object-contain" src={Vida}/>
-            <img className="h-full w-full object-contain" src={Experiencias}/>
+            <img className="h-full w-full object-contain" src={`${urlApi}fotos/fotos-estaticas/componente-gif-barrio-antiguo/cafeterias-barrio-antiguo.gif`}/>
+            <img className="h-full w-full object-contain" src={`${urlApi}fotos/fotos-estaticas/componente-gif-barrio-antiguo/tardear-barrio-antiguo.gif`}/>
+            <img className="h-full w-full object-contain" src={`${urlApi}fotos/fotos-estaticas/componente-gif-barrio-antiguo/tradicional-mexicana-barrio-antiguo.gif`}/>
+            <img className="h-full w-full object-contain" src={`${urlApi}fotos/fotos-estaticas/componente-gif-barrio-antiguo/vida-lenta-barrio-antiguo.gif`}/>
+            <img className="h-full w-full object-contain" src={`${urlApi}fotos/fotos-estaticas/componente-gif-barrio-antiguo/experiencias-barrio-antiguo.gif`}/>
         </div>
     )
 }

@@ -2,8 +2,6 @@
 import './MegaMenu.css';
 
 import { Link } from "react-router-dom"
-import residenteAmarillo from "../imagenes/FoodDrinkMedia_Logo_Amarillo.png"
-import b2blogo from "../imagenes/logos/blancos/B2BSoluciones_Logo_Blanco.png"
 import { useState, useRef, useEffect } from "react"
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 
@@ -12,6 +10,7 @@ import { FaFacebook } from "react-icons/fa6"
 import { FaYoutube } from "react-icons/fa"
 import { FaWhatsapp } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
+import { urlApi } from './api/url';
 
 const MegaMenu = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -61,7 +60,7 @@ const MegaMenu = () => {
                                 className="flex-shrink-0"
                             >
                                 <img
-                                    src={residenteAmarillo || "/placeholder.svg"} alt="Residente Food & Drink Media"
+                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` || "/placeholder.svg"} alt="Residente Food & Drink Media"
                                     className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12" />
                             </a>
                             <button onClick={toggleMenu} className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3">
@@ -96,7 +95,7 @@ const MegaMenu = () => {
                                 className="flex-shrink-0"
                             >
                                 <img
-                                    src={b2blogo || "/placeholder.svg"}
+                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp` || "/placeholder.svg"}
                                     alt="B2B Soluciones"
                                     className="object-contain h-8 w-auto b2b"
                                 />

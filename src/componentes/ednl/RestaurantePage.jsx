@@ -5,9 +5,6 @@ import PlatilloEstrellaCarrusel from './componentes/PlatilloEstrellaCarrusel'
 import ContenidoRestaurante from './componentes/ContenidoRestaurante'
 import GridComponent from './componentes/GridComponent'
 import Reconocimientos from './componentes/Reconocimientos'
-import Estrella from '../../imagenes/estrella.png'
-import Man from '../../imagenes/man.png'
-import Phone from '../../imagenes/telefono.png'
 import './RestaurantePage.css'
 import CincoRazones from './componentes/CincoRazones'
 import ExpertosOpinan from './componentes/ExpertosOpinan'
@@ -18,6 +15,7 @@ import ResidentRestaurantVibes from './componentes/ResidentRestaurantVibes'
 import Footer from './componentes/Footer'
 import Historia from './componentes/Historia'
 import Colaboraciones from './componentes/Colaboraciones'
+import { urlApi } from '../api/url'
 
 const RestaurantePage = () => {
   const { slug } = useParams()
@@ -97,7 +95,7 @@ const RestaurantePage = () => {
             {imagenes.length > 0 && (
               <PlatilloEstrellaCarrusel
                 imagenes={imagenes.map(img => img.src)}
-                estrella={Estrella}
+                estrella={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/estrella.webp`}
                 nombrePlatillo={platillo_mas_vendido || ""}
               />
             )}
@@ -110,8 +108,8 @@ const RestaurantePage = () => {
             />
 
             <GridComponent
-              man={Man}
-              phone={Phone}
+              man={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/man.webp`}
+              phone={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/telefono.webp`}
               ticketPromedio={ticket_promedio || ""}
               numeroSucursales={numero_sucursales || ""}
               sucursales={sucursales}
