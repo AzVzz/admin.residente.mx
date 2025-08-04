@@ -1,6 +1,6 @@
 // PostPrincipal.jsx
-import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png';
 import { Iconografia } from '../../../utils/Iconografia.jsx';
+import { urlApi } from "../../../api/url.js";
 
 const PostPrincipal = ({ post, onClick }) => {
     const iconosDisponibles = [
@@ -27,7 +27,7 @@ const PostPrincipal = ({ post, onClick }) => {
                         {post.fecha}
                     </div>
                     <img
-                        src={post.imagen || SinFoto}
+                        src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                         className="w-full h-full object-cover"
                         alt={post.titulo}
                     />

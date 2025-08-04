@@ -1,8 +1,4 @@
-import labikiniBotanero from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/labikinabotanero.jpeg'
-import lasRudasMx from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/lasrudasmx.jpeg'
-import losDogos from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/losdogossannicolas.jpeg'
-import nuevaEdicionResidente from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/nuevaedcionResidente.gif'
-import tonysTacos from '../../../../imagenes/ResidenteColumna1/miniaturasVideos/tonystacos.jpeg'
+import { urlApi } from '../../../api/url'
 
 const VideosHorizontal = () => {
     return (
@@ -11,13 +7,16 @@ const VideosHorizontal = () => {
 
                 <h3 className="text-white text-5xl pb-5 mb-5">Videos</h3>
                 <div className="grid grid-cols-4 gap-5 overflow-x-auto">
-                    {[labikiniBotanero, lasRudasMx, losDogos, tonysTacos].map((img, i) => (
-                        <img
-                            key={i}
-                            src={img}
-                            className="w-auto h-auto object-cover flex-shrink-0"
-                        />
-                    ))}
+                    {[`${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/labikinabotanero.webp`,
+                    `${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/lasrudasmx.webp`,
+                    `${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/los-dogos-san-nicolas.webp`,
+                    `${urlApi}fotos/fotos-estaticas/residente-columna1/miniatura-videos/tonys-tacos.webp`].map((img, i) => (
+                            <img
+                                key={i}
+                                src={img}
+                                className="w-auto h-auto object-cover flex-shrink-0"
+                            />
+                        ))}
                 </div>
 
             </div>

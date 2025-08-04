@@ -5,7 +5,6 @@ import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
 import CarruselPosts from './componentesColumna2/CarruselPosts';
 import TarjetaHorizontalPost from './componentesColumna2/TarjetaHorizontalPost';
 import TresTarjetas from './componentesColumna2/TresTarjetas';
-import OpcionesExtra from './componentesColumna3/OpcionesExtra';
 import DetallePost from './DetallePost';
 import PostPrincipal from './componentesColumna2/PostPrincipal';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
@@ -14,13 +13,10 @@ import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasRes
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
-import RestauranteLogo from '../../../imagenes/logos/grises/ResidenteRestaurantMedia.png';
-import Antojos from '../../../imagenes/logos/grises/Antojos.png';
 import BarraMarquee from '../../../componentes/residente/componentes/seccionesCategorias/componentes/BarraMarquee.jsx';
-import FoodDrinkMedia from '../../../imagenes/logos/grises/Food&DrinkMedia.png';
-import ResidenteRestaurantMagazine from '../../../imagenes/logos/ResidenteRestaurantMagazine.png';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import { revistaGetUltima } from '../../api/revistasGet.js';
+import { urlApi } from '../../../componentes/api/url.js';
 
 const BannerRevista = () => {
     const { id } = useParams();
@@ -178,7 +174,6 @@ const BannerRevista = () => {
                                 onCardClick={(post) => handleCardClick(post.id)}
                             />
                             <BotonesAnunciateSuscribirme />
-                            <OpcionesExtra />
                         </div>
                     </div>
                 </div>
@@ -194,15 +189,15 @@ const BannerRevista = () => {
                         let tipoLogo = null;
                         let marqueeTexto = "";
                         if (tipo === "Restaurantes") {
-                            tipoLogo = RestauranteLogo;
+                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-media.webp`;
                             marqueeTexto = "Encuentra aqui la información al momento de los mejores restaurantes de Nuevo León";
                         }
                         if (tipo === "Food & Drink") {
-                            tipoLogo = FoodDrinkMedia;
+                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp`;
                             marqueeTexto = "Postres, Snacks, Café, Cerveza, Vino, Té, Mixología, Recetas, Platillos y Alimentos";
                         }
                         if (tipo === "Antojos") {
-                            tipoLogo = Antojos;
+                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/antojos.webp`;
                             marqueeTexto = "Taquerias iconicas de Nuevo León, comida callejera, puestos, carritos, changarros y similares";
                         }
 

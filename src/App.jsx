@@ -21,8 +21,6 @@ import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 
-
-
 function App() {
 
   const location = useLocation();

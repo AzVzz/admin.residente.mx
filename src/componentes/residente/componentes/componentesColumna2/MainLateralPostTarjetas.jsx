@@ -1,4 +1,4 @@
-import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
+import { urlApi } from "../../../api/url.js";
 
 const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNotas, sinFecha = false, sinCategoria = false }) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 4);
@@ -20,7 +20,7 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNo
                             >
                                 <div className="w-1/3 h-full">
                                     <img
-                                        src={post.imagen || SinFoto}
+                                        src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                                         alt={post.titulo}
                                         className="w-full h-full object-cover"
                                     />

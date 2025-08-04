@@ -1,22 +1,6 @@
-import AfirmeLogo from '../imagenes/logos/blancos/AfirmeLogo.png';
-import Books_Logo_Blanco from '../imagenes/logos/blancos/Books_Logo_Blanco.png';
-import canirac_logo from '../imagenes/logos/blancos/canirac_logo.png';
-import DiscPromo_Logo_Blanco from '../imagenes/logos/blancos/DiscPromo_Logo_Blanco.png';
-import Guia_Logo_Blanco from '../imagenes/logos/blancos/Guia_Logo_Blanco.png';
-import ednllogo from "../imagenes/logos/blancos/Logo estrellas de NL_Mesa de trabajo 1 copia 3.png";
-import Magazine_Logo_Blanco from '../imagenes/logos/blancos/Magazine_Logo_Blanco.png';
-import Newsletter_Logo_Blanco from '../imagenes/logos/blancos/Newsletter_Logo_Blanco.png';
-import Platillos_Logo_Blanco from '../imagenes/logos/blancos/Platillos_Logo_Blanco.png';
-import ResearchData_Logo_Blanco from '../imagenes/logos/blancos/ResearchData_Logo_Blanco.png';
-import Rostros_Logo_Blanco from '../imagenes/logos/blancos/Rostros_Logo_Blanco.png';
-import usda_blanco from '../imagenes/logos/blancos/usda_blanco.png';
-import Video_Logo_Blanco from '../imagenes/logos/blancos/Video_Logo_Blanco.png';
-import FoodDrinkMedia_Logo_Blanco from '../imagenes/logos/blancos/FoodDrinkMedia_Logo_Blanco.png';
-import Endeavor_Logo_Blanco from '../imagenes/logos/blancos/Endeavor_Logo_Blanco.png';
-import RELEVANT_Logo_Blanco from '../imagenes/logos/blancos/RELEVANT_Logo_Blanco.png';
-
 // Puedes usar react-icons para los íconos sociales
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { urlApi } from './api/url';
 
 const FooterPrincipal = () => {
     return (
@@ -25,7 +9,7 @@ const FooterPrincipal = () => {
                 {/* Primera fila: FoodDrinkMedia + iconos sociales */}
                 <div className="flex sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-2">
                     <div className="flex items-center gap-3">
-                        <img src={FoodDrinkMedia_Logo_Blanco} alt="FoodDrinkMedia" className="w-full sm:h-13 object-contain" />
+                        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/fooddrinkmedia-logo-blanco.webp`} alt="FoodDrinkMedia" className="w-full sm:h-13 object-contain" />
                     </div>
                     <div className="flex gap-2">
                         <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-auto sm:h-7 h-4 text-white hover:text-gray-400" /></a>
@@ -41,19 +25,19 @@ const FooterPrincipal = () => {
                     <div>
                         <h4 className="mb-3 text-[10px] sm:text-xl leading-3 sm:leading-4">Productos al consumidor</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={Magazine_Logo_Blanco} alt="Magazine"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/magazine-logo-blanco.webp`} alt="Magazine"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
-                            <img src={Guia_Logo_Blanco} alt="Guia"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} alt="Guia"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
-                            <img src={DiscPromo_Logo_Blanco} alt="DiscPromo"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/discpromo-logo-blanco.webp`} alt="DiscPromo"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
-                            <img src={Books_Logo_Blanco} alt="Books"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/books-logo-blanco.webp`} alt="Books"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
-                            <img src={Video_Logo_Blanco} alt="Video"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/residente-video-logo-blanco.webp`} alt="Video"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
                         </div>
@@ -62,10 +46,13 @@ const FooterPrincipal = () => {
                     <div>
                         <h4 className="mb-3 text-[10px] sm:text-xl leading-3 sm:leading-4">Soluciones para la industria</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={Newsletter_Logo_Blanco} alt="Newsletter"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/newsletter-logo-blanco.webp`} alt="Newsletter"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
-                            <img src={ResearchData_Logo_Blanco} alt="ResearchData"
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/researchdata-logo-blanco.webp`} alt="ResearchData"
+                                className="sm:w-25 w-13 h-auto object-contain"
+                            />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/residente-restauranat-networking.webp`} alt="Networking"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
                         </div>
@@ -74,18 +61,18 @@ const FooterPrincipal = () => {
                     <div>
                         <h4 className="mb-3 text-[10px] sm:text-xl leading-3 sm:leading-4">Proyectos culturales</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={Platillos_Logo_Blanco} alt="Platillos" className="sm:w-25 w-13 h-auto object-contain" />
-                            <img src={ednllogo} alt="Estrellas de NL" className="sm:w-25 w-13 h-auto object-contain" />
-                            <img src={Rostros_Logo_Blanco} alt="Rostros" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/platillos-logo-blanco.webp`} alt="Platillos" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/logo-estrellas-de-nl.webp`} alt="Estrellas de NL" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/rostros-logo-blanco.webp`} alt="Rostros" className="sm:w-25 w-13 h-auto object-contain" />
                         </div>
                     </div>
                     {/* Columna 4 */}
                     <div>
                         <h4 className="mb-3 text-[10px] sm:text-xl leading-3 sm:leading-4">Convenios institucionales</h4>
                         <div className="flex flex-col gap-2">
-                            <img src={AfirmeLogo} alt="Afirme" className="sm:w-25 w-13 h-auto object-contain" />
-                            <img src={canirac_logo} alt="Canirac" className="sm:w-25 w-13 h-auto object-contain" />
-                            <img src={usda_blanco} alt="USDA" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/afirme-logo.webp`} alt="Afirme" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/canirac-logo.webp`} alt="Canirac" className="sm:w-25 w-13 h-auto object-contain" />
+                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/usda-blanco.webp`} alt="USDA" className="sm:w-25 w-13 h-auto object-contain" />
                         </div>
                     </div>
                     {/* Columna 5 */}
@@ -112,8 +99,8 @@ const FooterPrincipal = () => {
                 </div>
                 {/* Pie de página */}
                 <div className="flex justify-center items-center gap-5 mb-4">
-                    <img src={RELEVANT_Logo_Blanco} alt="RELEVANT" className="w-25 h-5" />
-                    <img src={Endeavor_Logo_Blanco} alt="Endeavor" className="w-25 h-5 -mt-2" />
+                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/relevant-logo-blanco.webp`} alt="RELEVANT" className="w-25 h-5" />
+                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/endeavor-logo-blanco.webp`} alt="Endeavor" className="w-25 h-5 -mt-2" />
                 </div>
                 <div className="text-center text-[10px] text-gray-400">
                     Copyright (C) Residente Restaurant Media 2024. Todos los derechos reservados.

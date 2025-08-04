@@ -4,32 +4,30 @@ import { Link } from 'react-router-dom';
 import './ListaRestaurantes.css'
 
 
-import estrellasdenuevoleon from '../../imagenes/logos/estrellasdenuevoleon.png';
-import magazine from '../../imagenes/logos/Magazine_Logo_gris.webp';
-import researchdata from '../../imagenes/logos/ResearchData_Logo_Gris.png';
+import { urlApi } from '../../componentes/api/url.js';
 
 
-import topofthetop from '../../imagenes/listado_iconos 100estrellas/topofthetop.avif';
-import favoritosdelpublico from '../../imagenes/listado_iconos 100estrellas/favoritsdelpublico.avif';
-import losmasfrecuentados from '../../imagenes/listado_iconos 100estrellas/losmasfrecuentados.avif';
-import favoritosdelacritica from '../../imagenes/listado_iconos 100estrellas/favoritosdelacritica.avif';
-import valorportudinero from '../../imagenes/listado_iconos 100estrellas/valorportudinero.avif';
-import lamejorexperiencia from '../../imagenes/listado_iconos 100estrellas/lamejorexperiencia.avif';
-import genuino from '../../imagenes/listado_iconos 100estrellas/genuino.avif';
-import iconicos from '../../imagenes/listado_iconos 100estrellas/iconicos.avif';
-import innovadores from '../../imagenes/listado_iconos 100estrellas/innovadores.avif';
-import joyasocultas from '../../imagenes/listado_iconos 100estrellas/joyasocultas.avif';
-import paraveryservistos from '../../imagenes/listado_iconos 100estrellas/paraveryservistos.avif';
-import reyesdelcolonia from '../../imagenes/listado_iconos 100estrellas/reyesdelcolonia.avif';
-import desayunos from '../../imagenes/listado_iconos 100estrellas/desayunos.avif';
-import enpareja from '../../imagenes/listado_iconos 100estrellas/enpareja.avif';
-import clasicosregiomontanos from '../../imagenes/listado_iconos 100estrellas/clasicosregiomontanos.avif';
-import mexicano from '../../imagenes/listado_iconos 100estrellas/mexicano.avif'
-import oriental from '../../imagenes/listado_iconos 100estrellas/oriental.avif';
-import comfortfood from '../../imagenes/listado_iconos 100estrellas/comfortfood.avif'
-import mariscos from '../../imagenes/listado_iconos 100estrellas/mariscos.avif'
-import tacos from '../../imagenes/listado_iconos 100estrellas/tacos.avif'
-import italianoypizza from '../../imagenes/listado_iconos 100estrellas/italianoypizza.avif'
+const topofthetop =`${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/topofthetop.avif`;
+const favoritosdelpublico = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`;
+const losmasfrecuentados = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/losmasfrecuentados.avif`;
+const favoritosdelacritica = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritosdelacritica.avif`;
+const valorportudinero = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/valorportudinero.avif`;
+const lamejorexperiencia = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/lamejorexperiencia.avif`;
+const genuino = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/genuino.avif`;
+const iconicos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/iconicos.avif`;
+const innovadores = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/innovadores.avif`;
+const joyasocultas = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/joyasocultas.avif`;
+const paraveryservistos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/paraveryservistos.avif`;
+const reyesdelcolonia = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/reyesdelcolonia.avif`;
+const desayunos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/desayunos.avif`;
+const enpareja = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/enpareja.avif`;
+const clasicosregiomontanos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/clasicosregiomontanos.avif`;
+const mexicano = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mexicano.avif`;
+const oriental = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/oriental.avif`;
+const comfortfood = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/comfortfood.avif`;
+const mariscos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mariscos.avif`;
+const tacos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/tacos.avif`;
+const italianoypizza = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/italianoypizza.avif`;
 
 
 import Footer from './componentes/Footer';
@@ -119,9 +117,9 @@ const ListaRestaurantes = () => {
   return (
     <div className="lista-restaurantes">
       <div className="lista-logos">
-        <img src={magazine} alt="Residente Restaurant Magazine Logo" />
-        <img src={estrellasdenuevoleon} alt="Estrellas de Nuevo León Logo" />
-        <img src={researchdata} alt="Residente Restaurant Research&Data" />
+        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/magazine-logo-gris.webp`} alt="Residente Restaurant Magazine Logo" />
+        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp`} alt="Estrellas de Nuevo León Logo" />
+        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/researchdata-logo-gris.webp`} alt="Residente Restaurant Research&Data" />
       </div>
       <p className="text-global">Desde 2016 y con una metodología probada, <b className="font-grotesk">Residente Food&Drink-Media</b> realiza constantemente estudios de mercado entre el público, críticos y expertos de la industria. Estos estudios nos permiten entender y balancear por geografía, edad y poder de compra las preferencias de los consumidores. A continuación se presentan las <b className="font-grotesk">“Estrellas de Nuevo León”</b>, aquellos restaurantes que han logrado distinguirse y posicionarse, por muy diversas razones, dentro del gusto de los consumidores. Los nombres que <b className="font-grotesk">aquí aparecen representan lo mejor de lo mejor, el 1% de la oferta gastronómica de Nuevo León.</b> Esta, no es una lista comercial ni una preferencia amistosa, mucho menos un capricho editorial, sino el resultado de años de estudio y del conocimiento profundo de la cultura culinaria de nuestro estado.</p>
 

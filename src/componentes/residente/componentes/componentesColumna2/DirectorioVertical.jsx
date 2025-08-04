@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- importa esto
 import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
-import GuiaNl from '../../../../imagenes/logos/blancos/Guia_Logo_Blanco.png';
 import { urlApi } from '../../../../componentes/api/url.js';
 
 const iconos = [
@@ -50,7 +49,7 @@ const DirectorioVertical = () => {
 
     return (
         <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-4 relative">
-            <img src={GuiaNl} className="w-37 h-auto" />
+            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} className="w-37 h-auto" />
             <p className="text-sm leading-4.5">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos.</p>
             <ol className="flex flex-col gap-2.5">
                 {data.map((seccion, i) => (

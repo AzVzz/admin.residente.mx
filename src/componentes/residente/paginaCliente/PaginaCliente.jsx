@@ -2,7 +2,6 @@ import { useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { notasPorTipoNota } from "../../../componentes/api/notasPublicadasGet";
 
-import OpcionesExtra from '../../../componentes/residente/componentes/componentesColumna3/OpcionesExtra';
 import Carrusel from './componentes/Carrusel';
 import TarjetaHorizontalPost from '../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import BarrioAntiguoGifs from "./componentes/BarrioAntiguoGifs.jsx";
@@ -51,7 +50,6 @@ const PaginaCliente = () => {
                 </div>
                 <div className="flex flex-col gap-5">
                     <DirectorioVertical />
-                    <OpcionesExtra />
                 </div>
             </div>
             <SeccionesPrincipales />

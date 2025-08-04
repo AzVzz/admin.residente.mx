@@ -1,4 +1,4 @@
-import SinFoto from '../../../../imagenes/ResidenteColumna1/SinFoto.png'
+import { urlApi } from "../../../api/url.js";
 
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
@@ -18,7 +18,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
                     {/* Imagen con overlay sutil */}
                     <div className="relative">
                         <img
-                            src={post.imagen || SinFoto}
+                            src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                             alt="Cola de Caballo"
                             className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />

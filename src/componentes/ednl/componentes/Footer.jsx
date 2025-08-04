@@ -1,6 +1,5 @@
-import BarCode from '../../../imagenes/barcode.avif';
-import EstrellasNuevoLeon from '../../../imagenes/logos/estrellasdenuevoleon.png';
 import { Link } from 'react-router-dom';
+import { urlApi } from '../../api/url';
 
 const Footer = () => {
     return (
@@ -8,7 +7,7 @@ const Footer = () => {
             
             <div className="relative w-[70%] max-w-[900px]">
                 <img 
-                    src={BarCode} 
+                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`} 
                     alt="Código de barras" 
                     className="w-full object-contain"
                 />
@@ -24,7 +23,7 @@ const Footer = () => {
 
             <Link to="/" className="w-[25%] max-w-[300px]">
                 <img 
-                    src={EstrellasNuevoLeon} 
+                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp`} 
                     alt="Estrellas de Nuevo León" 
                     className="w-full object-contain"
                 />
