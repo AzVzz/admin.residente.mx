@@ -6,7 +6,7 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             <div>
                 <div className="flex justify-between items-start">
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900 mb-1 leading-5">
+                        <h2 className="text-[16px] font-bold text-gray-900 mb-1 leading-4.5">
                             {nota.titulo}
                         </h2>
                         <p className="text-sm text-gray-500 mb-2">

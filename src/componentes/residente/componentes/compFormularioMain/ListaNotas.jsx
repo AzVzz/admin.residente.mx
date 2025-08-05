@@ -19,7 +19,7 @@ const ListaNotas = () => {
   const [eliminando, setEliminando] = useState(null);
   const [pagina, setPagina] = useState(1);
   const [totalNotas, setTotalNotas] = useState(0);
-  const pageSize = 24;
+  const pageSize = 0;
 
   // Si expiro el token(error 403) o lo borra(401) se borra el token y el ususario
   useEffect(() => {
@@ -41,10 +41,8 @@ const ListaNotas = () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token, pagina);
-      // Update to handle the new response format
+      const data = await notasTodasGet(token); // Ya no mandes pagina ni pageSize
       setNotas(data.notas);
-      setTotalNotas(data.paginacion.total);
     } catch (err) {
       setError(err);
     } finally {
@@ -52,12 +50,11 @@ const ListaNotas = () => {
     }
   };
 
-
   useEffect(() => {
     if (!token) return;
-    fetchNotas(pagina);
+    fetchNotas();
     // eslint-disable-next-line
-  }, [token, usuario, pagina]);
+  }, [token, usuario]);
 
   // Eliminar nota
   const eliminarNota = async (id) => {
@@ -71,8 +68,6 @@ const ListaNotas = () => {
       setEliminando(null);
     }
   };
-
-
 
   // Mostrar estado de carga
   if (cargando) {
@@ -196,7 +191,6 @@ const ListaNotas = () => {
         </div>
       </div>
 
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {notas.map((nota) => (
           <NotaCard
@@ -206,29 +200,6 @@ const ListaNotas = () => {
             eliminando={eliminando}
           />
         ))}
-      </div>
-
-      {/* Add pagination controls */}
-      <div className="mt-6 flex justify-center">
-        <nav className="flex items-center space-x-2">
-          <button
-            onClick={() => setPagina(p => Math.max(p - 1, 1))}
-            disabled={pagina === 1}
-            className="px-3 py-2 rounded bg-gray-00 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Anterior
-          </button>
-          <span className="text-sm text-gray-700">
-            Página {pagina} de {Math.ceil(totalNotas / pageSize)}
-          </span>
-          <button
-            onClick={() => setPagina(p => Math.min(p + 1, Math.ceil(totalNotas / pageSize)))}
-            disabled={pagina === Math.ceil(totalNotas / pageSize)}
-            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Siguiente
-          </button>
-        </nav>
       </div>
     </div>
   );

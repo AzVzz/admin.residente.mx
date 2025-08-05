@@ -1,11 +1,11 @@
 //src/componentes/api/notasCompletas.js
 import { urlApi } from './url.js';
 
-export const notasTodasGet = async (token, page = 1, limit = 24, q = "") => {
+export const notasTodasGet = async (token, page = 1, limit = "all", q = "") => {
     try {
         const url = new URL(`${urlApi}api/notas/todas`);
         url.searchParams.append("page", page);
-        url.searchParams.append("limit", limit);
+        if (limit !== undefined && limit !== null) url.searchParams.append("limit", limit);
         if (q) url.searchParams.append("q", q);
 
         const response = await fetch(url, {

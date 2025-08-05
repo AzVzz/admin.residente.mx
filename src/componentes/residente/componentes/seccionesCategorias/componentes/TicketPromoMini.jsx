@@ -1,5 +1,6 @@
 //src/componentes/promociones/componentes/TicketPromo.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
+import { urlApi } from '../../../../api/url';
 
 const TicketPromoMini = forwardRef((props, ref) => {
     const { className = "", ...rest } = props;
