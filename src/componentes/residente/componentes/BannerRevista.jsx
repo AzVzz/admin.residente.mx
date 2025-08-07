@@ -1,3 +1,5 @@
+// BannerRevista.jsx es un nombre equivocado es el main de tda la página de residente.
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
@@ -10,6 +12,7 @@ import PostPrincipal from './componentesColumna2/PostPrincipal';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
+import { catalogoTipoNotaGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
 import EnPortada from './componentesColumna2/EnPortada';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
@@ -34,6 +37,28 @@ const BannerRevista = () => {
     const [cargandoDestacadas, setCargandoDestacadas] = useState(true);
     const [errorDestacadas, setErrorDestacadas] = useState(null);
     const [revistaActual, setRevistaActual] = useState(null);
+    const [tiposNotas, setTiposNotas] = useState([
+        {
+            nombre: "Restaurantes", 
+            tipoLogo: "fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-media.webp",
+            marqueeTexto: "Encuentra aqui la información al momento de los mejores restaurantes de Nuevo León"
+        },
+        {
+            nombre: "Food & Drink",
+            tipoLogo: "fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp",
+            marqueeTexto: "Postres, Snacks, Café, Cerveza, Vino, Té, Mixología, Recetas, Platillos y Alimentos"
+        },
+        {
+            nombre: "Antojos",
+            tipoLogo: "fotos/fotos-estaticas/residente-logos/grises/antojos.webp",
+            marqueeTexto: "Taquerias iconicas de Nuevo León, comida callejera, puestos, carritos, changarros y similares"
+        },
+        {
+            nombre: "Residente",
+            tipoLogo: "fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp",
+            marqueeTexto: "Residente - Lo mejor de la gastronomía de Nuevo León"
+        }
+    ]);
 
     useEffect(() => {
         revistaGetUltima()
@@ -85,6 +110,23 @@ const BannerRevista = () => {
                 .finally(() => setDetalleCargando(false));
         }
     }, [id]);
+
+    // Añade este useEffect para cargar los tipos de notas al iniciar
+    useEffect(() => {
+        const cargarTiposNotas = async () => {
+            try {
+                const data = await catalogoTipoNotaGet();
+                if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+                    setTiposNotas(data.data);
+                }
+            } catch (error) {
+                console.error("Error al cargar tipos de notas:", error);
+                // Mantiene los valores por defecto en caso de error
+            }
+        };
+        
+        cargarTiposNotas();
+    }, []);
 
     const handleCardClick = async (id) => {
         navigate(`/notas/${id}`);
@@ -164,7 +206,12 @@ const BannerRevista = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <DetallePost post={selectedPost} onVolver={handleVolver} />
+                                <DetallePost post={selectedPost} onVolver={handleVolver} barraMarquee={
+                                    selectedPost?.tipo_nota && (
+                                        tiposNotas.find(t => t.nombre === selectedPost.tipo_nota)?.marqueeTexto ||
+                                        "Residente - Lo mejor de la gastronomía de Nuevo León"
+                                    )
+                                } />
                             )}
                         </div>
                         {/* Columna lateral */}
@@ -172,8 +219,11 @@ const BannerRevista = () => {
                             <MainLateralPostTarjetas
                                 notasDestacadas={notasDestacadas}
                                 onCardClick={(post) => handleCardClick(post.id)}
+
                             />
+                            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
                             <BotonesAnunciateSuscribirme />
+                            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
                         </div>
                     </div>
                 </div>
@@ -186,23 +236,15 @@ const BannerRevista = () => {
 
                         if (postsFiltrados.length === 0) return null;
 
-                        let tipoLogo = null;
-                        let marqueeTexto = "";
-                        if (tipo === "Restaurantes") {
-                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-media.webp`;
-                            marqueeTexto = "Encuentra aqui la información al momento de los mejores restaurantes de Nuevo León";
-                        }
-                        if (tipo === "Food & Drink") {
-                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp`;
-                            marqueeTexto = "Postres, Snacks, Café, Cerveza, Vino, Té, Mixología, Recetas, Platillos y Alimentos";
-                        }
-                        if (tipo === "Antojos") {
-                            tipoLogo = `${urlApi}fotos/fotos-estaticas/residente-logos/grises/antojos.webp`;
-                            marqueeTexto = "Taquerias iconicas de Nuevo León, comida callejera, puestos, carritos, changarros y similares";
-                        }
+                        // Buscar la configuración del tipo actual en los datos disponibles
+                        const tipoConfig = tiposNotas.find(t => t.nombre === tipo) || 
+                            { tipoLogo: "", marqueeTexto: "" };
+                            
+                        const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
+                        const marqueeTexto = tipoConfig.marqueeTexto || "";
 
                         return (
-                            <div key={tipo} className="flex flex-col pt-9">
+                            <div key={tipo} className="flex flex-col pt-9"> {/* Pantalla main */}
                                 <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 mb-9">
                                     {/* Columna Principal */}
                                     <div>

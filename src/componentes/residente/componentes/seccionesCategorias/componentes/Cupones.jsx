@@ -26,22 +26,25 @@ const Cupones = () => {
     };
 
     return (
-        <div className=" h-71 overflow-hidden flex flex-row">
+        <div className="w-full">
             {loading && <div className="text-gray-500">Cargando cupones...</div>}
             {error && <div className="text-red-500">Error: {error}</div>}
 
-            {cupones.map(cupon => (
-                <TicketPromo
-                    key={cupon.id}
-                    nombreRestaurante={cupon.nombre_restaurante}
-                    nombrePromo={cupon.titulo}
-                    subPromo={cupon.subtitulo}
-                    descripcionPromo={cupon.descripcion}
-                    validezPromo={cupon.fecha_validez || "Sin validez"}
-                    stickerUrl={getStickerUrl(cupon.icon)} // <-- usa la función aquí
-                    className="scale-40 w-50 h-1"
-                />
-            ))}
+            <div className="flex flex-row justify-between w-full">
+                {cupones.slice(0, 5).map(cupon => (
+                    <div key={cupon.id}>
+                        <TicketPromo
+                            nombreRestaurante={cupon.nombre_restaurante}
+                            nombrePromo={cupon.titulo}
+                            subPromo={cupon.subtitulo}
+                            descripcionPromo={cupon.descripcion}
+                            validezPromo={cupon.fecha_validez || "Sin validez"}
+                            stickerUrl={getStickerUrl(cupon.icon)}
+                            size="small"
+                        />
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

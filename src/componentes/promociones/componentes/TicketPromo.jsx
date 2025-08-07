@@ -2,8 +2,48 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { urlApi } from '../../api/url';
 
+const sizeConfig = {
+    large: {
+        container: "w-90 min-h-[670px]",
+        padding: "px-5 py-4 pt-6",
+        logo: "h-10",
+        fontSizes: {
+            restaurant: { initial: 38, min: 10 },
+            promo: { initial: 200, min: 20 },
+            sub: { initial: 150, min: 15 }
+        },
+        description: "text-[18px] leading-[20px]",
+        validity: "text-xl py-2",
+        barcode: "h-20",
+        sticker: "absolute top-15 left-75 w-26 h-26",
+        perforatedTop: "w-90",
+        perforatedBottom: "w-90"
+    },
+    small: {
+        container: "w-45 min-h-84 max-h-84",
+        padding: "px-2 pt-1 pb-1",
+        logo: "h-4.5",
+        fontSizes: {
+            restaurant: { initial: 20, min: 10 }, // Valores ajustados para el nombre del restaurante
+            promo: { initial: 102, min: 14 },
+            sub: { initial: 62, min: 10 }
+        },
+        description: "leading-[10px] text-[10px]",
+        validity: "text-[8px] py-0.4",
+        barcode: "h-8",
+        sticker: "absolute top-8 right-[-20px] w-10 h-10",
+        perforatedTop: "w-45",
+        perforatedBottom: "w-45",
+        className: "cursor-pointer"
+    }
+};
+
 const TicketPromo = forwardRef((props, ref) => {
-    const { className = "", ...rest } = props;
+    const {
+        className = "",
+        size = "large", // "large" o "small"
+        ...rest
+    } = props;
     const {
         nombreRestaurante,
         nombrePromo,
@@ -12,44 +52,39 @@ const TicketPromo = forwardRef((props, ref) => {
         validezPromo,
         stickerUrl
     } = props;
+
+    const config = sizeConfig[size];
+
     // Referencias para los elementos del DOM
     const promoTextRef = useRef(null);
     const restaurantNameRef = useRef(null);
-    const burgersRef = useRef(null); // Asegúrate de tener esta línea
+    const burgersRef = useRef(null);
     const containerRef = useRef(null);
 
     // Estados para los tamaños de fuente
-    const [promoFontSize, setPromoFontSize] = useState(120);
-    const [restaurantNameFontSize, setRestaurantNameFontSize] = useState(38);
-    const [burgersFontSize, setBurgersFontSize] = useState(24);
+    const [promoFontSize, setPromoFontSize] = useState(config.fontSizes.promo.initial);
+    const [restaurantNameFontSize, setRestaurantNameFontSize] = useState(config.fontSizes.restaurant.initial);
+    const [burgersFontSize, setBurgersFontSize] = useState(config.fontSizes.sub.initial);
 
-    // Estados para los textos (para sincronizar con props)
+    // Estados para los textos
     const [promoText, setPromoText] = useState(nombrePromo);
     const [burgersText, setBurgersText] = useState(subPromo);
     const [restaurantNameText, setRestaurantNameText] = useState(nombreRestaurante);
 
-
-
     // Sincronizar los estados internos con los props
-    useEffect(() => {
-        setPromoText(nombrePromo);
-    }, [nombrePromo]);
+    useEffect(() => { setPromoText(nombrePromo); }, [nombrePromo]);
+    useEffect(() => { setBurgersText(subPromo); }, [subPromo]);
+    useEffect(() => { setRestaurantNameText(nombreRestaurante); }, [nombreRestaurante]);
 
-    useEffect(() => {
-        setBurgersText(subPromo);
-    }, [subPromo]);
-
-    useEffect(() => {
-        setRestaurantNameText(nombreRestaurante);
-    }, [nombreRestaurante]);
-
-    // Función para ajustar el tamaño de fuente de un elemento
+    // Función para ajustar el tamaño de fuente
     const adjustFontSize = (ref, setSize, initialSize, minSize, step = 1) => {
         if (!ref.current || !containerRef.current) return;
-
         const container = containerRef.current;
         const text = ref.current;
-        const containerWidth = container.offsetWidth - 40; // Considerar padding
+
+        // Ajusta el padding según si es el título del restaurante o no
+        const isPaddingSensitive = ref === restaurantNameRef;
+        const containerWidth = container.offsetWidth - (isPaddingSensitive ? (size === 'small' ? 16 : 40) : (size === 'small' ? 24 : 40));
 
         // Guardar estilos originales
         const originalDisplay = text.style.display;
@@ -59,13 +94,22 @@ const TicketPromo = forwardRef((props, ref) => {
         text.style.display = 'inline-block';
         text.style.visibility = 'hidden';
 
+        // Usar un tamaño de paso más pequeño para el título del restaurante en modo small
+        const actualStep = (size === 'small' && isPaddingSensitive) ? 0.5 : step;
+
         let currentSize = initialSize;
         text.style.fontSize = `${currentSize}px`;
 
         // Reducir el tamaño hasta que quepa o se alcance el mínimo
         while (text.scrollWidth > containerWidth && currentSize > minSize) {
-            currentSize -= step;
+            currentSize -= actualStep;
             text.style.fontSize = `${currentSize}px`;
+        }
+
+        // Si el texto es el título del restaurante y estamos en modo small,
+        // asegurarnos de que no sea demasiado pequeño
+        if (isPaddingSensitive && size === 'small' && currentSize < 14) {
+            currentSize = 14; // Establecer un mínimo absoluto para garantizar legibilidad
         }
 
         setSize(currentSize);
@@ -78,9 +122,9 @@ const TicketPromo = forwardRef((props, ref) => {
     // Efecto para ajustar todos los textos
     useEffect(() => {
         const adjustAll = () => {
-            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, 38, 10);
-            adjustFontSize(promoTextRef, setPromoFontSize, 200, 20, 2);
-            adjustFontSize(burgersRef, setBurgersFontSize, 150, 15);
+            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, config.fontSizes.restaurant.initial, config.fontSizes.restaurant.min);
+            adjustFontSize(promoTextRef, setPromoFontSize, config.fontSizes.promo.initial, config.fontSizes.promo.min, 2);
+            adjustFontSize(burgersRef, setBurgersFontSize, config.fontSizes.sub.initial, config.fontSizes.sub.min);
         };
 
         adjustAll();
@@ -89,62 +133,74 @@ const TicketPromo = forwardRef((props, ref) => {
         return () => {
             window.removeEventListener('resize', adjustAll);
         };
-    }, [promoText, burgersText, restaurantNameText]); // Dependencias: los textos que pueden cambiar
+    }, [promoText, burgersText, restaurantNameText, size]);
+
+    useEffect(() => {
+        setRestaurantNameFontSize(config.fontSizes.restaurant.initial);
+        setPromoFontSize(config.fontSizes.promo.initial);
+        setBurgersFontSize(config.fontSizes.sub.initial);
+    }, [
+        size,
+        config.fontSizes.restaurant.initial,
+        config.fontSizes.restaurant.min,
+        config.fontSizes.promo.initial,
+        config.fontSizes.promo.min,
+        config.fontSizes.sub.initial,
+        config.fontSizes.sub.min
+    ]);
+
+    // Añade esta función para limitar el texto
+    const limitText = (text, limit) => {
+        if (!text) return '';
+        if (text.length <= limit) return text;
+        return text.substring(0, limit) + '...';
+    };
 
     return (
         <div
             ref={ref}
-            className={`relative pt-2 ${className}`} //pb-2 pr-11
-            style={{
-                background: 'transparent', // Fondo transparente
-            }}
+            className={`relative ${className}`}
+            style={{ background: 'transparent' }}
         >
+            {/* Perforated top edge */}
+            <div className={config.perforatedTop || "w-full"}>
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
+                    alt="Perforado superior"
+                    className="w-full"
+                />
+            </div>
+
             <div
                 ref={containerRef}
-                className="flex flex-col bg-white w-90 min-h-[670px] h-auto shadow-lg mx-auto relative mb-2" //h-[670]
-                style={{
-                    boxShadow: '-2px 3px 3px rgba(0,0,0,0.25)'
-                }}
+                className={`flex flex-col bg-white ${config.container} relative`}
             >
-                {
-                    stickerUrl && (
-                        <img
-                            src={stickerUrl}
-                            alt="Sticker"
-                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]"
-                        />
-                    )
-                }
-
-                {/* Perforated top edge */}
-                <div className="absolute left-0 right-0 z-20 -top-2">
+                {stickerUrl && (
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
-                        alt="Perforado superior"
-                        className="w-full"
+                        src={stickerUrl}
+                        alt="Sticker"
+                        className={`${config.sticker}  flex items-center justify-center z-10`}
+                        style={{ filter: 'drop-shadow(-1px 1.5px 0.8px rgba(0,0,0,0.25))' }}
                     />
-                </div>
-
+                )}
 
                 {/* Main content */}
-                <div className="px-5 py-4 pt-6 flex-1 flex flex-col">
-                    <div className="mb-4 z-20">
+                <div className={`${config.padding} flex-1 flex flex-col`}>
+                    <div className="mb-1 z-20">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp` || "/placeholder.svg"}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
                             alt="Residente Discy Promo Logo"
-                            className="h-12"
+                            className={config.logo}
                         />
                     </div>
-
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-2 whitespace-nowrap overflow-hidden"
+                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-0 whitespace-nowrap overflow-hidden"
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
                         </h1>
-
                         <div className="text-center">
                             <h3
                                 ref={promoTextRef}
@@ -153,14 +209,13 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${promoFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
-                                    marginBottom: 4,
+                                    marginBottom: 0,
                                     padding: 0,
                                     display: 'block'
                                 }}
                             >
                                 {promoText}
                             </h3>
-
                             <h3
                                 ref={burgersRef}
                                 className="font-black text-center whitespace-nowrap overflow-hidden"
@@ -168,8 +223,8 @@ const TicketPromo = forwardRef((props, ref) => {
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
                                     margin: 0,
-                                    marginBottom: 2,
-                                    marginTop: 6,
+                                    marginBottom: 0,
+                                    marginTop: 0,
                                     padding: 0,
                                     display: 'block'
                                 }}
@@ -177,34 +232,29 @@ const TicketPromo = forwardRef((props, ref) => {
                                 {burgersText}
                             </h3>
                         </div>
-
-                        <p className="leading-[20px] text-[18px] text-gray-800 font-black font-roman mt-2">
-                            {descripcionPromo}
+                        <p className={`font-black font-roman mt-1 text-gray-800 ${config.description}`}>
+                            {size === 'small' ? limitText(descripcionPromo, 220) : descripcionPromo}
                         </p>
                     </div>
                 </div>
                 {/* Bottom section */}
-                <div className="bg-[#FFF200] px-5 py-3 pb-3 mt-auto relative">
-                    <h2 className="text-xl mb-2 bg-black text-white text-center font-light font-roman leading-5 py-2">
+                <div className={`bg-[#FFF300] ${config.padding}  mt-auto relative`}>
+                    <h2 className={`mb-1 bg-black text-white text-center font-light font-roman leading-3 ${config.validity}`}>
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif` || "/placeholder.svg"}
+                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
                         alt="Código de barras"
-                        className="w-full h-20 object-fill z-30 relative"
+                        className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
-                    {/* Borde inferior perforado - AHORA DENTRO del contenedor */}
-                    <div className="absolute left-0 right-0 bottom-[-8px] z-20">
-                        <img
-                            src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
-                            alt="Perforado inferior"
-                            className="w-full"
-                        />
-                    </div>
                 </div>
-
-                {/* Perforated bottom edge */}
-
+            </div>
+            <div className={config.perforatedBottom}>
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    alt="Perforado inferior"
+                    className="w-full"
+                />
             </div>
         </div>
     );

@@ -1,4 +1,5 @@
 import { urlApi } from "../../../api/url.js";
+import BarraMarquee from "../seccionesCategorias/componentes/BarraMarquee.jsx";
 
 const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNotas, sinFecha = false, sinCategoria = false }) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 4);

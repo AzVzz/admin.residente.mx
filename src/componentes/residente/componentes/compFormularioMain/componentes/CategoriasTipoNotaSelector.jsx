@@ -7,10 +7,10 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
         <div className="grid grid-cols-5">
             {/* Solo muestra el campo de tipo de nota si ocultarTipoNota es falso */}
             {!ocultarTipoNota && (
-                <div className="p-5 border-1">
-                    <p className="mb-1 text-xl">Tipo de Nota</p>
+                <div className="p-1 border-1 border-gray-300 rounded-md">
+                    <p className="mb-2 text-xl leading-5">Tipo de Nota</p>
                     {tipoDeNota.map((opcion, idx) => (
-                        <label key={idx} className="block mb-2">
+                        <label key={idx} className="block mb-1">
                             <Controller
                                 name="tipoDeNotaSeleccionada"
                                 control={control}
@@ -31,8 +31,8 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
             )}
 
             {secciones.map((seccion) => (
-                <div key={seccion.seccion} className="p-5 border-1">
-                    <h2 className="font-bold mb-2 text-xl">{seccion.seccion}</h2>
+                <div key={seccion.seccion} className="p-1 border-1 border-gray-300 rounded-md">
+                    <h2 className="mb-2 text-xl leading-5">{seccion.seccion}</h2>
                     {seccion.categorias.map((categoria) => (
                         <label
                             key={`${seccion.seccion}-${categoria.nombre}`}

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { urlApi } from "../../../../api/url";
 
 const ImagenesRestaurantesDestacados = ({ restaurantes, small = false, cantidad = 4 }) => (
-  <div className={`grid grid-cols-${cantidad} gap-5 ${small ? 'max-w-[1080px] mt-2 mb-2' : 'mt-5 mb-5'}`}>
+  <div className={`grid grid-cols-${cantidad} gap-5 ${small ? 'max-w-[1080px]' : 'mt-5 mb-5'}`}>
     {restaurantes.length > 0 ? (
       restaurantes.slice(0, cantidad).map(rest => (
         <Link
@@ -11,16 +11,18 @@ const ImagenesRestaurantesDestacados = ({ restaurantes, small = false, cantidad 
           to={`/restaurante/${rest.slug}`}
           className="relative items-center block group"
         >
-          <div className={`relative ${small ? 'h-28' : 'h-40'} overflow-hidden`}>
-            <img
-              src={
-                rest.imagenes && rest.imagenes.length > 0
-                  ? urlApi.replace(/\/$/, "") + rest.imagenes[0].src
-                  : "https://via.placeholder.com/180x120?text=Sin+Imagen"
-              }
-              className="w-full h-full object-cover transition-all duration-500 ease-in-out"
-              alt={rest.nombre_restaurante}
-            />
+          <div className={`relative ${small ? 'h-28' : 'h-40'} overflow-hidden bg-black`}>
+            {rest.imagenes && rest.imagenes.length > 0 ? (
+              <img
+                src={urlApi.replace(/\/$/, "") + rest.imagenes[0].src}
+                className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                alt={rest.nombre_restaurante}
+              />
+            ) : (
+              <div className="w-full h-full bg-black flex items-center justify-center">
+                <span className="text-gray-400 text-xs">Sin imagen</span>
+              </div>
+            )}
             {/* Nombre dentro de la foto, parte inferior */}
             <div
               className={`

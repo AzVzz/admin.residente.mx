@@ -33,7 +33,7 @@ const FormMainResidente = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  
+
 
   // Si no hay token, muestra el login
   if (!token) {
@@ -118,14 +118,51 @@ const FormMainResidente = () => {
 
           setNotaId(data.id);
 
+          // --- CONVERSIÓN DE FECHA ---
+          let fechaProgramada = '';
+          if (data.programar_publicacion) {
+            // Si ya viene en formato ISO (ej: 2025-08-05T15:00), úsalo directo
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(data.programar_publicacion)) {
+              fechaProgramada = data.programar_publicacion.slice(0, 16);
+            } else if (/\d{2}\/\d{2}\/\d{4}/.test(data.programar_publicacion)) {
+              // Convierte "05/08/2025 03:00 p.m." a "2025-08-05T15:00"
+              try {
+                const [dia, mes, anioHora] = data.programar_publicacion.split('/');
+                const [anio, horaMinAMPM] = anioHora.trim().split(' ');
+                let [hora, minuto] = horaMinAMPM.split(':');
+                let ampm = horaMinAMPM.toLowerCase().includes('p.m.') ? 'PM' : 'AM';
+                hora = parseInt(hora, 10);
+                if (ampm === 'PM' && hora < 12) hora += 12;
+                if (ampm === 'AM' && hora === 12) hora = 0;
+                fechaProgramada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}T${hora.toString().padStart(2, '0')}:${minuto}`;
+              } catch (e) {
+                fechaProgramada = '';
+              }
+            }
+          }
+
           // Resetear formulario con los datos de la nota
+          let autor = data.autor;
+          if (!autor) {
+            // Intenta obtener el usuario de localStorage
+            try {
+              const usuarioLS = localStorage.getItem('usuario');
+              if (usuarioLS) {
+                const usuarioObj = JSON.parse(usuarioLS);
+                autor = usuarioObj.nombre_usuario || '';
+              }
+            } catch (e) {
+              autor = '';
+            }
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor: data.autor,
+            autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
             opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
-            fechaProgramada: data.programar_publicacion || '',
+            fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
               ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
@@ -186,6 +223,11 @@ const FormMainResidente = () => {
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
         destacada: data.destacada || false,
       };
+
+      console.log("=== DATOS QUE SE ENVÍAN AL BACKEND ===");
+      console.log("datosNota:", datosNota);
+      console.log("Estatus final:", datosNota.estatus);
+      console.log("programar_publicacion:", datosNota.programar_publicacion);
 
       let resultado;
       if (notaId) {

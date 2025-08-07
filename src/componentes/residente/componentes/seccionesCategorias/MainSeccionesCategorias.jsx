@@ -8,7 +8,7 @@ import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
-import DetallePost from '../DetallePost.jsx';``
+import DetallePost from '../DetallePost.jsx'; ``
 import BarraMarquee from './componentes/BarraMarquee.jsx';
 import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
@@ -347,10 +347,12 @@ const MainSeccionesCategorias = () => {
 
             {/* Barra horizontal extendida */}
             <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-5">
-                <div className="max-w-[1080px] mx-auto w-full my-3">
-                    <h3 className="text-[22px]">Más recomendaciones de restaurantes por {categoria} {">"}</h3>
-                    <ImagenesRestaurantesDestacados restaurantes={restaurantes} small cantidad={6} />
-                    <ImagenesRestaurantesDestacados restaurantes={restaurantes} small cantidad={6} />
+                <div className="max-w-[1080px] mx-auto w-full">
+                    <h3 className="text-[22px] mb-2">Más recomendaciones de restaurantes por {categoria} {">"}</h3>
+                    <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(0, 6)} small cantidad={6} />
+                    <div className="mt-5">
+                        <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(6, 12)} small cantidad={6} />
+                    </div>
                 </div>
             </div>
 
@@ -361,13 +363,6 @@ const MainSeccionesCategorias = () => {
 
                     <div className="flex flex-wrap justify-center gap-6 w-full py-1">
                         <Cupones />
-                    </div>
-                    <div className="flex flex-row justify-between">
-                        <TicketPromoMini />
-                        <TicketPromoMini />
-                        <TicketPromoMini />
-                        <TicketPromoMini />
-                        <TicketPromoMini />
                     </div>
                 </div>
             </div>

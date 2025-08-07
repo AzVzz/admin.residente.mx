@@ -23,7 +23,7 @@ const PostPrincipal = ({ post, onClick }) => {
         >
             <div className="h-[400px] overflow-hidden">
                 <div className="relative h-full">
-                    <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
+                    <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF300] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
                         {post.fecha}
                     </div>
                     <img

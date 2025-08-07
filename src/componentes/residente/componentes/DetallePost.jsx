@@ -5,9 +5,10 @@ import PostComentarios from "./PostComentarios";
 import ShowComentarios from "./ShowComentarios";
 import { Iconografia } from '../../utils/Iconografia.jsx';
 import { urlApi } from "../../api/url.js";
+import BarraMarquee from "./seccionesCategorias/componentes/BarraMarquee.jsx";
 
 // DetallePost.jsx
-const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
+const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post, setPost] = useState(postProp);
@@ -63,10 +64,14 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
             {/** h-[725px]  mb-5 */}
             <div className="flex flex-col cursor-pointer overflow-hidden">
                 {/* Imagen - idéntica a PostPrincipal */}
+                <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp" className="w-7.5 h-full object-contain rounded-full" />
+                <div className="w-176.5 mb-3">
+                    <BarraMarquee categoria={barraMarquee} />
+                </div>
                 <div className="h-[400px] overflow-hidden">
                     <div className="relative h-full">
                         {!sinFecha && (
-                            <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
+                            <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF300] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
                                 {post.fecha}
                             </div>
                         )}
@@ -75,17 +80,8 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
                             className="w-full h-full object-cover"
                             alt={post.titulo}
                         />
-                    </div>
-                </div>
-
-                {/* Sección negra - idéntica a PostPrincipal h-[325px]*/}
-                <div className="bg-black p-10 flex flex-col ">
-                    <div className="mb-1 flex items-center justify-between">
-                        <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
-                            {post.tipo_nota}
-                        </span>
-                        {/* Iconos seleccionados dinamicamente*/}
-                        <div className="flex gap-4 z-10">
+                        {/* Mostrar los stickers en la imagen, igual que en PostPrincipal */}
+                        <div className="absolute top-7 right-9 flex gap-1 z-10">
                             {stickers.map(clave => {
                                 const icono = iconosDisponibles.find(i => i.clave === clave);
                                 return icono ? (
@@ -93,16 +89,25 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false }) => {
                                         key={clave}
                                         src={icono.icono}
                                         alt={icono.nombre}
-                                        className="h-12 w-12 rounded-full shadow"
+                                        className="h-15 w-15 rounded-full shadow"
                                     />
                                 ) : null;
                             })}
                         </div>
                     </div>
+                </div>
+
+                {/* Sección negra - igual que en PostPrincipal */}
+                <div className="bg-black p-8 flex flex-col h-[325px] relative">
+                    <div className="mb-1 flex items-center justify-between">
+                        <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
+                            {post.tipo_nota}
+                        </span>
+                        {/* Los stickers ya están en la imagen, así que los quitamos de aquí */}
+                    </div>
                     <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
                         {post.titulo}
                     </h1>
-                    <p className="text-white mt-3 font-light">{`de ${post.autor}`}</p>
                 </div>
             </div>
 
