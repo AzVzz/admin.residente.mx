@@ -65,7 +65,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
             <div className="flex flex-col cursor-pointer overflow-hidden">
                 {/* Imagen - idéntica a PostPrincipal */}
                 <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp" className="w-7.5 h-full object-contain rounded-full" />
-                <div className="w-176.5 mb-3">
+                <div className="w-177.5 mb-3">
                     <BarraMarquee categoria={barraMarquee} />
                 </div>
                 <div className="h-[400px] overflow-hidden">

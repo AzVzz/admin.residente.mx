@@ -12,7 +12,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
         <div className="relative flex-shrink-0 overflow-hidden ">
           {/* Etiqueta de fecha */}
           {!sinFecha && (
-            <div className="absolute top-2 left-2 z-10 bg-[#ffff20] backdrop-blur-sm text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 font-sans">
+            <div className="absolute top-2 left-2 z-10 bg-[#fff200] backdrop-blur-sm text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 font-sans">
               {(() => {
                 const fecha = post?.fecha || 'Sin fecha';
                 const [primera, ...resto] = fecha.split(' ');

@@ -17,12 +17,29 @@ import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
 import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
+import PostPrincipal from './componentesMuestraNotas/PostPrincipal.jsx';
+import PostLoMasVisto from './componentesMuestraNotas/PostLoMasVisto.jsx';
+import PostVertical from './componentesMuestraNotas/PostVertical.jsx';
+import PostHorizontal from './componentesMuestraNotas/PostHorizontal.jsx';
+import PostLoMasVistoDirectorio from './componentesMuestraNotas/PostLoMasVistoDirectorio.jsx';
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
   "barrio-antiguo": "Barrio Antiguo",
   // agrega más si tienes
 };
+
+function formatFecha(fecha) {
+  const meses = [
+    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+  ];
+  const d = new Date(fecha);
+  const dia = d.getDate();
+  const mes = meses[d.getMonth()];
+  const año = d.getFullYear();
+  return `${mes} ${dia}, ${año}`;
+}
 
 const FormMainResidente = () => {
   const { usuario, token } = useAuth(); // usuario viene del contexto
@@ -73,6 +90,16 @@ const FormMainResidente = () => {
   const [cargandoNota, setCargandoNota] = useState(!!id);
   const [catalogosCargados, setCatalogosCargados] = useState(false);
   const [imagenActual, setImagenActual] = useState(null);
+
+
+  // Watch para mostrar en tiempo real las notas editandose:
+  const titulo = watch('titulo');
+  const subtitulo = watch('subtitulo');
+  const autor = watch('autor');
+  const contenido = watch('contenido');
+  const imagen = watch('imagen');
+  //const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
+  const fechaProgramada = watch('fechaProgramada');
 
   // Observar cambios en opción de publicación
   const opcionPublicacion = watch('opcionPublicacion');
@@ -159,7 +186,7 @@ const FormMainResidente = () => {
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor, // <--- aquí ya va el nombre si estaba vacío
+            autor: autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
             opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
             fechaProgramada: fechaProgramada || '',
@@ -261,6 +288,8 @@ const FormMainResidente = () => {
   // Obteniendo el valor seleccionado del tipo de nota
   const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
 
+  const fechaActual = formatFecha(new Date());
+
   return (
     <div className="py-8">
       <div className="mx-auto">
@@ -343,10 +372,48 @@ const FormMainResidente = () => {
                   isPosting={isPosting}
                   notaId={notaId}
                 />
+
               </div>
             </div>
           </form>
         </FormProvider>
+      </div>
+      <div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
+        <PostHorizontal
+          titulo={titulo}
+          imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+          tipoNota={tipoNotaSeleccionada}
+        />
+        <PostLoMasVistoDirectorio
+          tipoDeNota={tipoNotaSeleccionada}
+          titulo={titulo}
+          imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+        />
+      </div>
+      <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
+        <div>
+          <PostPrincipal
+            titulo={titulo}
+            subtitulo={subtitulo}
+            autor={autor}
+            contenido={contenido}
+            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+            tipoNota={tipoNotaSeleccionada}
+            fecha={fechaActual}
+          />
+        </div>
+        <div className="flex flex-col">
+          <PostLoMasVisto
+            titulo={titulo}
+            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+            fecha={fechaActual}
+          />
+          <PostVertical
+            titulo={titulo}
+            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+            tipoNota={tipoNotaSeleccionada}
+          />
+        </div>
       </div>
     </div>
   );
