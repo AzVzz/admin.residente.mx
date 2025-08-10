@@ -54,18 +54,22 @@ const CarruselPosts = ({ restaurantes }) => {
         {/* Flecha izquierda */}
         <button
           onClick={goPrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/80 z-20"
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#fff300] cursor-pointer text-black rounded-full p-2 hover:bg-yellow-400 z-20"
           aria-label="Anterior"
         >
-          &#8592;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+          </svg>
         </button>
         {/* Flecha derecha */}
         <button
           onClick={goNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/80 z-20"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#fff300] cursor-pointer text-black rounded-full p-2 hover:bg-yellow-400 z-20"
           aria-label="Siguiente"
         >
-          &#8594;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+          </svg>
         </button>
       </div>
     </div>
