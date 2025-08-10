@@ -16,7 +16,11 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!postProp && id) {
+        if (postProp) {
+            setPost(postProp);
+            setLoading(false);
+            setError(null);
+        } else if (id) {
             setLoading(true);
             notasPublicadasPorId(id)
                 .then(data => setPost(data))
@@ -62,12 +66,8 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
     return (
         <div className="flex flex-col shadow-md">
             {/** h-[725px]  mb-5 */}
-            <div className="flex flex-col cursor-pointer overflow-hidden">
-                {/* Imagen - idéntica a PostPrincipal */}
-                <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/food-&-drink-media.webp" className="w-7.5 h-full object-contain rounded-full" />
-                <div className="w-177.5 mb-3">
-                    <BarraMarquee categoria={barraMarquee} />
-                </div>
+            <div className="flex flex-col overflow-hidden">
+
                 <div className="h-[400px] overflow-hidden">
                     <div className="relative h-full">
                         {!sinFecha && (

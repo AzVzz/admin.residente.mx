@@ -22,6 +22,7 @@ import PostLoMasVisto from './componentesMuestraNotas/PostLoMasVisto.jsx';
 import PostVertical from './componentesMuestraNotas/PostVertical.jsx';
 import PostHorizontal from './componentesMuestraNotas/PostHorizontal.jsx';
 import PostLoMasVistoDirectorio from './componentesMuestraNotas/PostLoMasVistoDirectorio.jsx';
+import NombreRestaurante from './componentes/NombreRestaurante.jsx';
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -251,6 +252,13 @@ const FormMainResidente = () => {
         destacada: data.destacada || false,
       };
 
+      // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
+      if ((tipoNotaFinal === "Restaurantes") && datosNota.destacada) {
+        datosNota.nombre_restaurante = data.nombre_restaurante || null;
+      } else {
+        datosNota.nombre_restaurante = null;
+      }
+
       console.log("=== DATOS QUE SE ENVÍAN AL BACKEND ===");
       console.log("datosNota:", datosNota);
       console.log("Estatus final:", datosNota.estatus);
@@ -322,7 +330,7 @@ const FormMainResidente = () => {
                 />
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
-                {(tipoNotaSeleccionada === "Restaurantes") && (
+                {(tipoNotaSeleccionada === "Restaurantes" || tipoNotaSeleccionada === "Food & Drink") && (
                   <div className="mb-4">
                     <label className="inline-flex items-center">
                       <input
@@ -342,6 +350,8 @@ const FormMainResidente = () => {
                     <div className="text-lg font-bold">{tipoNotaUsuario}</div>
                   </div>
                 )}
+
+                <NombreRestaurante />
 
                 <Titulo />
 

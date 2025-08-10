@@ -61,20 +61,21 @@ const MainSeccionesCategorias = () => {
         if (id) {
             setDetalleCargando(true);
             setErrorDetalle(null);
-            // Busca la nota en las ya cargadas o pídela a la API
-            const notaExistente = notas.find(n => String(n.id) === String(id));
+            // Busca la nota en las ya cargadas o en el top
+            const notaExistente =
+                notas.find(n => String(n.id) === String(id)) ||
+                notasTop.find(n => String(n.id) === String(id));
             if (notaExistente) {
                 setSelectedNota(notaExistente);
                 setDetalleCargando(false);
             } else {
                 // Si no está, podrías pedirla a la API (agrega tu función si la tienes)
-                // notasPorId(id).then(nota => setSelectedNota(nota)).catch(err => setErrorDetalle(err)).finally(() => setDetalleCargando(false));
                 setDetalleCargando(false);
             }
         } else {
             setSelectedNota(null);
         }
-    }, [id, notas]);
+    }, [id, notas, notasTop]);
 
     // Cuando el usuario hace click en una nota, navega a la URL
     const handleNotaClick = (nota) => {
@@ -215,13 +216,6 @@ const MainSeccionesCategorias = () => {
             {/* Los 5 restaurantes destacados en imagenes */}
             <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
-            {/* Barra negra que se mueve Barra marquee
-            <BarraMarquee categoria={categoria} /> */}
-
-            {/* Recomendaciones de restaurantes 
-            <RecomendacionesRestaurantes categoria={categoria} restaurantes={restaurantes} />*/}
-
-            {/* Body con 3 columnas, Cuponera, Notas y Directorio con cosas extra */}
             <div
                 className="grid gap-5"
                 style={{ gridTemplateColumns: '2.9fr 1.1fr' }}
@@ -322,6 +316,7 @@ const MainSeccionesCategorias = () => {
                         onCardClick={handleNotaClick}
                         cantidadNotas={5}
                         sinFecha
+                        pasarObjeto={true}
                     />
                 </div>
             </div>

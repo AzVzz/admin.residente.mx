@@ -20,6 +20,8 @@ import BarraMarquee from '../../../componentes/residente/componentes/seccionesCa
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import { revistaGetUltima } from '../../api/revistasGet.js';
 import { urlApi } from '../../../componentes/api/url.js';
+import DetalleBannerRevista from './DetalleBannerRevista';
+import ListadoBannerRevista from './ListadoBannerRevista';
 
 const BannerRevista = () => {
     const { id } = useParams();
@@ -39,7 +41,7 @@ const BannerRevista = () => {
     const [revistaActual, setRevistaActual] = useState(null);
     const [tiposNotas, setTiposNotas] = useState([
         {
-            nombre: "Restaurantes", 
+            nombre: "Restaurantes",
             tipoLogo: "fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-media.webp",
             marqueeTexto: "Encuentra aqui la información al momento de los mejores restaurantes de Nuevo León"
         },
@@ -124,7 +126,7 @@ const BannerRevista = () => {
                 // Mantiene los valores por defecto en caso de error
             }
         };
-        
+
         cargarTiposNotas();
     }, []);
 
@@ -177,187 +179,25 @@ const BannerRevista = () => {
         <div ref={topRef} className="">
             {id ? (
                 <div className="flex flex-col">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-4">
-                        {/* Columna Principal - Detalle */}
-                        <div>
-                            {detalleCargando ? (
-                                <div className="flex justify-center py-12">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                                </div>
-                            ) : errorDetalle ? (
-                                <div className="bg-red-50 border-l-4 border-red-500 p-4 my-6">
-                                    <div className="flex items-center">
-                                        <div className="flex-shrink-0">
-                                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div className="ml-3">
-                                            <p className="text-sm text-red-700">
-                                                Error al cargar el detalle: {errorDetalle?.message}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={handleVolver}
-                                        className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                                    >
-                                        Volver
-                                    </button>
-                                </div>
-                            ) : (
-                                <DetallePost post={selectedPost} onVolver={handleVolver} barraMarquee={
-                                    selectedPost?.tipo_nota && (
-                                        tiposNotas.find(t => t.nombre === selectedPost.tipo_nota)?.marqueeTexto ||
-                                        "Residente - Lo mejor de la gastronomía de Nuevo León"
-                                    )
-                                } />
-                            )}
-                        </div>
-                        {/* Columna lateral */}
-                        <div className="space-y-6">
-                            <MainLateralPostTarjetas
-                                notasDestacadas={notasDestacadas}
-                                onCardClick={(post) => handleCardClick(post.id)}
-
-                            />
-                            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
-                            <BotonesAnunciateSuscribirme />
-                            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
-                        </div>
-                    </div>
+                    <DetalleBannerRevista
+                        detalleCargando={detalleCargando}
+                        errorDetalle={errorDetalle}
+                        handleVolver={handleVolver}
+                        selectedPost={selectedPost}
+                        tiposNotas={tiposNotas}
+                        notasDestacadas={notasDestacadas}
+                        handleCardClick={handleCardClick}
+                    />
                 </div>
             ) : (
-                // Listado normal
-                <div className="flex flex-col">
-                    {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
-                        const postsFiltrados = filtrarPostsPorTipoNota(tipo);
-                        const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
-
-                        if (postsFiltrados.length === 0) return null;
-
-                        // Buscar la configuración del tipo actual en los datos disponibles
-                        const tipoConfig = tiposNotas.find(t => t.nombre === tipo) || 
-                            { tipoLogo: "", marqueeTexto: "" };
-                            
-                        const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
-                        const marqueeTexto = tipoConfig.marqueeTexto || "";
-
-                        return (
-                            <div key={tipo} className="flex flex-col pt-9"> {/* Pantalla main */}
-                                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 mb-9">
-                                    {/* Columna Principal */}
-                                    <div>
-                                        <div className="relative flex justify-center items-center mb-4">
-                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                            <div className="relative z-10 px-4 bg-[#fff300]">
-                                                <img
-                                                    src={tipoLogo}
-                                                    alt={tipo}
-                                                    className={
-                                                        tipo === "Antojos"
-                                                            ? "h-auto w-60 object-contain"
-                                                            : "h-auto w-80 object-contain"
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="w-176.5 mb-3">
-                                            <BarraMarquee categoria={marqueeTexto} />
-                                        </div>
-
-                                        {postsFiltrados[0] && (
-                                            <PostPrincipal
-                                                post={postsFiltrados[0]}
-                                                onClick={() => handleCardClick(postsFiltrados[0].id)}
-                                            />
-                                        )}
-                                        {revistaActual && revistaActual.pdf ? (
-                                            <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                                <img
-                                                    src={revistaActual.imagen_banner}
-                                                    alt="Banner Revista"
-                                                    className="w-full mb-4 cursor-pointer"
-                                                    title="Descargar Revista"
-                                                />
-                                            </a>
-                                        ) : (
-                                            <img
-                                                src={revistaActual?.imagen_banner}
-                                                alt="Banner Revista"
-                                                className="w-full mb-4"
-                                            />
-                                        )}
-
-                                        <TresTarjetas
-                                            posts={postsFiltrados.slice(1, 7)}
-                                            onCardClick={(post) => handleCardClick(post.id)}
-                                        />
-                                    </div>
-
-                                    {/* Columna lateral */}
-                                    <div>
-                                        <div className="flex flex-col items-end justify-start gap-10">
-                                            <DirectorioVertical />
-                                            <MainLateralPostTarjetas
-                                                notasDestacadas={destacadasFiltradas}
-                                                onCardClick={(post) => handleCardClick(post.id)}
-                                                sinCategoria
-                                                cantidadNotas={5}
-                                            />
-                                        </div>
-                                        <hr className="border-t border-gray-800/80 my-5 border-dotted" />
-                                        <BotonesAnunciateSuscribirme />
-                                        <hr className="border-t border-gray-800/80 my-5 border-dotted" />
-                                    </div>
-                                </div>
-                                {tipo === "Restaurantes" && (
-                                    <>
-                                        <div className="relative flex justify-center items-center mb-4">
-                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                            <div className="relative z-10 px-4 bg-[#fff300]">
-                                                <div className="flex flex-row justify-center items-center gap-2">
-                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
-                                                    <h3 className="text-4xl">Favoritos Residente</h3>
-                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="pb-5">
-                                            <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
-                                        </div>
-                                        <EnPortada
-                                            notasResidenteGet={notasResidenteGet}
-                                            onCardClick={(nota) => handleCardClick(nota.id)}
-                                        />
-                                    </>
-                                )}
-                                {tipo === "Antojos" && (
-                                    <>
-                                        <VideosHorizontal />
-                                    </>
-                                )}
-                                {tipo === "Food & Drink" && (
-                                    <>
-                                        <div className="relative flex justify-center items-center mb-4">
-                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                            <div className="relative z-10 px-4 bg-[#fff300]">
-                                                <div className="flex flex-row justify-center items-center gap-3">
-                                                    <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="pb-5">
-                                            <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
-                                        </div>
-                                        <SeccionesPrincipales />
-                                    </>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                <ListadoBannerRevista
+                    tiposNotas={tiposNotas}
+                    filtrarPostsPorTipoNota={filtrarPostsPorTipoNota}
+                    filtrarDestacadasPorTipoNota={filtrarDestacadasPorTipoNota}
+                    handleCardClick={handleCardClick}
+                    revistaActual={revistaActual}
+                    notasResidenteGet={notasResidenteGet}
+                />
             )}
         </div>
     );

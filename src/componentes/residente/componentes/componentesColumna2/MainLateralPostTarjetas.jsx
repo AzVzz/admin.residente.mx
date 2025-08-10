@@ -1,7 +1,14 @@
 import { urlApi } from "../../../api/url.js";
 import BarraMarquee from "../seccionesCategorias/componentes/BarraMarquee.jsx";
 
-const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNotas, sinFecha = false, sinCategoria = false }) => {
+const MainLateralPostTarjetas = ({
+    notasDestacadas = [],
+    onCardClick,
+    cantidadNotas,
+    sinFecha = false,
+    sinCategoria = false,
+    pasarObjeto = false // <--- NUEVO
+}) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 4);
     return (
         <section className={`mb-5  h-[450px] flex flex-col ${cantidadNotas === 5 ? 'h-[490px]' : 'h-[450px]'}`}>
@@ -9,7 +16,7 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNo
                 <h3 className="pb-5 text-[40px] leading-4">Lo más visto</h3>
             </div>
             <div className="flex-grow">
-                <ul className="h-full flex flex-col gap-3"> {/* Normal con 5 */}
+                <ul className="h-full flex flex-col gap-3">
                     {safePosts.map((post, index) => (
                         <li
                             key={post.id}
@@ -17,7 +24,7 @@ const MainLateralPostTarjetas = ({ notasDestacadas = [], onCardClick, cantidadNo
                         >
                             <div
                                 className="flex items-center cursor-pointer h-full w-full transition-shadow"
-                                onClick={() => onCardClick(post)}
+                                onClick={() => pasarObjeto ? onCardClick(post) : onCardClick(post.id)}
                             >
                                 <div className="w-1/3 h-full">
                                     <img
