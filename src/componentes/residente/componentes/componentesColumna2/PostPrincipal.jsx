@@ -18,7 +18,7 @@ const PostPrincipal = ({ post, onClick }) => {
 
     return (
         <div
-            className="flex flex-col cursor-pointer h-[725px] overflow-hidden mb-4"
+            className="flex flex-col cursor-pointer max-h-[725px] overflow-hidden mb-4"
             onClick={onClick}
         >
             <div className="h-[400px] overflow-hidden">
@@ -47,14 +47,24 @@ const PostPrincipal = ({ post, onClick }) => {
                     </div>
                 </div>
             </div>
-            <div className="bg-black p-8 flex flex-col h-[325px] relative">
+            <div
+                className="bg-black p-8 flex flex-col min-h-[120px] max-h-[325px] relative justify-start"
+                style={{
+                    height: 'auto',
+                }}
+            >
                 <div className="mb-1 flex items-center justify-between">
                     <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
                         {post.tipo_nota}
                     </span>
-
                 </div>
-                <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
+                <h1
+                    className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center"
+                    style={{
+                        whiteSpace: 'pre-line',
+                        wordBreak: 'break-word',
+                    }}
+                >
                     {post.titulo}
                 </h1>
             </div>

@@ -1,72 +1,161 @@
-import { useState, useEffect, useRef } from "react";
-import { urlApi } from '../../../api/url';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { urlApi } from "../../../api/url";
 import { Link } from "react-router-dom";
 
-const CarruselPosts = ({ restaurantes }) => {
-  const [index, setIndex] = useState(0);
-  const timeoutRef = useRef(null);
+const INTERVAL_MS = 4000; // tiempo entre slides
+const SLIDE_MS = 600;     // duración de transición
 
+const CarruselPosts = ({ restaurantes = [] }) => {
   const total = restaurantes.length;
 
-  useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      setIndex((prev) => (prev + 1) % total);
-    }, 8000);
-    return () => clearTimeout(timeoutRef.current);
-  }, [index, total]);
-
-  if (!restaurantes || restaurantes.length === 0) {
-    return <div>No hay imágenes</div>;
+  if (total === 0) return <div>No hay imágenes</div>;
+  if (total === 1) {
+    const rest = restaurantes[0];
+    const src = rest?.imagenes?.length
+      ? urlApi.replace(/\/$/, "") + rest.imagenes[0].src
+      : "https://via.placeholder.com/800x440?text=Sin+Imagen";
+    return (
+      <Link to={`/restaurante/${rest.slug}`} className="block h-[400px] relative">
+        <img src={src} alt={rest?.nombre_restaurante ?? "Restaurante"} className="w-full h-full object-cover" />
+      </Link>
+    );
   }
 
-  const goPrev = () => setIndex((prev) => (prev - 1 + total) % total);
-  const goNext = () => setIndex((prev) => (prev + 1) % total);
+  // Clones para loop infinito
+  const slides = useMemo(() => {
+    const first = restaurantes[0];
+    const last = restaurantes[total - 1];
+    return [last, ...restaurantes, first];
+  }, [restaurantes, total]);
+
+  // Comenzamos en 1 (primer slide real)
+  const [index, setIndex] = useState(1);
+  const [animate, setAnimate] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const intervalRef = useRef(null);
+
+  const next = () => setIndex((i) => i + 1);
+  const prev = () => setIndex((i) => i - 1);
+
+  // Autoplay
+  useEffect(() => {
+    if (paused) return;
+    intervalRef.current = setInterval(next, INTERVAL_MS);
+    return () => clearInterval(intervalRef.current);
+  }, [paused]);
+
+  // Salto sin transición al pasar a clones
+  const onTransitionEnd = () => {
+    if (index === slides.length - 1) {
+      // en clon del primero → saltar al primero real (1)
+      setAnimate(false);
+      setIndex(1);
+    } else if (index === 0) {
+      // en clon del último → saltar al último real (slides.length - 2)
+      setAnimate(false);
+      setIndex(slides.length - 2);
+    }
+  };
+
+  // Rehabilitar transición justo después del “teletransporte”
+  useEffect(() => {
+    if (!animate) {
+      const id = requestAnimationFrame(() => setAnimate(true));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [animate]);
+
+  const logicalIndex = (index - 1 + total) % total;
+
+  const getSrc = (rest) =>
+    rest?.imagenes?.length
+      ? urlApi.replace(/\/$/, "") + rest.imagenes[0].src
+      : "https://via.placeholder.com/800x440?text=Sin+Imagen";
+
+  const getName = (rest) => {
+    const base = rest?.nombre_restaurante || "Restaurante";
+    return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
+  };
 
   return (
-    <div className="relative group">
+    <div
+      className="relative group"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <div className="relative overflow-hidden h-[400px] w-full">
-        {restaurantes.map((rest, i) => (
-          <div
-            key={rest.id}
-            className={`absolute inset-0 transition-transform duration-300 ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}
-          >
-            <Link to={`/restaurante/${rest.slug}`} className="block h-full">
-              <img
-                src={
-                  rest.imagenes && rest.imagenes.length > 0
-                    ? urlApi.replace(/\/$/, '') + rest.imagenes[0].src
-                    : "https://via.placeholder.com/800x440?text=Sin+Imagen"
-                }
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                alt={rest.nombre_restaurante}
-              />
-              <div className="absolute inset-0 bg-black/0 transition-all duration-700 pointer-events-none"></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-              <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center overflow-hidden">
-                <span className="max-w-[100%] text-center rounded bg-black/60 text-[#fff300] text-[50px] px-6 mb-3">
-                  {rest.nombre_restaurante.charAt(0).toUpperCase() + rest.nombre_restaurante.slice(1).toLowerCase()}
-                </span>
-              </div>
-            </Link>
-          </div>
-        ))}
+        {/* Track horizontal */}
+        <div
+          className="flex h-full"
+          style={{
+            transform: `translateX(-${index * 100}%)`,
+            transition: animate ? `transform ${SLIDE_MS}ms ease-in-out` : "none",
+            willChange: "transform",
+          }}
+          onTransitionEnd={onTransitionEnd}
+        >
+          {slides.map((rest, i) => (
+            <div key={(rest?.id ?? `s-${i}`) + "-" + i} className="min-w-full flex-none h-full relative">
+              <Link to={`/restaurante/${rest.slug}`} className="block h-full w-full">
+                <img
+                  src={getSrc(rest)}
+                  alt={getName(rest)}
+                  className="h-full w-full object-cover block"
+                  loading={i === index ? "eager" : "lazy"}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center">
+                  <span className="max-w-[100%] text-center rounded bg-black/60 text-[#fff300] text-[50px] px-6 mb-3">
+                    {getName(rest)}
+                  </span>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
 
         {/* Flecha izquierda */}
         <button
-          onClick={goPrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/80 z-20"
+          onClick={prev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#fff300]/70 cursor-pointer text-black rounded-full p-2 hover:bg-[#fff300]/85 z-20"
           aria-label="Anterior"
         >
-          &#8592;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+               className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+          </svg>
         </button>
+
         {/* Flecha derecha */}
         <button
-          onClick={goNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/80 z-20"
+          onClick={next}
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#fff300]/70 cursor-pointer text-black rounded-full p-2 hover:bg-[#fff300]/85 z-20"
           aria-label="Siguiente"
         >
-          &#8594;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+               className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+          </svg>
         </button>
+
+        {/* Indicadores */}
+        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2 z-20">
+          {restaurantes.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i + 1)} // +1 por el clon inicial
+              aria-label={`Ir a la imagen ${i + 1}`}
+              className={[
+                "h-2 rounded-full transition-all",
+                i === logicalIndex ? "w-6 bg-[#fff300]" : "w-2 bg-white/60 hover:bg-white/80"
+              ].join(" ")}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

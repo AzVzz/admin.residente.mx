@@ -46,9 +46,11 @@ const DetalleBannerRevista = ({
                     ) : null;
                 })()
             )}
+            {/*
             <div className="w-177 pb-4">
                 <BarraMarquee categoria={`Noticias y más recomendaciones de`} />
             </div>
+            */}
             {detalleCargando ? (
                 <div className="flex justify-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

@@ -36,7 +36,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
           </div>*/}
 
                     {/* Título */}
-                    <h3 className="text-xl font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200">
+                    <h3 className="text-lg text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 font-roman">
                         {post.titulo}
                     </h3>
 
@@ -52,7 +52,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 const TresTarjetas = ({ posts, onCardClick }) => {
     return (
         <div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-x-5 gap-y-1">
                 {posts.map((post) => (
                     <TarjetaVerticalPost
                         key={post.id}

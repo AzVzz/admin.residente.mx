@@ -257,7 +257,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                                 }
 
 
-                                //console.log("Datos que se enviarán:", payload);
+                                // 👇 Agrega este console.log justo antes de enviar los datos
+                                console.log("Datos que se enviarán al backend:", payload);
 
                                 // Enviar datos
                                 const result = await postRestaurante(payload);

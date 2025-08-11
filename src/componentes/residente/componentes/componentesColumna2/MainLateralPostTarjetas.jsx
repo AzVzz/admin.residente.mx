@@ -35,7 +35,7 @@ const MainLateralPostTarjetas = ({
                                 </div>
                                 <div className="w-2/3 pl-4 h-full flex flex-col justify-center">
                                     {!sinFecha && (
-                                        <div className="text-xs text-gray-600 mb-1">
+                                        <div className="font-serif inline-block bg-black text-[#fff300] text-[5px] px-1.5 py-0 max-w-max mb-0.5 font-black">
                                             {(() => {
                                                 const fecha = post?.fecha || 'Sin fecha';
                                                 const [primera, ...resto] = fecha.split(' ');
@@ -50,12 +50,12 @@ const MainLateralPostTarjetas = ({
                                     )}
                                     {!sinCategoria && (
                                         <div className="flex items-center">
-                                            <span className="font-serif inline-block bg-black text-[#fff300] text-[7px] px-0.5 py-0 shadow-md max-w-max mb-0.5">
+                                            <span className="font-serif inline-block bg-black text-[#fff300] text-[7px] px-0.5 py-0 max-w-max mb-0.5">
                                                 {post?.tipo_nota || 'Sin categoría'}
                                             </span>
                                         </div>
                                     )}
-                                    <h4 className="font-bold text-sm leading-3.5">{post.titulo}</h4>
+                                    <h4 className="font-roman text-xs leading-3.5">{post.titulo}</h4>
                                 </div>
                             </div>
                         </li>

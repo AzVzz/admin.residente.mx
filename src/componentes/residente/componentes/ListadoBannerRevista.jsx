@@ -19,15 +19,16 @@ const ListadoBannerRevista = ({
     notasResidenteGet
 }) => (
     <div className="flex flex-col">
-        {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
+        {["Restaurantes", "Food & Drink", "Antojos", "Gastro-Destinos"].map((tipo) => {
             const postsFiltrados = filtrarPostsPorTipoNota(tipo);
             const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
 
             if (postsFiltrados.length === 0) return null;
 
-            const tipoConfig = tiposNotas.find(t => t.nombre === tipo) || { tipoLogo: "", marqueeTexto: "" };
+            const tipoConfig = tiposNotas.find(t => t.nombre === tipo) || { tipoLogo: "", marqueeTexto: "", label: "" };
             const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
             const marqueeTexto = tipoConfig.marqueeTexto || "";
+            const tipoLabel = (tipoConfig.label || tipo || "").toString();
 
             return (
                 <div key={tipo} className="flex flex-col pt-9">
@@ -35,17 +36,26 @@ const ListadoBannerRevista = ({
                         {/* Columna Principal */}
                         <div>
                             <div className="relative flex justify-center items-center mb-4">
-                                <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" aria-hidden="true" />
                                 <div className="relative z-10 px-4 bg-[#fff300]">
-                                    <img
-                                        src={tipoLogo}
-                                        alt={tipo}
-                                        className={
-                                            tipo === "Antojos"
-                                                ? "h-auto w-60 object-contain"
-                                                : "h-auto w-80 object-contain"
-                                        }
-                                    />
+                                    {tipoLogo ? (
+                                        <img
+                                            src={tipoLogo}
+                                            alt={tipoLabel}
+                                            className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-80 object-contain"}
+                                        />
+                                    ) : (
+                                        <span
+                                            className={[
+                                                "block text-black font-extrabold uppercase text-center",
+                                                // tamaños parecidos a tus logos
+                                                tipo === "Antojos" ? "text-2xl md:text-2xl" : "text-4xl md:text-4xl",
+                                                "leading-none tracking-tight"
+                                            ].join(" ")}
+                                        >
+                                            {tipoLabel}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -136,6 +146,11 @@ const ListadoBannerRevista = ({
                                 <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                             <SeccionesPrincipales />
+                        </>
+                    )}
+                    {tipo === "Gastro-Destinos" && (
+                        <>
+                            <VideosHorizontal />
                         </>
                     )}
                 </div>

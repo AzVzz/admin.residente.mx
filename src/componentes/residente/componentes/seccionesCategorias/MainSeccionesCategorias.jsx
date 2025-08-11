@@ -18,6 +18,7 @@ import Cupones from './componentes/Cupones.jsx';
 import SeccionesPrincipales from '../SeccionesPrincipales.jsx';
 import MainLateralPostTarjetas from '../../componentes/componentesColumna2/MainLateralPostTarjetas';
 import TicketPromoMini from './componentes/TicketPromoMini.jsx';
+import CuponesCarrusel from './componentes/CuponesCarrusel.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -356,8 +357,8 @@ const MainSeccionesCategorias = () => {
                 <div className="max-w-[1080px] mx-auto flex flex-col items-left">
                     <h3 className="text-white text-[22px]">Descuentos y promociones de restaurantes entre {categoria} {">"} </h3>
 
-                    <div className="flex flex-wrap justify-center gap-6 w-full py-1">
-                        <Cupones />
+                    <div className="flex flex-wrap justify-center gap-6 w-full py-4">
+                        <CuponesCarrusel />
                     </div>
                 </div>
             </div>

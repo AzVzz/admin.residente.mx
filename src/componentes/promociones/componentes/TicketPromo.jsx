@@ -28,10 +28,10 @@ const sizeConfig = {
             promo: { initial: 102, min: 14 },
             sub: { initial: 62, min: 10 }
         },
-        description: "leading-[10px] text-[10px]",
+        description: "leading-[12px] text-[10px]",
         validity: "text-[8px] py-0.4",
         barcode: "h-8",
-        sticker: "absolute top-8 right-[-20px] w-10 h-10",
+        sticker: "absolute top-4 right-[-10px] w-11 h-11",
         perforatedTop: "w-45",
         perforatedBottom: "w-45",
         className: "cursor-pointer"
@@ -196,7 +196,7 @@ const TicketPromo = forwardRef((props, ref) => {
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight mb-0 whitespace-nowrap overflow-hidden"
+                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
@@ -208,6 +208,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                 style={{
                                     fontSize: `${promoFontSize}px`,
                                     lineHeight: '0.85',
+                                    letterSpacing: '-2px',
                                     margin: 0,
                                     marginBottom: 0,
                                     padding: 0,
@@ -222,6 +223,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                 style={{
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
+                                    letterSpacing: '-2px',
                                     margin: 0,
                                     marginBottom: 0,
                                     marginTop: 0,
@@ -233,7 +235,7 @@ const TicketPromo = forwardRef((props, ref) => {
                             </h3>
                         </div>
                         <p className={`font-black font-roman mt-1 text-gray-800 ${config.description}`}>
-                            {size === 'small' ? limitText(descripcionPromo, 220) : descripcionPromo}
+                            {size === 'small' ? limitText(descripcionPromo, 160) : descripcionPromo}
                         </p>
                     </div>
                 </div>
