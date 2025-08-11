@@ -89,15 +89,7 @@ const VideosHorizontalCarrusel = () => {
                         <button
                             onClick={goPrev}
                             disabled={!canPrev}
-                            className="
-                hidden md:flex
-            items-center justify-center
-            absolute top-1/2 -translate-y-1/2 
-            left-[-4rem]   /* fuera del límite de 1080 */
-            bg-[#fff300]/90 hover:bg-[#fff300]/65
-            text-black rounded-full w-12 h-12 shadow-lg
-            cursor-pointer z-20
-              "
+                            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-[#fff300]/90 hover:bg-[#fff300]/65 text-black rounded-full w-12 h-12 shadow-lg cursor-pointer z-20"
                             aria-label="Anterior"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"

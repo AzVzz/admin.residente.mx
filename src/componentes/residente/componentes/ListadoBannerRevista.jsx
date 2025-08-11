@@ -32,7 +32,7 @@ const ListadoBannerRevista = ({
 
             return (
                 <div key={tipo} className="flex flex-col pt-9">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 mb-9">
+                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 mb-9">
                         {/* Columna Principal */}
                         <div>
                             <div className="relative flex justify-center items-center mb-4">

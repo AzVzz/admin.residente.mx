@@ -53,16 +53,11 @@ const MegaMenu = () => {
                     <div className="flex items-center justify-between px-0 py-3 contenedor-header-2">
                         {/* Logo Principal */}
                         <div className="flex items-center contenedor-header-3">
-                            <a
-                                href="https://residente.mx/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-shrink-0"
-                            >
+                            <Link to="/" className="flex-shrink-0">
                                 <img
                                     src={`${urlApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` || "/placeholder.svg"} alt="Residente Food & Drink Media"
                                     className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12" />
-                            </a>
+                            </Link>
                             <button onClick={toggleMenu} className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3">
                                 <svg
                                     className={`w-6 h-6 text-[#FFF200] transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""

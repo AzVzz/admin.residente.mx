@@ -14,7 +14,7 @@ const DetalleBannerRevista = ({
     notasDestacadas,
     handleCardClick
 }) => (
-    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] py-5 gap-6">
         {/* Columna Principal - Detalle */}
         <div>
             {/* Logo del tipo de nota */}
