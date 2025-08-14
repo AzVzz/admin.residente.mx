@@ -2,54 +2,60 @@ import { Link } from "react-router-dom";
 
 const NotaCard = ({ nota, onEliminar, eliminando }) => (
     <Link to={`/notas/editar/${nota.id}`}>
-        <div className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col group relative cursor-pointer">
-            <div className="p-5 flex flex-col h-full flex-1">
-                <div>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h2 className="text-base font-bold text-gray-900 mb-1 leading-4.5">
-                                {nota.titulo}
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                                {nota.autor} • {nota.fecha}
-                            </p>
-                        </div>
-                        <span
-                            className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                                }`}
-                        >
-                            {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
-                        </span>
-                    </div>
-
-                    {/*<h3 className="text-md text-gray-700 font-medium mb-3">
-                    nota.subtitulo
-                </h3>*/}
-
-                    {/*<p className="text-gray-600 mb-4">
-                    nota.descripcion?.substring(0, 100)}
-            {nota.descripcion?.length > 100 ? "..." : ""
-                </p>*/}
-                </div>
-                {/* Espacio para empujar el aviso programada y los botones hacia abajo */}
-
-            </div>
-
-            {/* Aviso de Programada abajo */}
-            {nota.programar_publicacion && esProgramadaFutura(nota.programar_publicacion) && (
-                <div className="px-5 pb-5">
-                    <span className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1 w-full justify-between mx-auto">
-                        Programada
-                        <span className="text-xs font-sans font-bold">
-                            {nota.programar_publicacion}
-                        </span>
+        <div
+            className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col group relative cursor-pointer"
+            style={{
+                minHeight: '300px',
+                position: 'relative'
+            }}
+        >
+            {/* Imagen de fondo con zoom al hover */}
+            <div
+                className="absolute inset-0 w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
+                style={{
+                    backgroundImage: `url(${nota.imagen})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    zIndex: 0
+                }}
+            />
+            {/* Contenido encima de la imagen */}
+            <div className="flex flex-col justify-between items-end h-full relative z-10">
+                {/* Datos arriba */}
+                <div className="p-4 w-full flex items-center gap-2">
+                    <span
+                        className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                            }`}
+                    >
+                        {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
+                    </span>
+                    <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-800 drop-shadow inline-block w-auto">
+                        {nota.fecha}
                     </span>
                 </div>
-            )}
-
-            {/* Botones abajo, solo en hover */}
+                {/* Título abajo en recuadro blanco borroso */}
+                <div className="w-full">
+                    {/* Aviso de Programada encima del título */}
+                    {nota.programar_publicacion && esProgramadaFutura(nota.programar_publicacion) && (
+                        <div className="flex justify-center mb-2">
+                            <span className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1 w-auto">
+                                Programada&nbsp;
+                                <span className="text-xs font-sans font-bold">
+                                    {nota.programar_publicacion}
+                                </span>
+                            </span>
+                        </div>
+                    )}
+                    <div className="bg-white/60 backdrop-blur-md p-2">
+                        <h2 className="text-base font-bold text-gray-900 mb-1 leading-4.5">
+                            {nota.titulo}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            {/* Botones abajo, solo en hover 
             <div className="flex items-center justify-center gap-2 pb-4 transition-opacity duration-200 opacity-0 group-hover:opacity-100 absolute left-0 right-0 bottom-0 z-10 bg-gradient-to-b from-gray-50/20 via-gray-200/15 to-gray-700/30 backdrop-blur-md">
                 <Link
                     to={`/notas/editar/${nota.id}`}
@@ -112,7 +118,7 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
                         </div>
                     )}
                 </button>
-            </div>
+            </div>*/}
         </div>
     </Link>
 );

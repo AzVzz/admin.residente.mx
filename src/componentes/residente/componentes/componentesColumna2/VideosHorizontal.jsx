@@ -89,33 +89,12 @@ const VideosHorizontalCarrusel = () => {
                         <button
                             onClick={goPrev}
                             disabled={!canPrev}
-                            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-[#fff300]/90 hover:bg-[#fff300]/65 text-black rounded-full w-12 h-12 shadow-lg cursor-pointer z-20"
+                            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-[#fff300]/95 hover:bg-[#fff300]/85 text-black rounded-full w-12 h-12 shadow-lg disabled:opacity-40 cursor-pointer z-20"
                             aria-label="Anterior"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
                                 className="w-7 h-7">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                            </svg>
-                        </button>
-
-                        {/* Izquierda móvil (dentro) */}
-                        <button
-                            onClick={goPrev}
-                            disabled={!canPrev}
-                            className="
-                md:hidden
-                absolute left-1 top-[calc(50%+16px)] -translate-y-1/2
-                bg-[#fff300]/90 hover:bg-[#fff300]/100
-                text-black rounded-full w-10 h-10 shadow-lg
-                z-20 disabled:opacity-40
-              "
-                            aria-label="Anterior móvil"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                                className="w-6 h-6">
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                     d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                             </svg>
@@ -149,40 +128,12 @@ const VideosHorizontalCarrusel = () => {
                         <button
                             onClick={goNext}
                             disabled={!canNext}
-                            className="
-                hidden md:flex
-                items-center justify-center
-                absolute top-[calc(50%+16px)] -translate-y-1/2
-                right-[-4rem]
-                bg-[#fff300]/90 hover:bg-[#fff300]/65
-            text-black rounded-full w-12 h-12 shadow-lg
-                z-20 disabled:opacity-40 cursor-pointer
-              "
+                            className="hidden md:flex items-center justify-center absolute top-[calc(50%+16px)] -translate-y-1/2 right-[-4rem] bg-[#fff300]/95 hover:bg-[#fff300]/85 text-black rounded-full w-12 h-12 shadow-lg z-20 disabled:opacity-40 cursor-pointer"
                             aria-label="Siguiente"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
                                 className="w-7 h-7">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                            </svg>
-                        </button>
-
-                        <button
-                            onClick={goNext}
-                            disabled={!canNext}
-                            className="
-                md:hidden
-                absolute right-1 top-[calc(50%+16px)] -translate-y-1/2
-                bg-[#fff300]/70 hover:bg-[#fff300]/85
-                text-black rounded-full w-10 h-10 shadow-lg
-                z-20 disabled:opacity-40
-              "
-                            aria-label="Siguiente móvil"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                                className="w-6 h-6">
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                     d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
                             </svg>

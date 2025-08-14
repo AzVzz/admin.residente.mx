@@ -69,7 +69,7 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
                             const file = e.target.files[0];
                             field.onChange(file);
                         }}
-                        className="block w-full text-sm text-gray-700"
+                        className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer"
                     />
                 )}
             />

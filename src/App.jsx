@@ -20,6 +20,7 @@ import Login from './componentes/login';
 import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
+import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 
 function App() {
 
@@ -162,6 +163,13 @@ function App() {
           <Route path="/culturallaccess" element={
             <div className="max-w-[1080px] mx-auto py-10">
               <CulturalAcessForm />
+            </div>
+          } />
+
+
+          <Route path="/oped" element={
+            <div className="max-w-[1080px] mx-auto py-10">
+              <OpinionEditorial />
             </div>
           } />
 
