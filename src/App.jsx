@@ -22,6 +22,7 @@ import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
+import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 
 function App() {
 
