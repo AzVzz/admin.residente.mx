@@ -21,6 +21,7 @@ import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
+import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 
 function App() {
 
@@ -116,6 +117,13 @@ function App() {
               <ListaNotas />
             </div>
           } />
+
+          <Route path="/preguntassemanales" element={
+            <div className="max-w-[1080px] mx-auto">
+              <PreguntasSemanales/>
+            </div>
+          } />
+
           <Route path="/seccion/:seccion/categoria/:categoria/*" element={
             <div className="max-w-[1080px] mx-auto">
               <MainSeccionesCategorias />

@@ -1,12 +1,3 @@
-import CorreoElectronico from "./componentes/CorreoElectronico"
-import Facebook from "./componentes/Facebook"
-import FechaNacimiento from "./componentes/FechaNacimiento"
-import Instagram from "./componentes/Instagram"
-import LugarNacimiento from "./componentes/LugarNacimiento"
-import Nombre from "./componentes/Nombre"
-import OtrasRedesSociales from "./componentes/OtrasRedesSociales"
-import TextoOpinion from "./componentes/TextoOpinion"
-
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
@@ -32,15 +23,6 @@ const OpinionEditorial = () => {
         />
         <TextField id="outlined-basic" label="Opinión editorial" variant="outlined" />
       </Box>
-
-      <Nombre />
-      <CorreoElectronico />
-      <FechaNacimiento />
-      <LugarNacimiento />
-      <TextoOpinion />
-      <Instagram />
-      <Facebook />
-      <OtrasRedesSociales />
     </div>
   )
 }

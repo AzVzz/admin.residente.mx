@@ -8,6 +8,7 @@ import { FaUser } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
+import { RiQuestionnaireFill } from "react-icons/ri";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth(); // ← SOLO AQUÍ
@@ -134,8 +135,18 @@ const ListaNotas = () => {
         </div>
         <div className="flex gap-5">
           <Link
+            to="/preguntassemanales"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 rounded-xl"
+          >
+            <RiQuestionnaireFill className="mr-3"/>
+            Preguntas de las semanas
+          </Link>
+
+
+
+          <Link
             to="/notas/nueva"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
           >
             <svg
               className="-ml-1 mr-2 h-5 w-5"
@@ -153,7 +164,7 @@ const ListaNotas = () => {
           </Link>
           <Link
             to="/revistas/nueva"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
           >
             <svg
               className="-ml-1 mr-2 h-5 w-5"
@@ -177,12 +188,12 @@ const ListaNotas = () => {
                   saveUsuario(null);
                   navigate("/");
                 }}
-                className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer"
+                className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer rounded-xl"
                 title="Cerrar sesión"
               >
                 Cerrar sesión
               </button>
-              <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black">
+              <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black rounded-xl">
                 <FaUser className="text-sm -mt-0.5 mr-2" />
                 <span className="flex items-center">{usuario?.nombre_usuario}</span>
               </span>
