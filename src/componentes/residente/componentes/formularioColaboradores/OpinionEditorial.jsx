@@ -23,6 +23,7 @@ const OpinionEditorial = () => {
         />
         <TextField id="outlined-basic" label="Opinión editorial" variant="outlined" />
       </Box>
+
     </div>
   )
 }

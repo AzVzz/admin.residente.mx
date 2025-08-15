@@ -21,7 +21,7 @@ import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
-import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
+import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 
 function App() {
 
@@ -188,7 +188,10 @@ function App() {
               <Login />
             </div>
           } />
-          <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} /> </Routes>
+          <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} />
+
+          <Route path="/colaboradores" element={<RespuestasSemana />} />
+        </Routes>
       </main>
       <footer>
         <FooterPrincipal />
