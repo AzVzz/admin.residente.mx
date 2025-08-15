@@ -23,10 +23,7 @@ import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
-<<<<<<< HEAD
-=======
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
->>>>>>> 1b3b5caf7d007ee58a15347cf75c7d208e7288a6
 
 function App() {
 
