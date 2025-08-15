@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
+// Elimina MenuItem, ya no se usa
+import Autocomplete from '@mui/material/Autocomplete';
 import { getPreguntaActual, getConsejerosNombres, postRespuestaSemana } from "../../../api/temaSemanaApi";
 
 const RespuestasSemana = () => {
@@ -61,20 +62,23 @@ const RespuestasSemana = () => {
                 </p>
 
                 <h2 className="text-xl font-bold mb-4 text-center">{pregunta}</h2>
-                <TextField
-                    select
-                    label="Colaborador"
-                    value={idConsejero}
-                    onChange={e => setIdConsejero(e.target.value)}
-                    required
-                    fullWidth
-                    margin="normal"
-                >
-                    <MenuItem value="">Selecciona un colaborador</MenuItem>
-                    {consejeros.map(c => (
-                        <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>
-                    ))}
-                </TextField>
+                <Autocomplete
+                    options={consejeros}
+                    getOptionLabel={(option) => option.nombre || ""}
+                    value={consejeros.find(c => c.id === idConsejero) || null}
+                    onChange={(_, newValue) => setIdConsejero(newValue ? newValue.id : "")}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Colaborador"
+                            required
+                            margin="normal"
+                            fullWidth
+                        />
+                    )}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
+
                 <TextField
                     label="Curriculum / Respuesta"
                     value={curriculum}
@@ -84,16 +88,14 @@ const RespuestasSemana = () => {
                     rows={6}
                     fullWidth
                     margin="normal"
-
                 />
                 <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
                     {loading ? "Enviando..." : "Enviar respuesta"}
                 </Button>
                 {mensaje && <Box mt={2} textAlign="center">{mensaje}</Box>}
             </Box>
-        </div>
+        </div >
     );
 };
 
-            export default RespuestasSemana;
-
+export default RespuestasSemana;
