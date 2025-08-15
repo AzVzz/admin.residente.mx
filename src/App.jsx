@@ -23,6 +23,7 @@ import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
+import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 
 function App() {
 
@@ -192,6 +193,11 @@ function App() {
           <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} />
 
           <Route path="/colaboradores" element={<RespuestasSemana />} />
+          
+          
+          <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
+              <VideoResidente />
+            </div>} />
         </Routes>
       </main>
       <footer>

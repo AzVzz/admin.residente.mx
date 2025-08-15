@@ -214,8 +214,8 @@ const OpinionEditorial = () => {
            </Box>
          )}
 
-         {/* Campos obligatorios */}
-         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* Campos obligatorios */}
+         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
            <StyledTextField 
              id="nombre"
              name="nombre"
@@ -240,7 +240,7 @@ const OpinionEditorial = () => {
            />
          </Box>
 
-         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
            <StyledTextField 
              id="anio_nacimiento"
              name="anio_nacimiento"
@@ -266,19 +266,21 @@ const OpinionEditorial = () => {
            />
          </Box>
          
-         <StyledTextField
-           id="curriculum"
-           name="curriculum"
-           label="Curriculum"
-           multiline
-           rows={6}
-           value={formData.curriculum}
-           onChange={handleInputChange}
-           fullWidth
-           margin="normal"
-         />
+         <Box sx={{ mb: 4 }}>
+           <StyledTextField
+             id="curriculum"
+             name="curriculum"
+             label="Curriculum"
+             multiline
+             rows={6}
+             value={formData.curriculum}
+             onChange={handleInputChange}
+             fullWidth
+             margin="normal"
+           />
+         </Box>
 
-         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
            <StyledTextField 
              id="instagram"
              name="instagram"
@@ -314,7 +316,7 @@ const OpinionEditorial = () => {
          </Box>
 
          {/* Botón para subir archivos */}
-         <Box sx={{ textAlign: 'center' }}>
+         <Box sx={{ textAlign: 'center', mb: 4 }}>
            <Button
              component="label"
              variant="outlined"
@@ -323,7 +325,7 @@ const OpinionEditorial = () => {
              sx={{
                borderColor: '#1976d2',
                color: '#1976d2',
-               backgroundColor: 'black', 
+               backgroundColor: 'white', 
                '&:hover': {
                  borderColor: '#1565c0',
                  backgroundColor: '#f5f5f5'
@@ -344,7 +346,7 @@ const OpinionEditorial = () => {
          </Box>
 
          {/* Botón de envío */}
-         <Box sx={{ textAlign: 'center' }}>
+         <Box sx={{ textAlign: 'center', mb: 2 }}>
            <Button
              type="submit"
              variant="contained"
@@ -365,7 +367,7 @@ const OpinionEditorial = () => {
                }
              }}
            >
-                          {isSubmitting ? 'Enviando...' : 'ENVIAR SOLICITUD'}
+             {isSubmitting ? 'Enviando...' : 'ENVIAR SOLICITUD'}
            </Button>
          </Box>
        </Box>
