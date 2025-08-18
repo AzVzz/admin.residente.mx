@@ -1,25 +1,12 @@
-import { useEffect, useState } from "react";
-import { cuponesGet } from "../../../../api/cuponesGet";
+import { useState, useEffect } from "react";
 import TicketPromo from "../../../../promociones/componentes/TicketPromo";
 import { Iconografia } from "../../../../utils/Iconografia.jsx";
-import { cuponesGetFiltrados } from "../../../../api/cuponesGet";
 
-const CUPORES_POR_VISTA = 4;
+const CUPONES_POR_VISTA = 4;
 
-const CuponesCarrusel = ({ seccion, categoria }) => {
-  const [cupones, setCupones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const CuponesCarrusel = ({ cupones }) => {
   const [startIdx, setStartIdx] = useState(0);
   const [selectedCupon, setSelectedCupon] = useState(null);
-
-  useEffect(() => {
-    setLoading(true);
-    cuponesGetFiltrados(seccion, categoria)
-      .then((data) => setCupones(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [seccion, categoria]);
 
   // 🔒 Scroll lock cuando el modal está abierto
   useEffect(() => {
@@ -62,19 +49,14 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
 
   const goPrev = () => { if (startIdx > 0) setStartIdx((idx) => Math.max(idx - 1, 0)); };
   const goNext = () => {
-    if (startIdx + CUPORES_POR_VISTA < cupones.length) {
-      setStartIdx((idx) => Math.min(idx + 1, cupones.length - CUPORES_POR_VISTA));
+    if (startIdx + CUPONES_POR_VISTA < cupones.length) {
+      setStartIdx((idx) => Math.min(idx + 1, cupones.length - CUPONES_POR_VISTA));
     }
   };
 
   return (
-    // Wrapper exterior permite que las flechas salgan por fuera
-    <div className="w-full relative" style={{overflow: "visible"}}>
-      {loading && <div className="text-gray-500">Cargando cupones...</div>}
-      {error && <div className="text-red-500">Error: {error}</div>}
-
-      {/* Contenedor limitado a 1080 centrado */}
-      <div className="relative mx-auto max-w-[1080px] w-full" style={{overflow: "visible"}}>
+    <div className="w-full relative" style={{ overflow: "visible" }}>
+      <div className="relative mx-auto max-w-[1080px] w-full" style={{ overflow: "visible" }}>
         {/* Flecha izquierda - por fuera del max-w con posiciones negativas en md+ */}
         <button
           onClick={goPrev}
@@ -83,17 +65,17 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
             hidden md:flex
             items-center justify-center
             absolute top-1/2 -translate-y-1/2 
-            left-[-4rem]   /* fuera del límite de 1080 */
+            left-[-4rem]
             bg-[#fff300]/90 hover:bg-[#fff300]/100
             text-black rounded-full w-12 h-12 shadow-lg
             cursor-pointer z-20"
           aria-label="Anterior"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-7 h-7">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-7 h-7">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
           </svg>
         </button>
 
@@ -110,10 +92,10 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
           aria-label="Anterior móvil"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-6 h-6">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
           </svg>
         </button>
 
@@ -146,12 +128,12 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
         {/* Flecha derecha - por fuera del límite de 1080 */}
         <button
           onClick={goNext}
-          disabled={startIdx + CUPORES_POR_VISTA >= cupones.length}
+          disabled={startIdx + CUPONES_POR_VISTA >= cupones.length}
           className="
             hidden md:flex
             items-center justify-center
             absolute top-1/2 -translate-y-1/2 
-            right-[-4rem]  /* fuera del límite de 1080 */
+            right-[-4rem]
             bg-[#fff300]/70 hover:bg-[#fff300]/85
             text-black rounded-full w-12 h-12 shadow-lg
             cursor-pointer z-20
@@ -160,17 +142,17 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
           aria-label="Siguiente"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-7 h-7">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-7 h-7">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+              d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
           </svg>
         </button>
 
         {/* Flecha derecha móvil (dentro) */}
         <button
           onClick={goNext}
-          disabled={startIdx + CUPORES_POR_VISTA >= cupones.length}
+          disabled={startIdx + CUPONES_POR_VISTA >= cupones.length}
           className="
             md:hidden
             absolute right-1 top-1/2 -translate-y-1/2
@@ -182,10 +164,10 @@ const CuponesCarrusel = ({ seccion, categoria }) => {
           aria-label="Siguiente móvil"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-6 h-6">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+              d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
           </svg>
         </button>
       </div>
