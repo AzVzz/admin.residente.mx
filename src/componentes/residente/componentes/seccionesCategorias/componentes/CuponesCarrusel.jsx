@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { cuponesGet } from "../../../../api/cuponesGet";
 import TicketPromo from "../../../../promociones/componentes/TicketPromo";
 import { Iconografia } from "../../../../utils/Iconografia.jsx";
+import { cuponesGetFiltrados } from "../../../../api/cuponesGet";
+
 const CUPORES_POR_VISTA = 4;
 
-const CuponesCarrusel = () => {
+const CuponesCarrusel = ({ seccion, categoria }) => {
   const [cupones, setCupones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,11 +14,12 @@ const CuponesCarrusel = () => {
   const [selectedCupon, setSelectedCupon] = useState(null);
 
   useEffect(() => {
-    cuponesGet()
+    setLoading(true);
+    cuponesGetFiltrados(seccion, categoria)
       .then((data) => setCupones(data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [seccion, categoria]);
 
   // 🔒 Scroll lock cuando el modal está abierto
   useEffect(() => {

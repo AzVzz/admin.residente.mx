@@ -317,7 +317,7 @@ const MainSeccionesCategorias = () => {
                         onCardClick={handleNotaClick}
                         cantidadNotas={5}
                         sinFecha
-                        pasarObjeto={true} 
+                        pasarObjeto={true}
                     />
                 </div>
             </div>
@@ -358,7 +358,7 @@ const MainSeccionesCategorias = () => {
                     <h3 className="text-white text-[22px]">Descuentos y promociones de restaurantes entre {categoria} {">"} </h3>
 
                     <div className="flex flex-wrap justify-center gap-6 w-full py-4">
-                        <CuponesCarrusel />
+                        <CuponesCarrusel seccion={seccion} categoria={categoria} />
                     </div>
                 </div>
             </div>
