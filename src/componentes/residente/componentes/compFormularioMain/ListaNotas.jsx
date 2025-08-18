@@ -69,7 +69,7 @@ const ListaNotas = () => {
     }
   };
 
-  // Filtrar notas por estado (más flexible)
+  // Filtrar notas por estado (más flexible) 
   const notasFiltradas = estado
     ? notas.filter(nota =>
       (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim()
