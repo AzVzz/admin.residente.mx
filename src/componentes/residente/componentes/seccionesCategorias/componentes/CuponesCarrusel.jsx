@@ -11,7 +11,7 @@ const CuponesCarrusel = ({ cupones }) => {
   // 🔒 Scroll lock cuando el modal está abierto
   useEffect(() => {
     if (selectedCupon) {
-      const scrollY = window.scrollY;
+      const scrollY = window.scrollY; 
       const { body } = document;
 
       body.style.position = "fixed";
