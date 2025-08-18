@@ -317,7 +317,7 @@ const MainSeccionesCategorias = () => {
                         onCardClick={handleNotaClick}
                         cantidadNotas={5}
                         sinFecha
-                        pasarObjeto={true}
+                        pasarObjeto={true} 
                     />
                 </div>
             </div>
