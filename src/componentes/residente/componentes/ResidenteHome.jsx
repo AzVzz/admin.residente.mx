@@ -161,15 +161,7 @@ const ResidenteHome = () => {
                                 <div className="relative flex justify-center items-center mb-4">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#fff300]">
-                                        <img
-                                            src={tipoLogo}
-                                            alt={tipo}
-                                            className={
-                                                tipo === "Antojos"
-                                                    ? "h-auto w-60 object-contain"
-                                                    : "h-auto w-80 object-contain"
-                                            }
-                                        />
+
                                     </div>
                                 </div>
 

@@ -47,12 +47,29 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="bg-[#fff300] w-full">
-      <div className="max-w-[1080px] mx-auto w-full">
+    <header className="bg-[#CCCCCC] w-full">
 
-        <div className="flex pb-0 pt-5">
+      <div className="max-w-[1080px] mx-auto w-full">
+        {revistaActual && revistaActual.pdf ? (
+          <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+            <img
+              src={revistaActual.imagen_banner}
+              alt="Banner Revista"
+              className="w-full mb-4 cursor-pointer pt-5"
+              title="Descargar Revista"
+            />
+          </a>
+        ) : (
+          <img
+            src={revistaActual?.imagen_banner}
+            alt="Banner Revista"
+            className="w-full mb-4"
+          />
+        )}
+
+        <div className="flex pb-0 pt-3"> {/** Antes pt-5 */}
           <div className="sm:flex pr-3 hidden">
-            <Link to="/residente" className="h-24 w-24 self-end object-contain">
+            <Link to="/residente" className="h-20 w-20 self-end object-contain">
               <img src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/r-circulo-logo-negro.webp`} alt="Logo Residente Circulo" />
             </Link>
           </div>
@@ -61,18 +78,6 @@ const Header = () => {
               <div className="flex sm:flex-col gap-2">
                 <div className="flex flex-1 w-full justify-end items-start">
                   <div className="flex flex-col pr-2">
-                    <div className="flex gap-1">
-                      {iconosZonales.map((icon, idx) => (
-                        <img key={idx} src={icon.src} alt={icon.alt} className="h-9 w-9 shadow-md rounded-full" />
-                      ))}
-                    </div>
-                    <div className="flex flex-col text-right pt-2">
-                      <div className="text-xs font-semibold font-sans">
-                        {revistaActual ? revistaActual.titulo : ""}<br />
-                        {revistaActual ? revistaActual.descripcion : ""}
-                      </div>
-                      <div className="text-xs text-gray-900 font-sans">{fechaActual}</div>
-                    </div>
                   </div>
 
                 </div>
@@ -81,30 +86,11 @@ const Header = () => {
                 </Link>
               </div>
 
-              <div className="">
-                {/*descarga el PDF*/}
-                {revistaActual && revistaActual.pdf ? (
-                  <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                    <img
-                      src={revistaActual.imagen_portada}
-                      alt="Portada Revista"
-                      className="h-auto sm:w-32 w-22 object-cover cursor-pointer"
-                      title="Descargar PDF"
-                    />
-                  </a>
-                ) : (
-                  <img
-                    src={revistaActual}
-                    alt="Portada Revista"
-                    className="h-auto sm:w-32 w-22 object-cover"
-                  />
-                )}
-              </div>
             </div>
 
             {/* Menú negro */}
             <div className="flex flex-col flex-1">
-              <div className="sm:flex justify-between items-center sm:px-5 px-2 sm:py-2 py-1 bg-black hidden">
+              <div className="sm:flex justify-between items-center sm:px-5 px-2 sm:py-2 py-1 bg-[#fff200] hidden">
                 <div className="flex gap-1 sm:gap-6 items-center sm:text-sm text-[8px] font-semibold">
                   {menuHeader.map((section, idx) =>
                     section.url ? (
@@ -122,7 +108,7 @@ const Header = () => {
                         key={idx}
                         className="relative group"
                       >
-                        <a href="#" className="hover:underline text-white">{section.seccion}</a>
+                        <a href="#" className="hover:underline text-black">{section.seccion}</a>
                         {/* Submenú desplegable */}
                         {section.submenu && (
                           <div className="absolute left-0 top-full mt-2 bg-white shadow-lg rounded z-50 min-w-[220px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">

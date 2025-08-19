@@ -22,6 +22,7 @@ import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
+import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx'
 
 function App() {
 
@@ -44,10 +45,10 @@ function App() {
       location.pathname.startsWith('/seccion/')
     ) {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#FFF200'; // Fondo Gris 15% #D9D9D9
+      document.body.style.backgroundColor = '#CCCCCC'; // Fondo Gris 15% #D9D9D9
     } else {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#FFF200'; // Amarillo
+      document.body.style.backgroundColor = '#CCCCCC'; // Amarillo
     }
 
     return () => {
@@ -120,7 +121,7 @@ function App() {
 
           <Route path="/preguntassemanales" element={
             <div className="max-w-[1080px] mx-auto">
-              <PreguntasSemanales/>
+              <PreguntasSemanales />
             </div>
           } />
 
