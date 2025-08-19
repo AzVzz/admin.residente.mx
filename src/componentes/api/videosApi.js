@@ -3,93 +3,124 @@ import { urlApi } from './url';
 // Crear un nuevo video
 export const crearVideo = async (formData, token) => {
   try {
-    const response = await fetch(`${urlApi}api/videos`, {
+    const apiUrl = `${urlApi}api/video`;
+    console.log('=== DEBUG API ===');
+    console.log('URL completa:', apiUrl);
+    console.log('Token presente:', !!token);
+    console.log('FormData contenido:', Object.fromEntries(formData.entries()));
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        // No incluir Content-Type para FormData
+        // NO incluir Content-Type para FormData
       },
       body: formData
     });
 
+    console.log('Respuesta del servidor:', response.status, response.statusText);
+    console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      let errorText = '';
+      try {
+        errorText = await response.text();
+        console.error('Error del servidor (texto):', errorText);
+      } catch (parseError) {
+        console.error('No se pudo leer el error del servidor:', parseError);
+      }
+      
+      console.error('Error del servidor (status):', response.status);
+      console.error('Error del servidor (statusText):', response.statusText);
+      
+      // Intentar parsear como JSON si es posible
+      let errorData = null;
+      try {
+        if (errorText) {
+          errorData = JSON.parse(errorText);
+          console.error('Error del servidor (JSON):', errorData);
+        }
+      } catch (jsonError) {
+        console.error('Error no es JSON válido');
+      }
+      
+      throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Video creado exitosamente:', data);
     return data;
   } catch (error) {
-    console.error('Error al crear video:', error);
+    console.error('Error completo al crear video:', error);
+    console.error('Tipo de error:', error.constructor.name);
+    console.error('Mensaje de error:', error.message);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
 
 // Obtener todos los videos
-export const obtenerVideos = async (token) => {
+export const obtenerVideos = async (token = null) => {
   try {
-    const response = await fetch(`${urlApi}api/videos`, {
+    console.log('Obteniendo videos desde:', `${urlApi}api/video`);
+    
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    headers['Content-Type'] = 'application/json';
+
+    const response = await fetch(`${urlApi}api/video`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers
     });
 
+    console.log('Respuesta GET videos:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error al obtener videos:', errorText);
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data;
+    console.log('Videos obtenidos:', data);
+    
+    // Tu backend devuelve un array directo
+    if (Array.isArray(data)) {
+      return data;
+    } else {
+      console.warn('Formato de respuesta inesperado:', data);
+      return [];
+    }
   } catch (error) {
-    console.error('Error al obtener videos:', error);
-    throw error;
+    console.error('Error completo al obtener videos:', error);
+    // Retornar array vacío en caso de error para evitar crash
+    return [];
   }
 };
 
 // Obtener video por ID
-export const obtenerVideoPorId = async (id, token) => {
+export const obtenerVideoPorId = async (id, token = null) => {
   try {
-    const response = await fetch(`${urlApi}api/videos/${id}`, {
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    headers['Content-Type'] = 'application/json';
+
+    const response = await fetch(`${urlApi}api/video/${id}`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers
     });
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error('Error al obtener video:', error);
-    throw error;
-  }
-};
-
-// Actualizar video
-export const actualizarVideo = async (id, formData, token) => {
-  try {
-    const response = await fetch(`${urlApi}api/videos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        // No incluir Content-Type para FormData
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error al actualizar video:', error);
+    console.error('Error al obtener video por ID:', error);
     throw error;
   }
 };
@@ -97,7 +128,7 @@ export const actualizarVideo = async (id, formData, token) => {
 // Eliminar video
 export const eliminarVideo = async (id, token) => {
   try {
-    const response = await fetch(`${urlApi}api/videos/${id}`, {
+    const response = await fetch(`${urlApi}api/video/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -109,8 +140,7 @@ export const eliminarVideo = async (id, token) => {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error('Error al eliminar video:', error);
     throw error;

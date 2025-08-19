@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaArrowLeft } from "react-icons/fa";
 import { crearVideo } from "../../../api/videosApi";
+import { urlApi } from "../../../api/url";
 
 const Videos = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -64,14 +65,23 @@ const Videos = () => {
         return;
       }
 
-      // Crear FormData para enviar archivos
+      // Crear FormData para enviar archivos - todos los campos del modelo
       const formDataToSend = new FormData();
       formDataToSend.append('imagen', formData.imagen);
       formDataToSend.append('url', formData.url);
       formDataToSend.append('fecha', formData.fecha);
-      formDataToSend.append('usuario_id', usuario.id);
+
+      console.log('=== DEBUG FORMULARIO ===');
+      console.log('Token:', token ? 'Presente' : 'Ausente');
+      console.log('Usuario:', usuario);
+      console.log('URL API:', `${urlApi}api/video`);
+      console.log('FormData a enviar:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      }
 
       // Llamar a la API real para crear el video
+      console.log('Iniciando llamada a API...');
       const resultado = await crearVideo(formDataToSend, token);
       
       console.log("Video creado exitosamente:", resultado);
@@ -91,7 +101,8 @@ const Videos = () => {
       navigate("/notas");
       
     } catch (err) {
-      console.error("Error al crear video:", err);
+      console.error("Error completo al crear video:", err);
+      console.error("Stack trace:", err.stack);
       setError(err.message || "Error al agregar el video. Inténtalo de nuevo.");
     } finally {
       setCargando(false);

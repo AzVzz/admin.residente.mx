@@ -10,25 +10,19 @@ const GAP_PX = 32;
 const VideoCard = ({ video, onClick }) => (
     <div
         className="group relative overflow-hidden rounded-xl cursor-pointer bg-neutral-900"
-        onClick={onClick}
+        onClick={() => {
+            if (video?.url) {
+                window.open(video.url, '_blank');
+            }
+        }}
     >
-        {/* Mantén razón 9:16 para que se vea "alargado" */}
         <div className="aspect-[9/16] w-full overflow-hidden">
             <img
-                src={video.imagen_url || `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`}
-                alt={video.titulo || "video"}
+                src={video.imagen || `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`}
+                alt={video.url || "video"}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
             />
-            {/* Overlay con información del video */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                <h4 className="text-white text-sm font-medium truncate">
-                    {video.titulo || "Video sin título"}
-                </h4>
-                <p className="text-white/80 text-xs">
-                    {new Date(video.fecha).toLocaleDateString('es-ES')}
-                </p>
-            </div>
         </div>
     </div>
 );
@@ -46,21 +40,32 @@ const VideosHorizontalCarrusel = () => {
     // Obtener videos desde la API
     useEffect(() => {
         const fetchVideos = async () => {
-            if (!token) return;
-            
             try {
                 setCargando(true);
-                const data = await obtenerVideos(token);
-                setVideos(data.videos || data || []);
                 setError(null);
+                
+                const videosData = await obtenerVideos(token);
+                console.log('Videos cargados:', videosData);
+                
+                if (Array.isArray(videosData) && videosData.length > 0) {
+                    setVideos(videosData);
+                } else {
+                    console.log('No hay videos o formato inesperado, usando fallback');
+                    // Fallback a imágenes estáticas si no hay videos
+                    setVideos([
+                        { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                        { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                        { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    ]);
+                }
             } catch (err) {
                 console.error('Error al obtener videos:', err);
                 setError('Error al cargar los videos');
                 // Fallback a imágenes estáticas si hay error
                 setVideos([
-                    { id: 1, imagen_url: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, titulo: "Video de prueba" },
-                    { id: 2, imagen_url: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, titulo: "Video de prueba" },
-                    { id: 3, imagen_url: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, titulo: "Video de prueba" },
+                    { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
                 ]);
             } finally {
                 setCargando(false);
