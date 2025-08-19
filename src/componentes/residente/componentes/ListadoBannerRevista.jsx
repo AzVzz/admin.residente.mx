@@ -98,7 +98,7 @@ const ListadoBannerRevista = ({
                                 <DirectorioVertical />
                                 <MainLateralPostTarjetas
                                     notasDestacadas={destacadasFiltradas}
-                                    onCardClick={(post) => handleCardClick(post.id)}
+                                    onCardClick={handleCardClick} 
                                     sinCategoria
                                     cantidadNotas={5}
                                 />
