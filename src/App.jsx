@@ -22,15 +22,11 @@ import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
-<<<<<<< HEAD
 import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
 
-=======
-import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx'
->>>>>>> eeae1f6 (cambios nuevos diseno)
 
 function App() {
 
@@ -128,7 +124,7 @@ function App() {
           } />
 
           <Route path="/preguntassemanales" element={
-            <div className="max-w-[1080px] mx-auto"> 
+            <div className="max-w-[1080px] mx-auto">
               <PreguntasSemanales />
             </div>
           } />
