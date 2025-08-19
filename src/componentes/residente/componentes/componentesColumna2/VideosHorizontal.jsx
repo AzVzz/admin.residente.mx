@@ -47,10 +47,13 @@ const VideosHorizontalCarrusel = () => {
                 const videosData = await obtenerVideos(token);
                 console.log('Videos cargados:', videosData);
                 
-                if (Array.isArray(videosData) && videosData.length > 0) {
-                    setVideos(videosData);
+                // Filtrar solo videos activos para el carrusel público
+                const videosActivos = videosData.filter(video => video.activo);
+
+                if (Array.isArray(videosActivos) && videosActivos.length > 0) {
+                    setVideos(videosActivos);
                 } else {
-                    console.log('No hay videos o formato inesperado, usando fallback');
+                    console.log('No hay videos activos, usando fallback');
                     // Fallback a imágenes estáticas si no hay videos
                     setVideos([
                         { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
@@ -110,8 +113,6 @@ const VideosHorizontalCarrusel = () => {
     const goNext = () => canNext && setStartIdx((i) => i + 1);
 
     const handleVideoClick = (video) => {
-        // Aquí puedes implementar la lógica para abrir el video
-        // Por ejemplo, abrir en un modal o navegar a una página de detalle
         console.log('Video clickeado:', video);
         if (video.url) {
             window.open(video.url, '_blank');

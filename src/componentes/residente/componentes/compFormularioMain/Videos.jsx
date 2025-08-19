@@ -14,7 +14,8 @@ const Videos = () => {
   const [formData, setFormData] = useState({
     imagen: null,
     url: "",
-    fecha: ""
+    fecha: "",
+    activo: true // Por defecto, los videos se crean como activos
   });
   
   const [cargando, setCargando] = useState(false);
@@ -28,10 +29,10 @@ const Videos = () => {
   }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -70,6 +71,7 @@ const Videos = () => {
       formDataToSend.append('imagen', formData.imagen);
       formDataToSend.append('url', formData.url);
       formDataToSend.append('fecha', formData.fecha);
+      formDataToSend.append('activo', formData.activo); // Agregar el campo activo
 
       console.log('=== DEBUG FORMULARIO ===');
       console.log('Token:', token ? 'Presente' : 'Ausente');
@@ -93,7 +95,8 @@ const Videos = () => {
       setFormData({
         imagen: null,
         url: "",
-        fecha: ""
+        fecha: "",
+        activo: true // Mantener el valor por defecto
       });
       setImagenPreview(null);
       
@@ -252,6 +255,20 @@ const Videos = () => {
               className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+          </div>
+
+          {/* Campo para marcar el video como activo */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="activo"
+              checked={formData.activo}
+              onChange={handleInputChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label className="ml-2 block text-base font-medium text-gray-700">
+              Marcar video como activo (visible en la página principal)
+            </label>
           </div>
 
           <button
