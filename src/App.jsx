@@ -24,6 +24,7 @@ import OpinionEditorial from './componentes/residente/componentes/formularioCola
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
+import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
 
 function App() {
 
@@ -197,6 +198,10 @@ function App() {
           
           <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
               <VideoResidente />
+            </div>} />
+
+            <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
+              <Videos />
             </div>} />
         </Routes>
       </main>

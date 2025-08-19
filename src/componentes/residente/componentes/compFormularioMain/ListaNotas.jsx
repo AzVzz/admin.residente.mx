@@ -11,6 +11,7 @@ import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
 import FiltroEstadoNota from './FiltroEstadoNota';
 
+
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -207,6 +208,24 @@ const ListaNotas = () => {
       {/* Segundo div: lista de notas */}
       <div className="flex justify-end mb-2">
         <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+        <Link
+          to="/videosFormulario"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl ml-2"
+        >
+          <svg
+            className="-ml-1 mr-2 h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Nuevo Video
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
