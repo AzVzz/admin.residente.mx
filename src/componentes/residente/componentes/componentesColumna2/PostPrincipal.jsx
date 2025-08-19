@@ -18,14 +18,12 @@ const PostPrincipal = ({ post, onClick }) => {
 
     return (
         <div
-            className="flex flex-col cursor-pointer max-h-[725px] overflow-hidden mb-4"
+            className="flex flex-col cursor-pointer max-h-[725px] overflow-hidden mb-4 pb-4 pt"
             onClick={onClick}
         >
             <div className="h-[400px] overflow-hidden">
                 <div className="relative h-full">
-                    <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF300] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
-                        {post.fecha}
-                    </div>
+
                     <img
                         src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                         className="w-full h-full object-cover"
@@ -48,18 +46,19 @@ const PostPrincipal = ({ post, onClick }) => {
                 </div>
             </div>
             <div
-                className="bg-black p-8 flex flex-col min-h-[120px] max-h-[325px] relative justify-start"
+                className="bg-transparent flex flex-col min-h-[120px] max-h-[325px] relative justify-start"
                 style={{
                     height: 'auto',
                 }}
             >
-                <div className="mb-1 flex items-center justify-between">
-                    <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
-                        {post.tipo_nota}
-                    </span>
+                <div className="flex justify-center items-center pt-4">
+                    <div className="z-10 bg-gradient-to-r bg-[#FFF300] text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                        {post.fecha}
+                    </div>
                 </div>
                 <h1
-                    className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center"
+                    className="text-black text-[47px] leading-[1.0] font-black flex-1 overflow-hidden text-center 
+             p-2 my-0 tracking-tight"
                     style={{
                         whiteSpace: 'pre-line',
                         wordBreak: 'break-word',
@@ -68,6 +67,7 @@ const PostPrincipal = ({ post, onClick }) => {
                     {post.titulo}
                 </h1>
             </div>
+            <hr className="border-gray-800/80 border-dotted mt-5"/>
         </div>
     )
 }

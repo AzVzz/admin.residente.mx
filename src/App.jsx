@@ -49,10 +49,10 @@ function App() {
       location.pathname.startsWith('/seccion/')
     ) {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#FFF200'; // Fondo Gris 15% #D9D9D9
+      document.body.style.backgroundColor = '#CCCCCC'; // Fondo Gris 15% #D9D9D9
     } else {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#FFF200'; // Amarillo
+      document.body.style.backgroundColor = '#CCCCCC'; // Amarillo
     }
 
     return () => {

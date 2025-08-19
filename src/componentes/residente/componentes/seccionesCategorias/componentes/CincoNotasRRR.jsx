@@ -7,7 +7,7 @@ const GAP_PX = 20; // Tailwind gap-5 ≈ 20px
 
 const TarjetaVerticalPost = ({ nota, onClick }) => (
   <div
-    className="group relative bg-[#FFF200] transition-all duration-300 overflow-hidden cursor-pointer"
+    className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer"
     onClick={() => onClick && onClick(nota)}
   >
     <div className="flex flex-col">

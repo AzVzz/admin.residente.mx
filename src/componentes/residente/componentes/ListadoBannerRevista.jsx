@@ -9,6 +9,7 @@ import EnPortada from './componentesColumna2/EnPortada';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import { urlApi } from '../../../componentes/api/url.js';
+import PortadaRevista from './componentesColumna2/PortadaRevista.jsx';
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -32,17 +33,17 @@ const ListadoBannerRevista = ({
 
             return (
                 <div key={tipo} className="flex flex-col pt-9">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 mb-9">
+                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-7 mb-9">
                         {/* Columna Principal */}
                         <div>
                             <div className="relative flex justify-center items-center mb-4">
-                                <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" aria-hidden="true" />
-                                <div className="relative z-10 px-4 bg-[#fff300]">
+                                <div className="absolute left-0 right-0 top-1/2 border-t-5 border-black opacity-100 z-0" aria-hidden="true" />
+                                <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                     {tipoLogo ? (
                                         <img
                                             src={tipoLogo}
                                             alt={tipoLabel}
-                                            className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-80 object-contain"}
+                                            className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-70 object-contain"}
                                         />
                                     ) : (
                                         <span
@@ -59,7 +60,7 @@ const ListadoBannerRevista = ({
                                 </div>
                             </div>
 
-                            <div className="w-177 mb-3">
+                            <div className="w-177 mb-5">
                                 <BarraMarquee categoria={marqueeTexto} />
                             </div>
 
@@ -69,7 +70,7 @@ const ListadoBannerRevista = ({
                                     onClick={() => handleCardClick(postsFiltrados[0].id)}
                                 />
                             )}
-                            {revistaActual && revistaActual.pdf ? (
+                            {/*revistaActual && revistaActual.pdf ? (
                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                     <img
                                         src={revistaActual.imagen_banner}
@@ -84,7 +85,7 @@ const ListadoBannerRevista = ({
                                     alt="Banner Revista"
                                     className="w-full mb-4"
                                 />
-                            )}
+                            )*/}
 
                             <TresTarjetas
                                 posts={postsFiltrados.slice(1, 7)}
@@ -96,6 +97,7 @@ const ListadoBannerRevista = ({
                         <div>
                             <div className="flex flex-col items-end justify-start gap-10">
                                 <DirectorioVertical />
+                                <PortadaRevista />
                                 <MainLateralPostTarjetas
                                     notasDestacadas={destacadasFiltradas}
                                     onCardClick={handleCardClick} 
@@ -110,7 +112,7 @@ const ListadoBannerRevista = ({
                         <>
                             <div className="relative flex justify-center items-center mb-4">
                                 <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                <div className="relative z-10 px-4 bg-[#fff300]">
+                                <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                     <div className="flex flex-row justify-center items-center gap-2">
                                         <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
                                         <h3 className="text-4xl">Favoritos Residente</h3>
@@ -136,7 +138,7 @@ const ListadoBannerRevista = ({
                         <>
                             <div className="relative flex justify-center items-center mb-4">
                                 <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                <div className="relative z-10 px-4 bg-[#fff300]">
+                                <div className="relative z-10 px-4 bg-transparent">
                                     <div className="flex flex-row justify-center items-center gap-3">
                                         <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
                                     </div>

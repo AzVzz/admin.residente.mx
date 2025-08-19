@@ -48,29 +48,34 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div ref={menuRef} className="bg-black text-white flex flex-col p-5 gap-4 relative">
-            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} className="w-37 h-auto" />
-            <p className="text-sm leading-4.5">Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos.</p>
-            <ol className="flex flex-col gap-2.5">
+        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative w-[348px]">
+            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-37 h-auto" />
+            <p className="text-[25px] leading-4.5 text-black">Tu concierge restaurantero</p>
+            <ol className="flex flex-row mt-1 gap-1">
                 {data.map((seccion, i) => (
-                    <li key={seccion.seccion} className="relative">
+                    <li key={seccion.seccion} className="flex justify-left items-center">
                         <button
                             ref={el => buttonRefs.current[i] = el}
-                            className="w-full flex items-center justify-between text-left font-bold rounded hover:bg-gray-700 transition"
+                            className="w-full flex flex-col items-center justify-between font-bold rounded-full hover:bg-transparent transition cursor-pointer"
                             onClick={() => setOpenIndex(openIndex === i ? null : i)}
                         >
                             <img
                                 src={iconos[i]}
                                 alt={seccion.seccion}
-                                className="w-8 h-8 mr-2 flex-shrink-0"
+                                className="w-18 h-18 flex-shrink-0"
                             />
-                            <span className="flex-1 text-sm">Búsqueda por {seccion.seccion.toLowerCase()}</span>
-                            <span className="ml-2">
+                            <span className="flex-1 text-sm text-black">
+                                {{
+                                    "nivel de gasto": "gasto",
+                                    "tipo de comida": "sabor"
+                                }[seccion.seccion.toLowerCase()] ?? seccion.seccion.toLowerCase()}
+                            </span>
+                            <span className="">
                                 <svg
-                                    className={`w-4 h-4 transition-transform duration-200 ${openIndex === i ? 'rotate-90' : 'rotate-0'}`}
+                                    className={`w-5 h-5 transition-transform duration-200 ${openIndex === i ? 'rotate-0' : 'rotate-90 text-black'}`}
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth={2}
+                                    strokeWidth={4}   // ⬅️ antes era 2, ahora más grueso
                                     viewBox="0 0 24 24"
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -79,13 +84,13 @@ const DirectorioVertical = () => {
                         </button>
                         {openIndex === i && (
                             <ul
-                                className="absolute left-0 top-full z-10 mt-1 bg-gray-900 border border-gray-700 rounded shadow-lg min-w-[180px] flex flex-col gap-1"
+                                className="absolute left-0 top-full z-10 bg-gray-900/75 border border-gray-700 rounded shadow-lg min-w-[180px] flex flex-col gap-1 w-full backdrop-blur-xs"
                                 style={{ minWidth: buttonRefs.current[i]?.offsetWidth || 180 }}
                             >
                                 {seccion.categorias.map((categoria) => (
                                     <li
                                         key={categoria.nombre}
-                                        className="pl-4 py-2 hover:bg-gray-700 text-sm cursor-pointer"
+                                        className="pl-4 py-2 hover:bg-gray-800/70 text-sm cursor-pointer"
                                         onClick={() => navigate(
                                             `/seccion/${seccion.seccion.replace(/\s+/g, '').toLowerCase()}/categoria/${categoria.nombre.replace(/\s+/g, '').toLowerCase()}`,
                                             { state: { seccion: seccion.seccion, categoria: categoria.nombre } }
