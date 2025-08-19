@@ -9,9 +9,10 @@ import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
+import FiltroEstadoNota from './FiltroEstadoNota';
 
 const ListaNotas = () => {
-  const { token, usuario, saveToken, saveUsuario } = useAuth(); // ← SOLO AQUÍ
+  const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [notas, setNotas] = useState([]);
@@ -20,18 +21,16 @@ const ListaNotas = () => {
   const [eliminando, setEliminando] = useState(null);
   const [pagina, setPagina] = useState(1);
   const [totalNotas, setTotalNotas] = useState(0);
+  const [estado, setEstado] = useState(''); // Estado del filtro
   const pageSize = 0;
 
-  // Si expiro el token(error 403) o lo borra(401) se borra el token y el ususario
   useEffect(() => {
-    // Si hay error 403/401, borra token y usuario y redirige a login
     if (error && (error.status === 403 || error.status === 401)) {
       saveToken(null);
       saveUsuario(null);
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
       return;
     }
-    // Si no hay token o usuario, redirige a login
     if (!token || !usuario) {
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
     }
@@ -42,7 +41,7 @@ const ListaNotas = () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token); // Ya no mandes pagina ni pageSize
+      const data = await notasTodasGet(token);
       setNotas(data.notas);
     } catch (err) {
       setError(err);
@@ -70,7 +69,16 @@ const ListaNotas = () => {
     }
   };
 
-  // Mostrar estado de carga
+  // Filtrar notas por estado (más flexible) 
+  const notasFiltradas = estado
+    ? notas.filter(nota =>
+      (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim()
+    )
+    : notas;
+
+  // Para depuración: muestra los estados en consola
+  // console.log(notas.map(n => n.estado));
+
   if (cargando) {
     return (
       <div className="flex justify-center py-12">
@@ -79,12 +87,10 @@ const ListaNotas = () => {
     );
   }
 
-  // Mostrar errores
   if (error) {
     return <ErrorNotas error={error} onRetry={fetchNotas} />;
   }
 
-  // Mostrar mensaje si no hay notas
   if (!notas || notas.length === 0) {
     return (
       <div className="space-y-6 py-5">
@@ -97,7 +103,6 @@ const ListaNotas = () => {
               to="/notas/nueva"
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {/* ...icono... */}
               Nueva Nota
             </Link>
             {usuario && (
@@ -126,24 +131,21 @@ const ListaNotas = () => {
     );
   }
 
-  // Mostrar la lista de notas
   return (
     <div className="space-y-6 py-5">
+      {/* Primer div: título */}
       <div className="flex flex-row gap-0 justify-between">
         <div className="bg-black flex items-center">
           <h1 className="text-2xl font-bold text-white px-5">Lista de Notas</h1>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-5 items-center">
           <Link
             to="/preguntassemanales"
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 rounded-xl"
           >
-            <RiQuestionnaireFill className="mr-3"/>
+            <RiQuestionnaireFill className="mr-3" />
             Preguntas de las semanas
           </Link>
-
-
-
           <Link
             to="/notas/nueva"
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
@@ -202,8 +204,13 @@ const ListaNotas = () => {
         </div>
       </div>
 
+      {/* Segundo div: lista de notas */}
+      <div className="flex justify-end mb-2">
+        <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {notas.map((nota) => (
+        {notasFiltradas.map((nota) => (
           <NotaCard
             key={nota.id}
             nota={nota}

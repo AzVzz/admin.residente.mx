@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
 import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
+import { cuponesGetFiltrados } from '../../../api/cuponesGet'; // Ajusta la ruta si es necesario
+
 
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
@@ -42,8 +44,19 @@ const MainSeccionesCategorias = () => {
     const notasRef = useRef(null);
     const notaRefs = useRef({});
     const [notasTop, setNotasTop] = useState([]);
+    const [cupones, setCupones] = useState([]);
+    const [loadingCupones, setLoadingCupones] = useState(true);
 
     const [revistaActual, setRevistaActual] = useState(null);
+
+
+    useEffect(() => {
+        setLoadingCupones(true);
+        cuponesGetFiltrados(seccion, categoria)
+            .then(data => setCupones(Array.isArray(data) ? data : []))
+            .catch(() => setCupones([]))
+            .finally(() => setLoadingCupones(false));
+    }, [seccion, categoria]);
 
     useEffect(() => {
         revistaGetUltima()
@@ -352,16 +365,18 @@ const MainSeccionesCategorias = () => {
                 </div>
             </div>
 
-            {/* Barra horizontal extendida */}
-            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5">
-                <div className="max-w-[1080px] mx-auto flex flex-col items-left">
-                    <h3 className="text-white text-[22px]">Descuentos y promociones de restaurantes entre {categoria} {">"} </h3>
-
-                    <div className="flex flex-wrap justify-center gap-6 w-full py-4">
-                        <CuponesCarrusel />
+            {!loadingCupones && cupones.length > 0 && (
+                <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5">
+                    <div className="max-w-[1080px] mx-auto flex flex-col items-left">
+                        <h3 className="text-white text-[22px]">
+                            Descuentos y promociones de restaurantes entre {categoria} {">"}
+                        </h3>
+                        <div className="flex flex-wrap justify-center gap-6 w-full py-4">
+                            <CuponesCarrusel cupones={cupones} />
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
