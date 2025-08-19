@@ -25,6 +25,8 @@ import RespuestasSemana from './componentes/residente/componentes/formularioCola
 import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
+import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
+
 
 function App() {
 
@@ -123,7 +125,7 @@ function App() {
 
           <Route path="/preguntassemanales" element={
             <div className="max-w-[1080px] mx-auto">
-              <PreguntasSemanales/>
+              <PreguntasSemanales />
             </div>
           } />
 
@@ -194,15 +196,21 @@ function App() {
           <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} />
 
           <Route path="/colaboradores" element={<RespuestasSemana />} />
-          
-          
-          <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
-              <VideoResidente />
-            </div>} />
 
-            <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
-              <Videos />
-            </div>} />
+
+          <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
+            <VideoResidente />
+          </div>} />
+
+          <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
+            <Videos />
+          </div>} />
+
+          <Route path="/formnewsletter" element={
+            <div className="max-w-[1080px] mx-auto py-10">
+              <FormNewsletter />
+            </div>
+          } />
         </Routes>
       </main>
       <footer>

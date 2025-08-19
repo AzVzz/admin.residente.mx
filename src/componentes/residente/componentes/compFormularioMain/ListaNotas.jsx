@@ -149,7 +149,7 @@ const ListaNotas = () => {
           </Link>
           <Link
             to="/notas/nueva"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
           >
             <svg
               className="-ml-1 mr-2 h-5 w-5"
@@ -206,8 +206,7 @@ const ListaNotas = () => {
       </div>
 
       {/* Segundo div: lista de notas */}
-      <div className="flex justify-end mb-2">
-        <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+      <div className="flex justify-end mb-2 gap-2 items-center">
         <Link
           to="/videosFormulario"
           className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl ml-2"
@@ -226,6 +225,25 @@ const ListaNotas = () => {
           </svg>
           Nuevo Video
         </Link>
+        <Link
+          to="/formnewsletter"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl ml-2"
+        >
+          <svg
+            className="-ml-1 mr-2 h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Nuevo Newsletter
+        </Link>
+        <FiltroEstadoNota estado={estado} setEstado={setEstado} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
