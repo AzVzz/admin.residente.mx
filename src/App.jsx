@@ -124,7 +124,7 @@ function App() {
           } />
 
           <Route path="/preguntassemanales" element={
-            <div className="max-w-[1080px] mx-auto">
+            <div className="max-w-[1080px] mx-auto"> 
               <PreguntasSemanales />
             </div>
           } />
