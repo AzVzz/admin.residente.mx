@@ -3,7 +3,7 @@ import { urlApi } from "../../../api/url.js";
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
         <div
-            className="group relative bg-[#FFF200] transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
+            className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
             onClick={onClick}
         >
             {/* Contenedor principal vertical */}
@@ -34,9 +34,12 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
               {post.categoria}
             </span>
           </div>*/}
-
+                    <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
+                        {post.fecha}
+                    </div>
+                    
                     {/* Título */}
-                    <h3 className="text-lg text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 font-roman">
+                    <h3 className="text-[20px] text-gray-900 leading-[1.1] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center">
                         {post.titulo}
                     </h3>
 

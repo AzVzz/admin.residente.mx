@@ -22,7 +22,7 @@ const NotaLoMasVistoSeccion = ({ tipoDeNota, titulo, imagen }) => (
 const PostLoMasVistoDirectorio = ({ tipoDeNota, titulo, imagen }) => {
     return (
         <section className="mb-5 h-[100px] flex flex-col">
-            <div>
+            <div className="flex justify-end items-end">
                 <h3 className="pb-5 text-[40px] leading-4">Lo más visto</h3>
             </div>
             <div className="flex-grow">
