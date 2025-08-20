@@ -1,20 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { urlApi } from "../../../api/url";
+import { obtenerVideos } from "../../../api/videosApi";
+import { useAuth } from "../../../Context";
 
-const VIDEOS_POR_VISTA_DESKTOP = 6; // Igual que tu referencia
-const GAP_PX = 32; // Tailwind gap-8 ≈ 32px (tu grid original tenía gap-8)
+const VIDEOS_POR_VISTA_DESKTOP = 6;
+const GAP_PX = 32;
 
 // Tarjeta de video (vertical, alargada)
-const VideoCard = ({ src, onClick }) => (
+const VideoCard = ({ video, onClick }) => (
     <div
         className="group relative overflow-hidden rounded-xl cursor-pointer bg-neutral-900"
-        onClick={onClick}
+        onClick={() => {
+            if (video?.url) {
+                window.open(video.url, '_blank');
+            }
+        }}
     >
-        {/* Mantén razón 9:16 para que se vea “alargado” */}
         <div className="aspect-[9/16] w-full overflow-hidden">
             <img
-                src={src}
-                alt="video"
+                src={video.imagen || `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`}
+                alt={video.url || "video"}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
             />
@@ -26,22 +31,49 @@ const VideosHorizontalCarrusel = () => {
     const [startIdx, setStartIdx] = useState(0);
     const [perView, setPerView] = useState(VIDEOS_POR_VISTA_DESKTOP);
     const [itemWidth, setItemWidth] = useState(0);
+    const [videos, setVideos] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
     const viewportRef = useRef(null);
+    const { token } = useAuth();
 
-    // Demo: imágenes estáticas (puedes reemplazar con props o fetch)
-    const IMÁGENES = [
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-        `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`,
-    ];
+    // Obtener videos desde la API
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                setCargando(true);
+                setError(null);
+                
+                const videosData = await obtenerVideos(token);
+                console.log('Videos cargados:', videosData);
+                
+                if (Array.isArray(videosData) && videosData.length > 0) {
+                    setVideos(videosData);
+                } else {
+                    console.log('No hay videos o formato inesperado, usando fallback');
+                    // Fallback a imágenes estáticas si no hay videos
+                    setVideos([
+                        { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                        { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                        { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    ]);
+                }
+            } catch (err) {
+                console.error('Error al obtener videos:', err);
+                setError('Error al cargar los videos');
+                // Fallback a imágenes estáticas si hay error
+                setVideos([
+                    { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                    { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
+                ]);
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        fetchVideos();
+    }, [token]);
 
     // Responsivo similar al otro carrusel
     useEffect(() => {
@@ -67,15 +99,52 @@ const VideosHorizontalCarrusel = () => {
         const w = (containerWidth - totalGaps) / perView;
         setItemWidth(w);
         // Evita overflow al cambiar perView o cantidad
-        setStartIdx((i) => Math.min(i, Math.max(0, IMÁGENES.length - perView)));
-    }, [perView, IMÁGENES.length]);
+        setStartIdx((i) => Math.min(i, Math.max(0, videos.length - perView)));
+    }, [perView, videos.length]);
 
-    const maxStart = Math.max(0, IMÁGENES.length - perView);
+    const maxStart = Math.max(0, videos.length - perView);
     const canPrev = startIdx > 0;
     const canNext = startIdx < maxStart;
 
     const goPrev = () => canPrev && setStartIdx((i) => i - 1);
     const goNext = () => canNext && setStartIdx((i) => i + 1);
+
+    const handleVideoClick = (video) => {
+        // Aquí puedes implementar la lógica para abrir el video
+        // Por ejemplo, abrir en un modal o navegar a una página de detalle
+        console.log('Video clickeado:', video);
+        if (video.url) {
+            window.open(video.url, '_blank');
+        }
+    };
+
+    // Mostrar loading mientras se cargan los videos
+    if (cargando) {
+        return (
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
+                <div className="relative mx-auto max-w-[1080px] w-full my-5">
+                    <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
+                    <div className="flex justify-center items-center h-32">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-400"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Mostrar mensaje si no hay videos
+    if (videos.length === 0) {
+        return (
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
+                <div className="relative mx-auto max-w-[1080px] w-full my-5">
+                    <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
+                    <div className="text-center text-white/60 py-8">
+                        <p>No hay videos disponibles</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
@@ -83,7 +152,7 @@ const VideosHorizontalCarrusel = () => {
                 <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
 
                 {/* Flechas fuera del max-w en md+ (como cupones) */}
-                {IMÁGENES.length > perView && (
+                {videos.length > perView && (
                     <>
                         {/* Izquierda desktop */}
                         <button
@@ -114,16 +183,19 @@ const VideosHorizontalCarrusel = () => {
                             willChange: "transform",
                         }}
                     >
-                        {IMÁGENES.map((src, idx) => (
-                            <div key={idx} className="flex-shrink-0" style={{ width: `${itemWidth}px` }}>
-                                <VideoCard src={src} onClick={() => {/* abre modal / navega */ }} />
+                        {videos.map((video, idx) => (
+                            <div key={video.id || idx} className="flex-shrink-0" style={{ width: `${itemWidth}px` }}>
+                                <VideoCard 
+                                    video={video} 
+                                    onClick={() => handleVideoClick(video)} 
+                                />
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Derecha desktop y móvil */}
-                {IMÁGENES.length > perView && (
+                {videos.length > perView && (
                     <>
                         <button
                             onClick={goNext}

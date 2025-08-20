@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { urlApi } from '../../../../componentes/api/url.js';
+import { bannerNewsletterGetReciente } from '../../../../componentes/api/bannerNewsletterGet.js';
+
 
 const BotonesAnunciateSuscribirme = () => {
     const [correo, setCorreo] = useState('');
     const [mensaje, setMensaje] = useState('');
+    const [banner, setBanner] = useState(null);
+
+    useEffect(() => {
+        bannerNewsletterGetReciente()
+            .then(setBanner)
+            .catch(() => setBanner(null));
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,10 +41,18 @@ const BotonesAnunciateSuscribirme = () => {
             <hr className="border-t border-gray-800/80 my-5 border-dotted" />
             <div className="flex flex-col gap-3 m-10">
                 <div className="flex justify-between gap-3">
-                    <img src={`${urlApi}/fotos/fotos-estaticas/componente-news-letter/Newsletter.webp`} className="h-60 object-contain " />
+                    <div className="w-[129px] h-[240px] overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                        <img
+                            src={banner?.imagen || `${urlApi}/fotos/fotos-estaticas/componente-news-letter/Newsletter.webp`}
+                            className="w-full h-full object-cover"
+                            alt="Banner newsletter"
+                        />
+                    </div>
                     <div className="flex flex-col justify-between items-end">
-                        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-news-letter.webp`} className="" />
-                        <p className="leading-4.5 text-[16px]">Todos los jueves sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León.</p>
+                        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-news-letter.webp`} alt="Logo" />
+                        <p className="leading-4.5 text-[16px]">
+                            {banner?.texto || "Todos los jueves sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León."}
+                        </p>
                     </div>
                 </div>
                 <form className="flex flex-row items-center justify-end mt-2" onSubmit={handleSubmit}>

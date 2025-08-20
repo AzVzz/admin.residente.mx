@@ -10,10 +10,10 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
             <div className="flex flex-col">
                 {/* Contenedor de imagen */}
                 <div className="relative overflow-hidden">
-                    {/* Etiqueta de fecha */}
+                    {/* Etiqueta de fecha 
                     <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
                         {post.fecha}
-                    </div>
+                    </div>*/}
 
                     {/* Imagen con overlay sutil */}
                     <div className="relative">
@@ -27,19 +27,21 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
                 </div>
 
                 {/* Contenido de texto */}
-                <div className="flex flex-col py-2">
+                <div className="flex flex-col py-2 justify-center items-center">
                     {/* Categoría 
           <div className="mb-2">
             <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-1.5 py-0.5 shadow-md">
               {post.categoria}
             </span>
           </div>*/}
-                    <div className="absolute top-3 left-3 z-10 bg-gradient-to-r bg-[#FFF200] text-gray-900 text-[10px] font-semibold px-1.5 py-0.5 shadow-md font-serif uppercase">
-                        {post.fecha}
-                    </div>
+
                     
                     {/* Título */}
-                    <h3 className="text-[20px] text-gray-900 leading-[1.1] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center">
+                    
+                    <div className="flex w-fit justify-center items-center bg-gradient-to-r py-1.5 pb-2 text-gray-900 text-[10px] font-semibold font-roman uppercase">
+                        {post.fecha}
+                    </div>
+                    <h3 className="text-[18px] text-gray-900 leading-[1.1] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center">
                         {post.titulo}
                     </h3>
 
@@ -55,7 +57,7 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 const TresTarjetas = ({ posts, onCardClick }) => {
     return (
         <div>
-            <div className="grid grid-cols-3 gap-x-5 gap-y-1">
+            <div className="grid grid-cols-3 gap-x-8 gap-y-5">
                 {posts.map((post) => (
                     <TarjetaVerticalPost
                         key={post.id}
