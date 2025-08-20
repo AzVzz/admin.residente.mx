@@ -75,13 +75,27 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className={`transition-all duration-300 relative z-50 ${showMegaMenu ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <Header />
-      </div>
+      {location.pathname !== "/culturallaccess" && (
+        <div
+          className={`transition-all duration-300 relative z-50 ${showMegaMenu
+            ? "-translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100"
+            }`}
+        >
+          <Header />
+        </div>
+      )}
       {/* MegaMenu con transición de entrada */}
-      <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
-        <MegaMenu />
-      </div>
+      {location.pathname !== "/culturallaccess" && (
+        <div
+          className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0 pointer-events-none"
+            }`}
+        >
+          <MegaMenu />
+        </div>
+      )}
       <main className="flex-grow overflow-x-hidden px-0 w-full relative z-10">
         <Routes>
           <Route path="/residente" element={
@@ -124,7 +138,7 @@ function App() {
           } />
 
           <Route path="/preguntassemanales" element={
-            <div className="max-w-[1080px] mx-auto"> 
+            <div className="max-w-[1080px] mx-auto">
               <PreguntasSemanales />
             </div>
           } />
@@ -173,6 +187,7 @@ function App() {
               <PromoMain />
             </div>
           } />
+
           <Route path="/culturallaccess" element={
             <div className="max-w-[1080px] mx-auto py-10">
               <CulturalAcessForm />
@@ -213,10 +228,12 @@ function App() {
           } />
         </Routes>
       </main>
-      <footer>
-        <FooterPrincipal />
-        {/* FooterPrincipal.jsx */}
-      </footer>
+      {location.pathname !== "/culturallaccess" && (
+        <footer>
+          <FooterPrincipal />
+          {/* FooterPrincipal.jsx */}
+        </footer>
+      )}
     </div>
   )
 }
