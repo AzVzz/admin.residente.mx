@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaPlus, FaEye, FaEyeSlash, FaTrash, FaEdit } from "react-icons/fa";
-import { obtenerVideos, eliminarVideo, toggleVideoEstado } from "../../../api/videosApi";
-import { urlApi } from "../../../api/url";
+import { obtenerVideos, eliminarVideo, toggleVideoEstado, toggleVideoEstadoInteligente } from "../../../api/videosApi";
 
 const VideosDashboard = () => {
   const { token } = useAuth();
@@ -11,7 +10,17 @@ const VideosDashboard = () => {
   const [videos, setVideos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [mensajeExito, setMensajeExito] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(null);
+  const [videoCambiando, setVideoCambiando] = useState(null);
+
+  // Limpiar mensajes automáticamente
+  const limpiarMensajes = () => {
+    setTimeout(() => {
+      setError(null);
+      setMensajeExito(null);
+    }, 5000);
+  };
 
   // Cargar videos
   useEffect(() => {
@@ -34,16 +43,175 @@ const VideosDashboard = () => {
   // Cambiar estado activo/inactivo
   const toggleEstado = async (id) => {
     try {
-      await toggleVideoEstado(id, token);
+      setVideoCambiando(id);
       
-      // Actualizar estado local
-      setVideos(prev => prev.map(video => 
-        video.id === id 
-          ? { ...video, activo: !video.activo }
-          : video
-      ));
+      // Obtener el estado actual del video
+      const videoActual = videos.find(v => v.id === id);
+      if (!videoActual) {
+        throw new Error('Video no encontrado');
+      }
+      
+      const estadoActual = videoActual.activo;
+      const nuevoEstado = !estadoActual;
+      
+      // Usar la función inteligente que determina la ruta correcta
+      const resultado = await toggleVideoEstadoInteligente(id, token, estadoActual);
+      
+      if (resultado.success) {
+        // Actualizar el estado local inmediatamente
+        setVideos(prevVideos => 
+          prevVideos.map(video => {
+            if (video.id === id) {
+              return {
+                ...video,
+                activo: nuevoEstado,
+                estado: nuevoEstado
+              };
+            }
+            return video;
+          })
+        );
+        
+        // Hacer scroll hacia la sección correspondiente
+        setTimeout(() => {
+          if (!nuevoEstado) {
+            // Si se desactivó, scroll hacia videos inactivos
+            const videosInactivosSection = document.getElementById('videos-inactivos');
+            if (videosInactivosSection) {
+              videosInactivosSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+              });
+            }
+          } else {
+            // Si se activó, scroll hacia videos activos
+            const videosActivosSection = document.getElementById('videos-activos');
+            if (videosActivosSection) {
+              videosActivosSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+              });
+            }
+          }
+        }, 100);
+        
+        setMensajeExito(`Video ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`);
+        limpiarMensajes();
+      } else {
+        throw new Error(resultado.message || 'Error al cambiar estado');
+      }
     } catch (err) {
-      console.error('Error al cambiar estado:', err);
+      console.error('Error en toggle estado:', err);
+      setError(`Error al cambiar estado: ${err.message}`);
+      limpiarMensajes();
+    } finally {
+      setVideoCambiando(null);
+    }
+  };
+
+  // Activar todos los videos
+  const activarTodos = async () => {
+    try {
+      setCargando(true);
+      
+      // Activar todos los videos uno por uno
+      const videosInactivos = videos.filter(v => !v.activo);
+      
+      if (videosInactivos.length === 0) {
+        setError('No hay videos inactivos para activar');
+        return;
+      }
+
+      // Actualizar el estado local inmediatamente
+      setVideos(prevVideos => 
+        prevVideos.map(video => ({
+          ...video,
+          activo: true,
+          estado: true
+        }))
+      );
+
+      // Llamar a la API para cada video (en segundo plano) usando la función inteligente
+      for (const video of videosInactivos) {
+        try {
+          await toggleVideoEstadoInteligente(video.id, token, false); // false = está inactivo, activarlo
+        } catch (err) {
+          console.error(`Error activando video ${video.id}:`, err);
+        }
+      }
+
+      // Hacer scroll hacia la sección de videos activos
+      setTimeout(() => {
+        const videosActivosSection = document.getElementById('videos-activos');
+        if (videosActivosSection) {
+          videosActivosSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
+
+      setMensajeExito('Todos los videos han sido activados exitosamente');
+      limpiarMensajes();
+    } catch (err) {
+      console.error('Error al activar todos:', err);
+      setError(`Error al activar videos: ${err.message}`);
+      limpiarMensajes();
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // Desactivar todos los videos
+  const desactivarTodos = async () => {
+    try {
+      setCargando(true);
+      
+      // Desactivar todos los videos uno por uno
+      const videosActivos = videos.filter(v => v.activo);
+      
+      if (videosActivos.length === 0) {
+        setError('No hay videos activos para desactivar');
+        return;
+      }
+
+      // Actualizar el estado local inmediatamente
+      setVideos(prevVideos => 
+        prevVideos.map(video => ({
+          ...video,
+          activo: false,
+          estado: false
+        }))
+      );
+
+      // Llamar a la API para cada video (en segundo plano) usando la función inteligente
+      for (const video of videosActivos) {
+        try {
+          await toggleVideoEstadoInteligente(video.id, token, true); // true = está activo, desactivarlo
+        } catch (err) {
+          console.error(`Error desactivando video ${video.id}:`, err);
+        }
+      }
+
+      // Hacer scroll hacia la sección de videos inactivos
+      setTimeout(() => {
+        const videosInactivosSection = document.getElementById('videos-inactivos');
+        if (videosInactivosSection) {
+          videosInactivosSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
+
+      setMensajeExito('Todos los videos han sido desactivados exitosamente');
+      limpiarMensajes();
+    } catch (err) {
+      console.error('Error al desactivar todos:', err);
+      setError(`Error al desactivar videos: ${err.message}`);
+      limpiarMensajes();
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -53,8 +221,12 @@ const VideosDashboard = () => {
       await eliminarVideo(id, token);
       setVideos(prev => prev.filter(video => video.id !== id));
       setConfirmarEliminar(null);
+      setMensajeExito('Video eliminado exitosamente');
+      limpiarMensajes();
     } catch (err) {
       console.error('Error al eliminar:', err);
+      setError(`Error al eliminar video: ${err.message}`);
+      limpiarMensajes();
     }
   };
 
@@ -100,48 +272,21 @@ const VideosDashboard = () => {
             >
               🔄 Recargar
             </button>
+
             <button
-              onClick={async () => {
-                if (videos.length > 0) {
-                  const videosInactivos = videos.filter(v => !v.activo);
-                  
-                  for (const video of videosInactivos) {
-                    try {
-                      await toggleVideoEstado(video.id, token);
-                    } catch (err) {
-                      console.error(`Error activando video ${video.id}:`, err);
-                    }
-                  }
-                  
-                  // Recargar videos después de activarlos
-                  setTimeout(cargarVideos, 1000);
-                }
-              }}
+              onClick={activarTodos}
               className="inline-flex items-center px-4 py-2 text-green-600 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 transition-colors"
             >
               ✅ Activar Todos
             </button>
+
             <button
-              onClick={async () => {
-                if (videos.length > 0) {
-                  const videosActivos = videos.filter(v => v.activo);
-                  
-                  for (const video of videosActivos) {
-                    try {
-                      await toggleVideoEstado(video.id, token);
-                    } catch (err) {
-                      console.error(`Error desactivando video ${video.id}:`, err);
-                    }
-                  }
-                  
-                  // Recargar videos después de desactivarlos
-                  setTimeout(cargarVideos, 1000);
-                }
-              }}
+              onClick={desactivarTodos}
               className="inline-flex items-center px-4 py-2 text-red-600 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition-colors"
             >
               ❌ Desactivar Todos
             </button>
+
             <button
               onClick={() => navigate("/videosFormulario")}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -198,131 +343,267 @@ const VideosDashboard = () => {
         </div>
 
         {/* Lista de Videos */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Lista de Videos</h3>
+        {videos.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay videos</h3>
+            <p className="mt-1 text-sm text-gray-500">Comienza creando tu primer video.</p>
+            <div className="mt-6">
+              <button
+                onClick={() => navigate("/videosFormulario")}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                <FaPlus className="w-4 h-4 mr-2" />
+                Crear Video
+              </button>
+            </div>
           </div>
-          
-          {error && (
-            <div className="px-6 py-4 bg-red-50 border-b border-red-200">
-              <p className="text-red-800">{error}</p>
-            </div>
-          )}
-
-          {videos.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No hay videos</h3>
-              <p className="mt-1 text-sm text-gray-500">Comienza creando tu primer video.</p>
-              <div className="mt-6">
-                <button
-                  onClick={() => navigate("/videosFormulario")}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  <FaPlus className="w-4 h-4 mr-2" />
-                  Crear Video
-                </button>
+        ) : (
+          <div className="space-y-6">
+            {/* Mensajes de Error y Éxito */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800">{error}</p>
               </div>
+            )}
+
+            {mensajeExito && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <p className="text-green-800">{mensajeExito}</p>
+              </div>
+            )}
+
+            {/* Videos Activos */}
+            <div id="videos-activos" className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <FaEye className="w-5 h-5 text-green-600 mr-2" />
+                  Videos Activos ({videos.filter(v => v.activo).length})
+                </h3>
+              </div>
+              
+              {videos.filter(v => v.activo).length === 0 ? (
+                <div className="px-6 py-8 text-center">
+                  <FaEyeSlash className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No hay videos activos</h3>
+                  <p className="mt-1 text-sm text-gray-500">Todos los videos están inactivos.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Imagen
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          URL
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Fecha
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Estado
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {videos.filter(v => v.activo).map((video) => (
+                        <tr key={video.id} className="hover:bg-gray-50 transition-all duration-300 ease-in-out">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex-shrink-0 h-16 w-16">
+                              <img
+                                className="h-16 w-16 rounded-lg object-cover"
+                                src={video.imagen}
+                                alt="Miniatura del video"
+                                onError={(e) => {
+                                  e.target.src = '/fotos/fotos-estaticas/fotodeprueba.png';
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="max-w-xs truncate">
+                              <a
+                                href={video.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 text-sm"
+                              >
+                                {video.url}
+                              </a>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatearFecha(video.fecha)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                              Activo
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button
+                              onClick={() => toggleEstado(video.id)}
+                              disabled={videoCambiando === video.id}
+                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${
+                                videoCambiando === video.id
+                                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                  : 'text-red-700 bg-red-100 hover:bg-red-200'
+                              }`}
+                              title="Desactivar"
+                            >
+                              {videoCambiando === video.id ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <FaEyeSlash className="w-4 h-4" />
+                              )}
+                            </button>
+                            
+                            <button
+                              onClick={() => navigate(`/videosFormulario/${video.id}`)}
+                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200"
+                              title="Editar"
+                            >
+                              <FaEdit className="w-4 h-4" />
+                            </button>
+                            
+                            <button
+                              onClick={() => setConfirmarEliminar(video)}
+                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200"
+                              title="Eliminar"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Imagen
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      URL
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {videos.map((video) => (
-                    <tr key={video.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex-shrink-0 h-16 w-16">
-                          <img
-                            className="h-16 w-16 rounded-lg object-cover"
-                            src={video.imagen}
-                            alt="Miniatura del video"
-                            onError={(e) => {
-                              e.target.src = '/fotos/fotos-estaticas/fotodeprueba.png';
-                            }}
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="max-w-xs truncate">
-                          <a
-                            href={video.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            {video.url}
-                          </a>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatearFecha(video.fecha)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          video.activo 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {video.activo ? 'Activo' : 'Inactivo'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => toggleEstado(video.id)}
-                          className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${
-                            video.activo
-                              ? 'text-red-700 bg-red-100 hover:bg-red-200'
-                              : 'text-green-700 bg-green-100 hover:bg-green-200'
-                          }`}
-                          title={video.activo ? 'Desactivar' : 'Activar'}
-                        >
-                          {video.activo ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
-                        </button>
-                        
-                        <button
-                          onClick={() => navigate(`/videosFormulario/${video.id}`)}
-                          className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200"
-                          title="Editar"
-                        >
-                          <FaEdit className="w-4 h-4" />
-                        </button>
-                        
-                        <button
-                          onClick={() => setConfirmarEliminar(video)}
-                          className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200"
-                          title="Eliminar"
-                        >
-                          <FaTrash className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            {/* Videos Inactivos */}
+            <div id="videos-inactivos" className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <FaEyeSlash className="w-5 h-5 text-red-600 mr-2" />
+                  Videos Inactivos ({videos.filter(v => !v.activo).length})
+                </h3>
+              </div>
+              
+              {videos.filter(v => !v.activo).length === 0 ? (
+                <div className="px-6 py-8 text-center">
+                  <FaEye className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No hay videos inactivos</h3>
+                  <p className="mt-1 text-sm text-gray-500">Todos los videos están activos.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Imagen
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          URL
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Fecha
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Estado
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {videos.filter(v => !v.activo).map((video) => (
+                        <tr key={video.id} className="hover:bg-gray-50 transition-all duration-300 ease-in-out">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex-shrink-0 h-16 w-16">
+                              <img
+                                className="h-16 w-16 rounded-lg object-cover"
+                                src={video.imagen}
+                                alt="Miniatura del video"
+                                onError={(e) => {
+                                  e.target.src = '/fotos/fotos-estaticas/fotodeprueba.png';
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="max-w-xs truncate">
+                              <a
+                                href={video.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 text-sm"
+                              >
+                                {video.url}
+                              </a>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatearFecha(video.fecha)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                              Inactivo
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button
+                              onClick={() => toggleEstado(video.id)}
+                              disabled={videoCambiando === video.id}
+                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${
+                                videoCambiando === video.id
+                                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                  : 'text-green-700 bg-green-100 hover:bg-green-200'
+                              }`}
+                              title="Activar"
+                            >
+                              {videoCambiando === video.id ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                              ) : (
+                                <FaEye className="w-4 h-4" />
+                              )}
+                            </button>
+                            
+                            <button
+                              onClick={() => navigate(`/videosFormulario/${video.id}`)}
+                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200"
+                              title="Editar"
+                            >
+                              <FaEdit className="w-4 h-4" />
+                            </button>
+                            
+                            <button
+                              onClick={() => setConfirmarEliminar(video)}
+                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200"
+                              title="Eliminar"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Modal de confirmación para eliminar */}
