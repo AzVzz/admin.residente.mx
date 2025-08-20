@@ -98,14 +98,14 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
                 </div>
 
                 {/* Sección negra - igual que en PostPrincipal */}
-                <div className="bg-black p-8 flex flex-col h-[325px] relative">
+                <div className="bg-transparent p-8 flex flex-col h-[325px] relative">
                     <div className="mb-1 flex items-center justify-between">
                         <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
                             {post.tipo_nota}
                         </span>
                         {/* Los stickers ya están en la imagen, así que los quitamos de aquí */}
                     </div>
-                    <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
+                    <h1 className="text-black text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
                         {post.titulo}
                     </h1>
                 </div>
