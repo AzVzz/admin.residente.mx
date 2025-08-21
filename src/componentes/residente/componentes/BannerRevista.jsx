@@ -2,24 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
-import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
-import MiniaturasVideos from './componentesColumna1/MiniaturasVideos';
-import CarruselPosts from './componentesColumna2/CarruselPosts';
-import TarjetaHorizontalPost from './componentesColumna2/TarjetaHorizontalPost';
-import TresTarjetas from './componentesColumna2/TresTarjetas';
-import DetallePost from './DetallePost';
-import PostPrincipal from './componentesColumna2/PostPrincipal';
-import VideosHorizontal from './componentesColumna2/VideosHorizontal';
-import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
 import { catalogoTipoNotaGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
-import EnPortada from './componentesColumna2/EnPortada';
-import SeccionesPrincipales from './SeccionesPrincipales';
-import DirectorioVertical from './componentesColumna2/DirectorioVertical';
-import BarraMarquee from '../../../componentes/residente/componentes/seccionesCategorias/componentes/BarraMarquee.jsx';
-import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import { revistaGetUltima } from '../../api/revistasGet.js';
-import { urlApi } from '../../../componentes/api/url.js';
 import DetalleBannerRevista from './DetalleBannerRevista';
 import ListadoBannerRevista from './ListadoBannerRevista';
 
