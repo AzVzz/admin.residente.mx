@@ -59,10 +59,13 @@ const ListadoBannerRevista = ({
                                     )}
                                 </div>
                             </div>
-
-                            <div className="mb-7">
+                            {/**
+                             * 
+                             * <div className="mb-7">
                                 <BarraMarquee categoria={marqueeTexto} />
                             </div>
+                             */}
+                            
 
 
                             {postsFiltrados[0] && (
