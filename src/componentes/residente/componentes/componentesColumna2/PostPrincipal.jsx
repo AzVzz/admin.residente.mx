@@ -18,9 +18,9 @@ const PostPrincipal = ({ post, onClick }) => {
 
     return (
         <div
-            className="flex flex-col cursor-pointer max-h-[725px] overflow-hidden mb-4 pb-4 pt"
+            className="flex flex-col cursor-pointer max-h-[735px] overflow-hidden mb-4 pb-4 pt" 
             onClick={onClick}
-        >
+        >{/** Antes h-[725] */}
             <div className="h-[400px] overflow-hidden">
                 <div className="relative h-full">
 
@@ -52,7 +52,7 @@ const PostPrincipal = ({ post, onClick }) => {
                 }}
             >
                 <div className="flex justify-center items-center pt-4">
-                    <div className="z-10 bg-gradient-to-r bg-[#FFF300] text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                    <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
                         {post.fecha}
                     </div>
                 </div>

@@ -45,22 +45,22 @@ const VideosDashboard = () => {
   const toggleEstado = async (id) => {
     try {
       setVideoCambiando(id);
-      
+
       // Obtener el estado actual del video
       const videoActual = videos.find(v => v.id === id);
       if (!videoActual) {
         throw new Error('Video no encontrado');
       }
-      
+
       const estadoActual = videoActual.activo;
       const nuevoEstado = !estadoActual;
-      
+
       // Usar la función inteligente que determina la ruta correcta
       const resultado = await toggleVideoEstadoInteligente(id, token, estadoActual);
-      
+
       if (resultado.success) {
         // Actualizar el estado local inmediatamente
-        setVideos(prevVideos => 
+        setVideos(prevVideos =>
           prevVideos.map(video => {
             if (video.id === id) {
               return {
@@ -72,30 +72,30 @@ const VideosDashboard = () => {
             return video;
           })
         );
-        
+
         // Hacer scroll hacia la sección correspondiente
         setTimeout(() => {
           if (!nuevoEstado) {
             // Si se desactivó, scroll hacia videos inactivos
             const videosInactivosSection = document.getElementById('videos-inactivos');
             if (videosInactivosSection) {
-              videosInactivosSection.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+              videosInactivosSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
               });
             }
           } else {
             // Si se activó, scroll hacia videos activos
             const videosActivosSection = document.getElementById('videos-activos');
             if (videosActivosSection) {
-              videosActivosSection.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+              videosActivosSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
               });
             }
           }
         }, 100);
-        
+
         setMensajeExito(`Video ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`);
         limpiarMensajes();
       } else {
@@ -114,17 +114,17 @@ const VideosDashboard = () => {
   const activarTodos = async () => {
     try {
       setCargando(true);
-      
+
       // Activar todos los videos uno por uno
       const videosInactivos = videos.filter(v => !v.activo);
-      
+
       if (videosInactivos.length === 0) {
         setError('No hay videos inactivos para activar');
         return;
       }
 
       // Actualizar el estado local inmediatamente
-      setVideos(prevVideos => 
+      setVideos(prevVideos =>
         prevVideos.map(video => ({
           ...video,
           activo: true,
@@ -145,9 +145,9 @@ const VideosDashboard = () => {
       setTimeout(() => {
         const videosActivosSection = document.getElementById('videos-activos');
         if (videosActivosSection) {
-          videosActivosSection.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          videosActivosSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }
       }, 100);
@@ -167,17 +167,17 @@ const VideosDashboard = () => {
   const desactivarTodos = async () => {
     try {
       setCargando(true);
-      
+
       // Desactivar todos los videos uno por uno
       const videosActivos = videos.filter(v => v.activo);
-      
+
       if (videosActivos.length === 0) {
         setError('No hay videos activos para desactivar');
         return;
       }
 
       // Actualizar el estado local inmediatamente
-      setVideos(prevVideos => 
+      setVideos(prevVideos =>
         prevVideos.map(video => ({
           ...video,
           activo: false,
@@ -198,9 +198,9 @@ const VideosDashboard = () => {
       setTimeout(() => {
         const videosInactivosSection = document.getElementById('videos-inactivos');
         if (videosInactivosSection) {
-          videosInactivosSection.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          videosInactivosSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }
       }, 100);
@@ -270,49 +270,56 @@ const VideosDashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex justify-between mb-8 flex-col gap-4">
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate("/notas")}
-              className="inline-flex items-center px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <FaArrowLeft className="w-5 h-5 mr-2" />
-              Regresar
-            </button>
+
             <h1 className="text-3xl font-bold text-gray-900">Dashboard de Videos</h1>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={cargarVideos}
-              className="inline-flex items-center px-4 py-2 text-gray-600 bg-yellow-100 border border-yellow-300 rounded-lg hover:bg-yellow-200 transition-colors"
-            >
-              🔄 Recargar
-            </button>
+          <div className="flex space-x-3 justify-between">
+            <div className="flex">
+              <button
+                onClick={() => navigate("/notas")}
+                className="inline-flex items-center px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <FaArrowLeft className="w-5 h-5 mr-2" />
+                Regresar
+              </button>
+            </div>
 
-            <button
-              onClick={activarTodos}
-              className="inline-flex items-center px-4 py-2 text-green-600 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 transition-colors"
-            >
-              ✅ Activar Todos
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={cargarVideos}
+                className="inline-flex items-center px-4 py-2 text-gray-600 bg-yellow-100 border border-yellow-300 rounded-lg hover:bg-yellow-200 transition-colors"
+              >
+                🔄 Recargar
+              </button>
 
-            <button
-              onClick={desactivarTodos}
-              className="inline-flex items-center px-4 py-2 text-red-600 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition-colors"
-            >
-              ❌ Desactivar Todos
-            </button>
+              <button
+                onClick={activarTodos}
+                className="inline-flex items-center px-4 py-2 text-green-600 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 transition-colors"
+              >
+                ✅ Activar Todos
+              </button>
 
-            <button
-              onClick={() => navigate("/videosFormulario")}
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <FaPlus className="w-5 h-5 mr-2" />
-              Nuevo Video
-            </button>
+              <button
+                onClick={desactivarTodos}
+                className="inline-flex items-center px-4 py-2 text-red-600 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition-colors"
+              >
+                ❌ Desactivar Todos
+              </button>
+
+              <button
+                onClick={() => navigate("/videosFormulario")}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <FaPlus className="w-5 h-5 mr-2" />
+                Nuevo Video
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -331,7 +338,7 @@ const VideosDashboard = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100 text-green-600">
@@ -345,7 +352,7 @@ const VideosDashboard = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-red-100 text-red-600">
@@ -402,7 +409,7 @@ const VideosDashboard = () => {
                   Videos Activos ({videos.filter(v => v.activo).length})
                 </h3>
               </div>
-              
+
               {videos.filter(v => v.activo).length === 0 ? (
                 <div className="px-6 py-8 text-center">
                   <FaEyeSlash className="mx-auto h-12 w-12 text-gray-400" />
@@ -482,11 +489,10 @@ const VideosDashboard = () => {
                             <button
                               onClick={() => toggleEstado(video.id)}
                               disabled={videoCambiando === video.id}
-                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${
-                                videoCambiando === video.id
-                                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                                  : 'text-red-700 bg-red-100 hover:bg-red-200'
-                              }`}
+                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${videoCambiando === video.id
+                                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                : 'text-red-700 bg-red-100 hover:bg-red-200'
+                                }`}
                               title="Desactivar"
                             >
                               {videoCambiando === video.id ? (
@@ -495,7 +501,7 @@ const VideosDashboard = () => {
                                 <FaEyeSlash className="w-4 h-4" />
                               )}
                             </button>
-                            
+
                             <button
                               onClick={() => navigate(`/videosFormulario/${video.id}`)}
                               className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200"
@@ -503,7 +509,7 @@ const VideosDashboard = () => {
                             >
                               <FaEdit className="w-4 h-4" />
                             </button>
-                            
+
                             <button
                               onClick={() => setConfirmarEliminar(video)}
                               className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200"
@@ -528,7 +534,7 @@ const VideosDashboard = () => {
                   Videos Inactivos ({videos.filter(v => !v.activo).length})
                 </h3>
               </div>
-              
+
               {videos.filter(v => !v.activo).length === 0 ? (
                 <div className="px-6 py-8 text-center">
                   <FaEye className="mx-auto h-12 w-12 text-gray-400" />
@@ -608,11 +614,10 @@ const VideosDashboard = () => {
                             <button
                               onClick={() => toggleEstado(video.id)}
                               disabled={videoCambiando === video.id}
-                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${
-                                videoCambiando === video.id
-                                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                                  : 'text-green-700 bg-green-100 hover:bg-green-200'
-                              }`}
+                              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium ${videoCambiando === video.id
+                                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                : 'text-green-700 bg-green-100 hover:bg-green-200'
+                                }`}
                               title="Activar"
                             >
                               {videoCambiando === video.id ? (
@@ -621,7 +626,7 @@ const VideosDashboard = () => {
                                 <FaEye className="w-4 h-4" />
                               )}
                             </button>
-                            
+
                             <button
                               onClick={() => navigate(`/videosFormulario/${video.id}`)}
                               className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200"
@@ -629,7 +634,7 @@ const VideosDashboard = () => {
                             >
                               <FaEdit className="w-4 h-4" />
                             </button>
-                            
+
                             <button
                               onClick={() => setConfirmarEliminar(video)}
                               className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200"

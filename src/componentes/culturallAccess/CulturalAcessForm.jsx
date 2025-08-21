@@ -4,7 +4,7 @@ import { useState } from "react"
 import { urlApi } from '../../componentes/api/url.js'
 
 const CulturalAccessForm = () => {
-  const [curpOption, setCurpOption] = useState("sin-curp")
+  const [curpOption, setCurpOption] = useState("curp")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     nombre: "",
@@ -25,7 +25,7 @@ const CulturalAccessForm = () => {
     mesNacimiento: "",
     anoNacimiento: "",
     numeroTarjeta: "",
-    aceptaInfo: false,
+    aceptaInfo: "", // "" | "si" | "no"
   })
 
   const handleInputChange = (field, value) => {
@@ -121,7 +121,7 @@ const CulturalAccessForm = () => {
           numeroTarjeta: "",
           aceptaInfo: false,
         })
-        setCurpOption("sin-curp")
+        setCurpOption("curp")
       } else {
         // Manejar diferentes tipos de errores
         if (result.errors) {
@@ -829,29 +829,39 @@ const CulturalAccessForm = () => {
             </div>
 
             {/* Checkbox */}
-            <div className="flex items-start space-x-2">
-              <input
-                type="checkbox"
-                id="aceptaInfo"
-                checked={formData.aceptaInfo}
-                onChange={(e) => handleInputChange("aceptaInfo", e.target.checked)}
-                className="w-4 h-4 mt-1 text-orange-500 border-white rounded bg-transparent focus:ring-white focus:ring-2"
-                disabled={isSubmitting}
-              />
-              <label htmlFor="aceptaInfo" className="text-white text-sm">
-                Acepto recibir información por correo electrónico *
-              </label>
-            </div>
-
-            <div className="flex items-start space-x-2">
-              <input
-                type="checkbox"
-                className="w-4 h-4 mt-1 text-orange-500 border-white rounded bg-transparent focus:ring-white focus:ring-2"
-                disabled={isSubmitting}
-              />
-              <label className="text-white text-sm">
-                No Acepto recibir información por correo electrónico *
-              </label>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="aceptaInfo-si"
+                  name="aceptaInfo"
+                  value="si"
+                  checked={formData.aceptaInfo === "si"}
+                  onChange={() => handleInputChange("aceptaInfo", "si")}
+                  className="w-4 h-4 text-orange-500 border-white bg-transparent focus:ring-white focus:ring-2"
+                  disabled={isSubmitting}
+                  required
+                />
+                <label htmlFor="aceptaInfo-si" className="text-white text-sm">
+                  Acepto recibir información por correo electrónico *
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="aceptaInfo-no"
+                  name="aceptaInfo"
+                  value="no"
+                  checked={formData.aceptaInfo === "no"}
+                  onChange={() => handleInputChange("aceptaInfo", "no")}
+                  className="w-4 h-4 text-orange-500 border-white bg-transparent focus:ring-white focus:ring-2"
+                  disabled={isSubmitting}
+                  required
+                />
+                <label htmlFor="aceptaInfo-no" className="text-white text-sm">
+                  No acepto recibir información por correo electrónico *
+                </label>
+              </div>
             </div>
 
             <p className="text-white/80 text-sm italic">*Campo obligatorio</p>
