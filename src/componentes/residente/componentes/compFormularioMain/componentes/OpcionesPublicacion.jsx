@@ -1,9 +1,29 @@
 import { useFormContext } from "react-hook-form";
+import { useAuth } from '../../../../Context';
 
 const OpcionesPublicacion = () => {
   const { register, watch } = useFormContext();
+  const { usuario } = useAuth();
   const opcionSeleccionada = watch("opcionPublicacion");
   const fechaProgramada = watch("fechaProgramada");
+
+  // Verificar si el usuario tiene permisos limitados
+  const tienePermisosLimitados = usuario?.permisos && usuario.permisos !== 'todos';
+
+  // Si el usuario tiene permisos limitados, no mostrar las opciones
+  if (tienePermisosLimitados) {
+    return (
+      <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <label className="block text-sm font-medium text-gray-700">
+          Opciones de Publicación
+        </label>
+        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-200">
+          <p>📝 <strong>Nota:</strong> Tu nota se guardará automáticamente como borrador.</p>
+          <p className="mt-1">Un administrador la revisará y la publicará cuando esté lista.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
