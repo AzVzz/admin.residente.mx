@@ -53,23 +53,13 @@ const VideosHorizontalCarrusel = () => {
                 if (Array.isArray(videosActivos) && videosActivos.length > 0) {
                     setVideos(videosActivos);
                 } else {
-                    console.log('No hay videos activos, usando fallback');
-                    // Fallback a imágenes estáticas si no hay videos
-                    setVideos([
-                        { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                        { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                        { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                    ]);
+                    console.log('No hay videos activos');
+                    setVideos([]);
                 }
             } catch (err) {
                 console.error('Error al obtener videos:', err);
                 setError('Error al cargar los videos');
-                // Fallback a imágenes estáticas si hay error
-                setVideos([
-                    { id: 1, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                    { id: 2, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                    { id: 3, imagen: `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`, url: "#", fecha: new Date().toISOString() },
-                ]);
+                setVideos([]);
             } finally {
                 setCargando(false);
             }
@@ -122,9 +112,9 @@ const VideosHorizontalCarrusel = () => {
     // Mostrar loading mientras se cargan los videos
     if (cargando) {
         return (
-            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-transparent">
                 <div className="relative mx-auto max-w-[1080px] w-full my-5">
-                    <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
+                    <h3 className="text-black text-[35px] pb-2 mb-2">Videos</h3>
                     <div className="flex justify-center items-center h-32">
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-400"></div>
                     </div>
@@ -133,24 +123,15 @@ const VideosHorizontalCarrusel = () => {
         );
     }
 
-    // Mostrar mensaje si no hay videos
+    // Si no hay videos, no mostrar nada
     if (videos.length === 0) {
-        return (
-            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
-                <div className="relative mx-auto max-w-[1080px] w-full my-5">
-                    <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
-                    <div className="text-center text-white/60 py-8">
-                        <p>No hay videos disponibles</p>
-                    </div>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-transparent">
             <div className="relative mx-auto max-w-[1080px] w-full my-5">
-                <h3 className="text-white text-[35px] pb-2 mb-2">Videos</h3>
+                <h3 className="text-black text-[35px] pb-2 mb-2">Videos</h3>
 
                 {/* Flechas fuera del max-w en md+ (como cupones) */}
                 {videos.length > perView && (

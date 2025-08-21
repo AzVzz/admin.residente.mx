@@ -1,7 +1,17 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useAuth } from '../../../../Context';
 
 const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) => {
     const { control } = useFormContext();
+    const { usuario } = useAuth();
+
+    // Verificar si el usuario tiene permisos limitados
+    const tienePermisosLimitados = usuario?.permisos && usuario.permisos !== 'todos';
+
+    // Si el usuario tiene permisos limitados, no mostrar nada
+    if (tienePermisosLimitados) {
+        return null; // No renderizar nada
+    }
 
     return (
         <div className="grid grid-cols-5">
@@ -30,6 +40,7 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                 </div>
             )}
 
+            {/* Mostrar las categorías */}
             {secciones.map((seccion) => (
                 <div key={seccion.seccion} className="p-1 border-1 border-gray-300 rounded-md">
                     <h2 className="mb-2 text-xl leading-5">{seccion.seccion}</h2>

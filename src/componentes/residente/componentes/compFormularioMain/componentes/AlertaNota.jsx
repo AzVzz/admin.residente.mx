@@ -4,6 +4,9 @@ const AlertaNota = ({ postResponse, postError, notaId }) => {
     if (!postResponse && !postError) return null;
 
     if (postResponse) {
+        // Verificar si hay un mensaje personalizado
+        const mensajePersonalizado = postResponse.mensaje;
+        
         return (
             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
                 <div className="flex">
@@ -14,7 +17,7 @@ const AlertaNota = ({ postResponse, postError, notaId }) => {
                     </div>
                     <div className="ml-3">
                         <p className="text-sm text-green-700">
-                            {notaId ? '¡Nota actualizada correctamente!' : '¡Nota creada correctamente!'}
+                            {mensajePersonalizado || (notaId ? '¡Nota actualizada correctamente!' : '¡Nota creada correctamente!')}
                         </p>
                     </div>
                 </div>
