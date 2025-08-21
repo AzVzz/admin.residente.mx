@@ -234,6 +234,20 @@ const FormMainResidente = () => {
       // Fuerza el tipo de nota correcto
       const tipoNotaFinal = tipoNotaUsuario || data.tipoDeNotaSeleccionada;
 
+      // Determinar el estado de la nota según los permisos del usuario
+      let estadoFinal;
+      if (usuario?.permisos === 'todos') {
+        // Usuarios con permisos completos pueden elegir el estado
+        estadoFinal = data.opcionPublicacion === 'programar'
+          ? 'programada'
+          : data.opcionPublicacion === 'borrador'
+            ? 'borrador'
+            : 'publicada';
+      } else {
+        // Usuarios con acceso limitado siempre suben en borrador
+        estadoFinal = 'borrador';
+      }
+
       const datosNota = {
         tipo_nota: tipoNotaFinal,
         secciones_categorias: seccionesCategorias,
@@ -242,12 +256,7 @@ const FormMainResidente = () => {
         autor: data.autor,
         descripcion: data.contenido,
         sticker: data.sticker,
-        estatus:
-          data.opcionPublicacion === 'programar'
-            ? 'programada'
-            : data.opcionPublicacion === 'borrador'
-              ? 'borrador'
-              : 'publicada',
+        estatus: estadoFinal,
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
         destacada: data.destacada || false,
       };
@@ -263,6 +272,7 @@ const FormMainResidente = () => {
       console.log("datosNota:", datosNota);
       console.log("Estatus final:", datosNota.estatus);
       console.log("programar_publicacion:", datosNota.programar_publicacion);
+      console.log("Usuario permisos:", usuario?.permisos);
 
       let resultado;
       if (notaId) {
@@ -277,6 +287,15 @@ const FormMainResidente = () => {
       }
 
       setPostResponse(resultado);
+      
+      // Mostrar mensaje diferente según el estado
+      if (estadoFinal === 'borrador') {
+        setPostResponse({
+          ...resultado,
+          mensaje: 'Nota guardada como borrador. Un administrador la revisará y publicará.'
+        });
+      }
+      
       setTimeout(() => navigate('/notas'), 1);
     } catch (error) {
       setPostError(error.message || 'Error al guardar la nota');
@@ -322,12 +341,12 @@ const FormMainResidente = () => {
                   onImagenEliminada={() => setImagenActual(null)}
                 />
 
-                {/* Solo muestra el selector si NO hay tipoNotaUsuario */}
-                <CategoriasTipoNotaSelector
+                {/* Filtros completamente ocultos para todos los usuarios */}
+                {/* <CategoriasTipoNotaSelector
                   tipoDeNota={tipoDeNota}
                   secciones={secciones}
                   ocultarTipoNota={!!tipoNotaUsuario}
-                />
+                /> */}
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
                 {(tipoNotaSeleccionada === "Restaurantes" || tipoNotaSeleccionada === "Food & Drink") && (
@@ -343,11 +362,33 @@ const FormMainResidente = () => {
                   </div>
                 )}
 
-                {/* Si hay tipoNotaUsuario, muéstralo como texto */}
+                {/* Si hay tipoNotaUsuario, muéstralo como texto prominente */}
                 {tipoNotaUsuario && (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">Tipo de nota:</label>
-                    <div className="text-lg font-bold">{tipoNotaUsuario}</div>
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label className="block text-sm font-medium text-blue-800 mb-2">Tipo de nota:</label>
+                    <div className="text-2xl font-bold text-blue-900 bg-white px-4 py-2 rounded-md border border-blue-300">
+                      📝 {tipoNotaUsuario}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mostrar tipo de nota para usuarios con permisos 'todos' */}
+                {!tipoNotaUsuario && usuario?.permisos === 'todos' && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
+                    <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
+                      📝 Mama de Rocco
+                    </div>
+                  </div>
+                )}
+
+                {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
+                {!tipoNotaUsuario && usuario?.permisos !== 'todos' && (
+                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">Tipo de nota:</label>
+                    <div className="text-2xl font-bold text-gray-900 bg-white px-4 py-2 rounded-md border border-gray-300">
+                      📝 Sin tipo asignado
+                    </div>
                   </div>
                 )}
 
@@ -371,12 +412,21 @@ const FormMainResidente = () => {
                   Sticker seleccionado: {watch('sticker')}
                 </div>
 
-                <OpcionesPublicacion
+                {/* Opciones de publicación completamente ocultas */}
+                {/* <OpcionesPublicacion
                   opcionSeleccionada={opcionPublicacion}
                   onOpcionChange={value => setValue('opcionPublicacion', value)}
                   fechaProgramada={watch('fechaProgramada')}
                   onFechaChange={value => setValue('fechaProgramada', value)}
-                />
+                /> */}
+
+                {/* Mensaje informativo sobre publicación */}
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-medium">📝 Nota:</p>
+                    <p>Un administrador publicará tu nota pronto.</p>
+                  </div>
+                </div>
 
                 <BotonSubmitNota
                   isPosting={isPosting}
@@ -388,42 +438,59 @@ const FormMainResidente = () => {
           </form>
         </FormProvider>
       </div>
-      <div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
-        <PostHorizontal
-          titulo={titulo}
-          imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-          tipoNota={tipoNotaSeleccionada}
-        />
-        <PostLoMasVistoDirectorio
-          tipoDeNota={tipoNotaSeleccionada}
-          titulo={titulo}
-          imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-        />
-      </div>
-      <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
-        <div>
-          <PostPrincipal
-            titulo={titulo}
-            subtitulo={subtitulo}
-            autor={autor}
-            contenido={contenido}
-            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-            tipoNota={tipoNotaSeleccionada}
-            fecha={fechaActual}
-          />
-        </div>
-        <div className="flex flex-col">
-          <PostLoMasVisto
-            titulo={titulo}
-            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-            fecha={fechaActual}
-          />
-          <PostVertical
-            titulo={titulo}
-            imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-            tipoNota={tipoNotaSeleccionada}
-          />
-        </div>
+
+      {/* Vista previa de cómo se verá la nota */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          📱 Vista previa de tu nota
+        </h2>
+        
+        {/* Solo mostrar vista previa si hay contenido */}
+        {(titulo || subtitulo || autor || contenido || imagen) ? (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+            <div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
+              <PostHorizontal
+                titulo={titulo || 'Título de ejemplo'}
+                imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+                tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
+              />
+              <PostLoMasVistoDirectorio
+                tipoDeNota={tipoNotaSeleccionada || 'Tipo de nota'}
+                titulo={titulo || 'Título de ejemplo'}
+                imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+              />
+            </div>
+            <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
+              <div>
+                <PostPrincipal
+                  titulo={titulo || 'Título de ejemplo'}
+                  subtitulo={subtitulo || 'Subtítulo de ejemplo'}
+                  autor={autor || 'Autor de ejemplo'}
+                  contenido={contenido || 'Contenido de ejemplo para mostrar cómo se verá la nota cuando esté publicada.'}
+                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+                  tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
+                  fecha={fechaActual}
+                />
+              </div>
+              <div className="flex flex-col">
+                <PostLoMasVisto
+                  titulo={titulo || 'Título de ejemplo'}
+                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+                  fecha={fechaActual}
+                />
+                <PostVertical
+                  titulo={titulo || 'Título de ejemplo'}
+                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
+                  tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 text-center text-gray-500">
+            <p>Comienza a escribir para ver la vista previa de tu nota</p>
+          </div>
+        )}
       </div>
     </div>
   );
