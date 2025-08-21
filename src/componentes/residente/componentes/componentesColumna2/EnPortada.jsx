@@ -123,7 +123,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 className="relative w-40 cursor-pointer"
                                 onClick={() => onCardClick && onCardClick(nota)}
                             >
-                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover shadow-lg" />
+                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover" />
                                 <div className="flex flex-col mt-4 text-right">
                                     <h2 className="text-black text-[14px] leading-4.5 text-wrap">{nota.titulo}</h2>
                                 </div>
