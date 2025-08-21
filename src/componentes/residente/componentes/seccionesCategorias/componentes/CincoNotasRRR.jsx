@@ -11,7 +11,7 @@ const TarjetaVerticalPost = ({ nota, onClick }) => (
     onClick={() => onClick && onClick(nota)}
   >
     <div className="flex flex-col">
-      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200">
+      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center">
         {nota.nombre_restaurante?.trim() || ""}
       </div>
       <div className="h-30 w-full overflow-hidden">
@@ -21,7 +21,7 @@ const TarjetaVerticalPost = ({ nota, onClick }) => (
           className="h-30 w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
-      <div className="text-lg font-roman text-black leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 mt-2">
+      <div className="text-lg font-roman text-black leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 mt-2 text-center">
         {nota.titulo}
       </div>
     </div>
@@ -92,36 +92,16 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
                 items-center justify-center
                 absolute top-1/2 -translate-y-1/2 
                 left-[-4rem]
-                bg-black/90 hover:bg-black/65
-                text-[#fff300] rounded-full w-12 h-12 shadow-lg
+                bg-transparent hover:bg-transparent
+                text-black rounded-full w-12 h-12
                 cursor-pointer z-20 disabled:opacity-40"
               aria-label="Anterior"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                  className="w-7 h-7">
+                viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor"
+                className="w-7 h-7">
                 <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-              </svg>
-            </button>
-
-            {/* Flecha izquierda móvil (dentro) */}
-            <button
-              onClick={goPrev}
-              disabled={!canPrev}
-              className="
-                md:hidden
-                absolute left-1 top-1/2 -translate-y-1/2
-                bg-[#fff300]/90 hover:bg-[#fff300]/100
-                text-black rounded-full w-10 h-10 shadow-lg
-                cursor-pointer z-20 disabled:opacity-40"
-              aria-label="Anterior móvil"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                  className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
               </svg>
             </button>
           </>
@@ -158,38 +138,17 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
                 items-center justify-center
                 absolute top-1/2 -translate-y-1/2 
                 right-[-4rem]
-                bg-black/90 hover:bg-black/65
-                text-[#fff300] rounded-full w-12 h-12 shadow-lg
+                bg-transparent hover:bg-transparent
+                text-black rounded-full w-12 h-12
                 cursor-pointer z-20
                 disabled:opacity-40"
               aria-label="Siguiente"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                  className="w-7 h-7">
+                viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor"
+                className="w-7 h-7">
                 <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-              </svg>
-            </button>
-
-            {/* Flecha derecha móvil (dentro) */}
-            <button
-              onClick={goNext}
-              disabled={!canNext}
-              className="
-                md:hidden
-                absolute right-1 top-1/2 -translate-y-1/2
-                bg-[#fff300]/70 hover:bg-[#fff300]/85
-                text-black rounded-full w-10 h-10 shadow-lg
-                cursor-pointer z-20
-                disabled:opacity-40"
-              aria-label="Siguiente móvil"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                  className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
               </svg>
             </button>
           </>

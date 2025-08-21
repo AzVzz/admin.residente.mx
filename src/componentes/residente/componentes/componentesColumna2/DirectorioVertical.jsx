@@ -4,10 +4,10 @@ import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccio
 import { urlApi } from '../../../../componentes/api/url.js';
 
 const iconos = [
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/calidad.webp`,
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/costo.png`,
     `${urlApi}/fotos/fotos-estaticas/componente-iconos/yum.webp`,
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/mty.webp`,
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/estrellas.webp`
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/zona.webp`,
+    `${urlApi}/fotos/fotos-estaticas/componente-iconos/corazon.webp`
 ];
 
 const DirectorioVertical = () => {
@@ -48,8 +48,12 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative w-[348px]">
-            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-37 h-auto" />
+        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative w-[348px] items-center">{/**items-center */}
+            <div className="flex justify-center">
+                <div className="absolute left-0 right-0 top-4 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
+                <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-42 h-auto relative z-10 px-4 bg-[#CCCCCC]" />
+            </div>
+
             <p className="text-[25px] leading-4.5 text-black">Tu concierge restaurantero</p>
             <ol className="flex flex-row mt-1 gap-1">
                 {data.map((seccion, i) => (

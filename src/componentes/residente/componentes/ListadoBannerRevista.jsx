@@ -33,17 +33,17 @@ const ListadoBannerRevista = ({
 
             return (
                 <div key={tipo} className="flex flex-col pt-9">
-                    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-7 mb-9">
+                    <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
                         {/* Columna Principal */}
                         <div>
-                            <div className="relative flex justify-center items-center mb-4">
-                                <div className="absolute left-0 right-0 top-1/2 border-t-5 border-black opacity-100 z-0" aria-hidden="true" />
+                            <div className="relative flex justify-center items-center mb-2">
+                                <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                                 <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                     {tipoLogo ? (
                                         <img
                                             src={tipoLogo}
                                             alt={tipoLabel}
-                                            className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-70 object-contain"}
+                                            className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-60 object-contain"}
                                         />
                                     ) : (
                                         <span
@@ -60,9 +60,10 @@ const ListadoBannerRevista = ({
                                 </div>
                             </div>
 
-                            <div className="w-177 mb-5">
+                            <div className="mb-7">
                                 <BarraMarquee categoria={marqueeTexto} />
                             </div>
+
 
                             {postsFiltrados[0] && (
                                 <PostPrincipal
@@ -91,6 +92,22 @@ const ListadoBannerRevista = ({
                                 posts={postsFiltrados.slice(1, 7)}
                                 onCardClick={(post) => handleCardClick(post.id)}
                             />
+                            {revistaActual && revistaActual.pdf ? (
+                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                    <img
+                                        src={revistaActual.imagen_banner}
+                                        alt="Banner Revista"
+                                        className="w-full mb-4 cursor-pointer py-2"
+                                        title="Descargar Revista"
+                                    />
+                                </a>
+                            ) : (
+                                <img
+                                    src={revistaActual?.imagen_banner}
+                                    alt="Banner Revista"
+                                    className="w-full mb-4"
+                                />
+                            )}
                         </div>
 
                         {/* Columna lateral */}
@@ -100,7 +117,7 @@ const ListadoBannerRevista = ({
                                 <PortadaRevista />
                                 <MainLateralPostTarjetas
                                     notasDestacadas={destacadasFiltradas}
-                                    onCardClick={handleCardClick} 
+                                    onCardClick={handleCardClick}
                                     sinCategoria
                                     cantidadNotas={5}
                                 />
@@ -115,7 +132,7 @@ const ListadoBannerRevista = ({
                                 <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                     <div className="flex flex-row justify-center items-center gap-2">
                                         <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
-                                        <h3 className="text-4xl">Favoritos Residente</h3>
+                                        <img className="h-full w-95" src={'https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
                                         <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
                                     </div>
                                 </div>
@@ -138,7 +155,7 @@ const ListadoBannerRevista = ({
                         <>
                             <div className="relative flex justify-center items-center mb-4">
                                 <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                <div className="relative z-10 px-4 bg-transparent">
+                                <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                     <div className="flex flex-row justify-center items-center gap-3">
                                         <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
                                     </div>
@@ -155,6 +172,7 @@ const ListadoBannerRevista = ({
                             <VideosHorizontal />
                         </>
                     )}
+
                 </div>
             );
         })}
