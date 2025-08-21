@@ -222,6 +222,10 @@ function App() {
             <Videos />
           </div>} />
 
+          <Route path="/videosFormulario/:id" element={<div className="max-w-[1080px] mx-auto">
+            <Videos />
+          </div>} />
+
           <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
             <VideosDashboard />
           </div>} />

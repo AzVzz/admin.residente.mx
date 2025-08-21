@@ -13,7 +13,7 @@ const MainLateralPostTarjetas = ({
     return (
         <section className={`mb-5  h-[450px] flex flex-col ${cantidadNotas === 5 ? 'h-[510px]' : 'h-[450px]'}`}>
             <div className="flex justify-end bg-[#fff200] mb-3 px-2 py-1">
-                <img className="h-full w-45 object-contain" src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`} />
+                <img className="h-full w-42 object-contain" src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`} />
             </div>
             <div className="flex-grow pb-4">
                 <ul className="h-full flex flex-col gap-3.5">
