@@ -17,6 +17,7 @@ const CulturalAccessForm = () => {
     estado: "",
     colonia: "",
     codigoPostal: "",
+    estadoCivil: "",
     edad: "",
     estudios: "",
     curp: "",
@@ -75,6 +76,7 @@ const CulturalAccessForm = () => {
         colonia: formData.colonia,
         codigo_postal: formData.codigoPostal,
         edad: formData.edad,
+        estado_civil: formData.estadoCivil,
         estudios: estudiosValue,
         curp: curpOption === "curp" ? formData.curp : null,
         estado_nacimiento: formData.estadoNacimiento,
@@ -483,6 +485,50 @@ const CulturalAccessForm = () => {
               </div>
             </div>
 
+
+            {/* Estado civil */}
+            <div className="space-y-2">
+              <label htmlFor="estadoCivil" className="block text-white font-medium text-sm">
+                ESTADO CIVIL *
+              </label>
+              <div className="relative">
+                <select
+                  id="estadoCivil"
+                  value={formData.estadoCivil}
+                  onChange={e => handleInputChange("estadoCivil", e.target.value)}
+                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white focus:border-white focus:outline-none appearance-none transition-colors"
+                  required
+                  disabled={isSubmitting}
+                >
+                  <option value="" className="text-gray-800">
+                    Selecciona una opción
+                  </option>
+                  <option value="soltero" className="text-gray-800">
+                    Soltero (a)
+                  </option>
+                  <option value="casado" className="text-gray-800">
+                    Casado (a)
+                  </option>
+                  <option value="viudo" className="text-gray-800">
+                    Viudo (a)
+                  </option>
+                  <option value="divorciado" className="text-gray-800">
+                    Divorciado (a)
+                  </option>
+                  <option value="union_libre" className="text-gray-800">
+                    Unión libre
+                  </option>
+                  <option value="sociedad_convivencia" className="text-gray-800">
+                    Sociedad de convivencia
+                  </option>
+                  <option value="prefiero_no_decir" className="text-gray-800">
+                    Prefiero no decir
+                  </option>
+                </select>
+                <ChevronDownIcon />
+              </div>
+            </div>
+
             {/* Estudios */}
             <div className="space-y-2">
               <label htmlFor="estudios" className="block text-white font-medium text-sm">
@@ -800,7 +846,11 @@ const CulturalAccessForm = () => {
                     min="1900"
                     max="2024"
                     value={formData.anoNacimiento}
-                    onChange={(e) => handleInputChange("anoNacimiento", e.target.value)}
+                    onChange={(e) => {
+                      // Solo permite máximo 4 caracteres
+                      const value = e.target.value.slice(0, 4);
+                      handleInputChange("anoNacimiento", value);
+                    }}
                     className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
                     placeholder="AAAA"
                     required
