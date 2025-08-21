@@ -485,6 +485,48 @@ const CulturalAccessForm = () => {
               </div>
             </div>
 
+            {/* Estudios */}
+            <div className="space-y-2">
+              <label htmlFor="estudios" className="block text-white font-medium text-sm">
+                ESTUDIOS *
+              </label>
+              <div className="relative">
+                <select
+                  id="estudios"
+                  value={formData.estudios}
+                  onChange={(e) => handleInputChange("estudios", e.target.value)}
+                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white focus:border-white focus:outline-none appearance-none transition-colors"
+                  required
+                  disabled={isSubmitting}
+                >
+                  <option value="" className="text-gray-800">
+                    Elige uno
+                  </option>
+                  <option value="primaria" className="text-gray-800">
+                    Primaria
+                  </option>
+                  <option value="secundaria" className="text-gray-800">
+                    Secundaria
+                  </option>
+                  <option value="preparatoria" className="text-gray-800">
+                    Preparatoria
+                  </option>
+                  <option value="licenciatura" className="text-gray-800">
+                    Licenciatura
+                  </option>
+                  <option value="maestria" className="text-gray-800">
+                    Maestría
+                  </option>
+                  <option value="doctorado" className="text-gray-800">
+                    Doctorado
+                  </option>
+                  <option value="sin-estudios" className="text-gray-800">
+                    N/A
+                  </option>
+                </select>
+                <ChevronDownIcon />
+              </div>
+            </div>
 
             {/* Estado civil */}
             <div className="space-y-2">
@@ -523,49 +565,6 @@ const CulturalAccessForm = () => {
                   </option>
                   <option value="prefiero_no_decir" className="text-gray-800">
                     Prefiero no decir
-                  </option>
-                </select>
-                <ChevronDownIcon />
-              </div>
-            </div>
-
-            {/* Estudios */}
-            <div className="space-y-2">
-              <label htmlFor="estudios" className="block text-white font-medium text-sm">
-                ESTUDIOS *
-              </label>
-              <div className="relative">
-                <select
-                  id="estudios"
-                  value={formData.estudios}
-                  onChange={(e) => handleInputChange("estudios", e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white focus:border-white focus:outline-none appearance-none transition-colors"
-                  required
-                  disabled={isSubmitting}
-                >
-                  <option value="" className="text-gray-800">
-                    Elige uno
-                  </option>
-                  <option value="primaria" className="text-gray-800">
-                    Primaria
-                  </option>
-                  <option value="secundaria" className="text-gray-800">
-                    Secundaria
-                  </option>
-                  <option value="preparatoria" className="text-gray-800">
-                    Preparatoria
-                  </option>
-                  <option value="licenciatura" className="text-gray-800">
-                    Licenciatura
-                  </option>
-                  <option value="maestria" className="text-gray-800">
-                    Maestría
-                  </option>
-                  <option value="doctorado" className="text-gray-800">
-                    Doctorado
-                  </option>
-                  <option value="sin-estudios" className="text-gray-800">
-                    N/A
                   </option>
                 </select>
                 <ChevronDownIcon />

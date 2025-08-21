@@ -11,7 +11,7 @@ const CuponesCarrusel = ({ cupones }) => {
   // 🔒 Scroll lock cuando el modal está abierto
   useEffect(() => {
     if (selectedCupon) {
-      const scrollY = window.scrollY; 
+      const scrollY = window.scrollY;
       const { body } = document;
 
       body.style.position = "fixed";
@@ -49,8 +49,9 @@ const CuponesCarrusel = ({ cupones }) => {
 
   const goPrev = () => { if (startIdx > 0) setStartIdx((idx) => Math.max(idx - 1, 0)); };
   const goNext = () => {
-    if (startIdx + CUPONES_POR_VISTA < cupones.length) {
-      setStartIdx((idx) => Math.min(idx + 1, cupones.length - CUPONES_POR_VISTA));
+    const maxStart = Math.max(0, cupones.length - CUPONES_POR_VISTA);
+    if (startIdx < maxStart) {
+      setStartIdx(idx => Math.min(idx + 1, maxStart));
     }
   };
 
@@ -128,7 +129,7 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Flecha derecha - por fuera del límite de 1080 */}
         <button
           onClick={goNext}
-          disabled={startIdx + CUPONES_POR_VISTA >= cupones.length}
+          disabled={startIdx >= cupones.length - CUPONES_POR_VISTA}
           className="
             hidden md:flex
             items-center justify-center
