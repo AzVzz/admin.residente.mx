@@ -13,6 +13,7 @@ const VideosDashboard = () => {
   const [mensajeExito, setMensajeExito] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(null);
   const [videoCambiando, setVideoCambiando] = useState(null);
+  const [tipoCambiando, setTipoCambiando] = useState(null);
 
   // Limpiar mensajes automáticamente
   const limpiarMensajes = () => {
@@ -218,7 +219,13 @@ const VideosDashboard = () => {
   // Eliminar video
   const eliminarVideoHandler = async (id) => {
     try {
-      await eliminarVideo(id, token);
+      console.log('=== DEBUG ELIMINAR ===');
+      console.log('Intentando eliminar video ID:', id);
+      console.log('Token presente:', !!token);
+      
+      const resultado = await eliminarVideo(id, token);
+      console.log('Resultado de eliminación:', resultado);
+      
       setVideos(prev => prev.filter(video => video.id !== id));
       setConfirmarEliminar(null);
       setMensajeExito('Video eliminado exitosamente');
@@ -249,6 +256,18 @@ const VideosDashboard = () => {
       </div>
     );
   }
+
+  // Debug: mostrar todos los videos y su tipo
+  console.log('=== DEBUG VIDEOS ===');
+  console.log('Todos los videos:', videos);
+  videos.forEach(video => {
+    console.log(`Video ID ${video.id}:`, {
+      url: video.url,
+      tipo: video.tipo,
+      tipoType: typeof video.tipo,
+      activo: video.activo
+    });
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 my-8">
@@ -412,6 +431,9 @@ const VideosDashboard = () => {
                           Fecha
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Estado
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -419,7 +441,7 @@ const VideosDashboard = () => {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-y divide-gray-200">
                       {videos.filter(v => v.activo).map((video) => (
                         <tr key={video.id} className="hover:bg-gray-50 transition-all duration-300 ease-in-out">
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -448,6 +470,15 @@ const VideosDashboard = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {formatearFecha(video.fecha)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              video.tipo === 'editorial' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-purple-100 text-purple-800'
+                            }`}>
+                              {video.tipo === 'editorial' ? 'Editorial' : 'Comercial'}
+                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -525,6 +556,9 @@ const VideosDashboard = () => {
                           Fecha
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Estado
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -561,6 +595,15 @@ const VideosDashboard = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {formatearFecha(video.fecha)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              video.tipo === 'editorial' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-purple-100 text-purple-800'
+                            }`}>
+                              {video.tipo === 'editorial' ? 'Editorial' : 'Comercial'}
+                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
