@@ -50,7 +50,7 @@ const ListadoBannerRevista = ({
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
                             {/* Columna Principal */}
                             <div>
-                                <div className="relative flex justify-center items-center mb-2">
+                                <div className="relative flex justify-center items-center mb-6">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                                     <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                         {tipoLogo ? (
@@ -79,8 +79,6 @@ const ListadoBannerRevista = ({
                                 <BarraMarquee categoria={marqueeTexto} />
                             </div>
                              */}
-
-
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal

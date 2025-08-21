@@ -35,7 +35,7 @@ const PortadaRevista = () => {
     return (
 
 
-        <div className="flex flex-row justify-start items-start relative">
+        <div className="flex flex-row justify-start relative">
             {revistaActual && revistaActual.pdf ? (
                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                     <img
@@ -55,12 +55,17 @@ const PortadaRevista = () => {
 
             {/* Contenedor de textos */}
             <div className="flex flex-col ml-4 justify-between">
-                <h3 className="text-2xl font-bold text-[#fff300]">En Portada</h3>
-                <h2 className="text-white text-[20px] leading-6.5">
-                    Grupo Blend: Innovación<br />
-                    y comunidad en la escena<br />
-                    gastronómica de Monterrey.
-                </h2>
+                <div className="flex">
+                    <h3 className="text-2xl font-bold text-[#fff300]">En Portada</h3>
+                </div>
+
+                <div className="flex">
+                    <h2 className="text-white text-[20px] leading-5.5">
+                        Grupo Blend: Innovación<br />
+                        y comunidad en la escena<br />
+                        gastronómica de Monterrey.
+                    </h2>
+                </div>
             </div>
 
             {/* Ícono de descarga en posición absoluta */}
