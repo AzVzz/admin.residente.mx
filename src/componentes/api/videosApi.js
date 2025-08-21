@@ -8,7 +8,8 @@ const getVideosEjemplo = () => [
     url: 'https://www.youtube.com/watch?v=ejemplo1',
     fecha: new Date('2024-01-15'),
     estado: true,
-    activo: true
+    activo: true,
+    tipo: 'editorial'
   },
   {
     id: 2,
@@ -16,7 +17,8 @@ const getVideosEjemplo = () => [
     url: 'https://www.youtube.com/watch?v=ejemplo2',
     fecha: new Date('2024-01-20'),
     estado: true,
-    activo: true
+    activo: true,
+    tipo: 'comercial'
   },
   {
     id: 3,
@@ -24,7 +26,8 @@ const getVideosEjemplo = () => [
     url: 'https://www.youtube.com/watch?v=ejemplo3',
     fecha: new Date('2024-01-25'),
     estado: false,
-    activo: false
+    activo: false,
+    tipo: 'editorial'
   }
 ];
 
@@ -42,7 +45,8 @@ export const crearVideo = async (formData, token) => {
       imagen: 'https://picsum.photos/300/200?random=1',
       fecha: new Date().toISOString(),
       estado: true,
-      activo: true
+      activo: true,
+      tipo: 'editorial'
     };
   }
 
@@ -117,7 +121,8 @@ export const obtenerVideos = async (token = null) => {
         imagen: 'https://picsum.photos/300/200?random=1',
         fecha: new Date().toISOString(),
         estado: true,
-        activo: true
+        activo: true,
+        tipo: 'editorial'
       },
       {
         id: 2,
@@ -125,7 +130,8 @@ export const obtenerVideos = async (token = null) => {
         imagen: 'https://picsum.photos/300/200?random=2',
         fecha: new Date().toISOString(),
         estado: true,
-        activo: true
+        activo: true,
+        tipo: 'editorial'
       },
       {
         id: 3,
@@ -133,7 +139,8 @@ export const obtenerVideos = async (token = null) => {
         imagen: 'https://picsum.photos/300/200?random=3',
         fecha: new Date().toISOString(),
         estado: false,
-        activo: false
+        activo: false,
+        tipo: 'editorial'
       }
     ];
   }
@@ -163,11 +170,25 @@ export const obtenerVideos = async (token = null) => {
     const data = await response.json();
     console.log('Datos recibidos del backend:', data);
     
+    // Debug: verificar si los videos tienen el campo tipo
+    data.forEach((video, index) => {
+      console.log(`Video ${index + 1}:`, {
+        id: video.id,
+        url: video.url,
+        tipo: video.tipo,
+        tipoType: typeof video.tipo,
+        activo: video.activo,
+        estado: video.estado
+      });
+    });
+    
     // Como el backend usa BOOLEAN, solo necesitamos asegurar que el campo 'activo' esté presente
     const videosMapeados = data.map(video => ({
       ...video,
       // Si el backend solo tiene 'estado', crear 'activo' como alias
-      activo: video.activo !== undefined ? video.activo : video.estado
+      activo: video.activo !== undefined ? video.activo : video.estado,
+      // Asegurar que el campo tipo esté presente, por defecto 'editorial'
+      tipo: video.tipo || 'editorial'
     }));
     
     console.log('Videos mapeados para el frontend:', videosMapeados);
@@ -196,7 +217,8 @@ export const obtenerVideoPorId = async (id, token = null) => {
       imagen: `https://picsum.photos/300/200?random=${id}`,
       fecha: new Date().toISOString(),
       estado: true,
-      activo: true
+      activo: true,
+      tipo: 'editorial'
     };
   }
 
@@ -223,6 +245,83 @@ export const obtenerVideoPorId = async (id, token = null) => {
   }
 };
 
+// Editar/actualizar video
+export const editarVideo = async (id, formData, token) => {
+  if (SIMULAR_API) {
+    console.log('🚨 SIMULANDO edición de video:', id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return {
+      success: true,
+      mensaje: 'Video actualizado exitosamente (simulado)',
+      id: id,
+      url: formData.get('url') || 'https://www.youtube.com/watch?v=editado',
+      imagen: formData.get('imagen') ? 'https://picsum.photos/300/200?random=editado' : null,
+      fecha: formData.get('fecha') || new Date().toISOString(),
+      estado: formData.get('estado') === 'true',
+      activo: formData.get('estado') === 'true',
+      tipo: formData.get('tipo') || 'editorial'
+    };
+  }
+
+  try {
+    console.log('=== EDITAR VIDEO ===');
+    console.log('ID del video:', id);
+    console.log('Token presente:', !!token);
+    console.log('FormData contenido:', Object.fromEntries(formData.entries()));
+    
+    const apiUrl = `${urlApi}api/video/${id}`;
+    console.log('URL completa:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // NO incluir Content-Type para FormData
+      },
+      body: formData
+    });
+
+    console.log('Respuesta del servidor:', response.status, response.statusText);
+
+    if (!response.ok) {
+      let errorText = '';
+      try {
+        errorText = await response.text();
+        console.error('Error del servidor (texto):', errorText);
+      } catch (parseError) {
+        console.error('No se pudo leer el error del servidor:', parseError);
+      }
+      
+      throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('Video editado exitosamente:', data);
+    
+    // Mapear la respuesta del backend al formato esperado por el frontend
+    const respuestaMapeada = {
+      success: true,
+      mensaje: data.mensaje || 'Video actualizado exitosamente',
+      ...data,
+      // Asegurar que el campo 'activo' esté presente
+      activo: data.activo !== undefined ? data.activo : data.estado,
+      // Asegurar que el campo 'tipo' esté presente
+      tipo: data.tipo || 'editorial'
+    };
+    
+    console.log('Respuesta mapeada para el frontend:', respuestaMapeada);
+    return respuestaMapeada;
+    
+  } catch (error) {
+    console.error('Error completo al editar video:', error);
+    console.error('Tipo de error:', error.constructor.name);
+    console.error('Mensaje de error:', error.message);
+    console.error('Stack trace:', error.stack);
+    throw error;
+  }
+};
+
 // Cambiar estado activo/inactivo - Versión mejorada con rutas específicas
 export const toggleVideoEstado = async (id, token) => {
   if (SIMULAR_API) {
@@ -235,7 +334,8 @@ export const toggleVideoEstado = async (id, token) => {
       message: 'Estado cambiado exitosamente (simulado)',
       videoId: id,
       activo: true, // Simular que cambió a activo
-      estado: true
+      estado: true,
+      tipo: 'editorial'
     };
   }
 
@@ -544,7 +644,8 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
       message: `Video ${estadoActual ? 'desactivado' : 'activado'} exitosamente (simulado)`,
       videoId: id,
       activo: !estadoActual,
-      estado: !estadoActual
+      estado: !estadoActual,
+      tipo: 'editorial'
     };
   }
 
@@ -553,6 +654,8 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     console.log('ID del video:', id);
     console.log('Estado actual:', estadoActual);
     console.log('Token presente:', !!token);
+
+    
     
     // Determinar la acción basándose en el estado actual
     const debeDesactivar = estadoActual; // Si está activo, desactivarlo
@@ -615,6 +718,7 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
       videoId: id,
       esFallback: true
     };
+    
     
   } catch (error) {
     console.error('=== ERROR EN TOGGLE VIDEO ESTADO INTELIGENTE ===');
