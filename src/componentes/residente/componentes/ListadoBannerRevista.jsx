@@ -92,6 +92,22 @@ const ListadoBannerRevista = ({
                                 posts={postsFiltrados.slice(1, 7)}
                                 onCardClick={(post) => handleCardClick(post.id)}
                             />
+                            {revistaActual && revistaActual.pdf ? (
+                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                    <img
+                                        src={revistaActual.imagen_banner}
+                                        alt="Banner Revista"
+                                        className="w-full mb-4 cursor-pointer py-2"
+                                        title="Descargar Revista"
+                                    />
+                                </a>
+                            ) : (
+                                <img
+                                    src={revistaActual?.imagen_banner}
+                                    alt="Banner Revista"
+                                    className="w-full mb-4"
+                                />
+                            )}
                         </div>
 
                         {/* Columna lateral */}

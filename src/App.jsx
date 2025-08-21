@@ -26,6 +26,7 @@ import PreguntasSemanales from './componentes/residente/componentes/compFormular
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
+import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx'; 
 
 
 function App() {
@@ -221,11 +222,12 @@ function App() {
             <Videos />
           </div>} />
 
-          <Route path="/formnewsletter" element={
-            <div className="max-w-[1080px] mx-auto py-10">
-              <FormNewsletter />
-            </div>
-          } />
+          <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
+            <VideosDashboard />
+          </div>} />
+
+          <Route path="/formnewsletter" element={<VideosDashboard />} />
+
         </Routes>
       </main>
       {location.pathname !== "/culturallaccess" && (
