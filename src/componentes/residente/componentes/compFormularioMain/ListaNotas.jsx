@@ -245,6 +245,10 @@ const ListaNotas = () => {
 
       {/* Segundo div: lista de notas */}
       <div className="flex justify-end mb-2 gap-2 items-center">
+<<<<<<< HEAD
+=======
+       
+>>>>>>> brayan
         {/* Botón Dashboard de Videos - Solo para usuarios con permisos 'todos' */}
         {usuario?.permisos === 'todos' && (
           <Link

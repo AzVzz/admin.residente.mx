@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import TicketPromo from "../../../../promociones/componentes/TicketPromo";
 import { Iconografia } from "../../../../utils/Iconografia.jsx";
 
-const CUPONES_POR_VISTA = 4;
+const CUPONES_POR_VISTA = 5;
 
 const CuponesCarrusel = ({ cupones }) => {
   const [startIdx, setStartIdx] = useState(0);
@@ -11,7 +11,7 @@ const CuponesCarrusel = ({ cupones }) => {
   // 🔒 Scroll lock cuando el modal está abierto
   useEffect(() => {
     if (selectedCupon) {
-      const scrollY = window.scrollY; 
+      const scrollY = window.scrollY;
       const { body } = document;
 
       body.style.position = "fixed";
@@ -49,8 +49,9 @@ const CuponesCarrusel = ({ cupones }) => {
 
   const goPrev = () => { if (startIdx > 0) setStartIdx((idx) => Math.max(idx - 1, 0)); };
   const goNext = () => {
-    if (startIdx + CUPONES_POR_VISTA < cupones.length) {
-      setStartIdx((idx) => Math.min(idx + 1, cupones.length - CUPONES_POR_VISTA));
+    const maxStart = Math.max(0, cupones.length - CUPONES_POR_VISTA);
+    if (startIdx < maxStart) {
+      setStartIdx(idx => Math.min(idx + 1, maxStart));
     }
   };
 
@@ -102,13 +103,13 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Carrusel */}
         <div className="overflow-hidden w-full px-0">
           <div
-            className="flex transition-transform duration-300"
-            style={{ transform: `translateX(-${startIdx * 25}%)` }}
+            className="flex transition-transform duration-300 gap-x-0"
+            style={{ transform: `translateX(-${startIdx * 20}%)` }}
           >
             {cupones.map((cupon) => (
               <div
                 key={cupon.id}
-                className="min-w-[19.5%] flex-shrink-0 cursor-pointer"
+                className="min-w-[20%] flex-shrink-0 cursor-pointer"
                 onClick={() => setSelectedCupon(cupon)}
               >
                 <TicketPromo
@@ -128,7 +129,7 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Flecha derecha - por fuera del límite de 1080 */}
         <button
           onClick={goNext}
-          disabled={startIdx + CUPONES_POR_VISTA >= cupones.length}
+          disabled={startIdx >= cupones.length - CUPONES_POR_VISTA}
           className="
             hidden md:flex
             items-center justify-center

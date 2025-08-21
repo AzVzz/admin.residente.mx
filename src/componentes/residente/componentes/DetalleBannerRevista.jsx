@@ -93,9 +93,13 @@ const DetalleBannerRevista = ({
         <div className="flex flex-col items-end justify-start gap-10">
             <DirectorioVertical />
             <MainLateralPostTarjetas
-                notasDestacadas={notasDestacadas}
+                notasDestacadas={
+                    selectedPost
+                        ? notasDestacadas.filter(nota => nota.tipo_nota === selectedPost.tipo_nota)
+                        : []
+                }
                 onCardClick={handleCardClick}
-                pasarObjeto={false} // <--- ENVÍA SOLO EL ID
+                pasarObjeto={false}
             />
             <div className="mt-4">
                 <BotonesAnunciateSuscribirme />
