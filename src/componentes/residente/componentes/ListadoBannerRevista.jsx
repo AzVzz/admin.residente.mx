@@ -195,4 +195,4 @@ const ListadoBannerRevista = ({
     );
 };
 
-    export default ListadoBannerRevista;
+export default ListadoBannerRevista;

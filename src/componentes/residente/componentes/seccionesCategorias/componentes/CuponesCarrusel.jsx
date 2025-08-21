@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import TicketPromo from "../../../../promociones/componentes/TicketPromo";
 import { Iconografia } from "../../../../utils/Iconografia.jsx";
 
-const CUPONES_POR_VISTA = 4;
+const CUPONES_POR_VISTA = 5;
 
 const CuponesCarrusel = ({ cupones }) => {
   const [startIdx, setStartIdx] = useState(0);
@@ -103,13 +103,13 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Carrusel */}
         <div className="overflow-hidden w-full px-0">
           <div
-            className="flex transition-transform duration-300"
-            style={{ transform: `translateX(-${startIdx * 25}%)` }}
+            className="flex transition-transform duration-300 gap-x-0"
+            style={{ transform: `translateX(-${startIdx * 20}%)` }}
           >
             {cupones.map((cupon) => (
               <div
                 key={cupon.id}
-                className="min-w-[19.5%] flex-shrink-0 cursor-pointer"
+                className="min-w-[20%] flex-shrink-0 cursor-pointer"
                 onClick={() => setSelectedCupon(cupon)}
               >
                 <TicketPromo
