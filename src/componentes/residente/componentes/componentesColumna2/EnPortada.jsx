@@ -83,7 +83,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                     <img
                                         src={revistaActual.imagen_portada}
                                         alt="Portada Revista"
-                                        className="w-65 h-full object-cover cursor-pointer"
+                                        className="w-65 h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
                                         title="Descargar PDF"
                                     />
                                 </a>
@@ -91,7 +91,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 <img
                                     src={revistaActual}
                                     alt="Portada Revista"
-                                    className="h-auto sm:w-32 w-22 object-cover"
+                                    className="h-auto sm:w-32 w-22 object-cover "
                                 />
                             )}
                             <div className="flex flex-col ml-6 justify-between">
@@ -123,7 +123,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 className="relative w-40 cursor-pointer"
                                 onClick={() => onCardClick && onCardClick(nota)}
                             >
-                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover" />
+                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover " />
                                 <div className="flex flex-col mt-4 text-right">
                                     <h2 className="text-black text-[14px] leading-4.5 text-wrap">{nota.titulo}</h2>
                                 </div>
