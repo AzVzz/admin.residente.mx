@@ -38,7 +38,7 @@ const MainLateralPostTarjetas = ({
                                                 >
                                                     {(() => {
                                                         const fecha = post?.fecha || 'Sin fecha';
-                                                        const [primera, ...resto] = fecha.split(' ');
+                                                        const [primera, ...resto] = fecha.split(' '); 
                                                         return (
                                                             <>
                                                                 <span className="capitalize">{primera}</span>
