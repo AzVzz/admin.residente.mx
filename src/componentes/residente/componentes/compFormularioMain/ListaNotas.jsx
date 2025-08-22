@@ -243,6 +243,18 @@ const ListaNotas = () => {
         </div>
       </div>
 
+      {/* Banner promocional del chamoy */}
+      <div className="bg-gray-200 rounded-lg p-6 shadow-lg">
+        <div className="text-black">
+          <h2 className="text-xl font-bold mb-3 leading-tight">
+            Prepara tu chamoy sin químicos ni colorantes y disfruta de su sabor auténtico con ingredientes naturales, frescos y fáciles de conseguir.
+          </h2>
+          <p className="text-base leading-relaxed">
+            Hace poquito preparé una versión de chamoy que me dejó encantada. Porque sí, el chamoy es delicioso... pero muchas veces está lleno de colorantes, químicos y cosas que nadie necesita. Esta receta me devolvió el gusto por ponerle chamoy a TODO, sabiendo que está hecho con lo bueno y sin culpa. Lo mejor es que es fácil de preparar y tú decides qué tan ácido, dulce o picante lo quieres.
+          </p>
+        </div>
+      </div>
+
       {/* Segundo div: lista de notas */}
       <div className="flex justify-end mb-2 gap-2 items-center">
         {/* Botón Dashboard de Videos - Solo para usuarios con permisos 'todos' */}
