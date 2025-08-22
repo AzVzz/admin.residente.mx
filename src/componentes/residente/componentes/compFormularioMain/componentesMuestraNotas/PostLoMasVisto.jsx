@@ -25,7 +25,11 @@ const PostLoMasVisto = ({ titulo, imagen, fecha }) => {
             </div>
             <div className="flex-grow">
                 <ul className="h-full flex flex-col gap-3">
-                    <NotaLoMasVistoMain titulo={titulo} imagen={imagen} fecha={fecha} />
+                    <NotaLoMasVistoMain 
+                        titulo={titulo} 
+                        imagen={imagen} 
+                        fecha={fecha}
+                    />
                 </ul>
             </div>
         </section>

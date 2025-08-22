@@ -377,7 +377,7 @@ const FormMainResidente = () => {
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
                     <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
-                      📝 Mama de Rocco
+                      📝 {watch('tipoDeNotaSeleccionada') || ''}
                     </div>
                   </div>
                 )}
@@ -390,6 +390,15 @@ const FormMainResidente = () => {
                       📝 Sin tipo asignado
                     </div>
                   </div>
+                )}
+
+                {/* Secciones de filtros restauradas para usuarios con permisos 'todos' */}
+                {usuario?.permisos === 'todos' && (
+                  <CategoriasTipoNotaSelector
+                    tipoDeNota={tipoDeNota}
+                    secciones={secciones}
+                    ocultarTipoNota={!!tipoNotaUsuario}
+                  />
                 )}
 
                 <NombreRestaurante />
@@ -412,19 +421,70 @@ const FormMainResidente = () => {
                   Sticker seleccionado: {watch('sticker')}
                 </div>
 
-                {/* Opciones de publicación completamente ocultas */}
-                {/* <OpcionesPublicacion
-                  opcionSeleccionada={opcionPublicacion}
-                  onOpcionChange={value => setValue('opcionPublicacion', value)}
-                  fechaProgramada={watch('fechaProgramada')}
-                  onFechaChange={value => setValue('fechaProgramada', value)}
-                /> */}
-
-                {/* Mensaje informativo sobre publicación */}
+                {/* Opciones de publicación */}
                 <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="text-sm text-yellow-800">
-                    <p className="font-medium">📝 Nota:</p>
-                    <p>Un administrador publicará tu nota pronto.</p>
+                  <div className="text-sm text-yellow-800 mb-4">
+                  </div>
+                  
+                  {/* Opciones de publicación */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-yellow-800 mb-3">
+                      Opciones de Publicación
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="publicar-ahora"
+                          value="publicada"
+                          {...methods.register("opcionPublicacion")}
+                          className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                        />
+                        <label htmlFor="publicar-ahora" className="text-sm text-yellow-800 cursor-pointer">
+                          Publicar ahora
+                        </label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="programar"
+                          value="programar"
+                          {...methods.register("opcionPublicacion")}
+                          className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                        />
+                        <label htmlFor="programar" className="text-sm text-yellow-800 cursor-pointer">
+                          Programar publicación
+                        </label>
+                      </div>
+
+                      <div className="ml-6 space-y-2">
+                        <label htmlFor="fecha-programada" className="block text-xs text-yellow-700">
+                          Fecha y hora de publicación
+                        </label>
+                        <input
+                          id="fecha-programada"
+                          type="datetime-local"
+                          {...methods.register("fechaProgramada")}
+                          className="w-full max-w-xs px-3 py-2 border border-yellow-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 disabled:bg-yellow-100 disabled:cursor-not-allowed"
+                          disabled={watch('opcionPublicacion') !== "programar"}
+                          required={watch('opcionPublicacion') === "programar"}
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="borrador"
+                          value="borrador"
+                          {...methods.register("opcionPublicacion")}
+                          className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                        />
+                        <label htmlFor="borrador" className="text-sm text-yellow-800 cursor-pointer">
+                          Guardar como borrador
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
