@@ -45,7 +45,7 @@ const ListadoBannerRevista = ({
                 const tipoLabel = (tipoConfig.label || tipo || "").toString();
 
                 return (
-                    <div key={tipo} className="flex flex-col pt-9">
+                    <div key={tipo} className="flex flex-col pt-9"  id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
                             {/* Columna Principal */}
                             <div>
