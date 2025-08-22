@@ -10,7 +10,6 @@ import EnPortada from './componentesColumna2/EnPortada';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import { urlApi } from '../../../componentes/api/url.js';
-import PortadaRevista from './componentesColumna2/PortadaRevista.jsx';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
 
@@ -129,7 +128,6 @@ const ListadoBannerRevista = ({
                             <div>
                                 <div className="flex flex-col items-end justify-start gap-10">
                                     <DirectorioVertical />
-                                    <PortadaRevista />
                                     <MainLateralPostTarjetas
                                         notasDestacadas={destacadasFiltradas}
                                         onCardClick={handleCardClick}
