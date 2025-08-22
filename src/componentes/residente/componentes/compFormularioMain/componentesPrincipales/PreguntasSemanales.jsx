@@ -10,8 +10,7 @@ const PreguntasSemanales = () => {
   const [expirarEn, setExpirarEn] = useState("")
   const [mensaje, setMensaje] = useState("")
   const [preguntas, setPreguntas] = useState([])
-  // Obtener el token del usuario autenticado
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token") // Obtener el token del usuario autenticado
 
   useEffect(() => {
     const fetchPreguntas = async () => {

@@ -70,11 +70,6 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
 
                 <div className="h-[400px] overflow-hidden">
                     <div className="relative h-full">
-                        {!sinFecha && (
-                            <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF300] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
-                                {post.fecha}
-                            </div>
-                        )}
                         <img
                             src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                             className="w-full h-full object-cover"
@@ -97,15 +92,25 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
                     </div>
                 </div>
 
-                {/* Sección negra - igual que en PostPrincipal */}
+                {/* Sección transparente - igual que en la principal */}
                 <div className="bg-transparent p-8 flex flex-col h-[325px] relative">
-                    <div className="mb-1 flex items-center justify-between">
-                        <span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
+                    <div className="flex justify-center items-center pt-4">
+                        <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                            {post.fecha}
+                        </div>
+                        {/*<span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
                             {post.tipo_nota}
-                        </span>
+                        </span>*/}
                         {/* Los stickers ya están en la imagen, así que los quitamos de aquí */}
                     </div>
-                    <h1 className="text-black text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
+                    <h1
+                        className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center 
+                        p-2 my-0 tracking-tight"
+                        style={{
+                            whiteSpace: 'pre-line',
+                            wordBreak: 'break-word',
+                        }}
+                    >
                         {post.titulo}
                     </h1>
                 </div>
