@@ -60,10 +60,8 @@ const PortadaRevista = () => {
                 </div>
 
                 <div className="flex">
-                    <h2 className="text-white text-[20px] leading-5.5">
-                        Grupo Blend: Innovación<br />
-                        y comunidad en la escena<br />
-                        gastronómica de Monterrey.
+                    <h2 className="text-white text-[20px] leading-5.5 whitespace-pre-line">
+                        {revistaActual?.descripcion || ""}
                     </h2>
                 </div>
             </div>
