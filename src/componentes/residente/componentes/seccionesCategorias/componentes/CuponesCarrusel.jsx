@@ -103,7 +103,7 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Carrusel */}
         <div className="overflow-hidden w-full px-0">
           <div
-            className="flex transition-transform duration-300 gap-x-0"
+            className="flex transition-transform duration-300 gap-x-0 mb-2"
             style={{ transform: `translateX(-${startIdx * 20}%)` }}
           >
             {cupones.map((cupon) => (
