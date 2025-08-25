@@ -96,21 +96,21 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                             )}
                             <div className="flex flex-col ml-6 justify-between">
                                 <h3 className="text-2xl font-bold text-black ">En Portada</h3>
-                                <h2 className="text-black text-[22px] leading-6.5">
-                                    Grupo Blend: Innovación<br />
-                                    y comunidad en la escena<br />
-                                    gastronómica de Monterrey.
+                                <h2 className="text-black text-[22px] leading-6.5 whitespace-pre-line">
+                                    {revistaActual?.descripcion || ""}
                                 </h2>
-                                <a
-                                    href={revistaActual?.pdf}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    download
-                                >
-                                    <span className="text-black text-[18px] pt-3 cursor-pointer hover:underline mt-2">
-                                        Descarga aqui {">"}
-                                    </span>
-                                </a>
+                                {revistaActual?.pdf && (
+                                    <a
+                                        href={revistaActual.pdf}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        download
+                                    >
+                                        <span className="text-black text-[18px] pt-3 cursor-pointer hover:underline mt-2">
+                                            Descarga aquí {">"}
+                                        </span>
+                                    </a>
+                                )}
                             </div>
                         </div>
 
