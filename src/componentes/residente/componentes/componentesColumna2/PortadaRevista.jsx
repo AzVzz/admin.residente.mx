@@ -5,6 +5,8 @@ import { urlApi } from "../../../api/url.js";
 
 const PortadaRevista = () => {
     const [revistaActual, setRevistaActual] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [notas, setNotas] = useState([]);
 
     useEffect(() => {
         const fetchRevista = async () => {
