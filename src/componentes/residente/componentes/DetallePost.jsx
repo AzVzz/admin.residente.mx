@@ -118,7 +118,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
                     className="text-xl font-roman"
                     dangerouslySetInnerHTML={{ __html: post.descripcion }}
                 />
-                <span>&copy; PROHIBIDA LA REPDOUCCIÓN PARCIAL O TOTAL DE LOS TEXTOS O IDEAS CONTENIDOS EN ESTE ARTÍCULO Y ESTA PÁGINA. PROTEGIDOS POR LA LEY DE COPYRIGHT MEXICO Y COPYRIGHT INTERNACIONES. PARA PEDIR AUTORIZACIÓN DE REPORDUCCIÓN, HAZ CLICK AQUÍ</span>
+                <span className="text-sm text-black-600">&copy; PROHIBIDA LA REPDOUCCIÓN PARCIAL O TOTAL DE LOS TEXTOS O IDEAS CONTENIDOS EN ESTE ARTÍCULO Y ESTA PÁGINA. PROTEGIDOS POR LA LEY DE COPYRIGHT MEXICO Y COPYRIGHT INTERNACIONES. PARA PEDIR AUTORIZACIÓN DE REPORDUCCIÓN, HAZ CLICK AQUÍ</span>
 
                 <PostComentarios />
 
