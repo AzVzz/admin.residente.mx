@@ -12,6 +12,7 @@ import SeccionesPrincipales from './SeccionesPrincipales';
 import { urlApi } from '../../../componentes/api/url.js';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
+import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 
 
 const ListadoBannerRevista = ({
@@ -45,7 +46,7 @@ const ListadoBannerRevista = ({
                 const tipoLabel = (tipoConfig.label || tipo || "").toString();
 
                 return (
-                    <div key={tipo} className="flex flex-col pt-9"  id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
+                    <div key={tipo} className="flex flex-col pt-9" id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
                             {/* Columna Principal */}
                             <div>
@@ -85,22 +86,6 @@ const ListadoBannerRevista = ({
                                         onClick={() => handleCardClick(postsFiltrados[0].id)}
                                     />
                                 )}
-                                {/*revistaActual && revistaActual.pdf ? (
-                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                    <img
-                                        src={revistaActual.imagen_banner}
-                                        alt="Banner Revista"
-                                        className="w-full mb-4 cursor-pointer"
-                                        title="Descargar Revista"
-                                    />
-                                </a>
-                            ) : (
-                                <img
-                                    src={revistaActual?.imagen_banner}
-                                    alt="Banner Revista"
-                                    className="w-full mb-4"
-                                />
-                            )*/}
 
                                 <TresTarjetas
                                     posts={postsFiltrados.slice(1, 7)}
@@ -125,17 +110,19 @@ const ListadoBannerRevista = ({
                             </div>
 
                             {/* Columna lateral */}
-                            <div>
-                                <div className="flex flex-col items-end justify-start gap-10">
-                                    <DirectorioVertical />
-                                    <MainLateralPostTarjetas
-                                        notasDestacadas={destacadasFiltradas}
-                                        onCardClick={handleCardClick}
-                                        sinCategoria
-                                        cantidadNotas={5}
-                                    />
+                            <div className="flex flex-col items-end justify-start gap-10">
+                                <DirectorioVertical />
+                                <PortadaRevista />
+                                <MainLateralPostTarjetas
+                                    notasDestacadas={destacadasFiltradas}
+                                    onCardClick={handleCardClick}
+                                    sinCategoria
+                                    cantidadNotas={5}
+                                />
+
+                                <div className="mt-4">
+                                    <BotonesAnunciateSuscribirme />
                                 </div>
-                                <BotonesAnunciateSuscribirme />
                             </div>
                         </div>
                         {tipo === "Restaurantes" && (

@@ -28,7 +28,6 @@ import Videos from './componentes/residente/componentes/compFormularioMain/Video
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
 import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx'; 
 
-
 function App() {
 
   const location = useLocation();
@@ -110,6 +109,7 @@ function App() {
               <BannerRevista />
             </div>
           } />
+
           <Route path="/notas/:id" element={
             <div className="max-w-[1080px] mx-auto">
               <BannerRevista />

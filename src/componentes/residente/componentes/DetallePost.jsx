@@ -6,9 +6,10 @@ import ShowComentarios from "./ShowComentarios";
 import { Iconografia } from '../../utils/Iconografia.jsx';
 import { urlApi } from "../../api/url.js";
 import BarraMarquee from "./seccionesCategorias/componentes/BarraMarquee.jsx";
+import CincoNotasRRR from "./seccionesCategorias/componentes/CincoNotasRRR.jsx";
 
 // DetallePost.jsx
-const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee }) => {
+const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee, revistaActual }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post, setPost] = useState(postProp);
@@ -64,74 +65,108 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee 
             : [];
 
     return (
-        <div className="flex flex-col shadow-md">
-            {/** h-[725px]  mb-5 */}
-            <div className="flex flex-col overflow-hidden">
+        <>
+            <div className="flex flex-col shadow-md ">
+                {/** h-[725px]  mb-5 */}
+                <div className="flex flex-col max-h-[735px] overflow-hidden mb-4 ">
 
-                <div className="h-[400px] overflow-hidden">
-                    <div className="relative h-full">
+                    <div className="h-[400px] overflow-hidden">
+                        <div className="relative h-full">
+                            <img
+                                src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                                className="w-full h-full object-cover"
+                                alt={post.titulo}
+                            />
+                            {/* Mostrar los stickers en la imagen, igual que en PostPrincipal */}
+                            <div className="absolute top-7 right-9 flex gap-1 z-10">
+                                {stickers.map(clave => {
+                                    const icono = iconosDisponibles.find(i => i.clave === clave);
+                                    return icono ? (
+                                        <img
+                                            key={clave}
+                                            src={icono.icono}
+                                            alt={icono.nombre}
+                                            className="h-15 w-15 rounded-full shadow"
+                                        />
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sección transparente - igual que en la principal */}
+                    <div className="bg-transparent flex flex-col max-h-[325px] relative min-h-[120]">
+                        <div className="flex justify-center items-center pt-4">
+                            <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                                {post.fecha}
+                            </div>
+                        </div>
+                        <h1
+                            className="ttext-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
+                            style={{
+                                whiteSpace: 'pre-line',
+                                wordBreak: 'break-word',
+                            }}
+                        >
+                            {post.titulo}
+                        </h1>
+                    </div>
+                </div>
+                {revistaActual && revistaActual.pdf ? (
+                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                         <img
-                            src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
-                            className="w-full h-full object-cover"
-                            alt={post.titulo}
+                            src={revistaActual.imagen_banner}
+                            alt="Banner Revista"
+                            className="w-full mb-4 cursor-pointer py-2"
+                            title="Descargar Revista"
                         />
-                        {/* Mostrar los stickers en la imagen, igual que en PostPrincipal */}
-                        <div className="absolute top-7 right-9 flex gap-1 z-10">
-                            {stickers.map(clave => {
-                                const icono = iconosDisponibles.find(i => i.clave === clave);
-                                return icono ? (
-                                    <img
-                                        key={clave}
-                                        src={icono.icono}
-                                        alt={icono.nombre}
-                                        className="h-15 w-15 rounded-full shadow"
-                                    />
-                                ) : null;
-                            })}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Sección transparente - igual que en la principal */}
-                <div className="bg-transparent p-8 flex flex-col h-[325px] relative">
-                    <div className="flex justify-center items-center pt-4">
-                        <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
-                            {post.fecha}
-                        </div>
-                        {/*<span className="font-serif inline-block bg-[#FFF200] text-gray-900 uppercase text-[10px] font-bold px-3 py-0.5 shadow-md">
-                            {post.tipo_nota}
-                        </span>*/}
-                        {/* Los stickers ya están en la imagen, así que los quitamos de aquí */}
-                    </div>
-                    <h1
-                        className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center 
-                        p-2 my-0 tracking-tight"
-                        style={{
-                            whiteSpace: 'pre-line',
-                            wordBreak: 'break-word',
-                        }}
-                    >
-                        {post.titulo}
-                    </h1>
-                </div>
-            </div>
-
-            {/* Contenido adicional específico del detalle */}
-            <div className="flex flex-col gap-5 px-10 py-6">
-                <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
-                <div
-                    className="text-xl font-roman"
-                    dangerouslySetInnerHTML={{ __html: post.descripcion }}
-                />
-                <span>&copy; 2025 Residente. Todos los derechos reservados.</span>
-
-                <PostComentarios />
-
+                    </a>
+                ) : (
+                    <img
+                        src={revistaActual?.imagen_banner}
+                        alt="Banner Revista"
+                        className="w-full mb-4"
+                    />
+                )}
+                {/* Contenido adicional específico del detalle */}
+                <div className="flex flex-col gap-5 px-10 py-6">
+                    <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
+                    <div
+                        className="text-xl font-roman"
+                        dangerouslySetInnerHTML={{ __html: post.descripcion }}
+                    />
+                    <span className="text-[10.5px] leading-4 font-roman">&copy; PROHIBIDA LA REPDOUCCIÓN PARCIAL O TOTAL DE LOS TEXTOS O IDEAS CONTENIDOS EN ESTE ARTÍCULO Y ESTA PÁGINA. PROTEGIDOS POR LA LEY DE COPYRIGHT MÉXICO Y COPYRIGHT INTERNACIONES. PARA PEDIR AUTORIZACIÓN DE REPORDUCCIÓN, <a href="mailto:autorizaciones@tudominio.com?subject=Solicitud%20de%20autorización%20de%20reproducción&body=Hola,%20quisiera%20solicitar%20autorización%20para%20reproducir%20el%20contenido..." className="underline cursor-pointer">HAZ CLICK AQUÍ</a></span>
+                    {/**
+                 * 
+                 * <PostComentarios />
                 <ShowComentarios />
+                 * 
+                 * contacto@residente.mx
+                 */}
 
-                <button onClick={() => navigate(-1)}>← Volver al listado</button>
+
+                    <button onClick={() => navigate(-1)}>← Volver al listado</button>
+                    {revistaActual && revistaActual.pdf ? (
+                        <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                            <img
+                                src={revistaActual.imagen_banner}
+                                alt="Banner Revista"
+                                className="w-full mb-4 cursor-pointer py-2"
+                                title="Descargar Revista"
+                            />
+                        </a>
+                    ) : (
+                        <img
+                            src={revistaActual?.imagen_banner}
+                            alt="Banner Revista"
+                            className="w-full mb-4"
+                        />
+                    )}
+                </div>
+
             </div>
-        </div>
+
+        </>
     );
 };
 
