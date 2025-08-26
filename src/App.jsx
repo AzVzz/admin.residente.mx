@@ -26,8 +26,8 @@ import PreguntasSemanales from './componentes/residente/componentes/compFormular
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
-import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx'; 
-
+import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx';
+import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
 
 function App() {
 
@@ -230,10 +230,11 @@ function App() {
 
         </Routes>
       </main>
+      {/* Botón flotante para ir arriba */}
+      <BotonScroll />
       {location.pathname !== "/culturallaccess" && (
         <footer>
           <FooterPrincipal />
-          {/* FooterPrincipal.jsx */}
         </footer>
       )}
     </div>
