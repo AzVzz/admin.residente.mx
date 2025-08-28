@@ -102,7 +102,9 @@ const DetalleBannerRevista = ({
                     <MainLateralPostTarjetas
                         notasDestacadas={
                             selectedPost
-                                ? notasDestacadas.filter(nota => nota.tipo_nota === tipo)
+                                ? notasDestacadas.filter(
+                                    nota => nota.tipo_nota === tipo || nota.tipo_nota2 === tipo
+                                )
                                 : []
                         }
                         onCardClick={handleCardClick}

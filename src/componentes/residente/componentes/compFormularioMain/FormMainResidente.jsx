@@ -75,7 +75,8 @@ const FormMainResidente = () => {
       tipoDeNotaSeleccionada: tipoNotaUsuario || '',
       categoriasSeleccionadas: {},
       imagen: null,
-      destacada: false
+      destacada: false,
+      tiposDeNotaSeleccionadas: [],
     }
   });
 
@@ -201,6 +202,10 @@ const FormMainResidente = () => {
             sticker: data.sticker || '',
             destacada: !!data.destacada,
             nombre_restaurante: data.nombre_restaurante || '',
+            tiposDeNotaSeleccionadas: [
+              data.tipo_nota || '',
+              data.tipo_nota2 || ''
+            ].filter(Boolean),
           });
           setImagenActual(data.imagen || null);
         } catch (error) {
@@ -233,8 +238,9 @@ const FormMainResidente = () => {
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
-      // Fuerza el tipo de nota correcto
-      const tipoNotaFinal = tipoNotaUsuario || data.tipoDeNotaSeleccionada;
+      const tiposSeleccionados = data.tiposDeNotaSeleccionadas || [];
+      const tipoNotaFinal = tipoNotaUsuario || tiposSeleccionados[0] || null;
+      const tipoNotaSecundaria = tiposSeleccionados[1] || null;
 
       // Determinar el estado de la nota según los permisos del usuario
       let estadoFinal;
@@ -252,6 +258,7 @@ const FormMainResidente = () => {
 
       const datosNota = {
         tipo_nota: tipoNotaFinal,
+        tipo_nota2: tipoNotaSecundaria,
         secciones_categorias: seccionesCategorias,
         titulo: data.titulo,
         subtitulo: data.subtitulo,
@@ -350,8 +357,6 @@ const FormMainResidente = () => {
                   ocultarTipoNota={!!tipoNotaUsuario}
                 /> */}
 
-                {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
-
                 {/* Si hay tipoNotaUsuario, muéstralo como texto prominente */}
                 {tipoNotaUsuario && (
                   <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -367,7 +372,7 @@ const FormMainResidente = () => {
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
                     <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
-                      📝 {watch('tipoDeNotaSeleccionada') || ''}
+                      📝 {(watch('tiposDeNotaSeleccionadas') || []).join(' / ') || ''}
                     </div>
                   </div>
                 )}
@@ -391,19 +396,26 @@ const FormMainResidente = () => {
                   />
                 )}
 
-                {(tipoNotaSeleccionada === "Restaurantes" || tipoNotaSeleccionada === "Food & Drink") && (
-                  <div className="mb-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        {...methods.register("destacada")}
-                        className="form-checkbox h-5 w-5 text-yellow-500"
-                      />
-                      <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
-                    </label>
-                  </div>
-                )}
-
+                {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
+                {(() => {
+                  const tipos = watch('tiposDeNotaSeleccionadas') || [];
+                  // Solo mostrar si incluye Restaurantes o Food & Drink
+                  if (tipos.includes("Restaurantes") || tipos.includes("Food & Drink")) {
+                    return (
+                      <div className="mb-4">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            {...methods.register("destacada")}
+                            className="form-checkbox h-5 w-5 text-yellow-500"
+                          />
+                          <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                        </label>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 <NombreRestaurante />
 
@@ -516,7 +528,7 @@ const FormMainResidente = () => {
               <PostHorizontal
                 titulo={titulo || 'Título de ejemplo'}
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-                tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
+                tipoNota={(watch('tiposDeNotaSeleccionadas') || []).join(' / ') || 'Tipo de nota'}
               />
               <PostLoMasVistoDirectorio
                 tipoDeNota={tipoNotaSeleccionada || 'Tipo de nota'}
