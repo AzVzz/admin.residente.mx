@@ -271,7 +271,10 @@ const FormMainResidente = () => {
       };
 
       // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
-      if ((tipoNotaFinal === "Restaurantes") && datosNota.destacada) {
+      if (
+        (tipoNotaFinal === "Restaurantes" || tipoNotaFinal === "Food & Drink") &&
+        datosNota.destacada
+      ) {
         datosNota.nombre_restaurante = data.nombre_restaurante || null;
       } else {
         datosNota.nombre_restaurante = null;
@@ -539,6 +542,7 @@ const FormMainResidente = () => {
             <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
               <div>
                 <PostPrincipal
+                  nombreRestaurante={watch('nombre_restaurante')}
                   titulo={titulo || 'Título de ejemplo'}
                   subtitulo={subtitulo || 'Subtítulo de ejemplo'}
                   autor={autor || 'Autor de ejemplo'}
