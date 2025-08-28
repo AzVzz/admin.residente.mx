@@ -199,6 +199,8 @@ const FormMainResidente = () => {
               }, {})
               : {},
             sticker: data.sticker || '',
+            destacada: !!data.destacada,
+            nombre_restaurante: data.nombre_restaurante || '',
           });
           setImagenActual(data.imagen || null);
         } catch (error) {
