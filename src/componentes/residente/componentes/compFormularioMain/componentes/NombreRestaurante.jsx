@@ -11,7 +11,7 @@ const NombreRestaurante = () => {
     return (
         <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre del restaurante (opcional)
+                Nombre del restaurante
             </label>
             <input
                 type="text"

@@ -133,7 +133,7 @@ const Header = () => {
                   )}
                 </div>
                 <div className="sm:flex gap-1.5 hidden">
-                  <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
+                  <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
                   <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                   <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                   <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>

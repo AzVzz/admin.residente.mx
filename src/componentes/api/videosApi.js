@@ -38,7 +38,7 @@ const SIMULAR_API = false;
 // Crear un nuevo video
 export const crearVideo = async (formData, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO creación de video');
+    //console.log('🚨 SIMULANDO creación de video');
     return {
       id: Date.now(),
       url: 'https://www.youtube.com/watch?v=simulado',
@@ -52,10 +52,10 @@ export const crearVideo = async (formData, token) => {
 
   try {
     const apiUrl = `${urlApi}api/video`;
-    console.log('=== DEBUG API ===');
-    console.log('URL completa:', apiUrl);
-    console.log('Token presente:', !!token);
-    console.log('FormData contenido:', Object.fromEntries(formData.entries()));
+    ////console.log('=== DEBUG API ===');
+    ////console.log('URL completa:', apiUrl);
+    ////console.log('Token presente:', !!token);
+    ////console.log('FormData contenido:', Object.fromEntries(formData.entries()));
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -66,43 +66,43 @@ export const crearVideo = async (formData, token) => {
       body: formData
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
-    console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
+    ////console.log('Respuesta del servidor:', response.status, response.statusText);
+    ////console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       let errorText = '';
       try {
         errorText = await response.text();
-        console.error('Error del servidor (texto):', errorText);
+        ////console.error('Error del servidor (texto):', errorText);
       } catch (parseError) {
-        console.error('No se pudo leer el error del servidor:', parseError);
+        ////console.error('No se pudo leer el error del servidor:', parseError);
       }
       
-      console.error('Error del servidor (status):', response.status);
-      console.error('Error del servidor (statusText):', response.statusText);
+      ////console.error('Error del servidor (status):', response.status);
+      ////console.error('Error del servidor (statusText):', response.statusText);
       
       // Intentar parsear como JSON si es posible
       let errorData = null;
       try {
         if (errorText) {
           errorData = JSON.parse(errorText);
-          console.error('Error del servidor (JSON):', errorData);
+          //console.error('Error del servidor (JSON):', errorData);
         }
       } catch (jsonError) {
-        console.error('Error no es JSON válido');
+        //console.error('Error no es JSON válido');
       }
       
       throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('Video creado exitosamente:', data);
+    ////console.log('Video creado exitosamente:', data);
     return data;
   } catch (error) {
-    console.error('Error completo al crear video:', error);
-    console.error('Tipo de error:', error.constructor.name);
-    console.error('Mensaje de error:', error.message);
-    console.error('Stack trace:', error.stack);
+    ////console.error('Error completo al crear video:', error);
+    ////console.error('Tipo de error:', error.constructor.name);
+    ////console.error('Mensaje de error:', error.message);
+    ////console.error('Stack trace:', error.stack);
     throw error;
   }
 };
@@ -110,7 +110,7 @@ export const crearVideo = async (formData, token) => {
 // Obtener todos los videos
 export const obtenerVideos = async (token = null) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO obtención de videos');
+    ////console.log('🚨 SIMULANDO obtención de videos');
     // Simular delay de red
     await new Promise(resolve => setTimeout(resolve, 300));
     
@@ -146,9 +146,9 @@ export const obtenerVideos = async (token = null) => {
   }
 
   try {
-    console.log('=== DEBUG API - OBTENER VIDEOS ===');
-    console.log('URL:', `${urlApi}api/video`);
-    console.log('Token presente:', !!token);
+    ////console.log('=== DEBUG API - OBTENER VIDEOS ===');
+    ////console.log('URL:', `${urlApi}api/video`);
+    ////console.log('Token presente:', !!token);
     
     const headers = {};
     if (token) {
@@ -161,26 +161,26 @@ export const obtenerVideos = async (token = null) => {
       headers
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
+    ////console.log('Respuesta del servidor:', response.status, response.statusText);
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('Datos recibidos del backend:', data);
+    ////console.log('Datos recibidos del backend:', data);
     
     // Debug: verificar si los videos tienen el campo tipo
-    data.forEach((video, index) => {
-      console.log(`Video ${index + 1}:`, {
-        id: video.id,
-        url: video.url,
-        tipo: video.tipo,
-        tipoType: typeof video.tipo,
-        activo: video.activo,
-        estado: video.estado
-      });
-    });
+    //data.forEach((video, index) => {
+    //  //console.log(`Video ${index + 1}:`, {
+    //    id: video.id,
+    //    url: video.url,
+    //    tipo: video.tipo,
+    //    tipoType: typeof video.tipo,
+    //    activo: video.activo,
+    //    estado: video.estado
+    //  });
+    //});
     
     // Como el backend usa BOOLEAN, solo necesitamos asegurar que el campo 'activo' esté presente
     const videosMapeados = data.map(video => ({
@@ -191,18 +191,18 @@ export const obtenerVideos = async (token = null) => {
       tipo: video.tipo || 'editorial'
     }));
     
-    console.log('Videos mapeados para el frontend:', videosMapeados);
+    ////console.log('Videos mapeados para el frontend:', videosMapeados);
     
     // Si no hay videos o hay error, devolver ejemplos
     if (!videosMapeados || videosMapeados.length === 0) {
-      console.log('No hay videos en el backend, usando ejemplos');
+      ////console.log('No hay videos en el backend, usando ejemplos');
       return getVideosEjemplo();
     }
     
     return videosMapeados;
   } catch (error) {
-    console.error('Error al obtener videos:', error);
-    console.log('Usando videos de ejemplo debido al error');
+    ////console.error('Error al obtener videos:', error);
+    ////console.log('Usando videos de ejemplo debido al error');
     return getVideosEjemplo();
   }
 };
@@ -210,7 +210,7 @@ export const obtenerVideos = async (token = null) => {
 // Obtener video por ID
 export const obtenerVideoPorId = async (id, token = null) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO obtención de video por ID:', id);
+    //console.log('🚨 SIMULANDO obtención de video por ID:', id);
     return {
       id: id,
       url: `https://www.youtube.com/watch?v=test${id}`,
@@ -240,7 +240,7 @@ export const obtenerVideoPorId = async (id, token = null) => {
 
     return await response.json();
   } catch (error) {
-    console.error('Error al obtener video por ID:', error);
+    //console.error('Error al obtener video por ID:', error);
     throw error;
   }
 };
@@ -248,7 +248,7 @@ export const obtenerVideoPorId = async (id, token = null) => {
 // Editar/actualizar video
 export const editarVideo = async (id, formData, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO edición de video:', id);
+    //console.log('🚨 SIMULANDO edición de video:', id);
     await new Promise(resolve => setTimeout(resolve, 300));
     
     return {
@@ -265,13 +265,13 @@ export const editarVideo = async (id, formData, token) => {
   }
 
   try {
-    console.log('=== EDITAR VIDEO ===');
-    console.log('ID del video:', id);
-    console.log('Token presente:', !!token);
-    console.log('FormData contenido:', Object.fromEntries(formData.entries()));
+    //console.log('=== EDITAR VIDEO ===');
+    //console.log('ID del video:', id);
+    //console.log('Token presente:', !!token);
+    //console.log('FormData contenido:', Object.fromEntries(formData.entries()));
     
     const apiUrl = `${urlApi}api/video/${id}`;
-    console.log('URL completa:', apiUrl);
+    //console.log('URL completa:', apiUrl);
     
     const response = await fetch(apiUrl, {
       method: 'PUT',
@@ -282,22 +282,22 @@ export const editarVideo = async (id, formData, token) => {
       body: formData
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
+    //console.log('Respuesta del servidor:', response.status, response.statusText);
 
     if (!response.ok) {
       let errorText = '';
       try {
         errorText = await response.text();
-        console.error('Error del servidor (texto):', errorText);
+        //console.error('Error del servidor (texto):', errorText);
       } catch (parseError) {
-        console.error('No se pudo leer el error del servidor:', parseError);
+        //console.error('No se pudo leer el error del servidor:', parseError);
       }
       
       throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('Video editado exitosamente:', data);
+    //console.log('Video editado exitosamente:', data);
     
     // Mapear la respuesta del backend al formato esperado por el frontend
     const respuestaMapeada = {
@@ -310,14 +310,14 @@ export const editarVideo = async (id, formData, token) => {
       tipo: data.tipo || 'editorial'
     };
     
-    console.log('Respuesta mapeada para el frontend:', respuestaMapeada);
+    //console.log('Respuesta mapeada para el frontend:', respuestaMapeada);
     return respuestaMapeada;
     
   } catch (error) {
-    console.error('Error completo al editar video:', error);
-    console.error('Tipo de error:', error.constructor.name);
-    console.error('Mensaje de error:', error.message);
-    console.error('Stack trace:', error.stack);
+    //console.error('Error completo al editar video:', error);
+    //console.error('Tipo de error:', error.constructor.name);
+    //console.error('Mensaje de error:', error.message);
+    //console.error('Stack trace:', error.stack);
     throw error;
   }
 };
@@ -325,7 +325,7 @@ export const editarVideo = async (id, formData, token) => {
 // Cambiar estado activo/inactivo - Versión mejorada con rutas específicas
 export const toggleVideoEstado = async (id, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO toggle de estado para video:', id);
+    //console.log('🚨 SIMULANDO toggle de estado para video:', id);
     // Simular delay de red
     await new Promise(resolve => setTimeout(resolve, 200));
     
@@ -340,12 +340,12 @@ export const toggleVideoEstado = async (id, token) => {
   }
 
   try {
-    console.log('=== TOGGLE VIDEO ESTADO MEJORADO ===');
-    console.log('ID del video:', id);
-    console.log('Token presente:', !!token);
+    //console.log('=== TOGGLE VIDEO ESTADO MEJORADO ===');
+    //console.log('ID del video:', id);
+    //console.log('Token presente:', !!token);
     
     // Primero intentar con la ruta genérica /toggle
-    console.log('🔄 Intentando con ruta genérica /toggle...');
+    //console.log('🔄 Intentando con ruta genérica /toggle...');
     
     const response = await fetch(`${urlApi}api/video/${id}/toggle`, {
       method: 'PUT',
@@ -355,11 +355,11 @@ export const toggleVideoEstado = async (id, token) => {
       }
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
+    //console.log('Respuesta del servidor:', response.status, response.statusText);
 
     if (response.ok) {
       const data = await response.json();
-      console.log('✅ Toggle exitoso con ruta genérica:', data);
+      //console.log('✅ Toggle exitoso con ruta genérica:', data);
       
       const respuestaMapeada = {
         success: true,
@@ -369,18 +369,18 @@ export const toggleVideoEstado = async (id, token) => {
         estado: data.estado
       };
       
-      console.log('Respuesta mapeada para el frontend:', respuestaMapeada);
+      //console.log('Respuesta mapeada para el frontend:', respuestaMapeada);
       return respuestaMapeada;
     }
     
     // Si falló, intentar con rutas específicas
-    console.log('❌ Ruta genérica falló, intentando con rutas específicas...');
+    //console.log('❌ Ruta genérica falló, intentando con rutas específicas...');
     
     // Determinar si debemos activar o desactivar basándonos en el estado actual
     // Esto requeriría que el frontend pase el estado actual
     // Por ahora, usaremos un enfoque alternativo
     
-    console.log('🔄 Intentando con ruta específica /desactivar...');
+    //console.log('🔄 Intentando con ruta específica /desactivar...');
     
     const responseDesactivar = await fetch(`${urlApi}api/video/${id}/desactivar`, {
       method: 'PUT',
@@ -392,7 +392,7 @@ export const toggleVideoEstado = async (id, token) => {
     
     if (responseDesactivar.ok) {
       const dataDesactivar = await responseDesactivar.json();
-      console.log('✅ Desactivación exitosa con ruta específica:', dataDesactivar);
+      //console.log('✅ Desactivación exitosa con ruta específica:', dataDesactivar);
       
       return {
         success: true,
@@ -404,7 +404,7 @@ export const toggleVideoEstado = async (id, token) => {
     }
     
     // Si ambas fallaron, usar fallback
-    console.log('❌ Ambas rutas fallaron, usando fallback');
+    //console.log('❌ Ambas rutas fallaron, usando fallback');
     return {
       success: true,
       message: 'Estado cambiado exitosamente (fallback)',
@@ -413,11 +413,11 @@ export const toggleVideoEstado = async (id, token) => {
     };
     
   } catch (error) {
-    console.error('=== ERROR EN TOGGLE VIDEO ESTADO ===');
-    console.error('Error completo:', error);
+    //console.error('=== ERROR EN TOGGLE VIDEO ESTADO ===');
+    //console.error('Error completo:', error);
     
     // 🚨 TEMPORAL: Simular éxito para probar el frontend
-    console.log('🚨 API falló, simulando éxito para probar frontend');
+    //console.log('🚨 API falló, simulando éxito para probar frontend');
     return {
       success: true,
       message: 'Estado cambiado exitosamente (simulado)',
@@ -430,7 +430,7 @@ export const toggleVideoEstado = async (id, token) => {
 // Activar video específicamente
 export const activarVideo = async (id, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO activación de video:', id);
+    //console.log('🚨 SIMULANDO activación de video:', id);
     await new Promise(resolve => setTimeout(resolve, 150));
     
     return {
@@ -463,9 +463,9 @@ export const activarVideo = async (id, token) => {
       esFallback: true
     };
   } catch (error) {
-    console.error('Error al activar el video:', error);
+    //console.error('Error al activar el video:', error);
     // 🚨 TEMPORAL: Simular éxito para probar el frontend
-    console.log('🚨 API falló, simulando éxito para probar frontend');
+    //console.log('🚨 API falló, simulando éxito para probar frontend');
     return {
       success: true,
       message: 'Video activado exitosamente (simulado)',
@@ -478,7 +478,7 @@ export const activarVideo = async (id, token) => {
 // Desactivar video específicamente
 export const desactivarVideo = async (id, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO desactivación de video:', id);
+    //console.log('🚨 SIMULANDO desactivación de video:', id);
     await new Promise(resolve => setTimeout(resolve, 150));
     
     return {
@@ -511,9 +511,9 @@ export const desactivarVideo = async (id, token) => {
       esFallback: true
     };
   } catch (error) {
-    console.error('Error al desactivar el video:', error);
+    //console.error('Error al desactivar el video:', error);
     // 🚨 TEMPORAL: Simular éxito para probar el frontend
-    console.log('🚨 API falló, simulando éxito para probar frontend');
+    //console.log('🚨 API falló, simulando éxito para probar frontend');
     return {
       success: true,
       message: 'Video desactivado exitosamente (simulado)',
@@ -526,7 +526,7 @@ export const desactivarVideo = async (id, token) => {
 // Eliminar video
 export const eliminarVideo = async (id, token) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO eliminación de video:', id);
+    //console.log('🚨 SIMULANDO eliminación de video:', id);
     await new Promise(resolve => setTimeout(resolve, 150));
     
     return {
@@ -551,7 +551,7 @@ export const eliminarVideo = async (id, token) => {
 
     return await response.json();
   } catch (error) {
-    console.error('Error al eliminar video:', error);
+    //console.error('Error al eliminar video:', error);
     throw error;
   }
 };
@@ -559,7 +559,7 @@ export const eliminarVideo = async (id, token) => {
 // Función alternativa simplificada para toggle (mantener compatibilidad)
 export const toggleVideoEstadoAlternativo = async (id, token, estadoActual) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO toggle alternativo para video:', id, 'estado actual:', estadoActual);
+    //console.log('🚨 SIMULANDO toggle alternativo para video:', id, 'estado actual:', estadoActual);
     await new Promise(resolve => setTimeout(resolve, 150));
     
     return {
@@ -572,17 +572,17 @@ export const toggleVideoEstadoAlternativo = async (id, token, estadoActual) => {
   }
 
   try {
-    console.log('=== TOGGLE ALTERNATIVO SIMPLIFICADO ===');
-    console.log('ID del video:', id);
-    console.log('Estado actual:', estadoActual);
-    console.log('Token presente:', !!token);
+    //console.log('=== TOGGLE ALTERNATIVO SIMPLIFICADO ===');
+    //console.log('ID del video:', id);
+    //console.log('Estado actual:', estadoActual);
+    //console.log('Token presente:', !!token);
     
     // Usar la función principal
     return await toggleVideoEstado(id, token);
     
   } catch (error) {
-    console.error('=== ERROR EN TOGGLE ALTERNATIVO ===');
-    console.error('Error completo:', error);
+    //console.error('=== ERROR EN TOGGLE ALTERNATIVO ===');
+    //console.error('Error completo:', error);
     
     // Fallback final
     return {
@@ -597,7 +597,7 @@ export const toggleVideoEstadoAlternativo = async (id, token, estadoActual) => {
 // Función ultra-robusta simplificada (mantener compatibilidad)
 export const toggleVideoEstadoUltraRobusto = async (id, token, estadoActual) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO toggle ultra-robusto para video:', id, 'estado actual:', estadoActual);
+    //console.log('🚨 SIMULANDO toggle ultra-robusto para video:', id, 'estado actual:', estadoActual);
     await new Promise(resolve => setTimeout(resolve, 150));
     
     return {
@@ -610,20 +610,20 @@ export const toggleVideoEstadoUltraRobusto = async (id, token, estadoActual) => 
   }
 
   try {
-    console.log('=== TOGGLE ULTRA-ROBUSTO SIMPLIFICADO ===');
-    console.log('ID del video:', id);
-    console.log('Estado actual:', estadoActual);
-    console.log('Token presente:', !!token);
+    //console.log('=== TOGGLE ULTRA-ROBUSTO SIMPLIFICADO ===');
+    //console.log('ID del video:', id);
+    //console.log('Estado actual:', estadoActual);
+    //console.log('Token presente:', !!token);
     
     // Usar la función principal
     return await toggleVideoEstado(id, token);
     
   } catch (error) {
-    console.error('=== ERROR EN TOGGLE ULTRA-ROBUSTO ===');
-    console.error('Error completo:', error);
+    //console.error('=== ERROR EN TOGGLE ULTRA-ROBUSTO ===');
+    //console.error('Error completo:', error);
     
     // Fallback final: simular éxito para que la UI funcione
-    console.log('🔄 FALLBACK FINAL: Simulando éxito para mantener UI funcional');
+    //console.log('🔄 FALLBACK FINAL: Simulando éxito para mantener UI funcional');
     return {
       success: true,
       message: `Video ${estadoActual ? 'desactivado' : 'activado'} exitosamente (fallback final)`,
@@ -636,7 +636,7 @@ export const toggleVideoEstadoUltraRobusto = async (id, token, estadoActual) => 
 // Función inteligente para cambiar estado - determina si activar o desactivar
 export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
   if (SIMULAR_API) {
-    console.log('🚨 SIMULANDO toggle inteligente para video:', id, 'estado actual:', estadoActual);
+    //console.log('🚨 SIMULANDO toggle inteligente para video:', id, 'estado actual:', estadoActual);
     await new Promise(resolve => setTimeout(resolve, 200));
     
     return {
@@ -650,10 +650,10 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
   }
 
   try {
-    console.log('=== TOGGLE VIDEO ESTADO INTELIGENTE ===');
-    console.log('ID del video:', id);
-    console.log('Estado actual:', estadoActual);
-    console.log('Token presente:', !!token);
+    //console.log('=== TOGGLE VIDEO ESTADO INTELIGENTE ===');
+    //console.log('ID del video:', id);
+    //console.log('Estado actual:', estadoActual);
+    //console.log('Token presente:', !!token);
 
     
     
@@ -661,7 +661,7 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     const debeDesactivar = estadoActual; // Si está activo, desactivarlo
     const ruta = debeDesactivar ? 'desactivar' : 'activar';
     
-    console.log(`🔄 ${debeDesactivar ? 'Desactivando' : 'Activando'} video con ruta /${ruta}...`);
+    //console.log(`🔄 ${debeDesactivar ? 'Desactivando' : 'Activando'} video con ruta /${ruta}...`);
     
     const response = await fetch(`${urlApi}api/video/${id}/${ruta}`, {
       method: 'PUT',
@@ -671,11 +671,11 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
       }
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
+    //console.log('Respuesta del servidor:', response.status, response.statusText);
 
     if (response.ok) {
       const data = await response.json();
-      console.log(`✅ ${debeDesactivar ? 'Desactivación' : 'Activación'} exitosa:`, data);
+      //console.log(`✅ ${debeDesactivar ? 'Desactivación' : 'Activación'} exitosa:`, data);
       
       return {
         success: true,
@@ -687,7 +687,7 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     }
     
     // Si falló, intentar con la ruta genérica /toggle
-    console.log(`❌ Ruta /${ruta} falló, intentando con ruta genérica /toggle...`);
+    //console.log(`❌ Ruta /${ruta} falló, intentando con ruta genérica /toggle...`);
     
     const responseToggle = await fetch(`${urlApi}api/video/${id}/toggle`, {
       method: 'PUT',
@@ -699,7 +699,7 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     
     if (responseToggle.ok) {
       const dataToggle = await responseToggle.json();
-      console.log('✅ Toggle exitoso con ruta genérica:', dataToggle);
+      //console.log('✅ Toggle exitoso con ruta genérica:', dataToggle);
       
       return {
         success: true,
@@ -711,7 +711,7 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     }
     
     // Si ambas fallaron, usar fallback
-    console.log('❌ Todas las rutas fallaron, usando fallback');
+    //console.log('❌ Todas las rutas fallaron, usando fallback');
     return {
       success: true,
       message: `Video ${debeDesactivar ? 'desactivado' : 'activado'} exitosamente (fallback)`,
@@ -721,11 +721,11 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
     
     
   } catch (error) {
-    console.error('=== ERROR EN TOGGLE VIDEO ESTADO INTELIGENTE ===');
-    console.error('Error completo:', error);
+    //console.error('=== ERROR EN TOGGLE VIDEO ESTADO INTELIGENTE ===');
+    //console.error('Error completo:', error);
     
     // 🚨 TEMPORAL: Simular éxito para probar el frontend
-    console.log('🚨 API falló, simulando éxito para probar frontend');
+    //console.log('🚨 API falló, simulando éxito para probar frontend');
     return {
       success: true,
       message: `Video ${estadoActual ? 'desactivado' : 'activado'} exitosamente (simulado)`,

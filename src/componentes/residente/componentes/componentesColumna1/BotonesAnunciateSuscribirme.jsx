@@ -37,10 +37,10 @@ const BotonesAnunciateSuscribirme = () => {
 
     return (
         <div>
-            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
+            <hr className="border-t border-gray-800/80 border-dotted" />
             
             {/* CONTENEDOR CENTRADO */}
-            <div className="flex flex-col gap-3 m-2 items-center text-center">
+            <div className="flex flex-col gap-3 m-2 items-center text-center pt-2">
                 
                 <div className="flex flex-col gap-2">
                     <span className="text-[60px] leading-10 tracking-tight">Suscríbete</span>
@@ -59,7 +59,7 @@ const BotonesAnunciateSuscribirme = () => {
                 </div>
 
                 <form className="flex flex-row items-center justify-center w-full" onSubmit={handleSubmit}>
-                    <div className="flex items-center rounded max-w-[320px] w-full gap-3">
+                    <div className="flex items-center rounded w-full gap-3 justify-center">
                         <input
                             type="email"
                             value={correo}

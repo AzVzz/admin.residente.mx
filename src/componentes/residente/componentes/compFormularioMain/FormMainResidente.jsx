@@ -287,7 +287,7 @@ const FormMainResidente = () => {
       }
 
       setPostResponse(resultado);
-      
+
       // Mostrar mensaje diferente según el estado
       if (estadoFinal === 'borrador') {
         setPostResponse({
@@ -295,7 +295,7 @@ const FormMainResidente = () => {
           mensaje: 'Nota guardada como borrador. Un administrador la revisará y publicará.'
         });
       }
-      
+
       setTimeout(() => navigate('/notas'), 1);
     } catch (error) {
       setPostError(error.message || 'Error al guardar la nota');
@@ -349,18 +349,6 @@ const FormMainResidente = () => {
                 /> */}
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
-                {(tipoNotaSeleccionada === "Restaurantes" || tipoNotaSeleccionada === "Food & Drink") && (
-                  <div className="mb-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        {...methods.register("destacada")}
-                        className="form-checkbox h-5 w-5 text-yellow-500"
-                      />
-                      <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
-                    </label>
-                  </div>
-                )}
 
                 {/* Si hay tipoNotaUsuario, muéstralo como texto prominente */}
                 {tipoNotaUsuario && (
@@ -401,6 +389,20 @@ const FormMainResidente = () => {
                   />
                 )}
 
+                {(tipoNotaSeleccionada === "Restaurantes" || tipoNotaSeleccionada === "Food & Drink") && (
+                  <div className="mb-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        {...methods.register("destacada")}
+                        className="form-checkbox h-5 w-5 text-yellow-500"
+                      />
+                      <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                    </label>
+                  </div>
+                )}
+
+
                 <NombreRestaurante />
 
                 <Titulo />
@@ -425,7 +427,7 @@ const FormMainResidente = () => {
                 <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <div className="text-sm text-yellow-800 mb-4">
                   </div>
-                  
+
                   {/* Opciones de publicación */}
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
@@ -504,7 +506,7 @@ const FormMainResidente = () => {
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           📱 Vista previa de tu nota
         </h2>
-        
+
         {/* Solo mostrar vista previa si hay contenido */}
         {(titulo || subtitulo || autor || contenido || imagen) ? (
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">

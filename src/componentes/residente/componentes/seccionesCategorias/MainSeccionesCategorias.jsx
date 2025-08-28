@@ -258,7 +258,7 @@ const MainSeccionesCategorias = () => {
                                     className="w-full"
                                 />
                             )}
-                            <div className="w-192.5">
+                            <div className="w-19.5">
                                 <BarraMarquee categoria={`Noticias y más recomendaciones de ${categoria}`} />
                             </div>
                         </div>
