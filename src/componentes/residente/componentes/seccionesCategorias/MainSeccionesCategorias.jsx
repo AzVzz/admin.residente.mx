@@ -211,61 +211,72 @@ const MainSeccionesCategorias = () => {
     if (loading) return <div>Cargando...</div>;
 
     return (
-        <div className="mb-5 mt-9">
+        <div className="mb-5 mt-9 max-w-[1080px] mx-auto w-full px-4"> {/* Contenedor principal con ancho máximo */}
+            <div className="flex justify-center items-center w-full">
+                <h1
+                    //ref={categoriaH1Ref}
+                    className="flex-initial font-bold mb-6 text-[80px] leading-15"
+                >
+                    {/*{renderCategoriaH1(categoria)}*/}
+                    {categoria}
+                </h1>
+            </div>
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
+
+
                 <CategoriaHeader
                     categoriaH1ContainerRef={categoriaH1ContainerRef}
                     categoriaH1Ref={categoriaH1Ref}
                     categoriaFontSize={categoriaFontSize}
                     renderCategoriaH1={renderCategoriaH1}
+                    //Para el directorio vertical
                     categoria={categoria}
+                    restaurantes={restaurantes}
                 />
                 <div className="col-span-4">
                     <CarruselPosts restaurantes={restaurantes.slice(0, 5)} />
                 </div>
             </div>
 
-
             {/* Los 5 restaurantes destacados en imagenes */}
             <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
-            <div
-                className="grid gap-5"
-                style={{ gridTemplateColumns: '2.9fr 1.1fr' }}
-                ref={notasRef}
-            >
+            {/* CONTENEDOR PRINCIPAL MODIFICADO - clave para solucionar el problema */}
+            <div className="flex flex-col md:flex-row gap-5" ref={notasRef}>
+                {/*
+                <div className="md:w-[20%] flex flex-col gap-10">
+                    <div className="bg-gray-100 p-4 h-100">
+                        <h3 className="font-bold mb-3">Nueva Columna</h3>
+                        <p>Contenido adicional aquí...</p>
+                    </div>
+                </div>*/}
 
+                {/* Columna Central - Notas */}
+                <div className="flex-1 min-w-0 md:max-w-[50%]"> {/* min-w-0 previene desbordamientos */}
+                    <div className="flex flex-col gap-4">
 
-                {/* Notas y bloques extendidos */}
-                <div className="flex flex-col items-center justify-start">
-
-                    <div className="w-full gap-4 flex flex-col">
-                        <div className="flex flex-col gap-4">
-                            {revistaActual && revistaActual.pdf ? (
-                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                    <img
-                                        src={revistaActual.imagen_banner}
-                                        alt="Banner Revista"
-                                        className="w-full cursor-pointer"
-                                        title="Descargar PDF"
-                                    />
-                                </a>
-                            ) : (
+                        {revistaActual && revistaActual.pdf ? (
+                            <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                 <img
-                                    src={revistaActual?.imagen_banner}
+                                    src={revistaActual.imagen_banner}
                                     alt="Banner Revista"
-                                    className="w-full"
+                                    className="w-full cursor-pointer"
+                                    title="Descargar PDF"
                                 />
-                            )}
-                            <div className="w-19.5">
-                                <BarraMarquee categoria={`Noticias y más recomendaciones de ${categoria}`} />
-                            </div>
-                        </div>
+                            </a>
+                        ) : (
+                            <img
+                                src={revistaActual?.imagen_banner}
+                                alt="Banner Revista"
+                                className="w-full"
+                            />
+                        )}
 
+                        {/* Resto del contenido... */}
                         {id ? (
                             detalleCargando ? (
-                                <div className="flex justify-center py-12">
+                                <div className="flex justify-center py-12 ">
                                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                                 </div>
                             ) : errorDetalle ? (
@@ -279,12 +290,23 @@ const MainSeccionesCategorias = () => {
                             )
                         ) : (
                             <>
-                                {/* Primer bloque de 8 notas con Banner en medio */}
                                 {notasPagina.slice(0, 8).map((nota, idx) => (
                                     <React.Fragment key={nota.id}>
                                         {/* Mostrar Banner después de la cuarta nota */}
                                         {idx === 4 && (
-                                            revistaActual && revistaActual.pdf ? (
+                                            <div className="w-screen relative left-1/2 right-1/2 -ml-[45vw] -mr-[50vw] py-5">
+                                                <div className="max-w-[1080px] mx-auto w-full">
+                                                    {/* BarraMarquee con contenedor específico */}
+                                                    <div className="overflow-hidden w-full pb-4">
+                                                        <BarraMarquee categoria={`Más recomendaciones de restaurantes ${categoria}`} />
+                                                    </div>
+                                                    <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(0, 6)} small cantidad={6} />
+                                                    <div className="mt-5">
+                                                        <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(6, 12)} small cantidad={6} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            /*revistaActual && revistaActual.pdf ? (
                                                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                                     <img
                                                         src={revistaActual.imagen_banner}
@@ -294,13 +316,14 @@ const MainSeccionesCategorias = () => {
                                                     />
                                                 </a>
                                             ) : (
-                                                <img
-                                                    src={revistaActual?.imagen_banner}
-                                                    alt="Banner Revista"
-                                                    className="w-full"
-                                                />
-
-                                            )
+                                                <>
+                                                    <img
+                                                        src={revistaActual?.imagen_banner}
+                                                        alt="Banner Revista"
+                                                        className="w-full"
+                                                    />
+                                                </>
+                                            )*/
                                         )}
                                         <div ref={el => notaRefs.current[nota.id] = el}>
                                             <TarjetaHorizontalPost
@@ -314,17 +337,12 @@ const MainSeccionesCategorias = () => {
                             </>
                         )}
                     </div>
-
                 </div>
 
-                {/* OpcionesExtra */}
-                <div className="flex flex-col items-end justify-start gap-10">
-                    <DirectorioVertical
-                        categoria={categoria}
-                        restaurantes={restaurantes}
-                    />
+                {/* Columna derecha - OpcionesExtra
+                <div className="md:w-[30%] flex flex-col gap-10"> {/* Ancho fijo para la columna lateral
 
-                    {/* Top 5 más vistas */}
+                    {/* Top 5 más vistas
                     <MainLateralPostTarjetas
                         notasDestacadas={notasTop}
                         onCardClick={handleNotaClick}
@@ -332,9 +350,10 @@ const MainSeccionesCategorias = () => {
                         sinFecha
                         pasarObjeto={true}
                     />
-                </div>
+                </div> */}
             </div>
 
+            {/* Resto del código permanece igual... */}
             {/* Botones de paginación */}
             {!selectedNota && totalPaginas > 1 && (
                 <div className="flex gap-2 mt-6 justify-center">
@@ -354,16 +373,6 @@ const MainSeccionesCategorias = () => {
             )}
 
 
-            {/* Barra horizontal extendida */}
-            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-5">
-                <div className="max-w-[1080px] mx-auto w-full">
-                    <h3 className="text-[22px] mb-2">Más recomendaciones de restaurantes por {categoria} {">"}</h3>
-                    <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(0, 6)} small cantidad={6} />
-                    <div className="mt-5">
-                        <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(6, 12)} small cantidad={6} />
-                    </div>
-                </div>
-            </div>
 
             {!loadingCupones && cupones.length > 0 && (
                 <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-5">
