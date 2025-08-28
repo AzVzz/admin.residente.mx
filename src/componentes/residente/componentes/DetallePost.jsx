@@ -117,7 +117,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         <img
                             src={revistaActual.imagen_banner}
                             alt="Banner Revista"
-                            className="w-full mb-4 cursor-pointer py-2"
+                            className="w-full  cursor-pointer"
                             title="Descargar Revista"
                         />
                     </a>
@@ -125,7 +125,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                     <img
                         src={revistaActual?.imagen_banner}
                         alt="Banner Revista"
-                        className="w-full mb-4"
+                        className="w-full"
                     />
                 )}
                 {/* Contenido adicional específico del detalle */}

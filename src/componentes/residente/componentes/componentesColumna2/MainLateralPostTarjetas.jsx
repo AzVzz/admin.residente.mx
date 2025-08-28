@@ -22,8 +22,8 @@ const MainLateralPostTarjetas = ({
     return (
         <>
             <section 
-                className="mb-5 flex flex-col"
-                style={{ height: `${calcularAlturaContenedor()}px`, minHeight: '200px' }}
+                className="flex flex-col min-h-[100px] max-w-[375px]"
+                //style={{ height: `${calcularAlturaContenedor()}px`, minHeight: '200px' }}
             >
                 <div className="flex justify-end bg-[#fff200] mb-3 px-2 py-1">
                     <img 
@@ -33,7 +33,7 @@ const MainLateralPostTarjetas = ({
                     />
                 </div>
 
-                <div className="flex-grow pb-4">
+                <div className="flex-grow">
                     <ul className="h-full flex flex-col gap-3.5">
                         {safePosts.map((post) => (
                             <li

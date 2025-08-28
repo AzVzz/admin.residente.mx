@@ -31,9 +31,10 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
                     >
                         {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
                     </span>
-                    <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-800 drop-shadow inline-block w-auto">
+                    <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-900 drop-shadow inline-block w-auto">
                         {nota.fecha}
                     </span>
+                    <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">vistas: {nota.vistas}</span>
                 </div>
                 {/* Título abajo en recuadro blanco borroso */}
                 <div className="w-full">
