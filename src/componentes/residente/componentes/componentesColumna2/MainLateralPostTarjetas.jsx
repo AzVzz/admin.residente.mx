@@ -8,23 +8,13 @@ const MainLateralPostTarjetas = ({
     cantidadNotas,
     sinFecha = false,
     sinCategoria = false,
-    pasarObjeto = false
+    pasarObjeto = false,
 }) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 5);
     
-    // Calcular la altura dinámica basada en la cantidad de posts
-    const calcularAlturaContenedor = () => {
-        const alturaBase = 0; // Altura base del encabezado y padding
-        const alturaPorItem = 75; // Altura aproximada de cada tarjeta (83px + gap)
-        return alturaBase + (safePosts.length * alturaPorItem);
-    };
-
     return (
         <>
-            <section 
-                className="flex flex-col min-h-[100px] max-w-[375px]"
-                //style={{ height: `${calcularAlturaContenedor()}px`, minHeight: '200px' }}
-            >
+            <section className="flex flex-col min-h-[100px] max-w-[375px]">
                 <div className="flex justify-end bg-[#fff200] mb-3 px-2 py-1">
                     <img 
                         className="h-full w-42 object-contain" 
@@ -44,7 +34,7 @@ const MainLateralPostTarjetas = ({
                                     className="flex items-center cursor-pointer h-full w-full transition-shadow text-right"
                                     onClick={() => pasarObjeto ? onCardClick(post) : onCardClick(post.id)}
                                 >
-                                    <div className="w-2/3 pr-4 h-full flex flex-col justify-center">
+                                    <div className="flex-1 pr-4 pl-12 h-full flex flex-col justify-center">
                                         <div className="flex flex-col items-end">
                                             {!sinFecha && (
                                                 <div className="font-roman inline-block text-black text-[10px] py-0 max-w-max mb-0.5 font-black self-end">
@@ -61,14 +51,15 @@ const MainLateralPostTarjetas = ({
                                                 </div>
                                             )}
                                         </div>
-                                        <h4 className="text-[13px] leading-3.5 line-clamp-2">{post.titulo}</h4>
+                                        <h4 className="text-[13px] leading-3.5 line-clamp-4">{post.titulo}</h4>
                                     </div>
 
-                                    <div className="w-1/3 h-full">
+                                    <div className="flex-shrink-0 w-20 h-20">
+                                        <span className="relative">1</span>
                                         <img
                                             src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                                             alt={post.titulo}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover rounded-full"
                                         />
                                     </div>
                                 </div>

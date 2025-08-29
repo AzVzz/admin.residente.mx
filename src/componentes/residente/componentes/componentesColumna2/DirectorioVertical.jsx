@@ -48,7 +48,7 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative w-[348px] items-center">{/**items-center */}
+        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative min-w-full max-w-[348px] items-center">{/**items-center */}
             <div className="flex justify-center">
                 <div className="absolute left-0 right-0 top-4 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                 <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-42 h-auto relative z-10 px-4 bg-[#CCCCCC]" />
@@ -66,7 +66,7 @@ const DirectorioVertical = () => {
                             <img
                                 src={iconos[i]}
                                 alt={seccion.seccion}
-                                className="w-18 h-18 flex-shrink-0"
+                                className="w-18 h-18 flex-shrink-0 object-contain"
                             />
                             <span className="flex-1 text-sm text-black">
                                 {{

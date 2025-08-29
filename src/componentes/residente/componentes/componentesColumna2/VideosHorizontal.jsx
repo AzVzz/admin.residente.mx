@@ -3,8 +3,8 @@ import { urlApi } from "../../../api/url";
 import { obtenerVideos } from "../../../api/videosApi";
 import { useAuth } from "../../../Context";
 
-const VIDEOS_POR_VISTA_DESKTOP = 6;
-const GAP_PX = 32;
+const VIDEOS_POR_VISTA_DESKTOP = 7; // Cambiado de 6 a 7
+const GAP_PX = 24; // Reducido el espacio entre tarjetas para acomodar 7
 
 // Tarjeta de video (vertical, alargada)
 const VideoCard = ({ video, onClick }) => (
@@ -16,7 +16,7 @@ const VideoCard = ({ video, onClick }) => (
             }
         }}
     >
-        <div className="aspect-[9/16] w-full overflow-hidden">
+        <div className="aspect-[7/13] w-full overflow-hidden">
             <img
                 src={video.imagen || `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`}
                 alt={video.url || "video"}
@@ -68,15 +68,16 @@ const VideosHorizontalCarrusel = () => {
         fetchVideos();
     }, [token]);
 
-    // Responsivo similar al otro carrusel
+    // Responsivo ajustado para 7 tarjetas
     useEffect(() => {
         const onResize = () => {
             const w = window.innerWidth;
             if (w < 640) setPerView(2);
-            else if (w < 1024) setPerView(3);
-            else if (w < 1280) setPerView(4);
-            else if (w < 1536) setPerView(5);
-            else setPerView(VIDEOS_POR_VISTA_DESKTOP);
+            else if (w < 768) setPerView(3);
+            else if (w < 1024) setPerView(4);
+            else if (w < 1280) setPerView(5);
+            else if (w < 1536) setPerView(6);
+            else setPerView(VIDEOS_POR_VISTA_DESKTOP); // 7 en pantallas grandes
         };
         onResize();
         window.addEventListener("resize", onResize);

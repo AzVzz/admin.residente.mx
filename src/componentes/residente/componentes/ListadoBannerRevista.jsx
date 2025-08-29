@@ -58,11 +58,11 @@ const ListadoBannerRevista = ({
                                                 src={tipoLogo}
                                                 alt={tipoLabel}
                                                 className={
-                                                    tipo === "Antojos" ? "h-auto w-60 object-contain" :
-                                                        tipo === "Gastro-Destinos" ? "h-auto w-55 object-contain" :
-                                                            tipo === "Food & Drink" ? "h-auto w-80 object-contain" :
-                                                                tipo === "Restaurantes" ? "h-auto w-60 object-contain" :
-                                                                    "h-auto w-60 object-contain"}
+                                                    tipo === "Antojos" ? "h-auto w-60 object-contain" :  
+                                                    tipo === "Gastro-Destinos" ? "h-auto w-50 object-contain" :
+                                                    tipo === "Food & Drink" ? "h-auto w-80 object-contain"  :
+                                                    tipo === "Restaurantes" ? "h-auto w-60 object-contain" : 
+                                                    "h-auto w-60 object-contain"}
                                             />
                                         ) : (
                                             <span
@@ -78,10 +78,10 @@ const ListadoBannerRevista = ({
                                         )}
                                     </div>
                                 </div>
-                                <div className="mb-7">
-                                    <BarraMarquee categoria={marqueeTexto} />
-                                </div>
-
+<div className="mb-7">
+                                <BarraMarquee categoria={marqueeTexto} />
+                            </div>
+                    
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal
