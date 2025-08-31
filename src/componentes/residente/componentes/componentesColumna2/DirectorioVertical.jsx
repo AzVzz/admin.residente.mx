@@ -55,37 +55,43 @@ const DirectorioVertical = () => {
             </div>
 
             <p className="text-[25px] leading-4.5 text-black">Tu concierge restaurantero</p>
-            <ol className="flex flex-row mt-1 gap-1">
+            <ol className="flex flex-row mt-1 gap-1.5">
                 {data.map((seccion, i) => (
                     <li key={seccion.seccion} className="flex justify-left items-center">
                         <button
-                            ref={el => buttonRefs.current[i] = el}
+                            ref={el => (buttonRefs.current[i] = el)}
                             className="w-full flex flex-col items-center justify-between font-bold rounded-full hover:bg-transparent transition cursor-pointer"
                             onClick={() => setOpenIndex(openIndex === i ? null : i)}
                         >
-                            <img
-                                src={iconos[i]}
-                                alt={seccion.seccion}
-                                className="w-18 h-18 flex-shrink-0 object-contain"
-                            />
-                            <span className="flex-1 text-sm text-black">
+                            {/* BOLITA uniforme */}
+                            <div className="size-20 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+                                <img
+                                    src={iconos[i]}
+                                    alt={seccion.seccion}
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+
+                            <span className="flex-1 text-sm text-black first-letter:uppercase">
                                 {{
                                     "nivel de gasto": "gasto",
-                                    "tipo de comida": "sabor"
+                                    "tipo de comida": "sabor",
                                 }[seccion.seccion.toLowerCase()] ?? seccion.seccion.toLowerCase()}
                             </span>
-                            <span className="">
+
+                            <span>
                                 <svg
                                     className={`w-5 h-5 transition-transform duration-200 ${openIndex === i ? 'rotate-0' : 'rotate-90 text-black'}`}
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth={4}   // ⬅️ antes era 2, ahora más grueso
+                                    strokeWidth={4}
                                     viewBox="0 0 24 24"
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 5l7 7-7 7" />
                                 </svg>
                             </span>
                         </button>
+
                         {openIndex === i && (
                             <ul
                                 className="absolute left-0 top-full z-10 bg-gray-900/75 border border-gray-700 rounded shadow-lg min-w-[180px] flex flex-col gap-1 w-full backdrop-blur-xs"

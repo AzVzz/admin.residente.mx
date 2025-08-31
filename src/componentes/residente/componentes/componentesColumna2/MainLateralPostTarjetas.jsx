@@ -11,25 +11,28 @@ const MainLateralPostTarjetas = ({
     pasarObjeto = false,
 }) => {
     const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 5);
-    
+
     return (
         <>
             <section className="flex flex-col min-h-[100px] max-w-[375px]">
-                <div className="flex justify-end bg-[#fff200] mb-3 px-2 py-1">
-                    <img 
-                        className="h-full w-42 object-contain" 
-                        src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`} 
+                <div className="flex justify-end mb-3 py-1">
+                    <img
+                        className="h-full w-42 object-contain"
+                        src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
                         alt="Lo más visto"
                     />
                 </div>
 
                 <div className="flex-grow">
                     <ul className="h-full flex flex-col gap-3.5">
-                        {safePosts.map((post) => (
+                        {safePosts.map((post, index) => (
                             <li
                                 key={post.id}
                                 className="max-h-[83px] relative flex-grow"
                             >
+                                <span className="absolute -right-1 top-0 bg-[#fff300] text-black text-[18px] font-grotesk rounded-full h-6.5 w-6.5 flex items-center justify-center">
+                                    {index + 1}
+                                </span>
                                 <div
                                     className="flex items-center cursor-pointer h-full w-full transition-shadow text-right"
                                     onClick={() => pasarObjeto ? onCardClick(post) : onCardClick(post.id)}
@@ -40,7 +43,7 @@ const MainLateralPostTarjetas = ({
                                                 <div className="font-roman inline-block text-black text-[10px] py-0 max-w-max mb-0.5 font-black self-end">
                                                     {(() => {
                                                         const fecha = post?.fecha || 'Sin fecha';
-                                                        const [primera, ...resto] = fecha.split(' '); 
+                                                        const [primera, ...resto] = fecha.split(' ');
                                                         return (
                                                             <>
                                                                 <span className="capitalize">{primera}</span>
@@ -54,8 +57,7 @@ const MainLateralPostTarjetas = ({
                                         <h4 className="text-[13px] leading-3.5 line-clamp-4">{post.titulo}</h4>
                                     </div>
 
-                                    <div className="flex-shrink-0 w-20 h-20">
-                                        <span className="relative">1</span>
+                                    <div className="w-20 h-20">
                                         <img
                                             src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                                             alt={post.titulo}
@@ -66,6 +68,7 @@ const MainLateralPostTarjetas = ({
                             </li>
                         ))}
                     </ul>
+
                 </div>
             </section>
         </>

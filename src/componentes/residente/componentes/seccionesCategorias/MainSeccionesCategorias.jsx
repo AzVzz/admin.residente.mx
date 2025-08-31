@@ -4,23 +4,17 @@ import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
 import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
-import { cuponesGetFiltrados } from '../../../api/cuponesGet'; // Ajusta la ruta si es necesario
-
+import { cuponesGetFiltrados } from '../../../api/cuponesGet';
 
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
 import DetallePost from '../DetallePost.jsx'; ``
 import BarraMarquee from './componentes/BarraMarquee.jsx';
-import RecomendacionesRestaurantes from './componentes/RecomendacionesRestaurantes.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
 import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
-import TicketPromo from '../../../promociones/componentes/TicketPromo.jsx';
-import Cupones from './componentes/Cupones.jsx';
-import SeccionesPrincipales from '../SeccionesPrincipales.jsx';
-import MainLateralPostTarjetas from '../../componentes/componentesColumna2/MainLateralPostTarjetas';
-import TicketPromoMini from './componentes/TicketPromoMini.jsx';
 import CuponesCarrusel from './componentes/CuponesCarrusel.jsx';
+import { urlApi } from '../../../api/url.js';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -28,8 +22,10 @@ const MainSeccionesCategorias = () => {
     const location = useLocation();
     const params = useParams();
     const navigate = useNavigate();
+
     const seccion = location.state?.seccion || params.seccion;
     const categoria = location.state?.categoria || params.categoria;
+
     const { id } = params;
     const [notas, setNotas] = useState([]);
     const [restaurantes, setRestaurantes] = useState([]);
@@ -41,6 +37,7 @@ const MainSeccionesCategorias = () => {
     const [detalleCargando, setDetalleCargando] = useState(false);
     const [errorDetalle, setErrorDetalle] = useState(null);
     const [paginaActual, setPaginaActual] = useState(1);
+    const [categoriaInfo, setCategoriaInfo] = useState(null);
     const notasRef = useRef(null);
     const notaRefs = useRef({});
     const [notasTop, setNotasTop] = useState([]);
@@ -210,17 +207,75 @@ const MainSeccionesCategorias = () => {
 
     if (loading) return <div>Cargando...</div>;
 
+    //Borrar despues:
+    const categorias = [
+        {
+            titulo: "Restaurantes",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        },
+        {
+            titulo: "Entretenimiento",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        },
+        {
+            titulo: "Servicios",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        },
+        {
+            titulo: "Hoteles",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        },
+        {
+            titulo: "Eventos",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        },
+        {
+            titulo: "Educación",
+            items: ["Comida Mexicana", "Comida Italiana", "Comida Asiática", "Comida Rápida", "Comida Rápida", "Comida Rápida"]
+        }
+    ];
+
     return (
-        <div className="mb-5 mt-9 max-w-[1080px] mx-auto w-full px-4"> {/* Contenedor principal con ancho máximo */}
-            <div className="flex justify-center items-center w-full">
-                <h1
-                    //ref={categoriaH1Ref}
-                    className="flex-initial font-bold mb-6 text-[80px] leading-15"
-                >
-                    {/*{renderCategoriaH1(categoria)}*/}
+        <div className="mb-5 mt-9 max-w-[1080px] mx-auto w-full"> {/* Contenedor principal con ancho máximo */}
+            {revistaActual && revistaActual.pdf ? (
+                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                    <img
+                        src={revistaActual.imagen_banner}
+                        alt="Banner Revista"
+                        className="w-full mb-4 cursor-pointer pt-5"
+                        title="Descargar Revista"
+                    />
+                </a>
+            ) : (
+                <img
+                    src={revistaActual?.imagen_banner}
+                    alt="Banner Revista"
+                    className="w-full mb-4"
+                />
+            )}
+
+            <div className="flex items-center justify-between w-full mb-3 h-23">
+                {/**
+                 * 
+                 *                <h1 className="text-[60px] leading-15 tracking-tight flex-shrink-0">
                     {categoria}
                 </h1>
+                 * 
+                 */}
+
+                <div className="overflow-hidden flex flex-col h-full w-full justify-center items-center">
+                    <img
+                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+                        className="w-55 h-auto "
+                        alt="Logo Guía NL"
+                    />
+                    <span className="text-[25px]">Tu concierge restaurantero</span>
+                </div>
+
+
+
             </div>
+
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
 
@@ -234,6 +289,9 @@ const MainSeccionesCategorias = () => {
                     categoria={categoria}
                     restaurantes={restaurantes}
                 />
+
+
+
                 <div className="col-span-4">
                     <CarruselPosts restaurantes={restaurantes.slice(0, 5)} />
                 </div>
@@ -253,10 +311,11 @@ const MainSeccionesCategorias = () => {
                 </div>*/}
 
                 {/* Columna Central - Notas */}
-                <div className="flex-1 min-w-0 md:max-w-[50%]"> {/* min-w-0 previene desbordamientos */}
+                <div className="flex-1 min-w-0 md:max-w-[80%]"> {/* min-w-0 previene desbordamientos */}
                     <div className="flex flex-col gap-4">
 
-                        {revistaActual && revistaActual.pdf ? (
+
+                        {/*revistaActual && revistaActual.pdf ? (
                             <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                 <img
                                     src={revistaActual.imagen_banner}
@@ -271,9 +330,10 @@ const MainSeccionesCategorias = () => {
                                 alt="Banner Revista"
                                 className="w-full"
                             />
-                        )}
+                        )*/}
 
                         {/* Resto del contenido... */}
+                        {/* === LISTADO DE NOTAS === */}
                         {id ? (
                             detalleCargando ? (
                                 <div className="flex justify-center py-12 ">
@@ -290,59 +350,64 @@ const MainSeccionesCategorias = () => {
                             )
                         ) : (
                             <>
-                                {notasPagina.slice(0, 8).map((nota, idx) => (
-                                    <React.Fragment key={nota.id}>
-                                        {/* Mostrar Banner después de la cuarta nota */}
-                                        {idx === 4 && (
-                                            <div className="w-screen relative left-1/2 right-1/2 -ml-[45vw] -mr-[50vw] py-5">
-                                                <div className="max-w-[1080px] mx-auto w-full">
-                                                    {/* BarraMarquee con contenedor específico */}
-                                                    <div className="overflow-hidden w-full pb-4">
-                                                        <BarraMarquee categoria={`Más recomendaciones de restaurantes ${categoria}`} />
-                                                    </div>
-                                                    <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(0, 6)} small cantidad={6} />
-                                                    <div className="mt-5">
-                                                        <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(6, 12)} small cantidad={6} />
-                                                    </div>
-                                                </div>
+                                {/* ===== PRIMERA NOTA: DESTACADA (imagen full width + texto abajo) ===== */}
+                                {notasPagina[0] && (
+                                    <article className="mb-6">
+                                        <button
+                                            onClick={() => handleNotaClick(notasPagina[0])}
+                                            className="block w-full text-left group"
+                                        >
+                                            <div className="relative overflow-hidden rounded-md">
+                                                {/* Imagen a todo el ancho del contenedor de notas */}
+                                                <img
+                                                    src={notasPagina[0].foto_portada || notasPagina[0].imagen || notasPagina[0].foto}
+                                                    alt={notasPagina[0].titulo}
+                                                    className="w-full h-auto object-cover aspect-[16/9] group-hover:scale-[1.02] transition-transform duration-300"
+                                                    loading="lazy"
+                                                />
                                             </div>
-                                            /*revistaActual && revistaActual.pdf ? (
-                                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                                    <img
-                                                        src={revistaActual.imagen_banner}
-                                                        alt="Banner Revista"
-                                                        className="w-full cursor-pointer"
-                                                        title="Descargar PDF"
-                                                    />
-                                                </a>
-                                            ) : (
-                                                <>
-                                                    <img
-                                                        src={revistaActual?.imagen_banner}
-                                                        alt="Banner Revista"
-                                                        className="w-full"
-                                                    />
-                                                </>
-                                            )*/
-                                        )}
-                                        <div ref={el => notaRefs.current[nota.id] = el}>
+
+                                            {/* Texto debajo */}
+                                            <div className="mt-3 px-1">
+                                                <h2 className="text-[28px] leading-tight font-extrabold hover:underline">
+                                                    {notasPagina[0].titulo}
+                                                </h2>
+                                                {/* si quieres mostrar resumen */}
+                                                {notasPagina[0].resumen && (
+                                                    <p className="mt-2 text-[15px] text-gray-700">
+                                                        {notasPagina[0].resumen}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </button>
+                                    </article>
+                                )}
+
+                                {/* ===== RESTO DE NOTAS: GRILLA 2 COLS (de la 2 a la 9, ajusta a tu gusto) ===== */}
+                                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+                                    {notasPagina.slice(1, 9).map((nota) => (
+                                        <div
+                                            key={nota.id}
+                                            ref={(el) => (notaRefs.current[nota.id] = el)}
+                                            className="col-span-1"
+                                        >
                                             <TarjetaHorizontalPost
                                                 post={nota}
                                                 onClick={() => handleNotaClick(nota)}
                                                 sinFecha
                                             />
                                         </div>
-                                    </React.Fragment>
-                                ))}
+                                    ))}
+                                </div>
                             </>
                         )}
+
                     </div>
                 </div>
 
-                {/* Columna derecha - OpcionesExtra
-                <div className="md:w-[30%] flex flex-col gap-10"> {/* Ancho fijo para la columna lateral
-
-                    {/* Top 5 más vistas
+                {/* Columna derecha - OpcionesExtra */}
+                <div className="md:w-[20%] flex flex-col gap-10">
+                    {/*
                     <MainLateralPostTarjetas
                         notasDestacadas={notasTop}
                         onCardClick={handleNotaClick}
@@ -350,11 +415,13 @@ const MainSeccionesCategorias = () => {
                         sinFecha
                         pasarObjeto={true}
                     />
-                </div> */}
+                        */}
+                    <DirectorioVertical />
+                </div>
             </div>
 
             {/* Resto del código permanece igual... */}
-            {/* Botones de paginación */}
+            {/* Botones de paginación 
             {!selectedNota && totalPaginas > 1 && (
                 <div className="flex gap-2 mt-6 justify-center">
                     {Array.from({ length: totalPaginas }, (_, i) => (
@@ -370,8 +437,50 @@ const MainSeccionesCategorias = () => {
                         </button>
                     ))}
                 </div>
-            )}
+            )}*/}
 
+
+            <div className="overflow-hidden w-full pt-4">
+                <BarraMarquee categoria={`Más recomendaciones de restaurantes ${categoria}`} />
+            </div>
+
+            <div className="col-span-2 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-5">
+                <div className="max-w-[1080px] mx-auto w-full">
+
+                    <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(0, 6)} small cantidad={6} />
+                    <div className="mt-5">
+                        <ImagenesRestaurantesDestacados restaurantes={restaurantes.slice(6, 12)} small cantidad={6} />
+                    </div>
+
+                    <div className="bg-[#fff300] mt-4 h-66 px-6 py-6">
+                        <div className="flex flex-row items-center mb-6">
+                            <img
+                                className="w-36 h-auto mr-4"
+                                src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp"
+                                alt="Logo Guía NL"
+                            />
+                            <p className="text-lg font-medium self-center">
+                                {`Más recomendaciones de restaurantes ${categoria}`}
+                            </p>
+                        </div>
+
+                        <ul className="grid grid-cols-6">
+                            {categorias.map((categoria, index) => (
+                                <li key={index} className="">
+                                    <ul className="space-y-1">
+                                        {categoria.items.map((item, itemIndex) => (
+                                            <li key={itemIndex} className="text-black cursor-pointer hover:underline">
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </li>
+                            ))}
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
 
 
             {!loadingCupones && cupones.length > 0 && (

@@ -44,44 +44,70 @@ const ListadoBannerRevista = ({
                 const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
                 const marqueeTexto = tipoConfig.marqueeTexto || "";
                 const tipoLabel = (tipoConfig.label || tipo || "").toString();
+                const mostrarBanner = ["Antojos", "Gastro-Destinos", "Food & Drink"].includes(tipo);
+
 
                 return (
                     <div key={tipo} className="flex flex-col pt-9" id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
                             {/* Columna Principal */}
                             <div>
-                                <div className="relative flex justify-center items-center mb-6">
+                                <div className="relative flex justify-center items-center mb-2">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
-                                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
-                                        {tipoLogo ? (
-                                            <img
-                                                src={tipoLogo}
-                                                alt={tipoLabel}
-                                                className={
-                                                    tipo === "Antojos" ? "h-auto w-60 object-contain" :  
-                                                    tipo === "Gastro-Destinos" ? "h-auto w-50 object-contain" :
-                                                    tipo === "Food & Drink" ? "h-auto w-80 object-contain"  :
-                                                    tipo === "Restaurantes" ? "h-auto w-60 object-contain" : 
-                                                    "h-auto w-60 object-contain"}
-                                            />
-                                        ) : (
-                                            <span
-                                                className={[
-                                                    "block text-black font-extrabold uppercase text-center",
-                                                    // tamaños parecidos a tus logos
-                                                    tipo === "Antojos" ? "text-2xl md:text-2xl" : "text-4xl md:text-4xl",
-                                                    "leading-none tracking-tight"
-                                                ].join(" ")}
-                                            >
-                                                {tipoLabel}
-                                            </span>
-                                        )}
+                                    <div className="relative z-10 bg-[#CCCCCC]">
+                                        <div className="flex">
+                                            {mostrarBanner && (
+                                                revistaActual && revistaActual.pdf ? (
+                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                                        <img
+                                                            src={revistaActual.imagen_banner}
+                                                            alt="Banner Revista"
+                                                            className="w-full mb-4 cursor-pointer pb-7"
+                                                            title="Descargar Revista"
+                                                        />
+                                                    </a>
+                                                ) : (
+                                                    <img
+                                                        src={revistaActual?.imagen_banner}
+                                                        alt="Banner Revista"
+                                                        className="w-full mb-4"
+                                                    />
+                                                )
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-center">
+                                            {tipoLogo ? (
+                                                <img
+                                                    src={tipoLogo}
+                                                    alt={tipoLabel}
+                                                    className={
+                                                        tipo === "Antojos" ? "h-auto w-65 object-contain" :
+                                                            tipo === "Gastro-Destinos" ? "h-auto w-90 object-contain" :
+                                                                tipo === "Food & Drink" ? "h-auto w-80 object-contain" :
+                                                                    tipo === "Restaurantes" ? "h-auto w-80 object-contain" :
+                                                                        "h-auto w-60 object-contain"}
+                                                />
+                                            ) : (
+                                                <span
+                                                    className={[
+                                                        "block text-black font-extrabold uppercase text-center",
+                                                        // tamaños parecidos a tus logos
+                                                        tipo === "Antojos" ? "text-2xl md:text-2xl" : "text-4xl md:text-4xl",
+                                                        "leading-none tracking-tight"
+                                                    ].join(" ")}
+                                                >
+                                                    {tipoLabel}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-<div className="mb-7">
-                                <BarraMarquee categoria={marqueeTexto} />
-                            </div>
-                    
+
+                                <div className="flex justify-center uppercase text-[12px] mb-6">
+                                    {/*<BarraMarquee categoria={marqueeTexto} />*/}
+                                    <p>{marqueeTexto}</p>
+                                </div>
+
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal
@@ -120,12 +146,18 @@ const ListadoBannerRevista = ({
                                     notasDestacadas={destacadasFiltradas}
                                     onCardClick={handleCardClick}
                                     sinCategoria
+                                    sinFecha
                                     cantidadNotas={5}
                                 />
+                                <div className="flex justify-end items-end mb-4">
+                                    <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif" />
+                                </div>
 
                                 <div className="">
                                     <BotonesAnunciateSuscribirme />
                                 </div>
+
+
                             </div>
                         </div>
                         {tipo === "Restaurantes" && (
@@ -140,7 +172,7 @@ const ListadoBannerRevista = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="pb-5">
+                                <div className="pb-0">
                                     <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
                                 <EnPortada

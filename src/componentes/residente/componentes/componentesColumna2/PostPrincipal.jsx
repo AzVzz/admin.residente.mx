@@ -51,14 +51,13 @@ const PostPrincipal = ({ post, onClick }) => {
                     height: 'auto',
                 }}
             >
-                <div className="flex justify-center items-center pt-4">
+                <div className="flex justify-center items-center pt-3">
                     <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
                         {post.fecha}
                     </div>
                 </div>
                 <h1
-                    className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center 
-             p-2 my-0 tracking-tight"
+                    className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center px-2 pb-2 my-0 tracking-tight"
                     style={{
                         whiteSpace: 'pre-line',
                         wordBreak: 'break-word',

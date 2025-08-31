@@ -195,19 +195,19 @@ const SeccionesPrincipales = () => {
     .join(' ');
 
   return (
-    <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black py-8">
-      <div className="grid grid-cols-6 max-w-[1080px] mb-5 w-full mx-auto py-0 gap-8">
+    <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] py-8">
+      <div className="flex max-w-[1080px] mb-5 w-full mx-auto py-0 gap-4 items-end">
         <img
-          src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`}
-          className="col-span-1 w-auto h-15 object-contain"
+          src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+          className="flex-[0_0_20%] w-55 h-auto object-contain"
           alt="Guía logo"
         />
 
-        <p className="flex col-span-3 text-xl leading-5.5 text-white justify-center items-center">
-          Tu concierge gastronómico que te ayudará con recomendaciones de acuerdo a tus gustos.
+        <p className="flex flex-[0_0_25%] text-xl leading-5.5 text-black items-end">
+          Tu concierge restaurantero.
         </p>
 
-        <div className="col-span-2 flex items-center justify-center">
+        <div className="flex-[0_0_20%] flex items-center justify-end ml-auto">
           <Autocomplete
             disablePortal
             options={opcionesCombinadas}
@@ -218,15 +218,15 @@ const SeccionesPrincipales = () => {
                 backgroundColor: 'white',
                 borderRadius: '8px',
                 '& fieldset': {
-                  borderColor: '#3B82F6',
+                  borderColor: '#FFF',
                   borderWidth: '2px',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#2563EB',
+                  borderColor: '#FFF',
                   borderWidth: '2px',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#1D4ED8',
+                  borderColor: '#FFF',
                   borderWidth: '2px',
                 },
               },
@@ -263,7 +263,7 @@ const SeccionesPrincipales = () => {
                   },
                   '&[aria-selected="true"]': {
                     backgroundColor: '#EFF6FF',
-                    borderLeft: '4px solid #3B82F6',
+                    borderLeft: '4px solid #FFF',
                   },
                 },
               },
@@ -279,7 +279,7 @@ const SeccionesPrincipales = () => {
               '& .MuiAutocomplete-popupIndicator': {
                 color: '#6B7280',
                 '&:hover': {
-                  color: '#3B82F6',
+                  color: '#FFF',
                 },
               }
             }}
@@ -303,7 +303,7 @@ const SeccionesPrincipales = () => {
                       <img
                         src={option.imagen.startsWith('http') ? option.imagen : `${urlApi}${option.imagen}`}
                         alt={option.titulo}
-                        className="w-14 h-14 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                        className="w-14 h-14 object-cover rounded-lg border-2 border-white shadow-sm"
                         onError={(e) => {
                           console.log('Error cargando imagen:', option.imagen);
                           e.target.style.display = 'none';
@@ -313,7 +313,7 @@ const SeccionesPrincipales = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border-2 border-gray-200">
+                      <div className="w-14 h-14 bg-gradient-to-br rounded-lg flex items-center justify-center border-2 border-white">
                         <span className="text-gray-400 text-xs font-medium">Sin img</span>
                       </div>
                     )}
@@ -378,20 +378,20 @@ const SeccionesPrincipales = () => {
 
           return (
             <div key={`${seccion.seccion}-${i}`}>
-              <h3 className="font-bold mb-2 text-md border-b-1 border-white border-dotted text-white">
+              <h3 className="font-bold mb-2 text-md border-b-1 border-black border-dotted text-black">
                 {seccion.seccion}
               </h3>
 
               {/* Grid interno de cada sección controlado por listTemplate */}
               <ul
-                className={`text-base text-gray-300 font-roman leading-tight grid ${gapClasses}`}
+                className={`text-base text-black font-roman leading-tight grid ${gapClasses}`}
                 style={{ gridTemplateColumns: listTemplate }}
               >
                 {(seccion.categorias || []).map((categoria, index) => (
                   <li key={index}>
                     <button
                       type="button"
-                      className="cursor-pointer hover:underline hover:text-white text-left text-xs md:text-sm bg-transparent border-none p-0 w-full text-left"
+                      className="cursor-pointer hover:underline text-xs md:text-sm bg-transparent border-none p-0 w-full text-left"
                       onClick={() =>
                         navigate(
                           `/seccion/${seccion.seccion.replace(/\s+/g, '').toLowerCase()}/categoria/${(categoria?.nombre || '').replace(/\s+/g, '').toLowerCase()}`,

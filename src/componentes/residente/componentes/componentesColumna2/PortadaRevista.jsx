@@ -38,6 +38,19 @@ const PortadaRevista = () => {
 
 
         <div className="flex flex-row justify-start relative">
+
+            {/* Contenedor de textos */}
+            <div className="flex flex-col mr-4 justify-between">
+
+                <h3 className="text-[28px] font-bold text-[#fff300] text-right">En Portada</h3>
+
+                <div className="flex">
+                    <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right">
+                        {revistaActual?.descripcion || ""}
+                    </h2>
+                </div>
+            </div>
+
             {revistaActual && revistaActual.pdf ? (
                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                     <img
@@ -55,34 +68,9 @@ const PortadaRevista = () => {
                 />
             )}
 
-            {/* Contenedor de textos */}
-            <div className="flex flex-col ml-4 justify-between">
-                <div className="flex">
-                    <h3 className="text-2xl font-bold text-[#fff300]">En Portada</h3>
-                </div>
-
-                <div className="flex">
-                    <h2 className="text-white text-[20px] leading-5.5 whitespace-pre-line">
-                        {revistaActual?.descripcion || ""}
-                    </h2>
-                </div>
-            </div>
 
             {/* Ícono de descarga en posición absoluta */}
-            <div className="absolute top-0 right-0">
-                <a
-                    href={revistaActual?.pdf}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                >
-                    <img
-                        src={`${urlApi}/fotos/fotos-estaticas/componente-iconos/descarga.png`}
-                        className="w-16 h-16 object-contain cursor-pointer hover:opacity-80"
-                        alt="Descargar PDF"
-                    />
-                </a>
-            </div>
+
         </div>
     )
 }
