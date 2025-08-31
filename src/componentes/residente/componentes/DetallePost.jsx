@@ -7,6 +7,7 @@ import { Iconografia } from '../../utils/Iconografia.jsx';
 import { urlApi } from "../../api/url.js";
 import BarraMarquee from "./seccionesCategorias/componentes/BarraMarquee.jsx";
 import CincoNotasRRR from "./seccionesCategorias/componentes/CincoNotasRRR.jsx";
+import CuponesCarrusel from "./seccionesCategorias/componentes/CuponesCarrusel.jsx";
 
 // DetallePost.jsx
 const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee, revistaActual }) => {
@@ -66,7 +67,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 
     return (
         <>
-            <div className="flex flex-col shadow-md ">
+            <div className="flex flex-col">
                 {/** h-[725px]  mb-5 */}
                 <div className="flex flex-col max-h-[735px] overflow-hidden mb-4 ">
 
@@ -145,25 +146,26 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                  */}
 
 
-                    <button onClick={() => navigate(-1)}>← Volver al listado</button>
-                    {revistaActual && revistaActual.pdf ? (
-                        <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                            <img
-                                src={revistaActual.imagen_banner}
-                                alt="Banner Revista"
-                                className="w-full mb-4 cursor-pointer py-2"
-                                title="Descargar Revista"
-                            />
-                        </a>
-                    ) : (
-                        <img
-                            src={revistaActual?.imagen_banner}
-                            alt="Banner Revista"
-                            className="w-full mb-4"
-                        />
-                    )}
+                    <button className="cursor-pointer" onClick={() => navigate(-1)}>
+                        ← Volver al listado
+                    </button>
                 </div>
-
+                {revistaActual && revistaActual.pdf ? (
+                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                        <img
+                            src={revistaActual.imagen_banner}
+                            alt="Banner Revista"
+                            className="w-full mb-4 cursor-pointer py-2"
+                            title="Descargar Revista"
+                        />
+                    </a>
+                ) : (
+                    <img
+                        src={revistaActual?.imagen_banner}
+                        alt="Banner Revista"
+                        className="w-full mb-4"
+                    />
+                )}
             </div>
 
         </>

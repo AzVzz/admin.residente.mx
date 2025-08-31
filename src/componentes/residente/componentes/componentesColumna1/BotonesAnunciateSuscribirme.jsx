@@ -37,33 +37,24 @@ const BotonesAnunciateSuscribirme = () => {
 
     return (
         <div>
-            {/* CONTENEDOR CENTRADO */}
-            <div className="relative gap-3 m-2 flex flex-col items-center text-center h-50">
-                <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xl font-black text-[20px] italic uppercase bg-[#fff300] px-3 leading-8 h-[32px] w-[190px] items-center justify-center">
+            {/* CONTENEDOR DERECHA */}
+            <div className="relative gap-1 flex flex-col items-end text-right h-50">
+                <span className="absolute -top-0 right-0 text-xl font-black text-[18px] italic uppercase bg-[#fff300] px-3 leading-8 h-[25px] w-[190px] flex items-center justify-center">
                     Newsletter
                 </span>
 
-                <div className="flex flex-col gap-2 items-center justify-center mt-5.5 py-2">
+                <div className="flex flex-col gap-2 items-end justify-center mt-7 py-2">
                     <p className="leading-5 text-[20px]">
                         Sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León
                     </p>
                     <span className="text-[55px] leading-10 tracking-tight">Suscríbete</span>
                 </div>
 
-                {/*<div className="flex justify-center gap-0">
-                    <div className="flex flex-col justify-between items-center w-40">
-                        <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-news-letter.webp`}
-                            alt="Logo"
-                        />
-                    </div>
-                </div>*/}
-
                 <form
-                    className="flex flex-row justify-center items-center w-full pb-3"
+                    className="flex flex-row justify-end items-center w-full pb-3"
                     onSubmit={handleSubmit}
                 >
-                    <div className="flex items-center rounded w-full gap-3 justify-center">
+                    <div className="flex items-center rounded gap-3">
                         <input
                             type="email"
                             value={correo}

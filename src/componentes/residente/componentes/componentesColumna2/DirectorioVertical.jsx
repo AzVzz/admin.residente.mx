@@ -64,7 +64,7 @@ const DirectorioVertical = () => {
                             onClick={() => setOpenIndex(openIndex === i ? null : i)}
                         >
                             {/* BOLITA uniforme */}
-                            <div className="size-20 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+                            <div className="size-17 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
                                 <img
                                     src={iconos[i]}
                                     alt={seccion.seccion}

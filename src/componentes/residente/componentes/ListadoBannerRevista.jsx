@@ -13,6 +13,7 @@ import { urlApi } from '../../../componentes/api/url.js';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
 import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
+import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 
 
 const ListadoBannerRevista = ({
@@ -45,7 +46,7 @@ const ListadoBannerRevista = ({
                 const marqueeTexto = tipoConfig.marqueeTexto || "";
                 const tipoLabel = (tipoConfig.label || tipo || "").toString();
                 const mostrarBanner = ["Antojos", "Gastro-Destinos", "Food & Drink"].includes(tipo);
-
+                const mostrarBannerEnMedio = tipo === "Restaurantes";
 
                 return (
                     <div key={tipo} className="flex flex-col pt-9" id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
@@ -81,10 +82,10 @@ const ListadoBannerRevista = ({
                                                     src={tipoLogo}
                                                     alt={tipoLabel}
                                                     className={
-                                                        tipo === "Antojos" ? "h-auto w-65 object-contain" :
-                                                            tipo === "Gastro-Destinos" ? "h-auto w-90 object-contain" :
+                                                        tipo === "Antojos" ? "h-auto w-70 object-contain" :
+                                                            tipo === "Gastro-Destinos" ? "h-auto w-95 object-contain" :
                                                                 tipo === "Food & Drink" ? "h-auto w-80 object-contain" :
-                                                                    tipo === "Restaurantes" ? "h-auto w-80 object-contain" :
+                                                                    tipo === "Restaurantes" ? "h-auto w-85 object-contain" :
                                                                         "h-auto w-60 object-contain"}
                                                 />
                                             ) : (
@@ -119,8 +120,11 @@ const ListadoBannerRevista = ({
                                 <TresTarjetas
                                     posts={postsFiltrados.slice(1, 7)}
                                     onCardClick={(post) => handleCardClick(post.id)}
+                                    mostrarBanner={mostrarBanner}
+                                    mostrarBannerEnMedio={mostrarBannerEnMedio}
+                                    revistaActual={revistaActual}
                                 />
-                                {revistaActual && revistaActual.pdf ? (
+                                {/*revistaActual && revistaActual.pdf ? (
                                     <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                         <img
                                             src={revistaActual.imagen_banner}
@@ -135,7 +139,7 @@ const ListadoBannerRevista = ({
                                         alt="Banner Revista"
                                         className="w-full mb-4"
                                     />
-                                )}
+                                )*/}
                             </div>
 
                             {/* Columna lateral */}
@@ -149,26 +153,29 @@ const ListadoBannerRevista = ({
                                     sinFecha
                                     cantidadNotas={5}
                                 />
-                                <div className="flex justify-end items-end mb-4">
-                                    <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif" />
-                                </div>
 
-                                <div className="">
+                                <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>
+
+                                {/*<div className="flex justify-end items-end mb-4">
+                                    <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif"
+                                        className="h-auto w-75" />
+                                </div>*/}
 
 
                             </div>
                         </div>
                         {tipo === "Restaurantes" && (
                             <>
-                                <div className="relative flex justify-center items-center mb-4">
+                                {/*<hr className="border-gray-800/80 border-dotted mt-0 pb-6" />*/}
+                                <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
-                                            <img className="h-full w-95" src={'https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
-                                            <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
+                                            {/*<img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
+                                            <img className="h-full w-105" src={'https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                            {/*<img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
                                         </div>
                                     </div>
                                 </div>
@@ -188,7 +195,7 @@ const ListadoBannerRevista = ({
                         )}
                         {tipo === "Food & Drink" && (
                             <>
-                                <div className="relative flex justify-center items-center mb-4">
+                                <div className="relative flex justify-center items-center mb-8 mt-8">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#CCCCCC]">
                                         <div className="flex flex-row justify-center items-center gap-3">
@@ -199,11 +206,16 @@ const ListadoBannerRevista = ({
                                 <div className="pb-5">
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
-                                <SeccionesPrincipales />
+                                <div className="my-2">
+                                    <SeccionesPrincipales />
+                                </div>
                             </>
                         )}
-                        {tipo === "Gastro-Destinos" && (
-                            <CuponesCarrusel cupones={cupones} />
+
+                        {tipo === "Antojos" && (
+                            <div className="my-2">
+                                <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
+                            </div>
                         )}
 
                     </div>

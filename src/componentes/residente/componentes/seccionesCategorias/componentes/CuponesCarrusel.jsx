@@ -56,7 +56,7 @@ const CuponesCarrusel = ({ cupones }) => {
   };
 
   return (
-    <div className="w-full relative" style={{ overflow: "visible" }}>
+    <div className="w-full relative " style={{ overflow: "visible" }}>
       <div className="relative mx-auto max-w-[1080px] w-full" style={{ overflow: "visible" }}>
         {/* Flecha izquierda - por fuera del max-w con posiciones negativas en md+ */}
         <button

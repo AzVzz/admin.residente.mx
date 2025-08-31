@@ -333,7 +333,6 @@ const MainSeccionesCategorias = () => {
                         )*/}
 
                         {/* Resto del contenido... */}
-                        {/* === LISTADO DE NOTAS === */}
                         {id ? (
                             detalleCargando ? (
                                 <div className="flex justify-center py-12 ">
@@ -350,58 +349,30 @@ const MainSeccionesCategorias = () => {
                             )
                         ) : (
                             <>
-                                {/* ===== PRIMERA NOTA: DESTACADA (imagen full width + texto abajo) ===== */}
-                                {notasPagina[0] && (
-                                    <article className="mb-6">
-                                        <button
-                                            onClick={() => handleNotaClick(notasPagina[0])}
-                                            className="block w-full text-left group"
-                                        >
-                                            <div className="relative overflow-hidden rounded-md">
-                                                {/* Imagen a todo el ancho del contenedor de notas */}
-                                                <img
-                                                    src={notasPagina[0].foto_portada || notasPagina[0].imagen || notasPagina[0].foto}
-                                                    alt={notasPagina[0].titulo}
-                                                    className="w-full h-auto object-cover aspect-[16/9] group-hover:scale-[1.02] transition-transform duration-300"
-                                                    loading="lazy"
-                                                />
-                                            </div>
-
-                                            {/* Texto debajo */}
-                                            <div className="mt-3 px-1">
-                                                <h2 className="text-[28px] leading-tight font-extrabold hover:underline">
-                                                    {notasPagina[0].titulo}
-                                                </h2>
-                                                {/* si quieres mostrar resumen */}
-                                                {notasPagina[0].resumen && (
-                                                    <p className="mt-2 text-[15px] text-gray-700">
-                                                        {notasPagina[0].resumen}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </button>
-                                    </article>
-                                )}
-
-                                {/* ===== RESTO DE NOTAS: GRILLA 2 COLS (de la 2 a la 9, ajusta a tu gusto) ===== */}
-                                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                                    {notasPagina.slice(1, 9).map((nota) => (
-                                        <div
-                                            key={nota.id}
-                                            ref={(el) => (notaRefs.current[nota.id] = el)}
-                                            className="col-span-1"
-                                        >
-                                            <TarjetaHorizontalPost
-                                                post={nota}
-                                                onClick={() => handleNotaClick(nota)}
-                                                sinFecha
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
+                                {notasPagina.slice(0, 1).map((nota, idx) => (
+                                    <React.Fragment key={nota.id}>
+                                        {/* Mostrar Banner después de la cuarta nota */}
+                                        {!id && (
+                                            <>
+                                                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+                                                    {notasPagina.slice(0, 8).map((nota, idx) => (
+                                                        <React.Fragment key={nota.id}>
+                                                            <div ref={el => notaRefs.current[nota.id] = el} className="col-span-1">
+                                                                <TarjetaHorizontalPost
+                                                                    post={nota}
+                                                                    onClick={() => handleNotaClick(nota)}
+                                                                    sinFecha
+                                                                />
+                                                            </div>
+                                                        </React.Fragment>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </React.Fragment>
+                                ))}
                             </>
                         )}
-
                     </div>
                 </div>
 
