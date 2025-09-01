@@ -8,6 +8,7 @@ import { urlApi } from "../../api/url.js";
 import BarraMarquee from "./seccionesCategorias/componentes/BarraMarquee.jsx";
 import CincoNotasRRR from "./seccionesCategorias/componentes/CincoNotasRRR.jsx";
 import CuponesCarrusel from "./seccionesCategorias/componentes/CuponesCarrusel.jsx";
+import { cuponesGet } from "../../api/cuponesGet.js";
 
 // DetallePost.jsx
 const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee, revistaActual }) => {
@@ -16,6 +17,8 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
     const [post, setPost] = useState(postProp);
     const [loading, setLoading] = useState(!postProp);
     const [error, setError] = useState(null);
+    const [cupones, setCupones] = useState([]);
+    const [loadingCupones, setLoadingCupones] = useState(true);
 
     useEffect(() => {
         if (postProp) {
@@ -30,6 +33,15 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                 .finally(() => setLoading(false));
         }
     }, [id, postProp]);
+
+    // Obtener todos los cupones para mostrar en cada nota
+    useEffect(() => {
+        setLoadingCupones(true);
+        cuponesGet()
+            .then(data => setCupones(Array.isArray(data) ? data : []))
+            .catch(() => setCupones([]))
+            .finally(() => setLoadingCupones(false));
+    }, []);
 
     if (loading) {
         return (
@@ -156,6 +168,20 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                     ← Volver al listado
                 </button>
             </div>
+
+            {/* Sección de cupones - todos los cupones disponibles */}
+            {!loadingCupones && cupones.length > 0 && (
+                <div className="w-center relative left-2/7 right-2/7 -ml-[50vw] -mr-[50vw] bg-transparent py-8">
+                    <div className="max-w-[1080px] mx-auto flex flex-col items-left">
+                        <h3 className="text-black text-[22px] font-bold mb-6 text-center">
+                            Cupones y promociones disponibles
+                        </h3>
+                        <div className="w-full">
+                            <CuponesCarrusel cupones={cupones} />
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </>
     );
