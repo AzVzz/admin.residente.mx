@@ -3,28 +3,7 @@ import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
-
-
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-
-const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
-const escobedo = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/esc.webp`;
-const guadalupe = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/gpe.webp`;
-const monterrey = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/mty.webp`;
-const sannicolas = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/snn.webp`;
-const sanpedro = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/spg.webp`;
-const santacatarina = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/sta.webp`;
-
-const iconosZonales = [
-  { src: apodaca, alt: "Apodaca" },
-  { src: escobedo, alt: "Escobedo" },
-  { src: guadalupe, alt: "Guadalupe" },
-  { src: monterrey, alt: "Monterrey" },
-  { src: sannicolas, alt: "San Nicolás" },
-  { src: sanpedro, alt: "San Pedro" },
-  { src: santacatarina, alt: "Santa Catarina" },
-];
-
 
 const Header = () => {
   const fechaActual = new Date().toLocaleDateString('es-MX', {
