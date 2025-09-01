@@ -143,6 +143,7 @@ const BannerRevista = () => {
             handleVolver={handleVolver}
             selectedPost={selectedPost}
             tiposNotas={tiposNotas}
+            revistaActual={revistaActual}
             notasDestacadas={notasDestacadas}
             handleCardClick={handleCardClick}
           />

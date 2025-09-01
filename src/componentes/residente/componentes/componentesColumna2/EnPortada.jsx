@@ -63,13 +63,13 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     if (!notas.length) return null;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300]">
-            <div className="max-w-[1080px] mx-auto my-7">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
+            <div className="max-w-[1080px] mx-auto my-9">
                 <div className="flex justify-between">
                     <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
                     <div className="flex">
                         {iconosZonales.map((icon, idx) => (
-                            <img key={idx} src={icon.src} alt={icon.alt} className="h-9 w-9 shadow-md rounded-full" />
+                            <img key={idx} src={icon.src} alt={icon.alt} className="h-9.5 w-9.5 shadow-md rounded-full" />
                         ))}
                     </div>
                 </div>
@@ -96,21 +96,21 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                             )}
                             <div className="flex flex-col ml-6 justify-between">
                                 <h3 className="text-2xl font-bold text-black ">En Portada</h3>
-                                <h2 className="text-black text-[22px] leading-6.5">
-                                    Grupo Blend: Innovación<br />
-                                    y comunidad en la escena<br />
-                                    gastronómica de Monterrey.
+                                <h2 className="text-black text-[22px] leading-6.5 whitespace-pre-line">
+                                    {revistaActual?.descripcion || ""}
                                 </h2>
-                                <a
-                                    href={revistaActual?.pdf}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    download
-                                >
-                                    <span className="text-black text-[18px] pt-3 cursor-pointer hover:underline mt-2">
-                                        Descarga aqui {">"}
-                                    </span>
-                                </a>
+                                {revistaActual?.pdf && (
+                                    <a
+                                        href={revistaActual.pdf}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        download
+                                    >
+                                        <span className="text-black text-[18px] pt-3 cursor-pointer hover:underline mt-2">
+                                            Descarga aquí {">"}
+                                        </span>
+                                    </a>
+                                )}
                             </div>
                         </div>
 
@@ -124,7 +124,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 onClick={() => onCardClick && onCardClick(nota)}
                             >
                                 <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover " />
-                                <div className="flex flex-col mt-4 text-right">
+                                <div className="flex flex-col mt-2 text-right">
                                     <h2 className="text-black text-[14px] leading-4.5 text-wrap">{nota.titulo}</h2>
                                 </div>
                             </div>

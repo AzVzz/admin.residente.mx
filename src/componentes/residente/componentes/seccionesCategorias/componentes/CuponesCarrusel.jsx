@@ -56,7 +56,7 @@ const CuponesCarrusel = ({ cupones }) => {
   };
 
   return (
-    <div className="w-full relative" style={{ overflow: "visible" }}>
+    <div className="w-full relative " style={{ overflow: "visible" }}>
       <div className="relative mx-auto max-w-[1080px] w-full" style={{ overflow: "visible" }}>
         {/* Flecha izquierda - por fuera del max-w con posiciones negativas en md+ */}
         <button
@@ -103,7 +103,7 @@ const CuponesCarrusel = ({ cupones }) => {
         {/* Carrusel */}
         <div className="overflow-hidden w-full px-0">
           <div
-            className="flex transition-transform duration-300 gap-x-0"
+            className="flex transition-transform duration-300 gap-x-0 mb-2"
             style={{ transform: `translateX(-${startIdx * 20}%)` }}
           >
             {cupones.map((cupon) => (

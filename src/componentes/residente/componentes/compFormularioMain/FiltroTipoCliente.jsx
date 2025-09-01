@@ -8,10 +8,15 @@ import { catalogoTipoNotaGet } from '../../../api/CatalogoSeccionesGet';
 
 // Opciones por defecto (fallback)
 const opcionesDefault = [
-    { value: '', label: 'Todos los Clientes' },
+    { value: '', label: 'Todas las tipos de notas' },
     { value: 'barrio-antiguo', label: 'Barrio Antiguo' },
     { value: 'mama-de-rocco', label: 'Mama de Rocco' },
-    { value: 'otrocliente', label: 'Otro Cliente' },
+    { value: 'Restaurantes', label: 'Restaurantes' },
+    { value: 'Food & Drink', label: 'Food & Drink' },
+    { value: 'Antojos', label: 'Antojos' },
+    { value: 'Gastro-Destinos', label: 'Gastro-Destinos' },
+    { value: 'Residente', label: 'Residente' },
+    { value: 'Acerbo', label: 'Acerbo' }
 ];
 
 // Función para obtener color de fondo y texto según el tipo de cliente
@@ -40,7 +45,7 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
             try {
                 setCargando(true);
                 const data = await catalogoTipoNotaGet();
-                
+
                 if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
                     // Crear opciones dinámicas basadas en los datos de la API
                     const opcionesDinamicas = [

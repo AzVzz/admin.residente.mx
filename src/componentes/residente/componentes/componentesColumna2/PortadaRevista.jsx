@@ -5,6 +5,8 @@ import { urlApi } from "../../../api/url.js";
 
 const PortadaRevista = () => {
     const [revistaActual, setRevistaActual] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [notas, setNotas] = useState([]);
 
     useEffect(() => {
         const fetchRevista = async () => {
@@ -35,7 +37,20 @@ const PortadaRevista = () => {
     return (
 
 
-        <div className="flex flex-row justify-start items-start relative">
+        <div className="flex flex-row justify-start relative">
+
+            {/* Contenedor de textos */}
+            <div className="flex flex-col mr-4 justify-between">
+
+                <h3 className="text-[28px] font-bold text-[#fff300] text-right">En Portada</h3>
+
+                <div className="flex">
+                    <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right">
+                        {revistaActual?.descripcion || ""}
+                    </h2>
+                </div>
+            </div>
+
             {revistaActual && revistaActual.pdf ? (
                 <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                     <img
@@ -53,31 +68,9 @@ const PortadaRevista = () => {
                 />
             )}
 
-            {/* Contenedor de textos */}
-            <div className="flex flex-col ml-4 justify-between">
-                <h3 className="text-2xl font-bold text-[#fff300]">En Portada</h3>
-                <h2 className="text-white text-[20px] leading-6.5">
-                    Grupo Blend: Innovación<br />
-                    y comunidad en la escena<br />
-                    gastronómica de Monterrey.
-                </h2>
-            </div>
 
             {/* Ícono de descarga en posición absoluta */}
-            <div className="absolute top-0 right-0">
-                <a
-                    href={revistaActual?.pdf}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                >
-                    <img
-                        src={`${urlApi}/fotos/fotos-estaticas/componente-iconos/descarga.png`}
-                        className="w-16 h-16 object-contain cursor-pointer hover:opacity-80"
-                        alt="Descargar PDF"
-                    />
-                </a>
-            </div>
+
         </div>
     )
 }

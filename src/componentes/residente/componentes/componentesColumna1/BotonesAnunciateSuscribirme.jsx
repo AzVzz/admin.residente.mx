@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { urlApi } from '../../../../componentes/api/url.js';
 import { bannerNewsletterGetReciente } from '../../../../componentes/api/bannerNewsletterGet.js';
 
-
 const BotonesAnunciateSuscribirme = () => {
     const [correo, setCorreo] = useState('');
     const [mensaje, setMensaje] = useState('');
@@ -27,7 +26,7 @@ const BotonesAnunciateSuscribirme = () => {
             if (res.ok) {
                 setMensaje('¡Suscripción exitosa!');
                 setCorreo('');
-                setTimeout(() => setMensaje(''), 4000); // Oculta el mensaje después de 4 segundos
+                setTimeout(() => setMensaje(''), 4000);
             } else {
                 setMensaje(data.error || 'Error al suscribirse');
             }
@@ -38,43 +37,45 @@ const BotonesAnunciateSuscribirme = () => {
 
     return (
         <div>
-            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
-            <div className="flex flex-col gap-3 m-10">
-                <div className="flex justify-between gap-3">
-                    <div className="w-[129px] h-[240px] overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                        <img
-                            src={banner?.imagen || `${urlApi}/fotos/fotos-estaticas/componente-news-letter/Newsletter.webp`}
-                            className="w-full h-full object-cover"
-                            alt="Banner newsletter"
-                        />
-                    </div>
-                    <div className="flex flex-col justify-between items-end">
-                        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/residente-restaurant-news-letter.webp`} alt="Logo" />
-                        <p className="leading-4.5 text-[16px]">
-                            {banner?.texto || "Todos los jueves sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León."}
-                        </p>
-                    </div>
+            {/* CONTENEDOR DERECHA */}
+            <div className="relative gap-1 flex flex-col items-end text-right h-50">
+                <span className="absolute -top-0 right-0 text-xl font-black text-[18px] italic uppercase bg-[#fff300] px-3 leading-8 h-[25px] w-[190px] flex items-center justify-center">
+                    Newsletter
+                </span>
+
+                <div className="flex flex-col gap-2 items-end justify-center mt-7 py-2">
+                    <p className="leading-5 text-[20px]">
+                        Sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León
+                    </p>
+                    <span className="text-[55px] leading-10 tracking-tight">Suscríbete</span>
                 </div>
-                <form className="flex flex-row items-center justify-end mt-2" onSubmit={handleSubmit}>
-                    <div className="flex items-center rounded max-w-[320px] w-full gap-3">
+
+                <form
+                    className="flex flex-row justify-end items-center w-full pb-3"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="flex items-center rounded gap-3">
                         <input
                             type="email"
                             value={correo}
                             onChange={e => setCorreo(e.target.value)}
                             placeholder="Ingresa tu correo electrónico"
-                            className="bg-white p-2 h-10 rounded-l border border-gray-300 w-45.5 text-xs"
+                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-45.5 text-xs drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
                             required
                         />
-                        <button type="submit" className="flex justify-center items-center bg-black h-10 text-white uppercase cursor-pointer px-2.5 rounded-r text-sm">
+                        <button
+                            type="submit"
+                            className="flex justify-center items-center bg-[#fff] h-10 text-black uppercase cursor-pointer px-2.5 rounded-r text-sm drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                        >
                             Signup
                         </button>
                     </div>
                 </form>
+
                 {mensaje && <p className="text-sm mt-2">{mensaje}</p>}
             </div>
-            <hr className="border-t border-gray-800/80 my-5 border-dotted" />
         </div>
     );
-}
+};
 
 export default BotonesAnunciateSuscribirme;

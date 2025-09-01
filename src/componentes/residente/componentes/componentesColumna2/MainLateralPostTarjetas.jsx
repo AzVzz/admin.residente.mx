@@ -1,5 +1,6 @@
 import { urlApi } from "../../../api/url.js";
 import BarraMarquee from "../seccionesCategorias/componentes/BarraMarquee.jsx";
+import PortadaRevista from "./PortadaRevista";
 
 const MainLateralPostTarjetas = ({
     notasDestacadas = [],
@@ -7,65 +8,70 @@ const MainLateralPostTarjetas = ({
     cantidadNotas,
     sinFecha = false,
     sinCategoria = false,
-    pasarObjeto = false // <--- NUEVO
+    pasarObjeto = false,
 }) => {
-    const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 4);
-    return (
-        <section className={`mb-5  h-[450px] flex flex-col ${cantidadNotas === 5 ? 'h-[510px]' : 'h-[450px]'}`}>
-            <div className="flex justify-end bg-[#fff200] mb-3 px-2 py-1">
-                <img className="h-full w-42 object-contain" src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`} />
-            </div>
-            <div className="flex-grow pb-4">
-                <ul className="h-full flex flex-col gap-3.5">
-                    {safePosts.map((post, index) => (
-                        <li
-                            key={post.id}
-                            className="h-[calc(10%-0.625rem)] min-h-[83px] relative"
-                        >
-                            <div
-                                className="flex items-center cursor-pointer h-full w-full transition-shadow text-right"
-                                onClick={() => pasarObjeto ? onCardClick(post) : onCardClick(post.id)}
-                            >
-                                <div className="w-2/3 pr-4 h-full flex flex-col justify-center">
-                                    {!sinFecha && (
-                                        <div
-                                            className="font-roman inline-block text-black text-[10px] py-0 max-w-max mb-0.5 font-black self-end"
-                                        >
-                                            {(() => {
-                                                const fecha = post?.fecha || 'Sin fecha';
-                                                const [primera, ...resto] = fecha.split(' ');
-                                                return (
-                                                    <>
-                                                        <span className="capitalize">{primera}</span>
-                                                        {resto.length > 0 && ' ' + resto.join(' ')}
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-                                    )}
-                                    {!sinCategoria && (
-                                        <div className="flex items-center">
-                                            <span className="font-serif inline-block bg-black text-[#fff300] text-[7px] px-0.5 py-0 max-w-max mb-0.5">
-                                                {post?.tipo_nota || 'Sin categoría'}
-                                            </span>
-                                        </div>
-                                    )}
-                                    <h4 className=" text-[13px] leading-3.5">{post.titulo}</h4>
-                                </div>
+    const safePosts = (notasDestacadas || []).filter(post => post).slice(0, cantidadNotas || 5);
 
-                                <div className="w-1/3 h-full">
-                                    <img
-                                        src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
-                                        alt={post.titulo}
-                                        className="w-full h-full object-cover"
-                                    />
+    return (
+        <>
+            <section className="flex flex-col min-h-[100px] max-w-[375px]">
+                <div className="flex justify-end mb-3 py-1">
+                    <img
+                        className="h-full w-42 object-contain"
+                        src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
+                        alt="Lo más visto"
+                    />
+                </div>
+
+                <div className="flex-grow">
+                    <ul className="h-full flex flex-col gap-3.5">
+                        {safePosts.map((post, index) => (
+                            <li
+                                key={post.id}
+                                className="max-h-[83px] relative flex-grow"
+                            >
+                                <span className="absolute -right-1 top-0 bg-[#fff300] text-black text-[18px] font-grotesk rounded-full h-6.5 w-6.5 flex items-center justify-center">
+                                    {index + 1}
+                                </span>
+                                <div
+                                    className="flex items-center cursor-pointer h-full w-full transition-shadow text-right"
+                                    onClick={() => pasarObjeto ? onCardClick(post) : onCardClick(post.id)}
+                                >
+                                    <div className="flex-1 pr-4 pl-12 h-full flex flex-col justify-center">
+                                        <div className="flex flex-col items-end">
+                                            {!sinFecha && (
+                                                <div className="font-roman inline-block text-black text-[10px] py-0 max-w-max mb-0.5 font-black self-end">
+                                                    {(() => {
+                                                        const fecha = post?.fecha || 'Sin fecha';
+                                                        const [primera, ...resto] = fecha.split(' ');
+                                                        return (
+                                                            <>
+                                                                <span className="capitalize">{primera}</span>
+                                                                {resto.length > 0 && ' ' + resto.join(' ')}
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <h4 className="text-[13px] leading-3.5 line-clamp-4">{post.titulo}</h4>
+                                    </div>
+
+                                    <div className="w-20 h-20">
+                                        <img
+                                            src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                                            alt={post.titulo}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </section>
+                            </li>
+                        ))}
+                    </ul>
+
+                </div>
+            </section>
+        </>
     )
 }
 

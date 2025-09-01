@@ -29,7 +29,18 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                                         type="radio"
                                         value={opcion.nombre}
                                         checked={field.value === opcion.nombre}
-                                        onChange={() => field.onChange(opcion.nombre)}
+                                        onClick={() => {
+                                            // Si ya está seleccionado, deselecciona
+                                            if (field.value === opcion.nombre) {
+                                                field.onChange("");
+                                            }
+                                        }}
+                                        onChange={() => {
+                                            // Solo selecciona si no está seleccionado
+                                            if (field.value !== opcion.nombre) {
+                                                field.onChange(opcion.nombre);
+                                            }
+                                        }}
                                         className="mr-1"
                                     />
                                 )}
@@ -57,7 +68,16 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                                         type="radio"
                                         value={categoria.nombre}
                                         checked={field.value === categoria.nombre}
-                                        onChange={() => field.onChange(categoria.nombre)}
+                                        onClick={() => {
+                                            if (field.value === categoria.nombre) {
+                                                field.onChange("");
+                                            }
+                                        }}
+                                        onChange={() => {
+                                            if (field.value !== categoria.nombre) {
+                                                field.onChange(categoria.nombre);
+                                            }
+                                        }}
                                         className="mr-2"
                                     />
                                 )}
