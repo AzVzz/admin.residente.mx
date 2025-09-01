@@ -2,7 +2,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useAuth } from '../../../../Context';
 
 const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) => {
-    const { control } = useFormContext();
+    const { control, watch } = useFormContext();
     const { usuario } = useAuth();
 
     // Verificar si el usuario tiene permisos limitados
@@ -14,40 +14,48 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
     }
 
     return (
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-5">  
             {/* Solo muestra el campo de tipo de nota si ocultarTipoNota es falso */}
             {!ocultarTipoNota && (
                 <div className="p-1 border-1 border-gray-300 rounded-md">
                     <p className="mb-2 text-xl leading-5">Tipo de Nota</p>
-                    {tipoDeNota.map((opcion, idx) => (
-                        <label key={idx} className="block mb-1">
-                            <Controller
-                                name="tipoDeNotaSeleccionada"
-                                control={control}
-                                render={({ field }) => (
-                                    <input
-                                        type="radio"
-                                        value={opcion.nombre}
-                                        checked={field.value === opcion.nombre}
-                                        onClick={() => {
-                                            // Si ya está seleccionado, deselecciona
-                                            if (field.value === opcion.nombre) {
-                                                field.onChange("");
-                                            }
-                                        }}
-                                        onChange={() => {
-                                            // Solo selecciona si no está seleccionado
-                                            if (field.value !== opcion.nombre) {
-                                                field.onChange(opcion.nombre);
-                                            }
-                                        }}
-                                        className="mr-1"
-                                    />
-                                )}
-                            />
-                            {opcion.nombre}
-                        </label>
-                    ))}
+                    <Controller
+                        name="tiposDeNotaSeleccionadas"
+                        control={control}
+                        defaultValue={[]}
+                        render={({ field }) => (
+                            <>
+                                {tipoDeNota.map((opcion, idx) => {
+                                    const checked = field.value?.includes(opcion.nombre);
+                                    return (
+                                        <label key={idx} className="block mb-1">
+                                            <input
+                                                type="checkbox"
+                                                value={opcion.nombre}
+                                                checked={checked}
+                                                onChange={e => {
+                                                    let nuevos = Array.isArray(field.value) ? [...field.value] : [];
+                                                    if (e.target.checked) {
+                                                        if (nuevos.length < 2) {
+                                                            nuevos.push(opcion.nombre);
+                                                        }
+                                                    } else {
+                                                        nuevos = nuevos.filter(n => n !== opcion.nombre);
+                                                    }
+                                                    field.onChange(nuevos);
+                                                }}
+                                                className="mr-1"
+                                            />
+                                            {opcion.nombre}
+                                        </label>
+                                    );
+                                })}
+                                <div className="text-xs text-gray-500 mt-2">
+                                    Selecciona máximo 2 tipos.
+                                </div>
+                            </>
+                        )}
+                    />
                 </div>
             )}
 

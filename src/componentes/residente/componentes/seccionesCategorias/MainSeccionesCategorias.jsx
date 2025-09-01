@@ -5,7 +5,6 @@ import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
 import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
 import { cuponesGetFiltrados } from '../../../api/cuponesGet';
-
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
@@ -15,6 +14,8 @@ import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDe
 import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
 import CuponesCarrusel from './componentes/CuponesCarrusel.jsx';
 import { urlApi } from '../../../api/url.js';
+import { catalogoSeccionesGet } from '../../../api/CatalogoSeccionesGet.js';
+import HeaderSecciones from './componentes/HeaderSecciones.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -43,9 +44,24 @@ const MainSeccionesCategorias = () => {
     const [notasTop, setNotasTop] = useState([]);
     const [cupones, setCupones] = useState([]);
     const [loadingCupones, setLoadingCupones] = useState(true);
-
     const [revistaActual, setRevistaActual] = useState(null);
 
+    useEffect(() => {
+        //Buscara la informacion de la categoria seleccionada
+        catalogoSeccionesGet().then(secciones => {
+            let found = null;
+            for (const seccionObj of secciones) {
+                const cat = seccionObj.categorias.find(
+                    c => c.nombre === categoria || c.nombreCompleto === categoria
+                );
+                if (cat) {
+                    found = cat;
+                    break;
+                }
+            }
+            setCategoriaInfo(found);
+        });
+    }, [categoria]);
 
     useEffect(() => {
         setLoadingCupones(true);
@@ -248,33 +264,13 @@ const MainSeccionesCategorias = () => {
                 </a>
             ) : (
                 <img
-                    src={revistaActual?.imagen_banner}
-                    alt="Banner Revista"
-                    className="w-full mb-4"
+                src={revistaActual?.imagen_banner}
+                alt="Banner Revista"
+                className="w-full mb-4"
                 />
             )}
 
-            <div className="flex items-center justify-between w-full mb-3 h-23">
-                {/**
-                 * 
-                 *                <h1 className="text-[60px] leading-15 tracking-tight flex-shrink-0">
-                    {categoria}
-                </h1>
-                 * 
-                 */}
-
-                <div className="overflow-hidden flex flex-col h-full w-full justify-center items-center">
-                    <img
-                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
-                        className="w-55 h-auto "
-                        alt="Logo Guía NL"
-                    />
-                    <span className="text-[25px]">Tu concierge restaurantero</span>
-                </div>
-
-
-
-            </div>
+            <HeaderSecciones />
 
             <div className="grid grid-cols-6 gap-5">
                 {/* Contenedor del H1 de categoría */}
@@ -286,8 +282,12 @@ const MainSeccionesCategorias = () => {
                     categoriaFontSize={categoriaFontSize}
                     renderCategoriaH1={renderCategoriaH1}
                     //Para el directorio vertical
-                    categoria={categoria}
-                    restaurantes={restaurantes}
+                    categoria={
+                        categoriaInfo?.nombreCompleto?.trim()
+                            ? categoriaInfo.nombreCompleto
+                            : categoriaInfo?.nombre || categoria
+                    }
+                    descripcion={categoriaInfo?.descripcion}
                 />
 
 
