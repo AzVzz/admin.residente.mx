@@ -63,6 +63,9 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const isSeccionRoute = location.pathname.startsWith('/seccion/');
+    if (isSeccionRoute) return; // No aplicar scroll behavior en rutas de sección
+
     const handleScroll = () => {
       if (window.scrollY > 200) {
         setShowMegaMenu(true);
@@ -72,11 +75,15 @@ function App() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
+
+  const isSeccionRoute = location.pathname.startsWith('/seccion/');
+  const isCulturalAccess = location.pathname === '/culturallaccess';
+
 
   return (
     <div className="min-h-screen flex flex-col">
-      {location.pathname !== "/culturallaccess" && (
+      {!isCulturalAccess && !isSeccionRoute && (
         <div
           className={`transition-all duration-300 relative z-50 ${showMegaMenu
             ? "-translate-y-full opacity-0 pointer-events-none"
@@ -145,6 +152,8 @@ function App() {
             </div>
           } />
 
+
+
           <Route path="/seccion/:seccion/categoria/:categoria/*" element={
             <div className="max-w-[1080px] mx-auto">
               <MainSeccionesCategorias />
@@ -155,6 +164,8 @@ function App() {
               <MainSeccionesCategorias />
             </div>
           } />
+
+
 
           <Route path="/:nombreCliente" element={
             <div className="max-w-[1080px] mx-auto">

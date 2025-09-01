@@ -11,7 +11,7 @@ const TarjetaVerticalPost = ({ nota, onClick }) => (
     onClick={() => onClick && onClick(nota)}
   >
     <div className="flex flex-col">
-      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center">
+      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center text-[15px]">
         {nota.nombre_restaurante?.trim() || ""}
       </div>
       <div className="h-30 w-full overflow-hidden">

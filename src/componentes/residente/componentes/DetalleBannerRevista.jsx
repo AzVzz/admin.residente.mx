@@ -11,6 +11,7 @@ import SeccionesPrincipales from './SeccionesPrincipales';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import PortadaRevista from './componentesColumna2/PortadaRevista.jsx';
 
+
 const DetalleBannerRevista = ({
     detalleCargando,
     errorDetalle,
@@ -25,6 +26,11 @@ const DetalleBannerRevista = ({
 }) => {
     // Obtener el tipo de nota del post seleccionado
     const tipo = selectedPost?.tipo_nota;
+
+    const showCupones =
+        ["Antojos", "Gastro-Destinos", "Food & Drink", "Restaurantes"].includes(tipo) &&
+        Array.isArray(cupones) &&
+        cupones.length > 0;
 
     return (
         <>
@@ -162,7 +168,8 @@ const DetalleBannerRevista = ({
             )}
 
             {tipo === "Gastro-Destinos" && (
-                <></>
+                <>
+                </>
             )}
         </>
     );

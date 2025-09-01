@@ -38,7 +38,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
         </div>
 
         {/* Contenido de texto */}
-        <div className="flex flex-col ml-2 mr-2 flex-1 justify-center">
+        <div className="flex flex-col ml-3.5 mr-2 flex-1 justify-center">
           {/* Categoría 
           <div className="mb-1">
             <span className="font-serif inline-block bg-black text-[#fff300] text-[11px] px-1.5 py-.5 shadow-md">
@@ -47,7 +47,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false }) => {
           </div>*/}
 
           {/* Título */}
-          <h3 className="font-grotesk text-[20px] font-bold text-gray-900 leading-5.5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
+          <h3 className="font-grotesk text-[19px] font-bold text-gray-900 leading-5.5 mb-1 group-hover:text-gray-700 transition-colors duration-200">
             {post?.titulo || 'Sin título'}
           </h3>
 

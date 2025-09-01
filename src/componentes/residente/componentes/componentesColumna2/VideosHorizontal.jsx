@@ -43,10 +43,10 @@ const VideosHorizontalCarrusel = () => {
             try {
                 setCargando(true);
                 setError(null);
-                
+
                 const videosData = await obtenerVideos(token);
                 console.log('Videos cargados:', videosData);
-                
+
                 // Filtrar solo videos activos para el carrusel público
                 const videosActivos = videosData.filter(video => video.activo);
 
@@ -132,7 +132,14 @@ const VideosHorizontalCarrusel = () => {
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-transparent">
             <div className="relative mx-auto max-w-[1080px] w-full my-5">
-                <h3 className="text-black text-[35px] pb-2 mb-2">Videos</h3>
+                <div className="relative flex justify-center items-center pt-2">
+                    <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                        <div className="flex flex-row justify-center items-center gap-2">
+                            <h3 className="text-black text-[35px] pb-2 mb-2 text-center">Videos</h3>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Flechas fuera del max-w en md+ (como cupones) */}
                 {videos.length > perView && (
@@ -168,9 +175,9 @@ const VideosHorizontalCarrusel = () => {
                     >
                         {videos.map((video, idx) => (
                             <div key={video.id || idx} className="flex-shrink-0" style={{ width: `${itemWidth}px` }}>
-                                <VideoCard 
-                                    video={video} 
-                                    onClick={() => handleVideoClick(video)} 
+                                <VideoCard
+                                    video={video}
+                                    onClick={() => handleVideoClick(video)}
                                 />
                             </div>
                         ))}

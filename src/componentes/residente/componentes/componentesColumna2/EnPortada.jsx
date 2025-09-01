@@ -63,13 +63,13 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     if (!notas.length) return null;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300]">
-            <div className="max-w-[1080px] mx-auto my-7">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
+            <div className="max-w-[1080px] mx-auto my-9">
                 <div className="flex justify-between">
                     <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
                     <div className="flex">
                         {iconosZonales.map((icon, idx) => (
-                            <img key={idx} src={icon.src} alt={icon.alt} className="h-9 w-9 shadow-md rounded-full" />
+                            <img key={idx} src={icon.src} alt={icon.alt} className="h-9.5 w-9.5 shadow-md rounded-full" />
                         ))}
                     </div>
                 </div>
@@ -124,7 +124,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 onClick={() => onCardClick && onCardClick(nota)}
                             >
                                 <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover " />
-                                <div className="flex flex-col mt-4 text-right">
+                                <div className="flex flex-col mt-2 text-right">
                                     <h2 className="text-black text-[14px] leading-4.5 text-wrap">{nota.titulo}</h2>
                                 </div>
                             </div>
