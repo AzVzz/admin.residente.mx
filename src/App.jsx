@@ -27,6 +27,7 @@ import VideoResidente from './componentes/residente/componentes/extras/VideoResi
 import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
 import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx';
+import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 
 function App() {
 
@@ -236,6 +237,12 @@ function App() {
           <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
             <VideosDashboard />
           </div>} />
+
+          <Route path="/linkinbio" element={
+            <div className="max-w-[1080px] mx-auto">
+              <LinkInBio />
+            </div>
+            } />
 
           <Route path="/formnewsletter" element={<FormNewsletter />} />
 
