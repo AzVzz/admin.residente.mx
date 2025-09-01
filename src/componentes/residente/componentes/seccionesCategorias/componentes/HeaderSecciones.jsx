@@ -14,6 +14,8 @@ const HeaderSecciones = () => {
             .then(([headers, secciones]) => {
                 //Solo tomara los 2 primeros de opcionesHeader
                 const primeros = headers.slice(0, 2);
+                //Inserta el Anunciate al menú
+                const anunciate = headers.find(h => h.seccion.toLowerCase().includes("anunciate"));
 
                 const seccionesMenu = secciones.map(sec => ({
                     seccion: sec.seccion,
@@ -23,7 +25,9 @@ const HeaderSecciones = () => {
                     }))
                 }));
 
-                setMenuHeader([...primeros, ...seccionesMenu]);
+                let menu = [...primeros, ...seccionesMenu];
+                if (anunciate) menu.push(anunciate);
+                setMenuHeader(menu);
             })
             .catch(() => setMenuHeader([]));
     }, []);
@@ -37,11 +41,10 @@ const HeaderSecciones = () => {
                     {/* Logo y texto a la izquierda */}
                     <div className="flex flex-col items-start">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/guia-nl-negro.webp`}
                             className="w-60 h-auto mb-1"
                             alt="Logo Guía NL"
                         />
-                        <span className="text-[16px] font-semibold text-left">Tu concierge restaurantero</span>
                     </div>
                 </div>
             </div>

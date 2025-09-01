@@ -264,9 +264,9 @@ const MainSeccionesCategorias = () => {
                 </a>
             ) : (
                 <img
-                src={revistaActual?.imagen_banner}
-                alt="Banner Revista"
-                className="w-full mb-4"
+                    src={revistaActual?.imagen_banner}
+                    alt="Banner Revista"
+                    className="w-full mb-4"
                 />
             )}
 
@@ -312,8 +312,32 @@ const MainSeccionesCategorias = () => {
 
                 {/* Columna Central - Notas */}
                 <div className="flex-1 min-w-0 md:max-w-[80%]"> {/* min-w-0 previene desbordamientos */}
-                    <div className="flex flex-col gap-4">
+                    {/* Banner Revista Actual */}
+                    {revistaActual && revistaActual.pdf ? (
+                        <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                            <img
+                                src={revistaActual.imagen_banner}
+                                alt="Banner Revista"
+                                className="w-full mb-4 cursor-pointer pb-7"
+                                title="Descargar Revista"
+                            />
+                        </a>
+                    ) : (
+                        <img
+                            src={revistaActual?.imagen_banner}
+                            alt="Banner Revista"
+                            className="w-full mb-4"
+                        />
+                    )}
 
+                    {/* Línea con texto Noticias */}
+                    <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
+                        <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                        <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                            <span className="text-xl font-bold text-black uppercase tracking-wide">Noticias</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-4">
 
                         {/*revistaActual && revistaActual.pdf ? (
                             <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
