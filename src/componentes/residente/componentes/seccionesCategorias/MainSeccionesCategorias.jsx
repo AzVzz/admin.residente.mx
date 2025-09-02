@@ -311,7 +311,9 @@ const MainSeccionesCategorias = () => {
                 </div>*/}
 
                 {/* Columna Central - Notas */}
-                <div className="flex-1 min-w-0 md:max-w-[80%]"> {/* min-w-0 previene desbordamientos */}
+                <div className="flex-1 min-w-0 md:max-w-[70%]"> {/* min-w-0 previene desbordamientos */}
+                    <div className="flex flex-col gap-4"></div>
+
                     {/* Banner Revista Actual */}
                     {revistaActual && revistaActual.pdf ? (
                         <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
@@ -373,35 +375,69 @@ const MainSeccionesCategorias = () => {
                             )
                         ) : (
                             <>
-                                {notasPagina.slice(0, 1).map((nota, idx) => (
-                                    <React.Fragment key={nota.id}>
-                                        {/* Mostrar Banner después de la cuarta nota */}
-                                        {!id && (
-                                            <>
-                                                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                                                    {notasPagina.slice(0, 8).map((nota, idx) => (
-                                                        <React.Fragment key={nota.id}>
-                                                            <div ref={el => notaRefs.current[nota.id] = el} className="col-span-1">
+                                {/* SECCIÓN PRINCIPAL: Nota Grande + Notas Medianas + Notas Pequeñas */}
+                                {notasPagina.length > 0 && (
+                                    <div className="mb-8">
+                                        <div className="flex flex-col lg:flex-row gap-6">
+                                            {/* NOTA PRINCIPAL - GRANDE (IZQUIERDA) */}
+                                            <div className="lg:w-2/3">
+                                                <div ref={el => notaRefs.current[notasPagina[0].id] = el} className="w-full">
+                                                    <TarjetaHorizontalPost
+                                                        post={notasPagina[0]}
+                                                        onClick={() => handleNotaClick(notasPagina[0])}
+                                                        sinFecha
+                                                        destacada={true}
+                                                    />
+                                                </div>
+
+                                                {/* NOTAS PEQUEÑAS - DEBAJO DE LA GRANDE */}
+                                                {notasPagina.length > 5 && (
+                                                    <div className="mt-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                            {notasPagina.slice(5, 9).map((nota, idx) => (
+                                                                <div key={nota.id} ref={el => notaRefs.current[nota.id] = el} className="col-span-1">
+                                                                    <TarjetaHorizontalPost
+                                                                        post={nota}
+                                                                        onClick={() => handleNotaClick(nota)}
+                                                                        sinFecha
+                                                                        pequena={true}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* NOTAS RECIENTES - MEDIANAS (DERECHA, EN COLUMNA) */}
+                                            {notasPagina.length > 1 && (
+                                                <div className="lg:w-1/3">
+                                                    <div className="flex flex-col gap-4">
+                                                        {notasPagina.slice(1, 5).map((nota, idx) => (
+                                                            <div key={nota.id} ref={el => notaRefs.current[nota.id] = el}>
                                                                 <TarjetaHorizontalPost
                                                                     post={nota}
                                                                     onClick={() => handleNotaClick(nota)}
                                                                     sinFecha
+                                                                    mediana={true}
                                                                 />
                                                             </div>
-                                                        </React.Fragment>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </>
-                                        )}
-                                    </React.Fragment>
-                                ))}
+                                            )}
+                                        </div>
+
+
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
                 </div>
 
                 {/* Columna derecha - OpcionesExtra */}
-                <div className="md:w-[20%] flex flex-col gap-10">
+                <div className="md:w-[30%] flex flex-col gap-10">
                     {/*
                     <MainLateralPostTarjetas
                         notasDestacadas={notasTop}

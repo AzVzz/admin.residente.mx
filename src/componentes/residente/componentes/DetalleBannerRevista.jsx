@@ -143,11 +143,18 @@ const DetalleBannerRevista = ({
                         notasResidenteGet={notasResidenteGet}
                         onCardClick={(nota) => handleCardClick(nota.id)}
                     />
+                    <div className="relative flex justify-center items-center mb-4">
+                    </div>
+                   
+                    <SeccionesPrincipales />
                 </>
             )}
 
             {tipo === "Antojos" && (
-                <VideosHorizontal />
+                <>
+                    <VideosHorizontal />
+                    <SeccionesPrincipales />
+                </>
             )}
 
             {tipo === "Food & Drink" && (
@@ -169,6 +176,7 @@ const DetalleBannerRevista = ({
 
             {tipo === "Gastro-Destinos" && (
                 <>
+                    <SeccionesPrincipales />
                 </>
             )}
         </>
