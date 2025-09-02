@@ -232,13 +232,13 @@ const SeccionesPrincipales = () => {
               },
               '& .MuiInputLabel-root': {
                 color: '#6B7280',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
               },
               '& .MuiInputBase-input': {
                 color: '#000000',
-                fontSize: '16px',
-                padding: '12px 16px',
+                fontSize: '9px',
+                padding: '6px 6px',
               },
               '& .MuiAutocomplete-paper': {
                 backgroundColor: 'white',

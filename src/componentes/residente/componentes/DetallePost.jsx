@@ -115,7 +115,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             </div>
                         </div>
                         <h1
-                            className="ttext-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
+                            className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
                             style={{
                                 whiteSpace: 'pre-line',
                                 wordBreak: 'break-word',
