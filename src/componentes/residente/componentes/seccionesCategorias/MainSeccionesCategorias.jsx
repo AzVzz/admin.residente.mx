@@ -320,7 +320,7 @@ const MainSeccionesCategorias = () => {
                             <img
                                 src={revistaActual.imagen_banner}
                                 alt="Banner Revista"
-                                className="w-full mb-4 cursor-pointer pb-7"
+                                className="w-full mb-0 cursor-pointer pb-7"
                                 title="Descargar Revista"
                             />
                         </a>
@@ -333,7 +333,7 @@ const MainSeccionesCategorias = () => {
                     )}
 
                     {/* Línea con texto Noticias */}
-                    <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
+                    <div className="relative flex justify-center items-center mb-8 pt-2 mt-0">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#CCCCCC]">
                             <span className="text-xl font-bold text-black uppercase tracking-wide">Noticias</span>
