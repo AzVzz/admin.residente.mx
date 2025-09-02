@@ -29,7 +29,6 @@ import FormNewsletter from './componentes/residente/componentes/compFormularioMa
 import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx';
 import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
-import ScaledDesktop from './ScaledDesktop.jsx';
 
 function App() {
 

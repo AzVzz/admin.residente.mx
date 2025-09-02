@@ -22,9 +22,10 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="bg-[#CCCCCC] w-full">
+    <header className="w-full">
 
       <div className="max-w-[1080px] mx-auto w-full">
+
       <div className="pt-5">
         <BannerHorizontal size="big" />
       </div>

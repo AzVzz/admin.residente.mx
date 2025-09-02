@@ -16,6 +16,7 @@ import CuponesCarrusel from './componentes/CuponesCarrusel.jsx';
 import { urlApi } from '../../../api/url.js';
 import { catalogoSeccionesGet } from '../../../api/CatalogoSeccionesGet.js';
 import HeaderSecciones from './componentes/HeaderSecciones.jsx';
+import BannerHorizontal from '../BannerHorizontal.jsx';
 
 const NOTAS_POR_PAGINA = 12;
 
@@ -253,22 +254,9 @@ const MainSeccionesCategorias = () => {
 
     return (
         <div className="mb-5 mt-9 max-w-[1080px] mx-auto w-full"> {/* Contenedor principal con ancho máximo */}
-            {revistaActual && revistaActual.pdf ? (
-                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                    <img
-                        src={revistaActual.imagen_banner}
-                        alt="Banner Revista"
-                        className="w-full mb-4 cursor-pointer pt-5"
-                        title="Descargar Revista"
-                    />
-                </a>
-            ) : (
-                <img
-                    src={revistaActual?.imagen_banner}
-                    alt="Banner Revista"
-                    className="w-full mb-4"
-                />
-            )}
+            <div className="pt-5">
+                <BannerHorizontal size="big" />
+            </div>
 
             <HeaderSecciones />
 
@@ -335,8 +323,8 @@ const MainSeccionesCategorias = () => {
                     {/* Línea con texto Noticias */}
                     <div className="relative flex justify-center items-center mb-8 pt-2 mt-0">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                        <div className="relative z-10 px-4 bg-[#CCCCCC]">
-                            <span className="text-xl font-bold text-black uppercase tracking-wide">Noticias</span>
+                        <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                            <span className="text-4xl text-black uppercase tracking-wide italic font-serif font-black">Noticias</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-4">
@@ -378,7 +366,7 @@ const MainSeccionesCategorias = () => {
                                 {/* SECCIÓN PRINCIPAL: Nota Grande + Notas Medianas + Notas Pequeñas */}
                                 {notasPagina.length > 0 && (
                                     <div className="mb-8">
-                                        <div className="flex flex-col lg:flex-row gap-6">
+                                        <div className="flex flex-col lg:flex-row gap-6 text-center">
                                             {/* NOTA PRINCIPAL - GRANDE (IZQUIERDA) */}
                                             <div className="lg:w-2/3">
                                                 <div ref={el => notaRefs.current[notasPagina[0].id] = el} className="w-full">
@@ -389,21 +377,38 @@ const MainSeccionesCategorias = () => {
                                                         destacada={true}
                                                     />
                                                 </div>
-
                                                 {/* NOTAS PEQUEÑAS - DEBAJO DE LA GRANDE */}
                                                 {notasPagina.length > 5 && (
                                                     <div className="mt-6">
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                            {notasPagina.slice(5, 9).map((nota, idx) => (
-                                                                <div key={nota.id} ref={el => notaRefs.current[nota.id] = el} className="col-span-1">
-                                                                    <TarjetaHorizontalPost
-                                                                        post={nota}
-                                                                        onClick={() => handleNotaClick(nota)}
-                                                                        sinFecha
-                                                                        pequena={true}
-                                                                    />
-                                                                </div>
-                                                            ))}
+                                                            {notasPagina.slice(5, 9).map((nota, idx) => {
+                                                                const textosPersonalizados = [
+                                                                    "¡Por fin! Arte y gastronomía se juntan. Frida Kahlo Casa Restaurant abre sus puertas en San Pedro.",
+                                                                    "5 razones para visitar Parrilla 111: tradición, sabor y buena compañía",
+                                                                    "El secreto mejor guardado de Monterrey",
+                                                                    "Vernáculo: Un homenaje culinario al noreste mexicano"
+                                                                ]
+
+                                                                return (
+                                                                    <div
+                                                                        key={idx}
+                                                                        ref={el => (notaRefs.current[idx] = el)}
+                                                                        className="col-span-1 flex flex-col items-center text-center"
+                                                                    >
+                                                                        {/* Imagen con tamaño fijo */}
+                                                                        <img
+                                                                            src={nota.imagen} // ajusta si tu objeto usa otra propiedad
+                                                                            alt={textosPersonalizados[idx]}
+                                                                            className="w-50 h-30 object-cover"
+                                                                        />
+
+                                                                        {/* Texto debajo */}
+                                                                        <p className="mt-2 text-sm font-medium text-gray-800">
+                                                                            {textosPersonalizados[idx]}
+                                                                        </p>
+                                                                    </div>
+                                                                )
+                                                            })}
                                                         </div>
                                                     </div>
                                                 )}
@@ -412,7 +417,7 @@ const MainSeccionesCategorias = () => {
                                             {/* NOTAS RECIENTES - MEDIANAS (DERECHA, EN COLUMNA) */}
                                             {notasPagina.length > 1 && (
                                                 <div className="lg:w-1/3">
-                                                    <div className="flex flex-col gap-4">
+                                                    <div className="flex flex-col gap-4 text-center">
                                                         {notasPagina.slice(1, 5).map((nota, idx) => (
                                                             <div key={nota.id} ref={el => notaRefs.current[nota.id] = el}>
                                                                 <TarjetaHorizontalPost

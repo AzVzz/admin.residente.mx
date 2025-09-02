@@ -49,7 +49,7 @@ const DetalleBannerRevista = ({
                             return tipoLogo ? (
                                 <div className="relative flex justify-center items-center mb-6">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
-                                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                                    <div className="relative z-10 px-4">
                                         <img
                                             src={tipoLogo}
                                             alt={tipo}

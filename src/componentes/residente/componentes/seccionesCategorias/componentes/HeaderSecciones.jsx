@@ -35,7 +35,7 @@ const HeaderSecciones = () => {
 
 
     return (
-        <header className="bg-[#CCCCCC] w-full mb-6">
+        <header className="w-full mb-6">
             <div className="max-w-[1080px] mx-auto w-full">
                 <div className="flex flex-row items-end pt-6 pb-2">
                     {/* Logo y texto a la izquierda */}

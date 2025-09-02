@@ -55,7 +55,7 @@ const ListadoBannerRevista = ({
                             <div>
                                 <div className="relative flex justify-center items-center mb-2">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
-                                    <div className="relative z-10 bg-[#CCCCCC]">
+                                    <div className="relative z-10">
                                         <div className="flex">
                                             {mostrarBanner && (
                                                 revistaActual && revistaActual.pdf ? (
@@ -171,7 +171,7 @@ const ListadoBannerRevista = ({
                                 {/*<hr className="border-gray-800/80 border-dotted mt-0 pb-6" />*/}
                                 <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                                    <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-2">
                                             {/*<img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
                                             <img className="h-full w-105" src={'https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
@@ -197,7 +197,7 @@ const ListadoBannerRevista = ({
                             <>
                                 <div className="relative flex justify-center items-center mb-8 mt-8">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                                    <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-3">
                                             <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
                                         </div>

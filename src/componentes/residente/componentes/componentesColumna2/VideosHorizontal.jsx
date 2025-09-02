@@ -134,7 +134,7 @@ const VideosHorizontalCarrusel = () => {
             <div className="relative mx-auto max-w-[1080px] w-full my-5">
                 <div className="relative flex justify-center items-center pt-2">
                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                    <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                    <div className="relative z-10 px-4 bg-[#DDDDDE]">
                         <div className="flex flex-row justify-center items-center gap-2">
                             <h3 className="text-black text-[35px] pb-2 mb-2 text-center">Videos</h3>
                         </div>

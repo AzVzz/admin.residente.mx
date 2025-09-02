@@ -14,8 +14,10 @@ const BannerHorizontal = ({ size = "big" }) => {
 
   const sizesBanners = {
     big: {
-      width: "1080px",
-      height: "116px",
+      minWidth: "100px",
+      maxWidth: "1080px",
+      maxHeight: "116px",
+
     },
     medium: {
       width: "736px",
@@ -23,7 +25,7 @@ const BannerHorizontal = ({ size = "big" }) => {
     },
     small: {
       width: "680px",
-      height: "80px",
+      height: "70px",
     },
   };
 
@@ -49,12 +51,12 @@ const BannerHorizontal = ({ size = "big" }) => {
           target="_blank"
           rel="noopener noreferrer"
           download
-          className="block w-full h-full"
+          className="block w-full h-full object-cover"
         >
           <img
             src={revistaActual.imagen_banner}
             alt="Banner Revista"
-            className={`w-full h-full object-cover transition-opacity duration-300 ${
+            className={`w-full h-full object-cover transition-opacity duration-300${
               bannerLoaded ? "opacity-100" : "opacity-0"
             }`}
             onLoad={() => setBannerLoaded(true)}
