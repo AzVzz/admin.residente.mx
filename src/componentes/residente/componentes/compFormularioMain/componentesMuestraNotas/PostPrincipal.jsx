@@ -1,4 +1,4 @@
-const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, fecha }) => {
+const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, fecha, nombreRestaurante }) => {
     return (
         <div>
             <div className="flex flex-col overflow-hidden">
@@ -22,6 +22,11 @@ const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, 
                     <h1 className="text-white text-[40px] leading-[1.1] font-black flex-1 overflow-hidden content-center">
                         {titulo || "Sin titulo"}
                     </h1>
+                    {nombreRestaurante && (
+                        <div className="text-lg font-bold text-yellow-700 mb-2">
+                            {nombreRestaurante}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

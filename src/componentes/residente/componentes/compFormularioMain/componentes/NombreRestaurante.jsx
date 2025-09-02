@@ -2,11 +2,14 @@ import { useFormContext, useWatch } from "react-hook-form";
 
 const NombreRestaurante = () => {
     const { register, control } = useFormContext();
-    const tipo = useWatch({ control, name: "tipoDeNotaSeleccionada" });
+    const tipos = useWatch({ control, name: "tiposDeNotaSeleccionadas" }) || [];
     const destacada = useWatch({ control, name: "destacada" });
 
-    // Solo se muestra si el tipo es Restaurantes
-    if (tipo !== "Restaurantes") return null;
+    // Solo mostrar si es Restaurantes o Food & Drink Y está marcada como destacada
+    if (
+        !(tipos.includes("Restaurantes") || tipos.includes("Food & Drink")) ||
+        !destacada
+    ) return null;
 
     return (
         <div className="mb-4">
@@ -18,7 +21,6 @@ const NombreRestaurante = () => {
                 {...register("nombre_restaurante")}
                 placeholder="Ej. Taquería El Güero"
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500"
-                disabled={!destacada} // solo editable si es destacada
             />
             <p className="text-xs text-gray-500 mt-1">
                 Se guardará solo si la nota está marcada como <b>destacada</b>.

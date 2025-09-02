@@ -3,69 +3,32 @@ import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
-
-
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-
-const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
-const escobedo = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/esc.webp`;
-const guadalupe = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/gpe.webp`;
-const monterrey = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/mty.webp`;
-const sannicolas = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/snn.webp`;
-const sanpedro = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/spg.webp`;
-const santacatarina = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/sta.webp`;
-
-const iconosZonales = [
-  { src: apodaca, alt: "Apodaca" },
-  { src: escobedo, alt: "Escobedo" },
-  { src: guadalupe, alt: "Guadalupe" },
-  { src: monterrey, alt: "Monterrey" },
-  { src: sannicolas, alt: "San Nicolás" },
-  { src: sanpedro, alt: "San Pedro" },
-  { src: santacatarina, alt: "Santa Catarina" },
-];
-
+import Skeleton from "@mui/material/Skeleton";
+import BannerHorizontal from "./residente/componentes/BannerHorizontal";
 
 const Header = () => {
-  const fechaActual = new Date().toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-
   const [menuHeader, setMenuHeader] = useState([]);
   const [revistaActual, setRevistaActual] = useState(null);
 
+  const [bannerLoaded, setBannerLoaded] = useState(false);
+
+  const FORCE_SKELETON = true;
+
 
   useEffect(() => {
-    catalogoHeadersGet()
-      .then(data => setMenuHeader(data))
-      .catch(() => setMenuHeader([]));
-    revistaGetUltima()
-      .then(data => setRevistaActual(data))
-      .catch(() => setRevistaActual(null));
+    catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
+    revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
 
   return (
     <header className="bg-[#CCCCCC] w-full">
 
       <div className="max-w-[1080px] mx-auto w-full">
-        {revistaActual && revistaActual.pdf ? (
-          <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-            <img
-              src={revistaActual.imagen_banner}
-              alt="Banner Revista"
-              className="w-full mb-4 cursor-pointer pt-5"
-              title="Descargar Revista"
-            />
-          </a>
-        ) : (
-          <img
-            src={revistaActual?.imagen_banner}
-            alt="Banner Revista"
-            className="w-full mb-4"
-          />
-        )}
+      <div className="pt-5">
+        <BannerHorizontal size="big" />
+      </div>
+
 
         <div className="flex pb-0 pt-3"> {/** Antes pt-5 */}
           <div className="sm:flex pr-3 hidden">

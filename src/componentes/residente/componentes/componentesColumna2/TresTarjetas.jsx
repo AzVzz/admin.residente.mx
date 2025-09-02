@@ -1,4 +1,5 @@
 import { urlApi } from "../../../api/url.js";
+import BannerHorizontal from "../BannerHorizontal.jsx";
 
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
@@ -50,7 +51,8 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
             </div>
 
             {/* Banner al centro */}
-            {mostrarBanner && revistaActual?.imagen_banner && (
+            <BannerHorizontal size="small"/>
+            {/*mostrarBanner && revistaActual?.imagen_banner && (
                 <div className="w-full my-4">
                     {revistaActual.pdf ? (
                         <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
@@ -69,7 +71,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                         />
                     )}
                 </div>
-            )}
+            )*/}
 
             {/* Fila 2 (3 tarjetas) */}
             <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4">

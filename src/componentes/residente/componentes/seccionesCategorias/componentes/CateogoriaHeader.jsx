@@ -6,6 +6,7 @@ const CategoriaHeader = ({
     categoriaFontSize,
     renderCategoriaH1,
     categoria,
+    descripcion,
     restaurantes
 }) => (
     <div
@@ -21,9 +22,11 @@ const CategoriaHeader = ({
             categoria={categoria}
             restaurantes={restaurantes}
         />*/}
+        {descripcion && (
         <p className="text-[22px] leading-[1.6rem]">
             Recomendaciones y noticias de los mejores restaurantes con un tikeckt promedio de $1,200
         </p>
+        )}
     </div>
 );
 

@@ -28,6 +28,8 @@ import Videos from './componentes/residente/componentes/compFormularioMain/Video
 import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
 import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx';
 import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
+import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
+import ScaledDesktop from './ScaledDesktop.jsx';
 
 function App() {
 
@@ -50,15 +52,15 @@ function App() {
       location.pathname.startsWith('/seccion/')
     ) {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#CCCCCC'; // Fondo Gris 15% #D9D9D9
+      document.body.style.backgroundColor = '#DDDDDE'; // Fondo Gris 15% #D9D9D9
     } else {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#CCCCCC'; // Amarillo
+      document.body.style.backgroundColor = '#DDDDDE'; // Amarillo
     }
 
     return () => {
       document.body.style.backgroundImage = '';
-      document.body.style.backgroundColor = '#FFF200';
+      document.body.style.backgroundColor = '#DDDDDE';
     };
   }, [location.pathname]);
 
@@ -104,7 +106,7 @@ function App() {
           <MegaMenu />
         </div>
       )}
-      <main className="flex-grow overflow-x-hidden px-0 w-full relative z-10">
+      <main className="flex-grow overflow-x-hidden px-10 sm:px-0 w-full relative z-10">
         <Routes>
           <Route path="/residente" element={
             <div className="max-w-[1080px] mx-auto">
@@ -176,22 +178,22 @@ function App() {
 
 
           <Route path="/" element={
-            <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
+            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
               <ListaRestaurantes />
             </div>
           } />
           <Route path="/restaurante/:slug" element={
-            <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
+            <div className="max-w-[680px] mx-auto py-10 sm:px-0">
               <RestaurantePage />
             </div>
           } />
           <Route path="/formulario" element={
-            <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
+            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
               <FormularioMain />
             </div>
           } />
           <Route path="/formulario/:slug" element={
-            <div className="max-w-[1080px] mx-auto py-10 px-10 sm:px-0">
+            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
               <FormularioMainPage />
             </div>
           } />
@@ -242,16 +244,17 @@ function App() {
             <div className="max-w-[1080px] mx-auto">
               <LinkInBio />
             </div>
-            } />
+          } />
 
           <Route path="/formnewsletter" element={<FormNewsletter />} />
 
         </Routes>
       </main>
+      {/* Botón flotante para ir arriba */}
+      <BotonScroll />
       {location.pathname !== "/culturallaccess" && (
         <footer>
           <FooterPrincipal />
-          {/* FooterPrincipal.jsx */}
         </footer>
       )}
     </div>

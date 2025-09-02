@@ -24,11 +24,13 @@ const PostPrincipal = ({ post, onClick }) => {
             <div className="h-[400px] overflow-hidden">
                 <div className="relative h-full">
 
+                    
                     <img
                         src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                         className="w-full h-full object-cover"
                         alt={post.titulo}
                     />
+
                     {/* Mostrar los stickers seleccionados */}
                     <div className="absolute top-5 right-6 flex gap-1 z-10">
                         {stickers.map(clave => {

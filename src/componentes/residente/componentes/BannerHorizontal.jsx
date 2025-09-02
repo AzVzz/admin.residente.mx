@@ -1,0 +1,77 @@
+import { useEffect, useState } from "react";
+import Skeleton from "@mui/material/Skeleton";
+import { revistaGetUltima } from "../../api/revistasGet";
+
+const BannerHorizontal = ({ size = "big" }) => {
+  const [revistaActual, setRevistaActual] = useState(null);
+  const [bannerLoaded, setBannerLoaded] = useState(false);
+
+  useEffect(() => {
+    revistaGetUltima()
+      .then((data) => setRevistaActual(data))
+      .catch(() => setRevistaActual(null));
+  }, []);
+
+  const sizesBanners = {
+    big: {
+      width: "1080px",
+      height: "116px",
+    },
+    medium: {
+      width: "736px",
+      height: "96px",
+    },
+    small: {
+      width: "680px",
+      height: "80px",
+    },
+  };
+
+  const style = sizesBanners[size] || sizesBanners.big;
+
+  return (
+    <div
+      className="relative overflow-hidden mx-auto"
+      style={style}
+    >
+      {/* Skeleton ocupa el mismo espacio que el wrapper */}
+      {!bannerLoaded && (
+        <Skeleton
+          variant="rectangular"
+          animation="wave"
+          sx={{ width: "100%", height: "100%" }}
+        />
+      )}
+
+      {revistaActual && revistaActual.pdf ? (
+        <a
+          href={revistaActual.pdf}
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+          className="block w-full h-full"
+        >
+          <img
+            src={revistaActual.imagen_banner}
+            alt="Banner Revista"
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              bannerLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => setBannerLoaded(true)}
+          />
+        </a>
+      ) : (
+        <img
+          src={revistaActual?.imagen_banner}
+          alt="Banner Revista"
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            bannerLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          onLoad={() => setBannerLoaded(true)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default BannerHorizontal;

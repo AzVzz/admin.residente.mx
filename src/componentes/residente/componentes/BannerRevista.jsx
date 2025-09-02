@@ -130,8 +130,20 @@ const BannerRevista = () => {
     );
   }
 
-  const filtrarPostsPorTipoNota = (tipo) => posts.filter(post => post.tipo_nota === tipo);
-  const filtrarDestacadasPorTipoNota = (tipo) => notasDestacadas.filter(post => post.tipo_nota === tipo);
+  const normalizar = str => (str || '').toLowerCase().replace(/-/g, ' ').trim();
+
+  const filtrarPostsPorTipoNota = (tipo) =>
+    posts.filter(
+      post =>
+        normalizar(post.tipo_nota) === normalizar(tipo) ||
+        normalizar(post.tipo_nota2) === normalizar(tipo)
+    );
+  const filtrarDestacadasPorTipoNota = (tipo) =>
+    notasDestacadas.filter(
+      nota =>
+        normalizar(nota.tipo_nota) === normalizar(tipo) ||
+        normalizar(nota.tipo_nota2) === normalizar(tipo)
+    );
 
   return (
     <div ref={topRef} className="">
