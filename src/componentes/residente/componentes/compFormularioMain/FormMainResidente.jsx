@@ -9,11 +9,12 @@ import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { notaCrear, notaEditar, notaImagenPut } from '../../../../componentes/api/notaCrearPostPut.js';
+import { notaCrear, notaEditar, notaImagenPut, notaInstafotoPut, notaInstafotoDelete } from '../../../../componentes/api/notaCrearPostPut.js';
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
 import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
 import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
+import InstafotoSelector from './componentes/InstafotoSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
 import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
@@ -75,6 +76,7 @@ const FormMainResidente = () => {
       tipoDeNotaSeleccionada: tipoNotaUsuario || '',
       categoriasSeleccionadas: {},
       imagen: null,
+      instafoto: null,
       destacada: false,
       tiposDeNotaSeleccionadas: [],
     }
@@ -92,6 +94,7 @@ const FormMainResidente = () => {
   const [cargandoNota, setCargandoNota] = useState(!!id);
   const [catalogosCargados, setCatalogosCargados] = useState(false);
   const [imagenActual, setImagenActual] = useState(null);
+  const [instafotoActual, setInstafotoActual] = useState(null);
 
 
   // Watch para mostrar en tiempo real las notas editandose:
@@ -100,11 +103,14 @@ const FormMainResidente = () => {
   const autor = watch('autor');
   const contenido = watch('contenido');
   const imagen = watch('imagen');
+  const instafoto = watch('instafoto');
   //const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
   const fechaProgramada = watch('fechaProgramada');
 
   // Observar cambios en opción de publicación
   const opcionPublicacion = watch('opcionPublicacion');
+
+
 
   // Cargar catálogos
   useEffect(() => {
@@ -208,6 +214,7 @@ const FormMainResidente = () => {
             ].filter(Boolean),
           });
           setImagenActual(data.imagen || null);
+          setInstafotoActual(data.insta_imagen || null);
         } catch (error) {
           console.error('Error detallado:', error);
           setPostError('Error cargando nota: ' + error.message);
@@ -298,6 +305,11 @@ const FormMainResidente = () => {
         await notaImagenPut(notaId || resultado.id, data.imagen, token);
       }
 
+      // Manejar la instafoto de manera similar a la imagen principal
+      if (data.instafoto && (notaId || resultado.id)) {
+        await notaInstafotoPut(notaId || resultado.id, data.instafoto, token);
+      }
+
       setPostResponse(resultado);
 
       // Mostrar mensaje diferente según el estado
@@ -351,6 +363,12 @@ const FormMainResidente = () => {
                   imagenActual={imagenActual}
                   notaId={notaId}
                   onImagenEliminada={() => setImagenActual(null)}
+                />
+
+                <InstafotoSelector
+                  instafotoActual={instafotoActual}
+                  notaId={notaId}
+                  onInstafotoEliminada={() => setInstafotoActual(null)}
                 />
 
                 {/* Filtros completamente ocultos para todos los usuarios */}
@@ -525,7 +543,7 @@ const FormMainResidente = () => {
         </h2>
 
         {/* Solo mostrar vista previa si hay contenido */}
-        {(titulo || subtitulo || autor || contenido || imagen) ? (
+        {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
             <div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
               <PostHorizontal
