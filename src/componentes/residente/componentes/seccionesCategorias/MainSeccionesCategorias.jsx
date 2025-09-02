@@ -352,14 +352,14 @@ const MainSeccionesCategorias = () => {
                                 {/* SECCIÓN PRINCIPAL: Nota Grande + Notas Medianas + Notas Pequeñas */}
                                 {notasPagina.length > 0 && (
                                     <div className="mb-8">
-                                        <div className="flex flex-col lg:flex-row gap-6 text-center">
+                                        <div className="flex flex-col lg:flex-row gap-6 text-center ">
                                             {/* NOTA PRINCIPAL - GRANDE (IZQUIERDA) */}
-                                            <div className="lg:w-2/3">
+                                            <div className="lg:w-2/3 ">
                                                 <div ref={el => notaRefs.current[notasPagina[0].id] = el} className="w-full">
                                                     <TarjetaHorizontalPost
                                                         post={notasPagina[0]}
                                                         onClick={() => handleNotaClick(notasPagina[0])}
-                                                        sinFecha
+                                                        
                                                         destacada={true}
                                                     />
                                                 </div>
