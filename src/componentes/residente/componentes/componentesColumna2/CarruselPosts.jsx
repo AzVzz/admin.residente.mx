@@ -32,26 +32,34 @@ const CarruselPosts = ({ restaurantes = [] }) => {
   const [index, setIndex] = useState(1);
   const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const intervalRef = useRef(null);
 
-  const next = () => setIndex((i) => i + 1);
-  const prev = () => setIndex((i) => i - 1);
+  const next = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setIndex((i) => i + 1);
+  };
+  const prev = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setIndex((i) => i - 1);
+  };
 
   // Autoplay
   useEffect(() => {
     if (paused) return;
     intervalRef.current = setInterval(next, INTERVAL_MS);
     return () => clearInterval(intervalRef.current);
-  }, [paused]);
+  }, [paused, isTransitioning]); // Añade isTransitioning
 
   // Salto sin transición al pasar a clones
   const onTransitionEnd = () => {
+    setIsTransitioning(false);
     if (index === slides.length - 1) {
-      // en clon del primero → saltar al primero real (1)
       setAnimate(false);
       setIndex(1);
     } else if (index === 0) {
-      // en clon del último → saltar al último real (slides.length - 2)
       setAnimate(false);
       setIndex(slides.length - 2);
     }
@@ -76,6 +84,18 @@ const CarruselPosts = ({ restaurantes = [] }) => {
     const base = rest?.nombre_restaurante || "Restaurante";
     return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
   };
+
+  // Pre-carga imágenes adyacentes
+  useEffect(() => {
+    const preload = (rest) => {
+      if (rest?.imagenes?.length) {
+        const img = new window.Image();
+        img.src = getSrc(rest);
+      }
+    };
+    preload(slides[index - 1]);
+    preload(slides[index + 1]);
+  }, [index, slides]);
 
   return (
     <div
@@ -117,6 +137,7 @@ const CarruselPosts = ({ restaurantes = [] }) => {
         {/* Flecha izquierda */}
         <button
           onClick={prev}
+          disabled={isTransitioning}
           className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#fff300]/70 cursor-pointer text-black rounded-full p-2 hover:bg-[#fff300]/85 z-20"
           aria-label="Anterior"
         >
@@ -131,6 +152,7 @@ const CarruselPosts = ({ restaurantes = [] }) => {
         {/* Flecha derecha */}
         <button
           onClick={next}
+          disabled={isTransitioning}
           className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#fff300]/70 cursor-pointer text-black rounded-full p-2 hover:bg-[#fff300]/85 z-20"
           aria-label="Siguiente"
         >
