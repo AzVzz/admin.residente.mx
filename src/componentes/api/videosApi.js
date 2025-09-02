@@ -73,7 +73,7 @@ export const obtenerVideos = async (token = null) => {
     ], 300);
   }
 
-  try {
+    try {
     const response = await fetch(`${urlApi}api/video`, {
       method: 'GET',
       headers: createHeaders(token)
@@ -279,4 +279,3 @@ export const toggleVideoEstadoInteligente = async (id, token, estadoActual) => {
 // Mantener compatibilidad con funciones existentes
 export const toggleVideoEstadoAlternativo = toggleVideoEstado;
 export const toggleVideoEstadoUltraRobusto = toggleVideoEstado;
-
