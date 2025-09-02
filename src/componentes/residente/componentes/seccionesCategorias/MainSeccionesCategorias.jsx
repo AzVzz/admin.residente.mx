@@ -366,21 +366,21 @@ const MainSeccionesCategorias = () => {
                                 {/* SECCIÓN PRINCIPAL: Nota Grande + Notas Medianas + Notas Pequeñas */}
                                 {notasPagina.length > 0 && (
                                     <div className="mb-8">
-                                        <div className="flex flex-col lg:flex-row gap-6 text-center ">
+                                        <div className="flex flex-col lg:flex-row gap-9 text-center ">
                                             {/* NOTA PRINCIPAL - GRANDE (IZQUIERDA) */}
                                             <div className="lg:w-2/3 ">
                                                 <div ref={el => notaRefs.current[notasPagina[0].id] = el} className="w-full">
                                                     <TarjetaHorizontalPost
                                                         post={notasPagina[0]}
                                                         onClick={() => handleNotaClick(notasPagina[0])}
-                                                        
+
                                                         destacada={true}
                                                     />
                                                 </div>
                                                 {/* NOTAS PEQUEÑAS - DEBAJO DE LA GRANDE */}
                                                 {notasPagina.length > 5 && (
                                                     <div className="mt-6">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                                             {notasPagina.slice(5, 9).map((nota, idx) => {
                                                                 const textosPersonalizados = [
                                                                     "¡Por fin! Arte y gastronomía se juntan. Frida Kahlo Casa Restaurant abre sus puertas en San Pedro.",
@@ -399,11 +399,11 @@ const MainSeccionesCategorias = () => {
                                                                         <img
                                                                             src={nota.imagen} // ajusta si tu objeto usa otra propiedad
                                                                             alt={textosPersonalizados[idx]}
-                                                                            className="w-50 h-30 object-cover"
+                                                                            className="w-full h-35 object-cover"
                                                                         />
 
-                                                                        {/* Texto debajo */}
-                                                                        <p className="mt-2 text-sm font-medium text-gray-800">
+                                                                        {/* Texto debajo antes text-[18px]*/}
+                                                                        <p className="text-[18px] text-gray-900 leading-[1.1] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center pt-2 p-2">
                                                                             {textosPersonalizados[idx]}
                                                                         </p>
                                                                     </div>

@@ -7,7 +7,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
       return {
         container: "flex flex-col", // Layout vertical para destacada
         image: "h-80 w-full object-cover", // Imagen aún más grande
-        textContainer: "flex flex-col mt-4 flex-1 justify-start", // Texto abajo
+        textContainer: "flex flex-col flex-1 justify-start", // Texto abajo
         title: "text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight" // Título mucho más grande
       };
     } else if (mediana) {
@@ -63,8 +63,8 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
         {/* Contenido de texto */}
         <div className={sizeClasses.textContainer}>
           {/* Título */}
-          {!sinFecha && (
-            <div className="mt-2 text-gray-900 text-[12px] font-semibold font-sans">
+          {/*!sinFecha && (
+            <div className="w-full mt-2 z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase flex justify-center">
               {(() => {
                 const fecha = post?.fecha || 'Sin fecha';
                 const [primera, ...resto] = fecha.split(' ');
@@ -76,7 +76,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
                 );
               })()}
             </div>
-          )}
+          )*/}
           <h3 className={sizeClasses.title}>
             {post?.titulo || 'Sin título'}
           </h3>
