@@ -62,3 +62,41 @@ export const notaImagenPut = async (id, file, token) => {
         throw error;
     }
 };
+
+export const notaInstafotoPut = async (id, file, token) => {
+    const formData = new FormData();
+    formData.append('insta_imagen', file); // 'insta_imagen' debe coincidir con la key que espera tu backend
+
+    try {
+        const response = await fetch(`${urlApi}api/notas/imagen/${id}/insta-imagen`, {
+            method: 'PUT',
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` })
+            },
+            body: formData
+        });
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Error actualizando instafoto de nota:", error);
+        throw error;
+    }
+};
+
+export const notaInstafotoDelete = async (id) => {
+    try {
+        const response = await fetch(`${urlApi}api/notas/imagen/${id}/insta-imagen`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Nota o instafoto no encontrada');
+            }
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error eliminando instafoto:", error);
+        throw error;
+    }
+};
