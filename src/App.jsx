@@ -80,11 +80,12 @@ function App() {
 
   const isSeccionRoute = location.pathname.startsWith('/seccion/');
   const isCulturalAccess = location.pathname === '/culturallaccess';
+  const isLinkInBio = location.pathname === '/linkinbio';
 
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isCulturalAccess && !isSeccionRoute && (
+      {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
         <div
           className={`transition-all duration-300 relative z-50 ${showMegaMenu
             ? "-translate-y-full opacity-0 pointer-events-none"
@@ -95,7 +96,7 @@ function App() {
         </div>
       )}
       {/* MegaMenu con transición de entrada */}
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <div
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
             ? "translate-y-0 opacity-100"
@@ -105,7 +106,7 @@ function App() {
           <MegaMenu />
         </div>
       )}
-      <main className="flex-grow overflow-x-hidden px-10 sm:px-0 w-full relative z-10">
+      <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? 'px-0' : 'px-10 sm:px-0'}`}>
         <Routes>
           <Route path="/residente" element={
             <div className="max-w-[1080px] mx-auto">
@@ -239,11 +240,7 @@ function App() {
             <VideosDashboard />
           </div>} />
 
-          <Route path="/linkinbio" element={
-            <div className="max-w-[1080px] mx-auto">
-              <LinkInBio />
-            </div>
-          } />
+          <Route path="/linkinbio" element={<LinkInBio />} />
 
           <Route path="/formnewsletter" element={<FormNewsletter />} />
 
@@ -251,7 +248,7 @@ function App() {
       </main>
       {/* Botón flotante para ir arriba */}
       <BotonScroll />
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <footer>
           <FooterPrincipal />
         </footer>
