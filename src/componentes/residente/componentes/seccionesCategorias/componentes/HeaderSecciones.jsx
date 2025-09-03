@@ -41,7 +41,7 @@ const HeaderSecciones = () => {
                     {/* Logo y texto a la izquierda */}
                     <div className="flex flex-col items-start">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/guia-nl-negro.webp`}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
                             className="w-60 h-auto mb-1"
                             alt="Logo Guía NL"
                         />
