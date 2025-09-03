@@ -39,10 +39,7 @@ export const revistasPost = async (form) => {
 };
 
 export const revistaGetUltima = async () => {
-  const res = await fetch(`${urlApi}api/revistas`);
-  if (!res.ok) throw new Error("Error al obtener revistas");
-  const revistas = await res.json();
-  // Ordena por fecha descendente y toma la primera
-  revistas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  return revistas[0];
+  const res = await fetch(`${urlApi}api/revistas/ultima`);
+  if (!res.ok) throw new Error("Error al obtener la última revista");
+  return await res.json();
 };
