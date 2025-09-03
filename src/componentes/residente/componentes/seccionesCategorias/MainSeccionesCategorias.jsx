@@ -393,7 +393,8 @@ const MainSeccionesCategorias = () => {
                                                                     <div
                                                                         key={idx}
                                                                         ref={el => (notaRefs.current[idx] = el)}
-                                                                        className="col-span-1 flex flex-col items-center text-center"
+                                                                        className="col-span-1 flex flex-col items-center text-center cursor-pointer"
+                                                                        onClick={() => handleNotaClick(nota)}
                                                                     >
                                                                         {/* Imagen con tamaño fijo */}
                                                                         <img

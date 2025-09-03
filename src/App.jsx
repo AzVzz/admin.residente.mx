@@ -91,11 +91,12 @@ function App() {
 
   const isSeccionRoute = location.pathname.startsWith('/seccion/');
   const isCulturalAccess = location.pathname === '/culturallaccess';
+  const isLinkInBio = location.pathname === '/linkinbio';
 
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isCulturalAccess && !isSeccionRoute && (
+      {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
         <div
           className={`transition-all duration-300 relative z-50 ${showMegaMenu
             ? "-translate-y-full opacity-0 pointer-events-none"
@@ -106,7 +107,7 @@ function App() {
         </div>
       )}
       {/* MegaMenu con transición de entrada */}
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <div
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
             ? "translate-y-0 opacity-100"
@@ -300,7 +301,7 @@ function App() {
       </main>
       {/* Botón flotante para ir arriba */}
       <BotonScroll />
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <footer>
           <FooterPrincipal />
         </footer>
