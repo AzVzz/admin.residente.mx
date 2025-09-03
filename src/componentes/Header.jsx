@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
+import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import BannerHorizontal from "./residente/componentes/BannerHorizontal";
 
 const Header = () => {
   const [menuHeader, setMenuHeader] = useState([]);
+
+  useEffect(() => {
+    catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
+    revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
+  }, []);
 
   return (
     <header className="w-full">
