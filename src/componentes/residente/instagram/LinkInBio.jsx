@@ -84,13 +84,13 @@ const LinkInBio = () => {
             <Link
               key={nota.id}
               to={`/notas/${nota.id}`}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center h-fit w-fit"
               aria-label={nota.titulo}
             >
               <img
                 src={nota.imagen}
                 alt={nota.titulo}
-                className="w-[clamp(47px,20vw,284px)] h-[clamp(47px,20vw,284px) object-cover cursor-pointer"
+                className="[clamp(47px,20vw,284px)] h-[clamp(47px,20vw,284px) object-cover cursor-pointer"
                 loading="lazy"
               />
             </Link>
