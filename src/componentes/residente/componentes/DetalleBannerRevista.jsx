@@ -87,7 +87,7 @@ const DetalleBannerRevista = ({
                             </button>
                         </div>
                     ) : (
-                        <DetallePost    
+                        <DetallePost
                             post={selectedPost}
                             onVolver={handleVolver}
                             barraMarquee={
