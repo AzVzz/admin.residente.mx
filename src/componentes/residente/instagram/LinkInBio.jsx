@@ -26,9 +26,39 @@ const LinkInBio = () => {
   const principal = hayNotas ? notas[0] : null
 
   return (
-    <div className="flex flex-col justify-center items-center py-8">
+    <div className="flex flex-col w-full">
+    {/* Header similar a CNN */}
+      <header className="w-full bg-white border-b border-gray-200 px-4 h-[60px] flex items-center justify-between">
+      {/* Logo y texto */}
+      <div className="flex items-center gap-2">
+        {/* Logo de Residente (R en círculo negro) */}
+                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center  ">
+           <Link to="/residente">
+             <img 
+               src="https://estrellasdenuevoleon.com.mx//fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" 
+               alt="Logo Residente" 
+               className="w-8 h-8 object-contain"
+             />
+           </Link>
+         </div>
+        <span className=" text-gray-800 text-lg font-black">Residente</span>
+      </div>
+  
+      {/* Botón Ver Residente */}
+      <button className="px-3 py-1 border border-gray-300 rounded text-gray-700 text-lg font-black hover:bg-gray-50 transition-colors">
+        <Link to="/residente">
+          Ver Residente
+        </Link>
+      </button>
+    </header>
+  
+
+
+      {/* Contenido principal - Ancho limitado */}
+      <div className="max-w-[1080px] mx-auto w-full">
+        <div className="flex flex-col justify-center items-center py-8">
       {/* Banner destacado (clicable) */}
-      <div className="w-[860px] h-[480px]">
+      <div className="w-[clamp(300px,100vw,960px)] h-[clamp(200px,50vw,480px)]">
         {loading ? (
           <Skeleton variant="rectangular" animation="wave" width={860} height={480} />
         ) : hayNotas ? (
@@ -36,7 +66,7 @@ const LinkInBio = () => {
             <img
               src="#"
               alt="Foto portada"
-              className="w-[860px] h-[480px] object-cover cursor-pointer bg-[#fff300]"
+              className="w-full h-full object-cover cursor-pointer bg-[#fff300]"
               loading="eager"
             />
           </Link>
@@ -59,7 +89,7 @@ const LinkInBio = () => {
       </div>
 
       {/* Grid de fotos + títulos (cada tarjeta clicable) */}
-      <div className="grid grid-cols-3 gap-2 max-w-[860px] bg-red-200">
+      <div className="grid grid-cols-3 gap-2 w-[clamp(300px,100vw,960px)]">
         {loading
           ? Array.from({ length: 9 }).map((_, i) => (
             <div key={i} className="flex flex-col">
@@ -80,7 +110,7 @@ const LinkInBio = () => {
               />
             </div>
           ))
-          : notas.map((nota) => (
+          : notas.filter(nota => nota.insta_imagen).map((nota) => (
             <Link
               key={nota.id}
               to={`/notas/${nota.id}`}
@@ -88,13 +118,15 @@ const LinkInBio = () => {
               aria-label={nota.titulo}
             >
               <img
-                src={nota.imagen}
+                src={nota.insta_imagen}
                 alt={nota.titulo}
                 className="[clamp(47px,20vw,284px)] h-[clamp(47px,20vw,284px) object-cover cursor-pointer"
                 loading="lazy"
               />
             </Link>
           ))}
+        </div>
+      </div>
       </div>
     </div>
   )

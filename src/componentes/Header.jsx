@@ -4,17 +4,10 @@ import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-import Skeleton from "@mui/material/Skeleton";
 import BannerHorizontal from "./residente/componentes/BannerHorizontal";
 
 const Header = () => {
   const [menuHeader, setMenuHeader] = useState([]);
-  const [revistaActual, setRevistaActual] = useState(null);
-
-  const [bannerLoaded, setBannerLoaded] = useState(false);
-
-  const FORCE_SKELETON = true;
-
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
@@ -32,7 +25,7 @@ const Header = () => {
 
 
         <div className="flex pb-0 pt-3"> {/** Antes pt-5 */}
-          <div className="sm:flex pr-3 hidden">
+          <div className="flex pr-3 ">
             <Link to="/residente" className="h-16 w-16 self-end object-contain bg-white rounded-full">
               <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`} alt="Logo Residente Circulo" />
             </Link>
@@ -54,7 +47,7 @@ const Header = () => {
 
             {/* Menú Amarillo */}
             <div className="flex flex-col flex-1">
-              <div className="sm:flex justify-between items-center sm:px-5 px-2 sm:py-0.5 py-0 bg-[#fff200] hidden">
+              <div className="flex justify-between items-center sm:px-5 px-2 sm:py-0.5 py-0 bg-[#fff200] ">
                 <div className="flex gap-1 sm:gap-6 items-center sm:text-sm text-[8px] font-semibold">
                   {menuHeader.map((section, idx) =>
                     section.url ? (

@@ -1,34 +1,45 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Suspense, lazy } from "react";
+
+import Header from './componentes/Header';
+import MegaMenu from './componentes/MegaMenu';
+
 import ListaRestaurantes from './componentes/ednl/ListaRestaurantes';
 import RestaurantePage from './componentes/ednl/RestaurantePage';
-import Header from './componentes/Header';
-import FormularioMain from './componentes/formulario100estrellas/FormularioMain';
-import FormularioMainPage from './componentes/formulario100estrellas/FormularioMainPage';
-import MegaMenu from './componentes/MegaMenu';
-import PromoMain from './componentes/promociones/PromoMain';
 import CulturalAcessForm from './componentes/culturallAccess/CulturalAcessForm';
 import ResidenteMain from './componentes/residente/ResidenteMain';
-import FormMainResidente from './componentes/residente/componentes/compFormularioMain/FormMainResidente';
-import ListaNotas from './componentes/residente/componentes/compFormularioMain/ListaNotas';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
 import FooterPrincipal from './componentes/FooterPrincipal';
-import FormularioRevistaBannerNueva from './componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner';
 import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
-import Login from './componentes/login';
 import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
 import { urlApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
-import PreguntasSemanales from './componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
-import Videos from './componentes/residente/componentes/compFormularioMain/Videos.jsx';
-import FormNewsletter from './componentes/residente/componentes/compFormularioMain/FormNewsletter.jsx';
-import VideosDashboard from './componentes/residente/componentes/compFormularioMain/VideosDashboard.jsx';
 import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
+
+
+
+
+//Admin
+const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
+const ListaNotas = lazy(() => import('./componentes/residente/componentes/compFormularioMain/ListaNotas'));
+const PreguntasSemanales = lazy(() => import('./componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales'));
+const FormNewsletter = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormNewsletter'));
+const VideosDashboard = lazy(() => import('./componentes/residente/componentes/compFormularioMain/VideosDashboard'));
+const Videos = lazy(() => import('./componentes/residente/componentes/compFormularioMain/Videos'));
+const Login = lazy(() => import('./componentes/login'));
+const FormularioMain = lazy(() => import('./componentes/formulario100estrellas/FormularioMain'));
+const FormularioMainPage = lazy(() => import('./componentes/formulario100estrellas/FormularioMainPage'));
+const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
+const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner'));
+
+
+
 
 function App() {
 
@@ -80,11 +91,12 @@ function App() {
 
   const isSeccionRoute = location.pathname.startsWith('/seccion/');
   const isCulturalAccess = location.pathname === '/culturallaccess';
+  const isLinkInBio = location.pathname === '/linkinbio';
 
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isCulturalAccess && !isSeccionRoute && (
+      {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
         <div
           className={`transition-all duration-300 relative z-50 ${showMegaMenu
             ? "-translate-y-full opacity-0 pointer-events-none"
@@ -95,7 +107,7 @@ function App() {
         </div>
       )}
       {/* MegaMenu con transición de entrada */}
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <div
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
             ? "translate-y-0 opacity-100"
@@ -106,152 +118,190 @@ function App() {
         </div>
       )}
       <main className="flex-grow overflow-x-hidden px-10 sm:px-0 w-full relative z-10">
-        <Routes>
-          <Route path="/residente" element={
-            <div className="max-w-[1080px] mx-auto">
-              <ResidenteMain />
-            </div>
-          } />
+        <Suspense fallback={<div>Cargando...</div>}>
+          <Routes>
+            <Route path="/residente" element={
+              <div className="max-w-[1080px] mx-auto">
+                <ResidenteMain />
+              </div>
+            } />
 
-          <Route path="/notas/*" element={
-            <div className="max-w-[1080px] mx-auto">
-              <BannerRevista />
-            </div>
-          } />
+            <Route path="/notas/*" element={
+              <div className="max-w-[1080px] mx-auto">
+                <BannerRevista />
+              </div>
+            } />
 
-          <Route path="/notas/:id" element={
-            <div className="max-w-[1080px] mx-auto">
-              <BannerRevista />
-            </div>
-          } />
-          <Route path="/notas/:id" element={
-            <div className="max-w-[1080px] mx-auto">
-              <DetallePost />
-            </div>
-          } />
+            <Route path="/notas/:id" element={
+              <div className="max-w-[1080px] mx-auto">
+                <BannerRevista />
+              </div>
+            } />
 
-          <Route path="notas/nueva" element={
-            <div className="max-w-[1080px] mx-auto">
-              {/*<FormNotaMain/>*/}
-              <FormMainResidente />
-            </div>
-          } />
-          <Route path="notas/editar/:id" element={
-            <div className="max-w-[1080px] mx-auto">
-              <FormMainResidente />
-            </div>
-          } />
-          <Route path="/notas" element={
-            <div className="max-w-[1080px] mx-auto">
-              <ListaNotas />
-            </div>
-          } />
+            {/* Ver una nota en especifico */}
+            <Route path="/notas/:id" element={
+              <div className="max-w-[1080px] mx-auto">
+                <DetallePost />
+              </div>
+            } />
 
-          <Route path="/preguntassemanales" element={
-            <div className="max-w-[1080px] mx-auto">
-              <PreguntasSemanales />
-            </div>
-          } />
+            <Route path="/seccion/:seccion/categoria/:categoria/*" element={
+              <div className="max-w-[1080px] mx-auto">
+                <MainSeccionesCategorias />
+              </div>
+            } />
 
+            <Route path="/seccion/:seccion/categoria/:categoria/nota/:id" element={
+              <div className="max-w-[1080px] mx-auto">
+                <MainSeccionesCategorias />
+              </div>
+            } />
 
+            {/* Mama de Rocco / Barrio Antiguo etc. */}
+            <Route path="/:nombreCliente" element={
+              <div className="max-w-[1080px] mx-auto">
+                <PaginaCliente />
+              </div>
+            } />
 
-          <Route path="/seccion/:seccion/categoria/:categoria/*" element={
-            <div className="max-w-[1080px] mx-auto">
-              <MainSeccionesCategorias />
-            </div>
-          } />
-          <Route path="/seccion/:seccion/categoria/:categoria/nota/:id" element={
-            <div className="max-w-[1080px] mx-auto">
-              <MainSeccionesCategorias />
-            </div>
-          } />
+            {/* Estrellas de Nuevo León */}
+            <Route path="/" element={
+              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                <ListaRestaurantes />
+              </div>
+            } />
 
+            <Route path="/restaurante/:slug" element={
+              <div className="max-w-[680px] mx-auto py-10 sm:px-0">
+                <RestaurantePage />
+              </div>
+            } />
 
-
-          <Route path="/:nombreCliente" element={
-            <div className="max-w-[1080px] mx-auto">
-              <PaginaCliente />
-            </div>
-          } />
+            <Route path="/culturallaccess" element={
+              <div className="max-w-[1080px] mx-auto py-10">
+                <CulturalAcessForm />
+              </div>
+            } />
 
 
+            <Route path="/oped" element={
+              <div className="max-w-[1080px] mx-auto py-10">
+                <OpinionEditorial />
+              </div>
+            } />
 
-          <Route path="/" element={
-            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-              <ListaRestaurantes />
-            </div>
-          } />
-          <Route path="/restaurante/:slug" element={
-            <div className="max-w-[680px] mx-auto py-10 sm:px-0">
-              <RestaurantePage />
-            </div>
-          } />
-          <Route path="/formulario" element={
-            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-              <FormularioMain />
-            </div>
-          } />
-          <Route path="/formulario/:slug" element={
-            <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-              <FormularioMainPage />
-            </div>
-          } />
-          <Route path="/promo" element={
-            <div className="max-w-[1080px] mx-auto py-10">
-              <PromoMain />
-            </div>
-          } />
+            <Route path="*" element={<NoEncontrado />} />
 
-          <Route path="/culturallaccess" element={
-            <div className="max-w-[1080px] mx-auto py-10">
-              <CulturalAcessForm />
-            </div>
-          } />
+            {/* Borrar todo despues */}
+            <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
+              <VideoResidente />
+            </div>} />
+
+            {/* Página instagram */}
+            <Route path="/linkinbio" element={
+              <div className="max-w-[1080px] mx-auto">
+                <LinkInBio />
+              </div>
+            } />
+
+            {/* Usuario */}
+            <Route path="/colaboradores" element={
+              <RespuestasSemana />
+            } />
 
 
-          <Route path="/oped" element={
-            <div className="max-w-[1080px] mx-auto py-10">
-              <OpinionEditorial />
-            </div>
-          } />
 
-          <Route path="*" element={<NoEncontrado />} />
-
-          <Route path="/login" element={
-            <div className="max-w-[1080px] mx-auto py-10">
-              <Login />
-            </div>
-          } />
-          <Route path="/revistas/nueva" element={<FormularioRevistaBannerNueva />} />
-
-          <Route path="/colaboradores" element={<RespuestasSemana />} />
+            {/*==============
+          
+          
+          ==================*/}
 
 
-          <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
-            <VideoResidente />
-          </div>} />
+            {/* Admin */}
+            <Route path="notas/nueva" element={
+              <div className="max-w-[1080px] mx-auto">
+                <FormMainResidente />
+              </div>
+            } />
 
-          <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
-            <Videos />
-          </div>} />
+            {/* Admin */}
+            <Route path="notas/editar/:id" element={
+              <div className="max-w-[1080px] mx-auto">
+                <FormMainResidente />
+              </div>
+            } />
 
-          <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
-            <VideosDashboard />
-          </div>} />
+            {/* Admin */}
+            <Route path="/notas" element={
+              <div className="max-w-[1080px] mx-auto">
+                <ListaNotas />
+              </div>
+            } />
 
-          <Route path="/linkinbio" element={
-            <div className="max-w-[1080px] mx-auto">
-              <LinkInBio />
-            </div>
-          } />
+            {/* Admin */}
+            <Route path="/preguntassemanales" element={
+              <div className="max-w-[1080px] mx-auto">
+                <PreguntasSemanales />
+              </div>
+            } />
 
-          <Route path="/formnewsletter" element={<FormNewsletter />} />
+            {/* Admin */}
+            <Route path="/formnewsletter" element={
+              <FormNewsletter />
+            } />
 
-        </Routes>
+            {/* Admin */}
+            <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
+              <VideosDashboard />
+            </div>} />
+
+            {/* Admin */}
+            <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
+              <Videos />
+            </div>} />
+
+            {/* Admin */}
+            <Route path="/login" element={
+              <div className="max-w-[1080px] mx-auto py-10">
+                <Login />
+              </div>
+            } />
+
+            {/* Admin */}
+            <Route path="/formulario" element={
+              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                <FormularioMain />
+              </div>
+            } />
+
+            {/* Admin */}
+            <Route path="/formulario/:slug" element={
+              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                <FormularioMainPage />
+              </div>
+            } />
+
+            {/* Admin */}
+            <Route path="/promo" element={
+              <div className="max-w-[1080px] mx-auto py-10">
+                <PromoMain />
+              </div>
+            } />
+
+            {/* Admin */}
+            <Route path="/revistas/nueva" element={
+              <FormularioRevistaBannerNueva />
+            } />
+
+          </Routes>
+        </Suspense>
+
+
+
       </main>
       {/* Botón flotante para ir arriba */}
       <BotonScroll />
-      {location.pathname !== "/culturallaccess" && (
+      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
         <footer>
           <FooterPrincipal />
         </footer>
