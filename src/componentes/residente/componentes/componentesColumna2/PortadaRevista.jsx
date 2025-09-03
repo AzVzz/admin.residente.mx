@@ -1,24 +1,13 @@
 import { useEffect, useState } from "react";
-import { revistaGetUltima } from "../../../api/revistasGet";
 import { urlApi } from "../../../api/url.js";
+import { useData } from "../../../DataContext";
+import { notasResidenteGet } from "../../../api/notasPublicadasGet";
 
 
 const PortadaRevista = () => {
-    const [revistaActual, setRevistaActual] = useState(null);
+    const { revistaActual } = useData();
     const [loading, setLoading] = useState(true);
     const [notas, setNotas] = useState([]);
-
-    useEffect(() => {
-        const fetchRevista = async () => {
-            try {
-                const data = await revistaGetUltima();
-                setRevistaActual(data);
-            } catch (error) {
-                setRevistaActual(null);
-            }
-        };
-        fetchRevista();
-    }, []);
 
     useEffect(() => {
         const fetchNota = async () => {

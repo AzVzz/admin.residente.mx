@@ -64,8 +64,8 @@ const LinkInBio = () => {
         ) : hayNotas ? (
           <Link to={`/notas/${principal.id}`} aria-label={principal.titulo}>
             <img
-              src="#"
-              alt="Foto portada"
+              src={`${urlApi}fotos/fotos-estaticas/residente-logos/amarillos/banner-pagina-insta-imagen.webp`}
+              alt="Banner InstaImagen"
               className="w-full h-full object-cover cursor-pointer bg-[#fff300]"
               loading="eager"
             />

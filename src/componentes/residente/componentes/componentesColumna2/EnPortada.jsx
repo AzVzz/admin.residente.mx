@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
-import { revistaGetUltima } from "../../../api/revistasGet";
 import { urlApi } from "../../../api/url.js";
+import { useData } from "../../../DataContext";
 
 const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
 const escobedo = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/esc.webp`;
@@ -22,21 +22,9 @@ const iconosZonales = [
 ];
 
 const EnPortada = ({ notasResidenteGet, onCardClick }) => {
+    const { revistaActual } = useData();
     const [notas, setNotas] = useState([]); // Cambia a array
     const [loading, setLoading] = useState(true);
-    const [revistaActual, setRevistaActual] = useState(null);
-
-    useEffect(() => {
-        const fetchRevista = async () => {
-            try {
-                const data = await revistaGetUltima();
-                setRevistaActual(data);
-            } catch (error) {
-                setRevistaActual(null);
-            }
-        };
-        fetchRevista();
-    }, []);
 
     useEffect(() => {
         const fetchNota = async () => {

@@ -4,6 +4,7 @@ import { Suspense, lazy } from "react";
 
 import Header from './componentes/Header';
 import MegaMenu from './componentes/MegaMenu';
+import { DataProvider } from './componentes/DataContext';
 
 import ListaRestaurantes from './componentes/ednl/ListaRestaurantes';
 import RestaurantePage from './componentes/ednl/RestaurantePage';
@@ -95,7 +96,8 @@ function App() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <DataProvider>
+      <div className="min-h-screen flex flex-col">
       {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
         <div
           className={`transition-all duration-300 relative z-50 ${showMegaMenu
@@ -117,7 +119,7 @@ function App() {
           <MegaMenu />
         </div>
       )}
-      <main className="flex-grow overflow-x-hidden px-10 sm:px-0 w-full relative z-10">
+      <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? '' : 'px-10 sm:px-0'}`}>
         <Suspense fallback={<div>Cargando...</div>}>
           <Routes>
             <Route path="/residente" element={
@@ -198,11 +200,7 @@ function App() {
             </div>} />
 
             {/* Página instagram */}
-            <Route path="/linkinbio" element={
-              <div className="max-w-[1080px] mx-auto">
-                <LinkInBio />
-              </div>
-            } />
+            <Route path="/linkinbio" element={<LinkInBio />} />
 
             {/* Usuario */}
             <Route path="/colaboradores" element={
@@ -306,7 +304,8 @@ function App() {
           <FooterPrincipal />
         </footer>
       )}
-    </div>
+      </div>
+    </DataProvider>
   )
 }
 
