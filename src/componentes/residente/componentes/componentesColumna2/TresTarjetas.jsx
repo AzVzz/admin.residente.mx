@@ -40,7 +40,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
     return (
         <div className="w-full">
             {/* Fila 1 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5">
+            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mb-4">
                 {firstThree.map((post) => (
                     <TarjetaVerticalPost
                         key={post.id}
@@ -74,7 +74,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
             )*/}
 
             {/* Fila 2 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4">
+            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-8">
                 {lastThree.map((post) => (
                     <TarjetaVerticalPost
                         key={post.id}
