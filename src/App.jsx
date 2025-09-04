@@ -152,8 +152,8 @@ function App() {
 
                 <Route path="/seccion/:seccion/categoria/:categoria/*" element={
                   <div className="max-w-[1080px] mx-auto">
-                    <MainSeccionesCategorias />
-                    {/*<Proximamente />*/}
+                    {/*<MainSeccionesCategorias />*/}
+                    <Proximamente />
                   </div>
                 } />
 
