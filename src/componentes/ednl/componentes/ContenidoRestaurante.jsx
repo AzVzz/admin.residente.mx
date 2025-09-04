@@ -16,12 +16,12 @@ const ContenidoRestaurante = ({
 
   return (
     <div className="container-contenido-restaurante flex items-center flex-col">
-      <h3 className="text-[clamp(1.2rem,2.2vw,1.8rem)] font-grotesk uppercase">
+      <h3 className="text-[clamp(1.2rem,2.2vw,1.8rem)] font-grotesk uppercase leading-5 mt-4">
         Desde {fechaInauguracion || '... Fecha no disponible'}
       </h3>
 
       <div>
-        <h1 className="text-[clamp(2.8rem,10.2vw,6rem)] font-grotesk text-center font-extrabold leading-[0.8] text-rendering-optimizeLegibility subpixel-antialiased tracking-tighter py-[clamp(.6rem,1.2vw,1.2rem)] uppercase">
+        <h1 className="text-[clamp(2.8rem,10.2vw,6rem)] font-grotesk text-center font-extrabold leading-[0.5] text-rendering-optimizeLegibility subpixel-antialiased tracking-tighter py-[clamp(.6rem,1.2vw,1.2rem)] uppercase mb-3">
           {nombreRestaurante}
         </h1>
       </div>

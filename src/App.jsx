@@ -23,6 +23,7 @@ import VideoResidente from './componentes/residente/componentes/extras/VideoResi
 import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
 import Proximamente from './componentes/Proximamente.jsx';
+import ViewportAdjuster from './ViewportAdjuster.jsx';
 
 
 
@@ -98,216 +99,216 @@ function App() {
 
   return (
     <DataProvider>
-      
-      <div className="min-h-screen flex flex-col">
-      {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
-        <div
-          className={`transition-all duration-300 relative z-50 ${showMegaMenu
-            ? "-translate-y-full opacity-0 pointer-events-none"
-            : "translate-y-0 opacity-100"
-            }`}
-        >
-          <Header />
-        </div>
-      )}
-      {/* MegaMenu con transición de entrada */}
-      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
-        <div
-          className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0 pointer-events-none"
-            }`}
-        >
-          <MegaMenu />
-        </div>
-      )}
-      <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? '' : 'px-10 sm:px-0'}`}>
-        <Suspense fallback={<div>Cargando...</div>}>
-          <Routes>
-            <Route path="/residente" element={
-              <div className="max-w-[1080px] mx-auto">
-                <ResidenteMain />
-              </div>
-            } />
+      <ViewportAdjuster />
+        <div className="min-h-screen flex flex-col">
+          {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
+            <div
+              className={`transition-all duration-300 relative z-50 ${showMegaMenu
+                ? "-translate-y-full opacity-0 pointer-events-none"
+                : "translate-y-0 opacity-100"
+                }`}
+            >
+              <Header />
+            </div>
+          )}
+          {/* MegaMenu con transición de entrada */}
+          {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
+            <div
+              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-full opacity-0 pointer-events-none"
+                }`}
+            >
+              <MegaMenu />
+            </div>
+          )}
+          <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? '' : 'px-10 sm:px-0'}`}>
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Routes>
+                <Route path="/residente" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <ResidenteMain />
+                  </div>
+                } />
 
-            <Route path="/notas/*" element={
-              <div className="max-w-[1080px] mx-auto">
-                <BannerRevista />
-              </div>
-            } />
+                <Route path="/notas/*" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <BannerRevista />
+                  </div>
+                } />
 
-            <Route path="/notas/:id" element={
-              <div className="max-w-[1080px] mx-auto">
-                <BannerRevista />
-              </div>
-            } />
+                <Route path="/notas/:id" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <BannerRevista />
+                  </div>
+                } />
 
-            {/* Ver una nota en especifico */}
-            <Route path="/notas/:id" element={
-              <div className="max-w-[1080px] mx-auto">
-                <DetallePost />
-              </div>
-            } />
+                {/* Ver una nota en especifico */}
+                <Route path="/notas/:id" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <DetallePost />
+                  </div>
+                } />
 
-            <Route path="/seccion/:seccion/categoria/:categoria/*" element={
-              <div className="max-w-[1080px] mx-auto">
-                <MainSeccionesCategorias />
-                {/*<Proximamente />*/}
-              </div>
-            } />
+                <Route path="/seccion/:seccion/categoria/:categoria/*" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <MainSeccionesCategorias />
+                    {/*<Proximamente />*/}
+                  </div>
+                } />
 
-            <Route path="/seccion/:seccion/categoria/:categoria/nota/:id" element={
-              <div className="max-w-[1080px] mx-auto">
-                <MainSeccionesCategorias />
-              </div>
-            } />
+                <Route path="/seccion/:seccion/categoria/:categoria/nota/:id" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <MainSeccionesCategorias />
+                  </div>
+                } />
 
-            {/* Mama de Rocco / Barrio Antiguo etc. */}
-            <Route path="/:nombreCliente" element={
-              <div className="max-w-[1080px] mx-auto">
-                <PaginaCliente />
-              </div>
-            } />
+                {/* Mama de Rocco / Barrio Antiguo etc. */}
+                <Route path="/:nombreCliente" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <PaginaCliente />
+                  </div>
+                } />
 
-            {/* Estrellas de Nuevo León */}
-            <Route path="/" element={
-              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                <ListaRestaurantes />
-              </div>
-            } />
+                {/* Estrellas de Nuevo León */}
+                <Route path="/" element={
+                  <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                    <ListaRestaurantes />
+                  </div>
+                } />
 
-            <Route path="/restaurante/:slug" element={
-              <div className="max-w-[680px] mx-auto py-10 sm:px-0">
-                <RestaurantePage />
-              </div>
-            } />
+                <Route path="/restaurante/:slug" element={
+                  <div className="max-w-[680px] mx-auto py-10 sm:px-0">
+                    <RestaurantePage />
+                  </div>
+                } />
 
-            <Route path="/culturallaccess" element={
-              <div className="max-w-[1080px] mx-auto py-10">
-                <CulturalAcessForm />
-              </div>
-            } />
-
-
-            <Route path="/oped" element={
-              <div className="max-w-[1080px] mx-auto py-10">
-                <OpinionEditorial />
-              </div>
-            } />
-
-            <Route path="*" element={<NoEncontrado />} />
-
-            {/* Borrar todo despues */}
-            <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
-              <VideoResidente />
-            </div>} />
-
-            {/* Página instagram */}
-            <Route path="/linkinbio" element={<LinkInBio />} />
-
-            {/* Usuario */}
-            <Route path="/colaboradores" element={
-              <RespuestasSemana />
-            } />
+                <Route path="/culturallaccess" element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <CulturalAcessForm />
+                  </div>
+                } />
 
 
+                <Route path="/oped" element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <OpinionEditorial />
+                  </div>
+                } />
 
-            {/*==============
+                <Route path="*" element={<NoEncontrado />} />
+
+                {/* Borrar todo despues */}
+                <Route path="/video" element={<div className="max-w-[1080px] mx-auto">
+                  <VideoResidente />
+                </div>} />
+
+                {/* Página instagram */}
+                <Route path="/linkinbio" element={<LinkInBio />} />
+
+                {/* Usuario */}
+                <Route path="/colaboradores" element={
+                  <RespuestasSemana />
+                } />
+
+
+
+                {/*==============
           
           
           ==================*/}
 
 
-            {/* Admin */}
-            <Route path="notas/nueva" element={
-              <div className="max-w-[1080px] mx-auto">
-                <FormMainResidente />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="notas/nueva" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormMainResidente />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="notas/editar/:id" element={
-              <div className="max-w-[1080px] mx-auto">
-                <FormMainResidente />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="notas/editar/:id" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormMainResidente />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/notas" element={
-              <div className="max-w-[1080px] mx-auto">
-                <ListaNotas />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/notas" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <ListaNotas />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/preguntassemanales" element={
-              <div className="max-w-[1080px] mx-auto">
-                <PreguntasSemanales />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/preguntassemanales" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <PreguntasSemanales />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/formnewsletter" element={
-              <FormNewsletter />
-            } />
+                {/* Admin */}
+                <Route path="/formnewsletter" element={
+                  <FormNewsletter />
+                } />
 
-            {/* Admin */}
-            <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
-              <VideosDashboard />
-            </div>} />
+                {/* Admin */}
+                <Route path="/videosDashboard" element={<div className="max-w-[1080px] mx-auto">
+                  <VideosDashboard />
+                </div>} />
 
-            {/* Admin */}
-            <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
-              <Videos />
-            </div>} />
+                {/* Admin */}
+                <Route path="/videosFormulario" element={<div className="max-w-[1080px] mx-auto">
+                  <Videos />
+                </div>} />
 
-            {/* Admin */}
-            <Route path="/login" element={
-              <div className="max-w-[1080px] mx-auto py-10">
-                <Login />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/login" element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <Login />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/formulario" element={
-              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                <FormularioMain />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/formulario" element={
+                  <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                    <FormularioMain />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/formulario/:slug" element={
-              <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                <FormularioMainPage />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/formulario/:slug" element={
+                  <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                    <FormularioMainPage />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/promo" element={
-              <div className="max-w-[1080px] mx-auto py-10">
-                <PromoMain />
-              </div>
-            } />
+                {/* Admin */}
+                <Route path="/promo" element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <PromoMain />
+                  </div>
+                } />
 
-            {/* Admin */}
-            <Route path="/revistas/nueva" element={
-              <FormularioRevistaBannerNueva />
-            } />
+                {/* Admin */}
+                <Route path="/revistas/nueva" element={
+                  <FormularioRevistaBannerNueva />
+                } />
 
-          </Routes>
-        </Suspense>
+              </Routes>
+            </Suspense>
 
 
 
-      </main>
-      {/* Botón flotante para ir arriba */}
-      <BotonScroll />
-      {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
-        <footer>
-          <FooterPrincipal />
-        </footer>
-      )}
-      </div>
+          </main>
+          {/* Botón flotante para ir arriba */}
+          <BotonScroll />
+          {location.pathname !== "/culturallaccess" && location.pathname !== "/linkinbio" && (
+            <footer>
+              <FooterPrincipal />
+            </footer>
+          )}
+        </div>
     </DataProvider>
   )
 }

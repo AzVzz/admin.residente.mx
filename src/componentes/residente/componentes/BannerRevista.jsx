@@ -77,7 +77,7 @@ const BannerRevista = () => {
       try {
         const data = await catalogoTipoNotaGet(); // <- data es el ARRAY
         // Opcional: debug
-        console.log('Tipos de notas (backend):', data);
+        //console.log('Tipos de notas (backend):', data);
         if (Array.isArray(data) && data.length) {
           setTiposNotas(data); // ✅ asigna directo
         } else {

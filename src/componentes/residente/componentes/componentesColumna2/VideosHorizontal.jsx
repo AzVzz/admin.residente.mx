@@ -45,7 +45,7 @@ const VideosHorizontalCarrusel = () => {
                 setError(null);
 
                 const videosData = await obtenerVideos(token);
-                console.log('Videos cargados:', videosData);
+                //console.log('Videos cargados:', videosData);
 
                 // Filtrar solo videos activos para el carrusel público
                 const videosActivos = videosData.filter(video => video.activo);
@@ -53,7 +53,7 @@ const VideosHorizontalCarrusel = () => {
                 if (Array.isArray(videosActivos) && videosActivos.length > 0) {
                     setVideos(videosActivos);
                 } else {
-                    console.log('No hay videos activos');
+                    //console.log('No hay videos activos');
                     setVideos([]);
                 }
             } catch (err) {
@@ -104,7 +104,7 @@ const VideosHorizontalCarrusel = () => {
     const goNext = () => canNext && setStartIdx((i) => i + 1);
 
     const handleVideoClick = (video) => {
-        console.log('Video clickeado:', video);
+        //console.log('Video clickeado:', video);
         if (video.url) {
             window.open(video.url, '_blank');
         }
