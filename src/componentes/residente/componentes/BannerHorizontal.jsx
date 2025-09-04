@@ -1,16 +1,26 @@
 import { useEffect, useState } from "react";
 import Skeleton from "@mui/material/Skeleton";
 import { revistaGetUltima } from "../../api/revistasGet";
+import { useData } from "../../DataContext";
 
 const BannerHorizontal = ({ size = "big" }) => {
-  const [revistaActual, setRevistaActual] = useState(null);
+  const { revistaActual, loadingRevista, updateRevistaData } = useData();
   const [bannerLoaded, setBannerLoaded] = useState(false);
 
   useEffect(() => {
-    revistaGetUltima()
-      .then((data) => setRevistaActual(data))
-      .catch(() => setRevistaActual(null));
-  }, []);
+    // Solo hacer la llamada si no tenemos datos aún
+    if (!revistaActual && !loadingRevista) {
+      updateRevistaData(null, true, null);
+      
+      revistaGetUltima()
+        .then((data) => {
+          updateRevistaData(data, false, null);
+        })
+        .catch((error) => {
+          updateRevistaData(null, false, error);
+        });
+    }
+  }, [revistaActual, loadingRevista, updateRevistaData]);
 
   const sizesBanners = {
     big: {
@@ -37,7 +47,7 @@ const BannerHorizontal = ({ size = "big" }) => {
       style={style}
     >
       {/* Skeleton ocupa el mismo espacio que el wrapper */}
-      {!bannerLoaded && (
+      {(loadingRevista || !bannerLoaded) && (
         <Skeleton
           variant="rectangular"
           animation="wave"

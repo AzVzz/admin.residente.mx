@@ -45,7 +45,7 @@ const VideosHorizontalCarrusel = () => {
                 setError(null);
 
                 const videosData = await obtenerVideos(token);
-                console.log('Videos cargados:', videosData);
+                //console.log('Videos cargados:', videosData);
 
                 // Filtrar solo videos activos para el carrusel público
                 const videosActivos = videosData.filter(video => video.activo);
@@ -53,7 +53,7 @@ const VideosHorizontalCarrusel = () => {
                 if (Array.isArray(videosActivos) && videosActivos.length > 0) {
                     setVideos(videosActivos);
                 } else {
-                    console.log('No hay videos activos');
+                    //console.log('No hay videos activos');
                     setVideos([]);
                 }
             } catch (err) {
@@ -104,7 +104,7 @@ const VideosHorizontalCarrusel = () => {
     const goNext = () => canNext && setStartIdx((i) => i + 1);
 
     const handleVideoClick = (video) => {
-        console.log('Video clickeado:', video);
+        //console.log('Video clickeado:', video);
         if (video.url) {
             window.open(video.url, '_blank');
         }
@@ -134,9 +134,13 @@ const VideosHorizontalCarrusel = () => {
             <div className="relative mx-auto max-w-[1080px] w-full my-5">
                 <div className="relative flex justify-center items-center pt-2">
                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                    <div className="relative z-10 px-4 bg-[#DDDDDE]">
-                        <div className="flex flex-row justify-center items-center gap-2">
-                            <h3 className="text-black text-[35px] pb-2 mb-2 text-center">Videos</h3>
+
+                    <div className="relative flex justify-center items-center mb-8 mt-8">
+                        <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                        <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                            <div className="flex flex-row justify-center items-center gap-3">
+                                <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
 import { catalogoTipoNotaGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
-import { revistaGetUltima } from '../../api/revistasGet.js';
+import { useData } from '../../DataContext';
 import DetalleBannerRevista from './DetalleBannerRevista';
 import ListadoBannerRevista from './ListadoBannerRevista';
 
@@ -19,19 +19,13 @@ const BannerRevista = () => {
   const topRef = useRef(null);
   const navigate = useNavigate();
 
+  const { revistaActual } = useData();
   const [notasDestacadas, setNotasDestacadas] = useState([]);
   const [cargandoDestacadas, setCargandoDestacadas] = useState(true);
   const [errorDestacadas, setErrorDestacadas] = useState(null);
-  const [revistaActual, setRevistaActual] = useState(null);
 
   // ✅ INICIALIZA VACÍO: que no use valores del front
   const [tiposNotas, setTiposNotas] = useState([]);
-
-  useEffect(() => {
-    revistaGetUltima()
-      .then(data => setRevistaActual(data))
-      .catch(() => setRevistaActual(null));
-  }, []);
 
   useEffect(() => {
     const fetchDestacadas = async () => {
@@ -83,7 +77,7 @@ const BannerRevista = () => {
       try {
         const data = await catalogoTipoNotaGet(); // <- data es el ARRAY
         // Opcional: debug
-        console.log('Tipos de notas (backend):', data);
+        //console.log('Tipos de notas (backend):', data);
         if (Array.isArray(data) && data.length) {
           setTiposNotas(data); // ✅ asigna directo
         } else {

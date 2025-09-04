@@ -1,28 +1,31 @@
 import { urlApi } from "../../../api/url.js";
 
-const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = false, mediana = false, pequena = false }) => {
+const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = false, mediana = false, pequena = false, categoria }) => {
   // Determinar el tamaño basado en los props
   const getSizeClasses = () => {
     if (destacada) {
       return {
         container: "flex flex-col", // Layout vertical para destacada
         image: "h-80 w-full object-cover", // Imagen aún más grande
-        textContainer: "flex flex-col flex-1 justify-start", // Texto abajo
-        title: "text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight" // Título mucho más grande
+        textContainer: "flex flex-col mt-4 flex-1 justify-center items-center", // Texto abajo
+        title: "text-black text-[47px] leading-[0.90] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight", // Título mucho más grande
+        etiquetaAmarilla: "text-[16px] bg-[#fff200] w-fit px-2 font-roman"
       };
     } else if (mediana) {
       return {
-        container: "flex flex-col", // Layout vertical: imagen arriba, texto abajo
-        image: "h-36 w-full object-cover", // Imagen mediana ancho completo
-        textContainer: "flex flex-col mt-2 flex-1 justify-start", // Texto abajo con margen superior
-        title: "text-black text-[20px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight" // Texto negro normal
+        container: "flex flex-col mb-2", // Layout vertical: imagen arriba, texto abajo
+        image: "h-49 w-full object-cover", // Imagen mediana ancho completo
+        textContainer: "flex flex-col mt-3 flex-1 justify-center items-center", // Texto abajo con margen superior
+        title: "text-black text-[22px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight", // Texto negro normal
+        etiquetaAmarilla: "text-[14px] bg-[#fff200] w-fit px-2 font-roman"
       };
-    }     else if (pequena) {
+    } else if (pequena) {
       return {
         container: "flex flex-row gap-3", // Layout vertical: imagen arriba, texto abajo
         image: "h-30 w-36 object-cover felx-shirnk-0", // Imagen ancho completo
-        textContainer: "flex flex-col mt-2 flex-1 justify-start", // Texto abajo con margen
-        title: "text-black text-[20px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight" // Texto más pequeño
+        textContainer: "flex flex-col mt-4 flex-1 justify-center items-center", // Texto abajo con margen
+        title: "text-black text-[18px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight", // Texto más pequeño
+        etiquetaAmarilla: "text-[14px] bg-[#fff200] w-fit px-2 font-roman"
       };
     } else {
       // Tamaño por defecto (original)
@@ -30,7 +33,8 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
         container: "flex",
         image: "h-28 w-28 object-cover",
         textContainer: "flex flex-col ml-3.5 mr-2 flex-1 justify-center",
-        title: "text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
+        title: "text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight",
+        etiquetaAmarilla: "text-[14px] bg-[#fff200] w-fit px-2 font-roman"
       };
     }
   };
@@ -56,6 +60,7 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
               alt={post?.titulo || "Imagen del post"}
               className={`${sizeClasses.image} transition-transform duration-300 group-hover:scale-105`}
             />
+
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </div>
@@ -77,6 +82,9 @@ const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = fa
               })()}
             </div>
           )*/}
+          <span className={sizeClasses.etiquetaAmarilla}>
+            {categoria}
+          </span>
           <h3 className={sizeClasses.title}>
             {post?.titulo || 'Sin título'}
           </h3>

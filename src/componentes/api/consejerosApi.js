@@ -11,8 +11,8 @@ export const consejerosGet = async () => {
 // Crear nuevo registro (con foto) - CORREGIDO
 export const consejerosPost = async (formData) => {
   try {
-    console.log('=== INICIO ENVÍO API ===');
-    console.log('Formulario recibido:', formData);
+    //console.log('=== INICIO ENVÍO API ===');
+    //console.log('Formulario recibido:', formData);
     
     // Crear FormData correctamente
     const form = new FormData();
@@ -23,26 +23,26 @@ export const consejerosPost = async (formData) => {
         if (key === 'fotografia') {
           // Agregar archivo
           form.append('fotografia', value);
-          console.log('Archivo agregado:', value.name);
+          //console.log('Archivo agregado:', value.name);
         } else {
           // Agregar campo de texto
           form.append(key, value);
-          console.log(`Campo agregado: ${key} = ${value}`);
+          //console.log(`Campo agregado: ${key} = ${value}`);
         }
       }
     });
 
-    console.log('FormData creado:', form);
-    console.log('URL de la petición:', `${urlApi}api/consejeros`);
+    //console.log('FormData creado:', form);
+    //console.log('URL de la petición:', `${urlApi}api/consejeros`);
 
     const res = await fetch(`${urlApi}api/consejeros`, {
       method: "POST",
       body: form,
     });
     
-    console.log('Respuesta del servidor:', res);
-    console.log('Status:', res.status);
-    console.log('Status Text:', res.statusText);
+    //console.log('Respuesta del servidor:', res);
+    //console.log('Status:', res.status);
+    //console.log('Status Text:', res.statusText);
     
     if (!res.ok) {
       const errorText = await res.text();
@@ -51,13 +51,13 @@ export const consejerosPost = async (formData) => {
     }
     
     const responseData = await res.json();
-    console.log('Respuesta exitosa:', responseData);
-    console.log('=== FIN ENVÍO API ===');
+    //console.log('Respuesta exitosa:', responseData);
+    //console.log('=== FIN ENVÍO API ===');
     
     return responseData;
     
   } catch (error) {
-    console.error('Error en consejerosPost:', error);
+    //console.error('Error en consejerosPost:', error);
     throw error;
   }
 };

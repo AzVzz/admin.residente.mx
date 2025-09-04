@@ -170,7 +170,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
             </div>
 
             {/* Sección de cupones - todos los cupones disponibles */}
-            {!loadingCupones && cupones.length > 0 && (
+            {/** {!loadingCupones && cupones.length > 0 && (
                 <div className="w-center relative left-2/7 right-2/7 -ml-[50vw] -mr-[50vw] bg-transparent py-8">
                     <div className="max-w-[1080px] mx-auto flex flex-col items-left">
                         <h3 className="text-black text-[22px] font-bold mb-6 text-center">
@@ -181,7 +181,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
         </>
     );

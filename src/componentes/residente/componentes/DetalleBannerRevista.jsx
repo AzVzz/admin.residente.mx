@@ -87,7 +87,7 @@ const DetalleBannerRevista = ({
                             </button>
                         </div>
                     ) : (
-                        <DetallePost    
+                        <DetallePost
                             post={selectedPost}
                             onVolver={handleVolver}
                             barraMarquee={
@@ -128,7 +128,7 @@ const DetalleBannerRevista = ({
                 <>
                     <div className="relative flex justify-center items-center mb-4">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                        <div className="relative z-10 px-4 bg-[#CCCCCC]">
+                        <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-2">
                                 <img src={`https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
                                 <img className="h-full w-95" src={'https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />

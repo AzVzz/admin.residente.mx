@@ -39,12 +39,12 @@ const BotonesAnunciateSuscribirme = () => {
         <div>
             {/* CONTENEDOR DERECHA */}
             <div className="relative gap-1 flex flex-col items-end text-right h-50">
-                <span className="absolute -top-0 right-0 text-xl font-black text-[18px] italic uppercase bg-[#fff300] px-3 leading-8 h-[25px] w-[190px] flex items-center justify-center">
-                    Newsletter
+                <span className="absolute -top-0 right-0 text-xl font-black h-[25px] flex items-center justify-center">
+                   <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp" className="h-full w-42 object-contain"/>
                 </span>
 
                 <div className="flex flex-col gap-2 items-end justify-center mt-7 py-2">
-                    <p className="leading-5 text-[20px]">
+                    <p className="leading-5 text-[20px] font-roman pl-10 mb-2">
                         Sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León
                     </p>
                     <span className="text-[55px] leading-10 tracking-tight">Suscríbete</span>
@@ -60,7 +60,7 @@ const BotonesAnunciateSuscribirme = () => {
                             value={correo}
                             onChange={e => setCorreo(e.target.value)}
                             placeholder="Ingresa tu correo electrónico"
-                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-45.5 text-xs drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-43.5 text-xs drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
                             required
                         />
                         <button

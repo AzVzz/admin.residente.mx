@@ -2,9 +2,15 @@
 
 /* index.css */
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
+
 .animate-marquee {
   display: flex;
   width: max-content;
@@ -69,6 +75,8 @@ p, li, span {
   box-sizing: border-box;
 }*/
 
+
+
 :root {
   --font-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
   --font-roman: "NeueHaasGroteskDisplayPro55Roman", sans-serif;
@@ -111,7 +119,7 @@ p, li, span {
   font-weight: bold;
   text-align: center;
   width: 100%;
-  margin-bottom: clamp(20px, 2vw, 22px);
+  margin-bottom: clamp(5px, 0.4vw, 12px);
   padding: 5px 20px;
   box-sizing: border-box;
   text-transform: uppercase;
