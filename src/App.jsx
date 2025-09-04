@@ -22,6 +22,7 @@ import RespuestasSemana from './componentes/residente/componentes/formularioCola
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
 import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
+import Proximamente from './componentes/Proximamente.jsx';
 
 
 
@@ -97,6 +98,7 @@ function App() {
 
   return (
     <DataProvider>
+      
       <div className="min-h-screen flex flex-col">
       {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
         <div
@@ -150,6 +152,7 @@ function App() {
             <Route path="/seccion/:seccion/categoria/:categoria/*" element={
               <div className="max-w-[1080px] mx-auto">
                 <MainSeccionesCategorias />
+                {/*<Proximamente />*/}
               </div>
             } />
 

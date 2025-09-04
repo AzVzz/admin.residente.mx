@@ -1,10 +1,31 @@
 @import 'tailwindcss';
 
+/* Wrapper que escala TODO el sitio */
+#app-scale {
+  --scale: 1;
+  --comp: 1;
+  /* compensación = 1 / scale */
+  transform-origin: top left;
+  transform: scale(var(--scale));
+  width: calc(100% * var(--comp));
+}
+
+/* Para pantallas completas en iOS */
+.full-viewport {
+  min-height: 100dvh;
+}
+
 /* index.css */
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
+
 .animate-marquee {
   display: flex;
   width: max-content;
@@ -68,6 +89,8 @@ p, li, span {
   padding: 0;
   box-sizing: border-box;
 }*/
+
+
 
 :root {
   --font-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
