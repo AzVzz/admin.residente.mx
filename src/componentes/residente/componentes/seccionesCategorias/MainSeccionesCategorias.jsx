@@ -45,6 +45,7 @@ const MainSeccionesCategorias = () => {
     const [notasTop, setNotasTop] = useState([]);
     const [cupones, setCupones] = useState([]);
     const [loadingCupones, setLoadingCupones] = useState(true);
+    const [revistaActual, setRevistaActual] = useState(null);
 
     useEffect(() => {
         //Buscara la informacion de la categoria seleccionada
@@ -71,7 +72,11 @@ const MainSeccionesCategorias = () => {
             .finally(() => setLoadingCupones(false));
     }, [seccion, categoria]);
 
-
+    useEffect(() => {
+        revistaGetUltima()
+            .then(data => setRevistaActual(data))
+            .catch(() => setRevistaActual(null));
+    }, []);
 
     const totalPaginas = Math.ceil(notas.length / NOTAS_POR_PAGINA);
     const notasPagina = notas.slice(
