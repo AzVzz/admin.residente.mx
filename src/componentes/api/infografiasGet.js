@@ -23,14 +23,29 @@ export const infografiasGet = async () => {
       throw new Error('La respuesta de la API no es un array válido');
     }
     
-    // Validar estructura de cada infografía
-    data.forEach((infografia, index) => {
-      if (!infografia.id || !infografia.info_imagen || !infografia.pdf) {
-        throw new Error(`Infografía en índice ${index} no tiene la estructura correcta`);
+    // Filtrar infografías que tengan la estructura mínima requerida (id e imagen)
+    const infografiasValidas = data.filter((infografia, index) => {
+      const camposFaltantes = [];
+      if (!infografia.id) camposFaltantes.push('id');
+      if (!infografia.info_imagen) camposFaltantes.push('info_imagen');
+      
+      if (camposFaltantes.length > 0) {
+        console.warn(`Infografía en índice ${index} omitida - campos faltantes: ${camposFaltantes.join(', ')}`);
+        console.warn('Datos de la infografía omitida:', infografia);
+        return false;
       }
+      
+      // Advertir si no tiene PDF pero no omitir
+      if (!infografia.pdf) {
+        console.warn(`Infografía ID ${infografia.id} no tiene PDF - se mostrará sin descarga`);
+      }
+      
+      return true;
     });
     
-    return data;
+    console.log(`Se cargaron ${infografiasValidas.length} de ${data.length} infografías`);
+    
+    return infografiasValidas;
   } catch (error) {
     console.error('Error al obtener infografías:', error);
     throw error;

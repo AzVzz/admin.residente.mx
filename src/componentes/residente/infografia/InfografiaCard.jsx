@@ -7,10 +7,18 @@ const InfografiaCard = ({ imagen, pdfUrl, onClick }) => {
     setImagenError(true);
   };
 
+  const handleCardClick = () => {
+    if (pdfUrl) {
+      onClick();
+    } else {
+      console.log('Esta infografía no tiene PDF disponible para descargar');
+    }
+  };
+
   return (
     <div 
-      className="infografia-card"
-      onClick={onClick}
+      className={`infografia-card ${!pdfUrl ? 'no-pdf' : ''}`}
+      onClick={handleCardClick}
     >
       <div className="card-container">
         {imagenError ? (
@@ -26,6 +34,7 @@ const InfografiaCard = ({ imagen, pdfUrl, onClick }) => {
             onError={handleImageError}
           />
         )}
+        
       </div>
     </div>
   );

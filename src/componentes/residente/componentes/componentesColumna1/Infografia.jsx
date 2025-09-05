@@ -1,4 +1,12 @@
+import { useNavigate } from 'react-router-dom';
+
 const Infografia = () => {
+    const navigate = useNavigate();
+
+    const handleInfografiaClick = () => {
+        navigate('/infografia');
+    };
+
     return (
         <div className="flex flex-col items-end">
 
@@ -28,7 +36,8 @@ const Infografia = () => {
                 <img
                     src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
                     alt="Infografía"
-                    className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
+                    className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60 hover:opacity-80 transition-opacity duration-200"
+                    onClick={handleInfografiaClick}
                 />
             </div>
         </div>
