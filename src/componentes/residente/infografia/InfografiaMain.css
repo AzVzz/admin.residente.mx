@@ -204,9 +204,6 @@
   transition: transform 0.3s ease;
 }
 
-.infografia-card:hover .card-image {
-  /* Sin efectos de escala */
-}
 
 /* Estados de carga y error */
 .cargando-infografias,
@@ -453,9 +450,6 @@
   position: relative;
 }
 
-.infografia-card.no-pdf:hover {
-  /* Sin efectos de elevación */
-}
 
 .no-pdf-indicator {
   position: absolute;
