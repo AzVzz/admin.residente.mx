@@ -12,6 +12,7 @@ const InfografiaForm = () => {
     const [postError, setPostError] = useState(null);
     const [postResponse, setPostResponse] = useState(null);
     const [infografias, setInfografias] = useState([]);
+    const [modalImg, setModalImg] = useState(null);
 
     useEffect(() => {
         getInfografias().then(setInfografias);
@@ -230,7 +231,12 @@ const InfografiaForm = () => {
                     <ul className="space-y-4" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                         {infografias.map((info, idx) => (
                             <li key={info.id} className="flex flex-col gap-2 bg-white rounded-lg shadow-md p-4">
-                                <img src={info.info_imagen} alt="Infografía" className="w-full h-32 object-cover rounded-md mb-2" />
+                                <img
+                                    src={info.info_imagen}
+                                    alt="Infografía"
+                                    className="w-full h-32 object-cover rounded-md mb-2 cursor-pointer"
+                                    onClick={() => setModalImg(info.info_imagen)}
+                                />
                                 <div className="flex gap-2">
                                     <a href={info.pdf} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                         Ver PDF
@@ -246,6 +252,37 @@ const InfografiaForm = () => {
                             </li>
                         ))}
                     </ul>
+                    {/* Modal para mostrar imagen grande */}
+                    {modalImg && (
+                        <div
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0,0,0,0.8)', // 0.1 = 10% opacidad, ajusta a tu gusto
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 50
+                            }}
+                        >
+                            <div className="relative mt-15">
+                                {/* Botón X pegado a la imagen */}
+                                <button
+                                    onClick={() => setModalImg(null)}
+                                    className="absolute -top-4 -right-4 bg-white bg-opacity-80 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold shadow cursor-pointer z-10"
+                                    aria-label="Cerrar"
+                                >
+                                    &#10005;
+                                </button>
+                                <img
+                                    src={modalImg}
+                                    alt="Vista grande"
+                                    className="max-h-[80vh] max-w-[90vw] rounded-lg shadow-2xl border-4 border-white"
+                                    onClick={e => e.stopPropagation()}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
