@@ -9,7 +9,10 @@ import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
 import { IoMdPlay } from "react-icons/io";
+import { FaBookOpen } from "react-icons/fa";
+import { FaLightbulb } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
+import { IoNewspaper } from "react-icons/io5";
 import { RiStickyNoteFill } from "react-icons/ri";
 
 import FiltroEstadoNota from './FiltroEstadoNota';
@@ -170,6 +173,7 @@ const ListaNotas = () => {
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
+              <FaBookOpen className="mr-3" />
               Revistas
             </button>
           )}
@@ -203,6 +207,7 @@ const ListaNotas = () => {
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
+              <IoNewspaper className="mr-3" />
               Newsletter
             </button>
           )}
@@ -210,12 +215,10 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("infografias")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "infografias" ? "bg-white text-gray-900" : "text-gray-400"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "infografias" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
-              <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
-              </svg>
+              <FaLightbulb className="mr-3" />
               Infografías
             </button>
           )}
