@@ -8,6 +8,10 @@ import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
+import { IoMdPlay } from "react-icons/io";
+import { GoNote } from "react-icons/go";
+import { RiStickyNoteFill } from "react-icons/ri";
+
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
@@ -142,28 +146,17 @@ const ListaNotas = () => {
         <div className="flex gap-5 items-center bg-gray-200 py-2 justify-center rounded-md">
           <button
             onClick={() => setVistaActiva("notas")}
-            className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "notas" ? "bg-white text-gray-900" : "text-gray-400"
+            className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "notas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
               }`}
           >
-            <svg
-              className="-ml-1 mr-2 h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <RiStickyNoteFill className="mr-3" />
             Notas
           </button>
 
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("preguntas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "preguntas" ? "bg-white text-gray-900" : "text-gray-400"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "preguntas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
               <RiQuestionnaireFill className="mr-3" />
@@ -174,21 +167,9 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("revistas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
-              <svg
-                className="-ml-1 mr-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
               Revistas
             </button>
           )}
@@ -196,10 +177,10 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("videos")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "videos" ? "bg-white text-gray-900" : "text-gray-400"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "videos" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
-              <svg
+              {/* <svg
                 className="-ml-1 mr-2 h-5 w-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -210,7 +191,8 @@ const ListaNotas = () => {
                   d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                   clipRule="evenodd"
                 />
-              </svg>
+              </svg>*/}
+              <IoMdPlay className="mr-3" />
               Videos
             </button>
           )}
@@ -218,21 +200,9 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("newsletter")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
-              <svg
-                className="-ml-1 mr-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
               Newsletter
             </button>
           )}
@@ -266,8 +236,20 @@ const ListaNotas = () => {
               )}
               <Link
                 to="/notas/nueva"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
               >
+                <svg
+                  className="-ml-1 mr-2 h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
                 Nueva Nota
               </Link>
             </div>
