@@ -54,7 +54,7 @@ const DirectorioVertical = () => {
                 <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-42 h-auto relative z-10 px-4" />
             </div>
 
-            <p className="text-[25px] leading-4.5 text-black">Tu concierge restaurantero</p>
+            <p className="text-[23px] leading-4.5 text-black">Tu concierge restaurantero</p>
             <ol className="flex flex-row mt-1 gap-1.5">
                 {data.map((seccion, i) => (
                     <li key={seccion.seccion} className="flex justify-left items-center">

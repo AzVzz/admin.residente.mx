@@ -15,22 +15,27 @@ const MainLateralPostTarjetas = ({
     return (
         <>
             <section className="flex flex-col min-h-[100px] max-w-[375px]">
-                <div className="flex justify-end mb-3 py-1">
+
+                <div className="relative">
+                    {/* Línea amarilla con bordes inclinados */}
+                    <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+
+                    {/* Logo */}
                     <img
-                        className="h-full w-42 object-contain"
                         src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
-                        alt="Lo más visto"
+                        className="h-full w-46 object-contain"
+                        alt="Logo Infografías"
                     />
                 </div>
 
                 <div className="flex-grow">
-                    <ul className="h-full flex flex-col gap-3.5">
+                    <ul className="h-full flex flex-col gap-2.5">
                         {safePosts.map((post, index) => (
                             <li
                                 key={post.id}
                                 className="max-h-[83px] relative flex-grow"
                             >
-                                <span className="absolute -right-1 top-0 bg-[#fff300] text-black text-[18px] font-grotesk rounded-full h-6.5 w-6.5 flex items-center justify-center">
+                                <span className="absolute -right-1 top-0 bg-[#fff300] text-black text-[24px] font-grotesk rounded-full h-7 w-7 flex items-center justify-center">
                                     {index + 1}
                                 </span>
                                 <div

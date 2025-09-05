@@ -51,7 +51,6 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
             </div>
 
             {/* Banner al centro */}
-            <BannerHorizontal size="small"/>
             {/*mostrarBanner && revistaActual?.imagen_banner && (
                 <div className="w-full my-4">
                     {revistaActual.pdf ? (
@@ -74,7 +73,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
             )*/}
 
             {/* Fila 2 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4">
+            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4 mb-2">
                 {lastThree.map((post) => (
                     <TarjetaVerticalPost
                         key={post.id}
@@ -83,6 +82,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                     />
                 ))}
             </div>
+            <BannerHorizontal size="small"/>
         </div>
     );
 };

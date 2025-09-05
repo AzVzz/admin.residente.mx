@@ -1,0 +1,38 @@
+const Infografia = () => {
+    return (
+        <div className="flex flex-col items-end">
+
+            {/* Contenedor relativo para el logo y la línea */}
+            <div className="relative">
+                {/* Línea amarilla con bordes inclinados */}
+                <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+
+                {/* Logo */}
+                <img
+                    src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
+                    className="h-full w-46 object-contain"
+                    alt="Logo Infografías"
+                />
+            </div>
+
+            {/* Contenedor principal */}
+            <div className="flex flex-row justify-start relative mt-3">
+                {/* Contenedor del texto sentado abajo */}
+                <div className="flex flex-col mr-4 justify-end">
+                    <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right pl-4">
+                        Toda la información gastronomica ordenada para que la puedas descargar, compartir e impresionar a tus amigos
+                    </h2>
+                </div>
+
+                {/* Imagen de la infografía */}
+                <img
+                    src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
+                    alt="Infografía"
+                    className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
+                />
+            </div>
+        </div>
+    )
+}
+
+export default Infografia;

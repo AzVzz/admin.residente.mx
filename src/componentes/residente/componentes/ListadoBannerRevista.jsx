@@ -14,6 +14,7 @@ import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.j
 import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
 import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
+import Infografia from "./componentesColumna1/Infografia.jsx";
 
 
 const ListadoBannerRevista = ({
@@ -50,7 +51,7 @@ const ListadoBannerRevista = ({
 
                 return (
                     <div key={tipo} className="flex flex-col pt-9" id={tipo.replace(/[^a-zA-Z]/g, '').toLowerCase()}>
-                        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-2">
+                        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                             {/* Columna Principal */}
                             <div>
                                 <div className="relative flex justify-center items-center mb-2">
@@ -154,9 +155,13 @@ const ListadoBannerRevista = ({
                                     cantidadNotas={5}
                                 />
 
+                                <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif" className="h-fulll w-70 object-contain"/>
+
                                 <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>
+
+                                <Infografia />
 
                                 {/*<div className="flex justify-end items-end mb-4">
                                     <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif"
