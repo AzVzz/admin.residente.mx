@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 import DirectorioVertical from '../componentes/componentesColumna2/DirectorioVertical';
 import MainLateralPostTarjetas from '../componentes/componentesColumna2/MainLateralPostTarjetas';
 import BotonesAnunciateSuscribirme from '../componentes/componentesColumna1/BotonesAnunciateSuscribirme';
@@ -17,6 +18,7 @@ const InfografiaMain = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [destacadasFiltradas, setDestacadasFiltradas] = useState([]);
+  const [infografiaExpandida, setInfografiaExpandida] = useState(null);
 
   // Función para manejar clicks en las tarjetas
   const handleCardClick = (id) => {
@@ -47,8 +49,12 @@ const InfografiaMain = () => {
   }, []);
 
   const handleInfografiaClick = (infografia) => {
-    // Abrir el PDF en una nueva pestaña
-    window.open(infografia.pdf, '_blank');
+    // Mostrar la infografía en vista expandida
+    setInfografiaExpandida(infografia);
+  };
+
+  const cerrarInfografiaExpandida = () => {
+    setInfografiaExpandida(null);
   };
 
   return (
@@ -142,6 +148,62 @@ const InfografiaMain = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de infografía expandida */}
+      {infografiaExpandida && (
+        <div className="infografia-modal-overlay" onClick={cerrarInfografiaExpandida}>
+          <div className="infografia-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="infografia-modal-top-actions">
+              <button 
+                className="infografia-modal-close"
+                onClick={cerrarInfografiaExpandida}
+              >
+                ×
+              </button>
+              <button 
+                className="infografia-share-icon-btn"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'Infografía Residente',
+                      text: 'Mira esta infografía de Residente',
+                      url: window.location.href
+                    });
+                  } else {
+                    // Fallback: copiar URL al portapapeles
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('URL copiada al portapapeles');
+                  }
+                }}
+                title="Compartir infografía"
+              >
+                <HiMiniArrowTopRightOnSquare />
+              </button>
+              <button 
+                className="infografia-download-icon-btn"
+                onClick={() => {
+                  if (infografiaExpandida.pdf) {
+                    window.open(infografiaExpandida.pdf, '_blank');
+                  } else {
+                    const link = document.createElement('a');
+                    link.href = infografiaExpandida.info_imagen;
+                    link.download = `infografia-${infografiaExpandida.id}.jpg`;
+                    link.click();
+                  }
+                }}
+                title={infografiaExpandida.pdf ? "Descargar PDF" : "Descargar Imagen"}
+              >
+                <HiArrowDownTray />
+              </button>
+            </div>
+            <img 
+              src={infografiaExpandida.info_imagen} 
+              alt="Infografía expandida"
+              className="infografia-modal-image"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

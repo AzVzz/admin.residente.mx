@@ -8,11 +8,7 @@ const InfografiaCard = ({ imagen, pdfUrl, onClick }) => {
   };
 
   const handleCardClick = () => {
-    if (pdfUrl) {
-      onClick();
-    } else {
-      console.log('Esta infografía no tiene PDF disponible para descargar');
-    }
+    onClick();
   };
 
   return (

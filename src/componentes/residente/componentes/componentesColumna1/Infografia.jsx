@@ -16,10 +16,12 @@ const Infografia = () => {
 
     return (
         <div className="flex flex-col items-end">
+
             {/* Contenedor relativo para el logo y la línea */}
             <div className="relative">
                 {/* Línea amarilla con bordes inclinados */}
                 <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+
                 {/* Logo */}
                 <img
                     src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
