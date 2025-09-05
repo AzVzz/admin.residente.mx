@@ -155,8 +155,7 @@ const ListadoBannerRevista = ({
                                     cantidadNotas={5}
                                 />
 
-                                <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif" className="h-fulll w-70 object-contain"/>
-
+                                
                                 <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>

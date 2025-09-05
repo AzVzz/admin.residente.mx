@@ -47,8 +47,9 @@ const PostPrincipal = ({ post, onClick }) => {
                     </div>
                 </div>
             </div>
+            {/** max-h-[325px] antes */}
             <div
-                className="bg-transparent flex flex-col min-h-[120px] max-h-[325px] relative justify-start"
+                className="bg-transparent flex flex-col min-h-[120px] max-h-[365px] relative justify-start"
                 style={{
                     height: 'auto',
                 }}
