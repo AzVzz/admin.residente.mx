@@ -17,6 +17,7 @@ const CulturalAccessForm = () => {
     estado: "",
     colonia: "",
     codigoPostal: "",
+    numero: "",
     estadoCivil: "",
     edad: "",
     estudios: "",
@@ -75,6 +76,7 @@ const CulturalAccessForm = () => {
         estado: formData.estado,
         colonia: formData.colonia,
         codigo_postal: formData.codigoPostal,
+        numero: formData.numero,
         edad: formData.edad,
         estado_civil: formData.estadoCivil,
         estudios: estudiosValue,
@@ -461,6 +463,38 @@ const CulturalAccessForm = () => {
               </div>
             </div>
 
+            {/* Número */}
+            <div className="space-y-2">
+              <label htmlFor="numero" className="block text-white font-medium text-sm">
+                NÚMERO *
+              </label>
+              <input
+                id="numero"
+                type="text"
+                value={formData.numero}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, ''); // Solo números
+                  
+                  // Formatear automáticamente con guiones
+                  if (value.length > 6) {
+                    value = value.slice(0, 10); // Máximo 10 dígitos
+                    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                  } else if (value.length > 3) {
+                    value = value.slice(0, 6);
+                    value = value.replace(/(\d{3})(\d{3})/, '$1-$2');
+                  }
+                  
+                  handleInputChange("numero", value);
+                }}
+                className="w-full px-3 py-2 bg-transparent border-white/30 border-2 rounded text-white placeholder:text-white/70 focus:border-white focus:outline-none transition-colors"
+                maxLength="12"
+                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                required
+                disabled={isSubmitting}
+                placeholder="123-456-7890"
+              />
+            </div>
+
             {/* Edad */}
             <div className="space-y-3">
               <label className="block text-white font-medium text-sm">EDAD *</label>
@@ -542,7 +576,7 @@ const CulturalAccessForm = () => {
                   required
                   disabled={isSubmitting}
                 >
-                  <option value="" className="text-gray-800">
+                  <option value="" className="text-gray-800" disabled>
                     Selecciona una opción
                   </option>
                   <option value="soltero" className="text-gray-800">
