@@ -10,6 +10,7 @@ import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import PortadaRevista from './componentesColumna2/PortadaRevista.jsx';
+import Infografia from './componentesColumna1/Infografia.jsx';
 
 
 const DetalleBannerRevista = ({
@@ -120,6 +121,8 @@ const DetalleBannerRevista = ({
                     <div className="mt-4">
                         <BotonesAnunciateSuscribirme />
                     </div>
+
+                    <Infografia />
                 </div>
             </div>
 
