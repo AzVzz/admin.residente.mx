@@ -216,7 +216,7 @@ const InfografiaForm = () => {
                 </form>
                 <ul
                     className="mt-8 space-y-4"
-                    style={{ maxHeight: '400px', overflowY: 'auto' }} // Puedes ajustar la altura
+                    style={{ maxHeight: '400px', overflowY: 'auto' }}
                 >
                     {infografias.map((info, idx) => (
                         <li key={info.id} className="flex flex-col sm:flex-row gap-4 bg-white rounded-lg shadow-md p-4">
