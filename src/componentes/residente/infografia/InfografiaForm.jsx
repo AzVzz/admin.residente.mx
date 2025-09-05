@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getInfografias, crearInfografia, borrarInfografia } from '../../../api/infografiaApi';
+import { getInfografias, crearInfografia, borrarInfografia } from '../../api/infografiaApi';
 
 const InfografiaForm = () => {
     const [form, setForm] = useState({

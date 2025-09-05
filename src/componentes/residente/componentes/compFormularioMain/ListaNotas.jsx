@@ -21,7 +21,7 @@ import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx"
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
 import FormNewsletter from "./FormNewsletter.jsx";
-import InfografiaForm from "./InfografiaForm.jsx";
+import InfografiaForm from "../../infografia/InfografiaForm.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();

@@ -25,7 +25,7 @@ import LinkInBio from './componentes/residente/instagram/LinkInBio.jsx';
 import BotonScroll from './componentes/residente/componentes/compFormularioMain/BotonScroll.jsx';
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
-import InfografiaForm from './componentes/residente/componentes/compFormularioMain/InfografiaForm.jsx';
+import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
 
 
 
