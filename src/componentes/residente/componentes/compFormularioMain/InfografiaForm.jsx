@@ -70,7 +70,7 @@ const InfografiaForm = () => {
         <div className="py-8">
             <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8">
                 {/* Columna formulario */}
-                <div className="flex-1">
+                <div className="flex-[2]">
                     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6">
                         <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
                             Nueva Infografía

@@ -14,6 +14,7 @@ import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx"
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
 import FormNewsletter from "./FormNewsletter.jsx";
+import InfografiaForm from "./InfografiaForm.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -141,9 +142,8 @@ const ListaNotas = () => {
         <div className="flex gap-5 items-center bg-gray-200 py-2 justify-center rounded-md">
           <button
             onClick={() => setVistaActiva("notas")}
-            className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
-              vistaActiva === "notas" ? "bg-white text-gray-900" : "text-gray-400"
-            }`}
+            className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "notas" ? "bg-white text-gray-900" : "text-gray-400"
+              }`}
           >
             <svg
               className="-ml-1 mr-2 h-5 w-5"
@@ -163,9 +163,8 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("preguntas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
-                vistaActiva === "preguntas" ? "bg-white text-gray-900" : "text-gray-400"
-              }`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "preguntas" ? "bg-white text-gray-900" : "text-gray-400"
+                }`}
             >
               <RiQuestionnaireFill className="mr-3" />
               Preguntas
@@ -175,9 +174,8 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("revistas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
-                vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400"
-              }`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400"
+                }`}
             >
               <svg
                 className="-ml-1 mr-2 h-5 w-5"
@@ -198,9 +196,8 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("videos")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
-                vistaActiva === "videos" ? "bg-white text-gray-900" : "text-gray-400"
-              }`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "videos" ? "bg-white text-gray-900" : "text-gray-400"
+                }`}
             >
               <svg
                 className="-ml-1 mr-2 h-5 w-5"
@@ -221,9 +218,8 @@ const ListaNotas = () => {
           {usuario?.permisos === 'todos' && (
             <button
               onClick={() => setVistaActiva("newsletter")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
-                vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400"
-              }`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400"
+                }`}
             >
               <svg
                 className="-ml-1 mr-2 h-5 w-5"
@@ -238,6 +234,19 @@ const ListaNotas = () => {
                 />
               </svg>
               Newsletter
+            </button>
+          )}
+
+          {usuario?.permisos === 'todos' && (
+            <button
+              onClick={() => setVistaActiva("infografias")}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "infografias" ? "bg-white text-gray-900" : "text-gray-400"
+                }`}
+            >
+              <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
+              </svg>
+              Infografías
             </button>
           )}
         </div>
@@ -281,19 +290,22 @@ const ListaNotas = () => {
         )}
 
         {vistaActiva === "preguntas" && (
-          <div className="text-center py-10 text-lg"><PreguntasSemanales/></div>
+          <div className="text-center py-10 text-lg"><PreguntasSemanales /></div>
         )}
 
         {vistaActiva === "revistas" && (
-          <div className="text-center py-10 text-lg"><FormularioRevistaBannerNueva/></div>
+          <div className="text-center py-10 text-lg"><FormularioRevistaBannerNueva /></div>
         )}
 
         {vistaActiva === "videos" && (
-          <div className="text-center py-10 text-lg"><VideosDashboard/></div>
+          <div className="text-center py-10 text-lg"><VideosDashboard /></div>
         )}
 
         {vistaActiva === "newsletter" && (
-          <div className="text-center py-10 text-lg"><FormNewsletter/></div>
+          <div className="text-center py-10 text-lg"><FormNewsletter /></div>
+        )}
+        {vistaActiva === "infografias" && (
+          <div className="text-center py-10 text-lg"><InfografiaForm /></div>
         )}
       </div>
     </div>
