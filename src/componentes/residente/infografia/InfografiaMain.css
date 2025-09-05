@@ -8,7 +8,7 @@
 .infografia-header {
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 2rem;
   padding-top: 0.5rem;
@@ -31,7 +31,10 @@
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  width: 100%;
+  margin-left: -20rem;
+  padding-left: 2rem;
 }
 
 .infografia-title-text {
@@ -39,10 +42,11 @@
   color: #000;
   font-weight: 800;
   text-transform: uppercase;
-  text-align: center;
+  text-align: left;
   font-size: 2.25rem;
   line-height: 1;
   letter-spacing: -0.025em;
+  transform: translateX(-10rem);
 }
 
 .infografia-grid {
@@ -254,8 +258,14 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .infografia-title {
+    margin-left: -6rem;
+    padding-left: 1rem;
+  }
+  
   .infografia-title-text {
     font-size: 1.875rem;
+    transform: translateX(-3.5rem);
   }
   
   .infografia-grid {
@@ -442,6 +452,67 @@
     width: 50px;
     height: 50px;
   }
+  
+  /* Iconos del modal más pequeños en móvil pero aún más grandes que el original */
+  .infografia-modal-close {
+    width: 55px;
+    height: 55px;
+    font-size: 28px;
+  }
+  
+  .infografia-download-icon-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 24px;
+  }
+  
+  .infografia-share-icon-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 24px;
+  }
+}
+
+/* Estilos específicos para iPad/tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .infografia-modal-close {
+    width: 90px;
+    height: 90px;
+    font-size: 48px;
+  }
+  
+  .infografia-download-icon-btn {
+    width: 90px;
+    height: 90px;
+    font-size: 44px;
+  }
+  
+  .infografia-share-icon-btn {
+    width: 90px;
+    height: 90px;
+    font-size: 44px;
+  }
+}
+
+/* Estilos para iPad en modo landscape (horizontal) */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .infografia-modal-close {
+    width: 85px;
+    height: 85px;
+    font-size: 45px;
+  }
+  
+  .infografia-download-icon-btn {
+    width: 85px;
+    height: 85px;
+    font-size: 40px;
+  }
+  
+  .infografia-share-icon-btn {
+    width: 85px;
+    height: 85px;
+    font-size: 40px;
+  }
 }
 
 /* Estilos para infografías sin PDF */
@@ -523,9 +594,9 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 24px;
+  width: 60px;
+  height: 60px;
+  font-size: 32px;
   font-weight: normal;
   cursor: pointer;
   display: flex;
@@ -549,9 +620,9 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 22px;
+  width: 60px;
+  height: 60px;
+  font-size: 28px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -573,9 +644,9 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 22px;
+  width: 60px;
+  height: 60px;
+  font-size: 28px;
   cursor: pointer;
   display: flex;
   align-items: center;
