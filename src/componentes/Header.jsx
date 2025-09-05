@@ -11,7 +11,7 @@ const Header = () => {
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
-    revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
+   // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
 
   return (
