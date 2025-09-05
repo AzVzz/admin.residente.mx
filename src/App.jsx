@@ -296,6 +296,7 @@ function App() {
                   <FormularioRevistaBannerNueva />
                 } />
 
+                {/* Admin */}
                 <Route path="/infografias" element={
                   <InfografiaForm />
                 } />
