@@ -21,3 +21,8 @@ export const crearInfografia = async (formData) => {
   });
   return res.data;
 };
+
+// Eliminar una infografía por ID
+export const borrarInfografia = async (id) => {
+  await axios.delete(`${BASE_URL}/${id}`);
+};
