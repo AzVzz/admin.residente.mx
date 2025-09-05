@@ -90,7 +90,7 @@ const FooterPrincipal = () => {
                         {/* Botón para ir arriba */}
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="mt-4 text-6xl font-thin text-right w-full text-white hover:text-gray-400 transition-colors"
+                            className="mt-4 text-6xl font-thin text-right w-full text-white hover:text-gray-400 transition-colors cursor-pointer"
                             aria-label="Ir arriba"
                         >
                             ^
