@@ -39,13 +39,22 @@ const BotonesAnunciateSuscribirme = () => {
         <div>
             {/* CONTENEDOR DERECHA */}
             <div className="relative gap-1 flex flex-col items-end text-right h-50">
-                <span className="absolute -top-0 right-0 text-xl font-black h-[25px] flex items-center justify-center">
-                   <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp" className="h-full w-42 object-contain"/>
-                </span>
 
-                <div className="flex flex-col gap-2 items-end justify-center mt-7 py-2">
-                    <p className="leading-5 text-[20px] font-roman pl-10 mb-2">
-                        Sé el primero en recibir lo más relevante y las promociones restauranteras de Nuevo León
+                <div className="relative">
+                    {/* Línea amarilla con bordes inclinados */}
+                    <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+
+                    {/* Logo */}
+                    <img
+                        src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
+                        className="h-full w-46 object-contain"
+                        alt="Logo Infografías"
+                    />
+                </div>
+
+                <div className="flex flex-col items-end justify-center py-2">
+                    <p className="leading-5 text-[20px] font-roman pl-14 mb-2">
+                        Recibe cada mañana las noticias y promociones relevantes del mundo gastronómico de NL
                     </p>
                     <span className="text-[55px] leading-10 tracking-tight">Suscríbete</span>
                 </div>
@@ -54,23 +63,24 @@ const BotonesAnunciateSuscribirme = () => {
                     className="flex flex-row justify-end items-center w-full pb-3"
                     onSubmit={handleSubmit}
                 >
-                    <div className="flex items-center rounded gap-3">
+                    <div className="flex items-center rounded gap-2">
                         <input
                             type="email"
                             value={correo}
                             onChange={e => setCorreo(e.target.value)}
                             placeholder="Ingresa tu correo electrónico"
-                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-43.5 text-xs drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-43.5 text-xs"
                             required
                         />
                         <button
                             type="submit"
-                            className="flex justify-center items-center bg-[#fff] h-10 text-black uppercase cursor-pointer px-2.5 rounded-r text-sm drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                            className="flex justify-center items-center bg-[#fff] h-10 text-black uppercase cursor-pointer px-2.5 rounded-r text-sm"
                         >
                             Signup
                         </button>
                     </div>
                 </form>
+
 
                 {mensaje && <p className="text-sm mt-2">{mensaje}</p>}
             </div>

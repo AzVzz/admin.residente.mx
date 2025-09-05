@@ -47,19 +47,20 @@ const PostPrincipal = ({ post, onClick }) => {
                     </div>
                 </div>
             </div>
+            {/** max-h-[325px] antes */}
             <div
-                className="bg-transparent flex flex-col min-h-[120px] max-h-[325px] relative justify-start"
+                className="bg-transparent flex flex-col min-h-[120px] max-h-[365px] relative justify-start"
                 style={{
                     height: 'auto',
                 }}
             >
                 <div className="flex justify-center items-center pt-3">
-                    <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                    <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex pt-3">
                         {post.fecha}
                     </div>
                 </div>
                 <h1
-                    className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center px-2 pb-2 my-0 tracking-tight"
+                    className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center px-2 pb-2 my-0 tracking-tight pt-2"
                     style={{
                         whiteSpace: 'pre-line',
                         wordBreak: 'break-word',
@@ -68,7 +69,8 @@ const PostPrincipal = ({ post, onClick }) => {
                     {post.titulo}
                 </h1>
             </div>
-            <hr className="border-gray-800/80 border-dotted mt-5"/>
+            {/** <hr className="border-gray-800/80 border-dotted mt-5"/>*/}
+            
         </div>
     )
 }

@@ -25,41 +25,51 @@ const PortadaRevista = () => {
 
     return (
 
+        <div className="flex flex-col items-end">
 
-        <div className="flex flex-row justify-start relative">
+            <div className="relative">
+                {/* Línea amarilla con bordes inclinados */}
+                <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
 
-            {/* Contenedor de textos */}
-            <div className="flex flex-col mr-4 justify-between">
-
-                <h3 className="text-[28px] font-bold text-[#fff300] text-right">En Portada</h3>
-
-                <div className="flex">
-                    <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right">
-                        {revistaActual?.descripcion || ""}
-                    </h2>
-                </div>
-            </div>
-
-            {revistaActual && revistaActual.pdf ? (
-                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                    <img
-                        src={revistaActual.imagen_portada}
-                        alt="Portada Revista"
-                        className="w-50 h-full object-contain cursor-pointer pt-2 drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
-                        title="Descargar PDF"
-                    />
-                </a>
-            ) : (
+                {/* Logo */}
                 <img
-                    src={revistaActual}
-                    alt="Portada Revista"
-                    className="h-auto sm:w-32 w-22 object-cover"
+                    src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp"
+                    className="h-full w-46 object-contain"
+                    alt="Logo Infografías"
                 />
-            )}
+            </div>
+            <div className="flex flex-row justify-start relative mt-3">
+
+                {/* Contenedor de textos */}
+                <div className="flex flex-col mr-4 justify-end">
+                    <div className="flex justify-end items-end">
+                        <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right">
+                            {revistaActual?.descripcion || ""}
+                        </h2>
+                    </div>
+                </div>
+
+                {revistaActual && revistaActual.pdf ? (
+                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                        <img
+                            src={revistaActual.imagen_portada}
+                            alt="Portada Revista"
+                            className="w-50 h-full object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                            title="Descargar PDF"
+                        />
+                    </a>
+                ) : (
+                    <img
+                        src={revistaActual}
+                        alt="Portada Revista"
+                        className="h-auto sm:w-32 w-22 object-cover"
+                    />
+                )}
 
 
-            {/* Ícono de descarga en posición absoluta */}
+                {/* Ícono de descarga en posición absoluta */}
 
+            </div>
         </div>
     )
 }
