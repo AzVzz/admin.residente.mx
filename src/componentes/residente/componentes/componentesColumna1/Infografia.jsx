@@ -1,7 +1,14 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { getUltimaInfografia } from "../../../api/infografiaApi";
 
 const Infografia = () => {
     const navigate = useNavigate();
+    const [ultima, setUltima] = useState(null);
+
+    useEffect(() => {
+        getUltimaInfografia().then(setUltima);
+    }, []);
 
     const handleInfografiaClick = () => {
         navigate('/infografia');
