@@ -19,12 +19,12 @@ const Header = () => {
 
       <div className="max-w-[1080px] mx-auto w-full">
 
-      <div className="pt-5">
+      <div className="pt-8"> {/*agregue 3 pixeles más*/}
         <BannerHorizontal size="big" />
       </div>
 
 
-        <div className="flex pb-0 pt-3"> {/** Antes pt-5 */}
+        <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
           <div className="flex pr-3 ">
             <Link to="/residente" className="h-16 w-16 self-end object-contain bg-white rounded-full">
               <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`} alt="Logo Residente Circulo" />

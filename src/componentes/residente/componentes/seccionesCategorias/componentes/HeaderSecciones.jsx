@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { catalogoHeadersGet, catalogoSeccionesGet } from '../../../../api/CatalogoSeccionesGet';
 import { urlApi } from '../../../../api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 const HeaderSecciones = () => {
     const [menuHeader, setMenuHeader] = useState([]);
     const navigate = useNavigate();
@@ -40,11 +39,13 @@ const HeaderSecciones = () => {
                 <div className="flex flex-row items-end pt-6 pb-2">
                     {/* Logo y texto a la izquierda */}
                     <div className="flex flex-col items-start">
-                        <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
-                            className="w-60 h-auto mb-1"
-                            alt="Logo Guía NL"
-                        />
+                        <Link to="/residente">
+                            <img
+                                src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+                                className="w-60 h-auto mb-1"
+                                alt="Logo Guía NL"
+                            />
+                        </Link>
                     </div>
                 </div>
             </div>

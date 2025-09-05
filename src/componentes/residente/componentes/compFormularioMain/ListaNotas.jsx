@@ -9,7 +9,10 @@ import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
 import { IoMdPlay } from "react-icons/io";
+import { FaBookOpen } from "react-icons/fa";
+import { FaLightbulb } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
+import { IoNewspaper } from "react-icons/io5";
 import { RiStickyNoteFill } from "react-icons/ri";
 
 import FiltroEstadoNota from './FiltroEstadoNota';
@@ -18,6 +21,7 @@ import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx"
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
 import FormNewsletter from "./FormNewsletter.jsx";
+import InfografiaForm from "./InfografiaForm.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -169,6 +173,7 @@ const ListaNotas = () => {
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
+              <FaBookOpen className="mr-3" />
               Revistas
             </button>
           )}
@@ -202,7 +207,19 @@ const ListaNotas = () => {
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
                 }`}
             >
+              <IoNewspaper className="mr-3" />
               Newsletter
+            </button>
+          )}
+
+          {usuario?.permisos === 'todos' && (
+            <button
+              onClick={() => setVistaActiva("infografias")}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "infografias" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
+                }`}
+            >
+              <FaLightbulb className="mr-3" />
+              Infografías
             </button>
           )}
         </div>
@@ -271,6 +288,9 @@ const ListaNotas = () => {
 
         {vistaActiva === "newsletter" && (
           <div className="text-center py-10 text-lg"><FormNewsletter /></div>
+        )}
+        {vistaActiva === "infografias" && (
+          <div className="text-center py-10 text-lg"><InfografiaForm /></div>
         )}
       </div>
     </div>
