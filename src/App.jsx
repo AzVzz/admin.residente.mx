@@ -11,6 +11,7 @@ import RestaurantePage from './componentes/ednl/RestaurantePage';
 import CulturalAcessForm from './componentes/culturallAccess/CulturalAcessForm';
 import ResidenteMain from './componentes/residente/ResidenteMain';
 import MainSeccionesCategorias from './componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias';
+import InfografiaMain from './componentes/residente/infografia/InfografiaMain';
 import FooterPrincipal from './componentes/FooterPrincipal';
 import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
@@ -131,6 +132,12 @@ function App() {
                   </div>
                 } />
 
+                <Route path="/infografia" element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <InfografiaMain />
+                  </div>
+                } />
+
                 <Route path="/notas/*" element={
                   <div className="max-w-[1080px] mx-auto">
                     <BannerRevista />
@@ -205,6 +212,7 @@ function App() {
 
                 {/* Página instagram */}
                 <Route path="/linkinbio" element={<LinkInBio />} />
+
 
                 {/* Usuario */}
                 <Route path="/colaboradores" element={
