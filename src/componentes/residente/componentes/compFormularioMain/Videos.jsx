@@ -48,7 +48,7 @@ const Videos = () => {
       setError(null);
       
       const video = await obtenerVideoPorId(id, token);
-      console.log('Video cargado para editar:', video);
+      //console.log('Video cargado para editar:', video);
       
       // Formatear la fecha para el input de tipo date
       const fechaFormateada = video.fecha ? new Date(video.fecha).toISOString().split('T')[0] : '';
@@ -130,28 +130,28 @@ const Videos = () => {
       formDataToSend.append('tipo', formData.tipo);
       formDataToSend.append('estado', formData.activo.toString());
 
-      console.log('=== DEBUG FORMULARIO ===');
-      console.log('Modo:', esModoEdicion ? 'EDICIÓN' : 'CREACIÓN');
-      console.log('Token:', token ? 'Presente' : 'Ausente');
-      console.log('Usuario:', usuario);
-      console.log('FormData a enviar:');
+      //console.log('=== DEBUG FORMULARIO ===');
+      //console.log('Modo:', esModoEdicion ? 'EDICIÓN' : 'CREACIÓN');
+      //console.log('Token:', token ? 'Presente' : 'Ausente');
+      //console.log('Usuario:', usuario);
+      //console.log('FormData a enviar:');
       for (let [key, value] of formDataToSend.entries()) {
-        console.log(`${key}:`, value);
+        //console.log(`${key}:`, value);
       }
 
       let resultado;
       
       if (esModoEdicion) {
         // Modo edición
-        console.log('Iniciando edición de video...');
+        //console.log('Iniciando edición de video...');
         resultado = await editarVideo(id, formDataToSend, token);
-        console.log("Video editado exitosamente:", resultado);
+        //console.log("Video editado exitosamente:", resultado);
         alert("¡Video editado exitosamente!");
       } else {
         // Modo creación
-        console.log('Iniciando creación de video...');
+        //console.log('Iniciando creación de video...');
         resultado = await crearVideo(formDataToSend, token);
-        console.log("Video creado exitosamente:", resultado);
+        //console.log("Video creado exitosamente:", resultado);
         alert("¡Video agregado exitosamente!");
       }
       

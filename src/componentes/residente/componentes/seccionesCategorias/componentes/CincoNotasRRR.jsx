@@ -4,7 +4,6 @@ import { urlApi } from "../../../../../componentes/api/url.js";
 
 const NOTAS_POR_VISTA_DESKTOP = 6; // como la foto 2
 const GAP_PX = 20; // Tailwind gap-5 ≈ 20px
-const BASE_W = 1080;
 
 const TarjetaVerticalPost = ({ nota, onClick }) => (
   <div
@@ -47,9 +46,9 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
-      if (w < 640) setPerView(2);
-      else if (w < 1024) setPerView(3);
-      else if (w < 1280) setPerView(4);
+      if (w < 640) setPerView(6);
+      else if (w < 1024) setPerView(6);
+      else if (w < 1280) setPerView(6);
       else setPerView(NOTAS_POR_VISTA_DESKTOP);
     };
     onResize();

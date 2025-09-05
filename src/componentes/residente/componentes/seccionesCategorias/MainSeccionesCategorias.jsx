@@ -289,7 +289,7 @@ const MainSeccionesCategorias = () => {
             <ImagenesRestaurantesDestacados restaurantes={restaurantes} />
 
             {/* CONTENEDOR PRINCIPAL MODIFICADO - clave para solucionar el problema */}
-            <div className="flex flex-col md:flex-row gap-5" ref={notasRef}>
+            <div className="flex flex-col md:flex-row gap-8" ref={notasRef}>
                 {/*
                 <div className="md:w-[20%] flex flex-col gap-10">
                     <div className="bg-gray-100 p-4 h-100">
@@ -299,7 +299,7 @@ const MainSeccionesCategorias = () => {
                 </div>*/}
 
                 {/* Columna Central - Notas */}
-                <div className="flex-1 min-w-0 md:max-w-[70%]"> {/* min-w-0 previene desbordamientos */}
+                <div className="flex-1 min-w-0 md:max-w-[80%]"> {/* min-w-0 previene desbordamientos */}
                     <div className="flex flex-col gap-4"></div>
 
                     {/* Banner Revista Actual */}
@@ -321,10 +321,10 @@ const MainSeccionesCategorias = () => {
                     )}
 
                     {/* Línea con texto Noticias */}
-                    <div className="relative flex justify-center items-center mb-8 pt-2 mt-0">
+                    <div className="relative flex justify-center items-center mb-4 mt-0">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
-                            <span className="text-4xl text-black uppercase tracking-wide italic font-serif font-black">Noticias</span>
+                            <span className="text-black text-[30px] leading-[0.90] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight uppercase">Noticias {categoria}</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-4">
@@ -366,21 +366,22 @@ const MainSeccionesCategorias = () => {
                                 {/* SECCIÓN PRINCIPAL: Nota Grande + Notas Medianas + Notas Pequeñas */}
                                 {notasPagina.length > 0 && (
                                     <div className="mb-8">
-                                        <div className="flex flex-col lg:flex-row gap-9 text-center ">
+                                        <div className="flex flex-col lg:flex-row gap-6 text-center ">
                                             {/* NOTA PRINCIPAL - GRANDE (IZQUIERDA) */}
-                                            <div className="lg:w-2/3 ">
+                                            <div className="lg:basis-[65%] min-w-0">
                                                 <div ref={el => notaRefs.current[notasPagina[0].id] = el} className="w-full">
                                                     <TarjetaHorizontalPost
                                                         post={notasPagina[0]}
                                                         onClick={() => handleNotaClick(notasPagina[0])}
-
+                                                        categoria={categoria}
                                                         destacada={true}
                                                     />
+                                                    <hr className="border-gray-800/80 border-dotted mt-4" />
                                                 </div>
                                                 {/* NOTAS PEQUEÑAS - DEBAJO DE LA GRANDE */}
                                                 {notasPagina.length > 5 && (
                                                     <div className="mt-6">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-5">
                                                             {notasPagina.slice(5, 9).map((nota, idx) => {
                                                                 const textosPersonalizados = [
                                                                     "¡Por fin! Arte y gastronomía se juntan. Frida Kahlo Casa Restaurant abre sus puertas en San Pedro.",
@@ -400,11 +401,14 @@ const MainSeccionesCategorias = () => {
                                                                         <img
                                                                             src={nota.imagen} // ajusta si tu objeto usa otra propiedad
                                                                             alt={textosPersonalizados[idx]}
-                                                                            className="w-full h-35 object-cover"
+                                                                            className="w-50 h-35 object-cover"
                                                                         />
 
+                                                                        <span className="text-[11px] bg-[#fff200] w-fit px-2 mt-3 font-roman">
+                                                                            {categoria}
+                                                                        </span>
                                                                         {/* Texto debajo antes text-[18px]*/}
-                                                                        <p className="text-[18px] text-gray-900 leading-[1.1] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center pt-2 p-2">
+                                                                        <p className="text-[15px] text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center pt-2 p-2 px-5">
                                                                             {textosPersonalizados[idx]}
                                                                         </p>
                                                                     </div>
@@ -417,15 +421,16 @@ const MainSeccionesCategorias = () => {
 
                                             {/* NOTAS RECIENTES - MEDIANAS (DERECHA, EN COLUMNA) */}
                                             {notasPagina.length > 1 && (
-                                                <div className="lg:w-1/3">
+                                                <div className="lg:basis-[35%] min-w-0">
                                                     <div className="flex flex-col gap-4 text-center">
-                                                        {notasPagina.slice(1, 5).map((nota, idx) => (
+                                                        {notasPagina.slice(1, 4).map((nota, idx) => (
                                                             <div key={nota.id} ref={el => notaRefs.current[nota.id] = el}>
                                                                 <TarjetaHorizontalPost
                                                                     post={nota}
                                                                     onClick={() => handleNotaClick(nota)}
                                                                     sinFecha
                                                                     mediana={true}
+                                                                    categoria={categoria}
                                                                 />
                                                             </div>
                                                         ))}
@@ -433,8 +438,6 @@ const MainSeccionesCategorias = () => {
                                                 </div>
                                             )}
                                         </div>
-
-
                                     </div>
                                 )}
                             </>
@@ -443,7 +446,7 @@ const MainSeccionesCategorias = () => {
                 </div>
 
                 {/* Columna derecha - OpcionesExtra */}
-                <div className="md:w-[30%] flex flex-col gap-10">
+                <div className="md:w-[26%] flex flex-col gap-10">
                     {/*
                     <MainLateralPostTarjetas
                         notasDestacadas={notasTop}

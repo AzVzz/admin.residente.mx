@@ -34,10 +34,10 @@ const SeccionesPrincipales = () => {
     if (data.length > 0) {
       // Obtener solo notas del tipo "Antojos"
       obtenerNotasTodasCategorias().then(notas => {
-        console.log('Notas obtenidas para autocompletado:', notas);
+        //console.log('Notas obtenidas para autocompletado:', notas);
         if (notas.length > 0) {
-          console.log('Primera nota:', notas[0]);
-          console.log('Campo imagen de la primera nota:', notas[0].imagen);
+          //console.log('Primera nota:', notas[0]);
+          //console.log('Campo imagen de la primera nota:', notas[0].imagen);
         }
         setNotas(notas);
       });
@@ -55,16 +55,16 @@ const SeccionesPrincipales = () => {
     setBuscando(true);
     
     try {
-      console.log('Buscando notas con query:', query);
+      //console.log('Buscando notas con query:', query);
       const url = `${urlApi}api/notas`;
-      console.log('URL de búsqueda:', url);
+      //console.log('URL de búsqueda:', url);
       
       const response = await fetch(url);
-      console.log('Response status:', response.status);
+      //console.log('Response status:', response.status);
       
       if (response.ok) {
         const todasLasNotas = await response.json();
-        console.log('Total de notas obtenidas:', todasLasNotas.length);
+        //console.log('Total de notas obtenidas:', todasLasNotas.length);
         
         // Normalizar el query (quitar acentos, convertir a minúsculas)
         const normalizarTexto = (texto) => {
@@ -77,7 +77,7 @@ const SeccionesPrincipales = () => {
         };
         
         const queryNormalizado = normalizarTexto(query);
-        console.log('Query normalizado:', queryNormalizado);
+        //console.log('Query normalizado:', queryNormalizado);
         
         const notasFiltradas = todasLasNotas.filter(nota => {
           if (!nota.titulo) return false;
@@ -119,15 +119,15 @@ const SeccionesPrincipales = () => {
           return porcentajeCoincidencia >= 0.5; // Al menos 50% de coincidencia
         });
         
-        console.log('Notas que coinciden con la búsqueda:', notasFiltradas.length);
+        //console.log('Notas que coinciden con la búsqueda:', notasFiltradas.length);
         if (notasFiltradas.length > 0) {
-          console.log('Primera nota filtrada:', notasFiltradas[0]);
+          //console.log('Primera nota filtrada:', notasFiltradas[0]);
         }
         
         // Limitar a 20 resultados
         const notasLimitadas = notasFiltradas.slice(0, 20);
         setNotasBusqueda(notasLimitadas);
-        console.log('Notas limitadas mostradas:', notasLimitadas.length);
+        //console.log('Notas limitadas mostradas:', notasLimitadas.length);
       } else {
         console.error('Error en la respuesta:', response.status, response.statusText);
         setNotasBusqueda([]);
@@ -305,11 +305,11 @@ const SeccionesPrincipales = () => {
                         alt={option.titulo}
                         className="w-14 h-14 object-cover rounded-lg border-2 border-white shadow-sm"
                         onError={(e) => {
-                          console.log('Error cargando imagen:', option.imagen);
+                          //console.log('Error cargando imagen:', option.imagen);
                           e.target.style.display = 'none';
                         }}
                         onLoad={() => {
-                          console.log('Imagen cargada exitosamente:', option.imagen);
+                          //console.log('Imagen cargada exitosamente:', option.imagen);
                         }}
                       />
                     ) : (

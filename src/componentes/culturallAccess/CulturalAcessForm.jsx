@@ -89,7 +89,7 @@ const CulturalAccessForm = () => {
         acepta_info: formData.aceptaInfo,
       }
 
-      console.log("Enviando datos:", dataToSend)
+      //console.log("Enviando datos:", dataToSend)
 
       const response = await fetch("https://estrellasdenuevoleon.com.mx/api/culturalaccessform", {
         method: "POST",

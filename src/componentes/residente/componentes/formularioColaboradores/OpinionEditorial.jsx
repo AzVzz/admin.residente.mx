@@ -124,12 +124,12 @@ const OpinionEditorial = () => {
         dataToSend.fotografia = fotografia;
       }
 
-      console.log('Datos a enviar:', dataToSend);
-      console.log('URL de la API:', 'https://estrellasdenuevoleon.com.mx/api/consejeros');
+      //console.log('Datos a enviar:', dataToSend);
+      //console.log('URL de la API:', 'https://estrellasdenuevoleon.com.mx/api/consejeros');
 
       const response = await consejerosPost(dataToSend);
       
-      console.log('Respuesta exitosa:', response);
+      //console.log('Respuesta exitosa:', response);
       
       setMessage({ 
         type: 'success', 

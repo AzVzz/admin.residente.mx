@@ -219,12 +219,12 @@ const VideosDashboard = () => {
   // Eliminar video
   const eliminarVideoHandler = async (id) => {
     try {
-      console.log('=== DEBUG ELIMINAR ===');
-      console.log('Intentando eliminar video ID:', id);
-      console.log('Token presente:', !!token);
+      //console.log('=== DEBUG ELIMINAR ===');
+      //console.log('Intentando eliminar video ID:', id);
+      //console.log('Token presente:', !!token);
       
       const resultado = await eliminarVideo(id, token);
-      console.log('Resultado de eliminación:', resultado);
+      //console.log('Resultado de eliminación:', resultado);
       
       setVideos(prev => prev.filter(video => video.id !== id));
       setConfirmarEliminar(null);
@@ -258,15 +258,15 @@ const VideosDashboard = () => {
   }
 
   // Debug: mostrar todos los videos y su tipo
-  console.log('=== DEBUG VIDEOS ===');
-  console.log('Todos los videos:', videos);
+  //console.log('=== DEBUG VIDEOS ===');
+  //console.log('Todos los videos:', videos);
   videos.forEach(video => {
-    console.log(`Video ID ${video.id}:`, {
-      url: video.url,
-      tipo: video.tipo,
-      tipoType: typeof video.tipo,
-      activo: video.activo
-    });
+    //console.log(`Video ID ${video.id}:`, {
+    //  url: video.url,
+    //  tipo: video.tipo,
+    //  tipoType: typeof video.tipo,
+    //  activo: video.activo
+    //});
   });
 
   return (
