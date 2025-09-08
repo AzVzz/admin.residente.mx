@@ -11,7 +11,7 @@ const InfografiaCard = ({ imagen, pdfUrl, onClick }) => {
     if (pdfUrl) {
       onClick();
     } else {
-      console.log('Esta infografía no tiene PDF disponible para descargar');
+      //console.log('Esta infografía no tiene PDF disponible para descargar');
     }
   };
 

@@ -105,9 +105,10 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                <div className="flex justify-center uppercase text-[12px] mb-6">
-                                    {/*<BarraMarquee categoria={marqueeTexto} />*/}
-                                    <p>{marqueeTexto}</p>
+                                <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
+                                    <p className="uppercase">{marqueeTexto}</p>
+
+                                    <BarraMarquee categoria="SEMANA MEXICANA. Del 9 al 15 de Septiembre encuentra toda la información sobre la gastronomía de las fiestas patrias." />
                                 </div>
 
 
@@ -155,7 +156,7 @@ const ListadoBannerRevista = ({
                                     cantidadNotas={5}
                                 />
 
-                                
+
                                 <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>

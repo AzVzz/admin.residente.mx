@@ -20,7 +20,7 @@ const InfografiaMain = () => {
 
   // Función para manejar clicks en las tarjetas
   const handleCardClick = (id) => {
-    console.log('Card clicked:', id);
+    //console.log('Card clicked:', id);
   };
 
   // Cargar infografías desde la base de datos
@@ -32,7 +32,7 @@ const InfografiaMain = () => {
         
         // Llamada real a la API
         const data = await infografiasGet();
-        console.log('Infografías cargadas:', data);
+        //console.log('Infografías cargadas:', data);
         setInfografias(data);
       } catch (err) {
         setError(err);

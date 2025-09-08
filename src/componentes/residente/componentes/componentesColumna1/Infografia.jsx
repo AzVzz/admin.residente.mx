@@ -9,10 +9,12 @@ const Infografia = () => {
 
     return (
         <div className="flex flex-col items-end">
+
             {/* Contenedor relativo para el logo y la línea */}
             <div className="relative">
                 {/* Línea amarilla con bordes inclinados */}
                 <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+
                 {/* Logo */}
                 <img
                     src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
@@ -30,24 +32,6 @@ const Infografia = () => {
                     </h2>
                 </div>
 
-<<<<<<< HEAD
-                {/* Imagen de la última infografía o imagen por defecto */}
-                {ultima && ultima.info_imagen ? (
-                    <a href={ultima.pdf} target="_blank" rel="noopener noreferrer">
-                        <img
-                            src={ultima.info_imagen}
-                            alt="Infografía"
-                            className="max-h-[200px] max-w-[220px] object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border border-dotted border-gray-800/60"
-                        />
-                    </a>
-                ) : (
-                    <img
-                        src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
-                        alt="Infografía"
-                        className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
-                    />
-                )}
-=======
                 {/* Imagen de la infografía */}
                 <img
                     src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
@@ -55,7 +39,6 @@ const Infografia = () => {
                     className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60 hover:opacity-80 transition-opacity duration-200"
                     onClick={handleInfografiaClick}
                 />
->>>>>>> d1b52efd5abfea8af62a434c3d481acf030e4905
             </div>
         </div>
     )
