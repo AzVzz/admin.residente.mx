@@ -12,9 +12,9 @@ const PromoPoster = ({ children, method = 'POST', id = null }) => {
 
         try {
             // Construir URL según el método
-            let url = 'https://estrellasdenuevoleon.com.mx/api/promociones';
+            let url = 'https://residente.mx/api/promociones';
             if (method === 'PUT' && id) {
-                url = `https://estrellasdenuevoleon.com.mx/api/promociones/${id}`;
+                url = `https://residente.mx/api/promociones/${id}`;
             }
 
             const response = await fetch(url, {

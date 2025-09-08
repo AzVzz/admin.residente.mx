@@ -496,7 +496,7 @@ const MainSeccionesCategorias = () => {
                         <div className="flex flex-row items-center mb-6">
                             <img
                                 className="w-36 h-auto mr-4"
-                                src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp"
+                                src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp"
                                 alt="Logo Guía NL"
                             />
                             <p className="text-lg font-medium self-center">

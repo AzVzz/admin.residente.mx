@@ -1,1 +1,1 @@
-export const urlApi = 'https://estrellasdenuevoleon.com.mx/';
+export const urlApi = 'https://residente.mx/';

@@ -18,7 +18,7 @@ const FotosLugar = ({ existingFotos }) => {
         if (existingFotos?.length > 0) {
             const formattedFotos = existingFotos.map(foto => ({
                 id: foto.id,
-                url: `https://estrellasdenuevoleon.com.mx${foto.url_imagen}`,
+                url: `https://residente.mx${foto.url_imagen}`,
                 isExisting: true
             }));
             setPreviews(formattedFotos);
@@ -68,7 +68,7 @@ const FotosLugar = ({ existingFotos }) => {
         if (isExistingFoto && foto.id) {
             try {
                 setIsDeleting(true);
-                const response = await fetch(`https://estrellasdenuevoleon.com.mx/api/restaurante/fotos-lugar/${foto.id}`, {
+                const response = await fetch(`https://residente.mx/api/restaurante/fotos-lugar/${foto.id}`, {
                     method: 'DELETE'
                 });
 

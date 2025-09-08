@@ -24,7 +24,7 @@ const Infografia = () => {
 
                 {/* Logo */}
                 <img
-                    src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
                     className="h-full w-46 object-contain"
                     alt="Logo Infografías"
                 />
@@ -50,7 +50,7 @@ const Infografia = () => {
                     </a>
                 ) : (
                     <img
-                        src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
+                        src="https://residente.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
                         alt="Infografía"
                         className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
                     />

@@ -11,7 +11,7 @@ const RestaurantFetcher = ({ slug, children }) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://estrellasdenuevoleon.com.mx/api/restaurante/${slug}`
+          `https://residente.mx/api/restaurante/${slug}`
         )
         if (!response.ok) {
           throw new Error('Error al obtener el restaurante')

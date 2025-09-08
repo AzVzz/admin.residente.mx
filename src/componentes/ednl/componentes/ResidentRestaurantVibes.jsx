@@ -120,7 +120,7 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
                   onClick={() => openModal(index)}
                 >
                   <img 
-                    src={foto.url_imagen ? `https://estrellasdenuevoleon.com.mx${foto.url_imagen}` : "/placeholder.svg"} 
+                    src={foto.url_imagen ? `https://residente.mx${foto.url_imagen}` : "/placeholder.svg"} 
                     alt={`Vibes del restaurante ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -152,7 +152,7 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
               {fotos.map((foto, index) => (
                 <div key={`modal-${index}`} className="h-[80vh] flex items-center justify-center">
                   <img 
-                    src={foto.url_imagen ? `https://estrellasdenuevoleon.com.mx${foto.url_imagen}` : "/placeholder.svg"} 
+                    src={foto.url_imagen ? `https://residente.mx${foto.url_imagen}` : "/placeholder.svg"} 
                     alt={`Vibes ampliada ${index + 1}`}
                     className="max-w-full max-h-full object-contain mx-auto"
                   />

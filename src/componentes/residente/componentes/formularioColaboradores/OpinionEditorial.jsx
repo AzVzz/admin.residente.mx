@@ -125,7 +125,7 @@ const OpinionEditorial = () => {
       }
 
       //console.log('Datos a enviar:', dataToSend);
-      //console.log('URL de la API:', 'https://estrellasdenuevoleon.com.mx/api/consejeros');
+      //console.log('URL de la API:', 'https://residente.mx/api/consejeros');
 
       const response = await consejerosPost(dataToSend);
       

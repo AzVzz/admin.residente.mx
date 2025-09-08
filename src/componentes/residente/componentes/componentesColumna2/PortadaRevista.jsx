@@ -33,7 +33,7 @@ const PortadaRevista = () => {
 
                 {/* Logo */}
                 <img
-                    src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp"
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp"
                     className="h-full w-46 object-contain"
                     alt="Logo Infografías"
                 />

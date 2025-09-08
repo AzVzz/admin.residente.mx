@@ -148,7 +148,7 @@ const NotasAcervo = ({ onCardClick }) => {
             <div className="max-w-[1080px] mx-auto h-105 py-12">
 
                 <div className="flex items-end leading-8 mb-8">
-                    <img src="https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp" className="w-auto h-6"/>
+                    <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp" className="w-auto h-6"/>
                     <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}

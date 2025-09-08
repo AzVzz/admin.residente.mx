@@ -10,7 +10,7 @@ const PostHorizontal = ({ titulo, imagen, tipoNota }) => {
                 <div className="relative flex-shrink-0 overflow-hidden" style={{ width: "140px", height: "112px" }}>
                     <div className="relative">
                         <img
-                            src={imagen || `https://estrellasdenuevoleon.com.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                            src={imagen || `https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                             style={{ width: "140px", height: "112px" }}
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
