@@ -13,8 +13,15 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
         return null; // No renderizar nada
     }
 
+    // Mueve la definición de seleccionados y bloquearOtros aquí
+    const seleccionados = watch("tiposDeNotaSeleccionadas") || [];
+    const bloquearOtros = seleccionados.some(
+        nombre => nombre.toLowerCase().replace(/[\s\-]/g, '') === "food&drink".replace(/[\s\-]/g, '').toLowerCase() ||
+                  nombre.toLowerCase().replace(/[\s\-]/g, '') === "gastro-destinos".replace(/[\s\-]/g, '').toLowerCase()
+    );
+
     return (
-        <div className="grid grid-cols-5">  
+        <div className="grid grid-cols-5">
             {/* Solo muestra el campo de tipo de nota si ocultarTipoNota es falso */}
             {!ocultarTipoNota && (
                 <div className="p-1 border-1 border-gray-300 rounded-md">
@@ -26,13 +33,17 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                         render={({ field }) => (
                             <>
                                 {tipoDeNota.map((opcion, idx) => {
-                                    const checked = field.value?.includes(opcion.nombre);
+                                    const checked = seleccionados.includes(opcion.nombre);
+                                    // Solo permite seleccionar Food & Drink y Gastro-destinos si bloquearOtros está activo
+                                    const disabled = bloquearOtros && !["Food & Drink", "Gastro-destinos"].includes(opcion.nombre) && !checked;
+
                                     return (
                                         <label key={idx} className="block mb-1">
                                             <input
                                                 type="checkbox"
                                                 value={opcion.nombre}
                                                 checked={checked}
+                                                disabled={disabled}
                                                 onChange={e => {
                                                     let nuevos = Array.isArray(field.value) ? [...field.value] : [];
                                                     if (e.target.checked) {
@@ -76,6 +87,7 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                                         type="radio"
                                         value={categoria.nombre}
                                         checked={field.value === categoria.nombre}
+                                        disabled={bloquearOtros}
                                         onClick={() => {
                                             if (field.value === categoria.nombre) {
                                                 field.onChange("");
