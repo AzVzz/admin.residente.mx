@@ -129,7 +129,7 @@ function App() {
         <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? '' : 'px-10 sm:px-0'}`}>
           <Suspense fallback={<div>Cargando...</div>}>
             <Routes>
-              <Route path="/residente" element={
+              <Route path="/" element={
                 <div className="max-w-[1080px] mx-auto">
                   <ResidenteMain />
                 </div>
@@ -181,7 +181,7 @@ function App() {
               } />
 
               {/* Estrellas de Nuevo León */}
-              <Route path="/" element={
+              <Route path="/ednl" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
                   <ListaRestaurantes/>
                 </div>
