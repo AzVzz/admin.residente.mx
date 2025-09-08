@@ -111,7 +111,7 @@ function App() {
               }`}
           >
             <div />
-            {/*<Header />*/}
+            <Header />
           </div>
         )}
         {/* MegaMenu con transición de entrada */}
@@ -123,7 +123,7 @@ function App() {
               }`}
           >
             <div />
-            {/*<MegaMenu />*/}
+            <MegaMenu />
           </div>
         )}
         <main className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? '' : 'px-10 sm:px-0'}`}>
@@ -183,7 +183,7 @@ function App() {
               {/* Estrellas de Nuevo León */}
               <Route path="/" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                  <Proximamente hora="En 1 hora" />
+                  <ListaRestaurantes/>
                 </div>
               } />
 
