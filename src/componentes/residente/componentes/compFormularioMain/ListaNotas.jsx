@@ -61,8 +61,21 @@ const ListaNotas = () => {
     setCargando(true);
     setError(null);
     try {
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+      
       const data = await notasTodasGet(token, pagina, notasPorPagina);
-      console.log('Datos del backend:', data);
+      
+      // Validar respuesta del servidor
+      if (!data) {
+        throw new Error('El servidor no devolvió datos');
+      }
+      
+      if (!Array.isArray(data.notas)) {
+        throw new Error('Formato de respuesta inválido del servidor');
+      }
+      
       setNotas(data.notas);
       
       // Usar los datos de paginación del backend
@@ -70,6 +83,11 @@ const ListaNotas = () => {
         setTotalNotas(data.paginacion.total);
         setTotalPaginas(data.paginacion.paginas);
         setPaginaActual(data.paginacion.actual);
+      } else {
+        // Fallback para casos normales
+        setTotalNotas(data.notas.length);
+        setTotalPaginas(1);
+        setPaginaActual(1);
       }
     } catch (err) {
       setError(err);
@@ -83,6 +101,12 @@ const ListaNotas = () => {
     fetchNotas();
     // eslint-disable-next-line
   }, [token, usuario]);
+
+  // Efecto para búsqueda - por ahora solo en frontend
+  useEffect(() => {
+    // La búsqueda se maneja en el filtrado local
+    // No necesitamos hacer llamadas adicionales al backend
+  }, [searchTerm]);
 
   const eliminarNota = async (id) => {
     setEliminando(id);
@@ -106,7 +130,7 @@ const ListaNotas = () => {
     const cumpleEstado = !estado || (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim();
     const cumpleAutor = !autor || (nota.autor || '').toLowerCase().trim() === autor.toLowerCase().trim();
 
-    // Lógica de búsqueda
+    // Búsqueda local en las notas cargadas
     const cumpleBusqueda = !searchTerm || (() => {
       const terminoBusqueda = searchTerm.toLowerCase().trim();
       const titulo = (nota.titulo || '').toLowerCase();
@@ -145,15 +169,6 @@ const ListaNotas = () => {
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
   const finIndice = inicioIndice + notasFiltradas.length;
 
-  // Debug logs
-  console.log('Debug paginación:', {
-    totalNotas,
-    totalPaginas,
-    paginaActual,
-    notasPorPagina,
-    notasFiltradas: notasFiltradas.length,
-    notasDelBackend: notas.length
-  });
 
   // Funciones de navegación
   const irAPaginaAnterior = () => {
@@ -359,7 +374,6 @@ const ListaNotas = () => {
                 </div>
 
                 {/* Controles de paginación */}
-                {console.log('¿Mostrar paginación?', totalPaginas > 1, 'totalPaginas:', totalPaginas)}
                 {totalPaginas > 1 && (
                   <div className="flex flex-col items-center mt-8 space-y-4">
                     {/* Información de paginación */}
