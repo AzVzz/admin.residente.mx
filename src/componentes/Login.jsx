@@ -4,6 +4,7 @@ import { useAuth } from "./Context";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { jwtDecode } from 'jwt-decode';
 
 const Login = ({ redirectTo }) => {
     const [nombre_usuario, setNombreUsuario] = useState("");
@@ -15,8 +16,26 @@ const Login = ({ redirectTo }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Si ya está logeado, muestra el usuario
-    if (usuario) {
+    // Función para verificar si el token ha expirado
+    const isTokenExpired = (token) => {
+        try {
+            const decoded = jwtDecode(token);
+            return decoded.exp * 1000 < Date.now();
+        } catch (error) {
+            return true;
+        }
+    };
+
+    // Si el token existe pero está expirado, limpia el contexto
+    useEffect(() => {
+        if (token && isTokenExpired(token)) {
+            saveToken(null);
+            saveUsuario(null);
+        }
+    }, [token, saveToken, saveUsuario]);
+
+    // Si ya está logeado y el token es válido, muestra el usuario
+    if (usuario && token && !isTokenExpired(token)) {
         return (
             <span className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-bold text-white bg-black">
                 <FaUser className="text-sm -mt-0.5 mr-2" />
@@ -115,8 +134,6 @@ const Login = ({ redirectTo }) => {
             </div>
         );
     }
-
-    // Si no está logeado y no está en /login, no muestra nada (redirige)
     return null;
 };
 

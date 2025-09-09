@@ -22,6 +22,7 @@
     "fitty": "^2.4.2",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",

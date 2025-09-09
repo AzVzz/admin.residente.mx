@@ -191,12 +191,24 @@ const FormMainResidente = () => {
             }
           }
 
+          // --- LÓGICA AGREGADA ---
+          // Determina el valor para el radio button de publicación basado en el estatus
+          let opcionPublicacionValue;
+          if (data.estatus === 'programada') {
+            opcionPublicacionValue = 'programar';
+          } else if (data.estatus === 'borrador') {
+            opcionPublicacionValue = 'borrador';
+          } else {
+            opcionPublicacionValue = 'publicada';
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor: autor, // <--- aquí ya va el nombre si estaba vacío
+            autor: autor,
             contenido: data.descripcion,
-            opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
+            // Se utiliza la nueva variable para establecer el valor correcto
+            opcionPublicacion: opcionPublicacionValue,
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -213,6 +225,7 @@ const FormMainResidente = () => {
               data.tipo_nota2 || ''
             ].filter(Boolean),
           });
+
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
         } catch (error) {

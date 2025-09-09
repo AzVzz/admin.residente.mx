@@ -28,8 +28,6 @@ import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
 
 
-
-
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
 const ListaNotas = lazy(() => import('./componentes/residente/componentes/compFormularioMain/ListaNotas'));
@@ -42,8 +40,6 @@ const FormularioMain = lazy(() => import('./componentes/formulario100estrellas/F
 const FormularioMainPage = lazy(() => import('./componentes/formulario100estrellas/FormularioMainPage'));
 const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
 const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner'));
-
-
 
 
 function App() {
@@ -224,10 +220,7 @@ function App() {
 
 
 
-              {/*==============
-          
-          
-          ==================*/}
+              {/*================================*/}
 
 
               {/* Admin */}

@@ -1,3 +1,5 @@
+//src/componentes/residente/componentes/compFormularioMain/ListaNotas.jsx
+
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../Context";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +16,8 @@ import { FaLightbulb } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
 import { IoNewspaper } from "react-icons/io5";
 import { RiStickyNoteFill } from "react-icons/ri";
+
+
 
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
