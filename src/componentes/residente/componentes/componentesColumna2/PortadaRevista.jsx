@@ -43,7 +43,7 @@ const PortadaRevista = () => {
                 {/* Contenedor de textos */}
                 <div className="flex flex-col mr-4 justify-end">
                     <div className="flex justify-end items-end">
-                        <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right">
+                        <h2 className="text-black text-[19px] leading-5 whitespace-pre-line text-right ml-10">
                             {revistaActual?.descripcion || ""}
                         </h2>
                     </div>
@@ -54,7 +54,7 @@ const PortadaRevista = () => {
                         <img
                             src={revistaActual.imagen_portada}
                             alt="Portada Revista"
-                            className="w-50 h-full object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                            className="max-h-[200px] max-w-[220px] object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border border-dotted border-gray-800/60"
                             title="Descargar PDF"
                         />
                     </a>
