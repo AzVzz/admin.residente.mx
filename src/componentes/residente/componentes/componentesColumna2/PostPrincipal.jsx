@@ -18,7 +18,7 @@ const PostPrincipal = ({ post, onClick }) => {
 
     return (
         <div
-            className="flex flex-col cursor-pointer max-h-[735px] overflow-hidden mb-4 pb-4 pt" 
+            className="flex flex-col cursor-pointer max-h-[900px] overflow-hidden mb-4 pb-4 pt" 
             onClick={onClick}
         >{/** Antes h-[725] */}
             <div className="h-[400px] overflow-hidden">
@@ -49,7 +49,7 @@ const PostPrincipal = ({ post, onClick }) => {
             </div>
             {/** max-h-[325px] antes */}
             <div
-                className="bg-transparent flex flex-col min-h-[120px] max-h-[365px] relative justify-start"
+                className="bg-transparent flex flex-col min-h-[120px] max-h-[395px] relative justify-start"
                 style={{
                     height: 'auto',
                 }}
