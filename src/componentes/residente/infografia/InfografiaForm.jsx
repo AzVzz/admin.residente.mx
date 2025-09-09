@@ -254,7 +254,8 @@ const InfografiaForm = () => {
                     </ul>
                     {/* Modal para mostrar imagen grande */}
                     {modalImg && (
-                        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50"
+                            onClick={() => setModalImg(null)}>
                             <div className="relative mt-15">
                                 {/* Botón X pegado a la imagen */}
                                 <button

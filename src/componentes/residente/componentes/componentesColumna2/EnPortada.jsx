@@ -71,7 +71,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                     <img
                                         src={revistaActual.imagen_portada}
                                         alt="Portada Revista"
-                                        className="w-65 h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                                        className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
                                         title="Descargar PDF"
                                     />
                                 </a>
@@ -79,7 +79,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 <img
                                     src={revistaActual}
                                     alt="Portada Revista"
-                                    className="h-auto sm:w-32 w-22 object-cover "
+                                    className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
                                 />
                             )}
                             <div className="flex flex-col ml-6 justify-between">

@@ -81,7 +81,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
         <>
             <div className="flex flex-col">
                 {/** h-[725px]  mb-5 */}
-                <div className="flex flex-col max-h-[735px] overflow-hidden mb-4 ">
+                <div className="flex flex-col max-h-[900px] overflow-hidden mb-4 ">
 
                     <div className="h-[400px] overflow-hidden">
                         <div className="relative h-full">
@@ -108,7 +108,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                     </div>
 
                     {/* Sección transparente - igual que en la principal */}
-                    <div className="bg-transparent flex flex-col max-h-[325px] relative min-h-[120]">
+                    <div className="bg-transparent flex flex-col max-h-[400px] relative min-h-[120]">
                         <div className="flex justify-center items-center pt-4">
                             <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
                                 {post.fecha}

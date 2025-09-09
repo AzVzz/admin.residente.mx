@@ -6,7 +6,7 @@ const MainLateralPostTarjetas = ({
   notasDestacadas = [],
   onCardClick,
   cantidadNotas,
-  sinFecha = false,
+  sinFecha = true,
   sinCategoria = false,
   pasarObjeto = false,
 }) => {
