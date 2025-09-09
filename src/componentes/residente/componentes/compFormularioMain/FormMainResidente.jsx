@@ -214,20 +214,12 @@ const FormMainResidente = () => {
             }
           }
 
-          // Determinar la opción de publicación basándose en el estado de la nota
-          let opcionPublicacion = 'publicada'; // valor por defecto
-          if (data.estatus === 'borrador') {
-            opcionPublicacion = 'borrador';
-          } else if (data.programar_publicacion) {
-            opcionPublicacion = 'programar';
-          }
-
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
             autor: autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
-            opcionPublicacion: opcionPublicacion,
+            opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -400,7 +392,6 @@ const FormMainResidente = () => {
                   instafotoActual={instafotoActual}
                   notaId={notaId}
                   onInstafotoEliminada={() => setInstafotoActual(null)}
-                  token={token}
                 />
 
                 {/* Filtros completamente ocultos para todos los usuarios */}
@@ -574,11 +565,10 @@ const FormMainResidente = () => {
           📱 Vista previa de tu nota
         </h2>
 
-        <div className="flex justify-center">
-          {/* Solo mostrar vista previa si hay contenido */}
-          {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              {/*<div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
+        {/* Solo mostrar vista previa si hay contenido */}
+        {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+            {/*<div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
               <PostHorizontal
                 titulo={titulo || 'Título de ejemplo'}
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
@@ -590,23 +580,23 @@ const FormMainResidente = () => {
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
               />
             </div>*/}
-              <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
-                <div>
-                  <DetallePost
-                    post={{
-                      titulo,
-                      subtitulo,
-                      autor,
-                      descripcion: contenido,
-                      imagen: imagenPreview,
-                      tipo_nota: tipoNotaSeleccionada,
-                      nombre_restaurante: watch('nombre_restaurante'),
-                      fecha: fechaActual,
-                    }}
-                    sinFecha={false}
-                  />
-                </div>
-                {/*<div className="flex flex-col">
+            <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
+              <div>
+                <DetallePost
+                  post={{
+                    titulo,
+                    subtitulo,
+                    autor,
+                    descripcion: contenido,
+                    imagen: imagenPreview,
+                    tipo_nota: tipoNotaSeleccionada,
+                    nombre_restaurante: watch('nombre_restaurante'),
+                    fecha: fechaActual,
+                  }}
+                  sinFecha={false}
+                />
+              </div>
+              {/*<div className="flex flex-col">
                 <PostLoMasVisto
                   titulo={titulo || 'Título de ejemplo'}
                   imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
@@ -618,14 +608,13 @@ const FormMainResidente = () => {
                   tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
                 />
               </div>*/}
-              </div>
             </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 text-center text-gray-500">
-              <p>Comienza a escribir para ver la vista previa de tu nota</p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 text-center text-gray-500">
+            <p>Comienza a escribir para ver la vista previa de tu nota</p>
+          </div>
+        )}
       </div>
     </div>
   );
