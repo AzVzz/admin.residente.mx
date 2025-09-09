@@ -8,10 +8,21 @@ const Contenido = () => {
     const contenidoValue = watch('contenido');
 
     const editor = useEditor({
-        extensions: [StarterKit],
+        extensions: [StarterKit.configure({
+            // Configurar para preservar mejor los espacios
+            paragraph: {
+                HTMLAttributes: {
+                    style: 'white-space: pre-wrap;'
+                }
+            }
+        })],
         content: contenidoValue || '',
         onUpdate: ({ editor }) => {
-            setValue('contenido', editor.getHTML());
+            // Preservar saltos de línea y espacios múltiples
+            let html = editor.getHTML();
+            // Convertir saltos de línea a <br> para mejor preservación
+            html = html.replace(/\n/g, '<br>');
+            setValue('contenido', html);
         },
     });
 
