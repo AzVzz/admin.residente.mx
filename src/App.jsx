@@ -183,7 +183,7 @@ function App() {
               {/* Estrellas de Nuevo León */}
               <Route path="/ednl" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                  <ListaRestaurantes />
+                  <ListaRestaurantes/>
                 </div>
               } />
 

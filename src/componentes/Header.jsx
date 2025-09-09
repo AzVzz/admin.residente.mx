@@ -26,7 +26,7 @@ const Header = () => {
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
           <div className="flex pr-3 ">
-            <Link to="/residente" className="h-16 w-16 self-end object-contain bg-white rounded-full">
+            <Link to="" className="h-16 w-16 self-end object-contain bg-white rounded-full">
               <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`} alt="Logo Residente Circulo" />
             </Link>
           </div>
@@ -38,7 +38,7 @@ const Header = () => {
                   </div>
 
                 </div>
-                <Link to="/residente" className="flex">
+                <Link to="" className="flex">
                   <img src={`${urlApi}/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png`} alt="ResidenteNegro" className="h-6 object-contain" />
                 </Link>
               </div>
@@ -78,7 +78,7 @@ const Header = () => {
                                     className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
                                     target={item.url.startsWith('http') ? '_blank' : undefined}
                                   >
-                                    {item.nombre}
+                                    {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
                                   </a>
                                 </li>
                               ))}
