@@ -25,8 +25,9 @@ const Infografia = () => {
                 {/* Logo */}
                 <img
                     src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
-                    className="h-full w-46 object-contain"
+                    className="h-full w-46 object-contain cursor-pointer"
                     alt="Logo Infografías"
+                    onClick={handleInfografiaClick}
                 />
             </div>
 
@@ -41,18 +42,18 @@ const Infografia = () => {
 
                 {/* Imagen de la última infografía o imagen por defecto */}
                 {ultima && ultima.info_imagen ? (
-                    <a href={ultima.pdf} target="_blank" rel="noopener noreferrer">
-                        <img
-                            src={ultima.info_imagen}
-                            alt="Infografía"
-                            className="max-h-[200px] max-w-[220px] object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border border-dotted border-gray-800/60"
-                        />
-                    </a>
+                    <img
+                        src={ultima.info_imagen}
+                        alt="Infografía"
+                        className="max-h-[200px] max-w-[220px] object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border border-dotted border-gray-800/60"
+                        onClick={handleInfografiaClick}
+                    />
                 ) : (
                     <img
                         src="https://residente.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
                         alt="Infografía"
                         className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
+                        onClick={handleInfografiaClick}
                     />
                 )}
             </div>

@@ -23,14 +23,20 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
     const mostrarImagen = previewUrl || imagenActual;
 
     const handleEliminarImagen = async () => {
-        if (!notaId) return;
         if (!window.confirm('¿Seguro que deseas eliminar la imagen?')) return;
+        
         try {
-            await notaImagenDelete(notaId);
-            onImagenEliminada();
-            setValue('imagen', null); // Limpia el input de archivo
+            // Si hay una imagen actual en la base de datos, eliminarla
+            if (imagenActual && notaId) {
+                await notaImagenDelete(notaId);
+                onImagenEliminada();
+            }
+            
+            // Limpiar el input de archivo y la previsualización
+            setValue('imagen', null);
             setPreviewUrl(null);
         } catch (error) {
+            console.error('Error al eliminar la imagen:', error);
             alert('Error al eliminar la imagen');
         }
     };
@@ -47,7 +53,7 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
                         alt="Imagen de la nota"
                         className="max-h-68 shadow border mb-2"
                     />
-                    {imagenActual && !previewUrl && (
+                    {(imagenActual || previewUrl) && (
                         <button
                             type="button"
                             onClick={handleEliminarImagen}

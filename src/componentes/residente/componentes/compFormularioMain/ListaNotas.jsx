@@ -17,6 +17,8 @@ import { RiStickyNoteFill } from "react-icons/ri";
 
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
+import FiltroAutor from './FiltroAutor';
+import SearchNotas from './SearchNotas';
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
@@ -34,6 +36,14 @@ const ListaNotas = () => {
   const [vistaActiva, setVistaActiva] = useState("notas");
   const [estado, setEstado] = useState('');
   const [tipoCliente, setTipoCliente] = useState('');
+  const [autor, setAutor] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estados para paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalNotas, setTotalNotas] = useState(0);
+  const notasPorPagina = 15;
 
   useEffect(() => {
     if (error && (error.status === 403 || error.status === 401)) {
@@ -47,12 +57,20 @@ const ListaNotas = () => {
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
-  const fetchNotas = async () => {
+  const fetchNotas = async (pagina = paginaActual) => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token);
+      const data = await notasTodasGet(token, pagina, notasPorPagina);
+      console.log('Datos del backend:', data);
       setNotas(data.notas);
+      
+      // Usar los datos de paginación del backend
+      if (data.paginacion) {
+        setTotalNotas(data.paginacion.total);
+        setTotalPaginas(data.paginacion.paginas);
+        setPaginaActual(data.paginacion.actual);
+      }
     } catch (err) {
       setError(err);
     } finally {
@@ -70,7 +88,7 @@ const ListaNotas = () => {
     setEliminando(id);
     try {
       await notaDelete(id);
-      await fetchNotas();
+      await fetchNotas(paginaActual);
     } catch (error) {
       alert("Error al eliminar la nota");
     } finally {
@@ -86,6 +104,23 @@ const ListaNotas = () => {
 
   const notasFiltradas = notas.filter(nota => {
     const cumpleEstado = !estado || (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim();
+    const cumpleAutor = !autor || (nota.autor || '').toLowerCase().trim() === autor.toLowerCase().trim();
+
+    // Lógica de búsqueda
+    const cumpleBusqueda = !searchTerm || (() => {
+      const terminoBusqueda = searchTerm.toLowerCase().trim();
+      const titulo = (nota.titulo || '').toLowerCase();
+      const subtitulo = (nota.subtitulo || '').toLowerCase();
+      const contenido = (nota.descripcion || '').toLowerCase();
+      const autorNota = (nota.autor || '').toLowerCase();
+      const tipoNota = (nota.tipo_nota || '').toLowerCase();
+      
+      return titulo.includes(terminoBusqueda) ||
+             subtitulo.includes(terminoBusqueda) ||
+             contenido.includes(terminoBusqueda) ||
+             autorNota.includes(terminoBusqueda) ||
+             tipoNota.includes(terminoBusqueda);
+    })();
 
     let cumpleTipoCliente = true;
     if (tipoCliente) {
@@ -103,8 +138,48 @@ const ListaNotas = () => {
       }
     }
 
-    return cumpleEstado && cumpleTipoCliente;
+    return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
   });
+
+  // Calcular índices para mostrar información
+  const inicioIndice = (paginaActual - 1) * notasPorPagina;
+  const finIndice = inicioIndice + notasFiltradas.length;
+
+  // Debug logs
+  console.log('Debug paginación:', {
+    totalNotas,
+    totalPaginas,
+    paginaActual,
+    notasPorPagina,
+    notasFiltradas: notasFiltradas.length,
+    notasDelBackend: notas.length
+  });
+
+  // Funciones de navegación
+  const irAPaginaAnterior = () => {
+    if (paginaActual > 1) {
+      fetchNotas(paginaActual - 1);
+    }
+  };
+
+  const irAPaginaSiguiente = () => {
+    if (paginaActual < totalPaginas) {
+      fetchNotas(paginaActual + 1);
+    }
+  };
+
+  const irAPagina = (pagina) => {
+    if (pagina >= 1 && pagina <= totalPaginas) {
+      fetchNotas(pagina);
+    }
+  };
+
+  // Resetear a página 1 cuando cambien los filtros
+  useEffect(() => {
+    if (paginaActual !== 1) {
+      fetchNotas(1);
+    }
+  }, [estado, tipoCliente, autor]);
 
   if (cargando) {
     return (
@@ -229,18 +304,28 @@ const ListaNotas = () => {
       <div>
         {vistaActiva === "notas" && (
           <>
-            {/* Filtros solo para vista de notas */}
-            <div className="flex justify-end mb-5 gap-2 items-center">
-              {usuario?.permisos === 'todos' && (
-                <FiltroEstadoNota estado={estado} setEstado={setEstado} />
-              )}
-              {usuario?.permisos === 'todos' && (
-                <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={setTipoCliente} />
-              )}
-              <Link
-                to="/notas/nueva"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-              >
+            {/* Barra de búsqueda y filtros para vista de notas */}
+            <div className="flex justify-between mb-5 gap-4 items-center">
+              {/* Barra de búsqueda */}
+              <div className="flex-1 max-w-md">
+                <SearchNotas searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+              </div>
+              
+              {/* Filtros */}
+              <div className="flex gap-2 items-center">
+                {usuario?.permisos === 'todos' && (
+                  <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+                )}
+                {usuario?.permisos === 'todos' && (
+                  <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={setTipoCliente} />
+                )}
+                {usuario?.permisos === 'todos' && (
+                  <FiltroAutor autor={autor} setAutor={setAutor} />
+                )}
+                <Link
+                  to="/notas/nueva"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+                >
                 <svg
                   className="-ml-1 mr-2 h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
@@ -255,21 +340,97 @@ const ListaNotas = () => {
                 </svg>
                 Nueva Nota
               </Link>
+              </div>
             </div>
 
             {!notas || notas.length === 0 ? (
               <SinNotas />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {notasFiltradas.map((nota) => (
-                  <NotaCard
-                    key={nota.id}
-                    nota={nota}
-                    onEliminar={eliminarNota}
-                    eliminando={eliminando}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {notasFiltradas.map((nota) => (
+                    <NotaCard
+                      key={nota.id}
+                      nota={nota}
+                      onEliminar={eliminarNota}
+                      eliminando={eliminando}
+                    />
+                  ))}
+                </div>
+
+                {/* Controles de paginación */}
+                {console.log('¿Mostrar paginación?', totalPaginas > 1, 'totalPaginas:', totalPaginas)}
+                {totalPaginas > 1 && (
+                  <div className="flex flex-col items-center mt-8 space-y-4">
+                    {/* Información de paginación */}
+                    <div className="text-sm text-gray-600">
+                      Mostrando {inicioIndice + 1} - {finIndice} de {totalNotas} notas
+                    </div>
+                    
+                    {/* Navegación de páginas */}
+                    <div className="flex items-center space-x-2">
+                      {/* Botón anterior */}
+                      <button
+                        onClick={irAPaginaAnterior}
+                        disabled={paginaActual === 1}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                          paginaActual === 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        ← Anterior
+                      </button>
+                      
+                      {/* Números de página */}
+                      <div className="flex space-x-1">
+                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                          // Mostrar solo un rango de páginas alrededor de la actual
+                          const mostrarPagina = 
+                            numero === 1 || 
+                            numero === totalPaginas || 
+                            (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+                          
+                          if (!mostrarPagina) {
+                            // Mostrar puntos suspensivos
+                            if (numero === paginaActual - 3 || numero === paginaActual + 3) {
+                              return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
+                            }
+                            return null;
+                          }
+                          
+                          return (
+                            <button
+                              key={numero}
+                              onClick={() => irAPagina(numero)}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                numero === paginaActual
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                            >
+                              {numero}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Botón siguiente */}
+                      <button
+                        onClick={irAPaginaSiguiente}
+                        disabled={paginaActual === totalPaginas}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                          paginaActual === totalPaginas
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        Siguiente →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

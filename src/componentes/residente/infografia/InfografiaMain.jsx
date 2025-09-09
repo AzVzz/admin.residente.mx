@@ -51,6 +51,17 @@ const InfografiaMain = () => {
   const handleInfografiaClick = (infografia) => {
     // Mostrar la infografía en vista expandida
     setInfografiaExpandida(infografia);
+    
+    // Scroll hacia abajo para mostrar la infografía expandida
+    setTimeout(() => {
+      const modal = document.querySelector('.infografia-modal-content');
+      if (modal) {
+        modal.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 100);
   };
 
   const cerrarInfografiaExpandida = () => {

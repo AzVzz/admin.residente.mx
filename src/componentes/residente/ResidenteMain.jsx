@@ -57,6 +57,7 @@ function areImagesLoaded(element) {
 
 const ResidenteMain = () => {
   useEffect(() => {
+    // Solo ejecutar scrollToHash en la página principal
     scrollToHash();
     window.addEventListener("hashchange", scrollToHash);
     return () => window.removeEventListener("hashchange", scrollToHash);
