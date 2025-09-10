@@ -1,5 +1,3 @@
-//src/componentes/residente/componentes/compFormularioMain/ListaNotas.jsx
-
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../Context";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -17,10 +15,10 @@ import { GoNote } from "react-icons/go";
 import { IoNewspaper } from "react-icons/io5";
 import { RiStickyNoteFill } from "react-icons/ri";
 
-
-
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
+import FiltroAutor from './FiltroAutor';
+import SearchNotasLocal from './SearchNotasLocal';
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
@@ -38,6 +36,13 @@ const ListaNotas = () => {
   const [vistaActiva, setVistaActiva] = useState("notas");
   const [estado, setEstado] = useState('');
   const [tipoCliente, setTipoCliente] = useState('');
+  const [autor, setAutor] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [todasLasNotas, setTodasLasNotas] = useState([]);
+  
+  // Estados para paginación local
+  const [paginaActual, setPaginaActual] = useState(1);
+  const notasPorPagina = 15;
 
   useEffect(() => {
     if (error && (error.status === 403 || error.status === 401)) {
@@ -51,13 +56,38 @@ const ListaNotas = () => {
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
-  const fetchNotas = async () => {
+  const fetchTodasLasNotas = async () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await notasTodasGet(token);
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+      
+      console.log('Cargando todas las notas...');
+      
+      // Cargar todas las notas sin paginación
+      const data = await notasTodasGet(token, 1, 'all');
+      console.log('Respuesta:', data);
+      
+      // Validar respuesta del servidor
+      if (!data) {
+        throw new Error('El servidor no devolvió datos');
+      }
+      
+      if (!Array.isArray(data.notas)) {
+        throw new Error('Formato de respuesta inválido del servidor');
+      }
+      
+      setTodasLasNotas(data.notas);
       setNotas(data.notas);
+      setPaginaActual(1); // Resetear a página 1 al cargar
     } catch (err) {
+      console.error('Error detallado:', err);
+      console.error('Mensaje del error:', err.message);
+      console.error('Status del error:', err.status);
+      console.error('Stack trace:', err.stack);
+      
       setError(err);
     } finally {
       setCargando(false);
@@ -66,15 +96,16 @@ const ListaNotas = () => {
 
   useEffect(() => {
     if (!token) return;
-    fetchNotas();
+    fetchTodasLasNotas();
     // eslint-disable-next-line
   }, [token, usuario]);
+
 
   const eliminarNota = async (id) => {
     setEliminando(id);
     try {
       await notaDelete(id);
-      await fetchNotas();
+      await fetchTodasLasNotas();
     } catch (error) {
       alert("Error al eliminar la nota");
     } finally {
@@ -88,8 +119,20 @@ const ListaNotas = () => {
     'otrocliente': 'Otro Cliente',
   };
 
-  const notasFiltradas = notas.filter(nota => {
+  // Función para normalizar texto para búsqueda
+  const normalizarTexto = (texto) => {
+    if (!texto) return '';
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/[¿?¡!.,]/g, '') // Quitar signos de puntuación
+      .trim();
+  };
+
+  const notasFiltradas = todasLasNotas.filter(nota => {
     const cumpleEstado = !estado || (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim();
+    const cumpleAutor = !autor || (nota.autor || '').toLowerCase().trim() === autor.toLowerCase().trim();
 
     let cumpleTipoCliente = true;
     if (tipoCliente) {
@@ -107,8 +150,77 @@ const ListaNotas = () => {
       }
     }
 
-    return cumpleEstado && cumpleTipoCliente;
+    // Filtro de búsqueda local
+    let cumpleBusqueda = true;
+    if (searchTerm.trim()) {
+      const queryNormalizado = normalizarTexto(searchTerm);
+      const tituloNormalizado = normalizarTexto(nota.titulo);
+      const subtituloNormalizado = normalizarTexto(nota.subtitulo);
+      const autorNormalizado = normalizarTexto(nota.autor);
+      const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
+      
+      // Búsqueda exacta
+      if (tituloNormalizado.includes(queryNormalizado) || 
+          subtituloNormalizado.includes(queryNormalizado) ||
+          autorNormalizado.includes(queryNormalizado) ||
+          tipoNotaNormalizado.includes(queryNormalizado)) {
+        cumpleBusqueda = true;
+      } else {
+        // Búsqueda por palabras individuales
+        const palabrasQuery = queryNormalizado.split(/\s+/).filter(p => p.length > 2);
+        if (palabrasQuery.length > 0) {
+          let coincidencias = 0;
+          for (const palabraQuery of palabrasQuery) {
+            if (tituloNormalizado.includes(palabraQuery) || 
+                subtituloNormalizado.includes(palabraQuery) ||
+                autorNormalizado.includes(palabraQuery) ||
+                tipoNotaNormalizado.includes(palabraQuery)) {
+              coincidencias++;
+            }
+          }
+          cumpleBusqueda = coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
+        } else {
+          cumpleBusqueda = false;
+        }
+      }
+    }
+
+    return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
   });
+
+  // Calcular paginación local
+  const totalNotasFiltradas = notasFiltradas.length;
+  const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
+  const inicioIndice = (paginaActual - 1) * notasPorPagina;
+  const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
+  
+  // Obtener notas para la página actual
+  const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
+
+
+  // Resetear a página 1 cuando cambien los filtros o búsqueda
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [estado, tipoCliente, autor, searchTerm]);
+
+  // Funciones de navegación local
+  const irAPaginaAnterior = () => {
+    if (paginaActual > 1) {
+      setPaginaActual(paginaActual - 1);
+    }
+  };
+
+  const irAPaginaSiguiente = () => {
+    if (paginaActual < totalPaginas) {
+      setPaginaActual(paginaActual + 1);
+    }
+  };
+
+  const irAPagina = (pagina) => {
+    if (pagina >= 1 && pagina <= totalPaginas) {
+      setPaginaActual(pagina);
+    }
+  };
 
   if (cargando) {
     return (
@@ -233,18 +345,28 @@ const ListaNotas = () => {
       <div>
         {vistaActiva === "notas" && (
           <>
-            {/* Filtros solo para vista de notas */}
-            <div className="flex justify-end mb-5 gap-2 items-center">
-              {usuario?.permisos === 'todos' && (
-                <FiltroEstadoNota estado={estado} setEstado={setEstado} />
-              )}
-              {usuario?.permisos === 'todos' && (
-                <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={setTipoCliente} />
-              )}
-              <Link
-                to="/notas/nueva"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-              >
+            {/* Barra de búsqueda y filtros para vista de notas */}
+            <div className="flex justify-between mb-5 gap-4 items-center">
+              {/* Barra de búsqueda */}
+              <div className="flex-1 max-w-md">
+                <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+              </div>
+              
+              {/* Filtros */}
+              <div className="flex gap-2 items-center">
+                {usuario?.permisos === 'todos' && (
+                  <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+                )}
+                {usuario?.permisos === 'todos' && (
+                  <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={setTipoCliente} />
+                )}
+                {usuario?.permisos === 'todos' && (
+                  <FiltroAutor autor={autor} setAutor={setAutor} />
+                )}
+                <Link
+                  to="/notas/nueva"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+                >
                 <svg
                   className="-ml-1 mr-2 h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
@@ -259,21 +381,103 @@ const ListaNotas = () => {
                 </svg>
                 Nueva Nota
               </Link>
+              </div>
             </div>
 
             {!notas || notas.length === 0 ? (
               <SinNotas />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {notasFiltradas.map((nota) => (
-                  <NotaCard
-                    key={nota.id}
-                    nota={nota}
-                    onEliminar={eliminarNota}
-                    eliminando={eliminando}
-                  />
-                ))}
+            ) : notasFiltradas.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-500 text-lg">
+                  {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {notasPaginaActual.map((nota) => (
+                    <NotaCard
+                      key={nota.id}
+                      nota={nota}
+                      onEliminar={eliminarNota}
+                      eliminando={eliminando}
+                    />
+                  ))}
+                </div>
+
+                {/* Información de resultados y paginación */}
+                <div className="flex flex-col items-center mt-8 space-y-4">
+                  {/* Información de paginación */}
+                  <div className="text-sm text-gray-600">
+                    Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
+                    {searchTerm && ` (filtradas por "${searchTerm}")`}
+                  </div>
+                  
+                  {/* Navegación de páginas */}
+                  {totalPaginas > 1 && (
+                    <div className="flex items-center space-x-2">
+                      {/* Botón anterior */}
+                      <button
+                        onClick={irAPaginaAnterior}
+                        disabled={paginaActual === 1}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                          paginaActual === 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        ← Anterior
+                      </button>
+                      
+                      {/* Números de página */}
+                      <div className="flex space-x-1">
+                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                          // Mostrar solo un rango de páginas alrededor de la actual
+                          const mostrarPagina = 
+                            numero === 1 || 
+                            numero === totalPaginas || 
+                            (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+                          
+                          if (!mostrarPagina) {
+                            // Mostrar puntos suspensivos
+                            if (numero === paginaActual - 3 || numero === paginaActual + 3) {
+                              return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
+                            }
+                            return null;
+                          }
+                          
+                          return (
+                            <button
+                              key={numero}
+                              onClick={() => irAPagina(numero)}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                numero === paginaActual
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                            >
+                              {numero}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Botón siguiente */}
+                      <button
+                        onClick={irAPaginaSiguiente}
+                        disabled={paginaActual === totalPaginas}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                          paginaActual === totalPaginas
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        Siguiente →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </>
         )}

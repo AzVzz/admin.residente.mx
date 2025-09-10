@@ -214,12 +214,19 @@ const FormMainResidente = () => {
             }
           }
 
+          let opcionPublicacion = 'publicada'; // valor por defecto
+          if (data.estatus === 'borrador') {
+            opcionPublicacion = 'borrador';
+          } else if (data.programar_publicacion) {
+            opcionPublicacion = 'programar';
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor: autor, // <--- aquí ya va el nombre si estaba vacío
+            autor: autor,
             contenido: data.descripcion,
-            opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
+            opcionPublicacion: opcionPublicacion,
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
