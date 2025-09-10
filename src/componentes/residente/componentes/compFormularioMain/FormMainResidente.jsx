@@ -107,11 +107,30 @@ const FormMainResidente = () => {
   const contenido = watch('contenido');
   const imagen = watch('imagen');
   const instafoto = watch('instafoto');
-  //const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
-  const fechaProgramada = watch('fechaProgramada');
 
-  // Observar cambios en opción de publicación
-  const opcionPublicacion = watch('opcionPublicacion');
+  function isContenidoVacio(contenido) {
+    // Elimina etiquetas HTML y espacios
+    const textoPlano = contenido
+      ? contenido.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()
+      : '';
+    return !textoPlano;
+  }
+
+
+  // --- Lógica para campos obligatorios ---
+  const camposFaltantes = [];
+  if (!titulo) camposFaltantes.push('título');
+  if (!subtitulo) camposFaltantes.push('subtítulo');
+  if (!imagen && !imagenActual) camposFaltantes.push('imagen');
+  if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
+  const faltanCamposObligatorios = camposFaltantes.length > 0;
+
+  useEffect(() => {
+    if (faltanCamposObligatorios) {
+      setValue('opcionPublicacion', 'borrador');
+    }
+  }, [faltanCamposObligatorios, setValue]);
+
 
   useEffect(() => {
     // Limpia la URL anterior si existe
@@ -219,7 +238,7 @@ const FormMainResidente = () => {
             subtitulo: data.subtitulo,
             autor: autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
-            opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
+            opcionPublicacion: 'borrador', // <-- SIEMPRE inicia como borrador al editar
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -265,7 +284,12 @@ const FormMainResidente = () => {
 
     // Determinar el estado de la nota según los permisos del usuario y si falta imagen
     let estadoFinal;
-    if (!data.imagen && !imagenActual) {
+    if (
+      (!data.imagen && !imagenActual) ||
+      !data.titulo ||
+      !data.subtitulo ||
+      !data.contenido
+    ) {
       estadoFinal = 'borrador';
     } else if (usuario?.permisos === 'todos') {
       estadoFinal = data.opcionPublicacion === 'programar'
@@ -277,7 +301,6 @@ const FormMainResidente = () => {
       estadoFinal = 'borrador';
     }
 
-    
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
@@ -419,7 +442,7 @@ const FormMainResidente = () => {
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
                     <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
-                      📝 {(watch('tiposDeNotaSeleccionadas') || []).join(' / ') || ''}
+                      📝 {watch('tiposDeNotaSeleccionadas') || ''}
                     </div>
                   </div>
                 )}
@@ -494,6 +517,12 @@ const FormMainResidente = () => {
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
                       Opciones de Publicación
                     </label>
+                    {/* --- Mensaje si faltan campos --- */}
+                    {faltanCamposObligatorios && (
+                      <div className="mb-2 text-red-600 text-sm font-medium">
+                        Si quieres publicar llena los campos faltantes: {camposFaltantes.join(', ')}
+                      </div>
+                    )}
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <input
@@ -502,8 +531,9 @@ const FormMainResidente = () => {
                           value="publicada"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="publicar-ahora" className="text-sm text-yellow-800 cursor-pointer">
+                        <label htmlFor="publicar-ahora" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           Publicar ahora
                         </label>
                       </div>
@@ -515,8 +545,9 @@ const FormMainResidente = () => {
                           value="programar"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="programar" className="text-sm text-yellow-800 cursor-pointer">
+                        <label htmlFor="programar" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           Programar publicación
                         </label>
                       </div>
@@ -542,6 +573,9 @@ const FormMainResidente = () => {
                           value="borrador"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          {...(faltanCamposObligatorios
+                            ? { checked: true, readOnly: true }
+                            : {})}
                         />
                         <label htmlFor="borrador" className="text-sm text-yellow-800 cursor-pointer">
                           Guardar como borrador
