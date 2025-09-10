@@ -83,7 +83,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                 {/** h-[725px]  mb-5 */}
                 <div className="flex flex-col max-h-[900px] overflow-hidden mb-4 ">
 
-                    <div className="h-[400px] overflow-hidden">
+                    <div className="h-[450px] overflow-hidden">
                         <div className="relative h-full">
                             <img
                                 src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}

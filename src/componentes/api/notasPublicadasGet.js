@@ -64,9 +64,16 @@ export const notasResidenteGet = async () => {
 };
 
 export const notasDestacadasPorTipoGet = async (tipoNota) => {
-    // Convierte espacios a guiones para la URL
-    const tipoNotaUrl = tipoNota.toLowerCase().replace(/ /g, '-');
-    const response = await fetch(`${urlApi}api/notas/destacadas/${tipoNotaUrl}`);
+    // Asegurar que la primera letra sea mayúscula y el resto minúsculas
+    const tipoNotaFormateado = tipoNota.charAt(0).toUpperCase() + tipoNota.slice(1).toLowerCase();
+
+    // Convertir espacios a guiones para la URL
+    const tipoNotaUrl = tipoNotaFormateado.replace(/ /g, '-');
+
+    // Añadir timestamp para evitar cache
+    const timestamp = new Date().getTime();
+
+    const response = await fetch(`${urlApi}api/notas/destacadas/${tipoNotaUrl}?t=${timestamp}`);
     if (!response.ok) throw new Error(`Error al obtener notas destacadas de ${tipoNota}`);
     return await response.json();
 };

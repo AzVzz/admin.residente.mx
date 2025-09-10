@@ -15,6 +15,7 @@ import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
 import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
+import BannerChevrolet from "./BannerChevrolet.jsx";
 
 
 const ListadoBannerRevista = ({
@@ -59,12 +60,17 @@ const ListadoBannerRevista = ({
                                     <div className="relative z-10">
                                         <div className="flex">
                                             {mostrarBanner && (
-                                                revistaActual && revistaActual.pdf ? (
-                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                                tipo === "Food & Drink" ? (
+                                                    <div className="w-full mb-11">
+                                                        {console.log("🍽️ Mostrando banner de Chevrolet para Food & Drink en ListadoBannerRevista")}
+                                                        <BannerChevrolet size="big" />
+                                                    </div>
+                                                ) : revistaActual && revistaActual.pdf ? (
+                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" className="mb-11">
                                                         <img
                                                             src={revistaActual.imagen_banner}
                                                             alt="Banner Revista"
-                                                            className="w-full mb-4 cursor-pointer pb-7"
+                                                            className="w-full cursor-pointer"
                                                             title="Descargar Revista"
                                                         />
                                                     </a>

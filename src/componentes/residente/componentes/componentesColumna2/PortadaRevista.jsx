@@ -50,7 +50,7 @@ const PortadaRevista = () => {
                 </div>
 
                 {revistaActual && revistaActual.pdf ? (
-                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer">
                         <img
                             src={revistaActual.imagen_portada}
                             alt="Portada Revista"

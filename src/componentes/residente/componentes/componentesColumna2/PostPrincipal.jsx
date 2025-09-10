@@ -21,7 +21,7 @@ const PostPrincipal = ({ post, onClick }) => {
             className="flex flex-col cursor-pointer max-h-[900px] overflow-hidden mb-4 pb-4 pt" 
             onClick={onClick}
         >{/** Antes h-[725] */}
-            <div className="h-[400px] overflow-hidden">
+            <div className="h-[450px] overflow-hidden">
                 <div className="relative h-full">
 
                     
