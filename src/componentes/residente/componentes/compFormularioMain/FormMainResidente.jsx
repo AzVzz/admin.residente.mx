@@ -326,7 +326,7 @@ const FormMainResidente = () => {
       estadoFinal = 'borrador';
     }
 
-    
+
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
@@ -606,9 +606,7 @@ const FormMainResidente = () => {
                           value="borrador"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
-                          {...(faltanCamposObligatorios
-                            ? { checked: true, readOnly: true }
-                            : {})}
+                          disabled={faltanCamposObligatorios}
                         />
                         <label htmlFor="borrador" className="text-sm text-yellow-800 cursor-pointer">
                           Guardar como borrador
