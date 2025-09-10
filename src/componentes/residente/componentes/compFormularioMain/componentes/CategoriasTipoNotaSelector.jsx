@@ -1,6 +1,7 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAuth } from '../../../../Context';
 
+
 const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) => {
     const { control, watch } = useFormContext();
     const { usuario } = useAuth();
@@ -16,8 +17,7 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
     // Mueve la definición de seleccionados y bloquearOtros aquí
     const seleccionados = watch("tiposDeNotaSeleccionadas") || [];
     const bloquearOtros = seleccionados.some(
-        nombre => nombre.toLowerCase().replace(/[\s\-]/g, '') === "food&drink".replace(/[\s\-]/g, '').toLowerCase() ||
-                  nombre.toLowerCase().replace(/[\s\-]/g, '') === "gastro-destinos".replace(/[\s\-]/g, '').toLowerCase()
+        nombre => nombre.toLowerCase().replace(/[\s\-]/g, '') === "gastro-destinos".replace(/[\s\-]/g, '').toLowerCase()
     );
 
     return (
@@ -34,8 +34,8 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                             <>
                                 {tipoDeNota.map((opcion, idx) => {
                                     const checked = seleccionados.includes(opcion.nombre);
-                                    // Solo permite seleccionar Food & Drink y Gastro-destinos si bloquearOtros está activo
-                                    const disabled = bloquearOtros && !["Food & Drink", "Gastro-destinos"].includes(opcion.nombre) && !checked;
+                                    // Solo bloquea si seleccionaron Gastro-destinos
+                                    const disabled = bloquearOtros && opcion.nombre !== "Gastro-destinos" && !checked;
 
                                     return (
                                         <label key={idx} className="block mb-1">

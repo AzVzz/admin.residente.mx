@@ -7,7 +7,7 @@ import Contenido from "./componentes/Contenido";
 import OpcionesPublicacion from "./componentes/OpcionesPublicacion";
 import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut, notaInstafotoPut, notaInstafotoDelete } from '../../../../componentes/api/notaCrearPostPut.js';
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
@@ -24,6 +24,7 @@ import PostVertical from './componentesMuestraNotas/PostVertical.jsx';
 import PostHorizontal from './componentesMuestraNotas/PostHorizontal.jsx';
 import PostLoMasVistoDirectorio from './componentesMuestraNotas/PostLoMasVistoDirectorio.jsx';
 import NombreRestaurante from './componentes/NombreRestaurante.jsx';
+import DetallePost from '../DetallePost.jsx';
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -95,6 +96,8 @@ const FormMainResidente = () => {
   const [catalogosCargados, setCatalogosCargados] = useState(false);
   const [imagenActual, setImagenActual] = useState(null);
   const [instafotoActual, setInstafotoActual] = useState(null);
+  const [imagenPreview, setImagenPreview] = useState(null);
+  const imagenPreviewUrlRef = useRef(null);
 
 
   // Watch para mostrar en tiempo real las notas editandose:
@@ -109,6 +112,26 @@ const FormMainResidente = () => {
 
   // Observar cambios en opción de publicación
   const opcionPublicacion = watch('opcionPublicacion');
+
+  useEffect(() => {
+    // Limpia la URL anterior si existe
+    if (imagenPreviewUrlRef.current) {
+      URL.revokeObjectURL(imagenPreviewUrlRef.current);
+      imagenPreviewUrlRef.current = null;
+    }
+
+    if (imagen && typeof imagen === 'object' && imagen instanceof File) {
+      const url = URL.createObjectURL(imagen);
+      setImagenPreview(url);
+      imagenPreviewUrlRef.current = url;
+    } else if (imagen) {
+      setImagenPreview(imagen);
+    } else if (imagenActual) {
+      setImagenPreview(imagenActual);
+    } else {
+      setImagenPreview(null);
+    }
+  }, [imagen, imagenActual]);
 
 
 
@@ -191,24 +214,12 @@ const FormMainResidente = () => {
             }
           }
 
-          // --- LÓGICA AGREGADA ---
-          // Determina el valor para el radio button de publicación basado en el estatus
-          let opcionPublicacionValue;
-          if (data.estatus === 'programada') {
-            opcionPublicacionValue = 'programar';
-          } else if (data.estatus === 'borrador') {
-            opcionPublicacionValue = 'borrador';
-          } else {
-            opcionPublicacionValue = 'publicada';
-          }
-
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor: autor,
+            autor: autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
-            // Se utiliza la nueva variable para establecer el valor correcto
-            opcionPublicacion: opcionPublicacionValue,
+            opcionPublicacion: data.programar_publicacion ? 'programar' : 'publicada',
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -225,7 +236,6 @@ const FormMainResidente = () => {
               data.tipo_nota2 || ''
             ].filter(Boolean),
           });
-
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
         } catch (error) {
@@ -253,6 +263,21 @@ const FormMainResidente = () => {
     setPostError(null);
     setPostResponse(null);
 
+    // Determinar el estado de la nota según los permisos del usuario y si falta imagen
+    let estadoFinal;
+    if (!data.imagen && !imagenActual) {
+      estadoFinal = 'borrador';
+    } else if (usuario?.permisos === 'todos') {
+      estadoFinal = data.opcionPublicacion === 'programar'
+        ? 'programada'
+        : data.opcionPublicacion === 'borrador'
+          ? 'borrador'
+          : 'publicada';
+    } else {
+      estadoFinal = 'borrador';
+    }
+
+    
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
@@ -262,19 +287,7 @@ const FormMainResidente = () => {
       const tipoNotaFinal = tipoNotaUsuario || tiposSeleccionados[0] || null;
       const tipoNotaSecundaria = tiposSeleccionados[1] || null;
 
-      // Determinar el estado de la nota según los permisos del usuario
-      let estadoFinal;
-      if (usuario?.permisos === 'todos') {
-        // Usuarios con permisos completos pueden elegir el estado
-        estadoFinal = data.opcionPublicacion === 'programar'
-          ? 'programada'
-          : data.opcionPublicacion === 'borrador'
-            ? 'borrador'
-            : 'publicada';
-      } else {
-        // Usuarios con acceso limitado siempre suben en borrador
-        estadoFinal = 'borrador';
-      }
+
 
       const datosNota = {
         tipo_nota: tipoNotaFinal,
@@ -557,8 +570,8 @@ const FormMainResidente = () => {
 
         {/* Solo mostrar vista previa si hay contenido */}
         {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-            <div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
+          <div className="flex justify-center">
+            {/*<div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
               <PostHorizontal
                 titulo={titulo || 'Título de ejemplo'}
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
@@ -569,21 +582,24 @@ const FormMainResidente = () => {
                 titulo={titulo || 'Título de ejemplo'}
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
               />
-            </div>
-            <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
+            </div>*/}
+            <div className="flex w-[680px]">
               <div>
-                <PostPrincipal
-                  nombreRestaurante={watch('nombre_restaurante')}
-                  titulo={titulo || 'Título de ejemplo'}
-                  subtitulo={subtitulo || 'Subtítulo de ejemplo'}
-                  autor={autor || 'Autor de ejemplo'}
-                  contenido={contenido || 'Contenido de ejemplo para mostrar cómo se verá la nota cuando esté publicada.'}
-                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-                  tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
-                  fecha={fechaActual}
+                <DetallePost
+                  post={{
+                    titulo,
+                    subtitulo,
+                    autor,
+                    descripcion: contenido,
+                    imagen: imagenPreview,
+                    tipo_nota: tipoNotaSeleccionada,
+                    nombre_restaurante: watch('nombre_restaurante'),
+                    fecha: fechaActual,
+                  }}
+                  sinFecha={false}
                 />
               </div>
-              <div className="flex flex-col">
+              {/*<div className="flex flex-col">
                 <PostLoMasVisto
                   titulo={titulo || 'Título de ejemplo'}
                   imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
@@ -594,11 +610,11 @@ const FormMainResidente = () => {
                   imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
                   tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
                 />
-              </div>
+              </div>*/}
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 text-center text-gray-500">
+          <div className=" shadow-lg border border-gray-200 p-6 text-center text-gray-500">
             <p>Comienza a escribir para ver la vista previa de tu nota</p>
           </div>
         )}
