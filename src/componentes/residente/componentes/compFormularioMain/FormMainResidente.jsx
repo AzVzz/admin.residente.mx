@@ -152,6 +152,26 @@ const FormMainResidente = () => {
     }
   }, [imagen, imagenActual]);
 
+  useEffect(() => {
+    // Limpia la URL anterior si existe
+    if (imagenPreviewUrlRef.current) {
+      URL.revokeObjectURL(imagenPreviewUrlRef.current);
+      imagenPreviewUrlRef.current = null;
+    }
+
+    if (imagen && typeof imagen === 'object' && imagen instanceof File) {
+      const url = URL.createObjectURL(imagen);
+      setImagenPreview(url);
+      imagenPreviewUrlRef.current = url;
+    } else if (imagen) {
+      setImagenPreview(imagen);
+    } else if (imagenActual) {
+      setImagenPreview(imagenActual);
+    } else {
+      setImagenPreview(null);
+    }
+  }, [imagen, imagenActual]);
+
 
 
   // Cargar catálogos
@@ -233,12 +253,19 @@ const FormMainResidente = () => {
             }
           }
 
+          let opcionPublicacion = 'publicada'; // valor por defecto
+          if (data.estatus === 'borrador') {
+            opcionPublicacion = 'borrador';
+          } else if (data.programar_publicacion) {
+            opcionPublicacion = 'programar';
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
-            autor: autor, // <--- aquí ya va el nombre si estaba vacío
-            contenido: data.descripcion,
-            opcionPublicacion: (!data.titulo || !data.imagen) ? 'borrador' : (data.programar_publicacion ? 'programar' : 'publicada'),
+            autor: autor,
+            contenido: data.descripcion || '',
+            opcionPublicacion: opcionPublicacion,
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -299,6 +326,7 @@ const FormMainResidente = () => {
       estadoFinal = 'borrador';
     }
 
+    
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
@@ -306,6 +334,7 @@ const FormMainResidente = () => {
 
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
       const tipoNotaSecundaria = null; // Ya no hay secundaria
+
 
 
       const datosNota = {
@@ -608,7 +637,7 @@ const FormMainResidente = () => {
 
         {/* Solo mostrar vista previa si hay contenido */}
         {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+          <div className="flex justify-center">
             {/*<div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
               <PostHorizontal
                 titulo={titulo || 'Título de ejemplo'}
@@ -621,7 +650,7 @@ const FormMainResidente = () => {
                 imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
               />
             </div>*/}
-            <div className="grid grid-cols-[2fr_1fr] gap-4 py-6">
+            <div className="flex w-[680px]">
               <div>
                 <DetallePost
                   post={{
@@ -652,7 +681,7 @@ const FormMainResidente = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 text-center text-gray-500">
+          <div className=" shadow-lg border border-gray-200 p-6 text-center text-gray-500">
             <p>Comienza a escribir para ver la vista previa de tu nota</p>
           </div>
         )}

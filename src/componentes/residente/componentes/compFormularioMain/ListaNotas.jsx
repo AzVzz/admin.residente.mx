@@ -18,7 +18,7 @@ import { RiStickyNoteFill } from "react-icons/ri";
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
 import FiltroAutor from './FiltroAutor';
-import SearchNotas from './SearchNotas';
+import SearchNotasLocal from './SearchNotasLocal';
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
@@ -38,11 +38,10 @@ const ListaNotas = () => {
   const [tipoCliente, setTipoCliente] = useState('');
   const [autor, setAutor] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [todasLasNotas, setTodasLasNotas] = useState([]);
   
-  // Estados para paginación
+  // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
-  const [totalPaginas, setTotalPaginas] = useState(1);
-  const [totalNotas, setTotalNotas] = useState(0);
   const notasPorPagina = 15;
 
   useEffect(() => {
@@ -57,7 +56,7 @@ const ListaNotas = () => {
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
-  const fetchNotas = async (pagina = paginaActual) => {
+  const fetchTodasLasNotas = async () => {
     setCargando(true);
     setError(null);
     try {
@@ -65,7 +64,11 @@ const ListaNotas = () => {
         throw new Error('No hay token de autenticación');
       }
       
-      const data = await notasTodasGet(token, pagina, notasPorPagina);
+      console.log('Cargando todas las notas...');
+      
+      // Cargar todas las notas sin paginación
+      const data = await notasTodasGet(token, 1, 'all');
+      console.log('Respuesta:', data);
       
       // Validar respuesta del servidor
       if (!data) {
@@ -76,20 +79,15 @@ const ListaNotas = () => {
         throw new Error('Formato de respuesta inválido del servidor');
       }
       
+      setTodasLasNotas(data.notas);
       setNotas(data.notas);
-      
-      // Usar los datos de paginación del backend
-      if (data.paginacion) {
-        setTotalNotas(data.paginacion.total);
-        setTotalPaginas(data.paginacion.paginas);
-        setPaginaActual(data.paginacion.actual);
-      } else {
-        // Fallback para casos normales
-        setTotalNotas(data.notas.length);
-        setTotalPaginas(1);
-        setPaginaActual(1);
-      }
+      setPaginaActual(1); // Resetear a página 1 al cargar
     } catch (err) {
+      console.error('Error detallado:', err);
+      console.error('Mensaje del error:', err.message);
+      console.error('Status del error:', err.status);
+      console.error('Stack trace:', err.stack);
+      
       setError(err);
     } finally {
       setCargando(false);
@@ -98,21 +96,16 @@ const ListaNotas = () => {
 
   useEffect(() => {
     if (!token) return;
-    fetchNotas();
+    fetchTodasLasNotas();
     // eslint-disable-next-line
   }, [token, usuario]);
 
-  // Efecto para búsqueda - por ahora solo en frontend
-  useEffect(() => {
-    // La búsqueda se maneja en el filtrado local
-    // No necesitamos hacer llamadas adicionales al backend
-  }, [searchTerm]);
 
   const eliminarNota = async (id) => {
     setEliminando(id);
     try {
       await notaDelete(id);
-      await fetchNotas(paginaActual);
+      await fetchTodasLasNotas();
     } catch (error) {
       alert("Error al eliminar la nota");
     } finally {
@@ -126,25 +119,20 @@ const ListaNotas = () => {
     'otrocliente': 'Otro Cliente',
   };
 
-  const notasFiltradas = notas.filter(nota => {
+  // Función para normalizar texto para búsqueda
+  const normalizarTexto = (texto) => {
+    if (!texto) return '';
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/[¿?¡!.,]/g, '') // Quitar signos de puntuación
+      .trim();
+  };
+
+  const notasFiltradas = todasLasNotas.filter(nota => {
     const cumpleEstado = !estado || (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim();
     const cumpleAutor = !autor || (nota.autor || '').toLowerCase().trim() === autor.toLowerCase().trim();
-
-    // Búsqueda local en las notas cargadas
-    const cumpleBusqueda = !searchTerm || (() => {
-      const terminoBusqueda = searchTerm.toLowerCase().trim();
-      const titulo = (nota.titulo || '').toLowerCase();
-      const subtitulo = (nota.subtitulo || '').toLowerCase();
-      const contenido = (nota.descripcion || '').toLowerCase();
-      const autorNota = (nota.autor || '').toLowerCase();
-      const tipoNota = (nota.tipo_nota || '').toLowerCase();
-      
-      return titulo.includes(terminoBusqueda) ||
-             subtitulo.includes(terminoBusqueda) ||
-             contenido.includes(terminoBusqueda) ||
-             autorNota.includes(terminoBusqueda) ||
-             tipoNota.includes(terminoBusqueda);
-    })();
 
     let cumpleTipoCliente = true;
     if (tipoCliente) {
@@ -162,39 +150,77 @@ const ListaNotas = () => {
       }
     }
 
+    // Filtro de búsqueda local
+    let cumpleBusqueda = true;
+    if (searchTerm.trim()) {
+      const queryNormalizado = normalizarTexto(searchTerm);
+      const tituloNormalizado = normalizarTexto(nota.titulo);
+      const subtituloNormalizado = normalizarTexto(nota.subtitulo);
+      const autorNormalizado = normalizarTexto(nota.autor);
+      const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
+      
+      // Búsqueda exacta
+      if (tituloNormalizado.includes(queryNormalizado) || 
+          subtituloNormalizado.includes(queryNormalizado) ||
+          autorNormalizado.includes(queryNormalizado) ||
+          tipoNotaNormalizado.includes(queryNormalizado)) {
+        cumpleBusqueda = true;
+      } else {
+        // Búsqueda por palabras individuales
+        const palabrasQuery = queryNormalizado.split(/\s+/).filter(p => p.length > 2);
+        if (palabrasQuery.length > 0) {
+          let coincidencias = 0;
+          for (const palabraQuery of palabrasQuery) {
+            if (tituloNormalizado.includes(palabraQuery) || 
+                subtituloNormalizado.includes(palabraQuery) ||
+                autorNormalizado.includes(palabraQuery) ||
+                tipoNotaNormalizado.includes(palabraQuery)) {
+              coincidencias++;
+            }
+          }
+          cumpleBusqueda = coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
+        } else {
+          cumpleBusqueda = false;
+        }
+      }
+    }
+
     return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
   });
 
-  // Calcular índices para mostrar información
+  // Calcular paginación local
+  const totalNotasFiltradas = notasFiltradas.length;
+  const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
-  const finIndice = inicioIndice + notasFiltradas.length;
+  const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
+  
+  // Obtener notas para la página actual
+  const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
 
 
-  // Funciones de navegación
+  // Resetear a página 1 cuando cambien los filtros o búsqueda
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [estado, tipoCliente, autor, searchTerm]);
+
+  // Funciones de navegación local
   const irAPaginaAnterior = () => {
     if (paginaActual > 1) {
-      fetchNotas(paginaActual - 1);
+      setPaginaActual(paginaActual - 1);
     }
   };
 
   const irAPaginaSiguiente = () => {
     if (paginaActual < totalPaginas) {
-      fetchNotas(paginaActual + 1);
+      setPaginaActual(paginaActual + 1);
     }
   };
 
   const irAPagina = (pagina) => {
     if (pagina >= 1 && pagina <= totalPaginas) {
-      fetchNotas(pagina);
+      setPaginaActual(pagina);
     }
   };
-
-  // Resetear a página 1 cuando cambien los filtros
-  useEffect(() => {
-    if (paginaActual !== 1) {
-      fetchNotas(1);
-    }
-  }, [estado, tipoCliente, autor]);
 
   if (cargando) {
     return (
@@ -323,7 +349,7 @@ const ListaNotas = () => {
             <div className="flex justify-between mb-5 gap-4 items-center">
               {/* Barra de búsqueda */}
               <div className="flex-1 max-w-md">
-                <SearchNotas searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
               
               {/* Filtros */}
@@ -360,10 +386,16 @@ const ListaNotas = () => {
 
             {!notas || notas.length === 0 ? (
               <SinNotas />
+            ) : notasFiltradas.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-500 text-lg">
+                  {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
+                </div>
+              </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {notasFiltradas.map((nota) => (
+                  {notasPaginaActual.map((nota) => (
                     <NotaCard
                       key={nota.id}
                       nota={nota}
@@ -373,15 +405,16 @@ const ListaNotas = () => {
                   ))}
                 </div>
 
-                {/* Controles de paginación */}
-                {totalPaginas > 1 && (
-                  <div className="flex flex-col items-center mt-8 space-y-4">
-                    {/* Información de paginación */}
-                    <div className="text-sm text-gray-600">
-                      Mostrando {inicioIndice + 1} - {finIndice} de {totalNotas} notas
-                    </div>
-                    
-                    {/* Navegación de páginas */}
+                {/* Información de resultados y paginación */}
+                <div className="flex flex-col items-center mt-8 space-y-4">
+                  {/* Información de paginación */}
+                  <div className="text-sm text-gray-600">
+                    Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
+                    {searchTerm && ` (filtradas por "${searchTerm}")`}
+                  </div>
+                  
+                  {/* Navegación de páginas */}
+                  {totalPaginas > 1 && (
                     <div className="flex items-center space-x-2">
                       {/* Botón anterior */}
                       <button
@@ -442,8 +475,8 @@ const ListaNotas = () => {
                         Siguiente →
                       </button>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </>
             )}
           </>

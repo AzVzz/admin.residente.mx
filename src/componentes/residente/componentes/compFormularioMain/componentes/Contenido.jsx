@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 const Contenido = () => {
     const { control, setValue, watch, formState: { errors } } = useFormContext();
-    const contenidoValue = watch('contenido');
+    const contenidoValue = watch('contenido') ?? '';
 
     const editor = useEditor({
         extensions: [StarterKit.configure({
