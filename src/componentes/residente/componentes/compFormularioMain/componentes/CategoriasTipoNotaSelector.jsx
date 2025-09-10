@@ -15,10 +15,9 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
     }
 
     // Mueve la definición de seleccionados y bloquearOtros aquí
-    const seleccionados = watch("tiposDeNotaSeleccionadas") || [];
-    const bloquearOtros = seleccionados.some(
-        nombre => nombre.toLowerCase().replace(/[\s\-]/g, '') === "gastro-destinos".replace(/[\s\-]/g, '').toLowerCase()
-    );
+    const seleccionados = watch("tiposDeNotaSeleccionadas");
+    const seleccionadosStr = typeof seleccionados === 'string' ? seleccionados : '';
+    const bloquearOtros = seleccionadosStr.toLowerCase().replace(/[\s\-]/g, '') === "gastro-destinos".replace(/[\s\-]/g, '').toLowerCase();
 
     return (
         <div className="grid grid-cols-5">
@@ -29,40 +28,33 @@ const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) 
                     <Controller
                         name="tiposDeNotaSeleccionadas"
                         control={control}
-                        defaultValue={[]}
+                        defaultValue=""
                         render={({ field }) => (
                             <>
-                                {tipoDeNota.map((opcion, idx) => {
-                                    const checked = seleccionados.includes(opcion.nombre);
-                                    // Solo bloquea si seleccionaron Gastro-destinos
-                                    const disabled = bloquearOtros && opcion.nombre !== "Gastro-destinos" && !checked;
-
-                                    return (
-                                        <label key={idx} className="block mb-1">
-                                            <input
-                                                type="checkbox"
-                                                value={opcion.nombre}
-                                                checked={checked}
-                                                disabled={disabled}
-                                                onChange={e => {
-                                                    let nuevos = Array.isArray(field.value) ? [...field.value] : [];
-                                                    if (e.target.checked) {
-                                                        if (nuevos.length < 2) {
-                                                            nuevos.push(opcion.nombre);
-                                                        }
-                                                    } else {
-                                                        nuevos = nuevos.filter(n => n !== opcion.nombre);
-                                                    }
-                                                    field.onChange(nuevos);
-                                                }}
-                                                className="mr-1"
-                                            />
-                                            {opcion.nombre}
-                                        </label>
-                                    );
-                                })}
+                                {tipoDeNota.map((opcion, idx) => (
+                                    <label key={idx} className="block mb-1">
+                                        <input
+                                            type="radio"
+                                            value={opcion.nombre}
+                                            checked={field.value === opcion.nombre}
+                                            onClick={() => {
+                                                // Si ya está seleccionado, deselecciona
+                                                if (field.value === opcion.nombre) {
+                                                    field.onChange('');
+                                                }
+                                            }}
+                                            onChange={() => {
+                                                if (field.value !== opcion.nombre) {
+                                                    field.onChange(opcion.nombre);
+                                                }
+                                            }}
+                                            className="mr-1"
+                                        />
+                                        {opcion.nombre}
+                                    </label>
+                                ))}
                                 <div className="text-xs text-gray-500 mt-2">
-                                    Selecciona máximo 2 tipos.
+                                    Selecciona solo un tipo de nota.
                                 </div>
                             </>
                         )}

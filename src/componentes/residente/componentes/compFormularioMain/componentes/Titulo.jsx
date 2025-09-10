@@ -12,7 +12,7 @@ const Titulo = () => {
       <input
         type="text"
         placeholder="Agrega el título"
-        {...register('titulo', { required: 'El título es obligatorio' })}
+        {...register('titulo')} // <-- sin { required: ... }
         className={`w-full px-3 py-2 border rounded-md  ${
           errors.titulo ? 'border-red-500' : 'border-gray-300'
         }`}
