@@ -263,6 +263,21 @@ const FormMainResidente = () => {
     setPostError(null);
     setPostResponse(null);
 
+    // Determinar el estado de la nota según los permisos del usuario y si falta imagen
+    let estadoFinal;
+    if (!data.imagen && !imagenActual) {
+      estadoFinal = 'borrador';
+    } else if (usuario?.permisos === 'todos') {
+      estadoFinal = data.opcionPublicacion === 'programar'
+        ? 'programada'
+        : data.opcionPublicacion === 'borrador'
+          ? 'borrador'
+          : 'publicada';
+    } else {
+      estadoFinal = 'borrador';
+    }
+
+    
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
@@ -272,19 +287,7 @@ const FormMainResidente = () => {
       const tipoNotaFinal = tipoNotaUsuario || tiposSeleccionados[0] || null;
       const tipoNotaSecundaria = tiposSeleccionados[1] || null;
 
-      // Determinar el estado de la nota según los permisos del usuario
-      let estadoFinal;
-      if (usuario?.permisos === 'todos') {
-        // Usuarios con permisos completos pueden elegir el estado
-        estadoFinal = data.opcionPublicacion === 'programar'
-          ? 'programada'
-          : data.opcionPublicacion === 'borrador'
-            ? 'borrador'
-            : 'publicada';
-      } else {
-        // Usuarios con acceso limitado siempre suben en borrador
-        estadoFinal = 'borrador';
-      }
+
 
       const datosNota = {
         tipo_nota: tipoNotaFinal,
