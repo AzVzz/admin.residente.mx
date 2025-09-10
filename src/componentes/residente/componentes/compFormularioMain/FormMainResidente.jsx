@@ -238,7 +238,7 @@ const FormMainResidente = () => {
             subtitulo: data.subtitulo,
             autor: autor, // <--- aquí ya va el nombre si estaba vacío
             contenido: data.descripcion,
-            opcionPublicacion: 'borrador', // <-- SIEMPRE inicia como borrador al editar
+            opcionPublicacion: (!data.titulo || !data.imagen) ? 'borrador' : (data.programar_publicacion ? 'programar' : 'publicada'),
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
@@ -249,11 +249,9 @@ const FormMainResidente = () => {
               : {},
             sticker: data.sticker || '',
             destacada: !!data.destacada,
+            destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
             nombre_restaurante: data.nombre_restaurante || '',
-            tiposDeNotaSeleccionadas: [
-              data.tipo_nota || '',
-              data.tipo_nota2 || ''
-            ].filter(Boolean),
+            tiposDeNotaSeleccionadas: data.tipo_nota || '',
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -306,10 +304,8 @@ const FormMainResidente = () => {
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
-      const tiposSeleccionados = data.tiposDeNotaSeleccionadas || [];
-      const tipoNotaFinal = tipoNotaUsuario || tiposSeleccionados[0] || null;
-      const tipoNotaSecundaria = tiposSeleccionados[1] || null;
-
+      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      const tipoNotaSecundaria = null; // Ya no hay secundaria
 
 
       const datosNota = {
@@ -324,6 +320,7 @@ const FormMainResidente = () => {
         estatus: estadoFinal,
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
         destacada: data.destacada || false,
+        destacada_normal: data.destacada_normal || false, // <-- aquí
       };
 
       // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
@@ -386,7 +383,7 @@ const FormMainResidente = () => {
   }
 
   // Obteniendo el valor seleccionado del tipo de nota
-  const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
+  const tipoNotaSeleccionada = watch('tiposDeNotaSeleccionadas') || tipoNotaUsuario;
 
   const fechaActual = formatFecha(new Date());
 
@@ -468,11 +465,10 @@ const FormMainResidente = () => {
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
                 {(() => {
-                  const tipos = watch('tiposDeNotaSeleccionadas') || [];
-                  // Solo mostrar si incluye Restaurantes o Food & Drink
-                  if (tipos.includes("Restaurantes") || tipos.includes("Food & Drink")) {
+                  const tipoNota = watch('tiposDeNotaSeleccionadas');
+                  if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
                     return (
-                      <div className="mb-4">
+                      <div className="mb-4 flex gap-6">
                         <label className="inline-flex items-center">
                           <input
                             type="checkbox"
@@ -480,6 +476,14 @@ const FormMainResidente = () => {
                             className="form-checkbox h-5 w-5 text-yellow-500"
                           />
                           <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            {...methods.register("destacada_normal")}
+                            className="form-checkbox h-5 w-5 text-blue-500"
+                          />
+                          <span className="ml-2 text-gray-700 font-medium">Destacada normal</span>
                         </label>
                       </div>
                     );
