@@ -51,7 +51,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     if (!notas.length) return null;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
             <div className="max-w-[1080px] mx-auto my-9">
                 <div className="flex justify-between">
                     <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
@@ -71,7 +71,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                     <img
                                         src={revistaActual.imagen_portada}
                                         alt="Portada Revista"
-                                        className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
+                                        className="w-65 h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
                                         title="Descargar PDF"
                                     />
                                 </a>
@@ -79,7 +79,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 <img
                                     src={revistaActual}
                                     alt="Portada Revista"
-                                    className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
+                                    className="h-auto sm:w-32 w-22 object-cover "
                                 />
                             )}
                             <div className="flex flex-col ml-6 justify-between">

@@ -61,16 +61,16 @@ const ListadoBannerRevista = ({
                                         <div className="flex">
                                             {mostrarBanner && (
                                                 tipo === "Food & Drink" ? (
-                                                    <div className="w-full mb-11">
+                                                    <div className="w-full mb-4">
                                                         {console.log("🍽️ Mostrando banner de Chevrolet para Food & Drink en ListadoBannerRevista")}
                                                         <BannerChevrolet size="big" />
                                                     </div>
                                                 ) : revistaActual && revistaActual.pdf ? (
-                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" className="mb-11">
+                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
                                                         <img
                                                             src={revistaActual.imagen_banner}
                                                             alt="Banner Revista"
-                                                            className="w-full cursor-pointer"
+                                                            className="w-full mb-4 cursor-pointer pb-7"
                                                             title="Descargar Revista"
                                                         />
                                                     </a>
@@ -181,12 +181,17 @@ const ListadoBannerRevista = ({
                             <>
                                 {/*<hr className="border-gray-800/80 border-dotted mt-0 pb-6" />*/}
                                 <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
-                                    <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                    <div className="absolute left-0 right-0 top-1/3 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            {/*<img src={`https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
-                                            <img className="h-full w-105" src={'https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
-                                            {/*<img src={`https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
+                                            {/*<img src={`http://localhost:3000/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
+                                            <img className="h-full w-105" src={'http://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                            {/*<img src={`http://localhost:3000/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
+                                        </div>
+                                        <div className="text-center mt-1">
+                                            <span className="text-[12px] font-semibold tracking-wide">
+                                                {new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }).toUpperCase()}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -210,7 +215,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
+                                            <img src={`http://localhost:3000/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
                                         </div>
                                     </div>
                                 </div>
