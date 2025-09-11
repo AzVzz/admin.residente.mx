@@ -125,8 +125,15 @@ const MainSeccionesCategorias = () => {
         }
     }, [selectedNota]);
 
+    // Scroll hacia arriba cuando se carga la página por primera vez
+    useLayoutEffect(() => {
+        console.log('Ejecutando scroll hacia arriba para:', seccion, categoria);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, [seccion, categoria]);
+
     useEffect(() => {
         if (!seccion || !categoria) return;
+        console.log('Cargando datos para:', seccion, categoria);
         setLoading(true);
         Promise.all([
             notasPorSeccionCategoriaGet(seccion, categoria),
@@ -134,6 +141,7 @@ const MainSeccionesCategorias = () => {
             notasTopPorSeccionCategoriaGet(seccion, categoria)
         ])
             .then(([notasData, restaurantesData, notasTopData]) => {
+                console.log('Datos cargados, scroll actual:', window.scrollY);
                 setNotas(Array.isArray(notasData) ? notasData : []);
                 setRestaurantes(Array.isArray(restaurantesData) ? restaurantesData : []);
                 setNotasTop(Array.isArray(notasTopData) ? notasTopData : []);
@@ -214,7 +222,9 @@ const MainSeccionesCategorias = () => {
     }, [categoria, restaurantes]);
 
     useEffect(() => {
-        if (notasRef.current) {
+        // Solo hacer scroll cuando se cambie de página, no en la carga inicial
+        if (notasRef.current && paginaActual > 1) {
+            console.log('Ejecutando scroll de paginación para página:', paginaActual);
             notasRef.current.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'

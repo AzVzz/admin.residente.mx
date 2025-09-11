@@ -151,8 +151,21 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
             <div className="flex flex-col gap-5 px-10 py-6">
                 <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
                 <div
-                    className="text-xl font-roman"
-                    dangerouslySetInnerHTML={{ __html: post.descripcion }}
+                    className="text-xl font-roman leading-relaxed"
+                    style={{
+                        lineHeight: '1.3',
+                        marginBottom: '1.5rem'
+                    }}
+                    dangerouslySetInnerHTML={{ 
+                        __html: `
+                            <style>
+                                .contenido-nota p { margin-bottom: 1.5rem; }
+                                .contenido-nota strong { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+                                .contenido-nota br { margin-bottom: 0.5rem; }
+                            </style>
+                            <div class="contenido-nota">${post.descripcion?.replace(/\n/g, '<br><br>') || ''}</div>
+                        `
+                    }}
                 />
                 <span className="text-[10.5px] leading-4 font-roman">&copy; PROHIBIDA LA REPDOUCCIÓN PARCIAL O TOTAL DE LOS TEXTOS O IDEAS CONTENIDOS EN ESTE ARTÍCULO Y ESTA PÁGINA. PROTEGIDOS POR LA LEY DE COPYRIGHT MÉXICO Y COPYRIGHT INTERNACIONES. PARA PEDIR AUTORIZACIÓN DE REPORDUCCIÓN, <a href="mailto:autorizaciones@tudominio.com?subject=Solicitud%20de%20autorización%20de%20reproducción&body=Hola,%20quisiera%20solicitar%20autorización%20para%20reproducir%20el%20contenido..." className="underline cursor-pointer">HAZ CLICK AQUÍ</a></span>
 

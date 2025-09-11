@@ -58,7 +58,8 @@ const FormMainResidente = () => {
   // Si no hay token, muestra el login
   if (!token) {
     return (
-      <div className="max-w-[400px] mx-auto mt-10">
+      <div 
+      lassName="max-w-[400px] mx-auto mt-10">
         <Login />
       </div>
     );
@@ -79,7 +80,7 @@ const FormMainResidente = () => {
       imagen: null,
       instafoto: null,
       destacada: false,
-      tiposDeNotaSeleccionadas: [],
+      tiposDeNotaSeleccionadas: '',
     }
   });
 
@@ -107,11 +108,65 @@ const FormMainResidente = () => {
   const contenido = watch('contenido');
   const imagen = watch('imagen');
   const instafoto = watch('instafoto');
-  //const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
-  const fechaProgramada = watch('fechaProgramada');
 
-  // Observar cambios en opción de publicación
-  const opcionPublicacion = watch('opcionPublicacion');
+
+  function isContenidoVacio(contenido) {
+    // Elimina etiquetas HTML y espacios
+    const textoPlano = contenido
+      ? contenido.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()
+      : '';
+    return !textoPlano;
+  }
+
+
+  // --- Lógica para campos obligatorios ---
+  const camposFaltantes = [];
+  if (!titulo) camposFaltantes.push('título');
+  if (!subtitulo) camposFaltantes.push('subtítulo');
+  if (!imagen && !imagenActual) camposFaltantes.push('imagen');
+  if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
+  if (!watch('tiposDeNotaSeleccionadas')) camposFaltantes.push('tipo de nota');
+  if (
+    watch('destacada') &&
+    (watch('tiposDeNotaSeleccionadas') === "Restaurantes" || watch('tiposDeNotaSeleccionadas') === "Food & Drink") &&
+    !watch('nombre_restaurante')
+  ) {
+    camposFaltantes.push('nombre del restaurante');
+  }
+  // Validación de stickers
+  const stickersSeleccionados = Array.isArray(watch('sticker')) ? watch('sticker') : [];
+  if (stickersSeleccionados.length < 2) {
+    camposFaltantes.push(`selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? '' : 's'}`);
+  }
+  const faltanCamposObligatorios = camposFaltantes.length > 0;
+
+
+  useEffect(() => {
+    if (faltanCamposObligatorios) {
+      setValue('opcionPublicacion', 'borrador');
+    }
+  }, [faltanCamposObligatorios, setValue]);
+
+
+  useEffect(() => {
+    // Limpia la URL anterior si existe
+    if (imagenPreviewUrlRef.current) {
+      URL.revokeObjectURL(imagenPreviewUrlRef.current);
+      imagenPreviewUrlRef.current = null;
+    }
+
+    if (imagen && typeof imagen === 'object' && imagen instanceof File) {
+      const url = URL.createObjectURL(imagen);
+      setImagenPreview(url);
+      imagenPreviewUrlRef.current = url;
+    } else if (imagen) {
+      setImagenPreview(imagen);
+    } else if (imagenActual) {
+      setImagenPreview(imagenActual);
+    } else {
+      setImagenPreview(null);
+    }
+  }, [imagen, imagenActual]);
 
   useEffect(() => {
     // Limpia la URL anterior si existe
@@ -225,7 +280,7 @@ const FormMainResidente = () => {
             titulo: data.titulo,
             subtitulo: data.subtitulo,
             autor: autor,
-            contenido: data.descripcion,
+            contenido: data.descripcion || '',
             opcionPublicacion: opcionPublicacion,
             fechaProgramada: fechaProgramada || '',
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
@@ -237,11 +292,9 @@ const FormMainResidente = () => {
               : {},
             sticker: data.sticker || '',
             destacada: !!data.destacada,
+            destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
             nombre_restaurante: data.nombre_restaurante || '',
-            tiposDeNotaSeleccionadas: [
-              data.tipo_nota || '',
-              data.tipo_nota2 || ''
-            ].filter(Boolean),
+            tiposDeNotaSeleccionadas: data.tipo_nota || '',
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -270,9 +323,15 @@ const FormMainResidente = () => {
     setPostError(null);
     setPostResponse(null);
 
+
     // Determinar el estado de la nota según los permisos del usuario y si falta imagen
     let estadoFinal;
-    if (!data.imagen && !imagenActual) {
+    if (
+      (!data.imagen && !imagenActual) ||
+      !data.titulo ||
+      !data.subtitulo ||
+      !data.contenido
+    ) {
       estadoFinal = 'borrador';
     } else if (usuario?.permisos === 'todos') {
       estadoFinal = data.opcionPublicacion === 'programar'
@@ -284,15 +343,14 @@ const FormMainResidente = () => {
       estadoFinal = 'borrador';
     }
 
-    
+
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
-      const tiposSeleccionados = data.tiposDeNotaSeleccionadas || [];
-      const tipoNotaFinal = tipoNotaUsuario || tiposSeleccionados[0] || null;
-      const tipoNotaSecundaria = tiposSeleccionados[1] || null;
+      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      const tipoNotaSecundaria = null; // Ya no hay secundaria
 
 
 
@@ -308,6 +366,7 @@ const FormMainResidente = () => {
         estatus: estadoFinal,
         programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
         destacada: data.destacada || false,
+        destacada_normal: data.destacada_normal || false, // <-- aquí
       };
 
       // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
@@ -370,7 +429,7 @@ const FormMainResidente = () => {
   }
 
   // Obteniendo el valor seleccionado del tipo de nota
-  const tipoNotaSeleccionada = watch('tipoDeNotaSeleccionada') || tipoNotaUsuario;
+  const tipoNotaSeleccionada = watch('tiposDeNotaSeleccionadas') || tipoNotaUsuario;
 
   const fechaActual = formatFecha(new Date());
 
@@ -426,7 +485,7 @@ const FormMainResidente = () => {
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
                     <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
-                      📝 {(watch('tiposDeNotaSeleccionadas') || []).join(' / ') || ''}
+                      📝 {watch('tiposDeNotaSeleccionadas') || ''}
                     </div>
                   </div>
                 )}
@@ -452,19 +511,33 @@ const FormMainResidente = () => {
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
                 {(() => {
-                  const tipos = watch('tiposDeNotaSeleccionadas') || [];
-                  // Solo mostrar si incluye Restaurantes o Food & Drink
-                  if (tipos.includes("Restaurantes") || tipos.includes("Food & Drink")) {
+                  const tipoNota = watch('tiposDeNotaSeleccionadas');
+                  const esDestacada = watch('destacada');
+                  let textoDestacada = "Marcar como destacada";
+                  if (tipoNota === "Restaurantes") textoDestacada = "Marcar como restaurante recomendado";
+                  if (tipoNota === "Food & Drink") textoDestacada = "Marcar como platillo icónico";
+                  
+                  if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
                     return (
-                      <div className="mb-4">
+                      <div className="mb-4 flex gap-6">
                         <label className="inline-flex items-center">
                           <input
                             type="checkbox"
                             {...methods.register("destacada")}
                             className="form-checkbox h-5 w-5 text-yellow-500"
                           />
-                          <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                          <span className="ml-2 text-gray-700 font-medium">{textoDestacada}</span>
                         </label>
+                        {esDestacada && (
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              {...methods.register("destacada_normal")}
+                              className="form-checkbox h-5 w-5 text-blue-500"
+                            />
+                            <span className="ml-2 text-gray-700 font-medium">También mostrar como destacada normal</span>
+                          </label>
+                        )}
                       </div>
                     );
                   }
@@ -501,6 +574,12 @@ const FormMainResidente = () => {
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
                       Opciones de Publicación
                     </label>
+                    {/* --- Mensaje si faltan campos --- */}
+                    {faltanCamposObligatorios && (
+                      <div className="mb-2 text-red-600 text-sm font-medium">
+                        Si quieres publicar llena los campos faltantes: {camposFaltantes.join(', ')}
+                      </div>
+                    )}
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <input
@@ -509,8 +588,9 @@ const FormMainResidente = () => {
                           value="publicada"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="publicar-ahora" className="text-sm text-yellow-800 cursor-pointer">
+                        <label htmlFor="publicar-ahora" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           Publicar ahora
                         </label>
                       </div>
@@ -522,8 +602,9 @@ const FormMainResidente = () => {
                           value="programar"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="programar" className="text-sm text-yellow-800 cursor-pointer">
+                        <label htmlFor="programar" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           Programar publicación
                         </label>
                       </div>
@@ -549,6 +630,7 @@ const FormMainResidente = () => {
                           value="borrador"
                           {...methods.register("opcionPublicacion")}
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
+                          disabled={faltanCamposObligatorios}
                         />
                         <label htmlFor="borrador" className="text-sm text-yellow-800 cursor-pointer">
                           Guardar como borrador

@@ -83,20 +83,65 @@ export const notaInstafotoPut = async (id, file, token) => {
     }
 };
 
-export const notaInstafotoDelete = async (id) => {
+export const notaInstafotoDelete = async (id, token) => {
     try {
-        const response = await fetch(`${urlApi}api/notas/imagen/${id}/insta-imagen`, {
-            method: 'DELETE'
+        console.log('Eliminando instafoto con ID:', id);
+        console.log('URL de la API:', `${urlApi}api/notas/${id}/insta_imagen`);
+        
+        const response = await fetch(`${urlApi}api/notas/${id}/insta_imagen`, {
+            method: 'DELETE',
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` })
+            }
         });
+        
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+        
         if (!response.ok) {
             if (response.status === 404) {
                 throw new Error('Nota o instafoto no encontrada');
             }
-            throw new Error(`Error HTTP: ${response.status}`);
+            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
+        
+        console.log('Instafoto eliminada exitosamente del servidor');
         return true;
     } catch (error) {
         console.error("Error eliminando instafoto:", error);
+        throw error;
+    }
+};
+
+// Función alternativa para eliminar instafoto usando PUT
+export const notaInstafotoDeleteAlternative = async (id, token) => {
+    try {
+        console.log('Eliminando instafoto (método alternativo) con ID:', id);
+        console.log('URL de la API:', `${urlApi}api/notas/${id}`);
+        
+        const response = await fetch(`${urlApi}api/notas/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` })
+            },
+            body: JSON.stringify({
+                insta_imagen: null
+            })
+        });
+        
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Nota no encontrada');
+            }
+            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+        }
+        
+        console.log('Instafoto eliminada exitosamente del servidor (método alternativo)');
+        return true;
+    } catch (error) {
+        console.error("Error eliminando instafoto (método alternativo):", error);
         throw error;
     }
 };

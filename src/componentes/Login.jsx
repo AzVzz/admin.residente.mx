@@ -15,6 +15,7 @@ const Login = ({ redirectTo }) => {
     const { saveToken, saveUsuario, token, usuario } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    
 
     // Función para verificar si el token ha expirado
     const isTokenExpired = (token) => {

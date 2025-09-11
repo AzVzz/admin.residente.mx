@@ -1,8 +1,8 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { notaInstafotoDelete } from '../../../../api/notaCrearPostPut';
+import { notaInstafotoDelete, notaInstafotoDeleteAlternative } from '../../../../api/notaCrearPostPut';
 
-const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada }) => {
+const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, token }) => {
     const { control, setValue, watch } = useFormContext();
     const instafotoSeleccionada = watch('instafoto');
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -23,15 +23,60 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada }) =>
     const mostrarImagen = previewUrl || instafotoActual;
 
     const handleEliminarInstafoto = async () => {
-        if (!notaId) return;
         if (!window.confirm('¿Seguro que deseas eliminar la instafoto?')) return;
+        
         try {
-            await notaInstafotoDelete(notaId);
-            onInstafotoEliminada();
-            setValue('instafoto', null); // Limpia el input de archivo
+            console.log('Intentando eliminar instafoto:', { 
+                instafotoActual, 
+                notaId, 
+                tipoNotaId: typeof notaId,
+                esValido: notaId && !isNaN(notaId)
+            });
+            
+            // Si hay una instafoto actual en la base de datos, eliminarla
+            if (instafotoActual && notaId) {
+                console.log('Eliminando instafoto de la base de datos...');
+                
+                try {
+                    // Intentar primero con DELETE
+                    await notaInstafotoDelete(notaId, token);
+                    console.log('Instafoto eliminada exitosamente con método DELETE');
+                } catch (deleteError) {
+                    console.log('Método DELETE falló, intentando con método PUT:', deleteError.message);
+                    try {
+                        // Si DELETE falla, intentar con PUT
+                        await notaInstafotoDeleteAlternative(notaId, token);
+                        console.log('Instafoto eliminada exitosamente con método PUT');
+                    } catch (putError) {
+                        console.error('Ambos métodos fallaron:', putError.message);
+                        throw putError;
+                    }
+                }
+                
+                onInstafotoEliminada();
+            } else {
+                console.log('No hay instafoto en la base de datos o falta notaId');
+                // Aún así, limpiar la interfaz
+            }
+            
+            // Limpiar el input de archivo y la previsualización
+            setValue('instafoto', null);
             setPreviewUrl(null);
+            console.log('Instafoto eliminada localmente');
         } catch (error) {
-            alert('Error al eliminar la instafoto');
+            console.error('Error al eliminar la instafoto:', error);
+            console.error('Detalles del error:', error.message);
+            
+            // Si es un error 404, mostrar mensaje más específico
+            if (error.message.includes('404') || error.message.includes('no encontrada')) {
+                alert('La instafoto ya no existe en la base de datos. Se limpiará de la interfaz.');
+                // Limpiar la interfaz aunque no se pueda eliminar del servidor
+                setValue('instafoto', null);
+                setPreviewUrl(null);
+                onInstafotoEliminada();
+            } else {
+                alert(`Error al eliminar la instafoto: ${error.message}`);
+            }
         }
     };
 
@@ -47,7 +92,7 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada }) =>
                         alt="Instafoto"
                         className="max-h-68 shadow border mb-2"
                     />
-                    {instafotoActual && !previewUrl && (
+                    {(instafotoActual || previewUrl) && (
                         <button
                             type="button"
                             onClick={handleEliminarInstafoto}
