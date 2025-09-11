@@ -2,8 +2,16 @@
 import { useFormContext } from 'react-hook-form';
 
 const Titulo = () => {
-  const { register, formState: { errors } } = useFormContext();
-  
+  const { register, formState: { errors }, watch, setValue } = useFormContext();
+  const tituloValue = watch('titulo') || '';
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    if (value.length > 165) {
+      setValue('titulo', value.slice(0, 165));
+    }
+  };
+
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -12,14 +20,25 @@ const Titulo = () => {
       <input
         type="text"
         placeholder="Agrega el título"
-        {...register('titulo')} // <-- sin { required: ... }
+        maxLength={165}
+        value={tituloValue}
+        onChange={handleChange}
+        {...register('titulo', {
+          maxLength: {
+            value: 165,
+            message: 'El título solo puede tener 165 caracteres'
+          }
+        })}
         className={`w-full px-3 py-2 border rounded-md  ${
           errors.titulo ? 'border-red-500' : 'border-gray-300'
         }`}
       />
-      {errors.titulo && (
-        <p className="mt-1 text-sm text-red-600">{errors.titulo.message}</p>
-      )}
+      <div className="flex justify-between items-center mt-1">
+        <span className="text-xs text-gray-500">{tituloValue.length}/165</span>
+        {errors.titulo && (
+          <p className="text-sm text-red-600">{errors.titulo.message}</p>
+        )}
+      </div>
     </div>
   );
 };

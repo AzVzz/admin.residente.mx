@@ -58,7 +58,8 @@ const FormMainResidente = () => {
   // Si no hay token, muestra el login
   if (!token) {
     return (
-      <div className="max-w-[400px] mx-auto mt-10">
+      <div 
+      lassName="max-w-[400px] mx-auto mt-10">
         <Login />
       </div>
     );
@@ -79,7 +80,7 @@ const FormMainResidente = () => {
       imagen: null,
       instafoto: null,
       destacada: false,
-      tiposDeNotaSeleccionadas: [],
+      tiposDeNotaSeleccionadas: '',
     }
   });
 
@@ -108,6 +109,7 @@ const FormMainResidente = () => {
   const imagen = watch('imagen');
   const instafoto = watch('instafoto');
 
+
   function isContenidoVacio(contenido) {
     // Elimina etiquetas HTML y espacios
     const textoPlano = contenido
@@ -123,7 +125,21 @@ const FormMainResidente = () => {
   if (!subtitulo) camposFaltantes.push('subtítulo');
   if (!imagen && !imagenActual) camposFaltantes.push('imagen');
   if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
+  if (!watch('tiposDeNotaSeleccionadas')) camposFaltantes.push('tipo de nota');
+  if (
+    watch('destacada') &&
+    (watch('tiposDeNotaSeleccionadas') === "Restaurantes" || watch('tiposDeNotaSeleccionadas') === "Food & Drink") &&
+    !watch('nombre_restaurante')
+  ) {
+    camposFaltantes.push('nombre del restaurante');
+  }
+  // Validación de stickers
+  const stickersSeleccionados = Array.isArray(watch('sticker')) ? watch('sticker') : [];
+  if (stickersSeleccionados.length < 2) {
+    camposFaltantes.push(`selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? '' : 's'}`);
+  }
   const faltanCamposObligatorios = camposFaltantes.length > 0;
+
 
   useEffect(() => {
     if (faltanCamposObligatorios) {
@@ -306,6 +322,7 @@ const FormMainResidente = () => {
     setIsPosting(true);
     setPostError(null);
     setPostResponse(null);
+
 
     // Determinar el estado de la nota según los permisos del usuario y si falta imagen
     let estadoFinal;
@@ -495,6 +512,11 @@ const FormMainResidente = () => {
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
                 {(() => {
                   const tipoNota = watch('tiposDeNotaSeleccionadas');
+                  const esDestacada = watch('destacada');
+                  let textoDestacada = "Marcar como destacada";
+                  if (tipoNota === "Restaurantes") textoDestacada = "Marcar como restaurante recomendado";
+                  if (tipoNota === "Food & Drink") textoDestacada = "Marcar como platillo icónico";
+                  
                   if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
                     return (
                       <div className="mb-4 flex gap-6">
@@ -504,16 +526,18 @@ const FormMainResidente = () => {
                             {...methods.register("destacada")}
                             className="form-checkbox h-5 w-5 text-yellow-500"
                           />
-                          <span className="ml-2 text-gray-700 font-medium">Marcar como destacada</span>
+                          <span className="ml-2 text-gray-700 font-medium">{textoDestacada}</span>
                         </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            {...methods.register("destacada_normal")}
-                            className="form-checkbox h-5 w-5 text-blue-500"
-                          />
-                          <span className="ml-2 text-gray-700 font-medium">Destacada normal</span>
-                        </label>
+                        {esDestacada && (
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              {...methods.register("destacada_normal")}
+                              className="form-checkbox h-5 w-5 text-blue-500"
+                            />
+                            <span className="ml-2 text-gray-700 font-medium">También mostrar como destacada normal</span>
+                          </label>
+                        )}
                       </div>
                     );
                   }
