@@ -22,19 +22,25 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             {/* Contenido encima de la imagen */}
             <div className="flex flex-col justify-between items-end h-full relative z-10">
                 {/* Datos arriba */}
-                <div className="p-4 w-full flex items-center gap-2">
-                    <span
-                        className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                            }`}
-                    >
-                        {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
-                    </span>
-                    <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-900 drop-shadow inline-block w-auto">
-                        {nota.fecha}
-                    </span>
-                    <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">vistas: {nota.vistas}</span>
+                <div className="w-full flex items-center flex-col bg-white/20 backdrop-blur-xs p-2">
+                    <div className="px-2 pt-2 w-full flex items-center gap-2 justify-between">
+                        <span
+                            className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                                }`}
+                        >
+                            {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
+                        </span>
+                        <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-900 drop-shadow inline-block w-auto">
+                            {nota.fecha}
+                        </span>
+                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">vistas: {nota.vistas}</span>
+
+                    </div>
+                    <div className="px-2 pt-2 w-full flex items-center gap-2">
+                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">Ultimo autor: {nota.autor}</span>
+                    </div>
                 </div>
                 {/* Título abajo en recuadro blanco borroso */}
                 <div className="w-full">

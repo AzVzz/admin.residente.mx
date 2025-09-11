@@ -1,21 +1,31 @@
 import { useFormContext, Controller } from 'react-hook-form';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import Image from '@tiptap/extension-image';
+import { useEffect, useRef } from 'react';
+import { urlApi } from '../../../../api/url';
 
 const Contenido = () => {
     const { control, setValue, watch, formState: { errors } } = useFormContext();
-    const contenidoValue = watch('contenido') ?? '';
+    const contenidoValue = watch('contenido');
+    const fileInputRef = useRef(null);
 
     const editor = useEditor({
-        extensions: [StarterKit.configure({
-            // Configurar para preservar mejor los espacios
-            paragraph: {
-                HTMLAttributes: {
-                    style: 'white-space: pre-wrap;'
+        extensions: [
+            StarterKit.configure({
+                // Configurar para preservar mejor los espacios
+                paragraph: {
+                    HTMLAttributes: {
+                        style: 'white-space: pre-wrap;'
+                    }
                 }
-            }
-        })],
+            }),
+            Image.configure({
+                HTMLAttributes: {
+                    class: 'editor-image',
+                },
+            })
+        ],
         content: contenidoValue || '',
         onUpdate: ({ editor }) => {
             // Preservar saltos de línea y espacios múltiples
@@ -31,6 +41,75 @@ const Contenido = () => {
             editor.commands.setContent(contenidoValue || '');
         }
     }, [contenidoValue, editor]);
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+            event.target.value = '';
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('imagen', file);
+
+            const endpoint = `${urlApi}api/uploads/editor-image`;
+            const resp = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+            const respClone = resp.clone();
+            let data;
+            try {
+                data = await resp.json();
+            } catch (e) {
+                const txt = await respClone.text();
+                throw new Error(`Respuesta no JSON (${resp.status}): ${txt}`);
+            }
+            if (!resp.ok || !data?.url) {
+                throw new Error(data?.error || `Error subiendo imagen (${resp.status})`);
+            }
+
+            // Insertar imagen con src = URL y descripcion = URL
+            editor
+                .chain()
+                .focus()
+                .setImage({ src: data.url, alt: '', title: '', descripcion: data.url })
+                .run();
+        } catch (err) {
+            console.error('Error al subir imagen:', err);
+            alert(`No se pudo subir la imagen: ${err.message}`);
+        } finally {
+            // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
+            event.target.value = '';
+        }
+    };
+
+    const triggerImageUpload = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleDeleteImage = () => {
+        if (!editor) return;
+        // Si la selección actual es una imagen, eliminarla
+        if (editor.isActive('image')) {
+            editor.chain().focus().deleteSelection().run();
+            return;
+        }
+        // Buscar una imagen cercana a la selección y eliminarla
+        const { state } = editor;
+        const { from, to } = state.selection;
+        let removed = false;
+        state.doc.nodesBetween(Math.max(0, from - 1), Math.min(state.doc.content.size, to + 1), (n, pos) => {
+            if (!removed && n.type && n.type.name === 'image') {
+                editor.chain().setTextSelection({ from: pos, to: pos + n.nodeSize }).deleteSelection().run();
+                removed = true;
+                return false; // detener iteración
+            }
+            return undefined;
+        });
+        if (!removed) alert('Selecciona la imagen para borrarla (haz clic sobre ella)');
+    };
 
     return (
         <div className="space-y-2">
@@ -73,7 +152,29 @@ const Contenido = () => {
                             >
                                 P
                             </button>
+                            <button
+                                type="button"
+                                onClick={triggerImageUpload}
+                                className="font-roman text-blue-600 w-20 border-1 rounded bg-gray-50 hover:bg-gray-100"
+                            >
+                                 Imagen
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteImage}
+                                className="font-roman text-red-600 w-28 border-1 rounded bg-gray-50 hover:bg-gray-100"
+                            >
+                                Borrar imagen
+                            </button>
                         </div>
+                        {/* Input oculto para seleccionar imágenes */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            style={{ display: 'none' }}
+                        />
                         <EditorContent
                             editor={editor}
                             className="font-roman border-1 rounded-md "
@@ -99,6 +200,17 @@ const Contenido = () => {
                         }
                         .ProseMirror ol {
                             list-style-type: decimal;
+                        }
+                        .ProseMirror .editor-image {
+                            width: 100%;
+                            height: auto;
+                            border-radius: 8px;
+                            margin: 8px 0;
+                            display: block;
+                        }
+                        .ProseMirror .editor-image:hover {
+                            cursor: pointer;
+                            opacity: 0.9;
                         }
                         `}</style>
                     </div>
