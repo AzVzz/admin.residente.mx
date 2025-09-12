@@ -24,7 +24,7 @@ const Imagenes = ({ slug, existingImages }) => {
         if (existingImages && existingImages.length > 0) {
             const existingPreviews = existingImages.map(img => ({
                 id: img.id,
-                url: `https://residente.mx${img.src}`
+                url: `https://p.residente.mx${img.src}`
             }));
 
             setPreviews(existingPreviews.map(img => img.url));
@@ -83,7 +83,7 @@ const Imagenes = ({ slug, existingImages }) => {
             try {
                 setIsDeleting(true);
                 // Llamar a la API para eliminar la imagen del servidor
-                const response = await fetch(`https://residente.mx/api/restaurante/imagenes/${imageId}`, {
+                const response = await fetch(`https://p.residente.mx/api/restaurante/imagenes/${imageId}`, {
                     method: 'DELETE'
                 });
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://residente.mx/api/infografias';
+const BASE_URL = 'https://p.residente.mx/api/infografias';
 
 // Obtener todas las infografías
 export const getInfografias = async () => {

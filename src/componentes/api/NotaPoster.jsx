@@ -13,7 +13,7 @@ const NotaPoster = ({ children, method = 'POST', id = null }) => {
 
         try {
             // Construir URL según el método
-            let url = 'https://residente.mx/api/notas';
+            let url = 'https://p.residente.mx/api/notas';
             if (id && method === 'PUT') {
                 url = `${url}/${id}`;
             }

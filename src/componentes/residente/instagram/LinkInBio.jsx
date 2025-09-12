@@ -35,7 +35,7 @@ const LinkInBio = () => {
                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center  ">
            <Link to="/residente">
              <img 
-               src="https://residente.mx//fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" 
+               src="https://p.residente.mx//fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" 
                alt="Logo Residente" 
                className="w-8 h-8 object-contain"
              />

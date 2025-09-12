@@ -10,7 +10,7 @@ const NotaFetcher = ({ children }) => {
         setCargando(true);
         setError(null);
         try {
-            const response = await fetch(`https://residente.mx/api/notas/todas?page=${page}&limit=${limit}`);
+            const response = await fetch(`https://p.residente.mx/api/notas/todas?page=${page}&limit=${limit}`);
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             const data = await response.json();
             setNotas(data.notas); // Ajusta según la respuesta de tu API

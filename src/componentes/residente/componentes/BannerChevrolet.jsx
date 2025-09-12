@@ -2,7 +2,7 @@ import BannerHorizontal from './BannerHorizontal';
 
 // Banner específico para Chevrolet Rivero Valle
 const BannerChevrolet = ({ size = "big" }) => {
-  const imageUrl = "https://residente.mx/fotos/fotos-estaticas/chevrolet-rivero-valle.jpg";
+  const imageUrl = "https://p.residente.mx/fotos/fotos-estaticas/chevrolet-rivero-valle.jpg";
   const redirectUrl = "https://chevroletrivero.com/";
   
   // Debug: verificar que la URL esté correcta

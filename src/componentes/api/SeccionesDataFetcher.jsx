@@ -8,7 +8,7 @@ const SeccionesDataFetcher = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://residente.mx/api/catalogo/secciones');
+                const response = await fetch('https://p.residente.mx/api/catalogo/secciones');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,7 +71,7 @@ export const useJsonData = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://residente.mx/api/catalogo/secciones');
+                const response = await fetch('https://p.residente.mx/api/catalogo/secciones');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

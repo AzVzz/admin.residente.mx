@@ -3,7 +3,7 @@ const NotaLoMasVistoSeccion = ({ tipoDeNota, titulo, imagen }) => (
         <div className="flex items-center h-full w-full transition-shadow">
             <div className="w-1/3 h-full">
                 <img
-                    src={imagen || `https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                    src={imagen || `https://p.residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                     className="w-full h-full object-cover"
                 />
             </div>
@@ -31,7 +31,7 @@ const PostLoMasVistoDirectorio = ({ tipoDeNota, titulo, imagen }) => {
                         <div className="flex items-center cursor-pointer h-full w-full transition-shadow">
                             <div className="w-1/3 h-full">
                                 <img
-                                    src={imagen || `https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                                    src={imagen || `https://p.residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                                     className="w-full h-full object-cover"
                                 />
                             </div>
