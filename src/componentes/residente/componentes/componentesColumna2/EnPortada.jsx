@@ -51,7 +51,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     if (!notas.length) return null;
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
             <div className="max-w-[1080px] mx-auto my-9">
                 <div className="flex justify-between">
                     <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
@@ -64,26 +64,27 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10">
                     {/* Columna Izquierda */}
                     <div className="flex flex-col justify-start items-start">
-
-                        <div className="flex flex-row">
-                            {revistaActual && revistaActual.pdf ? (
-                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                        <div className="flex flex-row h-[228px] w-full">
+                            <div className="flex-shrink-0 w-[180px] h-full flex items-center justify-center">
+                                {revistaActual && revistaActual.pdf ? (
+                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                        <img
+                                            src={revistaActual.imagen_portada}
+                                            alt="Portada Revista"
+                                            className="w-full h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                                            title="Descargar PDF"
+                                        />
+                                    </a>
+                                ) : (
                                     <img
-                                        src={revistaActual.imagen_portada}
+                                        src={revistaActual}
                                         alt="Portada Revista"
-                                        className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
-                                        title="Descargar PDF"
+                                        className="w-full h-full object-cover"
                                     />
-                                </a>
-                            ) : (
-                                <img
-                                    src={revistaActual}
-                                    alt="Portada Revista"
-                                    className="max-h-[200px] max-w-[220px] object-contain border border-dotted border-gray-800/60"
-                                />
-                            )}
-                            <div className="flex flex-col ml-6 justify-between">
-                                <h3 className="text-2xl font-bold text-black ">En Portada</h3>
+                                )}
+                            </div>
+                            <div className="flex flex-col flex-1 ml-6 justify-between">
+                                <h3 className="text-2xl font-bold text-black">En Portada</h3>
                                 <h2 className="text-black text-[22px] leading-6.5 whitespace-pre-line">
                                     {revistaActual?.descripcion || ""}
                                 </h2>

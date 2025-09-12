@@ -85,8 +85,8 @@ export const notaInstafotoPut = async (id, file, token) => {
 
 export const notaInstafotoDelete = async (id, token) => {
     try {
-        console.log('Eliminando instafoto con ID:', id);
-        console.log('URL de la API:', `${urlApi}api/notas/${id}/insta_imagen`);
+        //console.log('Eliminando instafoto con ID:', id);
+        //console.log('URL de la API:', `${urlApi}api/notas/${id}/insta_imagen`);
         
         const response = await fetch(`${urlApi}api/notas/${id}/insta_imagen`, {
             method: 'DELETE',
@@ -95,7 +95,7 @@ export const notaInstafotoDelete = async (id, token) => {
             }
         });
         
-        console.log('Respuesta del servidor:', response.status, response.statusText);
+        //console.log('Respuesta del servidor:', response.status, response.statusText);
         
         if (!response.ok) {
             if (response.status === 404) {
@@ -104,7 +104,7 @@ export const notaInstafotoDelete = async (id, token) => {
             throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
         
-        console.log('Instafoto eliminada exitosamente del servidor');
+        //console.log('Instafoto eliminada exitosamente del servidor');
         return true;
     } catch (error) {
         console.error("Error eliminando instafoto:", error);
@@ -115,8 +115,8 @@ export const notaInstafotoDelete = async (id, token) => {
 // Función alternativa para eliminar instafoto usando PUT
 export const notaInstafotoDeleteAlternative = async (id, token) => {
     try {
-        console.log('Eliminando instafoto (método alternativo) con ID:', id);
-        console.log('URL de la API:', `${urlApi}api/notas/${id}`);
+        //console.log('Eliminando instafoto (método alternativo) con ID:', id);
+        //console.log('URL de la API:', `${urlApi}api/notas/${id}`);
         
         const response = await fetch(`${urlApi}api/notas/${id}`, {
             method: 'PUT',
@@ -129,7 +129,7 @@ export const notaInstafotoDeleteAlternative = async (id, token) => {
             })
         });
         
-        console.log('Respuesta del servidor:', response.status, response.statusText);
+        //console.log('Respuesta del servidor:', response.status, response.statusText);
         
         if (!response.ok) {
             if (response.status === 404) {
@@ -138,7 +138,7 @@ export const notaInstafotoDeleteAlternative = async (id, token) => {
             throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
         
-        console.log('Instafoto eliminada exitosamente del servidor (método alternativo)');
+        //console.log('Instafoto eliminada exitosamente del servidor (método alternativo)');
         return true;
     } catch (error) {
         console.error("Error eliminando instafoto (método alternativo):", error);

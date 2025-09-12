@@ -17,7 +17,6 @@ import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
 
-
 const ListadoBannerRevista = ({
     tiposNotas,
     filtrarPostsPorTipoNota,
@@ -61,24 +60,31 @@ const ListadoBannerRevista = ({
                                         <div className="flex">
                                             {mostrarBanner && (
                                                 tipo === "Food & Drink" ? (
-                                                    <div className="w-full mb-11">
-                                                        {console.log("🍽️ Mostrando banner de Chevrolet para Food & Drink en ListadoBannerRevista")}
+                                                    <div className="mb-11">
                                                         <BannerChevrolet size="big" />
                                                     </div>
                                                 ) : revistaActual && revistaActual.pdf ? (
-                                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" className="mb-11">
-                                                        <img
-                                                            src={revistaActual.imagen_banner}
-                                                            alt="Banner Revista"
-                                                            className="w-full cursor-pointer"
-                                                            title="Descargar Revista"
-                                                        />
-                                                    </a>
+                                                    <div className="mb-11">
+                                                        <a
+                                                            href={revistaActual.pdf}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            download
+                                                            className="inline-block"
+                                                        >
+                                                            <img
+                                                                src={revistaActual.imagen_banner}
+                                                                alt="Banner Revista"
+                                                                className="w-full cursor-pointer"
+                                                                title="Descargar Revista"
+                                                            />
+                                                        </a>
+                                                    </div>
                                                 ) : (
                                                     <img
                                                         src={revistaActual?.imagen_banner}
                                                         alt="Banner Revista"
-                                                        className="w-full mb-4"
+                                                        className="w-full mb-11"
                                                     />
                                                 )
                                             )}
@@ -99,7 +105,6 @@ const ListadoBannerRevista = ({
                                                 <span
                                                     className={[
                                                         "block text-black font-extrabold uppercase text-center",
-                                                        // tamaños parecidos a tus logos
                                                         tipo === "Antojos" ? "text-2xl md:text-2xl" : "text-4xl md:text-4xl",
                                                         "leading-none tracking-tight"
                                                     ].join(" ")}
@@ -113,10 +118,8 @@ const ListadoBannerRevista = ({
 
                                 <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
-
                                     <BarraMarquee categoria="SEMANA MEXICANA. Del 9 al 15 de Septiembre encuentra toda la información sobre la gastronomía de las fiestas patrias." />
                                 </div>
-
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal
@@ -132,22 +135,6 @@ const ListadoBannerRevista = ({
                                     mostrarBannerEnMedio={mostrarBannerEnMedio}
                                     revistaActual={revistaActual}
                                 />
-                                {/*revistaActual && revistaActual.pdf ? (
-                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                        <img
-                                            src={revistaActual.imagen_banner}
-                                            alt="Banner Revista"
-                                            className="w-full mb-4 cursor-pointer py-2"
-                                            title="Descargar Revista"
-                                        />
-                                    </a>
-                                ) : (
-                                    <img
-                                        src={revistaActual?.imagen_banner}
-                                        alt="Banner Revista"
-                                        className="w-full mb-4"
-                                    />
-                                )*/}
                             </div>
 
                             {/* Columna lateral */}
@@ -161,32 +148,24 @@ const ListadoBannerRevista = ({
                                     sinFecha
                                     cantidadNotas={5}
                                 />
-
-
                                 <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>
-
                                 <Infografia />
-
-                                {/*<div className="flex justify-end items-end mb-4">
-                                    <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif"
-                                        className="h-auto w-75" />
-                                </div>*/}
-
-
                             </div>
                         </div>
                         {tipo === "Restaurantes" && (
                             <>
-                                {/*<hr className="border-gray-800/80 border-dotted mt-0 pb-6" />*/}
-                                <div className="relative flex justify-center items-center mb-8 pt-2 mt-8">
-                                    <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                <div className="relative flex justify-center items-center mb-6 pt-2 mt-8">
+                                    <div className="absolute left-0 right-0 top-1/3 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            {/*<img src={`https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
-                                            <img className="h-full w-105" src={'https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
-                                            {/*<img src={`https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />*/}
+                                            <img className="h-full w-105" src={'http://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                        </div>
+                                        <div className="text-center mt-0 leading-5">
+                                            <span className="text-[12px] font-semibold tracking-wide">
+                                                {new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }).toUpperCase()}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -210,7 +189,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
+                                            <img src={`http://residente.mx/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
                                         </div>
                                     </div>
                                 </div>

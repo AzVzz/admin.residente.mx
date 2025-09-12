@@ -11,7 +11,7 @@ const TarjetaVerticalPost = ({ nota, onClick }) => (
     onClick={() => onClick && onClick(nota)}
   >
     <div className="flex flex-col">
-      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 text-center text-[15px] h-10 items-center justify-center flex">
+      <div className="text-md font-bold text-gray-900 leading-[1.2] mb-1 group-hover:text-gray-700 transition-colors duration-200 text-center text-[15px]">
         {nota.nombre_restaurante?.trim() || ""}
       </div>
       <div className="h-30 w-full overflow-hidden">
@@ -38,9 +38,22 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
   useEffect(() => {
     if (!tipoNota) return;
     notasDestacadasPorTipoGet(tipoNota)
-      .then((data) => setNotas(data || []))
+      .then((data) => {
+        const notasData = data || [];
+        // Mezclar las notas de forma aleatoria
+        const notasMezcladas = [...notasData].sort(() => Math.random() - 0.5);
+        setNotas(notasMezcladas);
+      })
       .catch(() => setNotas([]));
   }, [tipoNota]);
+
+  // Efecto adicional para mezclar las notas cada vez que el componente se monte
+  useEffect(() => {
+    if (notas.length > 0) {
+      const notasMezcladas = [...notas].sort(() => Math.random() - 0.5);
+      setNotas(notasMezcladas);
+    }
+  }, []); // Solo se ejecuta al montar el componente
 
   // Responsivo simple (ajústalo si quieres otros cortes)
   useEffect(() => {
