@@ -13,6 +13,8 @@ const InfografiaForm = () => {
     const [postResponse, setPostResponse] = useState(null);
     const [infografias, setInfografias] = useState([]);
     const [modalImg, setModalImg] = useState(null);
+    const [titulo, setTitulo] = useState("");
+
 
     useEffect(() => {
         getInfografias().then(setInfografias);
@@ -43,15 +45,16 @@ const InfografiaForm = () => {
         setPostResponse(null);
         try {
             const formData = new FormData();
+            formData.append("titulo", titulo); // <-- agrega el título
             if (form.info_imagen) formData.append("info_imagen", form.info_imagen);
             if (form.pdf) formData.append("pdf", form.pdf);
 
             await crearInfografia(formData);
             setPostResponse("Infografía creada correctamente");
             setForm({ info_imagen: null, pdf: null });
+            setTitulo(""); // <-- limpia el campo
             setImagenPreview(null);
             setPdfNombre("");
-            // Actualiza la lista después de crear
             getInfografias().then(setInfografias);
         } catch (error) {
             setPostError("Error al crear la infografía");
@@ -89,6 +92,25 @@ const InfografiaForm = () => {
                                 {postError}
                             </div>
                         )}
+                        {/* Título */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Título *
+                            </label>
+                            <input
+                                type="text"
+                                name="titulo"
+                                placeholder="Agrega el título"
+                                maxLength={70}
+                                value={titulo}
+                                onChange={e => setTitulo(e.target.value.slice(0, 70))}
+                                className="w-full px-3 py-2 border rounded-md border-gray-300"
+                                required
+                            />
+                            <div className="flex justify-between items-center mt-1">
+                                <span className="text-xs text-gray-500">{titulo.length}/70</span>
+                            </div>
+                        </div>
                         {/* Imagen */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
