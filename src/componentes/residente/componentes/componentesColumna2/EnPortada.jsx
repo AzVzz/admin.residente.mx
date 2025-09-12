@@ -64,26 +64,27 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10">
                     {/* Columna Izquierda */}
                     <div className="flex flex-col justify-start items-start">
-
-                        <div className="flex flex-row">
-                            {revistaActual && revistaActual.pdf ? (
-                                <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                        <div className="flex flex-row h-[228px] w-full">
+                            <div className="flex-shrink-0 w-[180px] h-full flex items-center justify-center">
+                                {revistaActual && revistaActual.pdf ? (
+                                    <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
+                                        <img
+                                            src={revistaActual.imagen_portada}
+                                            alt="Portada Revista"
+                                            className="w-full h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
+                                            title="Descargar PDF"
+                                        />
+                                    </a>
+                                ) : (
                                     <img
-                                        src={revistaActual.imagen_portada}
+                                        src={revistaActual}
                                         alt="Portada Revista"
-                                        className="w-65 h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
-                                        title="Descargar PDF"
+                                        className="w-full h-full object-cover"
                                     />
-                                </a>
-                            ) : (
-                                <img
-                                    src={revistaActual}
-                                    alt="Portada Revista"
-                                    className="h-auto sm:w-32 w-22 object-cover "
-                                />
-                            )}
-                            <div className="flex flex-col ml-6 justify-between">
-                                <h3 className="text-2xl font-bold text-black ">En Portada</h3>
+                                )}
+                            </div>
+                            <div className="flex flex-col flex-1 ml-6 justify-between">
+                                <h3 className="text-2xl font-bold text-black">En Portada</h3>
                                 <h2 className="text-black text-[22px] leading-6.5 whitespace-pre-line">
                                     {revistaActual?.descripcion || ""}
                                 </h2>
