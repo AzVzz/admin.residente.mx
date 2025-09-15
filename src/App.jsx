@@ -26,6 +26,7 @@ import BotonScroll from './componentes/residente/componentes/compFormularioMain/
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
+import usePageTracking from './usePageTracking.js';
 
 
 //Admin
@@ -43,6 +44,7 @@ const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/
 
 
 function App() {
+  usePageTracking();
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
