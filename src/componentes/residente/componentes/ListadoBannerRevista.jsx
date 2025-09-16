@@ -124,7 +124,7 @@ const ListadoBannerRevista = ({
 
                                 <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
-                                    <BarraMarquee categoria="SEMANA MEXICANA. Del 9 al 15 de Septiembre encuentra toda la información sobre la gastronomía de las fiestas patrias." />
+                                    <BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León" />
                                 </div>
 
                                 {postsFiltrados[0] && (
