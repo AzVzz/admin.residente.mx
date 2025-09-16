@@ -16,7 +16,6 @@ import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
-import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
 import { giveawayDescuentosGet } from "../../../componentes/api/giveawayDescuentosGet";
 
 const ListadoBannerRevista = ({
@@ -214,13 +213,6 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
-
-                        {tipo === "Gastro-Destinos" && (
-                            <div className="mt-8">
-                                <GiveawayDescuentos giveaway={giveaway} />
-                            </div>
-                        )}
-
                     </div>
                 );
             })}
