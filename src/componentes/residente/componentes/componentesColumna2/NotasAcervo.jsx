@@ -148,7 +148,7 @@ const NotasAcervo = ({ onCardClick }) => {
             <div className="max-w-[1080px] mx-auto h-105 py-12">
 
                 <div className="flex items-end leading-8 mb-8">
-                    <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp" className="w-auto h-6"/>
+                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6"/>
                     <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}
@@ -286,7 +286,7 @@ const NotasAcervo = ({ onCardClick }) => {
                     <div className="flex flex-row gap-4">
                         <div className="flex justify-start items-start">
                             <span className="text-[25px] text-white leading-6.5">
-                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronimia de Nuevo León
+                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronomía de Nuevo León
                             </span>
                         </div>
                         <div className="flex gap-4 justify-end ml-auto">

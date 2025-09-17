@@ -16,7 +16,6 @@ import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
-import { giveawayDescuentosGet } from "../../../componentes/api/giveawayDescuentosGet";
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -28,16 +27,11 @@ const ListadoBannerRevista = ({
 }) => {
 
     const [cupones, setCupones] = useState([]);
-    const [giveaway, setGiveaway] = useState(null);
 
     useEffect(() => {
         cuponesGet()
             .then(data => setCupones(Array.isArray(data) ? data : []))
             .catch(() => setCupones([]));
-    }, []);
-
-    useEffect(() => {
-        giveawayDescuentosGet().then(setGiveaway);
     }, []);
 
     return (
@@ -124,7 +118,7 @@ const ListadoBannerRevista = ({
 
                                 <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
-                                    <BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León" />
+                                    <BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />
                                 </div>
 
                                 {postsFiltrados[0] && (
@@ -213,6 +207,7 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
+
                     </div>
                 );
             })}

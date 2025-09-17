@@ -26,7 +26,8 @@ import BotonScroll from './componentes/residente/componentes/compFormularioMain/
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
-
+import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
+import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -179,7 +180,7 @@ function App() {
               {/* Estrellas de Nuevo León */}
               <Route path="/ednl" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                  <ListaRestaurantes/>
+                  <ListaRestaurantes />
                 </div>
               } />
 
@@ -218,6 +219,19 @@ function App() {
                 <RespuestasSemana />
               } />
 
+
+              {/* UANL */}
+              <Route path="/uanl" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <UanlPage />
+                </div>
+              } />
+
+              <Route path="/uanl/:id" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <DetalleUanl />
+                </div>
+              } />
 
 
               {/*================================*/}
