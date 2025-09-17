@@ -286,7 +286,7 @@ const NotasAcervo = ({ onCardClick }) => {
                     <div className="flex flex-row gap-4">
                         <div className="flex justify-start items-start">
                             <span className="text-[25px] text-white leading-6.5">
-                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronimia de Nuevo León
+                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronomía de Nuevo León
                             </span>
                         </div>
                         <div className="flex gap-4 justify-end ml-auto">

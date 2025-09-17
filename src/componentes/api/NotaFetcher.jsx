@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { urlApi } from './componentes/api/url.js';
 
 const NotaFetcher = ({ children }) => {
     const [notas, setNotas] = useState([]);
@@ -10,7 +11,7 @@ const NotaFetcher = ({ children }) => {
         setCargando(true);
         setError(null);
         try {
-            const response = await fetch(`https://residente.mx/api/notas/todas?page=${page}&limit=${limit}`);
+            const response = await fetch(`${urlApi}/api/notas/todas?page=${page}&limit=${limit}`);
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             const data = await response.json();
             setNotas(data.notas); // Ajusta según la respuesta de tu API

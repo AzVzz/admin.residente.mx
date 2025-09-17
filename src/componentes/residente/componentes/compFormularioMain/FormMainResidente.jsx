@@ -10,6 +10,7 @@ import Titulo from "./componentes/Titulo";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut, notaInstafotoPut, notaInstafotoDelete } from '../../../../componentes/api/notaCrearPostPut.js';
+import { notaDelete } from "../../../api/notaDelete";
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
 import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
@@ -420,6 +421,24 @@ const FormMainResidente = () => {
     }
   };
 
+  const [eliminando, setEliminando] = useState(false); // Estado para manejar el proceso de eliminación
+
+  // Función para eliminar la nota
+  const eliminarNota = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta nota?")) {
+      setEliminando(true);
+      try {
+        await notaDelete(notaId, token); // Llama a la API para eliminar la nota
+        alert("Nota eliminada con éxito.");
+        navigate("/notas"); // Redirige a la lista de notas
+      } catch (error) {
+        alert("Error al eliminar la nota.");
+      } finally {
+        setEliminando(false);
+      }
+    }
+  };
+
   if (cargandoNota) {
     return (
       <div className="flex justify-center py-12">
@@ -639,6 +658,24 @@ const FormMainResidente = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Botón para eliminar la nota */}
+                {notaId && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={eliminarNota}
+                      disabled={eliminando}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
+                    >
+                      {eliminando ? "Eliminando..." : "Eliminar Nota"}
+                    </button>
+                  </div>
+                )}
 
                 <BotonSubmitNota
                   isPosting={isPosting}
