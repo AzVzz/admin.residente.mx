@@ -46,7 +46,7 @@ const BotonesAnunciateSuscribirme = () => {
 
                     {/* Logo */}
                     <img
-                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
+                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp`}
                         className="h-full w-46 object-contain"
                         alt="Logo Infografías"
                     />

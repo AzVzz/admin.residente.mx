@@ -160,7 +160,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/3 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            <img className="h-full w-105" src={'http://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                            <img className="h-full w-105" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                                         </div>
                                         <div className="text-center mt-0 leading-5">
                                             <span className="text-[12px] font-semibold tracking-wide">
@@ -189,7 +189,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`http://residente.mx/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
+                                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
                                         </div>
                                     </div>
                                 </div>

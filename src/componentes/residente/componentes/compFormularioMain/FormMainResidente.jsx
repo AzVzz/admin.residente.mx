@@ -19,11 +19,6 @@ import InstafotoSelector from './componentes/InstafotoSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
 import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
-import PostPrincipal from './componentesMuestraNotas/PostPrincipal.jsx';
-import PostLoMasVisto from './componentesMuestraNotas/PostLoMasVisto.jsx';
-import PostVertical from './componentesMuestraNotas/PostVertical.jsx';
-import PostHorizontal from './componentesMuestraNotas/PostHorizontal.jsx';
-import PostLoMasVistoDirectorio from './componentesMuestraNotas/PostLoMasVistoDirectorio.jsx';
 import NombreRestaurante from './componentes/NombreRestaurante.jsx';
 import DetallePost from '../DetallePost.jsx';
 

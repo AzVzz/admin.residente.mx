@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
+import { urlApi } from '../../..url.js'
 
 const FotosLugar = ({ existingFotos }) => {
     const { register, setValue, watch, formState: { errors } } = useFormContext();
@@ -18,7 +19,7 @@ const FotosLugar = ({ existingFotos }) => {
         if (existingFotos?.length > 0) {
             const formattedFotos = existingFotos.map(foto => ({
                 id: foto.id,
-                url: `https://residente.mx${foto.url_imagen}`,
+                url: `${urlApi}${foto.url_imagen}`,
                 isExisting: true
             }));
             setPreviews(formattedFotos);
@@ -68,7 +69,7 @@ const FotosLugar = ({ existingFotos }) => {
         if (isExistingFoto && foto.id) {
             try {
                 setIsDeleting(true);
-                const response = await fetch(`https://residente.mx/api/restaurante/fotos-lugar/${foto.id}`, {
+                const response = await fetch(`${urlApi}api/restaurante/fotos-lugar/${foto.id}`, {
                     method: 'DELETE'
                 });
 

@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
+import { urlApi } from 'src/componentes/api/url.js'
 
 const Imagenes = ({ slug, existingImages }) => {
     const { register, setValue, watch, formState: { errors } } = useFormContext();
@@ -24,7 +25,7 @@ const Imagenes = ({ slug, existingImages }) => {
         if (existingImages && existingImages.length > 0) {
             const existingPreviews = existingImages.map(img => ({
                 id: img.id,
-                url: `https://residente.mx${img.src}`
+                url: `${urlApi}${img.src}`
             }));
 
             setPreviews(existingPreviews.map(img => img.url));
@@ -73,17 +74,17 @@ const Imagenes = ({ slug, existingImages }) => {
 
     const removeImage = async (indexToRemove) => {
         const imageToRemove = previews[indexToRemove];
-        const isExistingImage = typeof imageToRemove !== 'string' || 
-                               !imageToRemove.startsWith('blob:');
+        const isExistingImage = typeof imageToRemove !== 'string' ||
+            !imageToRemove.startsWith('blob:');
 
         // Si es una imagen existente (no nueva), agregar a lista de eliminadas
         if (isExistingImage && existingImages && existingImages[indexToRemove]?.id) {
             const imageId = existingImages[indexToRemove].id;
-            
+
             try {
                 setIsDeleting(true);
                 // Llamar a la API para eliminar la imagen del servidor
-                const response = await fetch(`https://residente.mx/api/restaurante/imagenes/${imageId}`, {
+                const response = await fetch(`${urlApi}api/restaurante/imagenes/${imageId}`, {
                     method: 'DELETE'
                 });
 
@@ -205,9 +206,8 @@ const Imagenes = ({ slug, existingImages }) => {
                                 type="button"
                                 onClick={() => removeImage(index)}
                                 disabled={isDeleting}
-                                className={`absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center transition-colors duration-300 ease-in-out cursor-pointer shadow-md ${
-                                    isDeleting ? 'bg-gray-500' : 'bg-orange-500 hover:bg-red-500'
-                                }`}
+                                className={`absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center transition-colors duration-300 ease-in-out cursor-pointer shadow-md ${isDeleting ? 'bg-gray-500' : 'bg-orange-500 hover:bg-red-500'
+                                    }`}
                             >
                                 {isDeleting ? 'Eliminando...' : 'Eliminar'}
                             </button>

@@ -134,7 +134,7 @@ const DetalleBannerRevista = ({
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-2">
                                 <img src={`http://localhost:3000/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
-                                <img className="h-full w-95" src={'https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                                 <img src={`http://localhost:3000/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
                             </div>
                             <div className="text-center mt-1">
