@@ -29,6 +29,7 @@ import InfografiaForm from './componentes/residente/infografia/InfografiaForm.js
 import usePageTracking from './usePageTracking.js';
 import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
 import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
+import ListaNotasUanl from './componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx';
 
 
 //Admin
@@ -234,7 +235,7 @@ function App() {
                   <DetalleUanl />
                 </div>
               } />
-              
+
 
               {/*================================*/}
 
@@ -318,6 +319,12 @@ function App() {
               {/* Admin */}
               <Route path="/infografias" element={
                 <InfografiaForm />
+              } />
+
+              <Route path="/admin/uanl" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <ListaNotasUanl />
+                </div>
               } />
 
             </Routes>

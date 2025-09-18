@@ -11,7 +11,9 @@ const UanlListado = ({ notasUanl, onCardClick }) => (
     {/* Columna principal: todas las notas en grande */}
     <div className="flex flex-col gap-12">
       {notasUanl.map(nota => (
-        <PostPrincipal key={nota.id} post={nota} onClick={() => onCardClick(nota.id)} />
+        <div id={`nota-${nota.id}`} key={nota.id}>
+          <PostPrincipal post={nota} onClick={() => onCardClick(nota.id)} />
+        </div>
       ))}
     </div>
     {/* Columna lateral */}
