@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { urlApi } from './componentes/api/url.js'
 
 const SeccionesDataFetcher = () => {
     const [data, setData] = useState(null);
