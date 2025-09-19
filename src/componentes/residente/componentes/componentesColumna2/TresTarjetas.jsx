@@ -127,7 +127,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                     </button>
                 )}
 
-                {/* Indicadores de grupo - con números */}
+                {/* Indicadores de grupo - con números 
                 {groups.length > 1 && (
                     <div className="flex justify-center mt-4 space-x-2 my-3">
                         {groups.map((_, index) => (
@@ -146,6 +146,8 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                         ))}
                     </div>
                 )}
+                */}
+
             </div>
             
             <BannerHorizontal size="small"/>

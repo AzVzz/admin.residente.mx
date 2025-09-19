@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
-import { urlApi } from 'src/componentes/api/url.js'
+import { urlApi } from '../../api/url'
 
 const Imagenes = ({ slug, existingImages }) => {
     const { register, setValue, watch, formState: { errors } } = useFormContext();
