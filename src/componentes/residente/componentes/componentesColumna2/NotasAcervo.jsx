@@ -163,9 +163,9 @@ const NotasAcervo = ({ onCardClick }) => {
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff200] mb-4">
-            <div className="max-w-[1080px] mx-auto h-105 py-12">
+            <div className="max-w-[1080px] mx-auto h-88 py-10">
 
-                <div className="flex items-end leading-8 mb-8">
+                <div className="flex items-end leading-8 mb-6">
                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6" />
                     <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
@@ -176,7 +176,9 @@ const NotasAcervo = ({ onCardClick }) => {
                         getOptionLabel={(option) => option.titulo || ''}
                         sx={{
                             width: 300,
+                            height: 40,
                             '& .MuiOutlinedInput-root': {
+                                height: 40,
                                 backgroundColor: 'white',
                                 borderRadius: '8px',
                                 '& fieldset': {
