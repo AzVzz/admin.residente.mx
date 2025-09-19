@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { useAuth } from '../../../Context'; // Importar el contexto de autenticación
+import Proximamente from '../../../Proximamente'; // Importar el componente Proximamente
 import { notasPorSeccionCategoriaGet, notasTopPorSeccionCategoriaGet } from '../../../api/notasPorSeccionCategoriaGet';
 import { restaurantesPorSeccionCategoriaGet } from '../../../api/restaurantesPorSeccionCategoriaGet';
 import { revistaGetUltima } from "../../../../componentes/api/revistasGet";
@@ -8,7 +10,7 @@ import { cuponesGetFiltrados } from '../../../api/cuponesGet';
 import CarruselPosts from '../../../../componentes/residente/componentes/componentesColumna2/CarruselPosts.jsx';
 import TarjetaHorizontalPost from '../../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
 import DirectorioVertical from '../componentesColumna2/DirectorioVertical.jsx';
-import DetallePost from '../DetallePost.jsx'; ``
+import DetallePost from '../DetallePost.jsx';
 import BarraMarquee from './componentes/BarraMarquee.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
 import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
@@ -21,6 +23,7 @@ import BannerHorizontal from '../BannerHorizontal.jsx';
 const NOTAS_POR_PAGINA = 12;
 
 const MainSeccionesCategorias = () => {
+    const { usuario } = useAuth(); // Obtener el usuario del contexto de autenticación
     const location = useLocation();
     const params = useParams();
     const navigate = useNavigate();
@@ -46,6 +49,11 @@ const MainSeccionesCategorias = () => {
     const [cupones, setCupones] = useState([]);
     const [loadingCupones, setLoadingCupones] = useState(true);
     const [revistaActual, setRevistaActual] = useState(null);
+
+    // Si el usuario no está logueado, mostrar "Próximamente"
+    if (!usuario) {
+        return <Proximamente />;
+    }
 
     useEffect(() => {
         //Buscara la informacion de la categoria seleccionada

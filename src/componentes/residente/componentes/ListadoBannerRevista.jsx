@@ -129,7 +129,7 @@ const ListadoBannerRevista = ({
                                 )}
 
                                 <TresTarjetas
-                                    posts={postsFiltrados.slice(1, 7)}
+                                    posts={postsFiltrados.slice(1, 25)}
                                     onCardClick={(post) => handleCardClick(post.id)}
                                     mostrarBanner={mostrarBanner}
                                     mostrarBannerEnMedio={mostrarBannerEnMedio}

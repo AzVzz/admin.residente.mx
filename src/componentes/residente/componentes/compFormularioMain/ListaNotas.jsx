@@ -14,6 +14,7 @@ import { FaLightbulb } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
 import { IoNewspaper } from "react-icons/io5";
 import { RiStickyNoteFill } from "react-icons/ri";
+import { LuUnderline } from "react-icons/lu";
 
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
@@ -24,6 +25,7 @@ import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
 import FormNewsletter from "./FormNewsletter.jsx";
 import InfografiaForm from "../../infografia/InfografiaForm.jsx";
+import ListaNotasUanl from "./ListaNotasUanl.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -39,7 +41,7 @@ const ListaNotas = () => {
   const [autor, setAutor] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [todasLasNotas, setTodasLasNotas] = useState([]);
-  
+
   // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
@@ -63,22 +65,22 @@ const ListaNotas = () => {
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
-      
+
       console.log('Cargando todas las notas...');
-      
+
       // Cargar todas las notas sin paginación
       const data = await notasTodasGet(token, 1, 'all');
       console.log('Respuesta:', data);
-      
+
       // Validar respuesta del servidor
       if (!data) {
         throw new Error('El servidor no devolvió datos');
       }
-      
+
       if (!Array.isArray(data.notas)) {
         throw new Error('Formato de respuesta inválido del servidor');
       }
-      
+
       setTodasLasNotas(data.notas);
       setNotas(data.notas);
       setPaginaActual(1); // Resetear a página 1 al cargar
@@ -87,7 +89,7 @@ const ListaNotas = () => {
       console.error('Mensaje del error:', err.message);
       console.error('Status del error:', err.status);
       console.error('Stack trace:', err.stack);
-      
+
       setError(err);
     } finally {
       setCargando(false);
@@ -158,12 +160,12 @@ const ListaNotas = () => {
       const subtituloNormalizado = normalizarTexto(nota.subtitulo);
       const autorNormalizado = normalizarTexto(nota.autor);
       const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
-      
+
       // Búsqueda exacta
-      if (tituloNormalizado.includes(queryNormalizado) || 
-          subtituloNormalizado.includes(queryNormalizado) ||
-          autorNormalizado.includes(queryNormalizado) ||
-          tipoNotaNormalizado.includes(queryNormalizado)) {
+      if (tituloNormalizado.includes(queryNormalizado) ||
+        subtituloNormalizado.includes(queryNormalizado) ||
+        autorNormalizado.includes(queryNormalizado) ||
+        tipoNotaNormalizado.includes(queryNormalizado)) {
         cumpleBusqueda = true;
       } else {
         // Búsqueda por palabras individuales
@@ -171,10 +173,10 @@ const ListaNotas = () => {
         if (palabrasQuery.length > 0) {
           let coincidencias = 0;
           for (const palabraQuery of palabrasQuery) {
-            if (tituloNormalizado.includes(palabraQuery) || 
-                subtituloNormalizado.includes(palabraQuery) ||
-                autorNormalizado.includes(palabraQuery) ||
-                tipoNotaNormalizado.includes(palabraQuery)) {
+            if (tituloNormalizado.includes(palabraQuery) ||
+              subtituloNormalizado.includes(palabraQuery) ||
+              autorNormalizado.includes(palabraQuery) ||
+              tipoNotaNormalizado.includes(palabraQuery)) {
               coincidencias++;
             }
           }
@@ -193,7 +195,7 @@ const ListaNotas = () => {
   const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
   const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
-  
+
   // Obtener notas para la página actual
   const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
 
@@ -338,6 +340,16 @@ const ListaNotas = () => {
               Infografías
             </button>
           )}
+
+          {usuario?.permisos === 'todos' && (
+            <button
+              onClick={() => setVistaActiva("uanl")}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "uanl" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"}`}
+            >
+              <LuUnderline className="mr-3" />
+              UANL
+            </button>
+          )}
         </div>
       </div>
 
@@ -351,7 +363,7 @@ const ListaNotas = () => {
               <div className="flex-1 max-w-md">
                 <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
-              
+
               {/* Filtros */}
               <div className="flex gap-2 items-center">
                 {usuario?.permisos === 'todos' && (
@@ -367,20 +379,20 @@ const ListaNotas = () => {
                   to="/notas/nueva"
                   className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                 >
-                <svg
-                  className="-ml-1 mr-2 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Nueva Nota
-              </Link>
+                  <svg
+                    className="-ml-1 mr-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Nueva Nota
+                </Link>
               </div>
             </div>
 
@@ -412,7 +424,7 @@ const ListaNotas = () => {
                     Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
                     {searchTerm && ` (filtradas por "${searchTerm}")`}
                   </div>
-                  
+
                   {/* Navegación de páginas */}
                   {totalPaginas > 1 && (
                     <div className="flex items-center space-x-2">
@@ -420,24 +432,23 @@ const ListaNotas = () => {
                       <button
                         onClick={irAPaginaAnterior}
                         disabled={paginaActual === 1}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                          paginaActual === 1
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                        }`}
+                          }`}
                       >
                         ← Anterior
                       </button>
-                      
+
                       {/* Números de página */}
                       <div className="flex space-x-1">
                         {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
                           // Mostrar solo un rango de páginas alrededor de la actual
-                          const mostrarPagina = 
-                            numero === 1 || 
-                            numero === totalPaginas || 
+                          const mostrarPagina =
+                            numero === 1 ||
+                            numero === totalPaginas ||
                             (numero >= paginaActual - 2 && numero <= paginaActual + 2);
-                          
+
                           if (!mostrarPagina) {
                             // Mostrar puntos suspensivos
                             if (numero === paginaActual - 3 || numero === paginaActual + 3) {
@@ -445,32 +456,30 @@ const ListaNotas = () => {
                             }
                             return null;
                           }
-                          
+
                           return (
                             <button
                               key={numero}
                               onClick={() => irAPagina(numero)}
-                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                numero === paginaActual
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
                                   ? 'bg-blue-600 text-white'
                                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                              }`}
+                                }`}
                             >
                               {numero}
                             </button>
                           );
                         })}
                       </div>
-                      
+
                       {/* Botón siguiente */}
                       <button
                         onClick={irAPaginaSiguiente}
                         disabled={paginaActual === totalPaginas}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                          paginaActual === totalPaginas
+                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                        }`}
+                          }`}
                       >
                         Siguiente →
                       </button>
@@ -499,6 +508,9 @@ const ListaNotas = () => {
         )}
         {vistaActiva === "infografias" && (
           <div className="text-center py-10 text-lg"><InfografiaForm /></div>
+        )}
+        {vistaActiva === "uanl" && (
+          <div className="text-center py-10 text-lg"><ListaNotasUanl /></div>
         )}
       </div>
     </div>

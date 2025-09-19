@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from "react";
 import { urlApi } from "../../../api/url.js";
 import BannerHorizontal from "../BannerHorizontal.jsx";
 
@@ -33,55 +34,120 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 };
 
 const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaActual }) => {
-    // Aseguramos 6 items y partimos 3 / 3
-    const firstThree = posts.slice(0, 3);
-    const lastThree = posts.slice(3, 6);
+    const [currentGroup, setCurrentGroup] = useState(0);
+    const [groups, setGroups] = useState([]);
+    const carouselRef = useRef(null);
+    
+    // Dividir los posts en grupos de 6
+    useEffect(() => {
+        const newGroups = [];
+        for (let i = 0; i < posts.length; i += 6) {
+            newGroups.push(posts.slice(i, i + 6));
+        }
+        setGroups(newGroups);
+        setCurrentGroup(0);
+    }, [posts]);
+
+    const nextGroup = () => {
+        setCurrentGroup(prev => (prev + 1) % groups.length);
+    };
+
+    const prevGroup = () => {
+        setCurrentGroup(prev => (prev - 1 + groups.length) % groups.length);
+    };
+
+    if (groups.length === 0) return null;
 
     return (
-        <div className="w-full">
-            {/* Fila 1 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mb-4">
-                {firstThree.map((post) => (
-                    <TarjetaVerticalPost
-                        key={post.id}
-                        post={post}
-                        onClick={() => onCardClick(post)}
-                    />
-                ))}
-            </div>
+        <div className="w-full relative" style={{ overflow: "visible" }}>
+            {/* Contenedor principal centrado */}
+            <div className="relative mx-auto w-full" style={{ overflow: "visible" }}>
+                {/* Flecha izquierda - fuera del contenedor */}
+                {groups.length > 1 && (
+                    <button 
+                        onClick={prevGroup}
+                        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                        aria-label="Grupo anterior"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                        </svg>
+                    </button>
+                )}
 
-            {/* Banner al centro */}
-            {/*mostrarBanner && revistaActual?.imagen_banner && (
-                <div className="w-full my-4">
-                    {revistaActual.pdf ? (
-                        <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                            <img
-                                src={revistaActual.imagen_banner}
-                                alt="Banner Revista"
-                                className="w-full cursor-pointer pb-4"
-                                title="Descargar Revista"
-                            />
-                        </a>
-                    ) : (
-                        <img
-                            src={revistaActual.imagen_banner}
-                            alt="Banner Revista"
-                            className="w-full"
-                        />
-                    )}
+                {/* Contenedor del carrusel con transición suave */}
+                <div className="w-full overflow-hidden" ref={carouselRef}>
+                    <div 
+                        className="flex transition-transform duration-500 ease-in-out"
+                        style={{ transform: `translateX(-${currentGroup * 100}%)` }}
+                    >
+                        {groups.map((group, index) => {
+                            const firstThree = group.slice(0, 3);
+                            const lastThree = group.slice(3, 6);
+                            
+                            return (
+                                <div key={index} className="w-full flex-shrink-0">
+                                    {/* Fila 1 (3 tarjetas) */}
+                                    <div className="grid grid-cols-3 gap-x-8 gap-y-5 mb-4">
+                                        {firstThree.map((post) => (
+                                            <TarjetaVerticalPost
+                                                key={post.id}
+                                                post={post}
+                                                onClick={() => onCardClick(post)}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Fila 2 (3 tarjetas) */}
+                                    <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4 mb-2">
+                                        {lastThree.map((post) => (
+                                            <TarjetaVerticalPost
+                                                key={post.id}
+                                                post={post}
+                                                onClick={() => onCardClick(post)}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-            )*/}
 
-            {/* Fila 2 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4 mb-2">
-                {lastThree.map((post) => (
-                    <TarjetaVerticalPost
-                        key={post.id}
-                        post={post}
-                        onClick={() => onCardClick(post)}
-                    />
-                ))}
+                {/* Flecha derecha - fuera del contenedor */}
+                {groups.length > 1 && (
+                    <button 
+                        onClick={nextGroup}
+                        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 right-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                        aria-label="Siguiente grupo"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Indicadores de grupo - con números */}
+                {groups.length > 1 && (
+                    <div className="flex justify-center mt-4 space-x-2 my-3">
+                        {groups.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentGroup(index)}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                                    currentGroup === index 
+                                        ? 'bg-gray-800 text-white' 
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                                aria-label={`Ir al grupo ${index + 1}`}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
+            
             <BannerHorizontal size="small"/>
         </div>
     );

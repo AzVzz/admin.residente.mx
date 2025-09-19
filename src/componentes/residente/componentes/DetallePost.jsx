@@ -126,7 +126,9 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         lineHeight: '1.3',
                         marginBottom: '1.5rem'
                     }}
-                    dangerouslySetInnerHTML={{ __html: post.descripcion || '' }}
+                    dangerouslySetInnerHTML={{
+                        __html: post.descripcion?.replace(/\n/g, '<br><br>') || ''
+                    }}
                 />
                 <button className="cursor-pointer" onClick={() => navigate(-1)}>
                     ← Volver al listado
