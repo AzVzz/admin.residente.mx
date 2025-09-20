@@ -24,3 +24,9 @@ export const postRespuestaSemana = async (data) => {
   if (!res.ok) throw new Error("No se pudo registrar la respuesta");
   return await res.json();
 };
+
+export const getColaboradores = async () => {
+  const res = await fetch(`${urlApi}api/consejeros`);
+  if (!res.ok) throw new Error("No se pudo obtener la lista de colaboradores");
+  return await res.json();
+};

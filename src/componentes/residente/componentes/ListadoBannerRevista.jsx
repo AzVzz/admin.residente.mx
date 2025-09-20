@@ -16,6 +16,9 @@ import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
+import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
+import { giveawayDescuentosGet } from '../../../componentes/api/giveawayDescuentosGet.js';
+import Colaboradores from "../../../componentes/residente/componentes/componentesColumna2/Colaboradores"
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -27,11 +30,18 @@ const ListadoBannerRevista = ({
 }) => {
 
     const [cupones, setCupones] = useState([]);
+    const [giveaway, setGiveaway] = useState(null);
 
     useEffect(() => {
         cuponesGet()
             .then(data => setCupones(Array.isArray(data) ? data : []))
             .catch(() => setCupones([]));
+    }, []);
+
+    useEffect(() => {
+        giveawayDescuentosGet()
+            .then(data => setGiveaway(data))
+            .catch(() => setGiveaway(null));
     }, []);
 
     return (
@@ -89,7 +99,7 @@ const ListadoBannerRevista = ({
                                                 )
                                             )}
                                         </div>
-                                        <div className="flex items-center justify-center">
+                                        <div className="flex items-center justify-center mb-4"> {/*Se agregó mb-4 porque se eliminó la barra amarilla(marquee)*/}
                                             {tipoLogo ? (
                                                 <img
                                                     src={tipoLogo}
@@ -116,10 +126,10 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
+                                {/*<div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
                                     <BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />
-                                </div>
+                                </div>*/}
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal
@@ -207,6 +217,12 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
+                        {/*{tipo === "Gastro-Destinos" && (
+                            <div className="my-2">
+                                <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
+                                <Colaboradores />
+                            </div>
+                        )}*/}
 
                     </div>
                 );
