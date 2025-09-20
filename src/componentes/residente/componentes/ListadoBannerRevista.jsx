@@ -99,7 +99,7 @@ const ListadoBannerRevista = ({
                                                 )
                                             )}
                                         </div>
-                                        <div className="flex items-center justify-center mb-4"> {/*Se agregó mb-4 porque se eliminó la barra amarilla(marquee)*/}
+                                        <div className="flex items-center justify-center">
                                             {tipoLogo ? (
                                                 <img
                                                     src={tipoLogo}
@@ -126,10 +126,10 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                {/*<div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
+                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6"> {/* Cambio a mb-4 antes (mb-3) */}
                                     <p className="uppercase">{marqueeTexto}</p>
-                                    <BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />
-                                </div>*/}
+                                    {/*<BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />*/}
+                                </div>
 
                                 {postsFiltrados[0] && (
                                     <PostPrincipal
@@ -217,12 +217,12 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
-                        {/*{tipo === "Gastro-Destinos" && (
+                        {tipo === "Gastro-Destinos" && (
                             <div className="my-2">
-                                <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
+                                {/*<GiveawayDescuentos giveaway={giveaway} cupones={cupones} /> */}
                                 <Colaboradores />
                             </div>
-                        )}*/}
+                        )}
 
                     </div>
                 );
