@@ -5,7 +5,7 @@ import BannerHorizontal from "../BannerHorizontal.jsx";
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
         <div
-            className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
+            className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer"
             onClick={onClick}
         >
             <div className="flex flex-col">
@@ -34,35 +34,81 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 };
 
 const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaActual }) => {
-    const [currentGroup, setCurrentGroup] = useState(0);
-    const [groups, setGroups] = useState([]);
-    const carouselRef = useRef(null);
-    
-    // Dividir los posts en grupos de 6
+    const [itemWidth, setItemWidth] = useState(0);
+    const [perView, setPerView] = useState(3); // 3 columnas por fila, 6 en total
+    const viewportRef = useRef(null);
+    const GAP_PX = 32; // gap-x-8 ≈ 32px
+
+    // Responsivo - ajustar número de columnas
     useEffect(() => {
-        const newGroups = [];
-        for (let i = 0; i < posts.length; i += 6) {
-            newGroups.push(posts.slice(i, i + 6));
-        }
-        setGroups(newGroups);
-        setCurrentGroup(0);
-    }, [posts]);
+        const onResize = () => {
+            const w = window.innerWidth;
+            if (w < 640) setPerView(1); // 1 columna en móvil
+            else if (w < 768) setPerView(2); // 2 columnas en tablet pequeña
+            else if (w < 1024) setPerView(3); // 3 columnas en tablet
+            else setPerView(3); // 3 columnas en desktop
+        };
+        
+        onResize();
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+
+    // Calcular ancho de cada item
+    useEffect(() => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const containerWidth = el.clientWidth;
+        const totalGaps = GAP_PX * (perView - 1);
+        const w = (containerWidth - totalGaps) / perView;
+        setItemWidth(w);
+    }, [perView, posts.length]);
+
+    // Dividir posts en grupos de 6 (2 filas de 3)
+    const groups = [];
+    for (let i = 0; i < posts.length; i += 6) {
+        groups.push(posts.slice(i, i + 6));
+    }
+
+    const scrollToGroup = (groupIndex) => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const scrollAmount = groupIndex * el.clientWidth;
+        el.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+    };
 
     const nextGroup = () => {
-        setCurrentGroup(prev => (prev + 1) % groups.length);
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const currentScroll = el.scrollLeft;
+        const groupWidth = el.clientWidth;
+        const nextScroll = currentScroll + groupWidth;
+        
+        el.scrollTo({ left: nextScroll, behavior: 'smooth' });
     };
 
     const prevGroup = () => {
-        setCurrentGroup(prev => (prev - 1 + groups.length) % groups.length);
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const currentScroll = el.scrollLeft;
+        const groupWidth = el.clientWidth;
+        const prevScroll = Math.max(0, currentScroll - groupWidth);
+        
+        el.scrollTo({ left: prevScroll, behavior: 'smooth' });
     };
 
-    if (groups.length === 0) return null;
+    if (posts.length === 0) return null;
 
     return (
         <div className="w-full relative" style={{ overflow: "visible" }}>
-            {/* Contenedor principal centrado */}
+            {/* Contenedor principal */}
             <div className="relative mx-auto w-full" style={{ overflow: "visible" }}>
-                {/* Flecha izquierda - fuera del contenedor */}
+
+                {/* Flecha izquierda */}
                 {groups.length > 1 && (
                     <button 
                         onClick={prevGroup}
@@ -75,37 +121,73 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                     </button>
                 )}
 
-                {/* Contenedor del carrusel con transición suave */}
-                <div className="w-full overflow-hidden" ref={carouselRef}>
-                    <div 
-                        className="flex transition-transform duration-500 ease-in-out"
-                        style={{ transform: `translateX(-${currentGroup * 100}%)` }}
-                    >
-                        {groups.map((group, index) => {
-                            const firstThree = group.slice(0, 3);
-                            const lastThree = group.slice(3, 6);
+                {/* Viewport con scroll horizontal */}
+                <div
+                    ref={viewportRef}
+                    className="overflow-x-auto w-full"
+                    style={{
+                        scrollSnapType: "x mandatory",
+                        WebkitOverflowScrolling: "touch",
+                        msOverflowStyle: "none",
+                        scrollbarWidth: "none",
+                    }}
+                >
+                    {/* Ocultar scrollbar en Webkit */}
+                    <style jsx>{`
+                        .overflow-x-auto::-webkit-scrollbar {
+                            display: none;
+                        }
+                    `}</style>
+
+                    {/* Contenedor de grupos */}
+                    <div className="flex" style={{ scrollSnapAlign: "start" }}>
+                        {groups.map((group, groupIndex) => {
+                            const firstRow = group.slice(0, 3);
+                            const secondRow = group.slice(3, 6);
                             
                             return (
-                                <div key={index} className="w-full flex-shrink-0">
-                                    {/* Fila 1 (3 tarjetas) */}
-                                    <div className="grid grid-cols-3 gap-x-8 gap-y-5 mb-4">
-                                        {firstThree.map((post) => (
-                                            <TarjetaVerticalPost
-                                                key={post.id}
-                                                post={post}
-                                                onClick={() => onCardClick(post)}
-                                            />
+                                <div 
+                                    key={groupIndex}
+                                    className="flex-shrink-0 w-full"
+                                    style={{ 
+                                        width: '100%',
+                                        scrollSnapAlign: "start",
+                                        marginRight: '32px'
+                                    }}
+                                >
+                                    {/* Primera fila (3 tarjetas) */}
+                                    <div 
+                                        className="grid mb-4"
+                                        style={{ 
+                                            gridTemplateColumns: `repeat(3, 1fr)`,
+                                            gap: `${GAP_PX}px`
+                                        }}
+                                    >
+                                        {firstRow.map((post) => (
+                                            <div key={post.id}>
+                                                <TarjetaVerticalPost
+                                                    post={post}
+                                                    onClick={() => onCardClick(post)}
+                                                />
+                                            </div>
                                         ))}
                                     </div>
 
-                                    {/* Fila 2 (3 tarjetas) */}
-                                    <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4 mb-2">
-                                        {lastThree.map((post) => (
-                                            <TarjetaVerticalPost
-                                                key={post.id}
-                                                post={post}
-                                                onClick={() => onCardClick(post)}
-                                            />
+                                    {/* Segunda fila (3 tarjetas) */}
+                                    <div 
+                                        className="grid mt-4 mb-2"
+                                        style={{ 
+                                            gridTemplateColumns: `repeat(3, 1fr)`,
+                                            gap: `${GAP_PX}px`
+                                        }}
+                                    >
+                                        {secondRow.map((post) => (
+                                            <div key={post.id}>
+                                                <TarjetaVerticalPost
+                                                    post={post}
+                                                    onClick={() => onCardClick(post)}
+                                                />
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
@@ -114,7 +196,7 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                     </div>
                 </div>
 
-                {/* Flecha derecha - fuera del contenedor */}
+                {/* Flecha derecha */}
                 {groups.length > 1 && (
                     <button 
                         onClick={nextGroup}
@@ -127,27 +209,24 @@ const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaA
                     </button>
                 )}
 
-                {/* Indicadores de grupo - con números 
+                {/* Indicadores de grupo 
                 {groups.length > 1 && (
                     <div className="flex justify-center mt-4 space-x-2 my-3">
                         {groups.map((_, index) => (
                             <button
                                 key={index}
-                                onClick={() => setCurrentGroup(index)}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                    currentGroup === index 
-                                        ? 'bg-gray-800 text-white' 
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                onClick={() => scrollToGroup(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                                    viewportRef.current && 
+                                    Math.round(viewportRef.current.scrollLeft / viewportRef.current.clientWidth) === index
+                                        ? 'bg-gray-800' 
+                                        : 'bg-gray-300 hover:bg-gray-400'
                                 }`}
                                 aria-label={`Ir al grupo ${index + 1}`}
-                            >
-                                {index + 1}
-                            </button>
+                            />
                         ))}
                     </div>
-                )}
-                */}
-
+                )}*/}
             </div>
             
             <BannerHorizontal size="small"/>
