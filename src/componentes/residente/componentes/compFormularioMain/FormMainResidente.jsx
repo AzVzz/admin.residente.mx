@@ -228,27 +228,26 @@ const FormMainResidente = () => {
           setNotaId(data.id);
 
           // --- CONVERSIÓN DE FECHA ---
-          let fechaProgramada = '';
-          if (data.programar_publicacion) {
-            // Si ya viene en formato ISO (ej: 2025-08-05T15:00), úsalo directo
-            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(data.programar_publicacion)) {
-              fechaProgramada = data.programar_publicacion.slice(0, 16);
-            } else if (/\d{2}\/\d{2}\/\d{4}/.test(data.programar_publicacion)) {
-              // Convierte "05/08/2025 03:00 p.m." a "2025-08-05T15:00"
-              try {
-                const [dia, mes, anioHora] = data.programar_publicacion.split('/');
-                const [anio, horaMinAMPM] = anioHora.trim().split(' ');
-                let [hora, minuto] = horaMinAMPM.split(':');
-                let ampm = horaMinAMPM.toLowerCase().includes('p.m.') ? 'PM' : 'AM';
-                hora = parseInt(hora, 10);
-                if (ampm === 'PM' && hora < 12) hora += 12;
-                if (ampm === 'AM' && hora === 12) hora = 0;
-                fechaProgramada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}T${hora.toString().padStart(2, '0')}:${minuto}`;
-              } catch (e) {
-                fechaProgramada = '';
-              }
-            }
-          }
+// --- CONVERSIÓN DE FECHA CORREGIDA ---
+let fechaProgramada = '';
+if (data.programar_publicacion) {
+  try {
+    // Crear objeto Date (maneja automáticamente UTC a hora local)
+    const fecha = new Date(data.programar_publicacion);
+    
+    // Formatear a YYYY-MM-DDTHH:MM para el input datetime-local
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const horas = String(fecha.getHours()).padStart(2, '0');
+    const minutos = String(fecha.getMinutes()).padStart(2, '0');
+    
+    fechaProgramada = `${anio}-${mes}-${dia}T${horas}:${minutos}`;
+  } catch (e) {
+    console.error('Error convirtiendo fecha:', e);
+    fechaProgramada = '';
+  }
+}
 
           // Resetear formulario con los datos de la nota
           let autor = data.autor;
