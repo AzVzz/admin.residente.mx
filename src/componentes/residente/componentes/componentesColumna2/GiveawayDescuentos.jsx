@@ -36,6 +36,12 @@ const GiveawayDescuentos = ({ cupones }) => {
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
+            {/* Contenedor superior con texto */}
+            <div className="max-w-[1080px] mx-auto py-10">
+                <h2 className="text-[30px] font-bold leading-4 mb-6 text-black text-center">
+                    ¡Participa en nuestro Giveaway semanal y gana premios exclusivos!
+                </h2>
+            </div>
             <div className="max-w-[1080px] w-full mx-auto flex flex-row gap-10 items-center">
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-center">
                     {/* Columna Izquierda: Giveaway */}

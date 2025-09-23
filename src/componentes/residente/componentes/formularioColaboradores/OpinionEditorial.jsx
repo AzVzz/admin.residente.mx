@@ -65,6 +65,7 @@ const OpinionEditorial = () => {
   });
 
   const [fotografia, setFotografia] = useState(null);
+  const [fotoPreview, setFotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -85,18 +86,21 @@ const OpinionEditorial = () => {
 
     if (!allowedMimes.includes(file.type)) {
       setFotografia(null);
+      setFotoPreview(null);
       setMessage({ type: 'error', text: 'Tipo de archivo no permitido. Solo JPG, PNG o WEBP.' });
       return;
     }
 
     if (file.size > maxBytes) {
       setFotografia(null);
+      setFotoPreview(null);
       setMessage({ type: 'error', text: 'La imagen supera el tamaño máximo de 5MB.' });
       return;
     }
 
     setFotografia(file);
-    setMessage({ type: 'success', text: `Archivo seleccionado: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)` });
+    setFotoPreview(URL.createObjectURL(file));
+    setMessage({ type: 'success', text: `Archivo seleccionado correctamente.` });
   };
 
   const handleSubmit = async (e) => {
@@ -240,10 +244,27 @@ const OpinionEditorial = () => {
                 variant="outlined"
                 type="number"
                 value={formData.anio_nacimiento}
-                onChange={handleInputChange}
+                onChange={e => {
+                  const value = e.target.value.slice(0, 4);
+                  handleInputChange({ target: { name: 'anio_nacimiento', value } });
+                }}
                 required
                 fullWidth
+                inputProps={{
+                  maxLength: 4,
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  // Oculta los botones en Chrome, Edge y Safari
+                  style: { MozAppearance: 'textfield' }
+                }}
+                sx={{
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0
+                  }
+                }}
               />
+
 
               <StyledTextField
                 id="lugar_nacimiento"
@@ -336,6 +357,17 @@ const OpinionEditorial = () => {
                 />
               </Button>
             </Box>
+
+            {/* Vista previa de la fotografía seleccionada */}
+            {fotoPreview && (
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <img
+                  src={fotoPreview}
+                  alt="Vista previa"
+                  style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
+                />
+              </Box>
+            )}
 
             {/* Botón de envío */}
             <Box sx={{ textAlign: 'center', mb: 2 }}>

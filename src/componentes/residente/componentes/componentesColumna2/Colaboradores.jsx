@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { getColaboradores } from "../../../api/temaSemanaApi";
+import { useNavigate } from "react-router-dom";
 
-const CANTIDAD_COLABORADORES = 4; // Cambia según lo que quieras mostrar
+const CANTIDAD_COLABORADORES = 4;
 
-const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
-    const [indiceCarrusel, setIndiceCarrusel] = useState(0);
+const CarruselColaboradores = ({ colaboradores, indiceCarrusel, setIndiceCarrusel }) => {
     const [animando, setAnimando] = useState(false);
+    const navigate = useNavigate();
 
     const maxIndiceCarrusel = colaboradores.length <= CANTIDAD_COLABORADORES
         ? 0
@@ -18,6 +19,11 @@ const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
         setTimeout(() => setAnimando(false), 300);
     };
 
+    const handleColaboradorClick = (id) => {
+        localStorage.setItem("colaboradorLastId", id);
+        navigate(`/colaborador/${id}`);
+    };
+
     return (
         <div className="relative flex gap-4 ml-auto items-center">
             {/* Flecha izquierda */}
@@ -28,7 +34,6 @@ const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
                 disabled={indiceCarrusel === 0 || animando}
                 aria-label="Anterior"
             >
-                {/* SVG flecha izquierda */}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
                     className="w-5 h-5">
@@ -41,14 +46,15 @@ const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
                 <div
                     className="flex gap-4 transition-transform duration-500 ease-in-out"
                     style={{
-                        transform: `translateX(-${indiceCarrusel * 176}px)` // 168px + 8px
+                        transform: `translateX(-${indiceCarrusel * 176}px)`
                     }}
                 >
                     {colaboradores.map((colaborador) => (
                         <div
+                            id={`colaborador-${colaborador.id}`}
                             key={colaborador.id}
                             className="w-40 cursor-pointer flex-shrink-0 flex flex-col items-center"
-                            onClick={() => onCardClick && onCardClick(colaborador)}
+                            onClick={() => handleColaboradorClick(colaborador.id)}
                         >
                             <h2 className="text-black text-[14px] leading-4.5 text-center mb-2">
                                 {colaborador.nombre}
@@ -70,7 +76,6 @@ const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
                 disabled={indiceCarrusel >= maxIndiceCarrusel || animando}
                 aria-label="Siguiente"
             >
-                {/* SVG flecha derecha */}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
                     className="w-5 h-5">
@@ -84,12 +89,33 @@ const CarruselColaboradores = ({ colaboradores, onCardClick }) => {
 
 const MiComponente = () => {
     const [colaboradores, setColaboradores] = useState([]);
+    const [indiceCarrusel, setIndiceCarrusel] = useState(0);
 
     useEffect(() => {
         getColaboradores()
             .then(data => setColaboradores(data))
             .catch(() => setColaboradores([]));
     }, []);
+
+    useLayoutEffect(() => {
+        setTimeout(() => {
+            const lastId = localStorage.getItem("colaboradorLastId");
+            if (lastId) {
+                const el = document.getElementById(`colaborador-${lastId}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const idx = colaboradores.findIndex(c => String(c.id) === String(lastId));
+                    if (idx >= 0) {
+                        setIndiceCarrusel(Math.min(idx, colaboradores.length - CANTIDAD_COLABORADORES));
+                    }
+                }
+                // Borra el valor después de 2 segundos
+                setTimeout(() => {
+                    localStorage.removeItem("colaboradorLastId");
+                }, 2000);
+            }
+        }, 100);
+    }, [colaboradores]);
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
@@ -101,7 +127,11 @@ const MiComponente = () => {
                             Descubre a los colaboradores que enriquecen el contenido de Residente con su experiencia y pasión.
                         </span>
                     </div>
-                    <CarruselColaboradores colaboradores={colaboradores} />
+                    <CarruselColaboradores
+                        colaboradores={colaboradores}
+                        indiceCarrusel={indiceCarrusel}
+                        setIndiceCarrusel={setIndiceCarrusel}
+                    />
                 </div>
             </div>
         </div>

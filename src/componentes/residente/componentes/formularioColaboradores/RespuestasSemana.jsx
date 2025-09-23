@@ -17,6 +17,9 @@ const RespuestasSemana = () => {
     const [curriculum, setCurriculum] = useState("");
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
+    const [titulo, setTitulo] = useState("");
+    const [imagen, setImagen] = useState(null);
+    const [imagenPreview, setImagenPreview] = useState(null);
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
@@ -36,11 +39,16 @@ const RespuestasSemana = () => {
             await postRespuestaSemana({
                 id_consejero: idConsejero,
                 pregunta,
-                respuesta_colaboracion: curriculum
+                respuesta_colaboracion: curriculum,
+                titulo,
+                imagen // <-- aquí va el archivo, no el nombre
             });
             setMensaje("¡Respuesta enviada correctamente!");
             setCurriculum("");
             setIdConsejero("");
+            setTitulo("");
+            setImagen(null);
+            setImagenPreview(null);
         } catch {
             setMensaje("Error al enviar la respuesta.");
         }
@@ -87,6 +95,14 @@ const RespuestasSemana = () => {
                         />
 
                         <TextField
+                            label="Título"
+                            value={titulo}
+                            onChange={e => setTitulo(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+
+                        <TextField
                             label="Curriculum / Respuesta"
                             value={curriculum}
                             onChange={e => setCurriculum(e.target.value)}
@@ -96,6 +112,49 @@ const RespuestasSemana = () => {
                             fullWidth
                             margin="normal"
                         />
+                        <Box sx={{ textAlign: 'center', mb: 2 }}>
+                            <Button
+                                component="label"
+                                variant="outlined"
+                                sx={{
+                                    borderColor: '#fff300',
+                                    color: '#fff300',
+                                    backgroundColor: 'white',
+                                    '&:hover': {
+                                        borderColor: '#d3ca1dff',
+                                        backgroundColor: '#f5f5f5'
+                                    },
+                                    padding: '12px 24px',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                {imagen ? imagen.name : 'SUBIR IMAGEN'}
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    hidden
+                                    onChange={e => {
+                                        const file = e.target.files && e.target.files[0];
+                                        if (file) {
+                                            setImagen(file);
+                                            setImagenPreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                />
+                            </Button>
+                        </Box>
+                        {imagenPreview && (
+                            <Box sx={{ textAlign: 'center', mb: 2 }}>
+                                <img
+                                    src={imagenPreview}
+                                    alt="Vista previa"
+                                    style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
+                                />
+                            </Box>
+                        )}
+
                         <Button
                             type="submit"
                             variant="contained"

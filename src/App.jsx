@@ -30,6 +30,7 @@ import usePageTracking from './usePageTracking.js';
 import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
 import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
 import ListaNotasUanl from './componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx';
+import DetalleColaborador from './componentes/residente/Colaboradores/DetalleColaborador.jsx';
 
 
 //Admin
@@ -235,8 +236,17 @@ function App() {
                 </div>
               } />
 
+              <Route path="/colaborador/:id" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <DetalleColaborador />
+                </div>
+              } />
+
+
 
               {/*================================*/}
+
+
 
 
               {/* Admin */}
