@@ -215,24 +215,40 @@ const OpinionEditorial = () => {
               <StyledTextField
                 id="nombre"
                 name="nombre"
-                label="Tu nombre **"
+                label="Tu nombre *"
                 variant="outlined"
                 value={formData.nombre}
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
 
               <StyledTextField
                 id="correo_electronico"
                 name="correo_electronico"
-                label="Correo electrónico **"
+                label="Correo electrónico *"
                 variant="outlined"
                 type="email"
                 value={formData.correo_electronico}
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
             </Box>
 
@@ -240,7 +256,7 @@ const OpinionEditorial = () => {
               <StyledTextField
                 id="anio_nacimiento"
                 name="anio_nacimiento"
-                label="Año de nacimiento **"
+                label="Año de nacimiento *"
                 variant="outlined"
                 type="number"
                 value={formData.anio_nacimiento}
@@ -261,6 +277,12 @@ const OpinionEditorial = () => {
                   '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
                     WebkitAppearance: 'none',
                     margin: 0
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
                   }
                 }}
               />
@@ -269,13 +291,21 @@ const OpinionEditorial = () => {
               <StyledTextField
                 id="lugar_nacimiento"
                 name="lugar_nacimiento"
-                label="Lugar de nacimiento **"
+                label="Lugar de nacimiento *"
                 variant="outlined"
                 value={formData.lugar_nacimiento}
                 onChange={handleInputChange}
                 required
                 fullWidth
                 margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
             </Box>
 
@@ -290,6 +320,14 @@ const OpinionEditorial = () => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
             </Box>
 
@@ -303,6 +341,14 @@ const OpinionEditorial = () => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
 
               <StyledTextField
@@ -314,6 +360,14 @@ const OpinionEditorial = () => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
+                 sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
 
               <StyledTextField
@@ -325,6 +379,14 @@ const OpinionEditorial = () => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#3b3b3c', // gris oscuro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#3b3b3c', // gris oscuro
+                  }
+                }}
               />
             </Box>
 
@@ -336,11 +398,11 @@ const OpinionEditorial = () => {
                 startIcon={<FiUpload />}
                 disabled={isSubmitting}
                 sx={{
-                  borderColor: '#1976d2',
-                  color: '#1976d2',
+                  borderColor: '#fff300',
+                  color: '#fff300',
                   backgroundColor: 'white',
                   '&:hover': {
-                    borderColor: '#1565c0',
+                    borderColor: '#d3ca1dff',
                     backgroundColor: '#f5f5f5'
                   },
                   padding: '12px 24px',

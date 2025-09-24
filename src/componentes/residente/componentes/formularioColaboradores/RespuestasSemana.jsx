@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 // Elimina MenuItem, ya no se usa
 import Autocomplete from '@mui/material/Autocomplete';
 import { getPreguntaActual, getConsejerosNombres, postRespuestaSemana } from "../../../api/temaSemanaApi";
+import { FiUpload } from "react-icons/fi";
 import DirectorioVertical from "../componentesColumna2/DirectorioVertical";
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
@@ -20,6 +21,8 @@ const RespuestasSemana = () => {
     const [titulo, setTitulo] = useState("");
     const [imagen, setImagen] = useState(null);
     const [imagenPreview, setImagenPreview] = useState(null);
+    const [respuestaConsejo, setRespuestaConsejo] = useState("");
+    const [textoConsejo, setTextoConsejo] = useState("");
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
@@ -35,13 +38,26 @@ const RespuestasSemana = () => {
         e.preventDefault();
         setMensaje("");
         setLoading(true);
+
+        // Si es consejo, limpia los campos de colaboración normal
+        let curriculumToSend = curriculum;
+        let tituloToSend = titulo;
+        let imagenToSend = imagen;
+        if (respuestaConsejo) {
+            curriculumToSend = "";
+            tituloToSend = "";
+            imagenToSend = null;
+        }
+
         try {
             await postRespuestaSemana({
                 id_consejero: idConsejero,
                 pregunta,
-                respuesta_colaboracion: curriculum,
-                titulo,
-                imagen // <-- aquí va el archivo, no el nombre
+                respuesta_colaboracion: curriculumToSend,
+                titulo: tituloToSend,
+                imagen: imagenToSend,
+                respuesta_consejo: respuestaConsejo,
+                texto_consejo: textoConsejo
             });
             setMensaje("¡Respuesta enviada correctamente!");
             setCurriculum("");
@@ -49,6 +65,8 @@ const RespuestasSemana = () => {
             setTitulo("");
             setImagen(null);
             setImagenPreview(null);
+            setRespuestaConsejo(false);
+            setTextoConsejo("");
         } catch {
             setMensaje("Error al enviar la respuesta.");
         }
@@ -85,76 +103,141 @@ const RespuestasSemana = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Colaborador"
+                                    label="Colaborador *"
                                     required
                                     margin="normal"
                                     fullWidth
+                                    sx={{
+                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: '#3b3b3c', // gris oscuro
+                                        },
+                                        '& .MuiInputLabel-root.Mui-focused': {
+                                            color: '#3b3b3c', // gris oscuro
+                                        }
+                                    }}
                                 />
                             )}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
                         />
 
-                        <TextField
-                            label="Título"
-                            value={titulo}
-                            onChange={e => setTitulo(e.target.value)}
-                            fullWidth
-                            margin="normal"
-                        />
-
-                        <TextField
-                            label="Curriculum / Respuesta"
-                            value={curriculum}
-                            onChange={e => setCurriculum(e.target.value)}
-                            required
-                            multiline
-                            rows={6}
-                            fullWidth
-                            margin="normal"
-                        />
-                        <Box sx={{ textAlign: 'center', mb: 2 }}>
-                            <Button
-                                component="label"
-                                variant="outlined"
+                        {/* Solo muestra título si NO es consejo */}
+                        {!respuestaConsejo && (
+                            <TextField
+                                label="Título"
+                                value={titulo}
+                                onChange={e => setTitulo(e.target.value)}
+                                fullWidth
+                                margin="normal"
                                 sx={{
-                                    borderColor: '#fff300',
-                                    color: '#fff300',
-                                    backgroundColor: 'white',
-                                    '&:hover': {
-                                        borderColor: '#d3ca1dff',
-                                        backgroundColor: '#f5f5f5'
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#3b3b3c',
                                     },
-                                    padding: '12px 24px',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold',
-                                    textTransform: 'uppercase'
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#3b3b3c',
+                                    }
                                 }}
-                            >
-                                {imagen ? imagen.name : 'SUBIR IMAGEN'}
+                            />
+                        )}
+
+                        {/* Recuadro para activar el consejo */}
+                        <Box className="mb-4 p-4 bg-blue-50 border border-gray-200 rounded">
+                            <label className="block text-sm font-medium text-gray-500 mb-2">
                                 <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    hidden
-                                    onChange={e => {
-                                        const file = e.target.files && e.target.files[0];
-                                        if (file) {
-                                            setImagen(file);
-                                            setImagenPreview(URL.createObjectURL(file));
+                                    type="checkbox"
+                                    checked={respuestaConsejo}
+                                    onChange={e => setRespuestaConsejo(e.target.checked)}
+                                    className="form-checkbox h-5 w-5 text-blue-500 mr-2"
+                                />
+                                Mandanos tu consejo editorial
+                            </label>
+                        </Box>
+
+                        {/* Solo muestra uno u otro */}
+                        {!respuestaConsejo ? (
+                            <>
+                                <TextField
+                                    label="Colabora con nosotros *"
+                                    value={curriculum}
+                                    onChange={e => setCurriculum(e.target.value)}
+                                    required
+                                    multiline
+                                    rows={6}
+                                    fullWidth
+                                    margin="normal"
+                                    sx={{
+                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: '#3b3b3c',
+                                        },
+                                        '& .MuiInputLabel-root.Mui-focused': {
+                                            color: '#3b3b3c',
                                         }
                                     }}
                                 />
-                            </Button>
-                        </Box>
-                        {imagenPreview && (
-                            <Box sx={{ textAlign: 'center', mb: 2 }}>
-                                <img
-                                    src={imagenPreview}
-                                    alt="Vista previa"
-                                    style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
-                                />
-                            </Box>
+                                {/* Botón subir imagen y vista previa */}
+                                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                                    <Button
+                                        component="label"
+                                        variant="outlined"
+                                         startIcon={<FiUpload />}
+                                        sx={{
+                                            borderColor: '#fff300',
+                                            color: '#fff300',
+                                            backgroundColor: 'white',
+                                            '&:hover': {
+                                                borderColor: '#d3ca1dff',
+                                                backgroundColor: '#f5f5f5'
+                                            },
+                                            padding: '12px 24px',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {imagen ? imagen.name : 'SUBIR IMAGEN'}
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            hidden
+                                            onChange={e => {
+                                                const file = e.target.files && e.target.files[0];
+                                                if (file) {
+                                                    setImagen(file);
+                                                    setImagenPreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                        />
+                                    </Button>
+                                </Box>
+                                {imagenPreview && (
+                                    <Box sx={{ textAlign: 'center', mb: 2 }}>
+                                        <img
+                                            src={imagenPreview}
+                                            alt="Vista previa"
+                                            style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
+                                        />
+                                    </Box>
+                                )}
+                            </>
+                        ) : (
+                            <TextField
+                                label="Escribe tu consejo"
+                                value={textoConsejo}
+                                onChange={e => setTextoConsejo(e.target.value)}
+                                multiline
+                                rows={3}
+                                fullWidth
+                                margin="normal"
+                                required
+                                sx={{
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#3b3b3c',
+                                    },
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#3b3b3c',
+                                    }
+                                }}
+                            />
                         )}
-
                         <Button
                             type="submit"
                             variant="contained"
@@ -180,8 +263,12 @@ const RespuestasSemana = () => {
                         </Button>
                         {mensaje && <Box mt={2} textAlign="center">{mensaje}</Box>}
                     </Box>
+                    <Box sx={{ mb: 4, p: 2, backgroundColor: '#fffde7', borderRadius: 2, border: '1px solid #ffe082', textAlign: 'center' }}>
+                        <strong>IMPORTANTE:</strong> Si envías una <span style={{ color: '#1976d2', fontWeight: 'bold' }}>colaboración</span>, se publicará en tu perfil.  
+                        Si envías un <span style={{ color: '#388e3c', fontWeight: 'bold' }}>consejo editorial</span>, <u>no se publicará</u> en tu perfil, solo se enviará como consejo a Residente.
+                    </Box>
                 </div>
-                {/* Columna lateral igual que ListadoBannerRevista */}
+                {/* Columna lateral */}
                 <div className="flex flex-col items-end justify-start gap-10">
                     <DirectorioVertical />
                     <PortadaRevista />

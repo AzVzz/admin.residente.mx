@@ -22,6 +22,8 @@ export const postRespuestaSemana = async (data) => {
   formData.append("respuesta_colaboracion", data.respuesta_colaboracion);
   formData.append("titulo", data.titulo);
   if (data.imagen) formData.append("imagen", data.imagen);
+  formData.append("respuesta_consejo", data.respuesta_consejo ? 1 : 0);
+  formData.append("texto_consejo", data.texto_consejo || "");
 
   const res = await fetch(`${urlApi}api/respuestas-tema-semanas`, {
     method: "POST",
