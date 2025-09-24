@@ -1,6 +1,8 @@
 // src/componentes/api/RestaurantFetcher.jsx
 
 import { useEffect, useState } from 'react'
+import {urlApi} from '../../componentes/api/url.js'
+
 
 const RestaurantFetcher = ({ slug, children }) => {
   const [restaurante, setRestaurante] = useState(null)
@@ -11,7 +13,7 @@ const RestaurantFetcher = ({ slug, children }) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://p.residente.mx/api/restaurante/${slug}`
+          `${urlApi}api/restaurante/${slug}`
         )
         if (!response.ok) {
           throw new Error('Error al obtener el restaurante')

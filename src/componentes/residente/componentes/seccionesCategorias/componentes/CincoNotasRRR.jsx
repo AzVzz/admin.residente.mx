@@ -91,80 +91,69 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
   return (
     // Wrapper exterior permite que las flechas salgan por fuera
     <div className="w-full relative" style={{ overflow: "visible" }}>
-      {/* Contenedor limitado a 1080 centrado (como en cupones) */}
+      {/* Contenedor limitado a 1080 centrado */}
       <div className="relative mx-auto max-w-[1080px] w-full" style={{ overflow: "visible" }}>
 
-        {/* Flecha izquierda - por fuera del max-w en md+ (MISMA UI QUE CUPONES) */}
+        {/* Flecha izquierda */}
         {notas.length > perView && (
-          <>
-            <button
-              onClick={goPrev}
-              disabled={!canPrev}
-              className="
-                hidden md:flex
-                items-center justify-center
-                absolute top-1/2 -translate-y-1/2 
-                left-[-4rem]
-                bg-transparent hover:bg-transparent
-                text-black rounded-full w-12 h-12
-                cursor-pointer z-20 disabled:opacity-40"
-              aria-label="Anterior"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor"
-                className="w-7 h-7">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-              </svg>
-            </button>
-          </>
+          <button
+            onClick={() => viewportRef.current.scrollBy({ left: -(itemWidth + GAP_PX), behavior: "smooth" })}
+            disabled={!canPrev}
+            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20 disabled:opacity-40"
+            aria-label="Anterior"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+            </svg>
+          </button>
         )}
 
         {/* Viewport */}
-        <div ref={viewportRef} className="overflow-hidden w-full">
+        <div
+          ref={viewportRef}
+          className="overflow-x-auto w-full"
+          style={{
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch", // Mejora el scroll en dispositivos táctiles
+            msOverflowStyle: "none", // IE and Edge
+            scrollbarWidth: "none", // Firefox
+          }}
+        >
           {/* Track */}
           <div
             className="flex"
             style={{
               gap: `${GAP_PX}px`,
-              transform: `translateX(-${startIdx * (itemWidth + GAP_PX)}px)`,
-              transition: "transform 300ms ease",
-              willChange: "transform",
+              scrollSnapAlign: "start",
             }}
           >
             {notas.map((nota) => (
-              <div key={nota.id} className="flex-shrink-0" style={{ width: `${itemWidth}px` }}>
+              <div
+                key={nota.id}
+                className="flex-shrink-0"
+                style={{
+                  width: `${itemWidth}px`,
+                  scrollSnapAlign: "start",
+                }}
+              >
                 <TarjetaVerticalPost nota={nota} onClick={onCardClick} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Flecha derecha - por fuera del límite de 1080 (MISMA UI QUE CUPONES) */}
+        {/* Flecha derecha */}
         {notas.length > perView && (
-          <>
-            <button
-              onClick={goNext}
-              disabled={!canNext}
-              className="
-                hidden md:flex
-                items-center justify-center
-                absolute top-1/2 -translate-y-1/2 
-                right-[-4rem]
-                bg-transparent hover:bg-transparent
-                text-black rounded-full w-12 h-12
-                cursor-pointer z-20
-                disabled:opacity-40"
-              aria-label="Siguiente"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor"
-                className="w-7 h-7">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-              </svg>
-            </button>
-          </>
+          <button
+            onClick={() => viewportRef.current.scrollBy({ left: itemWidth + GAP_PX, behavior: "smooth" })}
+            disabled={!canNext}
+            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 right-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20 disabled:opacity-40"
+            aria-label="Siguiente"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+            </svg>
+          </button>
         )}
       </div>
     </div>

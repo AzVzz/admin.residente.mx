@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { urlApi } from '../../componentes/api/url.js'
 
 const SeccionesDataFetcher = () => {
     const [data, setData] = useState(null);
@@ -8,7 +9,7 @@ const SeccionesDataFetcher = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://p.residente.mx/api/catalogo/secciones');
+                const response = await fetch(`${urlApi}api/catalogo/secciones`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,7 +72,7 @@ export const useJsonData = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://p.residente.mx/api/catalogo/secciones');
+                const response = await fetch(`${urlApi}api/catalogo/secciones`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

@@ -10,6 +10,7 @@ import Titulo from "./componentes/Titulo";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notaCrear, notaEditar, notaImagenPut, notaInstafotoPut, notaInstafotoDelete } from '../../../../componentes/api/notaCrearPostPut.js';
+import { notaDelete } from "../../../api/notaDelete";
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
 import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
@@ -18,11 +19,6 @@ import InstafotoSelector from './componentes/InstafotoSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
 import AlertaNota from './componentes/AlertaNota.jsx';
 import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
-import PostPrincipal from './componentesMuestraNotas/PostPrincipal.jsx';
-import PostLoMasVisto from './componentesMuestraNotas/PostLoMasVisto.jsx';
-import PostVertical from './componentesMuestraNotas/PostVertical.jsx';
-import PostHorizontal from './componentesMuestraNotas/PostHorizontal.jsx';
-import PostLoMasVistoDirectorio from './componentesMuestraNotas/PostLoMasVistoDirectorio.jsx';
 import NombreRestaurante from './componentes/NombreRestaurante.jsx';
 import DetallePost from '../DetallePost.jsx';
 
@@ -232,27 +228,26 @@ const FormMainResidente = () => {
           setNotaId(data.id);
 
           // --- CONVERSIÓN DE FECHA ---
-          let fechaProgramada = '';
-          if (data.programar_publicacion) {
-            // Si ya viene en formato ISO (ej: 2025-08-05T15:00), úsalo directo
-            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(data.programar_publicacion)) {
-              fechaProgramada = data.programar_publicacion.slice(0, 16);
-            } else if (/\d{2}\/\d{2}\/\d{4}/.test(data.programar_publicacion)) {
-              // Convierte "05/08/2025 03:00 p.m." a "2025-08-05T15:00"
-              try {
-                const [dia, mes, anioHora] = data.programar_publicacion.split('/');
-                const [anio, horaMinAMPM] = anioHora.trim().split(' ');
-                let [hora, minuto] = horaMinAMPM.split(':');
-                let ampm = horaMinAMPM.toLowerCase().includes('p.m.') ? 'PM' : 'AM';
-                hora = parseInt(hora, 10);
-                if (ampm === 'PM' && hora < 12) hora += 12;
-                if (ampm === 'AM' && hora === 12) hora = 0;
-                fechaProgramada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}T${hora.toString().padStart(2, '0')}:${minuto}`;
-              } catch (e) {
-                fechaProgramada = '';
-              }
-            }
-          }
+// --- CONVERSIÓN DE FECHA CORREGIDA ---
+let fechaProgramada = '';
+if (data.programar_publicacion) {
+  try {
+    // Crear objeto Date (maneja automáticamente UTC a hora local)
+    const fecha = new Date(data.programar_publicacion);
+    
+    // Formatear a YYYY-MM-DDTHH:MM para el input datetime-local
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const horas = String(fecha.getHours()).padStart(2, '0');
+    const minutos = String(fecha.getMinutes()).padStart(2, '0');
+    
+    fechaProgramada = `${anio}-${mes}-${dia}T${horas}:${minutos}`;
+  } catch (e) {
+    console.error('Error convirtiendo fecha:', e);
+    fechaProgramada = '';
+  }
+}
 
           // Resetear formulario con los datos de la nota
           let autor = data.autor;
@@ -417,6 +412,24 @@ const FormMainResidente = () => {
       setPostError(error.message || 'Error al guardar la nota');
     } finally {
       setIsPosting(false);
+    }
+  };
+
+  const [eliminando, setEliminando] = useState(false); // Estado para manejar el proceso de eliminación
+
+  // Función para eliminar la nota
+  const eliminarNota = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta nota?")) {
+      setEliminando(true);
+      try {
+        await notaDelete(notaId, token); // Llama a la API para eliminar la nota
+        alert("Nota eliminada con éxito.");
+        navigate("/notas"); // Redirige a la lista de notas
+      } catch (error) {
+        alert("Error al eliminar la nota.");
+      } finally {
+        setEliminando(false);
+      }
     }
   };
 
@@ -639,6 +652,24 @@ const FormMainResidente = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Botón para eliminar la nota */}
+                {notaId && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={eliminarNota}
+                      disabled={eliminando}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
+                    >
+                      {eliminando ? "Eliminando..." : "Eliminar Nota"}
+                    </button>
+                  </div>
+                )}
 
                 <BotonSubmitNota
                   isPosting={isPosting}

@@ -78,7 +78,7 @@ const ListaRestaurantes = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://p.residente.mx/api/restaurante');
+        const response = await fetch(`${urlApi}api/restaurante`);
         if (!response.ok) throw new Error('Error al obtener restaurantes');
         const restaurantes = await response.json();
 

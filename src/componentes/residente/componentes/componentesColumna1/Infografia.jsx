@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { getUltimaInfografia } from "../../../api/infografiaApi";
-
+import { urlApi } from '../../../../componentes/api/url.js'
 const Infografia = () => {
     const navigate = useNavigate();
     const [ultima, setUltima] = useState(null);
@@ -24,7 +24,7 @@ const Infografia = () => {
 
                 {/* Logo */}
                 <img
-                    src="https://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
+                    src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
                     className="h-full w-46 object-contain cursor-pointer"
                     alt="Logo Infografías"
                     onClick={handleInfografiaClick}
@@ -50,7 +50,7 @@ const Infografia = () => {
                     />
                 ) : (
                     <img
-                        src="https://p.residente.mx/fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
+                        src={`${urlApi}fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg`}
                         alt="Infografía"
                         className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
                         onClick={handleInfografiaClick}

@@ -7,7 +7,7 @@ const RedesSociales = () => {
         {
             value: "sitio_web",
             label: "Sitio web",
-            placeholder: "Ej. www.residente.mx"
+            placeholder: "Ej. Tu sitio web"
         },
         {
             value: "rappi_link",

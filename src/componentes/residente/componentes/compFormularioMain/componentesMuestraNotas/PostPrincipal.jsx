@@ -1,3 +1,5 @@
+import { urlApi } from '../../componentes/api/url.js'
+
 const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, fecha, nombreRestaurante }) => {
     return (
         <div>
@@ -8,7 +10,7 @@ const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, 
                             {fecha || "Fecha"}
                         </div>
                         <img
-                            src={imagen || `https://p.residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
+                            src={imagen || `${urlApi}/fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
                             className="w-full h-full object-cover"
                         />
                     </div>

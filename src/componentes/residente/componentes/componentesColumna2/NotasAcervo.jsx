@@ -10,7 +10,21 @@ const NotasAcervo = ({ onCardClick }) => {
     const [inputValue, setInputValue] = useState("");
     const [buscando, setBuscando] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [indiceCarrusel, setIndiceCarrusel] = useState(0);
+    const CANTIDAD_NOTAS = 4; // Cambia a 4 si prefieres mostrar 4
     const navigate = useNavigate();
+    const [animando, setAnimando] = useState(false);
+
+    const handleClick = (nuevoIndice) => {
+        if (animando) return;
+
+        setAnimando(true);
+        setIndiceCarrusel(nuevoIndice);
+
+        setTimeout(() => {
+            setAnimando(false);
+        }, 300); //
+    };
 
     useEffect(() => {
         const fetchNotas = async () => {
@@ -20,14 +34,14 @@ const NotasAcervo = ({ onCardClick }) => {
                 const response = await fetch(`${urlApi}api/notas`);
                 if (response.ok) {
                     const todasLasNotas = await response.json();
-                    
+
                     // Filtrar solo las notas de tipo "acervo" (case-insensitive)
                     const notasAcervo = todasLasNotas.filter(nota => {
                         const tipoNota = (nota.tipo_nota || '').toLowerCase();
                         const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
                         return tipoNota === 'acervo' || tipoNota2 === 'acervo';
                     });
-                    
+
                     //console.log('Total de notas de acervo encontradas:', notasAcervo.length);
                     setNotas(notasAcervo);
                 }
@@ -50,14 +64,14 @@ const NotasAcervo = ({ onCardClick }) => {
         }
 
         setBuscando(true);
-        
+
         try {
             //console.log('Buscando en notas de acervo con query:', query);
-            
+
             // Usar las notas de acervo que ya tenemos cargadas
             const notasAcervo = notas;
             //console.log('Total de notas de acervo disponibles:', notasAcervo.length);
-            
+
             // Normalizar el query (quitar acentos, convertir a minúsculas)
             const normalizarTexto = (texto) => {
                 return texto
@@ -67,25 +81,25 @@ const NotasAcervo = ({ onCardClick }) => {
                     .replace(/[¿?¡!.,]/g, '') // Quitar signos de puntuación
                     .trim();
             };
-            
+
             const queryNormalizado = normalizarTexto(query);
             //console.log('Query normalizado:', queryNormalizado);
-            
+
             const notasFiltradas = notasAcervo.filter(nota => {
                 if (!nota.titulo) return false;
-                
+
                 const tituloNormalizado = normalizarTexto(nota.titulo);
                 const subtituloNormalizado = nota.subtitulo ? normalizarTexto(nota.subtitulo) : '';
-                
+
                 // Búsqueda exacta en título o subtítulo
                 if (tituloNormalizado.includes(queryNormalizado) || subtituloNormalizado.includes(queryNormalizado)) {
                     return true;
                 }
-                
+
                 // Búsqueda por palabras individuales
                 const palabrasQuery = queryNormalizado.split(/\s+/).filter(p => p.length > 2);
                 if (palabrasQuery.length === 0) return false;
-                
+
                 // Buscar en título
                 let coincidenciasTitulo = 0;
                 for (const palabraQuery of palabrasQuery) {
@@ -93,7 +107,7 @@ const NotasAcervo = ({ onCardClick }) => {
                         coincidenciasTitulo++;
                     }
                 }
-                
+
                 // Buscar en subtítulo
                 let coincidenciasSubtitulo = 0;
                 if (subtituloNormalizado) {
@@ -103,22 +117,22 @@ const NotasAcervo = ({ onCardClick }) => {
                         }
                     }
                 }
-                
+
                 // Si al menos la mitad de las palabras del query están en título o subtítulo
                 const totalCoincidencias = Math.max(coincidenciasTitulo, coincidenciasSubtitulo);
                 const porcentajeCoincidencia = totalCoincidencias / palabrasQuery.length;
-                
+
                 return porcentajeCoincidencia >= 0.5; // Al menos 50% de coincidencia
             });
-            
+
             //console.log('Notas de acervo que coinciden con la búsqueda:', notasFiltradas.length);
             if (notasFiltradas.length > 0) {
                 //console.log('Primera nota filtrada:', notasFiltradas[0]);
             }
-            
-                         // Mostrar todos los resultados de búsqueda sin límite
-             setNotasBusqueda(notasFiltradas);
-             //console.log('Notas de búsqueda mostradas:', notasFiltradas.length);
+
+            // Mostrar todos los resultados de búsqueda sin límite
+            setNotasBusqueda(notasFiltradas);
+            //console.log('Notas de búsqueda mostradas:', notasFiltradas.length);
         } catch (error) {
             console.error('Error al buscar notas de acervo:', error);
             setNotasBusqueda([]);
@@ -141,6 +155,10 @@ const NotasAcervo = ({ onCardClick }) => {
     // Mostrar resultados de búsqueda en notas de acervo o solo 5 notas de acervo
     const opcionesCombinadas = inputValue.length >= 3 ? notasBusqueda : notas.slice(0, 5);
 
+    const maxIndiceCarrusel = notas.length <= CANTIDAD_NOTAS
+        ? 0
+        : notas.length - CANTIDAD_NOTAS;
+
     if (loading) return <p>Cargando notas de acervo...</p>;
 
     return (
@@ -148,7 +166,7 @@ const NotasAcervo = ({ onCardClick }) => {
             <div className="max-w-[1080px] mx-auto h-105 py-12">
 
                 <div className="flex items-end leading-8 mb-8">
-                    <img src="https://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp" className="w-auto h-6"/>
+                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6" />
                     <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}
@@ -156,7 +174,7 @@ const NotasAcervo = ({ onCardClick }) => {
                         disablePortal
                         options={opcionesCombinadas}
                         getOptionLabel={(option) => option.titulo || ''}
-                        sx={{ 
+                        sx={{
                             width: 300,
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: 'white',
@@ -261,21 +279,21 @@ const NotasAcervo = ({ onCardClick }) => {
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* Contenido de la nota */}
                                     <div className="flex-1 min-w-0">
                                         <div className="font-bold text-gray-900 text-base mb-2 leading-tight">
                                             {option.titulo}
                                         </div>
-                                     
+
                                     </div>
                                 </div>
                             </li>
                         )}
                         noOptionsText={
-                            inputValue.length >= 3 
-                                ? buscando 
-                                    ? 'Buscando...' 
+                            inputValue.length >= 3
+                                ? buscando
+                                    ? 'Buscando...'
                                     : 'No se encontraron notas'
                                 : 'Escribe al menos 3 caracteres para buscar'
                         }
@@ -284,30 +302,72 @@ const NotasAcervo = ({ onCardClick }) => {
 
                 {notas.length > 0 ? (
                     <div className="flex flex-row gap-4">
-                        <div className="flex justify-start items-start">
+                        <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
                             <span className="text-[25px] text-white leading-6.5">
-                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronimia de Nuevo León
+                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronomía de Nuevo León
                             </span>
                         </div>
-                        <div className="flex gap-4 justify-end ml-auto">
-                            {notas.slice(0, 5).map((nota) => (
+                        <div className="relative flex gap-4 ml-auto items-center">
+                            {/* Flecha izquierda */}
+                            <button
+                                className={`text-black px-2 py-1 self-center cursor-pointer
+                                    ${indiceCarrusel === 0 || animando ? 'opacity-50 pointer-events-none' : 'hover:opacity-100 opacity-80'}`}
+                                onClick={() => handleClick(Math.max(indiceCarrusel - 1, 0))}
+                                disabled={indiceCarrusel === 0 || animando}
+                                aria-label="Anterior"
+                            >
+                                {/* SVG flecha izquierda */}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
+                                    className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                                </svg>
+                            </button>
+                            {/* Carrusel de notas */}
+                            <div className="overflow-hidden w-[690px]">
                                 <div
-                                    key={nota.id}
-                                    className="w-40 cursor-pointer"
-                                    onClick={() => onCardClick && onCardClick(nota)}
+                                    className="flex gap-4 transition-transform duration-500 ease-in-out"
+                                    style={{
+                                        transform: `translateX(-${indiceCarrusel * 176}px)` // 168px + 8px
+                                    }}
                                 >
-                                    <img
-                                        src={nota.imagen}
-                                        alt="Portada Revista"
-                                        className="w-full h-28 object-cover"
-                                    />
-                                    <div className="flex flex-col mt-2 text-right">
-                                        <h2 className="text-black text-[14px] leading-4.5 text-wrap">
-                                            {nota.titulo}
-                                        </h2>
-                                    </div>
+                                    {notas.map((nota) => (
+                                        <div
+                                            key={nota.id}
+                                            className="w-40 cursor-pointer flex-shrink-0"
+                                            onClick={() => onCardClick && onCardClick(nota)}
+                                        >
+                                            <img
+                                                src={nota.imagen}
+                                                alt="Portada Revista"
+                                                className="w-full h-28 object-cover"
+                                            />
+                                            <div className="flex flex-col mt-2 text-right">
+                                                <h2 className="text-black text-[14px] leading-4.5 text-wrap">
+                                                    {nota.titulo}
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
+                            {/* Flecha derecha fuera del carrusel */}
+                            <button
+                                className={`text-black px-2 py-1 self-center cursor-pointer absolute right-[-2.5rem] top-1/2 -translate-y-1/2
+                                    ${indiceCarrusel >= maxIndiceCarrusel || animando ? 'opacity-50 pointer-events-none' : 'hover:opacity-100 opacity-80'}`}
+                                onClick={() => handleClick(Math.min(indiceCarrusel + 1, maxIndiceCarrusel))}
+                                disabled={indiceCarrusel >= maxIndiceCarrusel || animando}
+                                aria-label="Siguiente"
+                            >
+                                {/* SVG flecha derecha */}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
+                                    className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 ) : (

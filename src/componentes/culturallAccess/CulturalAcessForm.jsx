@@ -91,7 +91,7 @@ const CulturalAccessForm = () => {
 
       //console.log("Enviando datos:", dataToSend)
 
-      const response = await fetch("https://p.residente.mx/api/culturalaccessform", {
+      const response = await fetch(`${urlApi}api/culturalaccessform`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

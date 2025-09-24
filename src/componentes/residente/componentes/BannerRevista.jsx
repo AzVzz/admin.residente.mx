@@ -16,6 +16,8 @@ const BannerRevista = () => {
   const [error, setError] = useState(null);
   const [detalleCargando, setDetalleCargando] = useState(false);
   const [errorDetalle, setErrorDetalle] = useState(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+
   const topRef = useRef(null);
   const navigate = useNavigate();
 
@@ -91,7 +93,11 @@ const BannerRevista = () => {
     cargarTiposNotas();
   }, []);
 
-  const handleCardClick = async (id) => { navigate(`/notas/${id}`); };
+  // Guardar posición al hacer clic en una tarjeta
+  const handleCardClick = async (id) => {
+    setScrollPosition(window.scrollY);
+    navigate(`/notas/${id}`);
+  };
 
   const handleVolver = () => {
     navigate('/notas');

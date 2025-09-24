@@ -26,6 +26,10 @@ import BotonScroll from './componentes/residente/componentes/compFormularioMain/
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
+import usePageTracking from './usePageTracking.js';
+import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
+import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
+import ListaNotasUanl from './componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx';
 
 
 //Admin
@@ -43,6 +47,7 @@ const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/
 
 
 function App() {
+  usePageTracking();
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
@@ -158,8 +163,7 @@ function App() {
 
               <Route path="/seccion/:seccion/categoria/:categoria/*" element={
                 <div className="max-w-[1080px] mx-auto">
-                  {/*<MainSeccionesCategorias />*/}
-                  <Proximamente />
+                  <MainSeccionesCategorias />
                 </div>
               } />
 
@@ -179,7 +183,7 @@ function App() {
               {/* Estrellas de Nuevo León */}
               <Route path="/ednl" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
-                  <ListaRestaurantes/>
+                  <ListaRestaurantes />
                 </div>
               } />
 
@@ -218,6 +222,18 @@ function App() {
                 <RespuestasSemana />
               } />
 
+
+              {/* UANL */}
+              <Route path="/uanl" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <UanlPage />
+                </div>
+              } />
+              <Route path="/uanl/:id" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <DetalleUanl />
+                </div>
+              } />
 
 
               {/*================================*/}
@@ -302,6 +318,12 @@ function App() {
               {/* Admin */}
               <Route path="/infografias" element={
                 <InfografiaForm />
+              } />
+
+              <Route path="/admin/uanl" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <ListaNotasUanl />
+                </div>
               } />
 
             </Routes>

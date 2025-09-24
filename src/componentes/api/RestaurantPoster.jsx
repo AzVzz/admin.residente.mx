@@ -1,5 +1,7 @@
 // src/componentes/api/RestaurantPoster.jsx
 import { useState } from 'react';
+import { urlApi } from '../../componentes/api/url.js'
+
 const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
     const [isPosting, setIsPosting] = useState(false);
     const [postError, setPostError] = useState(null);
@@ -12,9 +14,9 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
 
         try {
             // Construir URL según el método
-            let url = 'https://p.residente.mx/api/restaurante';
+            let url = `${urlApi}api/restaurante`;
             if (method === 'PUT' && slug) {
-                url = `https://p.residente.mx/api/restaurante/${slug}`;
+                url = `${urlApi}api/restaurante/${slug}`;
             }
 
             const response = await fetch(url, {
@@ -45,7 +47,7 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
         setIsPosting(true);
         try {
             // Usar ID en la URL
-            const url = `https://p.residente.mx/api/restaurante/${restaurantId}/imagenes`;
+            const url = `${urlApi}api/restaurante/${restaurantId}/imagenes`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -69,7 +71,7 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
     const postFotosLugar = async (restaurantId, formData) => {
         setIsPosting(true);
         try {
-            const url = `https://p.residente.mx/api/restaurante/${restaurantId}/fotos-lugar`;
+            const url = `${urlApi}api/restaurante/${restaurantId}/fotos-lugar`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData

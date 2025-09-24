@@ -116,9 +116,9 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col justify-center items-center text-[12px] mb-3 gap-6">
+                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
-                                    <BarraMarquee categoria="SEMANA MEXICANA. Del 9 al 15 de Septiembre encuentra toda la información sobre la gastronomía de las fiestas patrias." />
+                                    {/*<BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />*/}
                                 </div>
 
                                 {postsFiltrados[0] && (
@@ -129,7 +129,7 @@ const ListadoBannerRevista = ({
                                 )}
 
                                 <TresTarjetas
-                                    posts={postsFiltrados.slice(1, 7)}
+                                    posts={postsFiltrados.slice(1, 25)}
                                     onCardClick={(post) => handleCardClick(post.id)}
                                     mostrarBanner={mostrarBanner}
                                     mostrarBannerEnMedio={mostrarBannerEnMedio}
@@ -160,7 +160,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/3 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            <img className="h-full w-105" src={'http://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp'} />
+                                            <img className="h-full w-105" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                                         </div>
                                         <div className="text-center mt-0 leading-5">
                                             <span className="text-[12px] font-semibold tracking-wide">
@@ -189,7 +189,7 @@ const ListadoBannerRevista = ({
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                         <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`http://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
+                                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/PLATILOS%20ICÓNICOS%20DE%20NL.webp`} className="w-full h-6 object-contain" />
                                         </div>
                                     </div>
                                 </div>

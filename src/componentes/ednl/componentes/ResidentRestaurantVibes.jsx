@@ -2,11 +2,12 @@ import { useState } from 'react';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { urlApi } from '../../api/url'
 
 const ResidentRestaurantVibes = ({ fotos = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   if (fotos.length === 0) {
     return null;
   }
@@ -47,7 +48,7 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
       color: 'black',
       fontSize: '24px',
     };
-    
+
     return (
       <button
         type="button"
@@ -115,12 +116,12 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
           <Slider {...settings} className="h-full">
             {fotos.map((foto, index) => (
               <div key={index} className="h-full">
-                <div 
+                <div
                   className="w-full aspect-video cursor-pointer"
                   onClick={() => openModal(index)}
                 >
-                  <img 
-                    src={foto.url_imagen ? `https://p.residente.mx${foto.url_imagen}` : "/placeholder.svg"} 
+                  <img
+                    src={foto.url_imagen ? `${urlApi}${foto.url_imagen}` : "/placeholder.svg"}
                     alt={`Vibes del restaurante ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -133,26 +134,26 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
 
       {/* Modal para vista expandida */}
       {modalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center p-4"
           onClick={closeModal}
         >
-          <button 
+          <button
             className="absolute top-4 right-4 text-white text-3xl z-50 bg-black rounded-full w-10 h-10"
             onClick={closeModal}
           >
             &times;
           </button>
-          
-          <div 
+
+          <div
             className="w-full max-w-6xl max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <Slider {...modalSettings}>
               {fotos.map((foto, index) => (
                 <div key={`modal-${index}`} className="h-[80vh] flex items-center justify-center">
-                  <img 
-                    src={foto.url_imagen ? `https://p.residente.mx${foto.url_imagen}` : "/placeholder.svg"} 
+                  <img
+                    src={foto.url_imagen ? `${urlApi}${foto.url_imagen}` : "/placeholder.svg"}
                     alt={`Vibes ampliada ${index + 1}`}
                     className="max-w-full max-h-full object-contain mx-auto"
                   />
@@ -160,7 +161,7 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
               ))}
             </Slider>
           </div>
-          
+
           <p className="text-white mt-4 text-center">
             {currentSlide + 1} / {fotos.length}
           </p>

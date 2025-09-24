@@ -31,7 +31,7 @@ const InfografiaMain = () => {
       try {
         setCargando(true);
         setError(null);
-        
+
         // Llamada real a la API
         const data = await infografiasGet();
         //console.log('Infografías cargadas:', data);
@@ -51,14 +51,14 @@ const InfografiaMain = () => {
   const handleInfografiaClick = (infografia) => {
     // Mostrar la infografía en vista expandida
     setInfografiaExpandida(infografia);
-    
+
     // Scroll hacia abajo para mostrar la infografía expandida
     setTimeout(() => {
       const modal = document.querySelector('.infografia-modal-content');
       if (modal) {
-        modal.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        modal.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 100);
@@ -74,7 +74,7 @@ const InfografiaMain = () => {
       <div className="infografia-header">
         <div className="infografia-title">
           <span className="infografia-title-text">
-            
+
           </span>
         </div>
       </div>
@@ -84,13 +84,13 @@ const InfografiaMain = () => {
         {/* Columna Principal - Infografías */}
         <div className="infografia-main-column">
           {/* Header de la sección */}
-      <div className="infografia-header">
-        <div className="infografia-title">
-          <span className="infografia-title-text">
-            Infografías
-          </span>
-        </div>
-      </div>
+          <div className="infografia-header">
+            <div className="infografia-title">
+              <span className="infografia-title-text">
+                Infografías
+              </span>
+            </div>
+          </div>
 
           {/* Grid de infografías */}
           <div className="infografias-grid">
@@ -114,24 +114,37 @@ const InfografiaMain = () => {
                 </p>
               </div>
             ) : (
-              infografias.map((infografia) => (
-                <InfografiaCard
-                  key={infografia.id}
-                  imagen={infografia.info_imagen}
-                  pdfUrl={infografia.pdf}
-                  onClick={() => handleInfografiaClick(infografia)}
-                />
-              ))
+              infografias.map((infografia) => {
+                // Calcula la longitud del título para ajustar el tamaño de fuente
+                let tituloClass = "infografia-titulo";
+                if (infografia.titulo.length > 50) tituloClass += " long";
+                if (infografia.titulo.length > 80) tituloClass += " very-long";
+
+                return (
+                  <div key={infografia.id} className="infografia-card-container">
+                    <div className="infografia-titulo">
+                      {infografia.titulo}
+                    </div>
+                    <div className="infografia-card-img">
+                      <InfografiaCard
+                        imagen={infografia.info_imagen}
+                        pdfUrl={infografia.pdf}
+                        onClick={() => handleInfografiaClick(infografia)}
+                      />
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
 
-      
-                            {/* Columna lateral */}
-                            <div className="flex flex-col items-end justify-start gap-10">
-                                <DirectorioVertical />
-                                <PortadaRevista />
-                                {/*<MainLateralPostTarjetas
+
+        {/* Columna lateral */}
+        <div className="flex flex-col items-end justify-start gap-10">
+          <DirectorioVertical />
+          <PortadaRevista />
+          {/*<MainLateralPostTarjetas
                                     notasDestacadas={destacadasFiltradas}
                                     onCardClick={handleCardClick}
                                     sinCategoria
@@ -139,20 +152,20 @@ const InfografiaMain = () => {
                                     cantidadNotas={5}
                                 />*/}
 
-                                
-                                <div className="pt-3">
-                                    <BotonesAnunciateSuscribirme />
-                                </div>
 
-                                <Infografia />
+          <div className="pt-3">
+            <BotonesAnunciateSuscribirme />
+          </div>
 
-                                {/*<div className="flex justify-end items-end mb-4">
+          <Infografia />
+
+          {/*<div className="flex justify-end items-end mb-4">
                                     <img src="https://i.pinimg.com/originals/4d/ee/83/4dee83472ffd5a8ca24d26a050cf5454.gif"
                                         className="h-auto w-75" />
                                 </div>*/}
 
 
-                          
+
 
           <div className="pt-3">
             <BotonesAnunciateSuscribirme />
@@ -165,13 +178,13 @@ const InfografiaMain = () => {
         <div className="infografia-modal-overlay" onClick={cerrarInfografiaExpandida}>
           <div className="infografia-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="infografia-modal-top-actions">
-              <button 
+              <button
                 className="infografia-modal-close"
                 onClick={cerrarInfografiaExpandida}
               >
                 ×
               </button>
-              <button 
+              <button
                 className="infografia-share-icon-btn"
                 onClick={() => {
                   if (navigator.share) {
@@ -190,7 +203,7 @@ const InfografiaMain = () => {
               >
                 <HiMiniArrowTopRightOnSquare />
               </button>
-              <button 
+              <button
                 className="infografia-download-icon-btn"
                 onClick={() => {
                   if (infografiaExpandida.pdf) {
@@ -207,8 +220,8 @@ const InfografiaMain = () => {
                 <HiArrowDownTray />
               </button>
             </div>
-            <img 
-              src={infografiaExpandida.info_imagen} 
+            <img
+              src={infografiaExpandida.info_imagen}
               alt="Infografía expandida"
               className="infografia-modal-image"
             />

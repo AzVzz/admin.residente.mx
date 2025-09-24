@@ -1,10 +1,11 @@
+import React, { useState, useEffect, useRef } from "react";
 import { urlApi } from "../../../api/url.js";
 import BannerHorizontal from "../BannerHorizontal.jsx";
 
 const TarjetaVerticalPost = ({ post, onClick }) => {
     return (
         <div
-            className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer max-w-sm"
+            className="group relative bg-transparent transition-all duration-300 overflow-hidden cursor-pointer"
             onClick={onClick}
         >
             <div className="flex flex-col">
@@ -33,55 +34,201 @@ const TarjetaVerticalPost = ({ post, onClick }) => {
 };
 
 const TresTarjetas = ({ posts = [], onCardClick, mostrarBanner = false, revistaActual }) => {
-    // Aseguramos 6 items y partimos 3 / 3
-    const firstThree = posts.slice(0, 3);
-    const lastThree = posts.slice(3, 6);
+    const [itemWidth, setItemWidth] = useState(0);
+    const [perView, setPerView] = useState(3); // 3 columnas por fila, 6 en total
+    const viewportRef = useRef(null);
+    const GAP_PX = 32; // gap-x-8 ≈ 32px
+
+    // Responsivo - ajustar número de columnas
+    useEffect(() => {
+        const onResize = () => {
+            const w = window.innerWidth;
+            if (w < 640) setPerView(1); // 1 columna en móvil
+            else if (w < 768) setPerView(2); // 2 columnas en tablet pequeña
+            else if (w < 1024) setPerView(3); // 3 columnas en tablet
+            else setPerView(3); // 3 columnas en desktop
+        };
+        
+        onResize();
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+
+    // Calcular ancho de cada item
+    useEffect(() => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const containerWidth = el.clientWidth;
+        const totalGaps = GAP_PX * (perView - 1);
+        const w = (containerWidth - totalGaps) / perView;
+        setItemWidth(w);
+    }, [perView, posts.length]);
+
+    // Dividir posts en grupos de 6 (2 filas de 3)
+    const groups = [];
+    for (let i = 0; i < posts.length; i += 6) {
+        groups.push(posts.slice(i, i + 6));
+    }
+
+    const scrollToGroup = (groupIndex) => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const scrollAmount = groupIndex * el.clientWidth;
+        el.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+    };
+
+    const nextGroup = () => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const currentScroll = el.scrollLeft;
+        const groupWidth = el.clientWidth;
+        const nextScroll = currentScroll + groupWidth;
+        
+        el.scrollTo({ left: nextScroll, behavior: 'smooth' });
+    };
+
+    const prevGroup = () => {
+        const el = viewportRef.current;
+        if (!el) return;
+        
+        const currentScroll = el.scrollLeft;
+        const groupWidth = el.clientWidth;
+        const prevScroll = Math.max(0, currentScroll - groupWidth);
+        
+        el.scrollTo({ left: prevScroll, behavior: 'smooth' });
+    };
+
+    if (posts.length === 0) return null;
 
     return (
-        <div className="w-full">
-            {/* Fila 1 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mb-4">
-                {firstThree.map((post) => (
-                    <TarjetaVerticalPost
-                        key={post.id}
-                        post={post}
-                        onClick={() => onCardClick(post)}
-                    />
-                ))}
-            </div>
+        <div className="w-full relative" style={{ overflow: "visible" }}>
+            {/* Contenedor principal */}
+            <div className="relative mx-auto w-full" style={{ overflow: "visible" }}>
 
-            {/* Banner al centro */}
-            {/*mostrarBanner && revistaActual?.imagen_banner && (
-                <div className="w-full my-4">
-                    {revistaActual.pdf ? (
-                        <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                            <img
-                                src={revistaActual.imagen_banner}
-                                alt="Banner Revista"
-                                className="w-full cursor-pointer pb-4"
-                                title="Descargar Revista"
-                            />
-                        </a>
-                    ) : (
-                        <img
-                            src={revistaActual.imagen_banner}
-                            alt="Banner Revista"
-                            className="w-full"
-                        />
-                    )}
+                {/* Flecha izquierda */}
+                {groups.length > 1 && (
+                    <button 
+                        onClick={prevGroup}
+                        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                        aria-label="Grupo anterior"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Viewport con scroll horizontal */}
+                <div
+                    ref={viewportRef}
+                    className="overflow-x-auto w-full"
+                    style={{
+                        scrollSnapType: "x mandatory",
+                        WebkitOverflowScrolling: "touch",
+                        msOverflowStyle: "none",
+                        scrollbarWidth: "none",
+                    }}
+                >
+                    {/* Ocultar scrollbar en Webkit */}
+                    <style jsx>{`
+                        .overflow-x-auto::-webkit-scrollbar {
+                            display: none;
+                        }
+                    `}</style>
+
+                    {/* Contenedor de grupos */}
+                    <div className="flex" style={{ scrollSnapAlign: "start" }}>
+                        {groups.map((group, groupIndex) => {
+                            const firstRow = group.slice(0, 3);
+                            const secondRow = group.slice(3, 6);
+                            
+                            return (
+                                <div 
+                                    key={groupIndex}
+                                    className="flex-shrink-0 w-full"
+                                    style={{ 
+                                        width: '100%',
+                                        scrollSnapAlign: "start",
+                                        marginRight: '32px'
+                                    }}
+                                >
+                                    {/* Primera fila (3 tarjetas) */}
+                                    <div 
+                                        className="grid mb-4"
+                                        style={{ 
+                                            gridTemplateColumns: `repeat(3, 1fr)`,
+                                            gap: `${GAP_PX}px`
+                                        }}
+                                    >
+                                        {firstRow.map((post) => (
+                                            <div key={post.id}>
+                                                <TarjetaVerticalPost
+                                                    post={post}
+                                                    onClick={() => onCardClick(post)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Segunda fila (3 tarjetas) */}
+                                    <div 
+                                        className="grid mt-4 mb-2"
+                                        style={{ 
+                                            gridTemplateColumns: `repeat(3, 1fr)`,
+                                            gap: `${GAP_PX}px`
+                                        }}
+                                    >
+                                        {secondRow.map((post) => (
+                                            <div key={post.id}>
+                                                <TarjetaVerticalPost
+                                                    post={post}
+                                                    onClick={() => onCardClick(post)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-            )*/}
 
-            {/* Fila 2 (3 tarjetas) */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-5 mt-4 mb-2">
-                {lastThree.map((post) => (
-                    <TarjetaVerticalPost
-                        key={post.id}
-                        post={post}
-                        onClick={() => onCardClick(post)}
-                    />
-                ))}
+                {/* Flecha derecha */}
+                {groups.length > 1 && (
+                    <button 
+                        onClick={nextGroup}
+                        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 right-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                        aria-label="Siguiente grupo"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4.5} stroke="currentColor" className="w-7 h-7">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Indicadores de grupo 
+                {groups.length > 1 && (
+                    <div className="flex justify-center mt-4 space-x-2 my-3">
+                        {groups.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => scrollToGroup(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                                    viewportRef.current && 
+                                    Math.round(viewportRef.current.scrollLeft / viewportRef.current.clientWidth) === index
+                                        ? 'bg-gray-800' 
+                                        : 'bg-gray-300 hover:bg-gray-400'
+                                }`}
+                                aria-label={`Ir al grupo ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                )}*/}
             </div>
+            
             <BannerHorizontal size="small"/>
         </div>
     );
