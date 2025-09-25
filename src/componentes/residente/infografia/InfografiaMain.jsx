@@ -84,11 +84,18 @@ const InfografiaMain = () => {
         {/* Columna Principal - Infografías */}
         <div className="infografia-main-column">
           {/* Header de la sección */}
-          <div className="infografia-header">
-            <div className="infografia-title">
-              <span className="infografia-title-text">
-                Infografías
-              </span>
+          <div className="infografia-header"> 
+            <div className="infografia-title ">
+              {/* Contenedor relativo para el logo y la línea */}
+              <div className="relative flex items-center gap-2">
+                {/* Línea amarilla con bordes inclinados */}
+                <div className="w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+                
+                {/* Título */}
+                <span className="infografia-title-text">
+                  INFOGRAFÍAS
+                </span>
+              </div>
             </div>
           </div>
 

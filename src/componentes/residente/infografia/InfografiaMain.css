@@ -12,6 +12,7 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-top: 0.5rem;
+  overflow: visible;
 }
 
 .infografia-header::before {
@@ -33,20 +34,21 @@
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  margin-left: -20rem;
-  padding-left: 2rem;
+  margin-left: -32rem; /* mueve barra + texto un poco más a la izquierda */
+  padding-left: 0rem; /* reduce aún más la separación con el borde izquierdo */
 }
 
 .infografia-title-text {
-  display: block;
+  display: inline-block;
   color: #000;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   text-align: left;
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   line-height: 1;
   letter-spacing: -0.025em;
-  transform: translateX(-10rem);
+  font-style: italic;
+  font-family: 'Arial Black', Arial, sans-serif;
 }
 
 .infografia-grid {
@@ -265,7 +267,8 @@
   
   .infografia-title-text {
     font-size: 1.875rem;
-    transform: translateX(-3.5rem);
+    font-style: italic;
+    font-weight: 900;
   }
   
   .infografia-grid {

@@ -14,9 +14,9 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
 
         try {
             // Construir URL según el método
-            let url = `${urlApi}/api/restaurante`;
+            let url = `${urlApi}api/restaurante`;
             if (method === 'PUT' && slug) {
-                url = `${urlApi}/api/restaurante/${slug}`;
+                url = `${urlApi}api/restaurante/${slug}`;
             }
 
             const response = await fetch(url, {
@@ -47,7 +47,7 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
         setIsPosting(true);
         try {
             // Usar ID en la URL
-            const url = `${urlApi}/api/restaurante/${restaurantId}/imagenes`;
+            const url = `${urlApi}api/restaurante/${restaurantId}/imagenes`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -71,7 +71,7 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
     const postFotosLugar = async (restaurantId, formData) => {
         setIsPosting(true);
         try {
-            const url = `${urlApi}/api/restaurante/${restaurantId}/fotos-lugar`;
+            const url = `${urlApi}api/restaurante/${restaurantId}/fotos-lugar`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData

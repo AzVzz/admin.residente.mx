@@ -13,7 +13,7 @@ const RestaurantFetcher = ({ slug, children }) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${urlApi}/api/restaurante/${slug}`
+          `${urlApi}api/restaurante/${slug}`
         )
         if (!response.ok) {
           throw new Error('Error al obtener el restaurante')
