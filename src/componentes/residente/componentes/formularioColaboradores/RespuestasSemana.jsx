@@ -78,13 +78,18 @@ const RespuestasSemana = () => {
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                 {/* Columna principal: formulario */}
                 <div>
+                    <Box sx={{ mb: 3, p: 2, backgroundColor: '#fff202ff', textAlign: 'start' }}>
+                        <span style={{ fontWeight: 'bold' }}>
+                            IMPORTANTE:<br />
+                            Si envías tu colaboración se publicará en tu perfil.<br />
+                            Si envías tu consejo no se publicará en tu perfil.
+                        </span>
+                    </Box>
                     <Box component="form" onSubmit={handleSubmit} sx={{
                         p: 2,
                         maxWidth: 800, // igual que OpinionEditorial
                         mx: "auto",
-                        backgroundColor: "#fff",
-                        borderRadius: 2,
-                        boxShadow: 3
+                        backgroundColor: "transparent"
                     }}>
                         <h1 className="text-2xl font-bold mb-4 text-center">
                             Entrada de colaboraciones</h1>
@@ -178,7 +183,7 @@ const RespuestasSemana = () => {
                                     <Button
                                         component="label"
                                         variant="outlined"
-                                         startIcon={<FiUpload />}
+                                        startIcon={<FiUpload />}
                                         sx={{
                                             borderColor: '#fff300',
                                             color: '#fff300',
@@ -262,10 +267,6 @@ const RespuestasSemana = () => {
                             {loading ? "Enviando..." : "Enviar respuesta"}
                         </Button>
                         {mensaje && <Box mt={2} textAlign="center">{mensaje}</Box>}
-                    </Box>
-                    <Box sx={{ mb: 4, p: 2, backgroundColor: '#fffde7', borderRadius: 2, border: '1px solid #ffe082', textAlign: 'center' }}>
-                        <strong>IMPORTANTE:</strong> Si envías una <span style={{ color: '#1976d2', fontWeight: 'bold' }}>colaboración</span>, se publicará en tu perfil.  
-                        Si envías un <span style={{ color: '#388e3c', fontWeight: 'bold' }}>consejo editorial</span>, <u>no se publicará</u> en tu perfil, solo se enviará como consejo a Residente.
                     </Box>
                 </div>
                 {/* Columna lateral */}
