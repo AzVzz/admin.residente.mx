@@ -11,7 +11,7 @@ const Header = () => {
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
-   // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
+    // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
 
   return (
@@ -19,9 +19,16 @@ const Header = () => {
 
       <div className="max-w-[1080px] mx-auto w-full">
 
-      <div className="pt-8"> {/*agregue 3 pixeles más*/}
-        <BannerHorizontal size="big" />
-      </div>
+        <div className="pt-8"> {/*agregue 3 pixeles más*/}
+          {/*<BannerHorizontal size="big" />*/}
+          <a
+            href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
+          </a>
+        </div>
 
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}

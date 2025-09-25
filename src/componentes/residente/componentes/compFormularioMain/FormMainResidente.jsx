@@ -374,8 +374,9 @@ if (data.programar_publicacion) {
         datosNota.nombre_restaurante = null;
       }
 
-      //console.log("=== DATOS QUE SE ENVÍAN AL BACKEND ===");
-      //console.log("datosNota:", datosNota);
+      console.log("=== DATOS QUE SE ENVÍAN AL BACKEND DEL FORMULARIO ===");
+      console.log("datosNota:", datosNota);
+
       //console.log("Estatus final:", datosNota.estatus);
       //console.log("programar_publicacion:", datosNota.programar_publicacion);
       //console.log("Usuario permisos:", usuario?.permisos);
