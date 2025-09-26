@@ -14,7 +14,7 @@ const Header = () => {
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
-   // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
+    // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
 
   const handleSearchToggle = () => {
@@ -42,9 +42,16 @@ const Header = () => {
 
       <div className="max-w-[1080px] mx-auto w-full">
 
-      <div className="pt-8"> {/*agregue 3 pixeles más*/}
-        <BannerHorizontal size="big" />
-      </div>
+        <div className="pt-8"> {/*agregue 3 pixeles más*/}
+          {/*<BannerHorizontal size="big" />*/}
+          <a
+            href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
+          </a>
+        </div>
 
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
@@ -130,14 +137,14 @@ const Header = () => {
                       </button>
                     </>
                   ) : (
-                    <div className="relative w-full max-w-md bg-white rounded-lg shadow-sm">
-                      <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 p-1">
+                    <div className="relative w-full max-w-md bg-white shadow-sm">
+                      <form onSubmit={handleSearchSubmit} className="flex items-center">
                         <input
                           type="text"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Buscar notas..."
-                          className="flex-1 px-2 py-1 text-sm border-0 rounded focus:outline-none focus:ring-0 bg-transparent"
+                          className="flex-1 px-2 text-sm focus:outline-none focus:ring-0 bg-transparent"
                           autoFocus
                         />
                         <button

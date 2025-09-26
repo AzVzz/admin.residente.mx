@@ -89,10 +89,10 @@ const SearchResults = ({ searchTerm, onClose }) => {
   }
 
   return (
-    <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto backdrop-blur-sm min-w-96">
+    <div className="absolute top-full left-0 right-0 bg-white/55 border border-gray-200 shadow-xl z-50 max-h-96 overflow-y-auto backdrop-blur-sm min-w-96">
       {loading && (
         <div className="p-4 text-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin h-6 w-6 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
           <p className="text-sm text-gray-500 mt-2">Buscando...</p>
         </div>
       )}
@@ -110,8 +110,8 @@ const SearchResults = ({ searchTerm, onClose }) => {
       )}
 
       {!loading && !error && results.length > 0 && (
-        <div className="p-2">
-          <div className="text-xs text-gray-500 mb-2 px-2">
+        <div className="p-2 gap-2 flex flex-col">
+          <div className="text-sm text-gray-500">
             {results.length} resultado{results.length !== 1 ? 's' : ''} encontrado{results.length !== 1 ? 's' : ''}
           </div>
           {results.map((nota) => (
@@ -119,7 +119,7 @@ const SearchResults = ({ searchTerm, onClose }) => {
               key={nota.id}
               to={`/notas/${nota.id}`}
               onClick={onClose}
-              className="block p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+              className="block hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
             >
               <div className="flex gap-4">
                 {/* Imagen */}
@@ -131,7 +131,7 @@ const SearchResults = ({ searchTerm, onClose }) => {
                         'https://via.placeholder.com/80x80/cccccc/666666?text=Sin+Imagen'
                     }
                     alt={nota.titulo}
-                    className="w-20 h-20 object-cover rounded bg-gray-200"
+                    className="w-20 h-20 object-cover bg-gray-200"
                     onError={(e) => {
                       console.log('Error cargando imagen:', nota.imagen);
                       console.log('URL final intentada:', e.target.src);
@@ -155,7 +155,7 @@ const SearchResults = ({ searchTerm, onClose }) => {
                     </p>
                   )}
                   
-                  {/* Tags */}
+                  {/* Tags 
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryColor('RESTAURANTES')}`}>
                       RESTAURANTES
@@ -168,7 +168,7 @@ const SearchResults = ({ searchTerm, onClose }) => {
                         {nota.tipo_nota}
                       </span>
                     )}
-                  </div>
+                  </div>*/}
                   
                   {/* Fecha */}
                   {nota.fecha_publicacion && (

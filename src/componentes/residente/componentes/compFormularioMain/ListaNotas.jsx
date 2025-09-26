@@ -66,13 +66,13 @@ const ListaNotas = () => {
         throw new Error('No hay token de autenticación');
       }
 
-      console.log('Cargando todas las notas...');
-      console.log('Token:', token ? 'Presente' : 'Ausente');
-      console.log('Usuario:', usuario);
+      //console.log('Cargando todas las notas...');
+      //console.log('Token:', token ? 'Presente' : 'Ausente');
+      //console.log('Usuario:', usuario);
 
       // Cargar todas las notas sin paginación
       const data = await notasTodasGet(token, 1, 'all');
-      console.log('Respuesta:', data);
+      //console.log('Respuesta:', data);
 
       // Validar respuesta del servidor
       if (!data) {
