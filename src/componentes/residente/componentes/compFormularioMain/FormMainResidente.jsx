@@ -54,8 +54,8 @@ const FormMainResidente = () => {
   // Si no hay token, muestra el login
   if (!token) {
     return (
-      <div 
-      lassName="max-w-[400px] mx-auto mt-10">
+      <div
+        lassName="max-w-[400px] mx-auto mt-10">
         <Login />
       </div>
     );
@@ -228,26 +228,25 @@ const FormMainResidente = () => {
           setNotaId(data.id);
 
           // --- CONVERSIÓN DE FECHA ---
-// --- CONVERSIÓN DE FECHA CORREGIDA ---
-let fechaProgramada = '';
-if (data.programar_publicacion) {
-  try {
-    // Crear objeto Date (maneja automáticamente UTC a hora local)
-    const fecha = new Date(data.programar_publicacion);
-    
-    // Formatear a YYYY-MM-DDTHH:MM para el input datetime-local
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const horas = String(fecha.getHours()).padStart(2, '0');
-    const minutos = String(fecha.getMinutes()).padStart(2, '0');
-    
-    fechaProgramada = `${anio}-${mes}-${dia}T${horas}:${minutos}`;
-  } catch (e) {
-    console.error('Error convirtiendo fecha:', e);
-    fechaProgramada = '';
-  }
-}
+          let fechaProgramada = '';
+          if (data.programar_publicacion) {
+            try {
+              // Crear objeto Date (maneja automáticamente UTC a hora local)
+              const fecha = new Date(data.programar_publicacion);
+
+              // Formatear a YYYY-MM-DDTHH:MM para el input datetime-local
+              const anio = fecha.getFullYear();
+              const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+              const dia = String(fecha.getDate()).padStart(2, '0');
+              const horas = String(fecha.getHours()).padStart(2, '0');
+              const minutos = String(fecha.getMinutes()).padStart(2, '0');
+
+              fechaProgramada = `${anio}-${mes}-${dia}T${horas}:${minutos}`;
+            } catch (e) {
+              console.error('Error convirtiendo fecha:', e);
+              fechaProgramada = '';
+            }
+          }
 
           // Resetear formulario con los datos de la nota
           let autor = data.autor;
@@ -312,12 +311,11 @@ if (data.programar_publicacion) {
     }
   }, [tipoNotaUsuario, setValue]);
 
-  // Manejar envío del formulario
-  const onSubmit = async (data) => {
+  // Función de envío modificada
+  const onSubmit = async (data, actualizarFecha) => {
     setIsPosting(true);
     setPostError(null);
     setPostResponse(null);
-
 
     // Determinar el estado de la nota según los permisos del usuario y si falta imagen
     let estadoFinal;
@@ -338,17 +336,15 @@ if (data.programar_publicacion) {
       estadoFinal = 'borrador';
     }
 
-
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
-      const tipoNotaSecundaria = null; // Ya no hay secundaria
+      const tipoNotaSecundaria = null;
 
-
-
+      // Base de datosNota
       const datosNota = {
         tipo_nota: tipoNotaFinal,
         tipo_nota2: tipoNotaSecundaria,
@@ -359,10 +355,19 @@ if (data.programar_publicacion) {
         descripcion: data.contenido,
         sticker: data.sticker,
         estatus: estadoFinal,
-        programar_publicacion: data.opcionPublicacion === 'programar' ? data.fechaProgramada : null,
         destacada: data.destacada || false,
-        destacada_normal: data.destacada_normal || false, // <-- aquí
+        destacada_normal: data.destacada_normal || false,
+        // NUEVO: Indicar si se debe actualizar la fecha
+        actualizar_fecha: actualizarFecha
+
       };
+
+      // Solo incluir fechaProgramada si es guardado "actualizada"
+      if (actualizarFecha) {
+        datosNota.programar_publicacion =
+          data.opcionPublicacion === 'programar' ? data.fechaProgramada : null;
+      }
+
 
       // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
       if (
@@ -374,12 +379,8 @@ if (data.programar_publicacion) {
         datosNota.nombre_restaurante = null;
       }
 
-      console.log("=== DATOS QUE SE ENVÍAN AL BACKEND DEL FORMULARIO ===");
-      console.log("datosNota:", datosNota);
-
-      //console.log("Estatus final:", datosNota.estatus);
-      //console.log("programar_publicacion:", datosNota.programar_publicacion);
-      //console.log("Usuario permisos:", usuario?.permisos);
+      // --- Agrega el console.log aquí ---
+      console.log("JSON enviado a la API:", JSON.stringify(datosNota, null, 2));
 
       let resultado;
       if (notaId) {
@@ -393,14 +394,12 @@ if (data.programar_publicacion) {
         await notaImagenPut(notaId || resultado.id, data.imagen, token);
       }
 
-      // Manejar la instafoto de manera similar a la imagen principal
       if (data.instafoto && (notaId || resultado.id)) {
         await notaInstafotoPut(notaId || resultado.id, data.instafoto, token);
       }
 
       setPostResponse(resultado);
 
-      // Mostrar mensaje diferente según el estado
       if (estadoFinal === 'borrador') {
         setPostResponse({
           ...resultado,
@@ -447,11 +446,17 @@ if (data.programar_publicacion) {
 
   const fechaActual = formatFecha(new Date());
 
+  // Llaman a onSubmit con el flag 'actualizarFecha'
+  const submitActualizada = methods.handleSubmit((data) => onSubmit(data, true));
+  const submitCambios = methods.handleSubmit((data) => onSubmit(data, false));
+
+
   return (
     <div className="py-8">
       <div className="mx-auto">
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Cambiar el form para usar el handleSubmit genérico */}
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="bg-white rounded-lg shadow-lg border border-gray-200">
               <div className="text-center px-6 py-6 border-b border-gray-200">
                 <h1 className="text-3xl font-bold text-gray-800">
@@ -530,7 +535,7 @@ if (data.programar_publicacion) {
                   let textoDestacada = "Marcar como destacada";
                   if (tipoNota === "Restaurantes") textoDestacada = "Marcar como restaurante recomendado";
                   if (tipoNota === "Food & Drink") textoDestacada = "Marcar como platillo icónico";
-                  
+
                   if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
                     return (
                       <div className="mb-4 flex gap-6">
@@ -661,21 +666,36 @@ if (data.programar_publicacion) {
                       type="button"
                       onClick={eliminarNota}
                       disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                        eliminando
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-red-600 text-white hover:bg-red-700"
-                      }`}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${eliminando
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                        }`}
                     >
                       {eliminando ? "Eliminando..." : "Eliminar Nota"}
                     </button>
                   </div>
                 )}
 
-                <BotonSubmitNota
-                  isPosting={isPosting}
-                  notaId={notaId}
-                />
+                <div className="flex w-full gap-5">
+                  {/* Botón Actualizar/Publicar (azul) */}
+                  <BotonSubmitNota
+                    isPosting={isPosting}
+                    notaId={notaId}
+                    guardarComo="actualizada"
+                    onClick={submitActualizada}
+                    disabled={isPosting}
+                  />
+
+                  {/* Botón Guardar Cambios/Borrador (verde) */}
+                  <BotonSubmitNota
+                    isPosting={isPosting}
+                    notaId={notaId}
+                    guardarComo="cambios"
+                    onClick={submitCambios}
+                    disabled={isPosting}
+                  />
+                </div>
+
 
               </div>
             </div>
