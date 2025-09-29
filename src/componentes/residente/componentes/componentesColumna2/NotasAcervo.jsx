@@ -33,7 +33,7 @@ const NotasAcervo = ({ onCardClick }) => {
             try {
                 setLoading(true);
                 // Obtener todas las notas de acervo sin límite
-                const response = await fetch(`${urlApi}api/notas`);
+                const response = await fetch(`${urlApi}api/notas/por-tipo-nota/Acervo`);
                 if (response.ok) {
                     const todasLasNotas = await response.json();
 
