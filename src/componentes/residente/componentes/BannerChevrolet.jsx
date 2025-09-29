@@ -6,10 +6,6 @@ const BannerChevrolet = ({ size = "big" }) => {
   const imageUrl = `${urlApi}fotos/fotos-estaticas/chevrolet-rivero-valle.jpg`;
   const redirectUrl = "https://chevroletrivero.com/";
 
-  // Debug: verificar que la URL esté correcta
-  console.log("🚗 Cargando banner de Chevrolet:", imageUrl);
-  console.log("🔗 URL de redirección:", redirectUrl);
-
   return (
     <BannerHorizontal
       size={size}

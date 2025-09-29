@@ -3,8 +3,8 @@ import { urlApi } from "../../../api/url";
 import { obtenerVideos } from "../../../api/videosApi";
 import { useAuth } from "../../../Context";
 
-const VIDEOS_POR_VISTA_DESKTOP = 7; // Cambiado de 6 a 7
-const GAP_PX = 24; // Reducido el espacio entre tarjetas para acomodar 7
+const VIDEOS_POR_VISTA_DESKTOP = 7;
+const GAP_PX = 24;
 
 // Tarjeta de video (vertical, alargada)
 const VideoCard = ({ video, onClick }) => (
@@ -28,12 +28,11 @@ const VideoCard = ({ video, onClick }) => (
 );
 
 const VideosHorizontalCarrusel = () => {
-    const [startIdx, setStartIdx] = useState(0);
-    const [perView, setPerView] = useState(VIDEOS_POR_VISTA_DESKTOP);
-    const [itemWidth, setItemWidth] = useState(0);
     const [videos, setVideos] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
+    const [perView, setPerView] = useState(VIDEOS_POR_VISTA_DESKTOP);
+    const [itemWidth, setItemWidth] = useState(0);
     const viewportRef = useRef(null);
     const { token } = useAuth();
 
@@ -45,15 +44,11 @@ const VideosHorizontalCarrusel = () => {
                 setError(null);
 
                 const videosData = await obtenerVideos(token);
-                //console.log('Videos cargados:', videosData);
-
-                // Filtrar solo videos activos para el carrusel público
                 const videosActivos = videosData.filter(video => video.activo);
 
                 if (Array.isArray(videosActivos) && videosActivos.length > 0) {
                     setVideos(videosActivos);
                 } else {
-                    //console.log('No hay videos activos');
                     setVideos([]);
                 }
             } catch (err) {
@@ -77,7 +72,7 @@ const VideosHorizontalCarrusel = () => {
             else if (w < 1024) setPerView(4);
             else if (w < 1280) setPerView(5);
             else if (w < 1536) setPerView(6);
-            else setPerView(VIDEOS_POR_VISTA_DESKTOP); // 7 en pantallas grandes
+            else setPerView(VIDEOS_POR_VISTA_DESKTOP);
         };
         onResize();
         window.addEventListener("resize", onResize);
@@ -92,19 +87,62 @@ const VideosHorizontalCarrusel = () => {
         const totalGaps = GAP_PX * (perView - 1);
         const w = (containerWidth - totalGaps) / perView;
         setItemWidth(w);
-        // Evita overflow al cambiar perView o cantidad
-        setStartIdx((i) => Math.min(i, Math.max(0, videos.length - perView)));
     }, [perView, videos.length]);
 
-    const maxStart = Math.max(0, videos.length - perView);
-    const canPrev = startIdx > 0;
-    const canNext = startIdx < maxStart;
+    // Función para calcular si hay elementos anteriores/siguientes
+    const getScrollState = () => {
+        const el = viewportRef.current;
+        if (!el) return { canPrev: false, canNext: false };
 
-    const goPrev = () => canPrev && setStartIdx((i) => i - 1);
-    const goNext = () => canNext && setStartIdx((i) => i + 1);
+        const { scrollLeft, scrollWidth, clientWidth } = el;
+        const canPrev = scrollLeft > 0;
+        const canNext = scrollLeft < scrollWidth - clientWidth - 10; // Margen de error
+
+        return { canPrev, canNext };
+    };
+
+    const [scrollState, setScrollState] = useState({ canPrev: false, canNext: false });
+
+    // Actualizar estado del scroll
+    const updateScrollState = () => {
+        setScrollState(getScrollState());
+    };
+
+    // Efecto para actualizar el estado del scroll cuando cambian los videos o el tamaño
+    useEffect(() => {
+        updateScrollState();
+    }, [videos.length, perView, itemWidth]);
+
+    // Scroll suave con snap
+    const scrollBy = (distance) => {
+        if (viewportRef.current) {
+            viewportRef.current.scrollBy({
+                left: distance,
+                behavior: 'smooth'
+            });
+
+            // Actualizar estado después de la animación
+            setTimeout(updateScrollState, 300);
+        }
+    };
+
+    const goPrev = () => scrollBy(-(itemWidth + GAP_PX));
+    const goNext = () => scrollBy(itemWidth + GAP_PX);
+
+    // Manejar el scroll manual
+    useEffect(() => {
+        const el = viewportRef.current;
+        if (!el) return;
+
+        const handleScroll = () => {
+            updateScrollState();
+        };
+
+        el.addEventListener('scroll', handleScroll);
+        return () => el.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleVideoClick = (video) => {
-        //console.log('Video clickeado:', video);
         if (video.url) {
             window.open(video.url, '_blank');
         }
@@ -115,7 +153,17 @@ const VideosHorizontalCarrusel = () => {
         return (
             <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-transparent">
                 <div className="relative mx-auto max-w-[1080px] w-full my-5">
-                    <h3 className="text-black text-[35px] pb-2 mb-2">Videos</h3>
+                    <div className="relative flex justify-center items-center pt-2">
+                        <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                        <div className="relative flex justify-center items-center mb-8 mt-8">
+                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                                <div className="flex flex-row justify-center items-center gap-3">
+                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="flex justify-center items-center h-32">
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-400"></div>
                     </div>
@@ -135,7 +183,7 @@ const VideosHorizontalCarrusel = () => {
                 <div className="relative flex justify-center items-center pt-2">
                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
 
-                    <div className="relative flex justify-center items-center mb-8 mt-8">
+                    <div className="relative flex justify-center items-center mb-3 mt-3">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
@@ -144,68 +192,87 @@ const VideosHorizontalCarrusel = () => {
                         </div>
                     </div>
                 </div>
+                <div className="relative mx-auto max-w-[1080px] w-full my-5">
 
-                {/* Flechas fuera del max-w en md+ (como cupones) */}
-                {videos.length > perView && (
-                    <>
-                        {/* Izquierda desktop */}
-                        <button
-                            onClick={goPrev}
-                            disabled={!canPrev}
-                            className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-[#fff300]/95 hover:bg-[#fff300]/85 text-black rounded-full w-12 h-12 shadow-lg disabled:opacity-40 cursor-pointer z-20"
-                            aria-label="Anterior"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                                className="w-7 h-7">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                            </svg>
-                        </button>
-                    </>
-                )}
 
-                {/* Viewport */}
-                <div ref={viewportRef} className="overflow-hidden w-full">
-                    {/* Track */}
+                    {/* Flechas de navegación */}
+                    {videos.length > perView && (
+                        <>
+                            {/* Flecha izquierda */}
+                            <button
+                                onClick={goPrev}
+                                disabled={!scrollState.canPrev}
+                                className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-[#fff300] hover:bg-[#fff300]/55 text-black rounded-full w-12 h-12 shadow-lg cursor-pointer z-20"
+                                aria-label="Anterior"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+                                    className="w-7 h-7">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                                </svg>
+                            </button>
+
+                            {/* Flecha derecha */}
+                            <button
+                                onClick={goNext}
+                                disabled={!scrollState.canNext}
+                                className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 right-[-4rem] bg-[#fff300]/95 hover:bg-[#fff300]/55 text-black rounded-full w-12 h-12 shadow-lg z-20 cursor-pointer"
+                                aria-label="Siguiente"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+                                    className="w-7 h-7">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                                </svg>
+                            </button>
+                        </>
+                    )}
+
+                    {/* Viewport con scroll suave y snap */}
                     <div
-                        className="flex"
+                        ref={viewportRef}
+                        className="overflow-x-auto w-full"
                         style={{
-                            gap: `${GAP_PX}px`,
-                            transform: `translateX(-${startIdx * (itemWidth + GAP_PX)}px)`,
-                            transition: "transform 300ms ease",
-                            willChange: "transform",
+                            scrollSnapType: "x mandatory",
+                            WebkitOverflowScrolling: "touch",
+                            msOverflowStyle: "none",
+                            scrollbarWidth: "none",
                         }}
                     >
-                        {videos.map((video, idx) => (
-                            <div key={video.id || idx} className="flex-shrink-0" style={{ width: `${itemWidth}px` }}>
-                                <VideoCard
-                                    video={video}
-                                    onClick={() => handleVideoClick(video)}
-                                />
-                            </div>
-                        ))}
+                        {/* Ocultar scrollbar para Chrome, Safari y Edge */}
+                        <style jsx>{`
+                        .overflow-x-auto::-webkit-scrollbar {
+                            display: none;
+                        }
+                    `}</style>
+
+                        {/* Track de videos */}
+                        <div
+                            className="flex"
+                            style={{
+                                gap: `${GAP_PX}px`,
+                            }}
+                        >
+                            {videos.map((video, idx) => (
+                                <div
+                                    key={video.id || idx}
+                                    className="flex-shrink-0"
+                                    style={{
+                                        width: `${itemWidth}px`,
+                                        scrollSnapAlign: "start",
+                                    }}
+                                >
+                                    <VideoCard
+                                        video={video}
+                                        onClick={() => handleVideoClick(video)}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-
-                {/* Derecha desktop y móvil */}
-                {videos.length > perView && (
-                    <>
-                        <button
-                            onClick={goNext}
-                            disabled={!canNext}
-                            className="hidden md:flex items-center justify-center absolute top-[calc(50%+16px)] -translate-y-1/2 right-[-4rem] bg-[#fff300]/95 hover:bg-[#fff300]/85 text-black rounded-full w-12 h-12 shadow-lg z-20 disabled:opacity-40 cursor-pointer"
-                            aria-label="Siguiente"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-                                className="w-7 h-7">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                            </svg>
-                        </button>
-                    </>
-                )}
             </div>
         </div>
     );

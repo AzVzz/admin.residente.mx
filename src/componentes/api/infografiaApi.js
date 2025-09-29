@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { urlApi } from '../../componentes/api/url.js'
 
-const BASE_URL = `${urlApi}/api/infografias`;
+const BASE_URL = `${urlApi}api/infografias`;
 
 // Obtener todas las infografías
 export const getInfografias = async () => {

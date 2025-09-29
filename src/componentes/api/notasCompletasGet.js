@@ -8,8 +8,16 @@ export const notasTodasGet = async (token, page = 1, limit = "all", q = "") => {
         if (limit !== undefined && limit !== null) url.searchParams.append("limit", limit);
         if (q) url.searchParams.append("q", q);
 
+        console.log('URL de la API:', url.toString());
+        console.log('Token presente:', !!token);
+
         const response = await fetch(url, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {}
+            headers: token ? { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            } : {
+                'Content-Type': 'application/json'
+            }
         });
         if (!response.ok) {
             const error = new Error('Error al obtener notas');

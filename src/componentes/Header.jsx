@@ -3,25 +3,55 @@ import { Link } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
-import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope, FaSearch, FaTimes } from "react-icons/fa";
 import BannerHorizontal from "./residente/componentes/BannerHorizontal";
+import SearchResults from "./SearchResults";
 
 const Header = () => {
   const [menuHeader, setMenuHeader] = useState([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
-   // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
+    // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (isSearchOpen) {
+      setSearchTerm('');
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Redirigir a página de resultados de búsqueda
+      window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
+    }
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchOpen(false);
+    setSearchTerm('');
+  };
 
   return (
     <header className="w-full">
 
       <div className="max-w-[1080px] mx-auto w-full">
 
-      <div className="pt-8"> {/*agregue 3 pixeles más*/}
-        <BannerHorizontal size="big" />
-      </div>
+        <div className="pt-8"> {/*agregue 3 pixeles más*/}
+          {/*<BannerHorizontal size="big" />*/}
+          <a
+            href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
+          </a>
+        </div>
 
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
@@ -89,13 +119,51 @@ const Header = () => {
                     )
                   )}
                 </div>
-                <div className="sm:flex gap-1.5 hidden">
-                  <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
-                  <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
-                  <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
-                  <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>
-                  <a href="tel:+528114186985" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" /></a>
-                  <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!"><FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                <div className="sm:flex gap-1.5 hidden items-center">
+                  {!isSearchOpen ? (
+                    <>
+                      <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
+                      <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                      <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                      <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                      <a href="tel:+528114186985" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                      <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!"><FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" /></a>
+                      <button 
+                        onClick={handleSearchToggle}
+                        className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
+                        title="Buscar"
+                      >
+                        <FaSearch className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="relative w-full max-w-md bg-white shadow-sm">
+                      <form onSubmit={handleSearchSubmit} className="flex items-center">
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Buscar notas..."
+                          className="flex-1 px-2 text-sm focus:outline-none focus:ring-0 bg-transparent"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSearchClose}
+                          className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
+                          title="Cerrar búsqueda"
+                        >
+                          <FaTimes className="w-4 h-4" />
+                        </button>
+                      </form>
+                      
+                      {/* Dropdown de resultados */}
+                      <SearchResults 
+                        searchTerm={searchTerm} 
+                        onClose={handleSearchClose}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

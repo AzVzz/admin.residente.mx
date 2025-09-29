@@ -66,11 +66,13 @@ const ListaNotas = () => {
         throw new Error('No hay token de autenticación');
       }
 
-      console.log('Cargando todas las notas...');
+      //console.log('Cargando todas las notas...');
+      //console.log('Token:', token ? 'Presente' : 'Ausente');
+      //console.log('Usuario:', usuario);
 
       // Cargar todas las notas sin paginación
       const data = await notasTodasGet(token, 1, 'all');
-      console.log('Respuesta:', data);
+      //console.log('Respuesta:', data);
 
       // Validar respuesta del servidor
       if (!data) {
@@ -89,6 +91,16 @@ const ListaNotas = () => {
       console.error('Mensaje del error:', err.message);
       console.error('Status del error:', err.status);
       console.error('Stack trace:', err.stack);
+
+      // Manejo específico de errores 403
+      if (err.status === 403) {
+        console.error('Error 403: Acceso denegado. Verificar permisos del usuario o token expirado');
+        // Limpiar token y usuario si es 403
+        saveToken(null);
+        saveUsuario(null);
+        navigate('/login', { replace: true });
+        return;
+      }
 
       setError(err);
     } finally {
@@ -233,7 +245,7 @@ const ListaNotas = () => {
   }
 
   if (error) {
-    return <ErrorNotas error={error} onRetry={fetchNotas} />;
+    return <ErrorNotas error={error} onRetry={fetchTodasLasNotas} />;
   }
 
   return (

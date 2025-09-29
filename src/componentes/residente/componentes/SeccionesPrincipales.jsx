@@ -53,19 +53,19 @@ const SeccionesPrincipales = () => {
     }
 
     setBuscando(true);
-    
+
     try {
       //console.log('Buscando notas con query:', query);
       const url = `${urlApi}api/notas`;
       //console.log('URL de búsqueda:', url);
-      
+
       const response = await fetch(url);
       //console.log('Response status:', response.status);
-      
+
       if (response.ok) {
         const todasLasNotas = await response.json();
         //console.log('Total de notas obtenidas:', todasLasNotas.length);
-        
+
         // Normalizar el query (quitar acentos, convertir a minúsculas)
         const normalizarTexto = (texto) => {
           return texto
@@ -75,25 +75,25 @@ const SeccionesPrincipales = () => {
             .replace(/[¿?¡!.,]/g, '') // Quitar signos de puntuación
             .trim();
         };
-        
+
         const queryNormalizado = normalizarTexto(query);
         //console.log('Query normalizado:', queryNormalizado);
-        
+
         const notasFiltradas = todasLasNotas.filter(nota => {
           if (!nota.titulo) return false;
-          
+
           const tituloNormalizado = normalizarTexto(nota.titulo);
           const subtituloNormalizado = nota.subtitulo ? normalizarTexto(nota.subtitulo) : '';
-          
+
           // Búsqueda exacta en título o subtítulo
           if (tituloNormalizado.includes(queryNormalizado) || subtituloNormalizado.includes(queryNormalizado)) {
             return true;
           }
-          
+
           // Búsqueda por palabras individuales
           const palabrasQuery = queryNormalizado.split(/\s+/).filter(p => p.length > 2);
           if (palabrasQuery.length === 0) return false;
-          
+
           // Buscar en título
           let coincidenciasTitulo = 0;
           for (const palabraQuery of palabrasQuery) {
@@ -101,7 +101,7 @@ const SeccionesPrincipales = () => {
               coincidenciasTitulo++;
             }
           }
-          
+
           // Buscar en subtítulo
           let coincidenciasSubtitulo = 0;
           if (subtituloNormalizado) {
@@ -111,19 +111,19 @@ const SeccionesPrincipales = () => {
               }
             }
           }
-          
+
           // Si al menos la mitad de las palabras del query están en título o subtítulo
           const totalCoincidencias = Math.max(coincidenciasTitulo, coincidenciasSubtitulo);
           const porcentajeCoincidencia = totalCoincidencias / palabrasQuery.length;
-          
+
           return porcentajeCoincidencia >= 0.5; // Al menos 50% de coincidencia
         });
-        
+
         //console.log('Notas que coinciden con la búsqueda:', notasFiltradas.length);
         if (notasFiltradas.length > 0) {
           //console.log('Primera nota filtrada:', notasFiltradas[0]);
         }
-        
+
         // Limitar a 20 resultados
         const notasLimitadas = notasFiltradas.slice(0, 20);
         setNotasBusqueda(notasLimitadas);
@@ -212,7 +212,7 @@ const SeccionesPrincipales = () => {
             disablePortal
             options={opcionesCombinadas}
             getOptionLabel={(option) => option.titulo || ''}
-            sx={{ 
+            sx={{
               width: 400,
               '& .MuiOutlinedInput-root': {
                 backgroundColor: 'white',
@@ -318,7 +318,7 @@ const SeccionesPrincipales = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Contenido de la nota */}
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-gray-900 text-base mb-2 leading-tight">
@@ -334,9 +334,11 @@ const SeccionesPrincipales = () => {
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
                             {option.tipo_nota || 'Sin tipo'}
                           </span>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            {option.vistas || 0} vistas
-                          </span>
+                          {/*
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              {option.vistas || 0} vistas
+                            </span>
+                          */}
                         </>
                       ) : (
                         // Para autocompletado: mostrar tipo, sección y categoría
@@ -358,9 +360,9 @@ const SeccionesPrincipales = () => {
               </li>
             )}
             noOptionsText={
-              inputValue.length >= 3 
-                ? buscando 
-                  ? 'Buscando...' 
+              inputValue.length >= 3
+                ? buscando
+                  ? 'Buscando...'
                   : 'No se encontraron notas'
                 : 'Escribe al menos 3 caracteres para buscar'
             }

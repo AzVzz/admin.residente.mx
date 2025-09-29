@@ -95,7 +95,7 @@ p, li, span {
 
   color-scheme: light;
   color: black;
-  background-color: #FFF200;
+  background-color: Transparent;
 
   font-synthesis: weight;
   text-rendering: optimizeLegibility;
@@ -164,4 +164,26 @@ p, li, span {
   width: 100%;
   max-width: 100%;
   font-weight: 600;
+}
+
+/* Utilidades para truncar texto */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
