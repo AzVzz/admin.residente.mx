@@ -20,7 +20,7 @@ const CarruselColaboradores = ({ colaboradores, indiceCarrusel, setIndiceCarruse
     };
 
     const handleColaboradorClick = (id) => {
-        localStorage.setItem("colaboradorLastId", id);
+        sessionStorage.setItem("colaboradorLastId", id);
         navigate(`/colaborador/${id}`);
     };
 
@@ -99,7 +99,7 @@ const MiComponente = () => {
 
     useLayoutEffect(() => {
         setTimeout(() => {
-            const lastId = localStorage.getItem("colaboradorLastId");
+            const lastId = sessionStorage.getItem("colaboradorLastId");
             if (lastId) {
                 const el = document.getElementById(`colaborador-${lastId}`);
                 if (el) {
@@ -111,7 +111,7 @@ const MiComponente = () => {
                 }
                 // Borra el valor después de 2 segundos
                 setTimeout(() => {
-                    localStorage.removeItem("colaboradorLastId");
+                    sessionStorage.removeItem("colaboradorLastId");
                 }, 2000);
             }
         }, 100);
