@@ -32,19 +32,16 @@ const NotasAcervo = ({ onCardClick }) => {
         const fetchNotas = async () => {
             try {
                 setLoading(true);
-                // Obtener todas las notas de acervo sin límite
                 const response = await fetch(`${urlApi}api/notas/por-tipo-nota/Acervo`);
                 if (response.ok) {
                     const todasLasNotas = await response.json();
 
-                    // Filtrar solo las notas de tipo "acervo" (case-insensitive)
+                    // Filtrar solo las notas de tipo "acervo")
                     const notasAcervo = todasLasNotas.filter(nota => {
                         const tipoNota = (nota.tipo_nota || '').toLowerCase();
                         const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
                         return tipoNota === 'acervo' || tipoNota2 === 'acervo';
                     });
-
-                    //console.log('Total de notas de acervo encontradas:', notasAcervo.length);
                     setNotas(notasAcervo);
                 }
             } catch (error) {
