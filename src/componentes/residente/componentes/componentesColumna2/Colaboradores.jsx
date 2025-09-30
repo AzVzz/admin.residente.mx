@@ -56,7 +56,7 @@ const CarruselColaboradores = ({ colaboradores, indiceCarrusel, setIndiceCarruse
                             className="w-40 cursor-pointer flex-shrink-0 flex flex-col items-center"
                             onClick={() => handleColaboradorClick(colaborador.id)}
                         >
-                            <h2 className="text-black text-[14px] leading-4.5 text-center mb-2">
+                            <h2 className="text-black text-[14px] leading-4.5 text-center mb-1">
                                 {colaborador.nombre}
                             </h2>
                             <img
@@ -123,7 +123,7 @@ const MiComponente = () => {
                 <h2 className="text-[30px] font-bold leading-4 mb-6">Colaboradores</h2>
                 <div className="flex flex-row gap-4">
                     <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
-                        <span className="text-[25px] text-white leading-6.5">
+                        <span className="text-[22px] text-white leading-5">
                             Descubre a los colaboradores que enriquecen el contenido de Residente con su experiencia y pasión.
                         </span>
                     </div>

@@ -190,7 +190,7 @@ const NotasAcervo = ({ onCardClick }) => {
 
                 <div className="flex items-end leading-8 mb-6">
                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6" />
-                    <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
+                    <h2 className="text-[20px] font-bold leading-4 mr-auto ml-4">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}
                     <Autocomplete
@@ -199,11 +199,13 @@ const NotasAcervo = ({ onCardClick }) => {
                         getOptionLabel={(option) => option.titulo || ''}
                         sx={{
                             width: 300,
-                            height: 40,
+                            height: 32, // Cambia la altura aquí
                             '& .MuiOutlinedInput-root': {
-                                height: 40,
+                                height: 32, // Ajusta la altura del input
                                 backgroundColor: 'white',
                                 borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center', // Centra verticalmente el contenido
                                 '& fieldset': {
                                     borderColor: '#FFF',
                                     borderWidth: '2px',
@@ -221,11 +223,13 @@ const NotasAcervo = ({ onCardClick }) => {
                                 color: '#6B7280',
                                 fontSize: '13px',
                                 fontWeight: '500',
+                                top: '-4px', // Ajusta la posición vertical del label si lo ves descentrado
                             },
                             '& .MuiInputBase-input': {
                                 color: '#000000',
-                                fontSize: '9px',
-                                padding: '6px 6px',
+                                fontSize: '12px',
+                                padding: '6px 0', // Menos padding arriba y abajo
+                                textAlign: 'center', // Centra el texto horizontalmente si lo deseas
                             },
                             '& .MuiAutocomplete-paper': {
                                 backgroundColor: 'white',
@@ -270,7 +274,7 @@ const NotasAcervo = ({ onCardClick }) => {
                                 },
                             }
                         }}
-                        renderInput={(params) => <TextField {...params} label="Buscar notas..." />}
+                        renderInput={(params) => <TextField {...params} label="" />}
                         onChange={(event, newValue) => {
                             if (newValue && newValue.id) {
                                 // Navegar directamente a la nota
@@ -328,11 +332,11 @@ const NotasAcervo = ({ onCardClick }) => {
                 {notas.length > 0 ? (
                     <div className="flex flex-row gap-4">
                         <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
-                            <span className="text-[25px] text-white leading-6.5">
-                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronomía de Nuevo León
+                            <span className="text-[29px] text-white leading-7">
+                                Encuentra aquí todo sobre la actualidad y la historia gastronómica de Nuevo León
                             </span>
                         </div>
-                        <div className="relative flex gap-4 ml-auto items-center">
+                        <div className="relative flex ml-46 items-center">
                             {/* Flecha izquierda */}
                             {notas.length > CANTIDAD_NOTAS && (
                                 <button
