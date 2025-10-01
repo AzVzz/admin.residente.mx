@@ -27,7 +27,7 @@ const VisuallyHiddenInput = styled('input')({
 // Estilos personalizados para los campos - directamente sobre fondo amarillo
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
-    backgroundColor: 'transparent',
+    backgroundColor: 'white', // igual que RespuestasSemana
     '& fieldset': {
       borderColor: '#e0e0e0',
       borderWidth: '1px',
@@ -37,7 +37,7 @@ const StyledTextField = styled(TextField)({
       borderColor: '#bdbdbd',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#1976d2',
+      borderColor: '#3b3b3c', // gris oscuro igual que RespuestasSemana
     },
   },
   '& .MuiInputLabel-root': {
@@ -178,9 +178,7 @@ const OpinionEditorial = () => {
             p: 2,
             maxWidth: 800,
             mx: "auto",
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            boxShadow: 3
+            backgroundColor: "transparent"
           }}>
             {/* Header del formulario */}
             <Box sx={{ textAlign: 'left', mb: 6 }}>
@@ -188,7 +186,7 @@ const OpinionEditorial = () => {
                 REGISTRO CONSEJEROS EDITORIALES
               </h1>
 
-              <p className="mb-4 text-justify text-black leading-[1.2] px-10">
+              <p className="mb-4 text-center text-black leading-[1.2] px-10">
                 Bienvenido al selecto grupo de críticos, consejeros y analistas de la cultura gastronómica de Nuevo León.
                 Ten por seguro que tu aportación será parte fundamental del futuro de nuestra industria y por ende del
                 destino de nuestro estado.
@@ -360,7 +358,7 @@ const OpinionEditorial = () => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                 sx={{
+                sx={{
                   '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#3b3b3c', // gris oscuro
                   },
@@ -399,11 +397,11 @@ const OpinionEditorial = () => {
                 disabled={isSubmitting}
                 sx={{
                   borderColor: '#fff300',
-                  color: '#fff300',
-                  backgroundColor: 'white',
+                  color: '#000',
+                  backgroundColor: '#fff300',
                   '&:hover': {
-                    borderColor: '#d3ca1dff',
-                    backgroundColor: '#f5f5f5'
+                    borderColor: '#fff300',
+                    backgroundColor: '#dbcf27ff'
                   },
                   padding: '12px 24px',
                   fontSize: '16px',
@@ -439,6 +437,7 @@ const OpinionEditorial = () => {
                 disabled={isSubmitting}
                 sx={{
                   backgroundColor: '#fff300',
+                  color: '#000',
                   padding: '16px 48px',
                   fontSize: '18px',
                   fontWeight: 'bold',
@@ -446,10 +445,11 @@ const OpinionEditorial = () => {
                   textTransform: 'uppercase',
                   width: '100%',
                   '&:hover': {
-                    backgroundColor: '#dbcf27ff'
+                    backgroundColor: '#dbcf27ff',
                   },
                   '&:disabled': {
-                    backgroundColor: '#bdbdbd'
+                    backgroundColor: '#222',
+                    color: '#fff300'
                   }
                 }}
               >

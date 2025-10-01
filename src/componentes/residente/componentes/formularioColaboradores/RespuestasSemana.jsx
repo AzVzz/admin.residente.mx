@@ -10,6 +10,34 @@ import DirectorioVertical from "../componentesColumna2/DirectorioVertical";
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "../componentesColumna1/Infografia";
+import { styled } from '@mui/material/styles';
+
+const StyledTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'white',
+    '& fieldset': {
+      borderColor: '#e0e0e0',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+    },
+    '&:hover fieldset': {
+      borderColor: '#bdbdbd',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#3b3b3c',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: '#000000',
+    fontWeight: 'bold',
+    fontSize: '16px',
+  },
+  '& .MuiInputBase-input': {
+    fontSize: '16px',
+    padding: '12px 14px',
+    color: '#000000',
+  },
+});
 
 const RespuestasSemana = () => {
     const [pregunta, setPregunta] = useState("");
@@ -87,13 +115,13 @@ const RespuestasSemana = () => {
                     </Box>
                     <Box component="form" onSubmit={handleSubmit} sx={{
                         p: 2,
-                        maxWidth: 800, // igual que OpinionEditorial
+                        maxWidth: 800, 
                         mx: "auto",
                         backgroundColor: "transparent"
                     }}>
                         <h1 className="text-2xl font-bold mb-4 text-center">
                             Entrada de colaboraciones</h1>
-                        <p className="mb-4 text-justify text-gray-700 leading-[1.2] px-10">
+                        <p className="mb-4 text-center text-gray-700 leading-[1.2] px-10">
                             Gracias por ser parte de la comunidad de consejeros editoriales y colaboradores especializados de Residente.
                             A continuación podrás enviarnos tu colaboración con el tema de tu elección o bien colaborar opinando
                             sobre el tema de la semana presentado a continuación:
@@ -106,7 +134,7 @@ const RespuestasSemana = () => {
                             value={consejeros.find(c => c.id === idConsejero) || null}
                             onChange={(_, newValue) => setIdConsejero(newValue ? newValue.id : "")}
                             renderInput={(params) => (
-                                <TextField
+                                <StyledTextField
                                     {...params}
                                     label="Colaborador *"
                                     required
@@ -127,7 +155,7 @@ const RespuestasSemana = () => {
 
                         {/* Solo muestra título si NO es consejo */}
                         {!respuestaConsejo && (
-                            <TextField
+                            <StyledTextField
                                 label="Título"
                                 value={titulo}
                                 onChange={e => setTitulo(e.target.value)}
@@ -160,7 +188,8 @@ const RespuestasSemana = () => {
                         {/* Solo muestra uno u otro */}
                         {!respuestaConsejo ? (
                             <>
-                                <TextField
+                                {/* Colabora con nosotros */}
+                                <StyledTextField
                                     label="Colabora con nosotros *"
                                     value={curriculum}
                                     onChange={e => setCurriculum(e.target.value)}
@@ -169,15 +198,8 @@ const RespuestasSemana = () => {
                                     rows={6}
                                     fullWidth
                                     margin="normal"
-                                    sx={{
-                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#3b3b3c',
-                                        },
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: '#3b3b3c',
-                                        }
-                                    }}
                                 />
+
                                 {/* Botón subir imagen y vista previa */}
                                 <Box sx={{ textAlign: 'center', mb: 2 }}>
                                     <Button
@@ -186,11 +208,11 @@ const RespuestasSemana = () => {
                                         startIcon={<FiUpload />}
                                         sx={{
                                             borderColor: '#fff300',
-                                            color: '#fff300',
-                                            backgroundColor: 'white',
+                                            color: '#000',
+                                            backgroundColor: '#fff300',
                                             '&:hover': {
-                                                borderColor: '#d3ca1dff',
-                                                backgroundColor: '#f5f5f5'
+                                                borderColor: '#fff300',
+                                                backgroundColor: '#dbcf27ff',
                                             },
                                             padding: '12px 24px',
                                             fontSize: '16px',
@@ -224,7 +246,8 @@ const RespuestasSemana = () => {
                                 )}
                             </>
                         ) : (
-                            <TextField
+                            /* Escribe tu consejo */
+                            <StyledTextField
                                 label="Escribe tu consejo"
                                 value={textoConsejo}
                                 onChange={e => setTextoConsejo(e.target.value)}
@@ -233,14 +256,6 @@ const RespuestasSemana = () => {
                                 fullWidth
                                 margin="normal"
                                 required
-                                sx={{
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#3b3b3c',
-                                    },
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#3b3b3c',
-                                    }
-                                }}
                             />
                         )}
                         <Button
@@ -250,6 +265,7 @@ const RespuestasSemana = () => {
                             disabled={loading}
                             sx={{
                                 backgroundColor: '#fff300',
+                                color: '#000',
                                 padding: '16px 48px',
                                 fontSize: '18px',
                                 fontWeight: 'bold',
@@ -257,7 +273,7 @@ const RespuestasSemana = () => {
                                 textTransform: 'uppercase',
                                 width: '100%',
                                 '&:hover': {
-                                    backgroundColor: '#dbcf27ff'
+                                    backgroundColor: '#dbcf27ff',
                                 },
                                 '&:disabled': {
                                     backgroundColor: '#bdbdbd'
