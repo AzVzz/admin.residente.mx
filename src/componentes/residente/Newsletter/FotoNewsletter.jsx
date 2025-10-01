@@ -1,66 +1,58 @@
 import TresTarjetas from "../componentes/componentesColumna2/TresTarjetas";
 import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
-import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical";
-import PortadaRevista from "../componentes/componentesColumna2/PortadaRevista";
-import MainLateralPostTarjetas from "../componentes/componentesColumna2/MainLateralPostTarjetas";
-import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
-import Infografia from "../componentes/componentesColumna1/Infografia";
 
 const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
-    // Filtrar las notas por tipo
-    const foodDrinkNotas = filtrarPostsPorTipoNota("Food & Drink");
-    const antojeriaNotas = filtrarPostsPorTipoNota("Antojos");
-    const gastroNotas = filtrarPostsPorTipoNota("Gastro-Destinos");
+    const restaurantesNotas = filtrarPostsPorTipoNota("Restaurantes");
+    const notaPrincipal = restaurantesNotas.at(0); // La más nueva
 
-    // Selecciona la primera nota de cada tipo
-    const primera = foodDrinkNotas.at(0);
-    const segunda = antojeriaNotas.at(0);
-    const tercera = gastroNotas.at(0);
+    // ID de la nota principal para evitar repeticiones
+    const usadaId = notaPrincipal?.id;
 
-    // IDs usadas para no repetir
-    const usadasIds = [primera?.id, segunda?.id, tercera?.id].filter(Boolean);
+    // Filtra las notas de los otros tipos
+    const foodDrinkNotas = filtrarPostsPorTipoNota("Food & Drink").filter(nota => nota.id !== usadaId);
+    const antojeriaNotas = filtrarPostsPorTipoNota("Antojos").filter(nota => nota.id !== usadaId);
+    const gastroNotas = filtrarPostsPorTipoNota("Gastro-Destinos").filter(nota => nota.id !== usadaId);
 
-    // Notas restantes para aleatorias
-    const todasNotas = [
-        ...foodDrinkNotas,
-        ...antojeriaNotas,
-        ...gastroNotas
-    ].filter(nota => !usadasIds.includes(nota.id));
+    // Selecciona la más nueva de cada tipo de nota
+    const segunda = foodDrinkNotas.at(0);
+    const tercera = antojeriaNotas.at(0);
+    const cuarta = gastroNotas.at(0);
 
-    // Selecciona 3 aleatorias
+    // Notas restantes para aleatorias y evitar repeticiones
+    const usadasIds = [usadaId, segunda?.id, tercera?.id, cuarta?.id].filter(Boolean);
+    const todasNotas = posts.filter(nota => !usadasIds.includes(nota.id));
+
+    // Selecciona 2 aleatorias para completar 6 tarjetas
     const aleatorias = todasNotas
         .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
+        .slice(0, 2);
 
-    // Tarjetas finales (6 en total)
-    const tarjetas = [primera, segunda, tercera, ...aleatorias].filter(Boolean);
+    // Tarjetas base (pueden ser menos de 4 si faltan categorías)
+    let tarjetasBase = [segunda, tercera, cuarta, ...aleatorias].filter(Boolean);
 
-    // Nota principal (puedes elegir la última de Food & Drink)
-    const notaPrincipal = primera;
+    // Si faltan tarjetas, agrega más aleatorias del resto de notas
+    if (tarjetasBase.length < 6) {
+        const faltan = 6 - tarjetasBase.length;
+        const usadasIdsExtra = tarjetasBase.map(n => n.id);
+        const notasExtra = todasNotas.filter(nota => !usadasIdsExtra.includes(nota.id)).slice(0, faltan);
+        tarjetasBase = [...tarjetasBase, ...notasExtra];
+    }
+
+    // Solo las primeras 6
+    const tarjetas = tarjetasBase.slice(0, 6);
+
 
     return (
-        <div className="flex flex-col pt-9">
-            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mt-6 px-4 md:px-0">
-                {/* Columna principal */}
-                <div>
-                    {notaPrincipal && (
-                        <PostPrincipal post={notaPrincipal} onClick={() => handleCardClick(notaPrincipal)} />
-                    )}
-                    <TresTarjetas
-                        posts={tarjetas}
-                        onCardClick={handleCardClick}
-                        mostrarBanner={false}
-                    />
-                </div>
-                {/* Columna lateral */}
-                <div className="flex flex-col items-end justify-start gap-10">
-                    <DirectorioVertical />
-                    <PortadaRevista />
-                    <div className="pt-3">
-                        <BotonesAnunciateSuscribirme />
-                    </div>
-                    <Infografia />
-                </div>
+        <div className="flex flex-col pt-9 items-center">
+            <div className="w-full max-w-[900px] mx-auto">
+                {notaPrincipal && (
+                    <PostPrincipal post={notaPrincipal} onClick={() => handleCardClick(notaPrincipal)} />
+                )}
+                <TresTarjetas
+                    posts={tarjetas}
+                    onCardClick={handleCardClick}
+                    mostrarBanner={false}
+                />
             </div>
         </div>
     );

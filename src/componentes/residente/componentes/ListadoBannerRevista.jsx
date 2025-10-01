@@ -217,13 +217,12 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
-                        {tipo === "Gastro-Destinos" && (
+                        {/*{tipo === "Gastro-Destinos" && (
                             <div className="my-2">
-                                {/*<GiveawayDescuentos giveaway={giveaway} cupones={cupones} />*/}
+                                <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
                                 <Colaboradores />
                             </div>
-                        )}
-
+                        )}*/}
                     </div>
                 );
             })}
