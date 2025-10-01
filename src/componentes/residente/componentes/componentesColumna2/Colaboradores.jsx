@@ -1,6 +1,7 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import { getColaboradores } from "../../../api/temaSemanaApi";
 import { useNavigate } from "react-router-dom";
+import { urlApi } from "../../../api/url.js";
 
 const CANTIDAD_COLABORADORES = 4;
 
@@ -119,8 +120,13 @@ const MiComponente = () => {
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
-            <div className="max-w-[1080px] mx-auto py-10">
-                <h2 className="text-[30px] font-bold leading-4 mb-6">Colaboradores</h2>
+            <div className="max-w-[1080px] mx-auto py-8">
+                {/* Imagen arriba del texto */}
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp`}
+                    alt="Colaboradores"
+                    className="h-[35px] mb-6"
+                />
                 <div className="flex flex-row gap-4">
                     <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
                         <span className="text-[22px] text-white leading-5">

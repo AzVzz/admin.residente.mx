@@ -37,6 +37,16 @@ const Header = () => {
     setSearchTerm('');
   };
 
+  const handleBannerClick = () => {
+    if (window.gtag) {
+      window.gtag('event', 'click', {
+        event_category: 'Banner',
+        event_label: 'Lucia',
+        value: 1
+      });
+    }
+  };
+
   return (
     <header className="w-full">
 
@@ -48,6 +58,7 @@ const Header = () => {
             href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleBannerClick} // <-- Agrega esto
           >
             <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
           </a>
