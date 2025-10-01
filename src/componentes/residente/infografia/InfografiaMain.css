@@ -26,17 +26,16 @@
   opacity: 1;
   z-index: 0;
 }
-
 .infografia-title {
   position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  margin-left: -32rem; /* mueve barra + texto un poco más a la izquierda */
-  padding-left: 0rem; /* reduce aún más la separación con el borde izquierdo */
-}
+  justify-content: flex-start; /* puedes usar flex-start o center según prefieras */
+  width: 50%;
+  margin-left: 4rem;  /* desplaza hacia la derecha */
+  padding-left: 0;
+} 
 
 .infografia-title-text {
   display: inline-block;
@@ -49,6 +48,27 @@
   letter-spacing: -0.025em;
   font-style: italic;
   font-family: 'Arial Black', Arial, sans-serif;
+}
+
+.infografia-logo {
+  height: 75px;
+  width: auto;
+  object-fit: contain;
+  margin-left: 100px;
+  cursor: pointer;
+  right: 0;
+}
+
+/* Estilos para la barra amarilla */
+.infografia-yellow-bar {
+  width: 85px;
+  height: 10px;
+  background-color: #fff300;
+  transform: skewX(-32deg);
+  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  z-index: 1;
 }
 
 .infografia-grid {

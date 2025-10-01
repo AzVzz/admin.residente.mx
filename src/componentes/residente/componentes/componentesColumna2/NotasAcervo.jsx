@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { urlApi } from "../../../api/url.js";
+
+const CANTIDAD_NOTAS = 4;
 
 const NotasAcervo = ({ onCardClick }) => {
     const [notas, setNotas] = useState([]);
@@ -10,8 +12,8 @@ const NotasAcervo = ({ onCardClick }) => {
     const [inputValue, setInputValue] = useState("");
     const [buscando, setBuscando] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [indiceCarrusel, setIndiceCarrusel] = useState(0);
-    const CANTIDAD_NOTAS = 4; // Cambia a 4 si prefieres mostrar 4
+    const [itemWidth, setItemWidth] = useState(0);
+    const viewportRef = useRef(null);
     const navigate = useNavigate();
     const [animando, setAnimando] = useState(false);
 
@@ -30,19 +32,16 @@ const NotasAcervo = ({ onCardClick }) => {
         const fetchNotas = async () => {
             try {
                 setLoading(true);
-                // Obtener todas las notas de acervo sin límite
-                const response = await fetch(`${urlApi}api/notas`);
+                const response = await fetch(`${urlApi}api/notas/por-tipo-nota/Acervo`);
                 if (response.ok) {
                     const todasLasNotas = await response.json();
 
-                    // Filtrar solo las notas de tipo "acervo" (case-insensitive)
+                    // Filtrar solo las notas de tipo "acervo")
                     const notasAcervo = todasLasNotas.filter(nota => {
                         const tipoNota = (nota.tipo_nota || '').toLowerCase();
                         const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
                         return tipoNota === 'acervo' || tipoNota2 === 'acervo';
                     });
-
-                    //console.log('Total de notas de acervo encontradas:', notasAcervo.length);
                     setNotas(notasAcervo);
                 }
             } catch (error) {
@@ -54,6 +53,15 @@ const NotasAcervo = ({ onCardClick }) => {
 
         fetchNotas();
     }, []);
+
+    useEffect(() => {
+        const el = viewportRef.current;
+        if (!el) return;
+        const containerWidth = el.clientWidth;
+        const totalGaps = 20 * (CANTIDAD_NOTAS - 1);
+        const w = (containerWidth - totalGaps) / CANTIDAD_NOTAS;
+        setItemWidth(w);
+    }, [notas.length]);
 
     // Función para buscar solo en las notas de acervo
     const buscarNotas = async (query) => {
@@ -161,13 +169,25 @@ const NotasAcervo = ({ onCardClick }) => {
 
     if (loading) return <p>Cargando notas de acervo...</p>;
 
+    // Flechas scroll
+    const scrollLeft = () => {
+        if (viewportRef.current) {
+            viewportRef.current.scrollBy({ left: -(itemWidth + 20), behavior: "smooth" });
+        }
+    };
+    const scrollRight = () => {
+        if (viewportRef.current) {
+            viewportRef.current.scrollBy({ left: itemWidth + 20, behavior: "smooth" });
+        }
+    };
+
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff200] mb-4">
-            <div className="max-w-[1080px] mx-auto h-105 py-12">
+            <div className="max-w-[1080px] mx-auto h-88 py-10">
 
-                <div className="flex items-end leading-8 mb-8">
+                <div className="flex items-end leading-8 mb-6">
                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6" />
-                    <h2 className="text-[20px] font-bold leading-4 mr-auto ml-2">El acervo gastronómico de Nuevo León</h2>
+                    <h2 className="text-[20px] font-bold leading-4 mr-auto ml-4">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}
                     <Autocomplete
@@ -176,9 +196,13 @@ const NotasAcervo = ({ onCardClick }) => {
                         getOptionLabel={(option) => option.titulo || ''}
                         sx={{
                             width: 300,
+                            height: 32, // Cambia la altura aquí
                             '& .MuiOutlinedInput-root': {
+                                height: 32, // Ajusta la altura del input
                                 backgroundColor: 'white',
                                 borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center', // Centra verticalmente el contenido
                                 '& fieldset': {
                                     borderColor: '#FFF',
                                     borderWidth: '2px',
@@ -196,11 +220,13 @@ const NotasAcervo = ({ onCardClick }) => {
                                 color: '#6B7280',
                                 fontSize: '13px',
                                 fontWeight: '500',
+                                top: '-4px', // Ajusta la posición vertical del label si lo ves descentrado
                             },
                             '& .MuiInputBase-input': {
                                 color: '#000000',
-                                fontSize: '9px',
-                                padding: '6px 6px',
+                                fontSize: '12px',
+                                padding: '6px 0', // Menos padding arriba y abajo
+                                textAlign: 'center', // Centra el texto horizontalmente si lo deseas
                             },
                             '& .MuiAutocomplete-paper': {
                                 backgroundColor: 'white',
@@ -245,7 +271,7 @@ const NotasAcervo = ({ onCardClick }) => {
                                 },
                             }
                         }}
-                        renderInput={(params) => <TextField {...params} label="Buscar notas..." />}
+                        renderInput={(params) => <TextField {...params} label="" />}
                         onChange={(event, newValue) => {
                             if (newValue && newValue.id) {
                                 // Navegar directamente a la nota
@@ -303,39 +329,41 @@ const NotasAcervo = ({ onCardClick }) => {
                 {notas.length > 0 ? (
                     <div className="flex flex-row gap-4">
                         <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
-                            <span className="text-[25px] text-white leading-6.5">
-                                Encuentra aqui todo sobre la actualidad y la historia sobre la gastronomía de Nuevo León
+                            <span className="text-[29px] text-white leading-7">
+                                Encuentra aquí todo sobre la actualidad y la historia gastronómica de Nuevo León
                             </span>
                         </div>
-                        <div className="relative flex gap-4 ml-auto items-center">
+                        <div className="relative flex ml-46 items-center">
                             {/* Flecha izquierda */}
-                            <button
-                                className={`text-black px-2 py-1 self-center cursor-pointer
-                                    ${indiceCarrusel === 0 || animando ? 'opacity-50 pointer-events-none' : 'hover:opacity-100 opacity-80'}`}
-                                onClick={() => handleClick(Math.max(indiceCarrusel - 1, 0))}
-                                disabled={indiceCarrusel === 0 || animando}
-                                aria-label="Anterior"
-                            >
-                                {/* SVG flecha izquierda */}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
-                                    className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                        d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                                </svg>
-                            </button>
-                            {/* Carrusel de notas */}
-                            <div className="overflow-hidden w-[690px]">
-                                <div
-                                    className="flex gap-4 transition-transform duration-500 ease-in-out"
-                                    style={{
-                                        transform: `translateX(-${indiceCarrusel * 176}px)` // 168px + 8px
-                                    }}
+                            {notas.length > CANTIDAD_NOTAS && (
+                                <button
+                                    className="hidden md:flex items-center justify-center absolute left-[-2.5rem] top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                                    onClick={scrollLeft}
+                                    aria-label="Anterior"
                                 >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
+                                        className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round"
+                                            d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                                    </svg>
+                                </button>
+                            )}
+                            {/* Carrusel de notas con scroll lateral */}
+                            <div
+                                ref={viewportRef}
+                                className="overflow-x-auto w-[690px]"
+                                style={{
+                                    scrollSnapType: "x mandatory",
+                                    WebkitOverflowScrolling: "touch"
+                                }}
+                            >
+                                <div className="flex gap-4" style={{ scrollSnapAlign: "start" }}>
                                     {notas.map((nota) => (
                                         <div
                                             key={nota.id}
                                             className="w-40 cursor-pointer flex-shrink-0"
+                                            style={{ scrollSnapAlign: "start", width: `${itemWidth}px` }}
                                             onClick={() => onCardClick && onCardClick(nota)}
                                         >
                                             <img
@@ -352,22 +380,21 @@ const NotasAcervo = ({ onCardClick }) => {
                                     ))}
                                 </div>
                             </div>
-                            {/* Flecha derecha fuera del carrusel */}
-                            <button
-                                className={`text-black px-2 py-1 self-center cursor-pointer absolute right-[-2.5rem] top-1/2 -translate-y-1/2
-                                    ${indiceCarrusel >= maxIndiceCarrusel || animando ? 'opacity-50 pointer-events-none' : 'hover:opacity-100 opacity-80'}`}
-                                onClick={() => handleClick(Math.min(indiceCarrusel + 1, maxIndiceCarrusel))}
-                                disabled={indiceCarrusel >= maxIndiceCarrusel || animando}
-                                aria-label="Siguiente"
-                            >
-                                {/* SVG flecha derecha */}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
-                                    className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                        d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                                </svg>
-                            </button>
+                            {/* Flecha derecha */}
+                            {notas.length > CANTIDAD_NOTAS && (
+                                <button
+                                    className="hidden md:flex items-center justify-center absolute right-[-2.5rem] top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20"
+                                    onClick={scrollRight}
+                                    aria-label="Siguiente"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor"
+                                        className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round"
+                                            d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
                     </div>
                 ) : (

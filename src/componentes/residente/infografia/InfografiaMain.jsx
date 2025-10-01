@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 import DirectorioVertical from '../componentes/componentesColumna2/DirectorioVertical';
@@ -9,6 +10,7 @@ import { useData } from '../../DataContext';
 import { infografiasGet } from '../../api/infografiasGet.js';
 import './InfografiaMain.css';
 import Infografia from '../componentes/componentesColumna1/Infografia';
+import { urlApi } from '../../api/url.js';
 
 const InfografiaMain = () => {
   const { revistaActual } = useData();
@@ -87,14 +89,16 @@ const InfografiaMain = () => {
           <div className="infografia-header"> 
             <div className="infografia-title ">
               {/* Contenedor relativo para el logo y la línea */}
-              <div className="relative flex items-center gap-2">
+              <div className="relative flex items-center ml-[100px]">
                 {/* Línea amarilla con bordes inclinados */}
-                <div className="w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
+                <div className="infografia-yellow-bar"></div>
                 
-                {/* Título */}
-                <span className="infografia-title-text">
-                  INFOGRAFÍAS
-                </span>
+                {/* Logo */}
+                <img
+                  src={`https://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
+                  className="infografia-logo"
+                  alt="Logo Infografías"
+                />
               </div>
             </div>
           </div>
