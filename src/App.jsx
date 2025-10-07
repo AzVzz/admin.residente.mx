@@ -33,6 +33,7 @@ import ListaNotasUanl from './componentes/residente/componentes/compFormularioMa
 import DetalleColaborador from './componentes/residente/Colaboradores/DetalleColaborador.jsx';
 import NewsletterPage from './componentes/residente/Newsletter/NewsletterPage.jsx';
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
+import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -280,6 +281,12 @@ function App() {
                     notasDestacadas={notasPrueba}
                     handleCardClick={() => {}}
                   />
+                </div>
+              } />
+
+              <Route path="/b2b" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <B2BMain />
                 </div>
               } />
 

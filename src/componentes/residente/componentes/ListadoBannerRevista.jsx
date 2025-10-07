@@ -46,7 +46,7 @@ const ListadoBannerRevista = ({
 
     return (
         <div className="flex flex-col">
-            {["Restaurantes", "Food & Drink", "Antojos", "Gastro-Destinos"].map((tipo) => {
+            {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
                 const postsFiltrados = filtrarPostsPorTipoNota(tipo);
                 const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
 
