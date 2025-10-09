@@ -12,7 +12,7 @@ const NewsletterPage = () => {
     }, []);
 
     // Filtrar por tipo de nota
-    const filtrarPostsPorTipoNota = (tipo) => posts.filter(post => post.tipo_nota === tipo);
+    const filtrarPostsPorTipoNota = (tipo) => posts.filter(post => post.tipo_nota === tipo); 
 
     // Acción al hacer click en una tarjeta
     const handleCardClick = (post) => {

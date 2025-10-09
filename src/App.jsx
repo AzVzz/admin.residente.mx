@@ -283,7 +283,7 @@ function App() {
                   />
                 </div>
               } />
-
+ 
               <Route path="/b2b" element={
                 <div className="max-w-[1080px] mx-auto">
                   <B2BMain />
