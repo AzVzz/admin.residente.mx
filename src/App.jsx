@@ -268,7 +268,7 @@ function App() {
                 </div>
               } />
 
-              <Route path="/newsletter" element={
+              <Route path="/foto-news" element={
                 <div className="max-w-[1080px] mx-auto">
                   <NewsletterPage />
                 </div>
