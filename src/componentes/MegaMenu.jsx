@@ -85,7 +85,7 @@ const MegaMenu = () => {
                                 </svg>
                             </button>
                             <a
-                                href="https://www.estrellasdenuevoleon.com/b2b" target="_blank"
+                                href="/b2b" target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-shrink-0"
                             >
