@@ -26,6 +26,7 @@ import BotonScroll from './componentes/residente/componentes/compFormularioMain/
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
+import { useClientesValidos } from './hooks/useClientesValidos';
 import usePageTracking from './usePageTracking.js';
 import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
 import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
@@ -39,7 +40,7 @@ const PreguntasSemanales = lazy(() => import('./componentes/residente/componente
 const FormNewsletter = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormNewsletter'));
 const VideosDashboard = lazy(() => import('./componentes/residente/componentes/compFormularioMain/VideosDashboard'));
 const Videos = lazy(() => import('./componentes/residente/componentes/compFormularioMain/Videos'));
-const Login = lazy(() => import('./componentes/login'));
+const Login = lazy(() => import('./componentes/Login'));
 const FormularioMain = lazy(() => import('./componentes/formulario100estrellas/FormularioMain'));
 const FormularioMainPage = lazy(() => import('./componentes/formulario100estrellas/FormularioMainPage'));
 const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
@@ -51,8 +52,11 @@ function App() {
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
+  const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
-  const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  // Fallback para clientes válidos
+  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
   useEffect(() => {
     const pathCliente = location.pathname.split('/')[1];
@@ -64,7 +68,7 @@ function App() {
       document.body.style.backgroundRepeat = 'no-repeat';
       document.body.style.backgroundColor = '';
     } else if (
-      CLIENTES_VALIDOS.includes(pathCliente) ||
+      listaClientes.includes(pathCliente) ||
       location.pathname.startsWith('/seccion/')
     ) {
       document.body.style.backgroundImage = '';

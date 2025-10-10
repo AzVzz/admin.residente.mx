@@ -1,6 +1,7 @@
 import { useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { notasPorTipoNota } from "../../../componentes/api/notasPublicadasGet";
+import { notasPorTipoNota, catalogoNotasGet } from "../../../componentes/api/notasPublicadasGet";
+import { useClientesValidos } from "../../../hooks/useClientesValidos";
 
 import Carrusel from './componentes/Carrusel';
 import TarjetaHorizontalPost from '../../../componentes/residente/componentes/componentesColumna2/TarjetaHorizontalPost.jsx'
@@ -8,22 +9,58 @@ import BarrioAntiguoGifs from "./componentes/BarrioAntiguoGifs.jsx";
 import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical.jsx";
 import SeccionesPrincipales from "../componentes/SeccionesPrincipales.jsx";
 
-const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
-
 const PaginaCliente = () => {
     const { nombreCliente } = useParams();
+    const { clientesValidos, loading: clientesLoading } = useClientesValidos();
     const [notas, setNotas] = useState([]);
     const [cargando, setCargando] = useState(true);
 
+    // Fallback para clientes válidos
+    const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+    const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
+
     useEffect(() => {
         setCargando(true);
-        notasPorTipoNota(nombreCliente)
-            .then(setNotas)
-            .finally(() => setCargando(false));
+        
+        // Obtener todas las notas y filtrar en frontend
+        const cargarNotasFiltradas = async () => {
+            try {
+                // Obtener todas las notas
+                const todasLasNotas = await catalogoNotasGet();
+                
+                // Normalizar el nombre del cliente para comparación
+                const clienteNormalizado = nombreCliente.toLowerCase().replace(/-/g, ' ');
+                
+                // Filtrar notas que coincidan con este cliente
+                const notasDelCliente = todasLasNotas.filter(nota => {
+                    const tipoNota = (nota.tipo_nota || '').toLowerCase();
+                    const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
+                    
+                    // Buscar coincidencias en tipo_nota o tipo_nota2
+                    const coincideTipoNota = tipoNota.includes(clienteNormalizado) || 
+                                           tipoNota === clienteNormalizado.replace(/\s/g, '');
+                    const coincideTipoNota2 = tipoNota2.includes(clienteNormalizado) || 
+                                            tipoNota2 === clienteNormalizado.replace(/\s/g, '');
+                    
+                    return coincideTipoNota || coincideTipoNota2;
+                });
+                
+                setNotas(notasDelCliente);
+            } catch (error) {
+                console.error('Error al cargar notas:', error);
+                setNotas([]);
+            } finally {
+                setCargando(false);
+            }
+        };
+        
+        cargarNotasFiltradas();
     }, [nombreCliente]);
 
-    if (cargando) return <div>Cargando...</div>;
-    if (!CLIENTES_VALIDOS.includes(nombreCliente)) {
+    if (cargando || clientesLoading) return <div>Cargando...</div>;
+    
+    // Verificar si es un cliente válido
+    if (!listaClientes.includes(nombreCliente)) {
         return <Navigate to="*" replace />;
     }
 

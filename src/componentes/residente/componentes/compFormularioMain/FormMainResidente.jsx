@@ -1,6 +1,6 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { useAuth } from '../../../Context';
-import Login from '../../../../componentes/login';
+import Login from '../../../../componentes/Login';
 
 import Autor from "./componentes/Autor";
 import Contenido from "./componentes/Contenido";
@@ -25,7 +25,7 @@ import DetallePost from '../DetallePost.jsx';
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
   "barrio-antiguo": "Barrio Antiguo",
-  // agrega más si tienes
+  // Los demás clientes se generan dinámicamente
 };
 
 function formatFecha(fecha) {
@@ -44,7 +44,15 @@ const FormMainResidente = () => {
   const { usuario, token } = useAuth(); // usuario viene del contexto
 
   // Determina el tipo de nota por el permiso del usuario
-  const tipoNotaUsuario = usuario ? tipoNotaPorPermiso[usuario.permisos] : '';
+  // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
+  const tipoNotaUsuario = usuario ? (
+    tipoNotaPorPermiso[usuario.permisos] || 
+    (usuario.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' && usuario.permisos !== 'todos' 
+      ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      : '')
+  ) : '';
+
+  
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -55,7 +63,7 @@ const FormMainResidente = () => {
   if (!token) {
     return (
       <div 
-      lassName="max-w-[400px] mx-auto mt-10">
+      className="max-w-[400px] mx-auto mt-10">
         <Login />
       </div>
     );
@@ -121,7 +129,9 @@ const FormMainResidente = () => {
   if (!subtitulo) camposFaltantes.push('subtítulo');
   if (!imagen && !imagenActual) camposFaltantes.push('imagen');
   if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
-  if (!watch('tiposDeNotaSeleccionadas')) camposFaltantes.push('tipo de nota');
+  if (!tipoNotaUsuario && !watch('tiposDeNotaSeleccionadas')) {
+    camposFaltantes.push('tipo de nota');
+  }
   if (
     watch('destacada') &&
     (watch('tiposDeNotaSeleccionadas') === "Restaurantes" || watch('tiposDeNotaSeleccionadas') === "Food & Drink") &&
@@ -334,9 +344,14 @@ if (data.programar_publicacion) {
         : data.opcionPublicacion === 'borrador'
           ? 'borrador'
           : 'publicada';
-    } else {
-      estadoFinal = 'borrador';
-    }
+   
+        } else {
+          estadoFinal = data.opcionPublicacion === 'programar'
+            ? 'programada'
+            : data.opcionPublicacion === 'borrador'
+              ? 'borrador'
+              : 'publicada';
+        } 
 
 
     try {
@@ -346,6 +361,7 @@ if (data.programar_publicacion) {
 
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
       const tipoNotaSecundaria = null; // Ya no hay secundaria
+
 
 
 
@@ -374,12 +390,6 @@ if (data.programar_publicacion) {
         datosNota.nombre_restaurante = null;
       }
 
-      console.log("=== DATOS QUE SE ENVÍAN AL BACKEND DEL FORMULARIO ===");
-      console.log("datosNota:", datosNota);
-
-      //console.log("Estatus final:", datosNota.estatus);
-      //console.log("programar_publicacion:", datosNota.programar_publicacion);
-      //console.log("Usuario permisos:", usuario?.permisos);
 
       let resultado;
       if (notaId) {
