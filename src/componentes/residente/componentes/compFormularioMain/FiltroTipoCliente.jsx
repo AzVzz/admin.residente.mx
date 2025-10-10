@@ -16,7 +16,8 @@ const opcionesDefault = [
     { value: 'Antojos', label: 'Antojos' },
     { value: 'Gastro-Destinos', label: 'Gastro-Destinos' },
     { value: 'Residente', label: 'Residente' },
-    { value: 'Acervo', label: 'Acervo' }
+    { value: 'Acervo', label: 'Acervo' },
+    { value: 'B2B', label: 'B2B' }
 ];
 
 // Función para obtener color de fondo y texto según el tipo de cliente
