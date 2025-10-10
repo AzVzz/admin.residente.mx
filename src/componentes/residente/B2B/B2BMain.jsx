@@ -9,12 +9,17 @@ import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/Boto
 import Infografia from "../componentes/componentesColumna1/Infografia";
 import PortadaRevista from "../componentes/componentesColumna2/PortadaRevista";
 import { useNavigate } from "react-router-dom";
+import GiveawayDescuentos from "../componentes/componentesColumna2/GiveawayDescuentos";
+import { cuponesGet } from "../../api/cuponesGet";
+
+
 
 const B2BMain = ({ notasResidenteGet }) => {
     const [posts, setPosts] = useState([]);
     const [notasDestacadas, setNotasDestacadas] = useState([]);
     const [notasTop, setNotasTop] = useState([]);
     const navigate = useNavigate();
+    const [cupones, setCupones] = useState([]);
 
     const tipoConfig = {
         tipoLogo: "fotos/fotos-estaticas/residente-logos/negros/b2b.webp",
@@ -37,6 +42,9 @@ const B2BMain = ({ notasResidenteGet }) => {
                 setNotasTop(topB2B);
             })
             .catch(() => setNotasTop([]));
+        cuponesGet()
+            .then(data => setCupones(Array.isArray(data) ? data : []))
+            .catch(() => setCupones([]));
     }, []);
 
     const handleCardClick = (post) => {
@@ -104,6 +112,8 @@ const B2BMain = ({ notasResidenteGet }) => {
                         <Infografia />
                     </div>
                 </div>
+                {/* GiveawayDescuentos debajo del grid, ocupa todo el ancho */}
+                <GiveawayDescuentos cupones={cupones} />
             </div>
         </div>
     );
