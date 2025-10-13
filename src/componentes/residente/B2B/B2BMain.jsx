@@ -31,7 +31,12 @@ const B2BMain = ({ notasResidenteGet }) => {
 
     useEffect(() => {
         notasPorTipoNota("B2B")
-            .then(data => setPosts(Array.isArray(data) ? data : []))
+            .then(data => {
+                const ordenadas = Array.isArray(data)
+                    ? data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                    : [];
+                setPosts(ordenadas);
+            })
             .catch(() => setPosts([]));
         notasDestacadasPorTipoGet("B2B")
             .then(data => setNotasDestacadas(Array.isArray(data) ? data : []))

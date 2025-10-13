@@ -89,15 +89,24 @@ const ListaNotas = () => {
           : '';
         
         if (tipoNotaUsuario) {
+          const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
+          
           notasFiltradas = data.notas.filter(nota => {
             const tipoNota = (nota.tipo_nota || '').toLowerCase();
             const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
-            const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
             
+            // Buscar coincidencias más flexibles
             const coincide = tipoNota.includes(tipoNotaUsuarioLower) || 
                            tipoNota2.includes(tipoNotaUsuarioLower) ||
-                           tipoNota === tipoNotaUsuarioLower.replace(/\s/g, '') ||
-                           tipoNota2 === tipoNotaUsuarioLower.replace(/\s/g, '');
+                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+                           // Para "mama de rocco" específicamente
+                           (tipoNotaUsuarioLower.includes('mama') && tipoNota.includes('mama')) ||
+                           (tipoNotaUsuarioLower.includes('mama') && tipoNota2.includes('mama')) ||
+                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
+                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
             
             return coincide;
           });
