@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CarruselDescuentos from "./CarruselDescuentos";
 import { giveawayDescuentosGet } from '../../../api/giveawayDescuentosGet.js';
+import { urlApi } from '../../../api/url';
 
 const GiveawayDescuentos = ({ cupones }) => {
     const [giveaway, setGiveaway] = useState(null);
@@ -35,25 +36,17 @@ const GiveawayDescuentos = ({ cupones }) => {
     }
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
-            {/* Contenedor superior con texto dividido en 2 columnas */}
-            <div className="max-w-[1080px] mx-auto py-5">
-                <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-center">
-                    {/* Columna Izquierda: Título */}
-                    <div className="flex items-center justify-start">
-                        <h2 className="text-[22px] font-bold leading-4 text-black text-left">
-                            ¡Participa en nuestro Giveaway semanal y gana premios exclusivos!
-                        </h2>
-                    </div>
-                    {/* Columna Derecha: (vacía, puedes poner algo después si lo necesitas) */}
-                    <div></div>
-                </div>
-            </div>
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8 py-4">
             <div className="max-w-[1080px] w-full mx-auto flex flex-row gap-10 items-center">
-                <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-center">
-                    {/* Columna Izquierda: Giveaway */}
-                    <div className="flex flex-row w-full mt-4 mb-4 items-center">
-                        <div className="flex-shrink-0 w-[180px] h-full flex items-center justify-center">
+                <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-start">
+                    <div className="flex flex-row w-full mt-5 items-end">
+                        <div className="flex-shrink-0 w-[180px] h-full flex flex-col items-center justify-end">
+                            {/* Logo arriba de la imagen del post */}
+                            <img
+                                src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-promo.webp`}
+                                alt="Residente Restaurant Promo"
+                                className="mb-10 w-[250px] h-auto object-contain"
+                            />
                             <img
                                 src={giveaway.imagen}
                                 alt={giveaway.titulo}
@@ -61,16 +54,15 @@ const GiveawayDescuentos = ({ cupones }) => {
                                 onClick={() => navigate(`/notas/${giveaway.id}`)}
                             />
                         </div>
-                        <div className="flex flex-col flex-1 ml-6 justify-center">
+                        <div className="flex flex-col flex-1 ml-6 justify-end">
                             <h2
-                                className="text-black text-[22px] leading-6.5 whitespace-pre-line cursor-pointer"
+                                className="text-black text-[22px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[150px]"
                                 onClick={() => navigate(`/notas/${giveaway.id}`)}
                             >
                                 {giveaway.titulo}
                             </h2>
                         </div>
                     </div>
-                    {/* Columna Derecha: Carrusel de cupones */}
                     <CarruselDescuentos cupones={cuponesFormateados} />
                 </div>
             </div>

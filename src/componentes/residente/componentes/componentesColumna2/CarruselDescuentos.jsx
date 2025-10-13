@@ -25,11 +25,12 @@ const CarruselDescuentos = ({ cupones }) => {
     };
 
     return (
-        <div className="py-4 px-2 bg-[#fff300] w-full flex items-center overflow-hidden">
+        <div className="py-4 px-0 bg-[#fff300] w-full flex items-center relative overflow-visible ml-9">
+            {/* Flecha izquierda */}
             <button
                 onClick={handlePrev}
                 disabled={startIdx === 0}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 mr-2 self-center"
+                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute left-[-32px] z-10 self-center cursor-pointer"
                 aria-label="Anterior"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -37,7 +38,7 @@ const CarruselDescuentos = ({ cupones }) => {
                 </svg>
             </button>
             <div
-                className="relative overflow-hidden"
+                className="relative overflow-hidden mx-auto"
                 style={{ width: `${ITEM_WIDTH * VISIBLE_COUNT}px` }}
             >
                 <div
@@ -49,17 +50,18 @@ const CarruselDescuentos = ({ cupones }) => {
                     {cupones.map((cupon, idx) => (
                         <div
                             key={idx}
-                            className="min-w-[190px] max-w-[190px] flex-shrink-0 mx-0"
+                            className="min-w-[195px] max-w-[195px] flex-shrink-0 mx-0"
                         >
                             <TicketPromo size="small" {...cupon} />
                         </div>
                     ))}
                 </div>
             </div>
+            {/* Flecha derecha */}
             <button
                 onClick={handleNext}
                 disabled={startIdx >= cupones.length - VISIBLE_COUNT}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 ml-2 self-center"
+                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute right-[-32px] z-10 self-center cursor-pointer"
                 aria-label="Siguiente"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
