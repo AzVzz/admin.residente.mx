@@ -26,7 +26,8 @@ import VideosDashboard from "./VideosDashboard.jsx";
 import FormNewsletter from "./FormNewsletter.jsx";
 import InfografiaForm from "../../infografia/InfografiaForm.jsx";
 import ListaNotasUanl from "./ListaNotasUanl.jsx";
-
+import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
+  
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -66,13 +67,8 @@ const ListaNotas = () => {
         throw new Error('No hay token de autenticación');
       }
 
-      //console.log('Cargando todas las notas...');
-      //console.log('Token:', token ? 'Presente' : 'Ausente');
-      //console.log('Usuario:', usuario);
-
       // Cargar todas las notas sin paginación
       const data = await notasTodasGet(token, 1, 'all');
-      //console.log('Respuesta:', data);
 
       // Validar respuesta del servidor
       if (!data) {
@@ -83,8 +79,42 @@ const ListaNotas = () => {
         throw new Error('Formato de respuesta inválido del servidor');
       }
 
-      setTodasLasNotas(data.notas);
-      setNotas(data.notas);
+      // FILTRAR NOTAS POR USUARIO/CLIENTE
+      let notasFiltradas = data.notas;
+      
+      // Si el usuario NO es admin (todos), filtrar por sus notas
+      if (usuario?.permisos !== 'todos') {
+        const tipoNotaUsuario = usuario?.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' 
+          ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          : '';
+        
+        if (tipoNotaUsuario) {
+          const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
+          
+          notasFiltradas = data.notas.filter(nota => {
+            const tipoNota = (nota.tipo_nota || '').toLowerCase();
+            const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
+            
+            // Buscar coincidencias más flexibles
+            const coincide = tipoNota.includes(tipoNotaUsuarioLower) || 
+                           tipoNota2.includes(tipoNotaUsuarioLower) ||
+                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+                           // Para "mama de rocco" específicamente
+                           (tipoNotaUsuarioLower.includes('mama') && tipoNota.includes('mama')) ||
+                           (tipoNotaUsuarioLower.includes('mama') && tipoNota2.includes('mama')) ||
+                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
+                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
+            
+            return coincide;
+          });
+        }
+      }
+
+      setTodasLasNotas(notasFiltradas);
+      setNotas(notasFiltradas);
       setPaginaActual(1); // Resetear a página 1 al cargar
     } catch (err) {
       console.error('Error detallado:', err);
@@ -130,7 +160,7 @@ const ListaNotas = () => {
   const mapeoPermisosATipoNota = {
     'mama-de-rocco': 'Mamá de Rocco',
     'barrio-antiguo': 'Barrio Antiguo',
-    'otrocliente': 'Otro Cliente',
+    
   };
 
   // Función para normalizar texto para búsqueda
@@ -362,6 +392,15 @@ const ListaNotas = () => {
               UANL
             </button>
           )}
+           {usuario?.permisos === 'todos' && (
+            <button
+              onClick={() => setVistaActiva("usuarios")}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "usuarios" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"}`}
+            >
+              <FaUser className="mr-3" />
+              Usuarios
+            </button>
+          )}
         </div>
       </div>
 
@@ -523,6 +562,9 @@ const ListaNotas = () => {
         )}
         {vistaActiva === "uanl" && (
           <div className="text-center py-10 text-lg"><ListaNotasUanl /></div>
+        )}
+        {vistaActiva === "usuarios" && (
+          <div className="text-center py-10 text-lg"><ListaNotasUsuarios /></div>
         )}
       </div>
     </div>

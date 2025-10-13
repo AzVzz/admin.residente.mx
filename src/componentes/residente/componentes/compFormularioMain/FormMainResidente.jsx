@@ -1,6 +1,6 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { useAuth } from '../../../Context';
-import Login from '../../../../componentes/login';
+import Login from '../../../../componentes/Login';
 
 import Autor from "./componentes/Autor";
 import Contenido from "./componentes/Contenido";
@@ -25,7 +25,7 @@ import DetallePost from '../DetallePost.jsx';
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
   "barrio-antiguo": "Barrio Antiguo",
-  // agrega más si tienes
+  // Los demás clientes se generan dinámicamente
 };
 
 function formatFecha(fecha) {
@@ -44,7 +44,15 @@ const FormMainResidente = () => {
   const { usuario, token } = useAuth(); // usuario viene del contexto
 
   // Determina el tipo de nota por el permiso del usuario
-  const tipoNotaUsuario = usuario ? tipoNotaPorPermiso[usuario.permisos] : '';
+  // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
+  const tipoNotaUsuario = usuario ? (
+    tipoNotaPorPermiso[usuario.permisos] || 
+    (usuario.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' && usuario.permisos !== 'todos' 
+      ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      : '')
+  ) : '';
+
+  
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -54,8 +62,7 @@ const FormMainResidente = () => {
   // Si no hay token, muestra el login
   if (!token) {
     return (
-      <div
-        lassName="max-w-[400px] mx-auto mt-10">
+      <div className="max-w-[400px] mx-auto mt-10">
         <Login />
       </div>
     );
@@ -121,7 +128,9 @@ const FormMainResidente = () => {
   if (!subtitulo) camposFaltantes.push('subtítulo');
   if (!imagen && !imagenActual) camposFaltantes.push('imagen');
   if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
-  if (!watch('tiposDeNotaSeleccionadas')) camposFaltantes.push('tipo de nota');
+  if (!tipoNotaUsuario && !watch('tiposDeNotaSeleccionadas')) {
+    camposFaltantes.push('tipo de nota');
+  }
   if (
     watch('destacada') &&
     (watch('tiposDeNotaSeleccionadas') === "Restaurantes" || watch('tiposDeNotaSeleccionadas') === "Food & Drink") &&
@@ -332,9 +341,14 @@ const FormMainResidente = () => {
         : data.opcionPublicacion === 'borrador'
           ? 'borrador'
           : 'publicada';
-    } else {
-      estadoFinal = 'borrador';
-    }
+   
+        } else {
+          estadoFinal = data.opcionPublicacion === 'programar'
+            ? 'programada'
+            : data.opcionPublicacion === 'borrador'
+              ? 'borrador'
+              : 'publicada';
+        } 
 
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
@@ -343,8 +357,6 @@ const FormMainResidente = () => {
 
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
       const tipoNotaSecundaria = null;
-
-      // Base de datosNota
       const datosNota = {
         tipo_nota: tipoNotaFinal,
         tipo_nota2: tipoNotaSecundaria,
@@ -378,9 +390,6 @@ const FormMainResidente = () => {
       } else {
         datosNota.nombre_restaurante = null;
       }
-
-      // --- Agrega el console.log aquí ---
-      console.log("JSON enviado a la API:", JSON.stringify(datosNota, null, 2));
 
       let resultado;
       if (notaId) {

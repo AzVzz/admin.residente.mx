@@ -5,6 +5,7 @@ import { useAuth } from '../../../../Context';
 const CategoriasTipoNotaSelector = ({ tipoDeNota, secciones, ocultarTipoNota }) => {
     const { control, watch } = useFormContext();
     const { usuario } = useAuth();
+    
 
     // Verificar si el usuario tiene permisos limitados
     const tienePermisosLimitados = usuario?.permisos && usuario.permisos !== 'todos';

@@ -6,7 +6,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 const opciones = [
     { value: '', label: 'Todos los autores' },
-    { value: 'Daniel', label: 'Daniel' },
+    { value: 'Jerry Maister', label: 'Jerry Maister' },
+    { value: 'Paula', label: 'Paula' },
     { value: 'Nataly', label: 'Nataly' },
     { value: 'Eduardo', label: 'Eduardo' },
 ];
