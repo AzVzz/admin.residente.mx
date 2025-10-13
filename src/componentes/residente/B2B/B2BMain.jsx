@@ -118,7 +118,7 @@ const B2BMain = ({ notasResidenteGet }) => {
                     </div>
                 </div>
                 {/* GiveawayDescuentos debajo del grid, ocupa todo el ancho */}
-                <GiveawayDescuentos cupones={cupones} />
+                {/*<GiveawayDescuentos cupones={cupones} />*/}
             </div>
         </div>
     );
