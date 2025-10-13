@@ -98,7 +98,6 @@ const CincoNotasRRR = ({ tipoNota, onCardClick }) => {
         {notas.length > perView && (
           <button
             onClick={() => viewportRef.current.scrollBy({ left: -(itemWidth + GAP_PX), behavior: "smooth" })}
-            disabled={!canPrev}
             className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 left-[-4rem] bg-transparent hover:bg-transparent text-black rounded-full w-12 h-12 cursor-pointer z-20 disabled:opacity-40"
             aria-label="Anterior"
           >

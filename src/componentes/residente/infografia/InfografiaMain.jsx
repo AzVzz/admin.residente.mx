@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 import DirectorioVertical from '../componentes/componentesColumna2/DirectorioVertical';

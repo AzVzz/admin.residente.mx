@@ -31,7 +31,10 @@ import usePageTracking from './usePageTracking.js';
 import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
 import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
 import ListaNotasUanl from './componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx';
-
+import DetalleColaborador from './componentes/residente/Colaboradores/DetalleColaborador.jsx';
+import NewsletterPage from './componentes/residente/Newsletter/NewsletterPage.jsx';
+import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
+import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -46,6 +49,30 @@ const FormularioMainPage = lazy(() => import('./componentes/formulario100estrell
 const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
 const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner'));
 
+const notasPrueba = [
+  {
+    id: 1,
+    titulo: "Ejemplo Nota 1",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria1"]
+  },
+  {
+    id: 2,
+    titulo: "Ejemplo Nota 2",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria2"]
+  },
+  {
+    id: 3,
+    titulo: "Ejemplo Nota 3",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria3"]
+  },
+  // ...agrega más si quieres
+];
 
 function App() {
   usePageTracking();
@@ -239,8 +266,40 @@ function App() {
                 </div>
               } />
 
+              <Route path="/colaborador/:id" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <DetalleColaborador />
+                </div>
+              } />
+
+              <Route path="/foto-news" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <NewsletterPage />
+                </div>
+              } />
+
+              <Route path="/plantilla" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <PlantillaNotas
+                    posts={notasPrueba}
+                    notasDestacadas={notasPrueba}
+                    handleCardClick={() => {}}
+                  />
+                </div>
+              } />
+ 
+              <Route path="/b2b" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <B2BMain />
+                </div>
+              } />
+
+
+
 
               {/*================================*/}
+
+
 
 
               {/* Admin */}

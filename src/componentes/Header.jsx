@@ -37,6 +37,16 @@ const Header = () => {
     setSearchTerm('');
   };
 
+  const handleBannerClick = () => {
+    if (window.gtag) {
+      window.gtag('event', 'click', {
+        event_category: 'Banner',
+        event_label: 'Lucia',
+        value: 1
+      });
+    }
+  };
+
   return (
     <header className="w-full">
 
@@ -48,6 +58,7 @@ const Header = () => {
             href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleBannerClick} // <-- Agrega esto
           >
             <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
           </a>
@@ -122,7 +133,9 @@ const Header = () => {
                 <div className="sm:flex gap-1.5 hidden items-center">
                   {!isSearchOpen ? (
                     <>
-                      <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
+                      <a href="/b2b">
+                        <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" alt="B2B" />
+                      </a>
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>

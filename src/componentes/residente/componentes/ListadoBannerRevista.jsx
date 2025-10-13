@@ -16,6 +16,9 @@ import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
 import NotasAcervo from "./componentesColumna2/NotasAcervo.jsx";
 import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
+import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
+import { giveawayDescuentosGet } from '../../../componentes/api/giveawayDescuentosGet.js';
+import Colaboradores from "../../../componentes/residente/componentes/componentesColumna2/Colaboradores"
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -27,6 +30,7 @@ const ListadoBannerRevista = ({
 }) => {
 
     const [cupones, setCupones] = useState([]);
+    const [giveaway, setGiveaway] = useState(null);
 
     useEffect(() => {
         cuponesGet()
@@ -34,9 +38,15 @@ const ListadoBannerRevista = ({
             .catch(() => setCupones([]));
     }, []);
 
+    useEffect(() => {
+        giveawayDescuentosGet()
+            .then(data => setGiveaway(data))
+            .catch(() => setGiveaway(null));
+    }, []);
+
     return (
         <div className="flex flex-col">
-            {["Restaurantes", "Food & Drink", "Antojos", "Gastro-Destinos"].map((tipo) => {
+            {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
                 const postsFiltrados = filtrarPostsPorTipoNota(tipo);
                 const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
 
@@ -116,7 +126,7 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6">
+                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6"> {/* Cambio a mb-4 antes (mb-3) */}
                                     <p className="uppercase">{marqueeTexto}</p>
                                     {/*<BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />*/}
                                 </div>
@@ -207,6 +217,12 @@ const ListadoBannerRevista = ({
                                 <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                             </div>
                         )}
+                        {/*tipo === "Gastro-Destinos" && (
+                            <div className="my-2">
+                                <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
+                                <Colaboradores />
+                            </div>
+                        )*/}
 
                     </div>
                 );
