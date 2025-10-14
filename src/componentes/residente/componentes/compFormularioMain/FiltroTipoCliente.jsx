@@ -66,14 +66,17 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
                     opcionesDinamicas = [...opcionesDinamicas, ...tiposNuevos];
                 }
 
-                // Agregar clientes dinámicos
+                // Agregar clientes dinámicos (solo los que no estén ya en las opciones por defecto)
                 if (clientesValidos && clientesValidos.length > 0) {
                     const clientesComoTipos = clientesValidos
                         .filter(cliente => cliente !== 'usuario' && cliente !== 'todo' && cliente !== 'todos')
                         .map(cliente => ({
                             value: cliente,
                             label: cliente.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                        }));
+                        }))
+                        .filter(cliente => 
+                            !opcionesDinamicas.some(op => op.value === cliente.value)
+                        );
                     opcionesDinamicas = [...opcionesDinamicas, ...clientesComoTipos];
                 }
                 setOpciones(opcionesDinamicas);
