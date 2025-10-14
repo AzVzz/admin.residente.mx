@@ -62,7 +62,7 @@ const LinkInBio = () => {
         {loading ? (
           <Skeleton variant="rectangular" animation="wave" width={860} height={480} />
         ) : hayNotas ? (
-          <Link to={`/notas/${principal.id}`} aria-label={principal.titulo}>
+          <Link to={`/`} aria-label={principal.titulo}>
             <img
               src={`${urlApi}fotos/fotos-estaticas/residente-logos/amarillos/banner-pagina-insta-imagen.webp`}
               alt="Banner InstaImagen"
