@@ -499,7 +499,7 @@ const ListaNotasUsuarios = () => {
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEdit(user)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-blue-600 hover:text-blue-900 cursor-pointer"
                             title="Editar"
                           >
                             <FaEdit />
@@ -508,7 +508,7 @@ const ListaNotasUsuarios = () => {
                             onClick={() => toggleUserStatus(user.id, user.estado)}
                             className={`${
                               user.estado === 'activo'
-                                ? 'text-red-600 hover:text-red-900'
+                                ? 'text-red-600 hover:text-red-900 cursor-pointer'
                                 : 'text-green-600 hover:text-green-900'
                             }`}
                             title={user.estado === 'activo' ? 'Desactivar' : 'Activar'}
@@ -517,7 +517,7 @@ const ListaNotasUsuarios = () => {
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-600 hover:text-red-900 cursor-pointer"
                             title="Eliminar"
                           >
                             <FaTrash />
