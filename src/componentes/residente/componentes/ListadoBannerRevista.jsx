@@ -208,6 +208,7 @@ const ListadoBannerRevista = ({
                                 </div>
                                 <div className="my-2">
                                     <SeccionesPrincipales />
+                                    {/*<GiveawayDescuentos cupones={cupones} />*/}
                                 </div>
                             </>
                         )}
