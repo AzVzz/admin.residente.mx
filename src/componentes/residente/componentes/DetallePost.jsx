@@ -4,6 +4,7 @@ import { notasPublicadasPorId } from "../../api/notasPublicadasGet"; // Ajusta e
 import { urlApi } from "../../api/url.js";
 import { cuponesGet } from "../../api/cuponesGet.js";
 import { Iconografia } from '../../utils/Iconografia.jsx';
+import { FaWhatsapp, FaInstagram, FaLink } from 'react-icons/fa';
 
 const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee, revistaActual }) => {
     const { id } = useParams();
@@ -13,6 +14,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
     const [error, setError] = useState(null);
     const [cupones, setCupones] = useState([]);
     const [loadingCupones, setLoadingCupones] = useState(true);
+		const [copied, setCopied] = useState(false);
 
     // Desplazar el scroll al inicio al cargar el componente
     useEffect(() => {
@@ -79,6 +81,92 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
         );
     }
 
+		const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+		const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${post.titulo} - ${shareUrl}`)}`;
+
+		const handleCopyUrl = async () => {
+			try {
+				await navigator.clipboard.writeText(shareUrl);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			} catch (_) {
+				// Fallback
+				const temp = document.createElement('input');
+				temp.value = shareUrl;
+				document.body.appendChild(temp);
+				temp.select();
+				document.execCommand('copy');
+				document.body.removeChild(temp);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			}
+		};
+
+		const tryOpenInstagramApp = () => {
+			// Best-effort attempt to open the native app; falls back to web after a short delay
+			const appLink = 'instagram://camera';
+			const a = document.createElement('a');
+			a.href = appLink;
+			a.style.display = 'none';
+			document.body.appendChild(a);
+			let fallbackOpened = false;
+			const timer = setTimeout(() => {
+				fallbackOpened = true;
+				window.open('https://www.instagram.com/', '_blank');
+				document.body.removeChild(a);
+			}, 700);
+			try {
+				a.click();
+			} finally {
+				// If app opens, browser will lose focus and timeout likely won't run; otherwise fallback triggers
+				setTimeout(() => {
+					if (!fallbackOpened && document.body.contains(a)) {
+						document.body.removeChild(a);
+					}
+					clearTimeout(timer);
+				}, 1200);
+			}
+		};
+
+		const handleShareWhatsApp = async () => {
+			const shareData = {
+				title: post?.titulo || 'Residente',
+				text: post?.titulo ? `${post.titulo}` : '',
+				url: shareUrl
+			};
+			if (typeof navigator !== 'undefined' && navigator.share) {
+				try {
+					await navigator.share(shareData);
+					return;
+				} catch (_) {
+					// user cancelled or share failed -> fallback to WhatsApp web
+				}
+			}
+			window.open(whatsappHref, '_blank');
+		};
+
+		const handleShareInstagram = async () => {
+			const shareData = {
+				title: post?.titulo || 'Residente',
+				text: post?.titulo ? `${post.titulo}` : '',
+				url: shareUrl
+			};
+			if (typeof navigator !== 'undefined' && navigator.share) {
+				try {
+					await navigator.share(shareData);
+					return;
+				} catch (_) {
+					// user cancelled or share failed -> fallback
+				}
+			}
+			// Fallback: abrir Instagram Direct para componer mensaje (web) y, si no, intentar app
+			const directUrl = `https://www.instagram.com/direct/new/?text=${encodeURIComponent(`${post.titulo} ${shareUrl}`)}`;
+			const opened = window.open(directUrl, '_blank');
+			if (!opened) {
+				tryOpenInstagramApp();
+			}
+		};
+
     const iconosDisponibles = [
         ...Iconografia.categorias,
         ...Iconografia.ocasiones,
@@ -125,7 +213,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                                 </div>
                             </div>
                         )}
-                        <h1
+						<h1
                             className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
                             style={{
                                 whiteSpace: 'pre-line',
@@ -134,6 +222,39 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         >
                             {post.titulo}
                         </h1>
+						{/* Share actions under title */}
+						<div className="self-center flex items-center justify-center gap-6 mt-2 mb-1">
+							<button
+								type="button"
+								onClick={handleShareWhatsApp}
+								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
+								aria-label="Compartir en WhatsApp"
+								title="Compartir en WhatsApp"
+							>
+								<FaWhatsapp size={25} />
+								<span></span>
+							</button>
+							<button
+								type="button"
+								onClick={handleShareInstagram}
+								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
+								aria-label="Abrir Instagram"
+								title="Abrir Instagram"
+							>
+								<FaInstagram size={25} />
+								<span></span>
+							</button>
+							<button
+								type="button"
+								onClick={handleCopyUrl}
+								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
+								aria-label="Copiar URL"
+								title="Copiar URL"
+							>
+								<FaLink size={25} />
+								<span>{copied ? 'URL copiada' : ''}</span>
+							</button>
+						</div>
                     </div>
                 </div>
             </div>
