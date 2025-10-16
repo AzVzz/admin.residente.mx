@@ -13,15 +13,33 @@ const SearchResults = ({ searchTerm, onClose }) => {
       setLoading(true);
       setError(null);
       try {
-        let data;
-        if (!searchTerm || searchTerm.trim().length < 2) {
-          // Sin búsqueda: solo muestra las 10 más recientes
-          data = await catalogoNotasGet(1, 10);
+        // Obtener todas las notas publicadas
+        const data = await catalogoNotasGet(1, 10); // Obtener 10 notas para mostrar inmediatamente
+        
+        if (data && Array.isArray(data)) {
+          if (!searchTerm || searchTerm.trim().length < 2) {
+            // Si no hay término de búsqueda, mostrar las primeras 10 notas
+            setResults(data);
+          } else {
+            // Filtrar localmente por el término de búsqueda
+            const queryNormalizado = searchTerm.toLowerCase().trim();
+            const notasFiltradas = data.filter(nota => {
+              const titulo = (nota.titulo || '').toLowerCase();
+              const subtitulo = (nota.subtitulo || '').toLowerCase();
+              const autor = (nota.autor || '').toLowerCase();
+              const tipoNota = (nota.tipo_nota || '').toLowerCase();
+              
+              return titulo.includes(queryNormalizado) ||
+                     subtitulo.includes(queryNormalizado) ||
+                     autor.includes(queryNormalizado) ||
+                     tipoNota.includes(queryNormalizado);
+            });
+            
+            setResults(notasFiltradas);
+          }
         } else {
-          // Con búsqueda: pide a la API los resultados filtrados
-          data = await catalogoNotasGet(1, 10, searchTerm.trim());
+          setResults([]);
         }
-        setResults(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error en búsqueda:', err);
         setError('Error al buscar notas');
@@ -31,7 +49,7 @@ const SearchResults = ({ searchTerm, onClose }) => {
       }
     };
 
-    // Debounce solo si hay búsqueda
+    // Si hay término de búsqueda, usar debounce, si no, cargar inmediatamente
     if (searchTerm && searchTerm.trim().length >= 2) {
       const timeoutId = setTimeout(searchNotas, 300);
       return () => clearTimeout(timeoutId);
@@ -162,6 +180,19 @@ const SearchResults = ({ searchTerm, onClose }) => {
               </div>
             </Link>
           ))}
+          
+          {/* Ver más resultados */}
+          {results.length >= 10 && (
+            <div className="p-2 border-t border-gray-100">
+              <Link
+                to={`/buscar?q=${encodeURIComponent(searchTerm)}`}
+                onClick={onClose}
+                className="block text-center text-sm text-blue-600 hover:text-blue-800 py-2"
+              >
+                Ver todos los resultados para "{searchTerm}"
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -169,3 +200,4 @@ const SearchResults = ({ searchTerm, onClose }) => {
 };
 
 export default SearchResults;
+  
