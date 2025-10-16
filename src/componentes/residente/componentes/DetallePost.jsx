@@ -223,7 +223,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             {post.titulo}
                         </h1>
 						{/* Share actions under title */}
-						<div className="self-center flex items-center justify-center gap-6 mt-2 mb-1">
+						<div className="self-center flex items-center justify-center gap-4 mt-5 mb-0">
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
@@ -231,8 +231,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Compartir en WhatsApp"
 								title="Compartir en WhatsApp"
 							>
-								<FaWhatsapp size={25} />
-								<span></span>
+								<FaWhatsapp size={35} />
 							</button>
 							<button
 								type="button"
@@ -241,8 +240,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Abrir Instagram"
 								title="Abrir Instagram"
 							>
-								<FaInstagram size={25} />
-								<span></span>
+								<FaInstagram size={35} />
 							</button>
 							<button
 								type="button"
@@ -251,15 +249,15 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Copiar URL"
 								title="Copiar URL"
 							>
-								<FaLink size={25} />
-								<span>{copied ? 'URL copiada' : ''}</span>
+								<FaLink size={30} />
+								{copied && <span className="ml-1 text-lg">URL copiada</span>}
 							</button>
 						</div>
                     </div>
                 </div>
             </div>
             {/* Contenido adicional */}
-            <div className="flex flex-col gap-5 px-10 py-6">
+            <div className="flex flex-col gap-5 px-10 pt-0 pb-6">
                 <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
                 <div
                     className="text-xl font-roman leading-relaxed"
