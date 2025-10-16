@@ -1,6 +1,7 @@
 //src/componentes/residente/componentes/componentesColumna2/CarruselDescuentos.jsx
 import React, { useState } from "react";
 import TicketPromo from "../../../promociones/componentes/TicketPromo";
+import TicketPromoMini from "../seccionesCategorias/componentes/TicketPromoMini";
 
 const ITEM_WIDTH = 195; // ancho fijo en px
 const VISIBLE_COUNT = 3;
@@ -25,7 +26,7 @@ const CarruselDescuentos = ({ cupones }) => {
     };
 
     return (
-        <div className="py-4 px-0 bg-[#fff300] w-full flex items-center relative overflow-visible ml-9">
+        <div className="py-4 px-0 bg-[black] w-full flex items-center relative overflow-visible">
             {/* Flecha izquierda */}
             <button
                 onClick={handlePrev}
@@ -52,7 +53,7 @@ const CarruselDescuentos = ({ cupones }) => {
                             key={idx}
                             className="min-w-[195px] max-w-[195px] flex-shrink-0 mx-0"
                         >
-                            <TicketPromo size="small" {...cupon} />
+                            <TicketPromoMini size="small" {...cupon} />
                         </div>
                     ))}
                 </div>

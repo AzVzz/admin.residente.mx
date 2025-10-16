@@ -207,8 +207,8 @@ const ListadoBannerRevista = ({
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
                                 <div className="my-2">
-                                    <SeccionesPrincipales />
-                                    {/*<GiveawayDescuentos cupones={cupones} />*/}
+                                    {/*<SeccionesPrincipales />*/}
+                                    <GiveawayDescuentos cupones={cupones} />
                                 </div>
                             </>
                         )}

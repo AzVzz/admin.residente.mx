@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import CarruselDescuentos from "./CarruselDescuentos";
 import { giveawayDescuentosGet } from '../../../api/giveawayDescuentosGet.js';
 import { urlApi } from '../../../api/url';
+import { Iconografia } from '../../../utils/Iconografia.jsx'; // Asegúrate de importar esto
 
 const GiveawayDescuentos = ({ cupones }) => {
     const [giveaway, setGiveaway] = useState(null);
@@ -15,7 +16,16 @@ const GiveawayDescuentos = ({ cupones }) => {
             .catch(() => setGiveaway(null));
     }, []);
 
-    // Mapea los cupones para asegurar que tengan las props correctas
+    const getStickerUrl = (clave) => {
+        const allStickers = [
+            ...Iconografia.categorias,
+            ...Iconografia.ocasiones,
+            ...Iconografia.zonas,
+        ];
+        const found = allStickers.find((item) => item.clave === clave);
+        return found ? found.icono : null;
+    };
+
     const cuponesFormateados = Array.isArray(cupones)
         ? cupones.map(c => ({
             nombreRestaurante: c.nombre_restaurante || "",
@@ -23,7 +33,7 @@ const GiveawayDescuentos = ({ cupones }) => {
             subPromo: c.subtitulo || "",
             descripcionPromo: c.descripcion || "",
             validezPromo: c.validez || "",
-            stickerUrl: c.stickerUrl || ""
+            stickerUrl: getStickerUrl(c.icon) // <-- Aquí generas la URL del icono
         }))
         : [];
 
@@ -36,13 +46,13 @@ const GiveawayDescuentos = ({ cupones }) => {
     }
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8 py-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[black] mb-4 py-4">
             <div className="max-w-[1080px] w-full mx-auto flex flex-row gap-10 items-center">
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-start">
                     <div className="flex flex-col items-start">
                         {/* Logo arriba */}
                         <img
-                            src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-promo.webp`}
+                            src={`${urlApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
                             alt="Residente Restaurant Promo"
                             className="mb-8 w-[340px] h-auto object-contain"
                         />
@@ -51,12 +61,12 @@ const GiveawayDescuentos = ({ cupones }) => {
                             <img
                                 src={giveaway.imagen}
                                 alt={giveaway.titulo}
-                                className="w-[180px] h-full object-cover shadow-[4px_3px_2px_rgba(0,0,0,0.3)] cursor-pointer"
+                                className="w-[180px] h-[268px] object-cover shadow-[4px_3px_2px_rgba(0,0,0,0.3)] cursor-pointer"
                                 onClick={() => navigate(`/notas/${giveaway.id}`)}
                             />
                             <div className="flex flex-col justify-start ml-6">
                                 <h2
-                                    className="text-black text-[22px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[250px]"
+                                    className="text-white text-[22px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[250px]"
                                     onClick={() => navigate(`/notas/${giveaway.id}`)}
                                 >
                                     {giveaway.titulo}
