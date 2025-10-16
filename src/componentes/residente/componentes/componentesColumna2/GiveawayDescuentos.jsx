@@ -32,8 +32,8 @@ const GiveawayDescuentos = ({ cupones }) => {
             nombrePromo: c.titulo || "",
             subPromo: c.subtitulo || "",
             descripcionPromo: c.descripcion || "",
-            validezPromo: c.validez || "",
-            stickerUrl: getStickerUrl(c.icon) // <-- Aquí generas la URL del icono
+            validezPromo: c.fecha_validez || "", // <-- CAMBIA AQUÍ
+            stickerUrl: getStickerUrl(c.icon)
         }))
         : [];
 
