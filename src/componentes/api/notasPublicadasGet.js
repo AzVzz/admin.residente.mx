@@ -3,15 +3,16 @@ import { urlApi } from './url.js';
 
 // Puro Gets a notasPublicadas
 
-export const catalogoNotasGet = async (page = 1, limit = 15) => {
+export const catalogoNotasGet = async (page = 1, limit = 15, search = '') => {
     try {
-        const response = await fetch(`${urlApi}api/notas?page=${page}&limit=${limit}`);
+        let url = `${urlApi}api/notas?page=${page}&limit=${limit}`;
+        if (search && search.trim().length > 0) {
+            url += `&search=${encodeURIComponent(search)}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const result = await response.json();
-        // Si tu API regresa un array directo:
         return result;
-        // Si tu API regresa { data: [...] }:
-        // return result.data;
     } catch (error) {
         console.error("Error fetching notas:", error);
         throw error;

@@ -1,6 +1,13 @@
 import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
 import { urlApi } from "../../api/url";
 
+// Configuración de logos por categoría
+const logosCategorias = {
+    "Restaurantes": "fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp",
+    "Food & Drink": "/fotos/fotos-estaticas/residente-logos/negros/food%26drink-02.webp",
+    "Antojos": "fotos/fotos-estaticas/residente-logos/negros/antojeria.webp"
+};
+
 const formatFechaActual = () => {
     const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
     const meses = [
@@ -16,11 +23,13 @@ const formatFechaActual = () => {
 };
 
 const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
-    const restaurantesNota = filtrarPostsPorTipoNota("Restaurantes").at(0);
-    const foodDrinkNota = filtrarPostsPorTipoNota("Food & Drink").at(0);
-    const antojosNota = filtrarPostsPorTipoNota("Antojos").at(0);
-
-    const notasPrincipales = [restaurantesNota, foodDrinkNota, antojosNota].filter(Boolean);
+    const categorias = ["Restaurantes", "Food & Drink", "Antojos"];
+    const notasPrincipales = categorias
+        .map(cat => ({
+            nota: filtrarPostsPorTipoNota(cat).at(0),
+            categoria: cat
+        }))
+        .filter(item => item.nota);
 
     return (
         <div>
@@ -31,23 +40,29 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                         alt="Newsletter Logo"
                         className="w-100 h-auto mx-auto"
                     />
-                    <div className="text-center text-[20px] font-semibold">
-                        {formatFechaActual()}
-                    </div>
-                    {notasPrincipales.map(nota => (
-                        <a
-                            key={nota.id}
-                            href={`https://residente.mx/notas/${nota.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ textDecoration: "none", color: "inherit" }}
-                        >
-                            <PostPrincipal
-                                post={nota}
-                                onClick={() => handleCardClick(nota)}
-                                ocultarFecha={true}
-                            />
-                        </a>
+                    {/* Puedes quitar la fecha aquí si ya la pones debajo de cada nota */}
+                    {notasPrincipales.map(({ nota, categoria }) => (
+                        <div key={nota.id} className="mb-8">
+                            <div className="flex justify-center items-center mb-2">
+                                <img
+                                    src={`${urlApi}${logosCategorias[categoria]}`}
+                                    alt={categoria}
+                                    className="h-auto w-85 object-contain"
+                                />
+                            </div>
+                            <a
+                                href={`https://residente.mx/notas/${nota.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: "none", color: "inherit" }}
+                            >
+                                <PostPrincipal
+                                    post={nota}
+                                    onClick={() => handleCardClick(nota)}
+                                    ocultarFecha={true}
+                                />
+                            </a>
+                        </div>
                     ))}
                 </div>
             </div>
