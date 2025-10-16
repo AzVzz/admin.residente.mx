@@ -19,6 +19,24 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
         window.scrollTo(0, 0); // Desplaza el scroll al inicio de la página
     }, []);
 
+    // Formatea una cadena de fecha para ocultar la hora en la vista de detalle
+    const formatearFechaSinHora = (fechaStr) => {
+        if (!fechaStr) return '';
+        // Si viene en ISO, usamos toLocaleDateString
+        if (typeof fechaStr === 'string' && fechaStr.includes('T')) {
+            const d = new Date(fechaStr);
+            if (isNaN(d)) return fechaStr;
+            const texto = d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+            return texto.toUpperCase();
+        }
+        // Si viene como "OCTUBRE 15, 2025 06:00" o similar, quitamos la parte de hora
+        // Busca un patrón de hora HH:MM opcional con a.m./p.m.
+        const sinHora = fechaStr
+            .replace(/\s+\d{1,2}:\d{2}(?:\s*(?:a\.m\.|p\.m\.|AM|PM))?$/i, '') // quita hora al final
+            .replace(/\s+-\s*\d{1,2}:\d{2}$/i, ''); // casos "... - 06:00"
+        return sinHora;
+    };
+
     useEffect(() => {
         if (postProp) {
             setPost(postProp);
@@ -100,11 +118,13 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         </div>
                     </div>
                     <div className="bg-transparent flex flex-col max-h-[400px] relative min-h-[120]">
-                        <div className="flex justify-center items-center pt-4">
-                            <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
-                                {post.fecha}
+                        {!sinFecha && (
+                            <div className="flex justify-center items-center pt-4">
+                                <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
+                                    {formatearFechaSinHora(post.fecha)}
+                                </div>
                             </div>
-                        </div>
+                        )}
                         <h1
                             className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
                             style={{
