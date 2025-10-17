@@ -26,12 +26,12 @@ const CarruselDescuentos = ({ cupones }) => {
     };
 
     return (
-        <div className="py-4 px-0 bg-[black] w-full flex items-center relative overflow-visible">
+        <div className="py-4 px-0 bg-[black] w-full flex items-center relative overflow-visible ml-4">
             {/* Flecha izquierda */}
             <button
                 onClick={handlePrev}
                 disabled={startIdx === 0}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute left-[-10px] z-10 self-center cursor-pointer"
+                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute left-[-10px] z-10 self-center cursor-pointer"
                 aria-label="Anterior"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -62,7 +62,7 @@ const CarruselDescuentos = ({ cupones }) => {
             <button
                 onClick={handleNext}
                 disabled={startIdx >= cupones.length - VISIBLE_COUNT}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute right-[-32px] z-10 self-center cursor-pointer"
+                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute right-[-32px] z-10 self-center cursor-pointer"
                 aria-label="Siguiente"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

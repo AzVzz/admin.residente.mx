@@ -64,9 +64,9 @@ const GiveawayDescuentos = ({ cupones }) => {
                                 className="w-[180px] h-[268px] object-cover shadow-[4px_3px_2px_rgba(0,0,0,0.3)] cursor-pointer"
                                 onClick={() => navigate(`/notas/${giveaway.id}`)}
                             />
-                            <div className="flex flex-col justify-start ml-6">
+                            <div className="flex flex-col justify-start ml-4">
                                 <h2
-                                    className="text-white text-[15px] leading-4.5 whitespace-pre-line cursor-pointer max-w-[250px] mr-16"
+                                    className="text-white text-[16px] leading-4.5 whitespace-pre-line cursor-pointer max-w-[250px] mr-16"
                                     onClick={() => navigate(`/notas/${giveaway.id}`)}
                                 >
                                     {giveaway.titulo}
