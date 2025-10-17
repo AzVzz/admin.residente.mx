@@ -35,6 +35,7 @@ import DetalleColaborador from './componentes/residente/Colaboradores/DetalleCol
 import NewsletterPage from './componentes/residente/Newsletter/NewsletterPage.jsx';
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
 import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
+import ListaTickets from './componentes/residente/componentes/compFormularioMain/ListaTickets';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -386,6 +387,13 @@ function App() {
               <Route path="/admin/uanl" element={
                 <div className="max-w-[1080px] mx-auto">
                   <ListaNotasUanl />
+                </div>
+              } />
+
+              {/* Admin */}
+              <Route path="/tickets" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <ListaTickets/>
                 </div>
               } />
 

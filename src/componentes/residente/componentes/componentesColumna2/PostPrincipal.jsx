@@ -2,7 +2,21 @@
 import { Iconografia } from '../../../utils/Iconografia.jsx';
 import { urlApi } from "../../../api/url.js";
 
-const PostPrincipal = ({ post, onClick }) => {
+const formatFechaActual = () => {
+    const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+    const hoy = new Date();
+    const diaSemana = dias[hoy.getDay()];
+    const dia = hoy.getDate().toString().padStart(2, "0");
+    const mes = meses[hoy.getMonth()];
+    const año = hoy.getFullYear();
+    return `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} ${dia} de ${mes} del ${año}`;
+};
+
+const PostPrincipal = ({ post, onClick, ocultarFecha }) => {
     const iconosDisponibles = [
         ...Iconografia.categorias,
         ...Iconografia.ocasiones,
@@ -55,9 +69,15 @@ const PostPrincipal = ({ post, onClick }) => {
                 }}
             >
                 <div className="flex justify-center items-center pt-3">
-                    <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex pt-3">
-                        {post.fecha}
-                    </div>
+                    {ocultarFecha ? (
+                        <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex pt-3">
+                            {formatFechaActual()}
+                        </div>
+                    ) : (
+                        <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex pt-3">
+                            {post.fecha}
+                        </div>
+                    )}
                 </div>
                 <h1
                     className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center px-2 pb-2 my-0 tracking-tight pt-2"

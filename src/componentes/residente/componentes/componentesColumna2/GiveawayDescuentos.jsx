@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import CarruselDescuentos from "./CarruselDescuentos";
 import { giveawayDescuentosGet } from '../../../api/giveawayDescuentosGet.js';
 import { urlApi } from '../../../api/url';
+import { Iconografia } from '../../../utils/Iconografia.jsx'; // Asegúrate de importar esto
 
 const GiveawayDescuentos = ({ cupones }) => {
     const [giveaway, setGiveaway] = useState(null);
@@ -15,15 +16,24 @@ const GiveawayDescuentos = ({ cupones }) => {
             .catch(() => setGiveaway(null));
     }, []);
 
-    // Mapea los cupones para asegurar que tengan las props correctas
+    const getStickerUrl = (clave) => {
+        const allStickers = [
+            ...Iconografia.categorias,
+            ...Iconografia.ocasiones,
+            ...Iconografia.zonas,
+        ];
+        const found = allStickers.find((item) => item.clave === clave);
+        return found ? found.icono : null;
+    };
+
     const cuponesFormateados = Array.isArray(cupones)
         ? cupones.map(c => ({
             nombreRestaurante: c.nombre_restaurante || "",
             nombrePromo: c.titulo || "",
             subPromo: c.subtitulo || "",
             descripcionPromo: c.descripcion || "",
-            validezPromo: c.validez || "",
-            stickerUrl: c.stickerUrl || ""
+            validezPromo: c.fecha_validez || "", // <-- CAMBIA AQUÍ
+            stickerUrl: getStickerUrl(c.icon)
         }))
         : [];
 
@@ -36,31 +46,32 @@ const GiveawayDescuentos = ({ cupones }) => {
     }
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8 py-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[black] mb-4 py-4">
             <div className="max-w-[1080px] w-full mx-auto flex flex-row gap-10 items-center">
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-start">
-                    <div className="flex flex-row w-full mt-5 items-end">
-                        <div className="flex-shrink-0 w-[180px] h-full flex flex-col items-center justify-end">
-                            {/* Logo arriba de la imagen del post */}
-                            <img
-                                src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-promo.webp`}
-                                alt="Residente Restaurant Promo"
-                                className="mb-10 w-[250px] h-auto object-contain"
-                            />
+                    <div className="flex flex-col items-start">
+                        {/* Logo arriba */}
+                        <img
+                            src={`${urlApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
+                            alt="Residente Restaurant Promo"
+                            className="mb-12 w-[340px] h-auto object-contain mt-2"
+                        />
+                        {/* Imagen y texto lado a lado */}
+                        <div className="flex flex-row items-end">
                             <img
                                 src={giveaway.imagen}
                                 alt={giveaway.titulo}
-                                className="w-full h-full object-cover shadow-[4px_3px_2px_rgba(0,0,0,0.3)] cursor-pointer"
+                                className="w-[180px] h-[268px] object-cover shadow-[4px_3px_2px_rgba(0,0,0,0.3)] cursor-pointer"
                                 onClick={() => navigate(`/notas/${giveaway.id}`)}
                             />
-                        </div>
-                        <div className="flex flex-col flex-1 ml-6 justify-end">
-                            <h2
-                                className="text-black text-[22px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[150px]"
-                                onClick={() => navigate(`/notas/${giveaway.id}`)}
-                            >
-                                {giveaway.titulo}
-                            </h2>
+                            <div className="flex flex-col justify-start ml-4">
+                                <h2
+                                    className="text-white text-[16px] leading-4.5 whitespace-pre-line cursor-pointer max-w-[250px] mr-16"
+                                    onClick={() => navigate(`/notas/${giveaway.id}`)}
+                                >
+                                    {giveaway.titulo}
+                                </h2>
+                            </div>
                         </div>
                     </div>
                     <CarruselDescuentos cupones={cuponesFormateados} />

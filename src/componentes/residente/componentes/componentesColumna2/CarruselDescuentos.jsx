@@ -1,6 +1,7 @@
 //src/componentes/residente/componentes/componentesColumna2/CarruselDescuentos.jsx
 import React, { useState } from "react";
 import TicketPromo from "../../../promociones/componentes/TicketPromo";
+import TicketPromoMini from "../seccionesCategorias/componentes/TicketPromoMini";
 
 const ITEM_WIDTH = 195; // ancho fijo en px
 const VISIBLE_COUNT = 3;
@@ -25,12 +26,12 @@ const CarruselDescuentos = ({ cupones }) => {
     };
 
     return (
-        <div className="py-4 px-0 bg-[#fff300] w-full flex items-center relative overflow-visible ml-9">
+        <div className="py-4 px-0 bg-[black] w-full flex items-center relative overflow-visible ml-4">
             {/* Flecha izquierda */}
             <button
                 onClick={handlePrev}
                 disabled={startIdx === 0}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute left-[-32px] z-10 self-center cursor-pointer"
+                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute left-[-10px] z-10 self-center cursor-pointer"
                 aria-label="Anterior"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -38,7 +39,7 @@ const CarruselDescuentos = ({ cupones }) => {
                 </svg>
             </button>
             <div
-                className="relative overflow-hidden mx-auto"
+                className="relative overflow-hidden ml-auto"
                 style={{ width: `${ITEM_WIDTH * VISIBLE_COUNT}px` }}
             >
                 <div
@@ -52,7 +53,7 @@ const CarruselDescuentos = ({ cupones }) => {
                             key={idx}
                             className="min-w-[195px] max-w-[195px] flex-shrink-0 mx-0"
                         >
-                            <TicketPromo size="small" {...cupon} />
+                            <TicketPromoMini size="small" {...cupon} />
                         </div>
                     ))}
                 </div>
@@ -61,7 +62,7 @@ const CarruselDescuentos = ({ cupones }) => {
             <button
                 onClick={handleNext}
                 disabled={startIdx >= cupones.length - VISIBLE_COUNT}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute right-[-32px] z-10 self-center cursor-pointer"
+                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute right-[-32px] z-10 self-center cursor-pointer"
                 aria-label="Siguiente"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

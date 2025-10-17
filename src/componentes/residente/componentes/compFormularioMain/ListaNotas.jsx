@@ -13,8 +13,14 @@ import { FaBookOpen } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
 import { IoNewspaper } from "react-icons/io5";
+import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
+import MenuIcon from '@mui/icons-material/Menu';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Fade from '@mui/material/Fade';
 
 import FiltroEstadoNota from './FiltroEstadoNota';
 import FiltroTipoCliente from './FiltroTipoCliente';
@@ -27,7 +33,8 @@ import FormNewsletter from "./FormNewsletter.jsx";
 import InfografiaForm from "../../infografia/InfografiaForm.jsx";
 import ListaNotasUanl from "./ListaNotasUanl.jsx";
 import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
-  
+import ListaTickets from "./ListaTickets";
+
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -42,6 +49,7 @@ const ListaNotas = () => {
   const [autor, setAutor] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [todasLasNotas, setTodasLasNotas] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
@@ -81,33 +89,33 @@ const ListaNotas = () => {
 
       // FILTRAR NOTAS POR USUARIO/CLIENTE
       let notasFiltradas = data.notas;
-      
+
       // Si el usuario NO es admin (todos), filtrar por sus notas
       if (usuario?.permisos !== 'todos') {
-        const tipoNotaUsuario = usuario?.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' 
+        const tipoNotaUsuario = usuario?.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo'
           ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
           : '';
-        
+
         if (tipoNotaUsuario) {
           const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
-          
+
           notasFiltradas = data.notas.filter(nota => {
             const tipoNota = (nota.tipo_nota || '').toLowerCase();
             const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
-            
+
             // Buscar coincidencias más flexibles
-            const coincide = tipoNota.includes(tipoNotaUsuarioLower) || 
-                           tipoNota2.includes(tipoNotaUsuarioLower) ||
-                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
-                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
-                           tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
-                           tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
-                           // Para "mama de rocco" específicamente
-                           (tipoNotaUsuarioLower.includes('mama') && tipoNota.includes('mama')) ||
-                           (tipoNotaUsuarioLower.includes('mama') && tipoNota2.includes('mama')) ||
-                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
-                           (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
-            
+            const coincide = tipoNota.includes(tipoNotaUsuarioLower) ||
+              tipoNota2.includes(tipoNotaUsuarioLower) ||
+              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
+              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+              // Para "mama de rocco" específicamente
+              (tipoNotaUsuarioLower.includes('mama') && tipoNota.includes('mama')) ||
+              (tipoNotaUsuarioLower.includes('mama') && tipoNota2.includes('mama')) ||
+              (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
+              (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
+
             return coincide;
           });
         }
@@ -160,7 +168,7 @@ const ListaNotas = () => {
   const mapeoPermisosATipoNota = {
     'mama-de-rocco': 'Mamá de Rocco',
     'barrio-antiguo': 'Barrio Antiguo',
-    
+
   };
 
   // Función para normalizar texto para búsqueda
@@ -266,6 +274,28 @@ const ListaNotas = () => {
     }
   };
 
+  const open = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Opciones del menú
+  const menuOptions = [
+    { key: "notas", label: "Notas", icon: <RiStickyNoteFill className="mr-2" /> },
+    { key: "preguntas", label: "Preguntas", icon: <RiQuestionnaireFill className="mr-2" /> },
+    { key: "revistas", label: "Revistas", icon: <FaBookOpen className="mr-2" /> },
+    { key: "videos", label: "Videos", icon: <IoMdPlay className="mr-2" /> },
+    { key: "newsletter", label: "Newsletter", icon: <IoNewspaper className="mr-2" /> },
+    { key: "infografias", label: "Infografías", icon: <FaLightbulb className="mr-2" /> },
+    { key: "uanl", label: "UANL", icon: <LuUnderline className="mr-2" /> },
+    { key: "usuarios", label: "Usuarios", icon: <FaUser className="mr-2" /> },
+    { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
+  ];
+
   if (cargando) {
     return (
       <div className="flex justify-center py-12">
@@ -306,101 +336,40 @@ const ListaNotas = () => {
         </div>
 
         {/* Menú de pestañas */}
-        <div className="flex gap-5 items-center bg-gray-200 py-2 justify-center rounded-md">
-          <button
-            onClick={() => setVistaActiva("notas")}
-            className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "notas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-              }`}
+        <div className="flex justify-start  py-2 rounded-md">
+          <Button
+            aria-controls={open ? 'fade-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            onClick={handleMenuClick}
+            startIcon={<MenuIcon />}
+            variant="contained"
+            color="inherit"
+            sx={{ backgroundColor: "#ffff", color: "#222" }}
           >
-            <RiStickyNoteFill className="mr-3" />
-            Notas
-          </button>
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("preguntas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "preguntas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-                }`}
-            >
-              <RiQuestionnaireFill className="mr-3" />
-              Preguntas
-            </button>
-          )}
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("revistas")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "revistas" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-                }`}
-            >
-              <FaBookOpen className="mr-3" />
-              Revistas
-            </button>
-          )}
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("videos")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "videos" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-                }`}
-            >
-              {/* <svg
-                className="-ml-1 mr-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+            Menú
+          </Button>
+          <Menu
+            id="fade-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleMenuClose}
+            TransitionComponent={Fade}
+          >
+            {menuOptions.map(option => (
+              <MenuItem
+                key={option.key}
+                onClick={() => {
+                  setVistaActiva(option.key);
+                  handleMenuClose();
+                }}
+                selected={vistaActiva === option.key}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>*/}
-              <IoMdPlay className="mr-3" />
-              Videos
-            </button>
-          )}
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("newsletter")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "newsletter" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-                }`}
-            >
-              <IoNewspaper className="mr-3" />
-              Newsletter
-            </button>
-          )}
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("infografias")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "infografias" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"
-                }`}
-            >
-              <FaLightbulb className="mr-3" />
-              Infografías
-            </button>
-          )}
-
-          {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("uanl")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "uanl" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"}`}
-            >
-              <LuUnderline className="mr-3" />
-              UANL
-            </button>
-          )}
-           {usuario?.permisos === 'todos' && (
-            <button
-              onClick={() => setVistaActiva("usuarios")}
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${vistaActiva === "usuarios" ? "bg-white text-gray-900" : "text-gray-400 cursor-pointer"}`}
-            >
-              <FaUser className="mr-3" />
-              Usuarios
-            </button>
-          )}
+                {option.icon}
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
         </div>
       </div>
 
@@ -484,8 +453,8 @@ const ListaNotas = () => {
                         onClick={irAPaginaAnterior}
                         disabled={paginaActual === 1}
                         className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                           }`}
                       >
                         ← Anterior
@@ -513,8 +482,8 @@ const ListaNotas = () => {
                               key={numero}
                               onClick={() => irAPagina(numero)}
                               className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                                 }`}
                             >
                               {numero}
@@ -528,8 +497,8 @@ const ListaNotas = () => {
                         onClick={irAPaginaSiguiente}
                         disabled={paginaActual === totalPaginas}
                         className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                           }`}
                       >
                         Siguiente →
@@ -543,28 +512,31 @@ const ListaNotas = () => {
         )}
 
         {vistaActiva === "preguntas" && (
-          <div className="text-center py-10 text-lg"><PreguntasSemanales /></div>
+          <div className="text-center text-lg"><PreguntasSemanales /></div>
         )}
 
         {vistaActiva === "revistas" && (
-          <div className="text-center py-10 text-lg"><FormularioRevistaBannerNueva /></div>
+          <div className="text-center text-lg"><FormularioRevistaBannerNueva /></div>
         )}
 
         {vistaActiva === "videos" && (
-          <div className="text-center py-10 text-lg"><VideosDashboard /></div>
+          <div className="text-center text-lg"><VideosDashboard /></div>
         )}
 
         {vistaActiva === "newsletter" && (
-          <div className="text-center py-10 text-lg"><FormNewsletter /></div>
+          <div className="text-center text-lg"><FormNewsletter /></div>
         )}
         {vistaActiva === "infografias" && (
-          <div className="text-center py-10 text-lg"><InfografiaForm /></div>
+          <div className="text-center text-lg"><InfografiaForm /></div>
         )}
         {vistaActiva === "uanl" && (
-          <div className="text-center py-10 text-lg"><ListaNotasUanl /></div>
+          <div className="text-center text-lg"><ListaNotasUanl /></div>
         )}
         {vistaActiva === "usuarios" && (
-          <div className="text-center py-10 text-lg"><ListaNotasUsuarios /></div>
+          <div className="text-center text-lg"><ListaNotasUsuarios /></div>
+        )}
+        {vistaActiva === "cupones" && (
+          <div className="text-center text-lg"><ListaTickets /></div>
         )}
       </div>
     </div>
