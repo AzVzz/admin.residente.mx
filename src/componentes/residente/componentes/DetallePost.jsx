@@ -194,12 +194,15 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                                 {stickers.map(clave => {
                                     const icono = iconosDisponibles.find(i => i.clave === clave);
                                     return icono ? (
-                                        <img
-                                            key={clave}
-                                            src={icono.icono}
-                                            alt={icono.nombre}
-                                            className="h-15 w-15 rounded-full shadow"
-                                        />
+                                        <div key={clave} className="relative">
+                                            <div className="w-15 h-15 bg-black rounded-full flex items-center justify-center">
+                                                <img
+                                                    src={icono.icono}
+                                                    alt={icono.nombre}
+                                                    className="h-10 w-10"
+                                                />
+                                            </div>
+                                        </div>
                                     ) : null;
                                 })}
                             </div>
@@ -231,7 +234,9 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Compartir en WhatsApp"
 								title="Compartir en WhatsApp"
 							>
-								<FaWhatsapp size={35} />
+								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+									<FaWhatsapp size={24} color="white" />
+								</div>
 							</button>
 							<button
 								type="button"
@@ -240,7 +245,9 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Abrir Instagram"
 								title="Abrir Instagram"
 							>
-								<FaInstagram size={35} />
+								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+									<FaInstagram size={24} color="white" />
+								</div>
 							</button>
 							<button
 								type="button"
@@ -249,7 +256,9 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 								aria-label="Copiar URL"
 								title="Copiar URL"
 							>
-								<FaLink size={30} />
+								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+									<FaLink size={20} color="white" />
+								</div>
 								{copied && <span className="ml-1 text-lg">URL copiada</span>}
 							</button>
 						</div>
