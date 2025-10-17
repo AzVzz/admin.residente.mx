@@ -54,10 +54,10 @@ const GiveawayDescuentos = ({ cupones }) => {
                         <img
                             src={`${urlApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
                             alt="Residente Restaurant Promo"
-                            className="mb-8 w-[340px] h-auto object-contain"
+                            className="mb-12 w-[340px] h-auto object-contain mt-2"
                         />
                         {/* Imagen y texto lado a lado */}
-                        <div className="flex flex-row items-end mt-4">
+                        <div className="flex flex-row items-end">
                             <img
                                 src={giveaway.imagen}
                                 alt={giveaway.titulo}
@@ -66,7 +66,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                             />
                             <div className="flex flex-col justify-start ml-6">
                                 <h2
-                                    className="text-white text-[20px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[250px]"
+                                    className="text-white text-[15px] leading-4.5 whitespace-pre-line cursor-pointer max-w-[250px] mr-16"
                                     onClick={() => navigate(`/notas/${giveaway.id}`)}
                                 >
                                     {giveaway.titulo}
