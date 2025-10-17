@@ -38,7 +38,7 @@ const sizeConfig = {
     }
 };
 
-const TicketPromo = forwardRef((props, ref) => {
+const TicketPromoMini = forwardRef((props, ref) => {
     const {
         className = "",
         size = "large", // "large" o "small"
@@ -262,4 +262,4 @@ const TicketPromo = forwardRef((props, ref) => {
     );
 });
 
-export default TicketPromo;
+export default TicketPromoMini;

@@ -66,7 +66,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                             />
                             <div className="flex flex-col justify-start ml-6">
                                 <h2
-                                    className="text-white text-[22px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[250px]"
+                                    className="text-white text-[20px] leading-6.5 whitespace-pre-line cursor-pointer max-w-[250px]"
                                     onClick={() => navigate(`/notas/${giveaway.id}`)}
                                 >
                                     {giveaway.titulo}
