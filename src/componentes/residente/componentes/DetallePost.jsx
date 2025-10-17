@@ -190,16 +190,16 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                                 className="w-full h-full object-cover"
                                 alt={post.titulo}
                             />
-                            <div className="absolute top-5 right-9 flex gap-0 z-10">
+                            <div className="absolute top-5 right-3 flex gap-0 z-10">
 								{stickers.map((clave, idx) => {
                                     const icono = iconosDisponibles.find(i => i.clave === clave);
                                     return icono ? (
-											<div key={clave} className={`relative ${idx > 0 ? '-ml-4' : ''}`}>
+											<div key={clave} className={`relative ${idx > 0 ? '-ml-5' : ''}`}>
                                             <div className="w-20 h-20 rounded-full flex items-center justify-center">
                                                 <img
                                                     src={icono.icono}
                                                     alt={icono.nombre}
-                                                    className="h-15 w-15"
+                                                    className="h-14 w-14"
                                                 />
                                             </div>
                                         </div>
@@ -226,7 +226,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             {post.titulo}
                         </h1>
 						{/* Share actions under title */}
-						<div className="self-center flex items-center justify-center gap-4 mt-5 mb-0">
+						<div className="self-center flex items-center justify-center gap-3 mt-4 mb-2">
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
