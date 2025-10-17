@@ -140,19 +140,27 @@ const PaginaCliente = () => {
                 <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                     {/* Columna Principal */}
                     <div>
-                        <div className="relative flex justify-center items-center mb-2">
+                        <div className="relative flex justify-center items-center mb-0">
                             <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                             <div className="relative z-10">
-                                <div className="flex items-center justify-center">
-                                    <span className="block text-black font-extrabold uppercase text-center text-4xl md:text-4xl leading-none tracking-tight">
-                                        {clienteDisplayName}
-                                    </span>
+                                <div className="flex items-center justify-center ">
+                                    {nombreCliente === 'mama-de-rocco' ? (
+                                        <img 
+                                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/mamá de roco 2.webp`}
+                                            alt="Mama de Rocco"
+                                            className="h-28 w-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="block text-black font-extrabold uppercase text-center text-4xl md:text-4xl leading-none tracking-tight">
+                                            {clienteDisplayName}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6">
-                            <p className="uppercase">Contenido especializado de {clienteDisplayName}</p>
+                        <div className="flex flex-col justify-center items-center text-[15px] mb-4 gap-0 ">
+                            <p className="uppercase">Productos organicos, snacks saludables y productos locales.</p>
                         </div>
 
                         {primeraNota && (

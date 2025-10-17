@@ -9,7 +9,7 @@ const FooterPrincipal = () => {
                 {/* Primera fila: FoodDrinkMedia + iconos sociales */}
                 <div className="flex sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-2">
                     <div className="flex items-center gap-3">
-                        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/fooddrinkmedia-logo-blanco.webp`} alt="FoodDrinkMedia" className="w-full sm:h-10 object-contain" />
+                        <img src={`${urlApi}fotos//p.residente.mx-estaticas/residente-logos/blancos/fooddrinkmedia-logo-blanco.webp`} alt="FoodDrinkMedia" className="w-full sm:h-10 object-contain" />
                     </div>
                     <div className="flex gap-2">
                         <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-auto sm:h-7 h-4 text-white hover:text-gray-400" /></a>
@@ -25,7 +25,7 @@ const FooterPrincipal = () => {
                     <div>
                         <h4 className="mb-3 text-[10px] sm:text-xl leading-3 sm:leading-4">Productos al consumidor</h4>
                         <div className="flex flex-col gap-5">
-                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/magazine-logo-blanco.webp`} alt="Magazine"
+                            <img src={`${urlApi}fotos//p.residente.mx-estaticas/residente-logos/blancos/magazine-logo-blanco.webp`} alt="Magazine"
                                 className="sm:w-25 w-13 h-auto object-contain"
                             />
                             <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} alt="Guia"
