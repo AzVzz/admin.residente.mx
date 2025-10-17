@@ -226,7 +226,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             {post.titulo}
                         </h1>
 						{/* Share actions under title */}
-						<div className="self-center flex items-center justify-center gap-4 mt-5 mb-0">
+						<div className="self-center flex items-center justify-center gap-2 mt-3 mb-0.5">
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
@@ -252,14 +252,18 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 							<button
 								type="button"
 								onClick={handleCopyUrl}
-								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
+								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1 relative"
 								aria-label="Copiar URL"
 								title="Copiar URL"
 							>
 								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
 									<FaLink size={20} color="white" />
 								</div>
-								{copied && <span className="ml-1 text-lg">URL copiada</span>}
+								{copied && (
+									<div className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
+										URL copiada
+									</div>
+								)}
 							</button>
 						</div>
                     </div>
