@@ -190,16 +190,16 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                                 className="w-full h-full object-cover"
                                 alt={post.titulo}
                             />
-                            <div className="absolute top-7 right-9 flex gap-1 z-10">
-                                {stickers.map(clave => {
+                            <div className="absolute top-7 right-9 flex gap-0 z-10">
+								{stickers.map((clave, idx) => {
                                     const icono = iconosDisponibles.find(i => i.clave === clave);
                                     return icono ? (
-                                        <div key={clave} className="relative">
-                                            <div className="w-15 h-15 bg-black rounded-full flex items-center justify-center">
+											<div key={clave} className={`relative ${idx > 0 ? '-ml-4' : ''}`}>
+                                            <div className="w-20 h-20 rounded-full flex items-center justify-center">
                                                 <img
                                                     src={icono.icono}
                                                     alt={icono.nombre}
-                                                    className="h-10 w-10"
+                                                    className="h-15 w-15"
                                                 />
                                             </div>
                                         </div>
@@ -226,7 +226,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             {post.titulo}
                         </h1>
 						{/* Share actions under title */}
-						<div className="self-center flex items-center justify-center gap-2 mt-3 mb-0.5">
+						<div className="self-center flex items-center justify-center gap-4 mt-5 mb-0">
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
@@ -252,18 +252,15 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
 							<button
 								type="button"
 								onClick={handleCopyUrl}
-								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1 relative"
+								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
 								aria-label="Copiar URL"
 								title="Copiar URL"
 							>
 								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
 									<FaLink size={20} color="white" />
 								</div>
-								{copied && (
-									<div className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-										URL copiada
-									</div>
-								)}
+                                
+								
 							</button>
 						</div>
                     </div>
