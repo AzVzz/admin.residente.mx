@@ -39,7 +39,7 @@ const CarruselDescuentos = ({ cupones }) => {
                 </svg>
             </button>
             <div
-                className="relative overflow-hidden mx-auto"
+                className="relative overflow-hidden ml-auto"
                 style={{ width: `${ITEM_WIDTH * VISIBLE_COUNT}px` }}
             >
                 <div
