@@ -31,7 +31,7 @@ const CarruselDescuentos = ({ cupones }) => {
             <button
                 onClick={handlePrev}
                 disabled={startIdx === 0}
-                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute left-[-32px] z-10 self-center cursor-pointer"
+                className="p-2 bg-white rounded-full shadow transition disabled:opacity-50 absolute left-[-10px] z-10 self-center cursor-pointer"
                 aria-label="Anterior"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
