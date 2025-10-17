@@ -55,12 +55,12 @@ const Header = () => {
         <div className="pt-8"> {/*agregue 3 pixeles más*/}
           {/*<BannerHorizontal size="big" />*/}
           <a
-            href="https://residente.mx/fotos/fotos-estaticas/AGENDA_FISL_2025.pdf"
+            href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleBannerClick} // <-- Agrega esto
           >
-            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20SANTA%20LUCÍA.webp" />
+            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg" />
           </a>
         </div>
 
