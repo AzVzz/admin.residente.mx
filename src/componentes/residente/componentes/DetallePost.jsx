@@ -199,7 +199,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                                                 <img
                                                     src={icono.icono}
                                                     alt={icono.nombre}
-                                                    className="h-14 w-14"
+                                                    className="h-15 w-15"
                                                 />
                                             </div>
                                         </div>
