@@ -11,11 +11,29 @@ const Header = () => {
   const [menuHeader, setMenuHeader] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
     // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeDropdown !== null) {
+        const dropdownElement = event.target.closest('.dropdown-container');
+        if (!dropdownElement) {
+          setActiveDropdown(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [activeDropdown]);
 
   const handleSearchToggle = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -45,6 +63,14 @@ const Header = () => {
         value: 1
       });
     }
+  };
+
+  const handleDropdownToggle = (idx) => {
+    setActiveDropdown(activeDropdown === idx ? null : idx);
+  };
+
+  const handleDropdownClose = () => {
+    setActiveDropdown(null);
   };
 
   return (
@@ -104,12 +130,21 @@ const Header = () => {
                     ) : (
                       <div
                         key={idx}
-                        className="relative group"
+                        className="relative group dropdown-container"
                       >
-                        <a href="#" className="hover:underline text-black font-roman">{section.seccion}</a>
+                        <button 
+                          onClick={() => handleDropdownToggle(idx)}
+                          className="hover:underline text-black font-roman bg-transparent border-none cursor-pointer"
+                        >
+                          {section.seccion}
+                        </button>
                         {/* Submenú desplegable */}
                         {section.submenu && (
-                          <div className="absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 backdrop-blur-xs">
+                          <div className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
+                            activeDropdown === idx 
+                              ? 'opacity-100 visible' 
+                              : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+                          }`}>
                             <ul>
                               {section.submenu.map((item, subIdx) => (
                                 <li key={subIdx}>
@@ -118,6 +153,7 @@ const Header = () => {
                                     rel="noopener noreferrer"
                                     className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
                                     target={item.url.startsWith('http') ? '_blank' : undefined}
+                                    onClick={handleDropdownClose}
                                   >
                                     {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
                                   </a>
