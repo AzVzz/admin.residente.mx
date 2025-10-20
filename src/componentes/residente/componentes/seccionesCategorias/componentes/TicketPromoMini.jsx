@@ -28,7 +28,7 @@ const sizeConfig = {
             promo: { initial: 102, min: 14 },
             sub: { initial: 62, min: 10 }
         },
-        description: "leading-[19px] text-[18px]", // Ajuste de línea y tamaño para la descripción en modo pequeño
+        description: "leading-[16px] text-[14px]", // Ajuste de línea y tamaño para la descripción en modo pequeño
         validity: "text-[14px] py-0.4",
         barcode: "h-8",
         sticker: "absolute top-4 right-[-10px] w-11 h-11",

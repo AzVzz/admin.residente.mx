@@ -46,13 +46,13 @@ const FormMainResidente = () => {
   // Determina el tipo de nota por el permiso del usuario
   // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
   const tipoNotaUsuario = usuario ? (
-    tipoNotaPorPermiso[usuario.permisos] || 
-    (usuario.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' && usuario.permisos !== 'todos' 
+    tipoNotaPorPermiso[usuario.permisos] ||
+    (usuario.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' && usuario.permisos !== 'todos'
       ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
       : '')
   ) : '';
 
-  
+
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -341,14 +341,14 @@ const FormMainResidente = () => {
         : data.opcionPublicacion === 'borrador'
           ? 'borrador'
           : 'publicada';
-   
-        } else {
-          estadoFinal = data.opcionPublicacion === 'programar'
-            ? 'programada'
-            : data.opcionPublicacion === 'borrador'
-              ? 'borrador'
-              : 'publicada';
-        } 
+
+    } else {
+      estadoFinal = data.opcionPublicacion === 'programar'
+        ? 'programada'
+        : data.opcionPublicacion === 'borrador'
+          ? 'borrador'
+          : 'publicada';
+    }
 
     try {
       const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
@@ -381,15 +381,8 @@ const FormMainResidente = () => {
       }
 
 
-      // Guardar nombre_restaurante SOLO si es Restaurantes y destacada
-      if (
-        (tipoNotaFinal === "Restaurantes" || tipoNotaFinal === "Food & Drink") &&
-        datosNota.destacada
-      ) {
-        datosNota.nombre_restaurante = data.nombre_restaurante || null;
-      } else {
-        datosNota.nombre_restaurante = null;
-      }
+      // Guardar nombre_restaurante SIEMPRE
+      datosNota.nombre_restaurante = data.nombre_restaurante || null;
 
       let resultado;
       if (notaId) {
