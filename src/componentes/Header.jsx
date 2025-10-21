@@ -133,8 +133,9 @@ const Header = () => {
                 <div className="sm:flex gap-1.5 hidden items-center">
                   {!isSearchOpen ? (
                     <>
-                      <a href="/b2b">
-                        <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" alt="B2B" />
+                    {/*se quito el href y el cursor pointer*/}
+                      <a>
+                        <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b" alt="B2B" />
                       </a>
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>

@@ -45,6 +45,13 @@ const ListadoBannerRevista = ({
             .catch(() => setGiveaway(null));
     }, []);
 
+    // Configuración para los buscadores de Notas
+    const buscadorConfig = [
+        { tipo: "Food & Drink", keyword: "cafes", img: "cafe-independiente-de-nl.webp" },
+        { tipo: "Antojos", keyword: "cantinas", img: "ruta-de-las-cantinas.webp" },
+        { tipo: "Antojos", keyword: "taquerias", img: "taquerias.webp" }
+    ];
+
     return (
         <div className="flex flex-col">
             {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
@@ -211,29 +218,53 @@ const ListadoBannerRevista = ({
                                     {/*<SeccionesPrincipales />*/}
                                     <GiveawayDescuentos cupones={cupones} />
                                 </div>
+                                {/* cafes */}
+                                {buscadorConfig.filter(cfg => cfg.tipo === "Food & Drink").map(cfg => (
+                                    <React.Fragment key={cfg.keyword}>
+                                        <div className="relative flex justify-center items-center mb-4 mt-8">
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                                                <div className="flex flex-row justify-center items-center gap-3">
+                                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pb-5">
+                                            <CincoNotasBuscador
+                                                keywords={cfg.keyword}
+                                                limit={6}
+                                                onCardClick={(nota) => handleCardClick(nota.id)}
+                                            />
+                                        </div>
+                                    </React.Fragment>
+                                ))}
                             </>
                         )}
 
                         {tipo === "Antojos" && (
                             <>
+                                {/* cantinas y Taquerias */}
+                                {buscadorConfig.filter(cfg => cfg.tipo === "Antojos").map(cfg => (
+                                    <React.Fragment key={cfg.keyword}>
+                                        <div className="relative flex justify-center items-center mb-4 mt-8">
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                                                <div className="flex flex-row justify-center items-center gap-3">
+                                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pb-5">
+                                            <CincoNotasBuscador
+                                                keywords={cfg.keyword}
+                                                limit={10}
+                                                onCardClick={(nota) => handleCardClick(nota.id)}
+                                            />
+                                        </div>
+                                    </React.Fragment>
+                                ))}
                                 <div className="my-2">
                                     <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
-                                </div>
-                                {/* Notas de cantinas */}
-                                <div className="relative flex justify-center items-center mb-4 mt-8">
-                                    <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
-                                    <div className="relative z-10 px-4 bg-[#DDDDDE]">
-                                        <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/ruta-de-las-cantinas.webp`} className="w-full h-10 object-contain" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="pb-5">
-                                    <CincoNotasBuscador
-                                        keywords="cantinas"
-                                        limit={6}
-                                        onCardClick={(nota) => handleCardClick(nota.id)}
-                                    />
                                 </div>
                             </>
                         )}
