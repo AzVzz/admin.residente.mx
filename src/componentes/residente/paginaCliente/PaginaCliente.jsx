@@ -148,7 +148,7 @@ const PaginaCliente = () => {
                                         <img 
                                             src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/mamá de roco 2.webp`}
                                             alt="Mama de Rocco"
-                                            className="h-28 w-full object-cover"
+                                            className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-full object-contain"
                                         />
                                     ) : (
                                         <span className="block text-black font-extrabold uppercase text-center text-4xl md:text-4xl leading-none tracking-tight">
