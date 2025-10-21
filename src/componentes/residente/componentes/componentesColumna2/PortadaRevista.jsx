@@ -65,10 +65,6 @@ const PortadaRevista = () => {
                         className="h-auto sm:w-32 w-22 object-cover"
                     />
                 )}
-
-
-                {/* Ícono de descarga en posición absoluta */}
-
             </div>
         </div>
     )

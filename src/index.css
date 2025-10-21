@@ -55,28 +55,6 @@
   --font-family-serif: sans-serif;
 }
 
-/*
-h1, h2, h3 {
-  font-family: 'NeueHaasGroteskDisplayW02Bold', sans-serif;
-  font-weight: bold;
-}
-
-p, li, span {
-  font-family: 'NeueHaasGroteskDisplayPro55Roman', sans-serif;
-} */
-
-/*b, strong {
-  font-family: 'NeueHaasGroteskDisplayPro75Bold', sans-serif;
-}*/
-
-/** {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}*/
-
-
-
 :root {
   --font-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
   --font-roman: "NeueHaasGroteskDisplayPro55Roman", sans-serif;

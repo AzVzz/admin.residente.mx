@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { getUltimaInfografia } from "../../../api/infografiaApi";
-import { urlApi } from '../../../../componentes/api/url.js'
+import { urlApi } from '../../../../componentes/api/url.js';
+
 const Infografia = () => {
     const navigate = useNavigate();
     const [ultima, setUltima] = useState(null);
