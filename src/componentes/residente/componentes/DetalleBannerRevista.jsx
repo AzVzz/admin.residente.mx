@@ -158,7 +158,7 @@ const DetalleBannerRevista = ({
 
             {tipo === "Antojos" && (
                 <>
-                    <VideosHorizontal />
+                    {/*<VideosHorizontal />*/}
                     <SeccionesPrincipales />
                 </>
             )}

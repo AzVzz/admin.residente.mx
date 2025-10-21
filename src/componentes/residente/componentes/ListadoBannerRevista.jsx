@@ -47,9 +47,9 @@ const ListadoBannerRevista = ({
 
     // Configuración para los buscadores de Notas
     const buscadorConfig = [
-        { tipo: "Food & Drink", keyword: "cafes", img: "cafe-independiente-de-nl.webp" },
+        { tipo: "Antojos", keyword: "taquerias", img: "taquerias-iconicas.webp" },
         { tipo: "Antojos", keyword: "cantinas", img: "ruta-de-las-cantinas.webp" },
-        { tipo: "Antojos", keyword: "taquerias", img: "taquerias-iconicas.webp" }
+        { tipo: "Antojos", keyword: "cafes", img: "cafe-independiente-de-nl.webp" }
     ];
 
     return (
@@ -214,25 +214,6 @@ const ListadoBannerRevista = ({
                                 <div className="pb-5">
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
-                                {/* cafes */}
-                                {buscadorConfig.filter(cfg => cfg.tipo === "Food & Drink").map(cfg => (
-                                    <React.Fragment key={cfg.keyword}>
-                                        <div className="relative flex justify-center items-center mb-4 mt-2">
-                                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
-                                                <div className="flex flex-row justify-center items-center gap-3">
-                                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="pb-5">
-                                            <CincoNotasBuscador
-                                                keywords={cfg.keyword}
-                                                limit={6}
-                                                onCardClick={(nota) => handleCardClick(nota.id)}
-                                            />
-                                        </div>
-                                    </React.Fragment>
-                                ))}
                                 <div className="my-2">
                                     {/*<SeccionesPrincipales />*/}
                                     <GiveawayDescuentos cupones={cupones} />
@@ -245,14 +226,15 @@ const ListadoBannerRevista = ({
                                 {/* cantinas y Taquerias */}
                                 {buscadorConfig.filter(cfg => cfg.tipo === "Antojos").map(cfg => (
                                     <React.Fragment key={cfg.keyword}>
-                                        <div className="relative flex justify-center items-center mb-4 mt-8">
+                                        <div className="relative flex justify-center items-center mb-2 mt-8">
+                                            <div className="absolute left-0 right-0 top-1/2 border-t-1 border-black opacity-100 z-0" />
                                             <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                                 <div className="flex flex-row justify-center items-center gap-3">
                                                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="pb-5">
+                                        <div className="pb-0">
                                             <CincoNotasBuscador
                                                 keywords={cfg.keyword}
                                                 limit={10}
@@ -266,6 +248,7 @@ const ListadoBannerRevista = ({
                                 </div>
                             </>
                         )}
+
                         {/*tipo === "Gastro-Destinos" && (
                             <div className="my-2">
                                 <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />

@@ -182,7 +182,7 @@ const NotasAcervo = ({ onCardClick }) => {
     };
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff200] mb-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff200] mt-10">
             <div className="max-w-[1080px] mx-auto h-88 py-10">
 
                 <div className="flex items-end leading-8 mb-6">
