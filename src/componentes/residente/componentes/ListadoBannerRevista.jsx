@@ -47,7 +47,7 @@ const ListadoBannerRevista = ({
 
     // Configuración para los buscadores de Notas
     const buscadorConfig = [
-        { tipo: "Antojos", keyword: "taquerias", img: "taquerias-iconicas.webp" },
+        { tipo: "Antojos", keyword: "taquerias iconicas", img: "taquerias-iconicas.webp" },
         { tipo: "Antojos", keyword: "cantinas", img: "ruta-de-las-cantinas.webp" },
         { tipo: "Antojos", keyword: "cafes", img: "cafe-independiente-de-nl.webp" }
     ];
