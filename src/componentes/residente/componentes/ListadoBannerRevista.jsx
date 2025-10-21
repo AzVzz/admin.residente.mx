@@ -49,7 +49,7 @@ const ListadoBannerRevista = ({
     const buscadorConfig = [
         { tipo: "Food & Drink", keyword: "cafes", img: "cafe-independiente-de-nl.webp" },
         { tipo: "Antojos", keyword: "cantinas", img: "ruta-de-las-cantinas.webp" },
-        { tipo: "Antojos", keyword: "taquerias", img: "taquerias.webp" }
+        { tipo: "Antojos", keyword: "taquerias", img: "taquerias-iconicas.webp" }
     ];
 
     return (
@@ -198,7 +198,7 @@ const ListadoBannerRevista = ({
                         )}
                         {tipo === "Antojos" && (
                             <>
-                                <VideosHorizontal />
+                                {/*<VideosHorizontal />*/}
                             </>
                         )}
                         {tipo === "Food & Drink" && (
@@ -214,15 +214,10 @@ const ListadoBannerRevista = ({
                                 <div className="pb-5">
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
-                                <div className="my-2">
-                                    {/*<SeccionesPrincipales />*/}
-                                    <GiveawayDescuentos cupones={cupones} />
-                                </div>
                                 {/* cafes */}
                                 {buscadorConfig.filter(cfg => cfg.tipo === "Food & Drink").map(cfg => (
                                     <React.Fragment key={cfg.keyword}>
-                                        <div className="relative flex justify-center items-center mb-4 mt-8">
-                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                                        <div className="relative flex justify-center items-center mb-4 mt-2">
                                             <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                                 <div className="flex flex-row justify-center items-center gap-3">
                                                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
@@ -238,6 +233,10 @@ const ListadoBannerRevista = ({
                                         </div>
                                     </React.Fragment>
                                 ))}
+                                <div className="my-2">
+                                    {/*<SeccionesPrincipales />*/}
+                                    <GiveawayDescuentos cupones={cupones} />
+                                </div>
                             </>
                         )}
 
@@ -247,7 +246,6 @@ const ListadoBannerRevista = ({
                                 {buscadorConfig.filter(cfg => cfg.tipo === "Antojos").map(cfg => (
                                     <React.Fragment key={cfg.keyword}>
                                         <div className="relative flex justify-center items-center mb-4 mt-8">
-                                            <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                             <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                                 <div className="flex flex-row justify-center items-center gap-3">
                                                     <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
@@ -263,7 +261,7 @@ const ListadoBannerRevista = ({
                                         </div>
                                     </React.Fragment>
                                 ))}
-                                <div className="my-2">
+                                <div className="mt-2">
                                     <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
                             </>

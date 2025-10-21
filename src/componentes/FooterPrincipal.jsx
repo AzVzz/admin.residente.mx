@@ -4,7 +4,7 @@ import { urlApi } from './api/url';
 
 const FooterPrincipal = () => {
     return (
-        <footer className="bg-[#3b3b3c] text-white py-8 mt-8">
+        <footer className="bg-[#3b3b3c] text-white py-8">
             <div className="max-w-[1080px] mx-auto px-4">
                 {/* Primera fila: FoodDrinkMedia + iconos sociales */}
                 <div className="flex sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-2">
