@@ -57,8 +57,8 @@ const getTipoNotaIcon = (nota) => {
             );
         case 'antojos':
             return (
-                <div className={`${iconClass} bg-orange-500`} title="Antojos">
-                    ANTOJOS
+                <div className={`${iconClass} bg-yellow-300`} title="Antojos">
+                    ANTOJERIA
                 </div>
             );
         case 'gastro-destinos':
