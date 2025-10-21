@@ -18,6 +18,7 @@ const opcionesDefault = [
     { value: 'Gastro-Destinos', label: 'Gastro-Destinos' },
     { value: 'Residente', label: 'Residente' },
     { value: 'Acervo', label: 'Acervo' },
+    { value: 'Giveaway', label: 'Giveaway' },
     { value: 'B2B', label: 'B2B' }
 ];
 

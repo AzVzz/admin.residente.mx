@@ -1,5 +1,121 @@
 import { Link } from "react-router-dom";
 
+// Función para obtener el icono según el tipo de nota
+const getTipoNotaIcon = (nota) => {
+    const iconClass = "w-45 h-full rounded-bl-lg flex items-center justify-center text-white font-bold text-lg shadow-lg px-2 py-1";
+    
+    // Buscar el tipo de nota en diferentes campos
+    let tipoNota = nota.tipoNota || nota.tipo_nota;
+    
+    // Si no hay tipo_nota directo, buscar en secciones_categorias
+    if (!tipoNota && nota.secciones_categorias && nota.secciones_categorias.length > 0) {
+        const primeraSeccion = nota.secciones_categorias[0];
+        tipoNota = primeraSeccion.seccion?.toLowerCase();
+    }
+    
+    // Mapear nombres comunes a los tipos esperados
+    if (tipoNota) {
+        tipoNota = tipoNota.toLowerCase();
+        if (tipoNota.includes('restaurante')) tipoNota = 'restaurantes';
+        if (tipoNota.includes('food') || tipoNota.includes('drink')) tipoNota = 'food-drink';
+        if (tipoNota.includes('antoj')) tipoNota = 'antojos';
+        if (tipoNota.includes('gastro') || tipoNota.includes('destino')) tipoNota = 'gastro-destinos';
+        if (tipoNota.includes('barrio') || tipoNota.includes('antiguo')) tipoNota = 'barrio-antiguo';
+        if (tipoNota.includes('mama') || tipoNota.includes('rocco')) tipoNota = 'mama-de-rocco';
+        if (tipoNota.includes('brayanbby')) tipoNota = 'brayanbby';
+    }
+    
+    // Función para generar colores automáticamente basados en el nombre
+    const generateColorFromName = (name) => {
+        const colors = [
+            'bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 
+            'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500',
+            'bg-orange-500', 'bg-cyan-500', 'bg-lime-500', 'bg-amber-500',
+            'bg-emerald-500', 'bg-violet-500', 'bg-rose-500', 'bg-sky-500'
+        ];
+        
+        // Generar un hash simple del nombre para obtener un color consistente
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = ((hash << 5) - hash + name.charCodeAt(i)) & 0xffffffff;
+        }
+        return colors[Math.abs(hash) % colors.length];
+    };
+    
+    switch (tipoNota) {
+        case 'restaurantes':
+            return (
+                <div className={`${iconClass} bg-red-500`} title="Restaurantes">
+                    RESTAURANTES
+                </div>
+            );
+        case 'food-drink':
+            return (
+                <div className={`${iconClass} bg-blue-500`} title="Food & Drink">
+                    FOOD & DRINK
+                </div>
+            );
+        case 'antojos':
+            return (
+                <div className={`${iconClass} bg-orange-500`} title="Antojos">
+                    ANTOJOS
+                </div>
+            );
+        case 'gastro-destinos':
+            return (
+                <div className={`${iconClass} bg-green-500`} title="Gastro-Destinos">
+                    GASTRO-DESTINOS
+                </div>
+            );
+        case 'barrio-antiguo':
+            return (
+                <div className={`${iconClass} bg-purple-500`} title="Barrio Antiguo">
+                    BARRIO ANTIGUO
+                </div>
+            );
+        case 'mama-de-rocco':
+            return (
+                <div className={`${iconClass} bg-pink-500`} title="Mama de Rocco">
+                    MAMA DE ROCCO
+                </div>
+            );
+        case 'residente':
+            return (
+                <div className={`${iconClass} bg-green-500`} title="Residente">
+                    RESIDENTE
+                </div>
+            );
+        case 'acervo':
+            return (
+                <div className={`${iconClass} bg-yellow-500`} title="Acervo">
+                    ACERVO
+                </div>
+            );
+        case 'b2b':
+            return (
+                <div className={`${iconClass} bg-red-500`} title="B2B">
+                    B2B
+                </div>
+            );
+        case 'brayanbby':
+            return (
+                <div className={`${iconClass} bg-indigo-500`} title="Brayanbby">
+                    BRAYANBBY
+                </div>
+            );
+        default:
+            // Para clientes nuevos o desconocidos, usar el nombre con color automático
+            const nombreCliente = tipoNota || 'General';
+            const colorAuto = generateColorFromName(nombreCliente);
+            
+            return (
+                <div className={`${iconClass} ${colorAuto}`} title={nombreCliente}>
+                    {nombreCliente}
+                </div>
+            );
+    }
+};
+
 const NotaCard = ({ nota, onEliminar, eliminando }) => (
     <Link to={`/notas/editar/${nota.id}`}>
         <div
@@ -21,25 +137,26 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             />
             {/* Contenido encima de la imagen */}
             <div className="flex flex-col justify-between items-end h-full relative z-10">
+                {/* Icono de tipo de nota en esquina superior derecha */}
+                <div className="absolute top-0 right-0 z-20">
+                    {getTipoNotaIcon(nota)}
+                </div>
                 {/* Datos arriba */}
-                <div className="w-full flex items-center flex-col bg-white/20 backdrop-blur-xs p-2">
-                    <div className="px-2 pt-2 w-full flex items-center gap-2 justify-between">
+                <div className="w-full flex items-center flex-col p-2">
+                    <div className="px-2 pt-2 w-full flex flex-col gap-0">
                         <span
-                            className={`px-2 py-1 text-xs rounded-full ${nota.estatus === "publicada"
+                            className={`px-2 py-1 text-xs rounded-full w-fit ${nota.estatus === "publicada"
                                 ? "bg-green-100 text-green-800"
                                 : "bg-yellow-100 text-yellow-800"
                                 }`}
                         >
                             {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
                         </span>
-                        <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-white/55 backdrop-blur-md text-gray-900 drop-shadow inline-block w-auto">
+                        <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
                             {nota.fecha}
                         </span>
-                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">vistas: {nota.vistas}</span>
-
-                    </div>
-                    <div className="px-2 pt-2 w-full flex items-center gap-2">
-                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/55 backdrop-blur-md text-white drop-shadow inline-block w-auto">Ultimo autor: {nota.autor}</span>
+                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">vistas: {nota.vistas}</span>
+                        <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">Ultimo autor: {nota.autor}</span>
                     </div>
                 </div>
                 {/* Título abajo en recuadro blanco borroso */}
@@ -55,7 +172,7 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
                             </span>
                         </div>
                     )}
-                    <div className="bg-white/60 backdrop-blur-md p-2">
+                    <div className="bg-white p-2">
                         <h2 className="text-base font-bold text-gray-900 mb-1 leading-4.5">
                             {nota.titulo}
                         </h2>
