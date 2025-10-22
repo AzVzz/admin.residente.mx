@@ -170,7 +170,7 @@ const ListadoBannerRevista = ({
                                 <div className="pt-3">
                                     <BotonesAnunciateSuscribirme />
                                 </div>
-                                <Infografia />
+                                {/*<Infografia />*/}
                             </div>
                         </div>
                         {tipo === "Restaurantes" && (
