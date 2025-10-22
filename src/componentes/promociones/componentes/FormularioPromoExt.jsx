@@ -20,11 +20,18 @@ const FormularioPromoExt = ({ onStickerSelect, stickerSeleccionado, maxStickers 
         onStickerSelect(currentSelection);
     };
 
+    // Verificar si no hay ícono seleccionado
+    const noIconSelected = !stickerSeleccionado || stickerSeleccionado.length === 0;
+
     return (
         <div>
             <div className="bg-white p-5 rounded-xl">
                 <div className="flex flex-col pb-5">
                     <label className="block text-4xl font-medium text-gray-950 mb-1 pb-4">Elige stickers para tu cupón ! *</label>
+                    {/* Mensaje de error */}
+                    {noIconSelected && (
+                        <p className="text-red-500 text-lg mb-2">⚠️ Falta ícono a elegir</p>
+                    )}
                     <h4 className="pb-2">Lo dice la crítica</h4>
                     <div className="flex flex-row justify-evenly w-full h-auto rounded-full items-center">
                         {Iconografia.categorias.map(categoria => (

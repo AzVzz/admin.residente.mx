@@ -239,7 +239,7 @@ const ListadoBannerRevista = ({
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="pb-0">
+                                        <div className="pb-4">
                                             <CincoNotasBuscador
                                                 keywords={cfg.keyword}
                                                 limit={10}
