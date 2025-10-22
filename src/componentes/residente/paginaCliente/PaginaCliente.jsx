@@ -1,12 +1,10 @@
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { notasPorTipoNota, catalogoNotasGet } from "../../api/notasPublicadasGet";
-import { useClientesValidos } from "../../../hooks/useClientesValidos";
+import { catalogoNotasGet } from "../../api/notasPublicadasGet";
 
 import PostPrincipal from '../componentes/componentesColumna2/PostPrincipal';
 import TresTarjetas from '../componentes/componentesColumna2/TresTarjetas';
 import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical.jsx";
-import SeccionesPrincipales from "../componentes/SeccionesPrincipales.jsx";
 import PortadaRevista from "../componentes/componentesColumna2/PortadaRevista.jsx";
 import MainLateralPostTarjetas from "../componentes/componentesColumna2/MainLateralPostTarjetas.jsx";
 import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/BotonesAnunciateSuscribirme.jsx";
@@ -17,7 +15,6 @@ import { urlApi } from "../../api/url.js";
 const PaginaCliente = () => {
     const { nombreCliente } = useParams();
     const navigate = useNavigate();
-    const { clientesValidos, loading: clientesLoading } = useClientesValidos();
     const [notas, setNotas] = useState([]);
     const [cargando, setCargando] = useState(true);
 
@@ -42,10 +39,6 @@ const PaginaCliente = () => {
 
     // Obtener notas destacadas (top 5)
     const notasTop = notas.slice(0, 5);
-
-    // Fallback para clientes válidos
-    const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco"];
-    const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
     useEffect(() => {
         setCargando(true);
@@ -122,12 +115,7 @@ const PaginaCliente = () => {
         cargarNotasFiltradas();
     }, [nombreCliente]);
 
-    if (cargando || clientesLoading) return <div>Cargando...</div>;
-
-    // Verificar si es un cliente válido
-    if (!listaClientes.includes(nombreCliente)) {
-        return <Navigate to="*" replace />;
-    }
+    if (cargando) return <div>Cargando...</div>;
 
     // Separa la primera nota y el resto
     const [primeraNota, ...restoNotas] = notas;
