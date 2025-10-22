@@ -83,7 +83,7 @@ function App() {
   const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
   // Fallback para clientes válidos
-  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco"];
   const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
   useEffect(() => {
@@ -282,8 +282,8 @@ function App() {
               <Route path="/plantilla" element={
                 <div className="max-w-[1080px] mx-auto">
                   <PlantillaNotas
-                    posts={notasPrueba}
-                    notasDestacadas={notasPrueba}
+                    posts={[...notasPrueba]}
+                    notasDestacadas={[...notasPrueba]}
                     handleCardClick={() => {}}
                   />
                 </div>
