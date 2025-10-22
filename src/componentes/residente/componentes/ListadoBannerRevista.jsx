@@ -7,6 +7,7 @@ import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjet
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import CincoNotasBuscador from './seccionesCategorias/componentes/CincoNotasBuscador.jsx';
+import CincoInfografiasRRR from './seccionesCategorias/componentes/CincoInfografiasRRR.jsx';
 import EnPortada from './componentesColumna2/EnPortada';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
@@ -213,6 +214,10 @@ const ListadoBannerRevista = ({
                                 </div>
                                 <div className="pb-5">
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
+                                </div>
+
+                                <div className="pb-5">
+                                    <CincoInfografiasRRR />
                                 </div>
                                 <div className="my-2">
                                     {/*<SeccionesPrincipales />*/}
