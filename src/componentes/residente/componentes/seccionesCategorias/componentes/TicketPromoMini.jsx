@@ -19,6 +19,8 @@ const sizeConfig = {
         perforatedTop: "w-90",
         perforatedBottom: "w-90"
     },
+    
+    /* Configuración para el tamaño pequeño */
     small: {
         container: "w-45 min-h-84 max-h-84",
         padding: "px-2 pt-1 pb-1",
@@ -28,9 +30,9 @@ const sizeConfig = {
             promo: { initial: 102, min: 14 },
             sub: { initial: 62, min: 10 }
         },
-        description: "leading-[16px] text-[14px]", // Ajuste de línea y tamaño para la descripción en modo pequeño
-        validity: "text-[14px] py-0.4",
-        barcode: "h-8",
+        description: "leading-[16px] text-[12px]", // Ajuste de línea y tamaño para la descripción en modo pequeño
+        validity: "text-[11px] py-1",
+        barcode: "h-6",
         sticker: "absolute top-4 right-[-10px] w-11 h-11",
         perforatedTop: "w-45",
         perforatedBottom: "w-45",

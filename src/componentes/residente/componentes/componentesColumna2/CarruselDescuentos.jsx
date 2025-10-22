@@ -1,6 +1,5 @@
 //src/componentes/residente/componentes/componentesColumna2/CarruselDescuentos.jsx
 import React, { useState } from "react";
-import TicketPromo from "../../../promociones/componentes/TicketPromo";
 import TicketPromoMini from "../seccionesCategorias/componentes/TicketPromoMini";
 
 const ITEM_WIDTH = 195; // ancho fijo en px
