@@ -35,7 +35,7 @@ export default function CincoNotasBuscador({
   limit = 6,
   onCardClick
 }) {
-  const [notas, setNotas] = useState(Array.isArray(notasProp) ? notasProp : []);
+  const [notas, setNotas] = useState(Array.isArray(notasProp) ? [...notasProp] : []);
   const [perView, setPerView] = useState(NOTAS_POR_VISTA_DESKTOP);
   const [itemWidth, setItemWidth] = useState(0);
   const viewportRef = useRef(null);
@@ -44,7 +44,7 @@ export default function CincoNotasBuscador({
   useEffect(() => {
     let mounted = true;
     if (Array.isArray(notasProp) && notasProp.length > 0) {
-      setNotas(notasProp);
+      setNotas([...notasProp]);
       return () => { mounted = false; };
     }
 

@@ -23,7 +23,7 @@ const B2BMain = ({ notasResidenteGet }) => {
 
     const tipoConfig = {
         tipoLogo: "fotos/fotos-estaticas/residente-logos/negros/b2b.webp",
-        marqueeTexto: ""
+        marqueeTexto: "Informacion financiera y negocios de la industria gastronomica"
     };
     const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
     const tipoLabel = "B2B";
@@ -33,22 +33,22 @@ const B2BMain = ({ notasResidenteGet }) => {
         notasPorTipoNota("B2B")
             .then(data => {
                 const ordenadas = Array.isArray(data)
-                    ? data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                    ? [...data].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
                     : [];
                 setPosts(ordenadas);
             })
             .catch(() => setPosts([]));
         notasDestacadasPorTipoGet("B2B")
-            .then(data => setNotasDestacadas(Array.isArray(data) ? data : []))
+            .then(data => setNotasDestacadas(Array.isArray(data) ? [...data] : []))
             .catch(() => setNotasDestacadas([]));
         notasDestacadasTopGet()
             .then(data => {
-                const topB2B = Array.isArray(data) ? data.filter(nota => nota.tipo_nota === "B2B") : [];
+                const topB2B = Array.isArray(data) ? [...data].filter(nota => nota.tipo_nota === "B2B") : [];
                 setNotasTop(topB2B);
             })
             .catch(() => setNotasTop([]));
         cuponesGet()
-            .then(data => setCupones(Array.isArray(data) ? data : []))
+            .then(data => setCupones(Array.isArray(data) ? [...data] : []))
             .catch(() => setCupones([]));
     }, []);
 
@@ -61,7 +61,7 @@ const B2BMain = ({ notasResidenteGet }) => {
     return (
         <div className="flex flex-col">
             <div className="flex flex-col pt-9" id="b2b">
-                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9 mb-10">
                     {/* Columna Principal */}
                     <div>
                         {/* Logo y texto arriba, igual que ListadoBannerRevista */}
@@ -73,7 +73,7 @@ const B2BMain = ({ notasResidenteGet }) => {
                                         <img
                                             src={tipoLogo}
                                             alt={tipoLabel}
-                                            className="h-auto w-45 object-contain"
+                                            className="h-auto w-35 object-contain"
                                         />
                                     ) : (
                                         <span

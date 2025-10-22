@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { revistaGetUltima } from "./api/revistasGet";
 import { urlApi } from './api/url';
@@ -8,6 +8,7 @@ import BannerHorizontal from "./residente/componentes/BannerHorizontal";
 import SearchResults from "./SearchResults";
 
 const Header = () => {
+  const location = useLocation();
   const [menuHeader, setMenuHeader] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,6 +66,16 @@ const Header = () => {
     }
   };
 
+  const handleHeyBancoBannerClick = () => {
+    if (window.gtag) {
+      window.gtag('event', 'click', {
+        event_category: 'Banner',
+        event_label: 'HeyBanco',
+        value: 1
+      });
+    }
+  };
+
   const handleDropdownToggle = (idx) => {
     setActiveDropdown(activeDropdown === idx ? null : idx);
   };
@@ -80,14 +91,20 @@ const Header = () => {
 
         <div className="pt-8"> {/*agregue 3 pixeles más*/}
           {/*<BannerHorizontal size="big" />*/}
-          <a
-            href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleBannerClick} // <-- Agrega esto
-          >
-            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg" />
-          </a>
+          {location.pathname === '/heybanco' ? (
+            <a>
+              <img src="https://residente.mx/fotos/fotos-estaticas/BANNER HeyBanco.webp" alt="Banner HeyBanco" />
+            </a>
+          ) : (
+            <a
+              href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleBannerClick}
+            >
+              <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg" alt="Banner Principal" />
+            </a>
+          )}
         </div>
 
 
@@ -170,9 +187,10 @@ const Header = () => {
                   {!isSearchOpen ? (
                     <>
                     {/*se quito el href y el cursor pointer*/}
-                      <a>
+                      <a href="/B2b">
                         <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b" alt="B2B" />
                       </a>
+                      
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>

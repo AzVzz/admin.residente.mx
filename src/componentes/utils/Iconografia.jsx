@@ -9,6 +9,7 @@ export const Iconografia = {
         { nombre: "Nuevo", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/new.webp`, clave: "newIcon" },
         { nombre: "Memorable", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/estrellas.webp`, clave: "estrellas" },
         { nombre: "Calidad", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/calidad.webp`, clave: "calidad" },
+        { nombre: "Hey Banco", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/LOGO HEY,.webp`, clave: "Logo Hey Banco" },
         { nombre: "Calidad Precio", icono: `${urlApi}fotos/fotos-estaticas/componente-iconos/calidad-precio.webp`, clave: "calidadPrecio" },
     ],
     ocasiones: [
