@@ -4,7 +4,7 @@ import { infografiasGet } from "../../../../../componentes/api/infografiasGet.js
 import { urlApi } from "../../../../../componentes/api/url.js";
 import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 
-const INFOGRAFIAS_POR_VISTA_DESKTOP = 6; // como la foto 2
+const INFOGRAFIAS_POR_VISTA_DESKTOP = 5; // como la foto 2
 const GAP_PX = 20; // Tailwind gap-5 ≈ 20px
 
 const TarjetaVerticalInfografia = ({ infografia, onClick }) => (
@@ -13,15 +13,20 @@ const TarjetaVerticalInfografia = ({ infografia, onClick }) => (
     onClick={() => onClick && onClick(infografia)}
   >
     <div className="flex flex-col">
-      <div className="h-30 w-full overflow-hidden">
+      {/* Nombre de la infografía */}
+      <div className="mb-0 px-0 py-0">
+        <p className="text-[16px] font-semibold text-gray-800 text-center leading-tight line-clamp-1">
+          {infografia.nombre || infografia.titulo || 'Sin nombre'}
+        </p>
+      </div>
+      
+      {/* Imagen de la infografía */}
+      <div className="h-72 w-full flex justify-center items-center bg-gray-55 rounded-lg p-2">
         <img
           src={infografia.info_imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
           alt="Infografía"
-          className="h-30 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 shadow-[3px_3px_6px_rgba(0,0,0,0.2)]"
         />
-      </div>
-      <div className="text-lg font-roman text-black leading-[1.2] mb-2 group-hover:text-gray-700 transition-colors duration-200 mt-2 text-center">
-        {infografia.titulo || "Infografía"}
       </div>
     </div>
   </div>
@@ -59,9 +64,9 @@ const CincoInfografiasRRR = () => {
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
-      if (w < 640) setPerView(6);
-      else if (w < 1024) setPerView(6);
-      else if (w < 1280) setPerView(6);
+      if (w < 640) setPerView(3);
+      else if (w < 1024) setPerView(4);
+      else if (w < 1280) setPerView(5);
       else setPerView(INFOGRAFIAS_POR_VISTA_DESKTOP);
     };
     onResize();
@@ -122,7 +127,7 @@ const CincoInfografiasRRR = () => {
           <div className="flex flex-row justify-center items-center gap-3">
             <img 
               src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFI%CC%81AS.webp`} 
-              className="w-full h-6 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200" 
+              className="w-full h-7 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200" 
               onClick={handleLogoClick}
               alt="Logo Infografías - Click para ver todas las infografías"
             />
@@ -130,8 +135,8 @@ const CincoInfografiasRRR = () => {
         </div>
       </div>
 
-      {/* Contenedor limitado a 1080 centrado */}
-      <div className="relative mx-auto max-w-[1080px] w-full" style={{ overflow: "visible" }}>
+      {/* Contenedor limitado a 1200 centrado */}
+      <div className="relative mx-auto max-w-[1200px] w-full" style={{ overflow: "visible" }}>
 
         {/* Flecha izquierda */}
         {infografias.length > perView && (

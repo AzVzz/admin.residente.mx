@@ -208,7 +208,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                             </div>
                         </div>
                     </div>
-                    <div className="bg-transparent flex flex-col max-h-[400px] relative min-h-[120]">
+                    <div className="bg-transparent flex flex-col max-h-[420px] relative min-h-[120]">
                         {!sinFecha && (
                             <div className="flex justify-center items-center pt-4">
                                 <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">

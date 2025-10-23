@@ -11,6 +11,8 @@ import SeccionesPrincipales from './SeccionesPrincipales';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import PortadaRevista from './componentesColumna2/PortadaRevista.jsx';
 import Infografia from './componentesColumna1/Infografia.jsx';
+import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
+
 
 
 const DetalleBannerRevista = ({
@@ -129,60 +131,75 @@ const DetalleBannerRevista = ({
             {/* Secciones adicionales según el tipo de nota */}
             {tipo === "Restaurantes" && (
                 <>
-                    <div className="relative flex justify-center items-center mb-4">
+                    
+                            <div className="my-2">
+                                {/*<SeccionesPrincipales />*/}
+                                <GiveawayDescuentos cupones={cupones} />
+
+                            
+
+                            </div>
+
+                            <div className="relative flex justify-center items-center mb-4">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
-                            <div className="flex flex-row justify-center items-center gap-2">
-                                <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
-                            </div>
-                            <div className="text-center mt-1">
-                                <span className="text-[12px] font-semibold tracking-wide">
-                                    {new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }).toUpperCase()}
-                                </span>
-                            </div>
+                            <div className="flex flex-row justify-center items-center gap-3">
+                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} /> 
+                    </div>
                         </div>
+                    </div>
+
+                    <div className="relative flex justify-center items-center mb-4">
                     </div>
                     <div className="pb-5">
                         <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
                     </div>
-                    <EnPortada
-                        notasResidenteGet={notasResidenteGet}
-                        onCardClick={(nota) => handleCardClick(nota.id)}
-                    />
-                    <div className="relative flex justify-center items-center mb-4">
-                    </div>
 
-                    <SeccionesPrincipales />
                 </>
             )}
 
             {tipo === "Antojos" && (
                 <>
                     {/*<VideosHorizontal />*/}
-                    <SeccionesPrincipales />
+                    {/*SeccionesPrincipales />*/}
+                    
+                    
+                    <div className="pb-0">
+                        <GiveawayDescuentos cupones={cupones} />
+                    </div>
+
+                    <div className="relative flex justify-center items-center mb-4">
+                        <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
+                        <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                            <div className="flex flex-row justify-center items-center gap-3">
+                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="pb-5">
+                        <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
+                    </div>
                 </>
             )}
 
             {tipo === "Food & Drink" && (
                 <>
+                    <div className="my-2">
+                        <GiveawayDescuentos cupones={cupones} />
+                    </div>
                     <div className="relative flex justify-center items-center mb-4">
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                                <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
+                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                             </div>
                         </div>
                     </div>
                     <div className="pb-5">
-                        <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
+                        <CincoNotasRRR tipoNota="Restaurantes" onCardClick={(nota) => handleCardClick(nota.id)} />
                     </div>
-                    <SeccionesPrincipales />
-                </>
-            )}
+                    
 
-            {tipo === "Gastro-Destinos" && (
-                <>
-                    <SeccionesPrincipales />
                 </>
             )}
         </>

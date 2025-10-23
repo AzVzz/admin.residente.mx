@@ -133,9 +133,13 @@ const InfografiaMain = () => {
 
                 return (
                   <div key={infografia.id} className="infografia-card-container">
+                    <div className="infografia-nombre">
+                      {infografia.nombre}
+                    </div>
                     <div className="infografia-titulo">
                       {infografia.titulo}
                     </div>
+                    
                     <div className="infografia-card-img">
                       <InfografiaCard
                         imagen={infografia.info_imagen}
