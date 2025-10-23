@@ -19,7 +19,7 @@ const sizeConfig = {
         perforatedTop: "w-90",
         perforatedBottom: "w-90"
     },
-    
+
     /* Configuración para el tamaño pequeño */
     small: {
         container: "w-45 min-h-84 max-h-84",
@@ -198,7 +198,8 @@ const TicketPromoMini = forwardRef((props, ref) => {
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
+                            className={`w-full bg-black text-white font-black uppercase px-2 text-center leading-tight overflow-hidden mb-2 ${restaurantNameText.length <= 20 ? 'whitespace-nowrap' : 'break-words'
+                                }`}
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
