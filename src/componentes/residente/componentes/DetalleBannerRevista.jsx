@@ -124,7 +124,7 @@ const DetalleBannerRevista = ({
                         <BotonesAnunciateSuscribirme />
                     </div>
 
-                    <Infografia />
+                    {/*<Infografia />*/}
                 </div>
             </div>
 

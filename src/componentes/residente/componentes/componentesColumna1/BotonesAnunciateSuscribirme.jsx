@@ -56,7 +56,7 @@ const BotonesAnunciateSuscribirme = () => {
                     <p className="leading-5 text-[20px] font-roman pl-14 mb-2">
                         Recibe cada mañana las noticias y promociones relevantes del mundo gastronómico de NL
                     </p>
-                    <span className="text-[55px] leading-10 tracking-tight">Suscríbete</span>
+                    <span className="text-[55px] leading-10 tracking-tight"></span>
                 </div>
 
                 <form
@@ -69,14 +69,14 @@ const BotonesAnunciateSuscribirme = () => {
                             value={correo}
                             onChange={e => setCorreo(e.target.value)}
                             placeholder="Ingresa tu correo electrónico"
-                            className="bg-[#fff] p-2 h-10 rounded-l border border-white w-43.5 text-xs"
+                            className="bg-[#fff] p-1 h-10 rounded-l border border-white w-40 text-xs"
                             required
                         />
                         <button
                             type="submit"
-                            className="flex justify-center items-center bg-[#fff] h-10 text-black uppercase cursor-pointer px-2.5 rounded-r text-sm"
+                            className="flex justify-center items-center bg-black h-10 text-white uppercase cursor-pointer px-2.5 rounded-r text-sm"
                         >
-                            Signup
+                            Suscríbete
                         </button>
                     </div>
                 </form>
