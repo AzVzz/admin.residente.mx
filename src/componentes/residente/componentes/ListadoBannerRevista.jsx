@@ -216,7 +216,7 @@ const ListadoBannerRevista = ({
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
 
-                                <div className="pb-5 mb-4">
+                                <div className="pb-5">
                                     <CincoInfografiasRRR />
                                 </div>
                                 <div className="my-2">

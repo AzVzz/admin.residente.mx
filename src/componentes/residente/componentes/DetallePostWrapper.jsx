@@ -25,8 +25,7 @@ const DetallePostWrapper = () => {
     if (loading) return <div>Cargando...</div>;
     if (!post) return <div>No se encontró la nota</div>;
 
-    /*return <DetallePost post={post} onVolver={() => navigate(-1)} />;
-    return <DetallePost post={post} onVolver={() => navigate(-1)} sinFecha />;*/
+    return <DetallePost post={post} onVolver={() => navigate(-1)} />;
 };
 
 export default DetallePostWrapper;

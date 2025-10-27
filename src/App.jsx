@@ -83,7 +83,7 @@ function App() {
   const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
   // Fallback para clientes válidos
-  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco"];
+  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco", "patolobo"];
   const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
   useEffect(() => {

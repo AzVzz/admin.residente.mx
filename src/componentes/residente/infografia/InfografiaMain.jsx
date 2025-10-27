@@ -136,6 +136,7 @@ const InfografiaMain = () => {
                     <div className="infografia-nombre">
                       {infografia.nombre}
                     </div>
+                    
                     <div className="infografia-titulo">
                       {infografia.titulo}
                     </div>

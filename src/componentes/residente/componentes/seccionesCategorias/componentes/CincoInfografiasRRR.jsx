@@ -21,7 +21,7 @@ const TarjetaVerticalInfografia = ({ infografia, onClick }) => (
       </div>
       
       {/* Imagen de la infografía */}
-      <div className="h-72 w-full flex justify-center items-center bg-gray-55 rounded-lg p-2">
+      <div className="h-804w-full flex justify-center items-center bg-gray-55 rounded-lg p-1">
         <img
           src={infografia.info_imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
           alt="Infografía"

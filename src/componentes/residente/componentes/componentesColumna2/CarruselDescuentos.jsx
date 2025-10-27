@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import TicketPromoMini from "../seccionesCategorias/componentes/TicketPromoMini";
 
 const ITEM_WIDTH = 195; // ancho fijo en px
-const ITEM_SPACING = 16; // espaciado entre elementos en px
+const ITEM_SPACING = 12; // espaciado entre elementos en px
 const VISIBLE_COUNT = 3;
 
 const CarruselDescuentos = ({ cupones }) => {
