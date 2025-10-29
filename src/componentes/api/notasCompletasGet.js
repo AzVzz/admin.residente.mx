@@ -1,15 +1,16 @@
 //src/componentes/api/notasCompletas.js
 import { urlApi } from './url.js';
 
-export const notasTodasGet = async (token, page = 1, limit = "all", q = "") => {
+export const notasTodasGet = async (token, page = 1, limit = "all", q = "", filtros = {}) => {
     try {
         const url = new URL(`${urlApi}api/notas/todas`);
         url.searchParams.append("page", page);
         if (limit !== undefined && limit !== null) url.searchParams.append("limit", limit);
         if (q) url.searchParams.append("q", q);
-
-        console.log('URL de la API:', url.toString());
-        console.log('Token presente:', !!token);
+        // Agrega filtros dinámicamente
+        Object.entries(filtros).forEach(([key, value]) => {
+            if (value) url.searchParams.append(key, value);
+        });
 
         const response = await fetch(url, {
             headers: token ? { 
