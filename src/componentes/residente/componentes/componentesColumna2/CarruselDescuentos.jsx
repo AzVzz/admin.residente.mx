@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import TicketPromoMini from "../seccionesCategorias/componentes/TicketPromoMini";
 
 const ITEM_WIDTH = 195; // ancho fijo en px
+const ITEM_SPACING = 12; // espaciado entre elementos en px
 const VISIBLE_COUNT = 3;
 
 const CarruselDescuentos = ({ cupones }) => {
@@ -30,7 +31,7 @@ const CarruselDescuentos = ({ cupones }) => {
             <button
                 onClick={handlePrev}
                 disabled={startIdx === 0}
-                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute left-[-10px] z-10 self-center cursor-pointer"
+                className="p-2 bg-[#fff300] rounded-full shadow transition disabled:opacity-50 absolute left-[-30px] z-10 self-center cursor-pointer"
                 aria-label="Anterior"
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -39,18 +40,19 @@ const CarruselDescuentos = ({ cupones }) => {
             </button>
             <div
                 className="relative overflow-hidden ml-auto"
-                style={{ width: `${ITEM_WIDTH * VISIBLE_COUNT}px` }}
+                style={{ width: `${(ITEM_WIDTH + ITEM_SPACING) * VISIBLE_COUNT - ITEM_SPACING}px` }}
             >
                 <div
                     className="flex transition-transform duration-700"
                     style={{
-                        transform: `translateX(-${startIdx * ITEM_WIDTH}px)`
+                        transform: `translateX(-${startIdx * (ITEM_WIDTH + ITEM_SPACING)}px)`
                     }}
                 >
                     {cupones.map((cupon, idx) => (
                         <div
                             key={idx}
-                            className="min-w-[195px] max-w-[195px] flex-shrink-0 mx-0"
+                            className="min-w-[195px] max-w-[195px] flex-shrink-0"
+                            style={{ marginRight: idx < cupones.length - 1 ? `${ITEM_SPACING}px` : '0' }}
                         >
                             <TicketPromoMini size="small" {...cupon} />
                         </div>

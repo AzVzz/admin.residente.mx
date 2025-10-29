@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
 import { catalogoTipoNotaGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
+import { cuponesGet } from '../../api/cuponesGet.js';
 import { useData } from '../../DataContext';
 import DetalleBannerRevista from './DetalleBannerRevista';
 import ListadoBannerRevista from './ListadoBannerRevista';
@@ -17,6 +18,7 @@ const BannerRevista = () => {
   const [detalleCargando, setDetalleCargando] = useState(false);
   const [errorDetalle, setErrorDetalle] = useState(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [cupones, setCupones] = useState([]);
 
   const topRef = useRef(null);
   const navigate = useNavigate();
@@ -93,6 +95,13 @@ const BannerRevista = () => {
     cargarTiposNotas();
   }, []);
 
+  // Cargar cupones
+  useEffect(() => {
+    cuponesGet()
+      .then(data => setCupones(Array.isArray(data) ? data : []))
+      .catch(() => setCupones([]));
+  }, []);
+
   // Guardar posición al hacer clic en una tarjeta
   const handleCardClick = async (id) => {
     setScrollPosition(window.scrollY);
@@ -158,6 +167,8 @@ const BannerRevista = () => {
             revistaActual={revistaActual}
             notasDestacadas={notasDestacadas}
             handleCardClick={handleCardClick}
+            notasResidenteGet={notasResidenteGet}
+            cupones={cupones}
           />
         </div>
       ) : (

@@ -46,7 +46,7 @@ const GiveawayDescuentos = ({ cupones }) => {
     }
 
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[black] mb-4 py-4">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[black] mb-4 py-7">
             <div className="max-w-[1080px] w-full mx-auto flex flex-row gap-10 items-center">
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10 items-start">
                     <div className="flex flex-col items-start">
@@ -54,7 +54,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                         <img
                             src={`${urlApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
                             alt="Residente Restaurant Promo"
-                            className="mb-12 w-[340px] h-auto object-contain mt-2"
+                            className="mb-13 w-[36opx] h-auto object-contain mt-3"
                         />
                         {/* Imagen y texto lado a lado */}
                         <div className="flex flex-row items-end">
@@ -75,6 +75,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                         </div>
                     </div>
                     <CarruselDescuentos cupones={cuponesFormateados} />
+                    
                 </div>
             </div>
         </div>

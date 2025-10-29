@@ -1,12 +1,10 @@
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { notasPorTipoNota, catalogoNotasGet } from "../../api/notasPublicadasGet";
-import { useClientesValidos } from "../../../hooks/useClientesValidos";
+import { catalogoNotasGet } from "../../api/notasPublicadasGet";
 
 import PostPrincipal from '../componentes/componentesColumna2/PostPrincipal';
 import TresTarjetas from '../componentes/componentesColumna2/TresTarjetas';
 import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical.jsx";
-import SeccionesPrincipales from "../componentes/SeccionesPrincipales.jsx";
 import PortadaRevista from "../componentes/componentesColumna2/PortadaRevista.jsx";
 import MainLateralPostTarjetas from "../componentes/componentesColumna2/MainLateralPostTarjetas.jsx";
 import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/BotonesAnunciateSuscribirme.jsx";
@@ -17,7 +15,6 @@ import { urlApi } from "../../api/url.js";
 const PaginaCliente = () => {
     const { nombreCliente } = useParams();
     const navigate = useNavigate();
-    const { clientesValidos, loading: clientesLoading } = useClientesValidos();
     const [notas, setNotas] = useState([]);
     const [cargando, setCargando] = useState(true);
 
@@ -42,10 +39,6 @@ const PaginaCliente = () => {
 
     // Obtener notas destacadas (top 5)
     const notasTop = notas.slice(0, 5);
-
-    // Fallback para clientes válidos
-    const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco"];
-    const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
     useEffect(() => {
         setCargando(true);
@@ -122,12 +115,7 @@ const PaginaCliente = () => {
         cargarNotasFiltradas();
     }, [nombreCliente]);
 
-    if (cargando || clientesLoading) return <div>Cargando...</div>;
-
-    // Verificar si es un cliente válido
-    if (!listaClientes.includes(nombreCliente)) {
-        return <Navigate to="*" replace />;
-    }
+    if (cargando) return <div>Cargando...</div>;
 
     // Separa la primera nota y el resto
     const [primeraNota, ...restoNotas] = notas;
@@ -145,17 +133,18 @@ const PaginaCliente = () => {
                             <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                             <div className="relative z-10">
                                 <div className="flex items-center justify-center ">
+                                    {console.log('nombreCliente:', nombreCliente, 'tipo:', typeof nombreCliente)}
                                     {nombreCliente === 'mama-de-rocco' ? (
                                         <img
                                             src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/mamá de roco 2.webp`}
                                             alt="Mama de Rocco"
                                             className="h-20 sm:h-24 md:h-24 lg:h-24 w-auto max-w-full object-contain"
                                         />
-                                    ) : nombreCliente === 'heybanco' ? (
+                                    ) : (nombreCliente === 'patolobo' || nombreCliente?.toLowerCase() === 'patolobo' || nombreCliente?.includes('patolobo')) ? (
                                         <img
-                                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/Hey_Banco.webp`}
-                                            alt="HeyBanco"
-                                            className="h-20 sm:h-15 md:h-15 lg:h-15 w-auto max-w-full object-contain"
+                                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/PATOLOBO® LOGOTIPO NEGRO.webp`}
+                                            alt="PatoLobo"
+                                            className="h-20 sm:h-18 md:h-18 lg:h-18 w-auto max-w-full object-contain"
                                         />
                                     ) : (
                                         <span className="block text-black font-extrabold uppercase text-center text-4xl md:text-4xl leading-none tracking-tight">
@@ -209,7 +198,7 @@ const PaginaCliente = () => {
                         <div className="pt-3">
                             <BotonesAnunciateSuscribirme />
                         </div>
-                        <Infografia />
+                        {/* <Infografia /> */}
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getInfografias, crearInfografia, borrarInfografia } from '../../api/infografiaApi';
+import { getInfografias, crearInfografia, borrarInfografia, actualizarInfografia } from '../../api/infografiaApi';
 
 const InfografiaForm = () => {
     const [form, setForm] = useState({
@@ -14,6 +14,11 @@ const InfografiaForm = () => {
     const [infografias, setInfografias] = useState([]);
     const [modalImg, setModalImg] = useState(null);
     const [titulo, setTitulo] = useState("");
+    const [nombre, setNombre] = useState("");
+    const [editando, setEditando] = useState(false);
+    const [infografiaEditando, setInfografiaEditando] = useState(null);
+    const [editTitulo, setEditTitulo] = useState("");
+    const [editNombre, setEditNombre] = useState("");
 
 
     useEffect(() => {
@@ -46,6 +51,7 @@ const InfografiaForm = () => {
         try {
             const formData = new FormData();
             formData.append("titulo", titulo); // <-- agrega el título
+            formData.append("nombre", nombre); // <-- agrega el nombre
             if (form.info_imagen) formData.append("info_imagen", form.info_imagen);
             if (form.pdf) formData.append("pdf", form.pdf);
 
@@ -53,6 +59,7 @@ const InfografiaForm = () => {
             setPostResponse("Infografía creada correctamente");
             setForm({ info_imagen: null, pdf: null });
             setTitulo(""); // <-- limpia el campo
+            setNombre(""); // <-- limpia el campo nombre
             setImagenPreview(null);
             setPdfNombre("");
             getInfografias().then(setInfografias);
@@ -70,18 +77,134 @@ const InfografiaForm = () => {
         }
     };
 
+    const handleEditar = (infografia) => {
+        setEditando(true);
+        setInfografiaEditando(infografia);
+        setEditTitulo(infografia.titulo || "");
+        setEditNombre(infografia.nombre || "");
+    };
+
+    const handleCancelarEdicion = () => {
+        setEditando(false);
+        setInfografiaEditando(null);
+        setEditTitulo("");
+        setEditNombre("");
+    };
+
+    const handleGuardarEdicion = async (e) => {
+        e.preventDefault();
+        setIsPosting(true);
+        setPostError(null);
+        setPostResponse(null);
+        try {
+            const formData = new FormData();
+            formData.append("titulo", editTitulo);
+            formData.append("nombre", editNombre);
+            
+            await actualizarInfografia(infografiaEditando.id, formData);
+            setPostResponse("Infografía actualizada correctamente");
+            setEditando(false);
+            setInfografiaEditando(null);
+            setEditTitulo("");
+            setEditNombre("");
+            getInfografias().then(setInfografias);
+        } catch (error) {
+            setPostError("Error al actualizar la infografía");
+        } finally {
+            setIsPosting(false);
+        }
+    };
+
     return (
         <div className="py-8">
             <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8">
                 {/* Columna formulario */}
                 <div className="flex-[2]">
-                    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6">
-                        <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
-                            Nueva Infografía
-                        </h1>
-                        <p className="text-gray-600 text-center mb-4">
-                            Sube una imagen y un PDF para crear una nueva infografía.
-                        </p>
+                    {editando ? (
+                        // Formulario de edición
+                        <form onSubmit={handleGuardarEdicion} className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6">
+                            <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
+                                Editar Infografía
+                            </h1>
+                            <p className="text-gray-600 text-center mb-4">
+                                Modifica los datos de la infografía.
+                            </p>
+                            {postResponse && (
+                                <div className="bg-green-100 text-green-800 px-4 py-2 rounded mb-2 text-center">
+                                    {postResponse}
+                                </div>
+                            )}
+                            {postError && (
+                                <div className="bg-red-100 text-red-800 px-4 py-2 rounded mb-2 text-center">
+                                    {postError}
+                                </div>
+                            )}
+                            {/* Nombre de la infografía */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre de la infografía *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="editNombre"
+                                    placeholder="Agrega el nombre de la infografía"
+                                    maxLength={100}
+                                    value={editNombre}
+                                    onChange={e => setEditNombre(e.target.value.slice(0, 100))}
+                                    className="w-full px-3 py-2 border rounded-md border-gray-300"
+                                    required
+                                />
+                                <div className="flex justify-between items-center mt-1">
+                                    <span className="text-xs text-gray-500">{editNombre.length}/100</span>
+                                </div>
+                            </div>
+                            
+                            {/* Título */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Título *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="editTitulo"
+                                    placeholder="Agrega el título"
+                                    maxLength={70}
+                                    value={editTitulo}
+                                    onChange={e => setEditTitulo(e.target.value.slice(0, 70))}
+                                    className="w-full px-3 py-2 border rounded-md border-gray-300"
+                                    required
+                                />
+                                <div className="flex justify-between items-center mt-1">
+                                    <span className="text-xs text-gray-500">{editTitulo.length}/70</span>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={isPosting}
+                                    className={`flex-1 py-2 px-4 font-bold rounded text-white bg-green-600 hover:bg-green-700 transition ${isPosting ? "opacity-50 cursor-not-allowed" : ""}`}
+                                >
+                                    {isPosting ? "Guardando..." : "Guardar Cambios"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleCancelarEdicion}
+                                    className="flex-1 py-2 px-4 font-bold rounded text-white bg-gray-600 hover:bg-gray-700 transition"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        // Formulario de creación
+                        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6">
+                            <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
+                                Nueva Infografía
+                            </h1>
+                            <p className="text-gray-600 text-center mb-4">
+                                Sube una imagen y un PDF para crear una nueva infografía.
+                            </p>
                         {postResponse && (
                             <div className="bg-green-100 text-green-800 px-4 py-2 rounded mb-2 text-center">
                                 {postResponse}
@@ -92,6 +215,26 @@ const InfografiaForm = () => {
                                 {postError}
                             </div>
                         )}
+                        {/* Nombre de la infografía */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Nombre de la infografía *
+                            </label>
+                            <input
+                                type="text"
+                                name="nombre"
+                                placeholder="Agrega el nombre de la infografía"
+                                maxLength={100}
+                                value={nombre}
+                                onChange={e => setNombre(e.target.value.slice(0, 100))}
+                                className="w-full px-3 py-2 border rounded-md border-gray-300"
+                                required
+                            />
+                            <div className="flex justify-between items-center mt-1">
+                                <span className="text-xs text-gray-500">{nombre.length}/100</span>
+                            </div>
+                        </div>
+
                         {/* Título */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -111,6 +254,7 @@ const InfografiaForm = () => {
                                 <span className="text-xs text-gray-500">{titulo.length}/70</span>
                             </div>
                         </div>
+                        
                         {/* Imagen */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
@@ -245,7 +389,8 @@ const InfografiaForm = () => {
                         >
                             {isPosting ? "Guardando..." : "Crear Infografía"}
                         </button>
-                    </form>
+                        </form>
+                    )}
                 </div>
                 {/* Columna lista lateral */}
                 <div className="flex-1">
@@ -259,14 +404,34 @@ const InfografiaForm = () => {
                                     className="w-full h-32 object-cover rounded-md mb-2 cursor-pointer"
                                     onClick={() => setModalImg(info.info_imagen)}
                                 />
-                                <div className="flex gap-2">
-                                    <a href={info.pdf} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                {/* Información de la infografía */}
+                                <div className="mb-2">
+                                    {info.nombre && (
+                                        <p className="text-sm font-medium text-gray-800 mb-1">
+                                            <span className="text-gray-600">Nombre:</span> {info.nombre}
+                                        </p>
+                                    )}
+                                    {info.titulo && (
+                                        <p className="text-sm text-gray-600">
+                                            <span className="text-gray-500">Título:</span> {info.titulo}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="flex gap-2 flex-wrap">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleEditar(info)}
+                                        className="inline-flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
+                                    >
+                                        Editar
+                                    </button>
+                                    <a href={info.pdf} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
                                         Ver PDF
                                     </a>
                                     <button
                                         type="button"
                                         onClick={() => handleBorrar(info.id)}
-                                        className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                        className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                                     >
                                         Eliminar
                                     </button>

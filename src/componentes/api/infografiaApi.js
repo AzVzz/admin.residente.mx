@@ -23,6 +23,14 @@ export const crearInfografia = async (formData) => {
   return res.data;
 };
 
+// Actualizar una infografía por ID
+export const actualizarInfografia = async (id, data) => {
+  const res = await axios.put(`${BASE_URL}/${id}`, data, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return res.data;
+};
+
 // Eliminar una infografía por ID
 export const borrarInfografia = async (id) => {
   await axios.delete(`${BASE_URL}/${id}`);
