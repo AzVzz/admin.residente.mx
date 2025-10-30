@@ -83,7 +83,7 @@ function App() {
   const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
   // Fallback para clientes válidos
-  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente", "heybanco", "patolobo"];
   const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
   useEffect(() => {
@@ -205,19 +205,14 @@ function App() {
                 </div>
               } />
 
-              {/* Mama de Rocco / Barrio Antiguo etc. */}
-              <Route path="/:nombreCliente" element={
-                <div className="max-w-[1080px] mx-auto">
-                  <PaginaCliente />
-                </div>
-              } />
-
               {/* Estrellas de Nuevo León */}
               <Route path="/ednl" element={
                 <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
                   <ListaRestaurantes />
                 </div>
               } />
+
+              {/* HeyBanco - ahora manejado por la ruta general de clientes */}
 
               <Route path="/restaurante/:slug" element={
                 <div className="max-w-[680px] mx-auto py-10 sm:px-0">
@@ -235,6 +230,13 @@ function App() {
               <Route path="/oped" element={
                 <div className="max-w-[1080px] mx-auto py-10">
                   <OpinionEditorial />
+                </div>
+              } />
+
+              {/* Mama de Rocco / Barrio Antiguo etc. - DEBE ir al final antes de * */}
+              <Route path="/:nombreCliente" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <PaginaCliente />
                 </div>
               } />
 
@@ -282,8 +284,8 @@ function App() {
               <Route path="/plantilla" element={
                 <div className="max-w-[1080px] mx-auto">
                   <PlantillaNotas
-                    posts={notasPrueba}
-                    notasDestacadas={notasPrueba}
+                    posts={[...notasPrueba]}
+                    notasDestacadas={[...notasPrueba]}
                     handleCardClick={() => {}}
                   />
                 </div>

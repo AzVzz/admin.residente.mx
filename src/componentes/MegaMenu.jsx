@@ -86,6 +86,7 @@ const MegaMenu = () => {
                             </button>
                             {/* se elimino el href */}
                             <a
+                                href="/b2b"
                                  target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-shrink-0"

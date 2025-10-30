@@ -1,19 +1,38 @@
 import { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { urlApi } from './api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope, FaSearch, FaTimes } from "react-icons/fa";
 import SearchResults from "./SearchResults";
 
 const Header = () => {
+  const location = useLocation();
   const [menuHeader, setMenuHeader] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     catalogoHeadersGet().then(data => setMenuHeader(data)).catch(() => setMenuHeader([]));
     // revistaGetUltima().then(data => setRevistaActual(data)).catch(() => setRevistaActual(null));
   }, []);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeDropdown !== null) {
+        const dropdownElement = event.target.closest('.dropdown-container');
+        if (!dropdownElement) {
+          setActiveDropdown(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [activeDropdown]);
 
   const handleSearchToggle = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -45,6 +64,24 @@ const Header = () => {
     }
   };
 
+  const handleHeyBancoBannerClick = () => {
+    if (window.gtag) {
+      window.gtag('event', 'click', {
+        event_category: 'Banner',
+        event_label: 'HeyBanco',
+        value: 1
+      });
+    }
+  };
+
+  const handleDropdownToggle = (idx) => {
+    setActiveDropdown(activeDropdown === idx ? null : idx);
+  };
+
+  const handleDropdownClose = () => {
+    setActiveDropdown(null);
+  };
+
   return (
     <header className="w-full">
 
@@ -52,14 +89,20 @@ const Header = () => {
 
         <div className="pt-8">
           {/*<BannerHorizontal size="big" />*/}
-          <a
-            href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleBannerClick} // <-- Agrega esto
-          >
-            <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg" />
-          </a>
+          {location.pathname === '/heybanco' ? (
+            <a>
+              <img src="https://residente.mx/fotos/fotos-estaticas/BANNER HeyBanco.webp" alt="Banner HeyBanco" />
+            </a>
+          ) : (
+            <a
+              href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleBannerClick}
+            >
+              <img src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg" alt="Banner Principal" />
+            </a>
+          )}
         </div>
 
 
@@ -102,12 +145,21 @@ const Header = () => {
                     ) : (
                       <div
                         key={idx}
-                        className="relative group"
+                        className="relative group dropdown-container"
                       >
-                        <a href="#" className="hover:underline text-black font-roman">{section.seccion}</a>
+                        <button 
+                          onClick={() => handleDropdownToggle(idx)}
+                          className="hover:underline text-black font-roman bg-transparent border-none cursor-pointer"
+                        >
+                          {section.seccion}
+                        </button>
                         {/* Submenú desplegable */}
                         {section.submenu && (
-                          <div className="absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 backdrop-blur-xs">
+                          <div className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
+                            activeDropdown === idx 
+                              ? 'opacity-100 visible' 
+                              : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+                          }`}>
                             <ul>
                               {section.submenu.map((item, subIdx) => (
                                 <li key={subIdx}>
@@ -116,6 +168,7 @@ const Header = () => {
                                     rel="noopener noreferrer"
                                     className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
                                     target={item.url.startsWith('http') ? '_blank' : undefined}
+                                    onClick={handleDropdownClose}
                                   >
                                     {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
                                   </a>
@@ -132,9 +185,10 @@ const Header = () => {
                   {!isSearchOpen ? (
                     <>
                     {/*se quito el href y el cursor pointer*/}
-                      <a>
+                      <a href="/B2b">
                         <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b" alt="B2B" />
                       </a>
+                      
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>

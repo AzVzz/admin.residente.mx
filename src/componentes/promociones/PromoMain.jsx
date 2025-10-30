@@ -103,6 +103,12 @@ const PromoMain = () => {
     };
 
     const handleGuardar = async () => {
+        // ➕ AGREGAR: Validar que se haya seleccionado al menos un sticker
+        if (!selectedStickers || selectedStickers.length === 0) {
+            alert('⚠️ Falta ícono a elegir. Por favor selecciona al menos un sticker antes de guardar.');
+            return; // No continúa con la publicación
+        }
+
         setSaveSuccess(false);
         setSaveError(null);
         setIsPosting(true);
