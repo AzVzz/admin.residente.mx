@@ -90,7 +90,7 @@ function App() {
     const pathCliente = location.pathname.split('/')[1];
 
     if (location.pathname === '/culturallaccess') {
-      document.body.style.backgroundImage = `url(${urlApi}fotos/fotos-estaticas/componente-cultural/background-cultural-access.webp)`;
+      document.body.style.backgroundImage = `url("https://residente.mx/fotos/fotos-estaticas/componente-cultural/background-cultural-access.webp")`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundRepeat = 'no-repeat';

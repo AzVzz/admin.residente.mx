@@ -26,7 +26,7 @@ const MainLateralPostTarjetas = ({
 
             {/* Logo */}
             <img
-              src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
+              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp"
               className="h-full w-46 object-contain"
               alt="Logo Lo más visto"
             />
@@ -76,7 +76,7 @@ const MainLateralPostTarjetas = ({
                       <img
                         src={
                           post.imagen ||
-                          `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`
+                          "https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp"
                         }
                         alt={post.titulo}
                         className="w-full h-full object-cover rounded-full"

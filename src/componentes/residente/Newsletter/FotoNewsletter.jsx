@@ -4,7 +4,7 @@ import { urlApi } from "../../api/url";
 // Configuración de logos por categoría
 const logosCategorias = {
     "Restaurantes": "fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp",
-    "Food & Drink": "/fotos/fotos-estaticas/residente-logos/negros/food%26drink-02.webp",
+    "Food & Drink": "fotos/fotos-estaticas/residente-logos/negros/food%26drink-02.webp",
     "Antojos": "fotos/fotos-estaticas/residente-logos/negros/antojeria.webp"
 };
 
@@ -36,7 +36,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
             <div className="flex flex-col pt-9 items-center">
                 <div className="w-full max-w-[650px] mx-auto flex flex-col gap-5">
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp`}
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
                         alt="Newsletter Logo"
                         className="w-100 h-auto mx-auto"
                     />
@@ -45,8 +45,8 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                         <div key={nota.id} className="mb-8">
                             <div className="flex justify-center items-center mb-2">
                                 <img
-                                    src={`${urlApi}${logosCategorias[categoria]}`}
-                                    alt={categoria}
+                                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp"
+                                    alt="Restaurantes"
                                     className="h-auto w-85 object-contain"
                                 />
                             </div>

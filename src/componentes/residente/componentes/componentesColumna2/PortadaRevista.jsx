@@ -51,7 +51,7 @@ const PortadaRevista = () => {
 
                 {/* Logo */}
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp`}
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp"
                     className="h-full w-46 object-contain"
                     alt="Logo Infografías"
                 />

@@ -111,7 +111,7 @@ const Header = () => {
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
           <div className="flex pr-3 ">
             <Link to="" className="h-16 w-16 self-end object-contain bg-white rounded-full">
-              <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`} alt="Logo Residente Circulo" />
+              <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" alt="Logo Residente Circulo" />
             </Link>
           </div>
           <div className="w-full">
@@ -123,7 +123,7 @@ const Header = () => {
 
                 </div>
                 <Link to="" className="flex">
-                  <img src={`${urlApi}/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png`} alt="ResidenteNegro" className="h-6 object-contain" />
+                  <img src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png" alt="ResidenteNegro" className="h-6 object-contain" />
                 </Link>
               </div>
 
@@ -188,7 +188,7 @@ const Header = () => {
                     <>
                     {/*se quito el href y el cursor pointer*/}
                       <a href="/B2b">
-                        <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b" alt="B2B" />
+                        <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp" className="object-contain h-4 w-12 b2b" alt="B2B" />
                       </a>
                       
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
