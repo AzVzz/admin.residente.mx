@@ -1,55 +1,90 @@
-//src/componentes/promociones/componentes/TicketPromo.jsx
+//src/componentes/residente/componentes/seccionesCategorias/componentes/TicketPromoMini.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { urlApi } from '../../../../api/url';
 
+const sizeConfig = {
+    large: {
+        container: "w-90 min-h-[670px]",
+        padding: "px-5 py-4 pt-6",
+        logo: "h-10",
+        fontSizes: {
+            restaurant: { initial: 38, min: 10 },
+            promo: { initial: 200, min: 20 },
+            sub: { initial: 150, min: 15 }
+        },
+        description: "text-[18px] leading-[20px]",
+        validity: "text-xl py-2",
+        barcode: "h-20",
+        sticker: "absolute top-15 left-75 w-26 h-26",
+        perforatedTop: "w-90",
+        perforatedBottom: "w-90"
+    },
+    small: {
+        container: "w-45 min-h-84 max-h-84",
+        padding: "px-2 pt-1 pb-1",
+        logo: "h-4.5",
+        fontSizes: {
+            restaurant: { initial: 20, min: 10 }, // Valores ajustados para el nombre del restaurante
+            promo: { initial: 102, min: 14 },
+            sub: { initial: 62, min: 10 }
+        },
+        description: "leading-[16px] text-[14px]", // Ajuste de línea y tamaño para la descripción en modo pequeño
+        validity: "text-[14px] py-0.4",
+        barcode: "h-8",
+        sticker: "absolute top-4 right-[-10px] w-11 h-11",
+        perforatedTop: "w-45",
+        perforatedBottom: "w-45",
+        className: "cursor-pointer"
+    }
+};
+
 const TicketPromoMini = forwardRef((props, ref) => {
-    const { className = "", ...rest } = props;
     const {
-        nombreRestaurante = "McDonals",
-        nombrePromo = "2x122",
-        subPromo = "Pizza",
-        descripcionPromo = "Antojo $69 INCLUYE: 2 GORDITAS DE LA CATEGORÍA CLÁSICAS + 1 AGUA FRESCA REFILL. PRODUCTO EXCLUSIVO PARA COMEDOR, NO APLICA PARA LLEVAR NI OTRO CANAL DE VENTAS. NO SE PUEDEN HACER CAMBIOS EN LA ORDEN. SUJETO A DISPONIBILIDAD DE TIENDA.",
-        validezPromo = "Vigencia hasta el 5 de octubre del 2025",
+        className = "",
+        size = "large", // "large" o "small"
+        ...rest
+    } = props;
+    const {
+        nombreRestaurante,
+        nombrePromo,
+        subPromo,
+        descripcionPromo,
+        validezPromo,
         stickerUrl
     } = props;
+
+    const config = sizeConfig[size];
+
     // Referencias para los elementos del DOM
     const promoTextRef = useRef(null);
     const restaurantNameRef = useRef(null);
-    const burgersRef = useRef(null); // Asegúrate de tener esta línea
+    const burgersRef = useRef(null);
     const containerRef = useRef(null);
 
     // Estados para los tamaños de fuente
-    const [promoFontSize, setPromoFontSize] = useState(120);
-    const [restaurantNameFontSize, setRestaurantNameFontSize] = useState(38);
-    const [burgersFontSize, setBurgersFontSize] = useState(24);
+    const [promoFontSize, setPromoFontSize] = useState(config.fontSizes.promo.initial);
+    const [restaurantNameFontSize, setRestaurantNameFontSize] = useState(config.fontSizes.restaurant.initial);
+    const [burgersFontSize, setBurgersFontSize] = useState(config.fontSizes.sub.initial);
 
-    // Estados para los textos (para sincronizar con props)
+    // Estados para los textos
     const [promoText, setPromoText] = useState(nombrePromo);
     const [burgersText, setBurgersText] = useState(subPromo);
     const [restaurantNameText, setRestaurantNameText] = useState(nombreRestaurante);
 
-
-
     // Sincronizar los estados internos con los props
-    useEffect(() => {
-        setPromoText(nombrePromo);
-    }, [nombrePromo]);
+    useEffect(() => { setPromoText(nombrePromo); }, [nombrePromo]);
+    useEffect(() => { setBurgersText(subPromo); }, [subPromo]);
+    useEffect(() => { setRestaurantNameText(nombreRestaurante); }, [nombreRestaurante]);
 
-    useEffect(() => {
-        setBurgersText(subPromo);
-    }, [subPromo]);
-
-    useEffect(() => {
-        setRestaurantNameText(nombreRestaurante);
-    }, [nombreRestaurante]);
-
-    // Función para ajustar el tamaño de fuente de un elemento (crecimiento bidireccional)
+    // Función para ajustar el tamaño de fuente
     const adjustFontSize = (ref, setSize, initialSize, minSize, step = 1) => {
         if (!ref.current || !containerRef.current) return;
-
         const container = containerRef.current;
         const text = ref.current;
-        const containerWidth = container.offsetWidth - 20; // Considerar padding en la tarjeta normal 40
+
+        // Ajusta el padding según si es el título del restaurante o no
+        const isPaddingSensitive = ref === restaurantNameRef;
+        const containerWidth = container.offsetWidth - (isPaddingSensitive ? (size === 'small' ? 16 : 40) : (size === 'small' ? 24 : 40));
 
         // Guardar estilos originales
         const originalDisplay = text.style.display;
@@ -59,28 +94,22 @@ const TicketPromoMini = forwardRef((props, ref) => {
         text.style.display = 'inline-block';
         text.style.visibility = 'hidden';
 
-        // Primero intentamos con el tamaño inicial
+        // Usar un tamaño de paso más pequeño para el título del restaurante en modo small
+        const actualStep = (size === 'small' && isPaddingSensitive) ? 0.5 : step;
+
         let currentSize = initialSize;
         text.style.fontSize = `${currentSize}px`;
-        
-        // Si el texto es demasiado grande, lo reducimos
+
+        // Reducir el tamaño hasta que quepa o se alcance el mínimo
         while (text.scrollWidth > containerWidth && currentSize > minSize) {
-            currentSize -= step;
+            currentSize -= actualStep;
             text.style.fontSize = `${currentSize}px`;
         }
-        
-        // Si hay espacio extra, intentamos aumentar el tamaño
-        const maxSize = initialSize * 1.5; // Permitimos hasta 50% más grande que el inicial
-        while (text.scrollWidth < containerWidth * 0.9 && currentSize < maxSize) {
-            currentSize += step;
-            text.style.fontSize = `${currentSize}px`;
-            
-            // Si se vuelve demasiado grande, retrocedemos un paso
-            if (text.scrollWidth > containerWidth) {
-                currentSize -= step;
-                text.style.fontSize = `${currentSize}px`;
-                break;
-            }
+
+        // Si el texto es el título del restaurante y estamos en modo small,
+        // asegurarnos de que no sea demasiado pequeño
+        if (isPaddingSensitive && size === 'small' && currentSize < 14) {
+            currentSize = 14; // Establecer un mínimo absoluto para garantizar legibilidad
         }
 
         setSize(currentSize);
@@ -93,9 +122,9 @@ const TicketPromoMini = forwardRef((props, ref) => {
     // Efecto para ajustar todos los textos
     useEffect(() => {
         const adjustAll = () => {
-            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, 58, 10);
-            adjustFontSize(promoTextRef, setPromoFontSize, 200, 20, 2);
-            adjustFontSize(burgersRef, setBurgersFontSize, 150, 15);
+            adjustFontSize(restaurantNameRef, setRestaurantNameFontSize, config.fontSizes.restaurant.initial, config.fontSizes.restaurant.min);
+            adjustFontSize(promoTextRef, setPromoFontSize, config.fontSizes.promo.initial, config.fontSizes.promo.min, 2);
+            adjustFontSize(burgersRef, setBurgersFontSize, config.fontSizes.sub.initial, config.fontSizes.sub.min);
         };
 
         adjustAll();
@@ -104,83 +133,100 @@ const TicketPromoMini = forwardRef((props, ref) => {
         return () => {
             window.removeEventListener('resize', adjustAll);
         };
-    }, [promoText, burgersText, restaurantNameText]); // Dependencias: los textos que pueden cambiar
+    }, [promoText, burgersText, restaurantNameText, size]);
+
+    useEffect(() => {
+        setRestaurantNameFontSize(config.fontSizes.restaurant.initial);
+        setPromoFontSize(config.fontSizes.promo.initial);
+        setBurgersFontSize(config.fontSizes.sub.initial);
+    }, [
+        size,
+        config.fontSizes.restaurant.initial,
+        config.fontSizes.restaurant.min,
+        config.fontSizes.promo.initial,
+        config.fontSizes.promo.min,
+        config.fontSizes.sub.initial,
+        config.fontSizes.sub.min
+    ]);
+
+    // Añade esta función para limitar el texto
+    const limitText = (text, limit) => {
+        if (!text) return '';
+        if (text.length <= limit) return text;
+        return text.substring(0, limit) + '...';
+    };
 
     return (
         <div
             ref={ref}
-            className={`relative pt-2 ${className}`} //pb-2 pr-11
-            style={{
-                background: 'transparent', // Fondo transparente
-            }}
+            className={`relative ${className}`}
+            style={{ background: 'transparent' }}
         >
-
             {/* Perforated top edge */}
-            <img
-                src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
-                alt="Perforado superior"
-                className="w-45 h-auto"
-            />
+            <div className={config.perforatedTop || "w-full"}>
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
+                    alt="Perforado superior"
+                    className="w-full"
+                />
+            </div>
 
             <div
                 ref={containerRef}
-                className="flex flex-col bg-white w-45 "
-                style={{
-                    boxShadow: '-2px 3px 3px rgba(0,0,0,0.25)'
-                }}
+                className={`flex flex-col bg-white ${config.container} relative`}
             >
-                {
-                    stickerUrl && (
-                        <img
-                            src={stickerUrl}
-                            alt="Sticker"
-                            className="absolute top-15 left-75 w-26 h-26 bg-[#FFF200] rounded-full flex items-center justify-center shadow-[-2px_3px_3px_rgba(0,0,0,0.25)]"
-                        />
-                    )
-                }
-
+                {stickerUrl && (
+                    <img
+                        src={stickerUrl}
+                        alt="Sticker"
+                        className={`${config.sticker}  flex items-center justify-center z-10`}
+                        style={{ filter: 'drop-shadow(-1px 1.5px 0.8px rgba(0,0,0,0.25))' }}
+                    />
+                )}
 
                 {/* Main content */}
-                <div className="flex-1 flex flex-col">
-                    <div className="mb-2 z-20 px-2 pt-2">
+                <div className={`${config.padding} flex-1 flex flex-col`}>
+                    <div className="mb-1 z-20">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp` || "/placeholder.svg"}
+                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
                             alt="Residente Discy Promo Logo"
-                            className="w-14"
+                            className={config.logo}
                         />
                     </div>
-
-                    <div className="flex-grow flex flex-col justify-end px-2">
+                    <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden"
+                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
                         </h1>
-
                         <div className="text-center">
                             <h3
                                 ref={promoTextRef}
-                                className="whitespace-nowrap overflow-hidden font-black text-center"
+                                className="whitespace-nowrap font-black text-center"
                                 style={{
                                     fontSize: `${promoFontSize}px`,
                                     lineHeight: '0.85',
+                                    letterSpacing: '-2px',
                                     margin: 0,
+                                    marginBottom: 0,
                                     padding: 0,
                                     display: 'block'
                                 }}
                             >
                                 {promoText}
                             </h3>
-
                             <h3
                                 ref={burgersRef}
                                 className="font-black text-center whitespace-nowrap overflow-hidden"
                                 style={{
                                     fontSize: `${burgersFontSize}px`,
                                     lineHeight: '0.85',
+                                    letterSpacing: '-2px',
                                     margin: 0,
+                                    marginBottom: 0,
+                                    marginTop: 0,
                                     padding: 0,
                                     display: 'block'
                                 }}
@@ -188,28 +234,30 @@ const TicketPromoMini = forwardRef((props, ref) => {
                                 {burgersText}
                             </h3>
                         </div>
-
-                        <p className="leading-[10px] text-[10px] text-gray-800 font-black font-roman">
-                            {descripcionPromo}
+                        <p className={`font-black font-roman mt-1 text-gray-800 text-center ${config.description}`}>
+                            {size === 'small' ? limitText(descripcionPromo, 160) : descripcionPromo}
                         </p>
                     </div>
                 </div>
                 {/* Bottom section */}
-                <div className="bg-[#FFF200] px-2 py-1.5 mt-auto relative">
-                    <h2 className="text-[8px] mb-1 bg-black text-white text-center font-light font-roman leading-tight py-0.5">
+                <div className={`bg-[#fff300] ${config.padding}  mt-auto relative`}>
+                    <h2 className={`mb-1 bg-black text-white text-center font-light font-roman leading-3 ${config.validity}`}>
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif` || "/placeholder.svg"}
+                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
                         alt="Código de barras"
-                        className="w-full h-8.5 object-fill z-30 relative"
+                        className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
-
                 </div>
-
             </div>
-            {/* Perforated bottom edge */}
-            <img src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`} alt="Perforado inferior" className="w-45 h-auto" />
+            <div className={config.perforatedBottom}>
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    alt="Perforado inferior"
+                    className="w-full"
+                />
+            </div>
         </div>
     );
 });

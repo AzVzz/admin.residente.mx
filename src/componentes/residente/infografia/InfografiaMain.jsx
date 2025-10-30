@@ -95,7 +95,7 @@ const InfografiaMain = () => {
                 
                 {/* Logo */}
                 <img
-                  src={`https://p.residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
+                  src={`https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
                   className="infografia-logo"
                   alt="Logo Infografías"
                 />

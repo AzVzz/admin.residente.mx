@@ -6,6 +6,7 @@ import DirectorioVertical from './componentesColumna2/DirectorioVertical';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
+import CincoNotasBuscador from './seccionesCategorias/componentes/CincoNotasBuscador.jsx';
 import EnPortada from './componentesColumna2/EnPortada';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
@@ -44,9 +45,16 @@ const ListadoBannerRevista = ({
             .catch(() => setGiveaway(null));
     }, []);
 
+    // Configuración para los buscadores de Notas
+    const buscadorConfig = [
+        { tipo: "Food & Drink", keyword: "cafes", img: "cafe-independiente-de-nl.webp" },
+        { tipo: "Antojos", keyword: "cantinas", img: "ruta-de-las-cantinas.webp" },
+        { tipo: "Antojos", keyword: "taquerias", img: "taquerias-iconicas.webp" }
+    ];
+
     return (
         <div className="flex flex-col">
-            {["Restaurantes", "Food & Drink", "Antojos", "Gastro-Destinos"].map((tipo) => {
+            {["Restaurantes", "Food & Drink", "Antojos"].map((tipo) => {
                 const postsFiltrados = filtrarPostsPorTipoNota(tipo);
                 const destacadasFiltradas = filtrarDestacadasPorTipoNota(tipo);
 
@@ -189,7 +197,7 @@ const ListadoBannerRevista = ({
                         )}
                         {tipo === "Antojos" && (
                             <>
-                                <VideosHorizontal />
+                                {/*<VideosHorizontal />*/}
                             </>
                         )}
                         {tipo === "Food & Drink" && (
@@ -205,16 +213,57 @@ const ListadoBannerRevista = ({
                                 <div className="pb-5">
                                     <CincoNotasRRR tipoNota="Food & Drink" onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
+                                {/* cafes */}
+                                {buscadorConfig.filter(cfg => cfg.tipo === "Food & Drink").map(cfg => (
+                                    <React.Fragment key={cfg.keyword}>
+                                        <div className="relative flex justify-center items-center mb-4 mt-2">
+                                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                                                <div className="flex flex-row justify-center items-center gap-3">
+                                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pb-5">
+                                            <CincoNotasBuscador
+                                                keywords={cfg.keyword}
+                                                limit={6}
+                                                onCardClick={(nota) => handleCardClick(nota.id)}
+                                            />
+                                        </div>
+                                    </React.Fragment>
+                                ))}
                                 <div className="my-2">
-                                    <SeccionesPrincipales />
+                                    {/*<SeccionesPrincipales />*/}
+                                    <GiveawayDescuentos cupones={cupones} />
                                 </div>
                             </>
                         )}
 
                         {tipo === "Antojos" && (
-                            <div className="my-2">
-                                <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
-                            </div>
+                            <>
+                                {/* cantinas y Taquerias */}
+                                {buscadorConfig.filter(cfg => cfg.tipo === "Antojos").map(cfg => (
+                                    <React.Fragment key={cfg.keyword}>
+                                        <div className="relative flex justify-center items-center mb-4 mt-8">
+                                            <div className="relative z-10 px-4 bg-[#DDDDDE]">
+                                                <div className="flex flex-row justify-center items-center gap-3">
+                                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/${cfg.img}`} className="w-full h-10 object-contain" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pb-5">
+                                            <CincoNotasBuscador
+                                                keywords={cfg.keyword}
+                                                limit={10}
+                                                onCardClick={(nota) => handleCardClick(nota.id)}
+                                            />
+                                        </div>
+                                    </React.Fragment>
+                                ))}
+                                <div className="mt-2">
+                                    <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
+                                </div>
+                            </>
                         )}
                         {/*tipo === "Gastro-Destinos" && (
                             <div className="my-2">

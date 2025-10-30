@@ -5,6 +5,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { catalogoTipoNotaGet } from '../../../api/CatalogoSeccionesGet';
+import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 
 // Opciones por defecto (fallback)
 const opcionesDefault = [
@@ -16,7 +17,8 @@ const opcionesDefault = [
     { value: 'Antojos', label: 'Antojos' },
     { value: 'Gastro-Destinos', label: 'Gastro-Destinos' },
     { value: 'Residente', label: 'Residente' },
-    { value: 'Acervo', label: 'Acervo' }
+    { value: 'Acervo', label: 'Acervo' },
+    { value: 'B2B', label: 'B2B' }
 ];
 
 // Función para obtener color de fondo y texto según el tipo de cliente
@@ -27,9 +29,6 @@ const getButtonStyles = (tipoCliente) => {
     if (tipoCliente === 'mama-de-rocco') {
         return { backgroundColor: '#e91e63', color: '#fff', borderColor: '#e91e63' }; // Rosa
     }
-    if (tipoCliente === 'otrocliente') {
-        return { backgroundColor: '#ff9800', color: '#fff', borderColor: '#ff9800' }; // Naranja
-    }
     return { backgroundColor: '#fff', color: '#222', borderColor: '#bdbdbd' }; // Default
 };
 
@@ -38,6 +37,7 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
     const [opciones, setOpciones] = useState(opcionesDefault);
     const [cargando, setCargando] = useState(true);
     const open = Boolean(anchorEl);
+    const { clientesValidos } = useClientesValidos(); // Obtener clientes dinámicos
 
     // Cargar tipos de cliente dinámicamente
     useEffect(() => {
@@ -46,20 +46,40 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
                 setCargando(true);
                 const data = await catalogoTipoNotaGet();
 
+                // Crear opciones base con las opciones por defecto
+                let opcionesDinamicas = [...opcionesDefault];
+
+                // Agregar tipos estáticos de la API (si no están ya incluidos)
                 if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
-                    // Crear opciones dinámicas basadas en los datos de la API
-                    const opcionesDinamicas = [
-                        { value: '', label: 'Todos los Clientes' },
-                        ...data.data.map(tipo => ({
-                            value: tipo.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[áéíóúñ]/g, (match) => {
-                                const acentos = { 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n' };
-                                return acentos[match] || match;
-                            }),
-                            label: tipo.nombre
-                        }))
-                    ];
-                    setOpciones(opcionesDinamicas);
+                    const tiposEstaticos = data.data.map(tipo => ({
+                        value: tipo.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[áéíóúñ]/g, (match) => {
+                            const acentos = { 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n' };
+                            return acentos[match] || match;
+                        }),
+                        label: tipo.nombre
+                    }));
+                    
+                    // Solo agregar tipos que no estén ya en las opciones por defecto
+                    const tiposNuevos = tiposEstaticos.filter(tipo => 
+                        !opcionesDinamicas.some(op => op.value === tipo.value)
+                    );
+                    opcionesDinamicas = [...opcionesDinamicas, ...tiposNuevos];
                 }
+
+                // Agregar clientes dinámicos (solo los que no estén ya en las opciones por defecto)
+                if (clientesValidos && clientesValidos.length > 0) {
+                    const clientesComoTipos = clientesValidos
+                        .filter(cliente => cliente !== 'usuario' && cliente !== 'todo' && cliente !== 'todos')
+                        .map(cliente => ({
+                            value: cliente,
+                            label: cliente.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                        }))
+                        .filter(cliente => 
+                            !opcionesDinamicas.some(op => op.value === cliente.value)
+                        );
+                    opcionesDinamicas = [...opcionesDinamicas, ...clientesComoTipos];
+                }
+                setOpciones(opcionesDinamicas);
             } catch (error) {
                 console.error('Error al cargar tipos de cliente:', error);
                 // Mantener opciones por defecto en caso de error
@@ -70,7 +90,7 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
         };
 
         cargarTiposCliente();
-    }, []);
+    }, [clientesValidos]); // Dependencia de clientesValidos
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -82,6 +102,8 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
 
     // Para mostrar el label del tipo de cliente seleccionado
     const labelActual = opciones.find(op => op.value === tipoCliente)?.label || 'Tipo de Cliente';
+    
+    
 
     return (
         <div>

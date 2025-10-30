@@ -329,7 +329,7 @@ const NotasAcervo = ({ onCardClick }) => {
                 {notas.length > 0 ? (
                     <div className="flex flex-row gap-4">
                         <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
-                            <span className="text-[29px] text-white leading-7">
+                            <span className="text-[29px] text-black leading-7">
                                 Encuentra aquí todo sobre la actualidad y la historia gastronómica de Nuevo León
                             </span>
                         </div>

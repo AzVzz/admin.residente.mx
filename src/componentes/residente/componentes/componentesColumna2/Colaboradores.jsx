@@ -1,6 +1,7 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import { getColaboradores } from "../../../api/temaSemanaApi";
 import { useNavigate } from "react-router-dom";
+import { urlApi } from "../../../api/url.js";
 
 const CANTIDAD_COLABORADORES = 4;
 
@@ -20,7 +21,7 @@ const CarruselColaboradores = ({ colaboradores, indiceCarrusel, setIndiceCarruse
     };
 
     const handleColaboradorClick = (id) => {
-        localStorage.setItem("colaboradorLastId", id);
+        sessionStorage.setItem("colaboradorLastId", id);
         navigate(`/colaborador/${id}`);
     };
 
@@ -56,7 +57,7 @@ const CarruselColaboradores = ({ colaboradores, indiceCarrusel, setIndiceCarruse
                             className="w-40 cursor-pointer flex-shrink-0 flex flex-col items-center"
                             onClick={() => handleColaboradorClick(colaborador.id)}
                         >
-                            <h2 className="text-black text-[14px] leading-4.5 text-center mb-2">
+                            <h2 className="text-black text-[14px] leading-4.5 text-center mb-1">
                                 {colaborador.nombre}
                             </h2>
                             <img
@@ -99,7 +100,7 @@ const MiComponente = () => {
 
     useLayoutEffect(() => {
         setTimeout(() => {
-            const lastId = localStorage.getItem("colaboradorLastId");
+            const lastId = sessionStorage.getItem("colaboradorLastId");
             if (lastId) {
                 const el = document.getElementById(`colaborador-${lastId}`);
                 if (el) {
@@ -111,7 +112,7 @@ const MiComponente = () => {
                 }
                 // Borra el valor después de 2 segundos
                 setTimeout(() => {
-                    localStorage.removeItem("colaboradorLastId");
+                    sessionStorage.removeItem("colaboradorLastId");
                 }, 2000);
             }
         }, 100);
@@ -119,11 +120,16 @@ const MiComponente = () => {
 
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4">
-            <div className="max-w-[1080px] mx-auto py-10">
-                <h2 className="text-[30px] font-bold leading-4 mb-6">Colaboradores</h2>
+            <div className="max-w-[1080px] mx-auto py-8">
+                {/* Imagen arriba del texto */}
+                <img
+                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp`}
+                    alt="Colaboradores"
+                    className="h-[35px] mb-6"
+                />
                 <div className="flex flex-row gap-4">
                     <div className="flex justify-start items-start min-w-[200px] max-w-[200px]">
-                        <span className="text-[25px] text-white leading-6.5">
+                        <span className="text-[22px] text-white leading-5">
                             Descubre a los colaboradores que enriquecen el contenido de Residente con su experiencia y pasión.
                         </span>
                     </div>
@@ -137,5 +143,6 @@ const MiComponente = () => {
         </div>
     );
 };
+
 
 export default MiComponente;

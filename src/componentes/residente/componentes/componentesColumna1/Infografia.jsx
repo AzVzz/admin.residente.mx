@@ -25,7 +25,7 @@ const Infografia = () => {
 
                 {/* Logo */}
                 <img
-                    src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
+                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
                     className="h-full w-46 object-contain cursor-pointer"
                     alt="Logo Infografías"
                     onClick={handleInfografiaClick}

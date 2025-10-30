@@ -23,6 +23,10 @@ const UanlMain = () => {
           if (el) {
             el.scrollIntoView({ behavior: "smooth", block: "center" });
           }
+          // Borra el valor después de 2 segundos
+          setTimeout(() => {
+            localStorage.removeItem("uanlLastNotaId");
+          }, 2000);
         }
       }, 100);
     }

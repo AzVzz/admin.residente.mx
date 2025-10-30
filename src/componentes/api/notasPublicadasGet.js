@@ -45,11 +45,23 @@ export const notasDestacadasTopGet = async () => {
 };
 
 export const notasPorTipoNota = async (tipoNota) => {
-    // Convierte espacios a guiones para la URL
+    // Intentar primero con guiones (formato URL)
     const tipoNotaUrl = tipoNota.toLowerCase().replace(/ /g, '-');
-    const response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaUrl}`);
-    if (!response.ok) throw new Error('Error al obtener notas por tipo_nota');
-    return await response.json();
+    
+    let response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaUrl}`);
+    let result = await response.json();
+    
+    // Si no hay resultados, intentar con espacios
+    if (result.length === 0) {
+        const tipoNotaConEspacios = tipoNota.replace(/-/g, ' ');
+        
+        response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaConEspacios}`);
+        if (response.ok) {
+            result = await response.json();
+        }
+    }
+    
+    return result;
 };
 
 export const notasResidenteGet = async () => {

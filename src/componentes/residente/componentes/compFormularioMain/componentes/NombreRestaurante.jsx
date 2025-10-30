@@ -7,10 +7,10 @@ const NombreRestaurante = () => {
     const nombreRestaurante = watch('nombre_restaurante') || '';
 
     // Solo mostrar si es Restaurantes o Food & Drink Y está marcada como destacada
-    if (
+    {/*if (
         !(tipos === "Restaurantes" || tipos === "Food & Drink") ||
         !destacada
-    ) return null;
+    ) return null;*/}
 
     // Limitar el campo y mostrar contador
     const handleChange = (e) => {
@@ -37,9 +37,8 @@ const NombreRestaurante = () => {
                     }
                 })}
                 placeholder="Ej. Taquería El Güero"
-                className={`mt-1 block w-full rounded-lg border px-3 py-2 focus:border-indigo-500 ${
-                    errors.nombre_restaurante ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`mt-1 block w-full rounded-lg border px-3 py-2 focus:border-indigo-500 ${errors.nombre_restaurante ? 'border-red-500' : 'border-gray-300'
+                    }`}
             />
             <div className="flex justify-between items-center mt-1">
                 <span className="text-xs text-gray-500">{nombreRestaurante.length}/22</span>
@@ -48,7 +47,7 @@ const NombreRestaurante = () => {
                 )}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-                Se guardará solo si la nota está marcada como <b>destacada</b>.
+                El nombre del restaurante se guardará siempre que lo llenes.
             </p>
         </div>
     );

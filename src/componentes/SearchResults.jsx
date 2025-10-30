@@ -200,3 +200,4 @@ const SearchResults = ({ searchTerm, onClose }) => {
 };
 
 export default SearchResults;
+  

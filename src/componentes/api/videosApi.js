@@ -3,11 +3,7 @@ import { urlApi } from './url';
 const SIMULAR_API = false;
 
 // Datos de ejemplo para cuando no hay videos en el backend
-const getVideosEjemplo = () => [
-  { id: 1, imagen: 'https://picsum.photos/300/200?random=1', url: 'https://www.youtube.com/watch?v=ejemplo1', fecha: new Date('2024-01-15'), estado: true, activo: true, tipo: 'editorial' },
-  { id: 2, imagen: 'https://picsum.photos/300/200?random=2', url: 'https://www.youtube.com/watch?v=ejemplo2', fecha: new Date('2024-01-20'), estado: true, activo: true, tipo: 'comercial' },
-  { id: 3, imagen: 'https://picsum.photos/300/200?random=3', url: 'https://www.youtube.com/watch?v=ejemplo3', fecha: new Date('2024-01-25'), estado: false, activo: false, tipo: 'editorial' }
-];
+const getVideosEjemplo = () => [];
 
 // Función helper para crear headers
 const createHeaders = (token, contentType = 'application/json') => {
@@ -42,8 +38,8 @@ export const crearVideo = async (formData, token) => {
   if (SIMULAR_API) {
     return simulateResponse({
       id: Date.now(),
-      url: 'https://www.youtube.com/watch?v=simulado',
-      imagen: 'https://picsum.photos/300/200?random=1',
+      url: '',
+      imagen: '',
       fecha: new Date().toISOString(),
       estado: true,
       activo: true,
@@ -66,11 +62,7 @@ export const crearVideo = async (formData, token) => {
 // Obtener todos los videos
 export const obtenerVideos = async (token = null) => {
   if (SIMULAR_API) {
-    return simulateResponse([
-      { id: 1, url: 'https://www.youtube.com/watch?v=test1', imagen: 'https://picsum.photos/300/200?random=1', fecha: new Date().toISOString(), estado: true, activo: true, tipo: 'editorial' },
-      { id: 2, url: 'https://www.youtube.com/watch?v=test2', imagen: 'https://picsum.photos/300/200?random=2', fecha: new Date().toISOString(), estado: true, activo: true, tipo: 'editorial' },
-      { id: 3, url: 'https://www.youtube.com/watch?v=test3', imagen: 'https://picsum.photos/300/200?random=3', fecha: new Date().toISOString(), estado: false, activo: false, tipo: 'editorial' }
-    ], 300);
+    return simulateResponse([], 300);
   }
 
     try {
@@ -80,9 +72,9 @@ export const obtenerVideos = async (token = null) => {
     });
     const data = await handleResponse(response);
     const videosMapeados = data.map(mapVideo);
-    return videosMapeados.length > 0 ? videosMapeados : getVideosEjemplo();
+    return videosMapeados;
   } catch (error) {
-    return getVideosEjemplo();
+    return [];
   }
 };
 
@@ -90,7 +82,7 @@ export const obtenerVideos = async (token = null) => {
 export const obtenerVideoPorId = async (id, token = null) => {
   if (SIMULAR_API) {
     return simulateResponse({
-      id, url: `https://www.youtube.com/watch?v=test${id}`, imagen: `https://picsum.photos/300/200?random=${id}`,
+      id, url: '', imagen: '',
       fecha: new Date().toISOString(), estado: true, activo: true, tipo: 'editorial'
     });
   }
@@ -111,8 +103,8 @@ export const editarVideo = async (id, formData, token) => {
   if (SIMULAR_API) {
     return simulateResponse({
       success: true, mensaje: 'Video actualizado exitosamente (simulado)', id,
-      url: formData.get('url') || 'https://www.youtube.com/watch?v=editado',
-      imagen: formData.get('imagen') ? 'https://picsum.photos/300/200?random=editado' : null,
+      url: formData.get('url') || '',
+      imagen: formData.get('imagen') ? '' : null,
       fecha: formData.get('fecha') || new Date().toISOString(),
       estado: formData.get('estado') === 'true', activo: formData.get('estado') === 'true',
       tipo: formData.get('tipo') || 'editorial'

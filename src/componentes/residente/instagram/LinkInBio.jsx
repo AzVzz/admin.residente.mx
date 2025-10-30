@@ -33,7 +33,7 @@ const LinkInBio = () => {
       <div className="flex items-center gap-2">
         {/* Logo de Residente (R en círculo negro) */}
                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center  ">
-           <Link to="/residente">
+           <Link to="/">
              <img 
                src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`}
                alt="Logo Residente" 
@@ -46,7 +46,7 @@ const LinkInBio = () => {
   
       {/* Botón Ver Residente */}
       <button className="px-3 py-1 border border-gray-300 rounded text-gray-700 text-lg font-black hover:bg-gray-50 transition-colors">
-        <Link to="/residente">
+        <Link to="/">
           Ver Residente
         </Link>
       </button>
@@ -62,7 +62,7 @@ const LinkInBio = () => {
         {loading ? (
           <Skeleton variant="rectangular" animation="wave" width={860} height={480} />
         ) : hayNotas ? (
-          <Link to={`/notas/${principal.id}`} aria-label={principal.titulo}>
+          <Link to={`/`} aria-label={principal.titulo}>
             <img
               src={`${urlApi}fotos/fotos-estaticas/residente-logos/amarillos/banner-pagina-insta-imagen.webp`}
               alt="Banner InstaImagen"

@@ -26,11 +26,16 @@ import BotonScroll from './componentes/residente/componentes/compFormularioMain/
 import Proximamente from './componentes/Proximamente.jsx';
 import ViewportAdjuster from './ViewportAdjuster.jsx';
 import InfografiaForm from './componentes/residente/infografia/InfografiaForm.jsx';
+import { useClientesValidos } from './hooks/useClientesValidos';
 import usePageTracking from './usePageTracking.js';
 import UanlPage from './componentes/residente/Uanl/UanlPage.jsx';
 import DetalleUanl from './componentes/residente/Uanl/DetalleUanl.jsx';
 import ListaNotasUanl from './componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx';
-
+import DetalleColaborador from './componentes/residente/Colaboradores/DetalleColaborador.jsx';
+import NewsletterPage from './componentes/residente/Newsletter/NewsletterPage.jsx';
+import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
+import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
+import ListaTickets from './componentes/residente/componentes/compFormularioMain/ListaTickets';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -39,20 +44,47 @@ const PreguntasSemanales = lazy(() => import('./componentes/residente/componente
 const FormNewsletter = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormNewsletter'));
 const VideosDashboard = lazy(() => import('./componentes/residente/componentes/compFormularioMain/VideosDashboard'));
 const Videos = lazy(() => import('./componentes/residente/componentes/compFormularioMain/Videos'));
-const Login = lazy(() => import('./componentes/login'));
+const Login = lazy(() => import('./componentes/Login'));
 const FormularioMain = lazy(() => import('./componentes/formulario100estrellas/FormularioMain'));
 const FormularioMainPage = lazy(() => import('./componentes/formulario100estrellas/FormularioMainPage'));
 const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
 const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner'));
 
+const notasPrueba = [
+  {
+    id: 1,
+    titulo: "Ejemplo Nota 1",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria1"]
+  },
+  {
+    id: 2,
+    titulo: "Ejemplo Nota 2",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria2"]
+  },
+  {
+    id: 3,
+    titulo: "Ejemplo Nota 3",
+    imagen: "https://via.placeholder.com/300",
+    fecha: "Octubre 2025",
+    sticker: ["categoria3"]
+  },
+  // ...agrega más si quieres
+];
 
 function App() {
   usePageTracking();
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
+  const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
-  const CLIENTES_VALIDOS = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  // Fallback para clientes válidos
+  const clientesPredefinidos = ["mama-de-rocco", "barrio-antiguo", "otrocliente"];
+  const listaClientes = clientesValidos.length > 0 ? clientesValidos : clientesPredefinidos;
 
   useEffect(() => {
     const pathCliente = location.pathname.split('/')[1];
@@ -64,7 +96,7 @@ function App() {
       document.body.style.backgroundRepeat = 'no-repeat';
       document.body.style.backgroundColor = '';
     } else if (
-      CLIENTES_VALIDOS.includes(pathCliente) ||
+      listaClientes.includes(pathCliente) ||
       location.pathname.startsWith('/seccion/')
     ) {
       document.body.style.backgroundImage = '';
@@ -235,11 +267,43 @@ function App() {
                 </div>
               } />
 
+              <Route path="/colaborador/:id" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <DetalleColaborador />
+                </div>
+              } />
+
+              <Route path="/foto-news" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <NewsletterPage />
+                </div>
+              } />
+
+              <Route path="/plantilla" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <PlantillaNotas
+                    posts={notasPrueba}
+                    notasDestacadas={notasPrueba}
+                    handleCardClick={() => {}}
+                  />
+                </div>
+              } />
+ 
+              <Route path="/b2b" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <B2BMain />
+                </div>
+              } />
+
+
+
 
 
 
 
               {/*================================*/}
+
+
 
 
               {/* Admin */}
@@ -326,6 +390,13 @@ function App() {
               <Route path="/admin/uanl" element={
                 <div className="max-w-[1080px] mx-auto">
                   <ListaNotasUanl />
+                </div>
+              } />
+
+              {/* Admin */}
+              <Route path="/tickets" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <ListaTickets/>
                 </div>
               } />
 
