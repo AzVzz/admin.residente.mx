@@ -14,7 +14,7 @@ import ResidentRestaurantVibes from './componentes/ResidentRestaurantVibes'
 import Footer from './componentes/Footer'
 import Historia from './componentes/Historia'
 import Colaboraciones from './componentes/Colaboraciones'
-import { urlApi } from '../api/url'
+import { urlApi, imgApi } from '../api/url'
 
 const RestaurantePage = () => {
   const { slug } = useParams()

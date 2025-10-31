@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { urlApi } from '../../componentes/api/url.js'
+import { urlApi, imgApi } from '../../componentes/api/url.js'
 
 const BASE_URL = `${urlApi}api/infografias`;
 

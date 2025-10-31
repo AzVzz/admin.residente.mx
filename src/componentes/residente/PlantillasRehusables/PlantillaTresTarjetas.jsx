@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { urlApi } from "../../api/url.js";
+import { urlApi, imgApi } from "../../api/url.js";
 
 const TarjetaVerticalPost = ({ post, onClick }) => (
     <div

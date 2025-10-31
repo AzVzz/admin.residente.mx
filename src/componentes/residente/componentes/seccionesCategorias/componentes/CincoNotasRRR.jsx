@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { notasDestacadasPorTipoGet } from "../../../../../componentes/api/notasPublicadasGet.js";
-import { urlApi } from "../../../../../componentes/api/url.js";
+import { urlApi, imgApi } from "../../../../../componentes/api/url.js";
 
 const NOTAS_POR_VISTA_DESKTOP = 6; // como la foto 2
 const GAP_PX = 20; // Tailwind gap-5 ≈ 20px

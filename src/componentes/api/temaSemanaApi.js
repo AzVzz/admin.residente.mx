@@ -1,4 +1,4 @@
-import { urlApi } from "./url";
+import { urlApi, imgApi } from "./url";
 
 // Obtener la pregunta más reciente de la semana
 export const getPreguntaActual = async () => {

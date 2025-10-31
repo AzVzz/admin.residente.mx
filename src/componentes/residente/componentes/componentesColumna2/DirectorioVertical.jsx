@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- importa esto
 import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
-import { urlApi } from '../../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../../componentes/api/url.js';
 
 const iconos = [
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/costo.png`,
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/yum.webp`,
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/zona.webp`,
-    `${urlApi}/fotos/fotos-estaticas/componente-iconos/corazon.webp`
+    "https://residente.mx/fotos/fotos-estaticas/componente-iconos/costo.png",
+    "https://residente.mx/fotos/fotos-estaticas/componente-iconos/yum.webp",
+    "https://residente.mx/fotos/fotos-estaticas/componente-iconos/zona.webp",
+    "https://residente.mx/fotos/fotos-estaticas/componente-iconos/corazon.webp"
 ];
 
 const DirectorioVertical = () => {
@@ -51,7 +51,7 @@ const DirectorioVertical = () => {
         <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative min-w-full max-w-[348px] items-center">{/**items-center */}
             <div className="flex justify-center">
                 <div className="absolute left-0 right-0 top-4 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
-                <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`} className="w-42 h-auto relative z-10 px-4" />
+                <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp" className="w-42 h-auto relative z-10 px-4" />
             </div>
 
             <p className="text-[23px] leading-4.5 text-black">Tu concierge restaurantero</p>

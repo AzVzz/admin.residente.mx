@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { catalogoHeadersGet, catalogoSeccionesGet } from '../../../../api/CatalogoSeccionesGet';
-import { urlApi } from '../../../../api/url';
+import { urlApi, imgApi } from '../../../../api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 const HeaderSecciones = () => {
@@ -41,7 +41,7 @@ const HeaderSecciones = () => {
                     <div className="flex flex-col items-start">
                         <Link to="/residente">
                             <img
-                                src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+                                src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
                                 className="w-60 h-auto mb-1"
                                 alt="Logo Guía NL"
                             />

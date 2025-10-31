@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import { useData } from "../../../DataContext";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
 import { revistaGetUltima } from "../../../api/revistasGet";
@@ -51,7 +51,7 @@ const PortadaRevista = () => {
 
                 {/* Logo */}
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp`}
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/EN%20PORTADA.webp"
                     className="h-full w-46 object-contain"
                     alt="Logo Infografías"
                 />

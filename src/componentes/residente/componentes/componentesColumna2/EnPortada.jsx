@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import { useData } from "../../../DataContext";
 
 const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;

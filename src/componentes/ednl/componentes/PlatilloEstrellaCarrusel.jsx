@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import StarIcon from "../../../iconos/StarIcon";
 import "./PlatilloEstrellaCarrusel.css";
 import useFitText from 'use-fit-text';
-import { urlApi } from '../../api/url'
+import { urlApi, imgApi } from '../../api/url'
 
 // Componente de flecha personalizada
 function CustomArrow({ direction, onClick, modal = false }) {
@@ -114,7 +114,7 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
           {imagenes.map((img, index) => (
             <div key={index} onClick={() => openModal(index)} style={{ cursor: 'pointer' }}>
               <img
-                src={img ? `${urlApi}${img}` : "/placeholder.svg"}
+                src={img ? `${imgApi}${img}` : "/placeholder.svg"}
                 alt={`Slide ${index + 1}`}
                 className="imagen-principal"
               />
@@ -123,7 +123,7 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
         </Slider>
       </div>
 
-      <img src={estrella || "/placeholder.svg"} className="estrella-decorativa" alt="Estrella decorativa" />
+      <img src={`${imgApi}/fotos/fotos-estaticas/componente-sin-carpetas/estrella.webp`} className="estrella-decorativa" alt="Estrella decorativa" />
 
       <div className="contenedor-textos">
         <div className="badge-estrella">

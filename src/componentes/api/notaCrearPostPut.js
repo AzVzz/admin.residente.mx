@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 /**
  * Actualiza la imagen de una nota usando PUT y form-data.

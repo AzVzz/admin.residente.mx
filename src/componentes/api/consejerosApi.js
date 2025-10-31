@@ -1,5 +1,5 @@
 //src/componentes/api/consejerosApi.js
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Obtener todos los registros
 export const consejerosGet = async () => {

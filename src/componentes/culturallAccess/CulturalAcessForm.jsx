@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { urlApi } from '../../componentes/api/url.js'
+import { urlApi, imgApi } from '../../componentes/api/url.js'
 
 const CulturalAccessForm = () => {
   const [curpOption, setCurpOption] = useState("curp")
@@ -252,7 +252,7 @@ const CulturalAccessForm = () => {
     <div>
       <div className="flex flex-row items-center justify-center pb-5">
         <img
-          src={`${urlApi}fotos/fotos-estaticas/componente-cultural/sc_logo_blanco_2025.webp`}
+          src="https://residente.mx/fotos/fotos-estaticas/componente-cultural/sc_logo_blanco_2025.webp"
           className="h-[clamp(2rem,4.6vw,3.1rem)]"
         />
         <h1 className="uppercase text-[clamp(0.8rem,4.2vw,4.2rem)] leading-tight font-bold text-center px-5">
@@ -260,13 +260,13 @@ const CulturalAccessForm = () => {
           <span className="text-black">ALL ACCESS</span>
         </h1>
         <img
-          src={`${urlApi}fotos/fotos-estaticas/componente-cultural/leon-blanco-2025.webp`}
+          src="https://residente.mx/fotos/fotos-estaticas/componente-cultural/leon-blanco-2025.webp"
           className="h-[clamp(1.9rem,4.2vw,2.8rem)]"
         />
       </div>
       <div className="flex w-full justify-center items-center">
         <img
-          src={`${urlApi}fotos/fotos-estaticas/componente-cultural/logo-culturall-access-04.webp`}
+          src="https://residente.mx/fotos/fotos-estaticas/componente-cultural/logo-culturall-access-04.webp"
           className="h-[140px]"
         />
       </div>

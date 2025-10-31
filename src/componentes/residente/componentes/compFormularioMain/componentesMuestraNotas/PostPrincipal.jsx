@@ -1,4 +1,4 @@
-import { urlApi } from '../../componentes/api/url.js'
+import { urlApi, imgApi } from '../../componentes/api/url.js'
 
 const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, fecha, nombreRestaurante }) => {
     return (

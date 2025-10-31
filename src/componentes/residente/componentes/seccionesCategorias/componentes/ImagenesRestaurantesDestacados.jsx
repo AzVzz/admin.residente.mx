@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { urlApi } from "../../../../api/url";
+import { urlApi, imgApi } from "../../../../api/url";
 
 const ImagenesRestaurantesDestacados = ({ restaurantes, small = false, cantidad = 4 }) => (
   <div className={`grid grid-cols-${cantidad} gap-5 ${small ? 'max-w-[1080px]' : 'mt-5 mb-5'}`}>

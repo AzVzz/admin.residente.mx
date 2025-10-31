@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Recibe nombre_usuario y password, hace POST y retorna el token si es exitoso
 export const loginPost = async (nombre_usuario, password) => {

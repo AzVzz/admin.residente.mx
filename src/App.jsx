@@ -17,7 +17,7 @@ import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
 import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
-import { urlApi } from './componentes/api/url.js';
+import { urlApi, imgApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
@@ -90,7 +90,7 @@ function App() {
     const pathCliente = location.pathname.split('/')[1];
 
     if (location.pathname === '/culturallaccess') {
-      document.body.style.backgroundImage = `url(${urlApi}fotos/fotos-estaticas/componente-cultural/background-cultural-access.webp)`;
+      document.body.style.backgroundImage = `url("https://residente.mx/fotos/fotos-estaticas/componente-cultural/background-cultural-access.webp")`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundRepeat = 'no-repeat';

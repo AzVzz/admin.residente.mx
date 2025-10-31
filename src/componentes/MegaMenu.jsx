@@ -10,7 +10,8 @@ import { FaFacebook } from "react-icons/fa6"
 import { FaYoutube } from "react-icons/fa"
 import { FaWhatsapp } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
-import { urlApi } from './api/url';
+import { urlApi, imgApi } from './api/url';
+
 
 const MegaMenu = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,7 +56,7 @@ const MegaMenu = () => {
                         <div className="flex items-center contenedor-header-3">
                             <Link to="/" className="flex-shrink-0">
                                 <img
-                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` || "/placeholder.svg"} alt="Residente Food & Drink Media"
+                                    src={`${imgApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` || "/placeholder.svg"} alt="Residente Food & Drink Media"
                                     className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12" />
                             </Link>
                             <button onClick={toggleMenu} className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3">
@@ -92,7 +93,7 @@ const MegaMenu = () => {
                                 className="flex-shrink-0"
                             >
                                 <img
-                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp` || "/placeholder.svg"}
+                                    src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp` || "/placeholder.svg"}
                                     alt="B2B Soluciones"
                                     className="object-contain h-8 w-auto b2b"
                                 />

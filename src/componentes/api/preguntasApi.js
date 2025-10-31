@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Crear una nueva pregunta semanal
 export async function crearPreguntaTemaSemana({ pregunta, publicar_en, expirar_en }, token) {

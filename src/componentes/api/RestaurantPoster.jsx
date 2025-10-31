@@ -1,6 +1,6 @@
 // src/componentes/api/RestaurantPoster.jsx
 import { useState } from 'react';
-import { urlApi } from '../../componentes/api/url.js'
+import { urlApi, imgApi } from '../../componentes/api/url.js'
 
 const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
     const [isPosting, setIsPosting] = useState(false);

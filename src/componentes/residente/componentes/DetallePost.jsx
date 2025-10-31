@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { notasPublicadasPorId } from "../../api/notasPublicadasGet"; // Ajusta el path si es necesario
-import { urlApi } from "../../api/url.js";
+import { urlApi, imgApi } from "../../api/url.js";
 import { cuponesGet } from "../../api/cuponesGet.js";
 import { Iconografia } from '../../utils/Iconografia.jsx';
 import { FaWhatsapp, FaInstagram, FaLink } from 'react-icons/fa';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { urlApi } from '../../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../../componentes/api/url.js';
 import { bannerNewsletterGetReciente } from '../../../../componentes/api/bannerNewsletterGet.js';
 
 const BotonesAnunciateSuscribirme = () => {
@@ -46,7 +46,7 @@ const BotonesAnunciateSuscribirme = () => {
 
                     {/* Logo */}
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp`}
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
                         className="h-full w-46 object-contain"
                         alt="Logo Infografías"
                     />

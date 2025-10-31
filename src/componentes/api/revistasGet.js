@@ -1,4 +1,4 @@
-import { urlApi } from './url';
+import { urlApi, imgApi } from './url';
 
 export const revistasGetById = async (id) => {
   const res = await fetch(`${urlApi}api/revistas/${id}`);

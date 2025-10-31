@@ -1,4 +1,4 @@
-import { urlApi } from "../../api/url.js";
+import { urlApi, imgApi } from "../../api/url.js";
 
 const PlantillaLateralPostTarjetas = ({
   notasDestacadas = [],
@@ -18,7 +18,7 @@ const PlantillaLateralPostTarjetas = ({
         <div className="relative">
           <div className="absolute left-[-90px] top-1/2 transform -translate-y-1/2 w-20 h-[10px] bg-[#fff300] -skew-x-32"></div>
           <img
-            src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
+            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp"
             className="h-full w-46 object-contain"
             alt="Logo Lo más visto"
           />

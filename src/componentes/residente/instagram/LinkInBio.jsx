@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Skeleton from "@mui/material/Skeleton"
-import { urlApi } from "../../api/url"
+import { urlApi, imgApi } from "../../api/url"
 
 const LinkInBio = () => {
   const [notas, setNotas] = useState([])
@@ -35,7 +35,7 @@ const LinkInBio = () => {
                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center  ">
            <Link to="/">
              <img 
-               src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp`}
+               src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
                alt="Logo Residente" 
                className="w-8 h-8 object-contain"
              />
@@ -64,7 +64,7 @@ const LinkInBio = () => {
         ) : hayNotas ? (
           <Link to={`/`} aria-label={principal.titulo}>
             <img
-              src={`${urlApi}fotos/fotos-estaticas/residente-logos/amarillos/banner-pagina-insta-imagen.webp`}
+              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/amarillos/banner-pagina-insta-imagen.webp"
               alt="Banner InstaImagen"
               className="w-full h-full object-cover cursor-pointer bg-[#fff300]"
               loading="eager"

@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 /**
  * Crear una nueva promoción de tickets (POST)

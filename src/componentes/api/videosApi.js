@@ -1,4 +1,4 @@
-import { urlApi } from './url';
+import { urlApi, imgApi } from './url';
 
 const SIMULAR_API = false;
 
