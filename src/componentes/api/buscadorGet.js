@@ -1,4 +1,4 @@
-import { urlApi } from './url.js'
+import { urlApi, imgApi } from './url.js'
 
 async function request(pathOrUrl) {
   // acepta '/api/...' (relativo) o URL absoluta

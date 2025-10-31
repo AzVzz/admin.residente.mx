@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../componentes/Context';
-import { urlApi } from '../componentes/api/url';
+import { urlApi, imgApi } from '../componentes/api/url';
 
 export const useClientesValidos = () => {
   const { token } = useAuth();

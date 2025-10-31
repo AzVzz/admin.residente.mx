@@ -1,5 +1,5 @@
 //src/componentes/api/catalogoSeccionesGet.js
-import { urlApi } from './url.js'
+import { urlApi, imgApi } from './url.js'
 
 export const catalogoSeccionesGet = async () => {
     try {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { urlApi } from '../../componentes/api/url.js'
+import { urlApi, imgApi } from '../../componentes/api/url.js'
 
 const CulturalAccessForm = () => {
   const [curpOption, setCurpOption] = useState("curp")

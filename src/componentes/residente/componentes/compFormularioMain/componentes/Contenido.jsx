@@ -3,7 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import { useEffect, useRef } from 'react';
-import { urlApi } from '../../../../api/url';
+import { urlApi, imgApi } from '../../../../api/url';
 
 const Contenido = () => {
     const { control, setValue, watch, formState: { errors } } = useFormContext();

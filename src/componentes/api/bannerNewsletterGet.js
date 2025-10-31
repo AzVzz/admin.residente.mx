@@ -1,4 +1,4 @@
-import { urlApi } from "./url";
+import { urlApi, imgApi } from "./url";
 
 export async function bannerNewsletterGetReciente() {
   const response = await fetch(`${urlApi}api/bannersnewsletter/reciente`);

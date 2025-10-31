@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { catalogoSeccionesGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
-import { urlApi } from '../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../componentes/api/url.js';
 import { obtenerNotasTodasCategorias } from '../../../componentes/api/notasCategoriasBuscador.js';
 import * as React from 'react';
 import TextField from '@mui/material/TextField';

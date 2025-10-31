@@ -15,7 +15,7 @@ import BarraMarquee from './componentes/BarraMarquee.jsx';
 import ImagenesRestaurantesDestacados from './componentes/ImagenesRestaurantesDestacados.jsx';
 import CategoriaHeader from './componentes/CateogoriaHeader.jsx';
 import CuponesCarrusel from './componentes/CuponesCarrusel.jsx';
-import { urlApi } from '../../../api/url.js';
+import { urlApi, imgApi } from '../../../api/url.js';
 import { catalogoSeccionesGet } from '../../../api/CatalogoSeccionesGet.js';
 import HeaderSecciones from './componentes/HeaderSecciones.jsx';
 import BannerHorizontal from '../BannerHorizontal.jsx';
@@ -514,7 +514,7 @@ const MainSeccionesCategorias = () => {
                         <div className="flex flex-row items-center mb-6">
                             <img
                                 className="w-36 h-auto mr-4"
-                                src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp"
+                                src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
                                 alt="Logo Guía NL"
                             />
                             <p className="text-lg font-medium self-center">

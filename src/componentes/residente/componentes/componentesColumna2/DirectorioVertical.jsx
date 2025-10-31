@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- importa esto
 import { catalogoSeccionesGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
-import { urlApi } from '../../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../../componentes/api/url.js';
 
 const iconos = [
     "https://residente.mx/fotos/fotos-estaticas/componente-iconos/costo.png",

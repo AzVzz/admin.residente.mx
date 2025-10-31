@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import { useData } from "../../../DataContext";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
 import { revistaGetUltima } from "../../../api/revistasGet";

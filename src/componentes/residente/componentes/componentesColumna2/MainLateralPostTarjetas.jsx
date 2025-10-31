@@ -1,4 +1,4 @@
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import BarraMarquee from "../seccionesCategorias/componentes/BarraMarquee.jsx";
 import PortadaRevista from "./PortadaRevista";
 
@@ -76,7 +76,7 @@ const MainLateralPostTarjetas = ({
                       <img
                         src={
                           post.imagen ||
-                          `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`
+                          "https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp"
                         }
                         alt={post.titulo}
                         className="w-full h-full object-cover rounded-full"

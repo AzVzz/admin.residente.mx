@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from 'react-router-dom';
 import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
-import { revistaGetUltima } from "./api/revistasGet";
-import { urlApi } from './api/url';
+import { urlApi, imgApi } from './api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope, FaSearch, FaTimes } from "react-icons/fa";
-import BannerHorizontal from "./residente/componentes/BannerHorizontal";
 import SearchResults from "./SearchResults";
 
 const Header = () => {
@@ -89,7 +87,7 @@ const Header = () => {
 
       <div className="max-w-[1080px] mx-auto w-full">
 
-        <div className="pt-8"> {/*agregue 3 pixeles más*/}
+        <div className="pt-8">
           {/*<BannerHorizontal size="big" />*/}
           {location.pathname === '/heybanco' ? (
             <a>

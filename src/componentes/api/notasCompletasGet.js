@@ -1,5 +1,5 @@
 //src/componentes/api/notasCompletas.js
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 export const notasTodasGet = async (token, page = 1, limit = "all", q = "", filtros = {}) => {
     try {

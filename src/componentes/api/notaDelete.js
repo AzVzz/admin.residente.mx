@@ -1,5 +1,5 @@
 //src/componentes/api/notaDelete.js
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 export const notaDelete = async (id, token) => {
     try {

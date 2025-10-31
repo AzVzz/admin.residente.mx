@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { notasPorTipoNota, notasDestacadasPorTipoGet, notasDestacadasTopGet } from "../../api/notasPublicadasGet";
-import { urlApi } from "../../api/url.js";
+import { urlApi, imgApi } from "../../api/url.js";
 import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
 import TresTarjetas from "../componentes/componentesColumna2/TresTarjetas";
 import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical";

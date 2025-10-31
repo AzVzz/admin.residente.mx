@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 export async function cuponesGet() {
     const response = await fetch(`${urlApi}api/tickets`);

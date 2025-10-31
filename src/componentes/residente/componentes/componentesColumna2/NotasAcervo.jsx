@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 
 const CANTIDAD_NOTAS = 4;
 
@@ -186,7 +186,11 @@ const NotasAcervo = ({ onCardClick }) => {
             <div className="max-w-[1080px] mx-auto h-88 py-10">
 
                 <div className="flex items-end leading-8 mb-6">
+<<<<<<< HEAD
                     <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp" className="w-auto h-6" />
+=======
+                    <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/acervo-residente.webp`} className="w-auto h-6" />
+>>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                     <h2 className="text-[20px] font-bold leading-4 mr-auto ml-4">El acervo gastronómico de Nuevo León</h2>
                     {/* Antes 29px el h2 */}
                     {/* 🔍 Buscador avanzado */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { catalogoNotasGet } from './api/notasPublicadasGet';
-import { urlApi } from './api/url';
+import { urlApi, imgApi } from './api/url';
 
 // Función para normalizar texto (quitar acentos, caracteres especiales)
 const normalizeText = (text) => {

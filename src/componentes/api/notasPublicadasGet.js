@@ -1,5 +1,5 @@
 //src/componentes/api/CatalogoNotasGet.js
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Puro Gets a notasPublicadas
 

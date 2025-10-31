@@ -1,7 +1,7 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import { getColaboradores } from "../../../api/temaSemanaApi";
 import { useNavigate } from "react-router-dom";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 
 const CANTIDAD_COLABORADORES = 4;
 
@@ -123,7 +123,11 @@ const MiComponente = () => {
             <div className="max-w-[1080px] mx-auto py-8">
                 {/* Imagen arriba del texto */}
                 <img
+<<<<<<< HEAD
                     src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp"
+=======
+                    src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp`}
+>>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                     alt="Colaboradores"
                     className="h-[35px] mb-6"
                 />

@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Función para registrar un nuevo usuario
 export const registroPost = async (nombre_usuario, password, confirmPassword) => {

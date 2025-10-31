@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 /**
  * Obtiene todas las infografías desde la base de datos

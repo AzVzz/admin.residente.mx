@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { urlApi } from "../../../api/url";
+import { urlApi, imgApi } from "../../../api/url";
 import { obtenerVideos } from "../../../api/videosApi";
 import { useAuth } from "../../../Context";
 
@@ -159,7 +159,11 @@ const VideosHorizontalCarrusel = () => {
                             <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                             <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                 <div className="flex flex-row justify-center items-center gap-3">
+<<<<<<< HEAD
                                     <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp" className="w-full h-6 object-contain" />
+=======
+                                    <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+>>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                                 </div>
                             </div>
                         </div>
@@ -187,7 +191,11 @@ const VideosHorizontalCarrusel = () => {
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
+<<<<<<< HEAD
                                 <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp" className="w-full h-6 object-contain" />
+=======
+                                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+>>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                             </div>
                         </div>
                     </div>
