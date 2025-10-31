@@ -1,5 +1,3 @@
-import { urlApi } from '../../componentes/api/url.js';
-
 export const Iconografia = {
     categorias: [
         { nombre: "Autenticidad", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/4real.webp", clave: "fourreal" },
@@ -9,7 +7,7 @@ export const Iconografia = {
         { nombre: "Nuevo", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/new.webp", clave: "newIcon" },
         { nombre: "Memorable", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/estrellas.webp", clave: "estrellas" },
         { nombre: "Calidad", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/calidad.webp", clave: "calidad" },
-        { nombre: "Residente", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/Residente.webp", clave: "Residente" },
+        { nombre: "Hey Banco", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/LOGO HEY,.webp", clave: "Logo Hey Banco" },
         { nombre: "Calidad Precio", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/calidad-precio.webp", clave: "calidadPrecio" },
     ],
     ocasiones: [
@@ -19,6 +17,9 @@ export const Iconografia = {
         { nombre: "Night", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/noche.webp", clave: "noche" },
         { nombre: "Familiar", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/familiar.webp", clave: "familiar" },
         { nombre: "Negocios", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/negocios.webp", clave: "negocios" },
+        { nombre: "Antojo", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/yum.webp", clave: "yum" },
+        { nombre: "En pareja", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/en-pareja.webp", clave: "enPareja" },
+        { nombre: "Munch", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/munch.webp", clave: "munch" },
     ],
     zonas: [
         { nombre: "Monterrey", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/mty.webp", clave: "mty" },
