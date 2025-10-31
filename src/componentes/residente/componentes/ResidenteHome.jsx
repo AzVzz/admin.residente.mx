@@ -219,9 +219,9 @@ const ResidenteHome = () => {
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#fff300]">
                                         <div className="flex flex-row justify-center items-center gap-2">
-                                            <img src={`${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
+                                            <img src="https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif" className="w-7.5 h-full object-contain rounded-full" />
                                             <h3 className="text-4xl">Favoritos Residente</h3>
-                                            <img src={`${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`} className="w-7.5 h-full object-contain rounded-full" />
+                                            <img src="https://residente.mx/fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif" className="w-7.5 h-full object-contain rounded-full" />
                                         </div>
                                     </div>
                                 </div>
@@ -244,7 +244,7 @@ const ResidenteHome = () => {
                                     <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                                     <div className="relative z-10 px-4 bg-[#fff300]">
                                         <div className="flex flex-row justify-center items-center gap-3">
-                                            <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp`} className="w-full h-8 object-contain" />
+                                            <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/grises/platillos-iconicos.webp" className="w-full h-8 object-contain" />
                                         </div>
                                     </div>
                                 </div>

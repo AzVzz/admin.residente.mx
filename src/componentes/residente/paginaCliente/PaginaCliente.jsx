@@ -136,13 +136,13 @@ const PaginaCliente = () => {
                                     {console.log('nombreCliente:', nombreCliente, 'tipo:', typeof nombreCliente)}
                                     {nombreCliente === 'mama-de-rocco' ? (
                                         <img
-                                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/mamá de roco 2.webp`}
+                                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/mamá de roco 2.webp"
                                             alt="Mama de Rocco"
                                             className="h-20 sm:h-24 md:h-24 lg:h-24 w-auto max-w-full object-contain"
                                         />
                                     ) : (nombreCliente === 'patolobo' || nombreCliente?.toLowerCase() === 'patolobo' || nombreCliente?.includes('patolobo')) ? (
                                         <img
-                                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/PATOLOBO® LOGOTIPO NEGRO.webp`}
+                                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/PATOLOBO® LOGOTIPO NEGRO.webp"
                                             alt="PatoLobo"
                                             className="h-20 sm:h-18 md:h-18 lg:h-18 w-auto max-w-full object-contain"
                                         />
@@ -207,7 +207,7 @@ const PaginaCliente = () => {
                 <div className="absolute left-0 right-0 top-1/3 border-t-2 border-black opacity-100 z-0" />
                 <div className="relative z-10 px-4 bg-[#DDDDDE]">
                     <div className="flex flex-row justify-center items-center gap-2">
-                        <img className="h-full w-105" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                        <img className="h-full w-105" src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp" />
                     </div>
                     <div className="text-center mt-0 leading-5">
                         <span className="text-[12px] font-semibold tracking-wide">

@@ -36,7 +36,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
             <div className="flex flex-col pt-9 items-center">
                 <div className="w-full max-w-[650px] mx-auto flex flex-col gap-5">
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp`}
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
                         alt="Newsletter Logo"
                         className="w-100 h-auto mx-auto"
                     />
@@ -45,7 +45,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                         <div key={nota.id} className="mb-8">
                             <div className="flex justify-center items-center mb-2">
                                 <img
-                                    src={`${urlApi}${logosCategorias[categoria]}`}
+                                    src={`https://residente.mx/fotos/${logosCategorias[categoria]}`}
                                     alt={categoria}
                                     className="h-auto w-85 object-contain"
                                 />

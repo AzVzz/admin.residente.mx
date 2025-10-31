@@ -19,7 +19,7 @@ const sizeConfig = {
         perforatedTop: "w-90",
         perforatedBottom: "w-90"
     },
-    
+
     /* Configuración para el tamaño pequeño */
     small: {
         container: "w-45 min-h-84 max-h-84",
@@ -167,7 +167,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
             {/* Perforated top edge */}
             <div className={config.perforatedTop || "w-full"}>
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp"
                     alt="Perforado superior"
                     className="w-full"
                 />
@@ -190,7 +190,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
+                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp"
                             alt="Residente Discy Promo Logo"
                             className={config.logo}
                         />
@@ -198,7 +198,8 @@ const TicketPromoMini = forwardRef((props, ref) => {
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
+                            className={`w-full bg-black text-white font-black uppercase px-2 text-center leading-tight overflow-hidden mb-2 ${restaurantNameText.length <= 20 ? 'whitespace-nowrap' : 'break-words'
+                                }`}
                             style={{ fontSize: `${restaurantNameFontSize}px` }}
                         >
                             {restaurantNameText}
@@ -247,7 +248,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
+                        src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif"
                         alt="Código de barras"
                         className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
@@ -255,7 +256,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
             </div>
             <div className={config.perforatedBottom}>
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp"
                     alt="Perforado inferior"
                     className="w-full"
                 />

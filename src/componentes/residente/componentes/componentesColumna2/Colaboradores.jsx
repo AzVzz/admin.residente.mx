@@ -123,7 +123,7 @@ const MiComponente = () => {
             <div className="max-w-[1080px] mx-auto py-8">
                 {/* Imagen arriba del texto */}
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp`}
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/comunidad-residente.webp"
                     alt="Colaboradores"
                     className="h-[35px] mb-6"
                 />

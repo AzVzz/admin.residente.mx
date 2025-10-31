@@ -53,7 +53,7 @@ const Contenido = () => {
             const formData = new FormData();
             formData.append('imagen', file);
 
-            const endpoint = `${urlApi}api/uploads/editor-image`;
+            const endpoint = `https://prueba.residente.mx/api/uploads/editor-image`;
             const resp = await fetch(endpoint, {
                 method: 'POST',
                 body: formData

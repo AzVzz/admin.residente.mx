@@ -13,7 +13,7 @@ const Colaboraciones = ({ colaboracion_coca_cola, colaboracion_modelo }) => {
         {colaboracion_coca_cola && (
           <div className="w-full max-w-2xl"> {/* Contenedor ancho para la imagen */}
             <img
-              src={`${urlApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-coca-cola.webp`}
+              src="https://residente.mx/fotos/fotos-estaticas/componente-restaurante/colaboracion-coca-cola.webp"
               alt="Coca Cola"
               className="w-full h-auto max-h-40 object-contain mx-auto" /* Imagen responsiva */
             />
@@ -23,7 +23,7 @@ const Colaboraciones = ({ colaboracion_coca_cola, colaboracion_modelo }) => {
         {colaboracion_modelo && (
           <div className="w-full max-w-2xl"> {/* Contenedor ancho para la imagen */}
             <img
-              src={`${urlApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-modelo.webp`}
+              src="https://residente.mx/fotos/fotos-estaticas/componente-restaurante/colaboracion-modelo.webp"
               alt="Modelo"
               className="w-full h-auto max-h-40 object-contain mx-auto" /* Imagen responsiva */
             />

@@ -126,7 +126,7 @@ const CincoInfografiasRRR = () => {
         <div className="relative z-10 px-4 bg-[#DDDDDE]">
           <div className="flex flex-row justify-center items-center gap-3">
             <img 
-              src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFI%CC%81AS.webp`} 
+              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFI%CC%81AS.webp"
               className="w-full h-7 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200" 
               onClick={handleLogoClick}
               alt="Logo Infografías - Click para ver todas las infografías"

@@ -159,7 +159,7 @@ const VideosHorizontalCarrusel = () => {
                             <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                             <div className="relative z-10 px-4 bg-[#DDDDDE]">
                                 <div className="flex flex-row justify-center items-center gap-3">
-                                    <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+                                    <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp" className="w-full h-6 object-contain" />
                                 </div>
                             </div>
                         </div>
@@ -187,7 +187,7 @@ const VideosHorizontalCarrusel = () => {
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                                <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp`} className="w-full h-6 object-contain" />
+                                <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/RESIDENTE%20RESTAURANT%20VIDEO.webp" className="w-full h-6 object-contain" />
                             </div>
                         </div>
                     </div>

@@ -94,7 +94,7 @@ const RestaurantePage = () => {
             {imagenes.length > 0 && (
               <PlatilloEstrellaCarrusel
                 imagenes={imagenes.map(img => img.src)}
-                estrella={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/estrella.webp`}
+                estrella="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/estrella.webp"
                 nombrePlatillo={platillo_mas_vendido || ""}
               />
             )}
@@ -107,8 +107,8 @@ const RestaurantePage = () => {
             />
 
             <GridComponent
-              man={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/man.webp`}
-              phone={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/telefono.webp`}
+              man="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/man.webp"
+              phone="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/telefono.webp"
               ticketPromedio={ticket_promedio || ""}
               numeroSucursales={numero_sucursales || ""}
               sucursales={sucursales}

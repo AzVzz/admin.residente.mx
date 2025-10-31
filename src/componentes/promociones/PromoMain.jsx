@@ -82,33 +82,60 @@ const PromoMain = () => {
         }
     };
 
+    // 🟢 FUNCIÓN PARA OBTENER LOS ESTILOS DE LOS CAMPOS DEL TICKET
+    const getTicketEstilosCampos = () => {
+        if (!ticketRef.current) return {};
+        const h1 = ticketRef.current.querySelector('h1');
+        const h3s = ticketRef.current.querySelectorAll('h3');
+        const p = ticketRef.current.querySelector('p');
+        const h2 = ticketRef.current.querySelector('h2'); // Cambia span por h2
+
+        return {
+            nombre_restaurante: h1 ? {
+                fontSize: window.getComputedStyle(h1).fontSize,
+                color: window.getComputedStyle(h1).color
+            } : {},
+            titulo: h3s[0] ? {
+                fontSize: window.getComputedStyle(h3s[0]).fontSize,
+                color: window.getComputedStyle(h3s[0]).color
+            } : {},
+            subtitulo: h3s[1] ? { // El subtitulo es el segundo h3
+                fontSize: window.getComputedStyle(h3s[1]).fontSize,
+                color: window.getComputedStyle(h3s[1]).color
+            } : {},
+            descripcion: p ? {
+                fontSize: window.getComputedStyle(p).fontSize,
+                color: window.getComputedStyle(p).color
+            } : {},
+            fecha_validez: h2 ? { // La validez está en h2
+                fontSize: window.getComputedStyle(h2).fontSize,
+                color: window.getComputedStyle(h2).color
+            } : {}
+        };
+    };
+
     const prepareApiData = () => {
         const restauranteSeleccionado = restaurantes.find(r => String(r.id) === String(selectedRestauranteId));
-        const stickerClave = selectedStickers[0] || ""; // <-- usa el primer sticker seleccionado
+        const stickerClave = selectedStickers[0] || "";
         return {
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
             subtitulo: formData.promoSubtitle,
             descripcion: formData.descPromo,
-            icon: stickerClave, // <-- guarda la clave, no la url
+            icon: stickerClave,
             email: formData.emailPromo || "",
             tipo: 'promo',
             link: formData.urlPromo || "",
             fecha_validez: formData.fechaValidez,
             metadata: JSON.stringify({
-                sticker_url: stickerClave // o puedes guardar la url si prefieres
+                sticker_url: stickerClave
             }),
-            secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined
+            secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
+            estilos_campos: getTicketEstilosCampos() // 🟢 AGREGA LOS ESTILOS AQUÍ
         };
     };
 
     const handleGuardar = async () => {
-        // ➕ AGREGAR: Validar que se haya seleccionado al menos un sticker
-        if (!selectedStickers || selectedStickers.length === 0) {
-            alert('⚠️ Falta ícono a elegir. Por favor selecciona al menos un sticker antes de guardar.');
-            return; // No continúa con la publicación
-        }
-
         setSaveSuccess(false);
         setSaveError(null);
         setIsPosting(true);
@@ -150,7 +177,7 @@ const PromoMain = () => {
                     selectedRestauranteId={selectedRestauranteId}
                     onRestauranteChange={handleRestauranteChange}
                 />
-                <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col">
+                <div className="bg-[#3B3B3C] w-auto h-auto px-14 pr-3 pt-10 pb-10 shadow-lg relative flex flex-col">
                     {/* Mensajes de éxito/error flotantes con transición */}
                     {(saveSuccess || saveError) && (
                         <div

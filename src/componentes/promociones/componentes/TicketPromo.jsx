@@ -12,8 +12,8 @@ const sizeConfig = {
             promo: { initial: 200, min: 20 },
             sub: { initial: 150, min: 15 }
         },
-        description: "text-[26px] leading-[28px]",
-        validity: "text-[20px] py-3 leading-[18px]",
+        description: "text-[18px] leading-[20px]",
+        validity: "text-xl py-2",
         barcode: "h-20",
         sticker: "absolute top-15 left-75 w-26 h-26",
         perforatedTop: "w-90",
@@ -164,7 +164,11 @@ const TicketPromo = forwardRef((props, ref) => {
         >
             {/* Perforated top edge */}
             <div className={config.perforatedTop || "w-full"}>
-                <img src="public/iconos-secciones/orilla-ticket-top.webp" alt="Perforado superior" className="w-full" />
+                <img
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp"
+                    alt="Perforado superior"
+                    className="w-full"
+                />
             </div>
 
             <div
@@ -173,8 +177,8 @@ const TicketPromo = forwardRef((props, ref) => {
             >
                 {stickerUrl && (
                     <img
-                        src="public/iconos-secciones/desayunos.webp"
-                        alt="Icono"
+                        src={stickerUrl}
+                        alt="Sticker"
                         className={`${config.sticker}  flex items-center justify-center z-10`}
                         style={{ filter: 'drop-shadow(-1px 1.5px 0.8px rgba(0,0,0,0.25))' }}
                     />
@@ -183,7 +187,11 @@ const TicketPromo = forwardRef((props, ref) => {
                 {/* Main content */}
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
-                        <img src="public/iconos-secciones/discpromo-logo-gris.webp" alt="Residente Discy Promo Logo" className={config.logo} />
+                        <img
+                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp"
+                            alt="Residente Discy Promo Logo"
+                            className={config.logo}
+                        />
                     </div>
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
@@ -237,18 +245,21 @@ const TicketPromo = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src="public/iconos-secciones/barcode.avif"
+                        src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif"
                         alt="Código de barras"
                         className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
                 </div>
             </div>
             <div className={config.perforatedBottom}>
-                <img src="public/iconos-secciones/orilla-ticket-bottom.webp" alt="Perforado inferior" className="w-full" />
+                <img
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp"
+                    alt="Perforado inferior"
+                    className="w-full"
+                />
             </div>
         </div>
     );
 });
 
 export default TicketPromo;
-

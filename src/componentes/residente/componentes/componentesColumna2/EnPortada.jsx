@@ -54,7 +54,7 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
             <div className="max-w-[1080px] mx-auto my-9">
                 <div className="flex justify-between">
-                    <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
+                    <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp" className="w-85 h-full mb-8 object-contain" />
                     <div className="flex">
                         {iconosZonales.map((icon, idx) => (
                             <img key={idx} src={icon.src} alt={icon.alt} className="h-9.5 w-9.5 shadow-md rounded-full" />

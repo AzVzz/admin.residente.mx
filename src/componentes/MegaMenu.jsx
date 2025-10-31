@@ -55,8 +55,11 @@ const MegaMenu = () => {
                         <div className="flex items-center contenedor-header-3">
                             <Link to="/" className="flex-shrink-0">
                                 <img
-                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` || "/placeholder.svg"} alt="Residente Food & Drink Media"
-                                    className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12" />
+                                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp"
+                                    alt="Residente Food & Drink Media"
+                                    className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12"
+                                    onError={e => { e.target.src = "/placeholder.svg"; }}
+                                />
                             </Link>
                             <button onClick={toggleMenu} className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3">
                                 <svg
@@ -87,14 +90,15 @@ const MegaMenu = () => {
                             {/* se elimino el href */}
                             <a
                                 href="/b2b"
-                                 target="_blank"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-shrink-0"
                             >
                                 <img
-                                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp` || "/placeholder.svg"}
+                                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/blancos/B2BSoluciones-logo-blanco.webp"
                                     alt="B2B Soluciones"
                                     className="object-contain h-8 w-auto b2b"
+                                    onError={e => { e.target.src = "/placeholder.svg"; }}
                                 />
                             </a>
 

@@ -7,7 +7,7 @@ const Footer = () => {
             
             <div className="relative w-[70%] max-w-[900px]">
                 <img 
-                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`} 
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif"
                     alt="Código de barras" 
                     className="w-full object-contain"
                 />
@@ -23,7 +23,7 @@ const Footer = () => {
 
             <Link to="/" className="w-[25%] max-w-[300px]">
                 <img 
-                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp`} 
+                    src="https://residente.mx/fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp" 
                     alt="Estrellas de Nuevo León" 
                     className="w-full object-contain"
                 />

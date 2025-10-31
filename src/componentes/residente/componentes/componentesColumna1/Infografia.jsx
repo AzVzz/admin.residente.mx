@@ -24,7 +24,7 @@ const Infografia = () => {
 
                 {/* Logo */}
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp`}
+                    src="https://residente.mx/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
                     className="h-full w-46 object-contain cursor-pointer"
                     alt="Logo Infografías"
                     onClick={handleInfografiaClick}
@@ -50,7 +50,7 @@ const Infografia = () => {
                     />
                 ) : (
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg`}
+                        src="https://residente.mx/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
                         alt="Infografía"
                         className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
                         onClick={handleInfografiaClick}

@@ -26,7 +26,7 @@ const MainLateralPostTarjetas = ({
 
             {/* Logo */}
             <img
-              src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp`}
+              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/lomasvistologo-03.webp"
               className="h-full w-46 object-contain"
               alt="Logo Lo más visto"
             />

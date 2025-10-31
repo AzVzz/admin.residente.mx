@@ -117,9 +117,9 @@ const ListaRestaurantes = () => {
   return (
     <div className="lista-restaurantes">
       <div className="lista-logos">
-        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/magazine-logo-gris.webp`} alt="Residente Restaurant Magazine Logo" />
-        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp`} alt="Estrellas de Nuevo León Logo" />
-        <img src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/researchdata-logo-gris.webp`} alt="Residente Restaurant Research&Data" />
+        <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/grises/magazine-logo-gris.webp" alt="Residente Restaurant Magazine Logo" />
+        <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp" alt="Estrellas de Nuevo León Logo" />
+        <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/grises/researchdata-logo-gris.webp" alt="Residente Restaurant Research&Data" />
       </div>
       <p className="text-global">Desde 2016 y con una metodología probada, <b className="font-grotesk">Residente Food&Drink-Media</b> realiza constantemente estudios de mercado entre el público, críticos y expertos de la industria. Estos estudios nos permiten entender y balancear por geografía, edad y poder de compra las preferencias de los consumidores. A continuación se presentan las <b className="font-grotesk">“Estrellas de Nuevo León”</b>, aquellos restaurantes que han logrado distinguirse y posicionarse, por muy diversas razones, dentro del gusto de los consumidores. Los nombres que <b className="font-grotesk">aquí aparecen representan lo mejor de lo mejor, el 1% de la oferta gastronómica de Nuevo León.</b> Esta, no es una lista comercial ni una preferencia amistosa, mucho menos un capricho editorial, sino el resultado de años de estudio y del conocimiento profundo de la cultura culinaria de nuestro estado.</p>
 

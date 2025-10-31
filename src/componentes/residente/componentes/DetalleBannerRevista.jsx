@@ -144,7 +144,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} /> 
+                            <img className="h-full w-95" src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp" /> 
                     </div>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                            <img className="h-full w-95" src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp" />
                             </div>
                         </div>
                     </div>
@@ -191,7 +191,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                            <img className="h-full w-95" src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp" />
                             </div>
                         </div>
                     </div>
