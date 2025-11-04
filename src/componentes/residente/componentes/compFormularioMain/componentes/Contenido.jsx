@@ -3,7 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import { useEffect, useRef } from 'react';
-import { urlApi, imgApi } from '../../../../api/url';
+import { imgApi, urlApi } from '../../../../api/url';
 
 const Contenido = () => {
     const { control, setValue, watch, formState: { errors } } = useFormContext();
@@ -53,7 +53,7 @@ const Contenido = () => {
             const formData = new FormData();
             formData.append('imagen', file);
 
-            const endpoint = `https://prueba.residente.mx/api/uploads/editor-image`;
+            const endpoint = `${urlApi}api/uploads/editor-image`;
             const resp = await fetch(endpoint, {
                 method: 'POST',
                 body: formData

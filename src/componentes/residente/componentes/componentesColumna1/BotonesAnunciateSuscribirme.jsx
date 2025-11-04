@@ -46,11 +46,7 @@ const BotonesAnunciateSuscribirme = () => {
 
                     {/* Logo */}
                     <img
-<<<<<<< HEAD
-                        src="https://residente.mx/fotos-estaticas/residente-logos/negros/newsletter1.webp"
-=======
                         src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/newsletter1.webp"
->>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                         className="h-full w-46 object-contain"
                         alt="Logo Infografías"
                     />

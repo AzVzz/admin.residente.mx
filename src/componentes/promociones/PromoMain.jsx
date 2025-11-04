@@ -139,12 +139,31 @@ const PromoMain = () => {
         setSaveSuccess(false);
         setSaveError(null);
         setIsPosting(true);
+
         try {
+            if (!ticketRef.current) throw new Error("No se encontró el ticket para generar la imagen");
+
+            // 1. Generar la imagen
+            const dataUrl = await toPng(ticketRef.current, {
+                quality: 0.95,
+                pixelRatio: 5,
+                backgroundColor: '#3B3B3C'
+            });
+
+            // 2. Convertir base64 limpio
+            const base64Image = dataUrl.split(',')[1];
+
+            // 3. Preparar datos del formulario
             const apiData = prepareApiData();
-            console.log("Datos enviados a ticketCrear:", apiData);
-            await ticketCrear(apiData);
+            apiData.imagen_base64 = base64Image; // agregar imagen al payload
+
+            // 4. Llamar a tu endpoint
+            const response = await ticketCrear(apiData);
+            console.log("✅ Promoción creada:", response);
+
             setSaveSuccess(true);
         } catch (error) {
+            console.error("Error al guardar promoción:", error);
             setSaveError(error.message || 'Error al guardar la promoción');
         } finally {
             setIsPosting(false);

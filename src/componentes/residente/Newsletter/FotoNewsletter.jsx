@@ -45,13 +45,8 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                         <div key={nota.id} className="mb-8">
                             <div className="flex justify-center items-center mb-2">
                                 <img
-<<<<<<< HEAD
-                                    src={`https://residente.mx/fotos/${logosCategorias[categoria]}`}
-                                    alt={categoria}
-=======
                                     src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp"
                                     alt="Restaurantes"
->>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                                     className="h-auto w-85 object-contain"
                                 />
                             </div>

@@ -25,11 +25,7 @@ const Infografia = () => {
 
                 {/* Logo */}
                 <img
-<<<<<<< HEAD
-                    src="https://residente.mx/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
-=======
                     src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFÍAS.webp"
->>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                     className="h-full w-46 object-contain cursor-pointer"
                     alt="Logo Infografías"
                     onClick={handleInfografiaClick}
@@ -55,11 +51,7 @@ const Infografia = () => {
                     />
                 ) : (
                     <img
-<<<<<<< HEAD
-                        src="https://residente.mx/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg"
-=======
                         src={`${imgApi}fotos/fotos-estaticas/componente-news-letter/tacos-827x1024.jpg`}
->>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                         alt="Infografía"
                         className="h-50 w-auto object-contain cursor-pointer drop-shadow-[4px_3px_2px_rgba(0,0,0,0.3)] border-1 border-dotted border-gray-800/60"
                         onClick={handleInfografiaClick}

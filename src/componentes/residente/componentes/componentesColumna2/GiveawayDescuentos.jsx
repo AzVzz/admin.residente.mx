@@ -52,11 +52,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                     <div className="flex flex-col items-start">
                         {/* Logo arriba */}
                         <img
-<<<<<<< HEAD
-                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp"
-=======
                             src={`${imgApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
->>>>>>> 16712c598860b1bd60907ec30a037ddbadcabed9
                             alt="Residente Restaurant Promo"
                             className="mb-13 w-[36opx] h-auto object-contain mt-3"
                         />
