@@ -147,7 +147,7 @@ const PromoMain = () => {
             const dataUrl = await toPng(ticketRef.current, {
                 quality: 0.95,
                 pixelRatio: 5,
-                backgroundColor: '#3B3B3C'
+                backgroundColor: 'transparent'
             });
 
             // 2. Convertir base64 limpio
