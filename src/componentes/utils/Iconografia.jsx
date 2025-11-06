@@ -7,7 +7,7 @@ export const Iconografia = {
         { nombre: "Nuevo", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/new.webp", clave: "newIcon" },
         { nombre: "Memorable", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/estrellas.webp", clave: "estrellas" },
         { nombre: "Calidad", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/calidad.webp", clave: "calidad" },
-        { nombre: "Hey Banco", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/LOGO HEY,.webp", clave: "Logo Hey Banco" },
+        { nombre: "Residente", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/Residente.webp", clave: "residente" },
         { nombre: "Calidad Precio", icono: "https://residente.mx/fotos/fotos-estaticas/componente-iconos/calidad-precio.webp", clave: "calidadPrecio" },
     ],
     ocasiones: [
