@@ -1,5 +1,5 @@
 import { Iconografia } from "../../utils/Iconografia.jsx";
-import { urlApi } from "../../api/url.js";
+import { urlApi, imgApi } from "../../api/url.js";
 
 const PlantillaPostPrincipal = ({ post, onClick }) => {
     const iconosDisponibles = [

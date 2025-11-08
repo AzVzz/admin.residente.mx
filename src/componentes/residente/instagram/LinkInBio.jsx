@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Skeleton from "@mui/material/Skeleton"
-import { urlApi } from "../../api/url"
+import { urlApi, imgApi } from "../../api/url"
 
 const LinkInBio = () => {
   const [notas, setNotas] = useState([])

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { urlApi } from "../../../api/url";
+import { urlApi, imgApi } from "../../../api/url";
 import { Link } from "react-router-dom";
 
 const INTERVAL_MS = 4000; // tiempo entre slides

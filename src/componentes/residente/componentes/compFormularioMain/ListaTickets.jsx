@@ -58,7 +58,7 @@ const ListaTickets = ({ token }) => {
                                         Subtítulo
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Descripción
+                                        Fecha de validez
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Acciones
@@ -68,7 +68,7 @@ const ListaTickets = ({ token }) => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {cupones.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                                             No hay cupones activos
                                         </td>
                                     </tr>
@@ -78,7 +78,7 @@ const ListaTickets = ({ token }) => {
                                             <td className="px-6 py-4 font-semibold">{cupon.nombre_restaurante}</td>
                                             <td className="px-6 py-4">{cupon.titulo}</td>
                                             <td className="px-6 py-4">{cupon.subtitulo}</td>
-                                            <td className="px-6 py-4">{cupon.descripcion}</td>
+                                            <td className="px-6 py-4">{cupon.fecha_validez || "Sin fecha"}</td>
                                             <td className="px-6 py-4 text-sm font-medium">
                                                 <button
                                                     onClick={() => handleEliminar(cupon.id)}

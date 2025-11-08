@@ -2,7 +2,7 @@ import DetallePost from './DetallePost';
 import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjetas';
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
-import { urlApi } from '../../api/url.js';
+import { urlApi, imgApi } from '../../api/url.js';
 import BarraMarquee from './seccionesCategorias/componentes/BarraMarquee.jsx';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import EnPortada from './componentesColumna2/EnPortada';
@@ -47,7 +47,7 @@ const DetalleBannerRevista = ({
                             const tipoLogo = tipoConfig.tipoLogo
                                 ? tipoConfig.tipoLogo.startsWith('http')
                                     ? tipoConfig.tipoLogo
-                                    : `${urlApi}${tipoConfig.tipoLogo}`
+                                    : `${imgApi}${tipoConfig.tipoLogo}`
                                 : null;
                             return tipoLogo ? (
                                 <div className="relative flex justify-center items-center mb-6">
@@ -144,7 +144,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} /> 
+                            <img className="h-full w-95" src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} /> 
                     </div>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                            <img className="h-full w-95" src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                             </div>
                         </div>
                     </div>
@@ -191,7 +191,7 @@ const DetalleBannerRevista = ({
                         <div className="absolute left-0 right-0 top-1/2 border-t-2 border-black opacity-100 z-0" />
                         <div className="relative z-10 px-4 bg-[#DDDDDE]">
                             <div className="flex flex-row justify-center items-center gap-3">
-                            <img className="h-full w-95" src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
+                            <img className="h-full w-95" src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/nuestras-recomendaciones.webp`} />
                             </div>
                         </div>
                     </div>

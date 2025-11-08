@@ -10,7 +10,7 @@ import { useData } from '../../DataContext';
 import { infografiasGet } from '../../api/infografiasGet.js';
 import './InfografiaMain.css';
 import Infografia from '../componentes/componentesColumna1/Infografia';
-import { urlApi } from '../../api/url.js';
+import { urlApi, imgApi } from '../../api/url.js';
 
 const InfografiaMain = () => {
   const { revistaActual } = useData();

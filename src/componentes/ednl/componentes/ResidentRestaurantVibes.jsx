@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { urlApi } from '../../api/url'
+import { urlApi, imgApi } from '../../api/url'
 
 const ResidentRestaurantVibes = ({ fotos = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);

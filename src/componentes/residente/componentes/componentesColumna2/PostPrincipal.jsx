@@ -1,6 +1,6 @@
 // PostPrincipal.jsx
 import { Iconografia } from '../../../utils/Iconografia.jsx';
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 
 const formatFechaActual = () => {
     const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];

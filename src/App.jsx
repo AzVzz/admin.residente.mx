@@ -17,7 +17,7 @@ import PaginaCliente from './componentes/residente/paginaCliente/PaginaCliente';
 import NoEncontrado from './componentes/NoEncontrado';
 import DetallePost from './componentes/residente/componentes/DetallePost';
 import BannerRevista from './componentes/residente/componentes/BannerRevista';
-import { urlApi } from './componentes/api/url.js';
+import { urlApi, imgApi } from './componentes/api/url.js';
 import OpinionEditorial from './componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx';
 import RespuestasSemana from './componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx';
 import VideoResidente from './componentes/residente/componentes/extras/VideoResidente.jsx';
@@ -286,16 +286,19 @@ function App() {
                   <PlantillaNotas
                     posts={[...notasPrueba]}
                     notasDestacadas={[...notasPrueba]}
-                    handleCardClick={() => {}}
+                    handleCardClick={() => { }}
                   />
                 </div>
               } />
- 
+
               <Route path="/b2b" element={
                 <div className="max-w-[1080px] mx-auto">
                   <B2BMain />
                 </div>
               } />
+
+
+
 
 
 
@@ -395,7 +398,7 @@ function App() {
               {/* Admin */}
               <Route path="/tickets" element={
                 <div className="max-w-[1080px] mx-auto">
-                  <ListaTickets/>
+                  <ListaTickets />
                 </div>
               } />
 

@@ -1,4 +1,4 @@
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import BarraMarquee from "../seccionesCategorias/componentes/BarraMarquee.jsx";
 import PortadaRevista from "./PortadaRevista";
 

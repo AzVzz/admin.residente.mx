@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 export const notaImagenDelete = async (id) => {
     try {

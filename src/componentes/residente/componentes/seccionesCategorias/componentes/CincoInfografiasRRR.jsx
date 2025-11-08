@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { infografiasGet } from "../../../../../componentes/api/infografiasGet.js";
-import { urlApi } from "../../../../../componentes/api/url.js";
+import { urlApi, imgApi } from "../../../../../componentes/api/url.js";
 import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 
 const INFOGRAFIAS_POR_VISTA_DESKTOP = 5; // como la foto 2
@@ -126,7 +126,7 @@ const CincoInfografiasRRR = () => {
         <div className="relative z-10 px-4 bg-[#DDDDDE]">
           <div className="flex flex-row justify-center items-center gap-3">
             <img 
-              src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFI%CC%81AS.webp`} 
+              src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/LOGO%20INFOGRAFI%CC%81AS.webp`} 
               className="w-full h-7 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200" 
               onClick={handleLogoClick}
               alt="Logo Infografías - Click para ver todas las infografías"

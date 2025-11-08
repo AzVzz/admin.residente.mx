@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CarruselDescuentos from "./CarruselDescuentos";
 import { giveawayDescuentosGet } from '../../../api/giveawayDescuentosGet.js';
-import { urlApi } from '../../../api/url';
+import { urlApi, imgApi } from '../../../api/url';
 import { Iconografia } from '../../../utils/Iconografia.jsx'; // Asegúrate de importar esto
 
 const GiveawayDescuentos = ({ cupones }) => {
@@ -52,7 +52,7 @@ const GiveawayDescuentos = ({ cupones }) => {
                     <div className="flex flex-col items-start">
                         {/* Logo arriba */}
                         <img
-                            src={`${urlApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
+                            src={`${imgApi}/fotos/fotos-estaticas/residente-logos/blancos/residente-restaurant-promo-blanco.webp`}
                             alt="Residente Restaurant Promo"
                             className="mb-13 w-[36opx] h-auto object-contain mt-3"
                         />

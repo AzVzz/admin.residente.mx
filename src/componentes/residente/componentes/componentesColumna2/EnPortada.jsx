@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 import { useData } from "../../../DataContext";
 
 const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
@@ -53,14 +53,16 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
     return (
         <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] mb-4 mt-8">
             <div className="max-w-[1080px] mx-auto my-9">
+                
                 <div className="flex justify-between">
-                    <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp`} className="w-85 h-full mb-8 object-contain" />
+                    <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/residente-restaurant-magazine-negro.webp" className="w-85 h-full mb-8 object-contain" />
                     <div className="flex">
                         {iconosZonales.map((icon, idx) => (
                             <img key={idx} src={icon.src} alt={icon.alt} className="h-9.5 w-9.5 shadow-md rounded-full" />
                         ))}
                     </div>
                 </div>
+
                 <div className="grid grid-cols-[1.2fr_1.8fr] gap-10">
                     {/* Columna Izquierda */}
                     <div className="flex flex-col justify-start items-start">

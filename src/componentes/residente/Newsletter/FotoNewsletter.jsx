@@ -1,5 +1,5 @@
 import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
-import { urlApi } from "../../api/url";
+import { urlApi, imgApi } from "../../api/url";
 
 // Configuración de logos por categoría
 const logosCategorias = {

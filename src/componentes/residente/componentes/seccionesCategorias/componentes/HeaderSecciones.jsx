@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { catalogoHeadersGet, catalogoSeccionesGet } from '../../../../api/CatalogoSeccionesGet';
-import { urlApi } from '../../../../api/url';
+import { urlApi, imgApi } from '../../../../api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 const HeaderSecciones = () => {
@@ -41,7 +41,7 @@ const HeaderSecciones = () => {
                     <div className="flex flex-col items-start">
                         <Link to="/residente">
                             <img
-                                src={`${urlApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+                                src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
                                 className="w-60 h-auto mb-1"
                                 alt="Logo Guía NL"
                             />
@@ -92,7 +92,7 @@ const HeaderSecciones = () => {
                         )}
                     </div>
                     <div className="sm:flex gap-1.5 hidden">
-                        <img src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/b2b.webp`} className="object-contain h-4 w-12 b2b cursor-pointer" />
+                        <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp" className="object-contain h-4 w-12 b2b cursor-pointer" />
                         <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                         <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                         <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>

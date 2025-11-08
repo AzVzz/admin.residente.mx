@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../../Context";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getNotasUanl } from "../../../api/uanlApi";
 import NotaCard from "./componentesListaNotas/NotaCard";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
+import { notasTodasGet } from "../../../api/notasCompletasGet"; // importa la función correcta
 
 const notasPorPagina = 15;
 
@@ -24,8 +24,9 @@ const ListaNotasUanl = () => {
       return;
     }
     setCargando(true);
-    getNotasUanl()
-      .then(setNotas)
+    // Cambia aquí: usa notasTodasGet con el filtro tipo_nota: "Uanl"
+    notasTodasGet(token, 1, "all", "", { tipo_nota: "Uanl" })
+      .then(res => setNotas(res.notas || res))
       .catch(setError)
       .finally(() => setCargando(false));
   }, [token, usuario, location, navigate]);

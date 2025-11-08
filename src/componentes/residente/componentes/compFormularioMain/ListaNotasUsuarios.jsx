@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
-import { urlApi } from '../../../api/url';
+import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
 import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';

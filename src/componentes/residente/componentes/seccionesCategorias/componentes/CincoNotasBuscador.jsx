@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { buscar } from "../../../../../componentes/api/buscadorGet.js";
-import { urlApi } from "../../../../../componentes/api/url.js";
+import { urlApi, imgApi } from "../../../../../componentes/api/url.js";
 
 const NOTAS_POR_VISTA_DESKTOP = 6;
 const GAP_PX = 20;

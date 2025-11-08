@@ -11,7 +11,7 @@ import CincoInfografiasRRR from './seccionesCategorias/componentes/CincoInfograf
 import EnPortada from './componentesColumna2/EnPortada';
 import VideosHorizontal from './componentesColumna2/VideosHorizontal';
 import SeccionesPrincipales from './SeccionesPrincipales';
-import { urlApi } from '../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../componentes/api/url.js';
 import CuponesCarrusel from './seccionesCategorias/componentes/CuponesCarrusel.jsx';
 import { cuponesGet } from '../../../componentes/api/cuponesGet.js';
 import PortadaRevista from "./componentesColumna2/PortadaRevista.jsx";
@@ -62,7 +62,7 @@ const ListadoBannerRevista = ({
                 if (postsFiltrados.length === 0) return null;
 
                 const tipoConfig = tiposNotas.find(t => t.nombre === tipo) || { tipoLogo: "", marqueeTexto: "", label: "" };
-                const tipoLogo = tipoConfig.tipoLogo ? `${urlApi}${tipoConfig.tipoLogo}` : null;
+                const tipoLogo = tipoConfig.tipoLogo ? `${imgApi}${tipoConfig.tipoLogo}` : null;
                 const marqueeTexto = tipoConfig.marqueeTexto || "";
                 const tipoLabel = (tipoConfig.label || tipo || "").toString();
                 const mostrarBanner = ["Antojos", "Gastro-Destinos", "Food & Drink"].includes(tipo);
@@ -135,9 +135,8 @@ const ListadoBannerRevista = ({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6"> {/* Cambio a mb-4 antes (mb-3) */}
+                                <div className="flex flex-col justify-center items-center text-[12px] mb-4 gap-6">
                                     <p className="uppercase">{marqueeTexto}</p>
-                                    {/*<BarraMarquee categoria="16 Septiembre a 2 de Octubre. Los rostros detrás del sabor, el evento más importante de la gastronomía de Nuevo León." />*/}
                                 </div>
 
                                 {postsFiltrados[0] && (

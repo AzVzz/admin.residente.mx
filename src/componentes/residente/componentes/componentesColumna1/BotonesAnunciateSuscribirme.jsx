@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { urlApi } from '../../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../../componentes/api/url.js';
 import { bannerNewsletterGetReciente } from '../../../../componentes/api/bannerNewsletterGet.js';
 
 const BotonesAnunciateSuscribirme = () => {

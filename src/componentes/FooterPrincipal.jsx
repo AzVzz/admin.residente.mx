@@ -1,6 +1,6 @@
 // Puedes usar react-icons para los íconos sociales
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-import { urlApi } from './api/url';
+import { urlApi, imgApi } from './api/url';
 
 const FooterPrincipal = () => {
     return (

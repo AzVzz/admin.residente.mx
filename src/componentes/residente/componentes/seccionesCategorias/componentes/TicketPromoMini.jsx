@@ -1,6 +1,6 @@
 //src/componentes/residente/componentes/seccionesCategorias/componentes/TicketPromoMini.jsx
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import { urlApi } from '../../../../api/url';
+import { urlApi, imgApi } from '../../../../api/url';
 
 const sizeConfig = {
     large: {
@@ -167,7 +167,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
             {/* Perforated top edge */}
             <div className={config.perforatedTop || "w-full"}>
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
+                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
                     alt="Perforado superior"
                     className="w-full"
                 />
@@ -190,7 +190,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
                         <img
-                            src={`${urlApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
+                            src={`${imgApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
                             alt="Residente Discy Promo Logo"
                             className={config.logo}
                         />
@@ -248,7 +248,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
+                        src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
                         alt="Código de barras"
                         className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
@@ -256,7 +256,7 @@ const TicketPromoMini = forwardRef((props, ref) => {
             </div>
             <div className={config.perforatedBottom}>
                 <img
-                    src={`${urlApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
                     alt="Perforado inferior"
                     className="w-full"
                 />

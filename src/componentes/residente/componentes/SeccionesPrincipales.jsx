@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { catalogoSeccionesGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
-import { urlApi } from '../../../componentes/api/url.js';
+import { urlApi, imgApi } from '../../../componentes/api/url.js';
 import { obtenerNotasTodasCategorias } from '../../../componentes/api/notasCategoriasBuscador.js';
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
@@ -198,7 +198,7 @@ const SeccionesPrincipales = () => {
     <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#fff300] py-8">
       <div className="flex max-w-[1080px] mb-5 w-full mx-auto py-0 gap-4 items-end">
         <img
-          src={`${urlApi}/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp`}
+          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp"
           className="flex-[0_0_20%] w-55 h-auto object-contain"
           alt="Guía logo"
         />

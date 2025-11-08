@@ -1,4 +1,4 @@
-import { urlApi } from './url.js';
+import { urlApi, imgApi } from './url.js';
 
 // Función para obtener notas de los 4 tipos principales
 export const obtenerNotasTodasCategorias = async () => {

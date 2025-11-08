@@ -4,7 +4,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaArrowLeft } from "react-icons/fa";
 import { crearVideo, obtenerVideoPorId, editarVideo } from "../../../api/videosApi";
-import { urlApi } from "../../../api/url";
+import { urlApi, imgApi } from "../../../api/url";
 
 const Videos = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();

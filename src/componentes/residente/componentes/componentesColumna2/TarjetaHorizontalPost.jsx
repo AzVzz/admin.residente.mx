@@ -1,4 +1,4 @@
-import { urlApi } from "../../../api/url.js";
+import { urlApi, imgApi } from "../../../api/url.js";
 
 const TarjetaHorizontalPost = ({ post, onClick, sinFecha = false, destacada = false, mediana = false, pequena = false, categoria }) => {
   // Determinar el tamaño basado en los props
