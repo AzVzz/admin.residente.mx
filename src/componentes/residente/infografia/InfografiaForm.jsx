@@ -148,14 +148,14 @@ const InfografiaForm = () => {
                                     type="text"
                                     name="editNombre"
                                     placeholder="Agrega el nombre de la infografía"
-                                    maxLength={100}
+                                    maxLength={15}
                                     value={editNombre}
-                                    onChange={e => setEditNombre(e.target.value.slice(0, 100))}
+                                    onChange={e => setEditNombre(e.target.value.slice(0, 15))}
                                     className="w-full px-3 py-2 border rounded-md border-gray-300"
                                     required
                                 />
                                 <div className="flex justify-between items-center mt-1">
-                                    <span className="text-xs text-gray-500">{editNombre.length}/100</span>
+                                    <span className="text-xs text-gray-500">{editNombre.length}/15</span>
                                 </div>
                             </div>
                             
@@ -224,14 +224,14 @@ const InfografiaForm = () => {
                                 type="text"
                                 name="nombre"
                                 placeholder="Agrega el nombre de la infografía"
-                                maxLength={100}
+                                maxLength={15}
                                 value={nombre}
-                                onChange={e => setNombre(e.target.value.slice(0, 100))}
+                                onChange={e => setNombre(e.target.value.slice(0, 15))}
                                 className="w-full px-3 py-2 border rounded-md border-gray-300"
                                 required
                             />
                             <div className="flex justify-between items-center mt-1">
-                                <span className="text-xs text-gray-500">{nombre.length}/100</span>
+                                <span className="text-xs text-gray-500">{nombre.length}/15</span>
                             </div>
                         </div>
 
