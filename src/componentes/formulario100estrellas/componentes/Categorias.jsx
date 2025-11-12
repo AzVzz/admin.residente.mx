@@ -31,16 +31,16 @@ const Categorias = () => {
         { value: "Rey de colonia" },
         { value: "Desayunos" },
         { value: "En pareja" },
-        { value: "Negocios" },
-        { value: "Saludable" },
+        //{ value: "Negocios" },
+        //{ value: "Saludable" },
         { value: "Clásicos regiomontanos" },
 
-        { value: "Mexicano" },
-        { value: "Oriental" },
-        { value: "Comfort food" },
-        { value: "Mariscos" },
-        { value: "Tacos" },
-        { value: "Italiano & Pizza" },
+        //{ value: "Mexicano" },
+        //{ value: "Oriental" },
+        //{ value: "Comfort food" },
+        //{ value: "Mariscos" },
+        //{ value: "Tacos" },
+        //{ value: "Italiano & Pizza" },
     ];
 
     // Normalizar el valor al cargar/actualizar
