@@ -180,6 +180,7 @@ const Header = () => {
                       </div>
                     )
                   )}
+                  <a href="/notas">Dashboard</a>
                 </div>
                 <div className="sm:flex gap-1.5 hidden items-center">
                   {!isSearchOpen ? (
