@@ -112,7 +112,7 @@ function App() {
     };
   }, [location.pathname]);
 
-  useEffect(() => {
+  {/*useEffect(() => {
     const isSeccionRoute = location.pathname.startsWith('/seccion/');
     if (isSeccionRoute) return; // No aplicar scroll behavior en rutas de sección
 
@@ -125,7 +125,7 @@ function App() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, [location.pathname]);*/}
 
   const isSeccionRoute = location.pathname.startsWith('/seccion/');
   const isCulturalAccess = location.pathname === '/culturallaccess';
