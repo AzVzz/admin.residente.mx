@@ -42,7 +42,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                     />
                     {/* Puedes quitar la fecha aquí si ya la pones debajo de cada nota */}
                     {notasPrincipales.map(({ nota, categoria }) => (
-                        <div key={nota.id} className="mb-8">
+                        <div key={nota.id} className={`nota-card nota-card-${categoria.toLowerCase()} mb-8`}>
                             <div className="flex justify-center items-center mb-2">
                                 <img
                                     src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp"
