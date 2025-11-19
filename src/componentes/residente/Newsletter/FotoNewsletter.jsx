@@ -51,7 +51,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                                 />
                             </div>
                             <a
-                                href={`https://residente.mx/notas/${nota.id}`}
+                                href={`https://residente.mx/notas/${nota.slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ textDecoration: "none", color: "inherit" }}
