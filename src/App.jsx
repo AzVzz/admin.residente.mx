@@ -101,10 +101,14 @@ function App() {
     ) {
       document.body.style.backgroundImage = '';
       document.body.style.backgroundColor = '#DDDDDE'; // Fondo Gris 15% #D9D9D9
+    } else if (location.pathname === '/foto-news') {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#fff'; // Fondo blanco para newsletter
     } else {
       document.body.style.backgroundImage = '';
       document.body.style.backgroundColor = '#DDDDDE'; // Amarillo
     }
+    
 
     return () => {
       document.body.style.backgroundImage = '';
