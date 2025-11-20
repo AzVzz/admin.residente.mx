@@ -302,7 +302,7 @@ function App() {
                 </div>
               } />
 
-              <Route path="/insta-history" element={
+              <Route path="/instahistory" element={
                 <div className="max-w-[1080px] mx-auto">
                   <InstaHistoryPage />
                 </div>
