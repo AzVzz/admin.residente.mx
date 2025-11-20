@@ -33,7 +33,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         return (
                             <div
                                 key={nota.id}
-                                className="bg-green-400 rounded-lg p-4 flex flex-col items-start nota-card mb-8 pt-10"
+                                className="bg-green-400 pl-6 pr-6 flex flex-col items-start nota-card mb-8 pt-10 pb-12"
                                 data-slug={nota.slug}
                                 style={{ position: "relative" }}
                             >
@@ -81,11 +81,12 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                 <div
                                     style={{
                                         fontWeight: "bold",
-                                        fontSize: "1.1rem",
+                                        fontSize: "19px",
                                         color: "#222",
                                         textAlign: "left",
                                         marginBottom: "12px",
-                                        width: "100%"
+                                        width: "100%",
+                                        lineHeight: "1.2"
                                     }}
                                 >
                                     {nota.titulo}
@@ -95,7 +96,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     <img
                                         src={nota.imagen}
                                         alt={nota.titulo}
-                                        className="rounded-md"
+                                        className=""
                                         style={{
                                             width: "815px",
                                             height: "390px",
