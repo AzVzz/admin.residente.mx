@@ -36,6 +36,7 @@ import NewsletterPage from './componentes/residente/Newsletter/NewsletterPage.js
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
 import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
 import ListaTickets from './componentes/residente/componentes/compFormularioMain/ListaTickets';
+import InstaHistoryPage from './componentes/residente/InstaHistory/InstaHistoryPage.jsx';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -108,7 +109,7 @@ function App() {
       document.body.style.backgroundImage = '';
       document.body.style.backgroundColor = '#DDDDDE'; // Amarillo
     }
-    
+
 
     return () => {
       document.body.style.backgroundImage = '';
@@ -298,6 +299,12 @@ function App() {
               <Route path="/b2b" element={
                 <div className="max-w-[1080px] mx-auto">
                   <B2BMain />
+                </div>
+              } />
+
+              <Route path="/insta-history" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <InstaHistoryPage />
                 </div>
               } />
 

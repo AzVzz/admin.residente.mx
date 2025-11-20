@@ -1,0 +1,111 @@
+import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
+import { urlApi, imgApi } from "../../api/url";
+import { Iconografia } from "../../utils/Iconografia";
+
+const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
+    const categorias = ["Restaurantes", "Food & Drink", "Antojos"];
+    const notasPrincipales = categorias
+        .map(cat => ({
+            nota: filtrarPostsPorTipoNota(cat).at(0),
+            categoria: cat
+        }))
+        .filter(item => item.nota);
+
+    // Unir todos los iconos disponibles de Iconografia
+    const iconosDisponibles = [
+        ...(Iconografia?.categorias || []),
+        ...(Iconografia?.ocasiones || []),
+        ...(Iconografia?.zonas || [])
+    ];
+
+    return (
+        <div>
+            <div className="flex flex-col pt-9 items-center">
+                <div className="w-full max-w-[400px] mx-auto flex flex-col gap-8">
+                    {notasPrincipales.map(({ nota, categoria }) => {
+                        const stickers = Array.isArray(nota.sticker)
+                            ? nota.sticker
+                            : nota.sticker
+                                ? [nota.sticker]
+                                : [];
+                                // Agrega el sticker fijo "residente" al final
+                                const stickersConResidente = ["residente", ...stickers];
+                        return (
+                            <div
+                                key={nota.id}
+                                className="bg-green-400 rounded-lg p-4 flex flex-col items-start nota-card mb-8"
+                                data-slug={nota.slug}
+                                style={{ position: "relative" }}
+                            >
+                                {/* Stickers arriba del recuadro negro, alineados a la derecha */}
+                                <div style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    marginBottom: "6px"
+                                }}>
+                                    {stickersConResidente.map((clave, idx) => {
+                                        const icono = iconosDisponibles.find(i => i.clave === clave);
+                                        return icono ? (
+                                            <img
+                                                key={clave}
+                                                src={icono.icono}
+                                                alt={icono.nombre}
+                                                style={{
+                                                    height: "28px",
+                                                    width: "28px",
+                                                    borderRadius: "50%",
+                                                    background: "#fff",
+                                                    marginLeft: idx > 0 ? "2px" : "0"
+                                                }}
+                                            />
+                                        ) : null;
+                                    })}
+                                </div>
+                                {/* Categoría en recuadro negro */}
+                                <div
+                                    style={{
+                                        background: "#111",
+                                        color: "#fff",
+                                        borderRadius: "6px",
+                                        padding: "2px 10px",
+                                        fontSize: "0.9rem",
+                                        marginBottom: "10px",
+                                        display: "inline-block",
+                                        textAlign: "left"
+                                    }}
+                                >
+                                    {categoria}
+                                </div>
+                                {/* Título */}
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        fontSize: "1.1rem",
+                                        color: "#222",
+                                        textAlign: "left",
+                                        marginBottom: "12px",
+                                        width: "100%"
+                                    }}
+                                >
+                                    {nota.titulo}
+                                </div>
+                                {/* Imagen */}
+                                <div style={{ width: "100%" }}>
+                                    <img
+                                        src={nota.imagen}
+                                        alt={nota.titulo}
+                                        className="w-full h-auto rounded-md"
+                                        style={{ maxHeight: "220px", objectFit: "cover" }}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default InstaHistory;

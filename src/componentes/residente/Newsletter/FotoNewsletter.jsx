@@ -51,7 +51,7 @@ const FotoNewsletter = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => 
                                 <img
                                     src={`https://residente.mx/${logosCategorias[categoria]}`}
                                     alt={categoria}
-                                    className="h-auto w-85 object-contain"
+                                    className="h-auto w-80 object-contain"
                                 />
                             </div>
                             <a
