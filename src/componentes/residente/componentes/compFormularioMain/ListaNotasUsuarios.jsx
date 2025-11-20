@@ -38,6 +38,8 @@ const ListaNotasUsuarios = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [permisoPersonalizado, setPermisoPersonalizado] = useState('');
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
 
   // Estados para el formulario de registro/edición
   const [formData, setFormData] = useState({
@@ -45,7 +47,8 @@ const ListaNotasUsuarios = () => {
     password: '',
     confirmPassword: '',
     permisos: 'usuario',
-    estado: 'activo'
+    estado: 'activo',
+    logo_url: null
   });
 
   // Cargar usuarios al montar el componente
@@ -91,11 +94,94 @@ const ListaNotasUsuarios = () => {
       password: '',
       confirmPassword: '',
       permisos: 'usuario',
-      estado: 'activo'
+      estado: 'activo',
+      logo_url: null
     });
     setPermisoPersonalizado('');
+    setLogoFile(null);
+    setLogoPreview(null);
     setEditingUser(null);
     setShowRegistro(false);
+  };
+
+  const handleLogoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setLogoFile(null);
+      setLogoPreview(null);
+      setFormData(prev => ({ ...prev, logo_url: null }));
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('El archivo debe ser una imagen');
+      e.target.value = '';
+      return;
+    }
+
+    setLogoFile(file);
+    
+    // Crear preview
+    const reader = new FileReader();
+    reader.onload = (ev) => setLogoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+
+    // Subir el logo y obtener la URL
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('imagen', file);
+
+      const uploadResponse = await fetch(`${urlApi}api/uploads/editor-image`, {
+        method: 'POST',
+        body: formDataUpload
+      });
+
+      if (!uploadResponse.ok) {
+        let errorMessage = 'Error al subir el logo';
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Error ${uploadResponse.status}: ${uploadResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const uploadData = await uploadResponse.json();
+      
+      // El servidor puede devolver la URL en diferentes formatos
+      let logoUrl = uploadData.url || uploadData.path || uploadData.imageUrl || uploadData.data?.url;
+      
+      if (logoUrl) {
+        // Limpiar la URL: eliminar espacios y asegurar formato correcto
+        logoUrl = logoUrl.trim().replace(/\s+/g, '');
+        
+        // Asegurar que la URL tenga el protocolo correcto
+        if (logoUrl.startsWith('http s://')) {
+          logoUrl = logoUrl.replace('http s://', 'https://');
+        } else if (logoUrl.startsWith('http://') && !logoUrl.startsWith('https://')) {
+          // Si es http, convertir a https si es necesario
+          logoUrl = logoUrl.replace('http://', 'https://');
+        }
+        
+        // Validar que sea una URL válida
+        try {
+          new URL(logoUrl); // Esto lanzará un error si la URL no es válida
+        } catch (urlError) {
+          throw new Error('La URL del logo no es válida');
+        }
+        
+        setFormData(prev => ({ ...prev, logo_url: logoUrl }));
+        setError(''); // Limpiar errores previos si la subida fue exitosa
+      } else {
+        throw new Error('No se recibió la URL del logo en la respuesta del servidor');
+      }
+    } catch (err) {
+      setError('Error al subir el logo: ' + err.message);
+      setLogoFile(null);
+      setLogoPreview(null);
+      e.target.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -130,18 +216,37 @@ const ListaNotasUsuarios = () => {
       
       const method = editingUser ? 'PUT' : 'POST';
 
+      const payload = {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+        permisos: formData.permisos === 'nuevo-cliente' ? permisoPersonalizado : formData.permisos,
+        estado: formData.estado
+      };
+
+      // Incluir logo_url siempre (solo para nuevos clientes o si hay un logo)
+      // Si no hay logo, enviar null explícitamente
+      if (formData.permisos === 'nuevo-cliente' || formData.logo_url !== null) {
+        if (formData.logo_url) {
+          // Limpiar la URL antes de enviarla
+          let cleanLogoUrl = formData.logo_url.trim().replace(/\s+/g, '');
+          // Corregir http s:// a https://
+          if (cleanLogoUrl.includes('http s://')) {
+            cleanLogoUrl = cleanLogoUrl.replace(/http\s+s:\/\//g, 'https://');
+          }
+          payload.logo_url = cleanLogoUrl;
+        } else {
+          // Si no hay logo, enviar null
+          payload.logo_url = null;
+        }
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          nombre_usuario: formData.nombre_usuario,
-          password: formData.password,
-          permisos: formData.permisos === 'nuevo-cliente' ? permisoPersonalizado : formData.permisos,
-          estado: formData.estado
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -172,7 +277,8 @@ const ListaNotasUsuarios = () => {
       password: '',
       confirmPassword: '',
       permisos: permisoSeleccionado,
-      estado: user.estado || 'activo'
+      estado: user.estado || 'activo',
+      logo_url: user.logo_url || null
     });
     
     // Si es un permiso personalizado, ponerlo en el campo de texto
@@ -181,6 +287,14 @@ const ListaNotasUsuarios = () => {
     } else {
       setPermisoPersonalizado('');
     }
+
+    // Cargar preview del logo si existe
+    if (user.logo_url) {
+      setLogoPreview(user.logo_url);
+    } else {
+      setLogoPreview(null);
+    }
+    setLogoFile(null);
     
     setShowRegistro(true);
   };
@@ -324,6 +438,36 @@ const ListaNotasUsuarios = () => {
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
                 </p>
               </div>
+
+              {formData.permisos === 'nuevo-cliente' && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Subir Logo
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    </div>
+                    {logoPreview && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={logoPreview}
+                          alt="Preview del logo"
+                          className="h-16 w-16 object-contain border border-gray-300 rounded"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Sube el logo del cliente. Se mostrará en su página.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

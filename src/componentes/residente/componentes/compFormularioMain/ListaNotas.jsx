@@ -11,6 +11,7 @@ import { RiQuestionnaireFill } from "react-icons/ri";
 import { IoMdPlay } from "react-icons/io";
 import { FaBookOpen } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa";
+import { FaUtensils } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
 import { IoNewspaper } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
@@ -34,6 +35,8 @@ import InfografiaForm from "../../infografia/InfografiaForm.jsx";
 import ListaNotasUanl from "./ListaNotasUanl.jsx";
 import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
 import ListaTickets from "./ListaTickets";
+import FormularioReceta from "./FormularioReceta";
+import ListaRecetas from "./ListaRecetas";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -50,6 +53,10 @@ const ListaNotas = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [recetaKey, setRecetaKey] = useState(0);
+  const [mostrarFormularioReceta, setMostrarFormularioReceta] = useState(false);
+  const [recetaEditando, setRecetaEditando] = useState(null);
+  const [recargarListaRecetas, setRecargarListaRecetas] = useState(0);
 
   // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
@@ -255,6 +262,22 @@ const ListaNotas = () => {
     setPaginaActual(1);
   }, [estado, tipoCliente, autor, searchTerm]);
 
+  // Ocultar el formulario de recetas cuando se cambia de vista
+  useEffect(() => {
+    if (vistaActiva !== "recetas") {
+      setMostrarFormularioReceta(false);
+    }
+  }, [vistaActiva]);
+
+  // Validar que los clientes solo puedan acceder a vistas permitidas
+  useEffect(() => {
+    const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
+    if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
+      // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
+      setVistaActiva("notas");
+    }
+  }, [vistaActiva, usuario]);
+
   // Funciones de navegación local
   const irAPaginaAnterior = () => {
     if (paginaActual > 1) {
@@ -284,7 +307,7 @@ const ListaNotas = () => {
   };
 
   // Opciones del menú
-  const menuOptions = [
+  const todasLasOpciones = [
     { key: "notas", label: "Notas", icon: <RiStickyNoteFill className="mr-2" /> },
     { key: "preguntas", label: "Preguntas", icon: <RiQuestionnaireFill className="mr-2" /> },
     { key: "revistas", label: "Revistas", icon: <FaBookOpen className="mr-2" /> },
@@ -294,7 +317,17 @@ const ListaNotas = () => {
     { key: "uanl", label: "UANL", icon: <LuUnderline className="mr-2" /> },
     { key: "usuarios", label: "Usuarios", icon: <FaUser className="mr-2" /> },
     { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
+    { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
   ];
+
+  // Filtrar opciones del menú según permisos del usuario
+  // Si el usuario NO es admin (todos/todo), solo mostrar Notas y Recetas
+  const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
+  const menuOptions = esAdmin 
+    ? todasLasOpciones 
+    : todasLasOpciones.filter(option => 
+        option.key === "notas" || option.key === "recetas"
+      );
 
   if (cargando) {
     return (
@@ -537,6 +570,73 @@ const ListaNotas = () => {
         )}
         {vistaActiva === "cupones" && (
           <div className="text-center text-lg"><ListaTickets /></div>
+        )}
+        {vistaActiva === "recetas" && (
+          <div>
+            <div className="flex justify-end mb-5">
+              <button
+                onClick={() => {
+                  // Mostrar el formulario y resetearlo
+                  setRecetaEditando(null);
+                  setMostrarFormularioReceta(true);
+                  setRecetaKey(prev => prev + 1);
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+              >
+                <svg
+                  className="-ml-1 mr-2 h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Nueva Receta
+              </button>
+            </div>
+            {mostrarFormularioReceta ? (
+              <div className="text-center text-lg">
+                <FormularioReceta 
+                  key={recetaKey}
+                  receta={recetaEditando}
+                  onCancelar={() => {
+                    setMostrarFormularioReceta(false);
+                    setRecetaEditando(null);
+                  }}
+                  onEnviado={() => {
+                    setMostrarFormularioReceta(false);
+                    setRecetaEditando(null);
+                    setRecargarListaRecetas(prev => prev + 1);
+                  }}
+                />
+              </div>
+            ) : (
+              <ListaRecetas 
+                key={recargarListaRecetas}
+                onEditar={(receta) => {
+                  setRecetaEditando(receta);
+                  setMostrarFormularioReceta(true);
+                  setRecetaKey(prev => prev + 1);
+                }}
+                onCopiar={(receta) => {
+                  // Copiar datos de la receta
+                  const recetaParaCopiar = {
+                    ...receta,
+                    id: undefined
+                  };
+                  navigator.clipboard.writeText(JSON.stringify(recetaParaCopiar, null, 2));
+                  alert("Datos de la receta copiados al portapapeles");
+                }}
+                onRecetaEliminada={() => {
+                  setRecargarListaRecetas(prev => prev + 1);
+                }}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
