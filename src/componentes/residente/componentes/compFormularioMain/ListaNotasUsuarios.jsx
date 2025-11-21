@@ -407,8 +407,7 @@ const ListaNotasUsuarios = () => {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="usuario">Usuario General</option>
-                    <option value="todo">Administrador (Todo)</option>
-                    <option value="todos">Administrador (Todos)</option>
+                    <option value="todos">Administrador</option>
                     <option value="mama-de-rocco">Mamá de Rocco</option>
                     <option value="barrio-antiguo">Barrio Antiguo</option>
                     
