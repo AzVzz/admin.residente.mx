@@ -37,6 +37,19 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                 data-slug={nota.slug}
                                 style={{ position: "relative" }}
                             >
+                                {/* Línea negra superpuesta, inicia desde el borde del recuadro verde */}
+                            <div
+                                style={{
+                                position: "absolute",
+                                right: 0,
+                                bottom: "98px", // Ajusta la distancia desde abajo
+                                width: "55%",
+                                height: "45px",
+                                background: "#111",
+                                borderTopLeftRadius: "50px",
+                                borderBottomLeftRadius: "50px",
+                               }}
+                            ></div>
                                 {/* Stickers arriba del recuadro negro, alineados a la derecha */}
                                 <div style={{
                                     width: "100%",
