@@ -37,7 +37,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick, modoCap
                                 data-slug={nota.slug}
                                 style={{
                                     position: "relative",
-                                    ...(modoCaptura && { transform: "scale(2)", transformOrigin: "top left" })
+                                    ...(modoCaptura && { transform: "scale(3)", transformOrigin: "top left" })
                                 }}
                             >
                                 {/* Línea negra superpuesta, inicia desde el borde del recuadro verde */}
