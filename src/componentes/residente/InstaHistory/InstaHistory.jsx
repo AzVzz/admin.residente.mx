@@ -2,7 +2,7 @@ import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
 import { urlApi, imgApi } from "../../api/url";
 import { Iconografia } from "../../utils/Iconografia";
 
-const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
+const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick, modoCaptura }) => {
     const categorias = ["Restaurantes", "Food & Drink", "Antojos"];
     const notasPrincipales = categorias
         .map(cat => ({
@@ -33,9 +33,12 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         return (
                             <div
                                 key={nota.id}
-                                className="bg-[#3D3E3E] flex flex-col items-start nota-card mb-8 pt-10 pb-12 pl-6 pr-6 "
+                                className="bg-[#3D3E3E] flex flex-col items-start nota-card mb-8 pt-10 pb-12 pl-6 pr-6"
                                 data-slug={nota.slug}
-                                style={{ position: "relative" }}
+                                style={{
+                                    position: "relative",
+                                    ...(modoCaptura && { transform: "scale(2)", transformOrigin: "top left" })
+                                }}
                             >
                                 {/* Línea negra superpuesta, inicia desde el borde del recuadro verde */}
                             <div
