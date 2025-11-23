@@ -28,35 +28,18 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                             : nota.sticker
                                 ? [nota.sticker]
                                 : [];
-                                // Agrega el sticker fijo "residente" al final
-                                const stickersConResidente = ["residente", ...stickers];
+                        // Agrega el sticker fijo "residente" al inicio
+                        const stickersConResidente = ["residente", ...stickers];
                         return (
                             <div
                                 key={nota.id}
-                                className="bg-[#3D3E3E] flex flex-col items-start nota-card mb-8 pt-10 pb-12 pl-10 pr-10 "
+                                className="relative bg-[#3D3E3E] flex flex-col items-center justify-center nota-card mb-8 pt-10 pb-12 px-6 w-[400px] h-[658px] overflow-hidden"
                                 data-slug={nota.slug}
-                                style={{ position: "relative" }}
                             >
-                                {/* Línea negra superpuesta, inicia desde el borde del recuadro verde */}
-                            <div
-                                style={{
-                                position: "absolute",
-                                right: 0,
-                                bottom: "110px", // Ajusta la distancia desde abajo
-                                width: "55%",
-                                height: "45px",
-                                background: "#111",
-                                borderTopLeftRadius: "50px",
-                                borderBottomLeftRadius: "50px",
-                               }}
-                            ></div>
-                                {/* Stickers arriba del recuadro negro, alineados a la derecha */}
-                                <div style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "flex-start",
-                                    marginBottom: "6px"
-                                }}>
+                                {/* Línea negra superpuesta */}
+                                <div className="absolute right-0 bottom-[130px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
+                                {/* Stickers arriba del recuadro negro, alineados al centro */}
+                                <div className="w-full flex justify-start mb-1.5">
                                     {stickersConResidente.map((clave, idx) => {
                                         const icono = iconosDisponibles.find(i => i.clave === clave);
                                         return icono ? (
@@ -64,57 +47,25 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                                 key={clave}
                                                 src={icono.icono}
                                                 alt={icono.nombre}
-                                                style={{
-                                                    height: "28px",
-                                                    width: "28px",
-                                                    borderRadius: "50%",
-                                                    background: "#fff",
-                                                    marginLeft: idx > 0 ? "2px" : "0"
-                                                }}
+                                                className={`h-7 w-7 rounded-full bg-white ${idx > 0 ? "ml-0.5" : ""}`}
                                             />
                                         ) : null;
                                     })}
                                 </div>
                                 {/* Categoría en recuadro negro */}
-                                <div
-                                    style={{
-                                        background: "#111",
-                                        color: "#fff",
-                                        borderRadius: "6px",
-                                        padding: "2px 10px",
-                                        fontSize: "0.9rem",
-                                        marginBottom: "10px",
-                                        display: "inline-block",
-                                        textAlign: "left"
-                                    }}
-                                >
+                                <div className="bg-[#111] text-white rounded-md px-2.5 py-0.5 text-[0.9rem] mb-2 inline-block text-center self-start">
                                     {categoria}
                                 </div>
                                 {/* Título */}
-                                <div
-                                    style={{
-                                        fontWeight: "bold",
-                                        fontSize: "19px",
-                                        color: "#fff",
-                                        textAlign: "left",
-                                        marginBottom: "12px",
-                                        width: "100%",
-                                        lineHeight: "1.2"
-                                    }}
-                                >
+                                <div className="font-bold text-[19px] text-white text-left mb-3 w-full leading-tight">
                                     {nota.titulo}
                                 </div>
                                 {/* Imagen */}
-                                <div style={{ width: "100%" }}>
+                                <div className="w-full h-[320px] flex justify-center items-center">
                                     <img
                                         src={nota.imagen}
                                         alt={nota.titulo}
-                                        className=""
-                                        style={{
-                                            width: "815px",
-                                            height: "320px",
-                                            objectFit: "cover"
-                                        }}
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                             </div>
