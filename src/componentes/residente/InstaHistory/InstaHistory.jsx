@@ -33,7 +33,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         return (
                             <div
                                 key={nota.id}
-                                className="relative bg-[#3D3E3E] flex flex-col items-center justify-center nota-card mb-8 pt-10 pb-12 px-6 w-[400px] h-[658px] overflow-hidden"
+                                className="relative bg-[#3D3E3E] flex flex-col items-center justify-center nota-card mb-8 pt-10 pb-12 px-10 w-[400px] h-[658px] overflow-hidden"
                                 data-slug={nota.slug}
                             >
                                 {/* Línea negra superpuesta */}
