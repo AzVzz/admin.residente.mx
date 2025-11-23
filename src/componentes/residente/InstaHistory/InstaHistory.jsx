@@ -33,7 +33,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         return (
                             <div
                                 key={nota.id}
-                                className="bg-[#3D3E3E] flex flex-col items-start nota-card mb-8 pt-10 pb-12 pl-6 pr-6 "
+                                className="bg-[#3D3E3E] flex flex-col items-start nota-card mb-8 pt-10 pb-12 pl-10 pr-10 "
                                 data-slug={nota.slug}
                                 style={{ position: "relative" }}
                             >
@@ -112,7 +112,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                         className=""
                                         style={{
                                             width: "815px",
-                                            height: "420px",
+                                            height: "320px",
                                             objectFit: "cover"
                                         }}
                                     />
