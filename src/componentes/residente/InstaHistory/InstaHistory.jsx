@@ -1,5 +1,3 @@
-import PostPrincipal from "../componentes/componentesColumna2/PostPrincipal";
-import { urlApi, imgApi } from "../../api/url";
 import { Iconografia } from "../../utils/Iconografia";
 
 const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
@@ -18,11 +16,22 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
         ...(Iconografia?.zonas || [])
     ];
 
+    const colores = [
+        "bg-[#FFF]", 
+        "bg-[#3D3E3E]", 
+        "bg-[#FFF200]"
+    ];
+    const coloresTexto = [
+        "text-[#000]", 
+        "text-[#FFF]", 
+        "text-[#000]"
+    ];
+
     return (
         <div>
             <div className="flex flex-col pt-9 items-center">
                 <div className="w-full max-w-[400px] mx-auto flex flex-col gap-8">
-                    {notasPrincipales.map(({ nota, categoria }) => {
+                    {notasPrincipales.map(({ nota, categoria }, idx) => {
                         const stickers = Array.isArray(nota.sticker)
                             ? nota.sticker
                             : nota.sticker
@@ -30,10 +39,12 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                 : [];
                         // Agrega el sticker fijo "residente" al inicio
                         const stickersConResidente = ["residente", ...stickers];
+                        const colorTarjeta = colores[idx % colores.length];
+                        const colorTexto = coloresTexto[idx % coloresTexto.length];
                         return (
                             <div
                                 key={nota.id}
-                                className="relative bg-[#3D3E3E] flex flex-col items-center justify-center nota-card mb-8 pt-10 pb-12 px-10 w-[400px] h-[658px] overflow-hidden"
+                                className={`relative flex flex-col items-center justify-end nota-card mb-8 pt-10 pb-10 px-10 w-[400px] h-[658px] overflow-hidden ${colorTarjeta}`}
                                 data-slug={nota.slug}
                             >
                                 {/* Línea negra superpuesta */}
@@ -57,7 +68,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     {categoria}
                                 </div>
                                 {/* Título */}
-                                <div className="font-bold text-[19px] text-white text-left mb-3 w-full leading-tight">
+                                <div className={`font-bold text-[19px] ${colorTexto} text-left mb-3 w-full leading-tight`}>
                                     {nota.titulo}
                                 </div>
                                 {/* Imagen */}
