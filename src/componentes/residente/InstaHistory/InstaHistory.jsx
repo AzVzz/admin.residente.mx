@@ -48,7 +48,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                 data-slug={nota.slug}
                             >
                                 {/* Línea negra superpuesta */}
-                                <div className="absolute right-0 bottom-[90 px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
+                                <div className="absolute right-0 bottom-[90px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
                                 {/* Stickers arriba del recuadro negro, alineados al centro */}
                                 <div className="w-full flex justify-start mb-1.5">
                                     {stickersConResidente.map((clave, idx) => {
