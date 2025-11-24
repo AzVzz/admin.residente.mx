@@ -11,7 +11,7 @@ const Informacion = ({ nombreRestaurante }) => {
       value: "nombre_restaurante",
       label: "Nombre del restaurante",
       placeholder: "Ej. Residente's Pizza",
-      maxLength: 20,
+      maxLength: 23,
     },
     {
       value: "fecha_inauguracion",
