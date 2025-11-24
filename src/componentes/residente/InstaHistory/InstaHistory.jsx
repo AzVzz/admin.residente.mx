@@ -68,7 +68,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     {categoria}
                                 </div>
                                 {/* Título */}
-                                <div className={`text-[22px] ${colorTexto} text-left mb-3 w-full leading-tight`}>
+                                <div className={`text-[23px] ${colorTexto} text-left mb-3 w-full leading-6`}>
                                     {nota.titulo}
                                 </div>
                                 {/* Imagen */}
