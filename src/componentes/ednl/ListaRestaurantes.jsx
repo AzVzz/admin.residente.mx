@@ -1,33 +1,34 @@
 // src/componentes/ListaRestaurantes.jsx
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { FaEdit } from 'react-icons/fa';
 import './ListaRestaurantes.css'
 
 
 import { urlApi, imgApi } from '../../componentes/api/url.js';
 
 
-const topofthetop =`${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/topofthetop.avif`;
-const favoritosdelpublico = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`;
-const losmasfrecuentados = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/losmasfrecuentados.avif`;
-const favoritosdelacritica = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritosdelacritica.avif`;
-const valorportudinero = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/valorportudinero.avif`;
-const lamejorexperiencia = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/lamejorexperiencia.avif`;
-const genuino = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/genuino.avif`;
-const iconicos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/iconicos.avif`;
-const innovadores = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/innovadores.avif`;
-const joyasocultas = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/joyasocultas.avif`;
-const paraveryservistos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/paraveryservistos.avif`;
-const reyesdelcolonia = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/reyesdelcolonia.avif`;
-const desayunos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/desayunos.avif`;
-const enpareja = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/enpareja.avif`;
-const clasicosregiomontanos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/clasicosregiomontanos.avif`;
-const mexicano = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mexicano.avif`;
-const oriental = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/oriental.avif`;
-const comfortfood = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/comfortfood.avif`;
-const mariscos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mariscos.avif`;
-const tacos = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/tacos.avif`;
-const italianoypizza = `${urlApi}fotos/fotos-estaticas/listado-iconos-100estrellas/italianoypizza.avif`;
+const topofthetop = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/topofthetop.avif`;
+const favoritosdelpublico = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritsdelpublico.avif`;
+const losmasfrecuentados = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/losmasfrecuentados.avif`;
+const favoritosdelacritica = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/favoritosdelacritica.avif`;
+const valorportudinero = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/valorportudinero.avif`;
+const lamejorexperiencia = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/lamejorexperiencia.avif`;
+const genuino = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/genuino.avif`;
+const iconicos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/iconicos.avif`;
+const innovadores = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/innovadores.avif`;
+const joyasocultas = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/joyasocultas.avif`;
+const paraveryservistos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/paraveryservistos.avif`;
+const reyesdelcolonia = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/reyesdelcolonia.avif`;
+const desayunos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/desayunos.avif`;
+const enpareja = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/enpareja.avif`;
+const clasicosregiomontanos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/clasicosregiomontanos.avif`;
+const mexicano = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mexicano.avif`;
+const oriental = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/oriental.avif`;
+const comfortfood = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/comfortfood.avif`;
+const mariscos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/mariscos.avif`;
+const tacos = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/tacos.avif`;
+const italianoypizza = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/italianoypizza.avif`;
 
 
 import Footer from './componentes/Footer';
@@ -143,7 +144,14 @@ const ListaRestaurantes = () => {
                       .replace(/[^a-z0-9-]/g, '');
 
                     return (
-                      <li key={i} >
+                      <li key={i} className="flex items-center justify-end gap-2">
+                        <Link
+                          to={`/formulario/${slug}`}
+                          className="text-gray-400 hover:text-blue-500 transition-colors"
+                          title="Editar Restaurante"
+                        >
+                          <FaEdit size={14} />
+                        </Link>
                         <Link
                           to={`/restaurante/${slug}`}
                           className="enlace-restaurante"

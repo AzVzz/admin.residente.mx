@@ -13,11 +13,11 @@ const Logros = ({ numero }) => {
         if (!value) return true;
         const soloNumeros = /^\d+$/.test(value);
         const longitudValida = value.length <= MAX_DIGITOS_FECHA;
-        const añoValido = value >= 1900 && value <= new Date().getFullYear() + 5;
+        const añoValido = value >= 1900 && value <= new Date().getFullYear();
 
         if (!soloNumeros) return "Solo se permiten números";
         if (!longitudValida) return `Máximo ${MAX_DIGITOS_FECHA} dígitos`;
-        if (!añoValido) return `Año debe estar entre 1900 y ${new Date().getFullYear() + 5}`;
+        if (!añoValido) return `Año debe estar entre 1900 y ${new Date().getFullYear()}`;
         return true;
     };
 

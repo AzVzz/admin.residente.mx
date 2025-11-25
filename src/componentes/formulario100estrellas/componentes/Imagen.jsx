@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { urlApi, imgApi } from '../../api/url';
 
 const Imagen = () => {
     const { setValue, register, formState: { errors } } = useFormContext();
@@ -75,7 +76,7 @@ const Imagen = () => {
                     {previews.map((url, idx) => (
                         <div key={url} className="preview-item">
                             <img
-                                src={url}
+                                src={url.trim().startsWith('http') || url.trim().startsWith('blob:') ? url : `${imgApi}${url}`}
                                 alt={`Preview ${idx + 1}`}
                                 onLoad={() => URL.revokeObjectURL(url)}
                                 style={{

@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { useEffect } from 'react';
 
 const OcasionIdeal = () => {
-    const { register, setValue, formState: { errors } } = useFormContext();
+    const { register, setValue, watch, formState: { errors } } = useFormContext();
 
     const ocasionIdeal = [
         "Familiar",
@@ -15,18 +15,7 @@ const OcasionIdeal = () => {
         "Desayunos"
     ];
 
-    // Función para inicializar valores al cargar/editar
-    useEffect(() => {
-        // Obtener valores actuales
-        const ocasion1 = ocasionIdeal.find(oc => oc === "Familiar") || "";
-        const ocasion2 = ocasionIdeal.find(oc => oc === "Negocios") || "";
-        const ocasion3 = ocasionIdeal.find(oc => oc === "Amigos") || "";
-        
-        // Establecer valores predeterminados
-        setValue("ocasion_ideal_1", ocasion1);
-        setValue("ocasion_ideal_2", ocasion2);
-        setValue("ocasion_ideal_3", ocasion3);
-    }, [setValue]);
+    // useEffect eliminado para evitar valores por defecto forzados
 
     const GrupoOcasion = ({ numero }) => (
         <div className="form-ocasion-ideal">
@@ -42,6 +31,12 @@ const OcasionIdeal = () => {
                                 {...register(`ocasion_ideal_${numero}`, {
                                     required: "Debes seleccionar una opción"
                                 })}
+                                onClick={() => {
+                                    const currentVal = watch(`ocasion_ideal_${numero}`);
+                                    if (currentVal === valor) {
+                                        setValue(`ocasion_ideal_${numero}`, "");
+                                    }
+                                }}
                             />
                             <label htmlFor={`ocasion-${numero}-${valor}`}>
                                 {valor}

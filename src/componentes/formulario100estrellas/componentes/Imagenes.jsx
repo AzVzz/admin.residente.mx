@@ -25,7 +25,7 @@ const Imagenes = ({ slug, existingImages }) => {
         if (existingImages && existingImages.length > 0) {
             const existingPreviews = existingImages.map(img => ({
                 id: img.id,
-                url: `${urlApi}${img.src}`
+                url: (img.src && img.src.trim().startsWith('http')) ? img.src : `${imgApi}${img.src}`
             }));
 
             setPreviews(existingPreviews.map(img => img.url));

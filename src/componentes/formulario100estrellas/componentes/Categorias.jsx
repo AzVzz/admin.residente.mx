@@ -71,6 +71,11 @@ const Categorias = () => {
                                 id={`cat-${cat.value}`}
                                 value={cat.value}
                                 {...register("categoria", { required: "Debes seleccionar una categoria" })}
+                                onClick={() => {
+                                    if (normalize(categoriaActual) === normalize(cat.value)) {
+                                        setValue("categoria", "");
+                                    }
+                                }}
                             />
                             <label htmlFor={`cat-${cat.value}`}>
                                 {cat.value}

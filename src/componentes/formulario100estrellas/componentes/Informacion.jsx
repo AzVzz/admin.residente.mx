@@ -64,6 +64,12 @@ const Informacion = ({ nombreRestaurante }) => {
               {...register(info.value, {
                 pattern: info.pattern,
                 maxLength: info.maxLength,
+                ...(info.value === 'fecha_inauguracion' && {
+                  max: {
+                    value: new Date().getFullYear(),
+                    message: `El año no puede ser mayor al actual`
+                  }
+                })
               })}
               placeholder={info.placeholder}
               className={errors[info.value] ? "error-border" : ""}
@@ -72,6 +78,9 @@ const Informacion = ({ nombreRestaurante }) => {
               <p className="error">
                 {info.label} debe tener máximo {info.maxLength} caracteres
               </p>
+            )}
+            {errors[info.value]?.type === "max" && (
+                <p className="error">{errors[info.value]?.message}</p>
             )}
           </div>
         ))}

@@ -19,7 +19,7 @@ const FotosLugar = ({ existingFotos }) => {
         if (existingFotos?.length > 0) {
             const formattedFotos = existingFotos.map(foto => ({
                 id: foto.id,
-                url: `${urlApi}${foto.url_imagen}`,
+                url: (foto.url_imagen && foto.url_imagen.trim().startsWith('http')) ? foto.url_imagen : `${imgApi}${foto.url_imagen}`,
                 isExisting: true
             }));
             setPreviews(formattedFotos);

@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 
 const CodigoVestir = () => {
 
-    const { register, formState: { errors } } = useFormContext();
+    const { register, formState: { errors }, watch, setValue } = useFormContext();
 
     const codigoVestir = [
         { value: "Informal" },
@@ -27,6 +27,12 @@ const CodigoVestir = () => {
                                 id={cod.value}
                                 value={cod.value}
                                 {...register("codigo_vestir", { required: true })}
+                                onClick={() => {
+                                    const currentVal = watch("codigo_vestir");
+                                    if (currentVal === cod.value) {
+                                        setValue("codigo_vestir", "");
+                                    }
+                                }}
                             />
 
                             <label htmlFor={cod.value}>

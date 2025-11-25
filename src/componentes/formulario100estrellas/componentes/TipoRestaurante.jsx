@@ -62,9 +62,14 @@ const TipoRestaurante = () => {
                                 id={tipo.value}
                                 value={tipo.value}
                                 checked={normalize(tipoActual) === normalize(tipo.value)}
-                                {...register("tipo_restaurante", { 
-                                    required: "Debes seleccionar una categoria" 
+                                {...register("tipo_restaurante", {
+                                    required: "Debes seleccionar una categoria"
                                 })}
+                                onClick={() => {
+                                    if (normalize(tipoActual) === normalize(tipo.value)) {
+                                        setValue("tipo_restaurante", "");
+                                    }
+                                }}
                             />
                             <label htmlFor={tipo.value}>
                                 {tipo.value}

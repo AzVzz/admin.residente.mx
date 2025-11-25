@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -114,7 +115,7 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
           {imagenes.map((img, index) => (
             <div key={index} onClick={() => openModal(index)} style={{ cursor: 'pointer' }}>
               <img
-                src={img ? `${imgApi}${img}` : "/placeholder.svg"}
+                src={img ? (img.startsWith('http') ? img : `${imgApi}${img}`) : "/placeholder.svg"}
                 alt={`Slide ${index + 1}`}
                 className="imagen-principal"
               />
@@ -163,14 +164,14 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
         </div>
       </div>
 
-      {/* Modal para vista expandida */}
-      {modalOpen && (
+      {/* Modal para vista expandida - Usando Portal para salir del contexto de apilamiento */}
+      {modalOpen && createPortal(
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex flex-col items-center justify-center p-4"
           onClick={closeModal}
         >
           <button
-            className="absolute top-4 right-4 text-white text-3xl z-50 bg-black rounded-full w-10 h-10"
+            className="absolute top-4 right-4 text-white text-4xl z-[10000] bg-black/50 hover:bg-black/80 rounded-full w-12 h-12 flex items-center justify-center transition-all"
             onClick={closeModal}
           >
             &times;
@@ -185,7 +186,7 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
                 <div key={`modal-${index}`} className="flex items-center justify-center h-full">
                   <div className="flex items-center justify-center w-full h-full">
                     <img
-                      src={img ? `${urlApi}${img}` : "/placeholder.svg"}
+                      src={img ? (img.startsWith('http') ? img : `${imgApi}${img}`) : "/placeholder.svg"}
                       alt={`Platillo ampliado ${index + 1}`}
                       className="max-w-full max-h-full object-contain"
                     />
@@ -198,7 +199,8 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
           <p className="text-white mt-4 text-center">
             {currentSlide + 1} / {imagenes.length}
           </p>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

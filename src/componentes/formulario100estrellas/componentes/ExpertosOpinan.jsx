@@ -1,7 +1,8 @@
 import { useFormContext } from 'react-hook-form';
 
 const ExpertosOpinan = () => {
-    const { register, formState: { errors } } = useFormContext();
+    const { register, watch, formState: { errors } } = useFormContext();
+    const fraseValue = watch('exp_op_frase') || '';
 
     return (
         <div className="form-expertos-opinan">
@@ -12,8 +13,16 @@ const ExpertosOpinan = () => {
                     <textarea
                         className="input-grande"
                         placeholder="Ej. Comida deliciosa, un buen servicio y un ambiente agradable. Volvería sin dudarlo"
-                        {...register('exp_op_frase')}  // Cambiado de 'exp_op_cuerpo' a 'exp_op_frase'
+                        maxLength={250}
+                        {...register('exp_op_frase', {
+                            maxLength: {
+                                value: 250,
+                                message: 'La frase no debe exceder los 250 caracteres'
+                            }
+                        })}
                     />
+                    <p style={{textAlign: 'right', fontSize: '12px', marginTop: '4px'}}>{fraseValue.length} / 250</p>
+                    {errors.exp_op_frase && <p className="error-message" style={{color: 'red', fontSize: '12px'}}>{errors.exp_op_frase.message}</p>}
                 </div>
                 
                 <div className="input-group">
