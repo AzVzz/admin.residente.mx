@@ -14,38 +14,49 @@ const NuevasSeccionesCategorias = () => {
         <legend>Secciones y Categorías *</legend>
 
         {data?.map((seccion) => {
-          const isZona = seccion.seccion === "Zona";
+          const seccionName = (seccion.seccion || '').trim();
+          const isZona = seccionName === 'Zona';
+          const isExperiencia = seccionName === 'Experiencia';
 
           return (
-            <div key={seccion.seccion} className="mb-6">
-              <h3 className="font-bold text-lg mb-3">{seccion.seccion}</h3>
+            <div key={seccionName} className="mb-6">
+              <h3 className="font-bold text-lg mb-3">{seccionName}</h3>
 
               <div className="flex flex-wrap gap-3">
                 {seccion.categorias.map((categoria) => {
-                  const fieldName = `secciones_categorias.${seccion.seccion}`;
+                  const fieldName = `secciones_categorias.${seccionName}`;
 
-                  // Para radios (Nivel de gasto, Tipo de comida, Experiencia)
+                  // ----- RADIOS: Nivel de gasto / Tipo de comida / Experiencia
                   if (!isZona) {
+                    // Solo estas dos secciones son obligatorias
+                    const esRequerida =
+                      seccionName === 'Nivel de gasto' ||
+                      seccionName === 'Tipo de comida';
+
+                    const rules = esRequerida
+                      ? {
+                          required: `Debes seleccionar una categoría para ${seccionName}`,
+                        }
+                      : {}; // Experiencia = opcional
+
                     return (
                       <div key={categoria.nombre} className="flex items-center">
                         <input
                           type="radio"
-                          id={`${seccion.seccion}-${categoria.nombre}`}
+                          id={`${seccionName}-${categoria.nombre}`}
                           value={categoria.nombre}
-                          {...register(fieldName, {
-                            required: `Debes seleccionar una categoría para ${seccion.seccion}`,
-                          })}
+                          {...register(fieldName, rules)}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                           onClick={() => {
                             const currentVal = watch(fieldName);
-                            // Permitir deseleccionar si vuelves a hacer click
+                            // toggle: si haces click de nuevo, limpia
                             if (currentVal === categoria.nombre) {
-                              setValue(fieldName, "");
+                              setValue(fieldName, '');
                             }
                           }}
                         />
                         <label
-                          htmlFor={`${seccion.seccion}-${categoria.nombre}`}
+                          htmlFor={`${seccionName}-${categoria.nombre}`}
                           className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
                         >
                           {categoria.nombre}
@@ -54,23 +65,23 @@ const NuevasSeccionesCategorias = () => {
                     );
                   }
 
-                  // Para ZONA → múltiples opciones (checkbox)
+                  // ----- ZONA: checkbox múltiple obligatorio -----
                   return (
                     <div key={categoria.nombre} className="flex items-center">
                       <input
                         type="checkbox"
-                        id={`${seccion.seccion}-${categoria.nombre}`}
+                        id={`${seccionName}-${categoria.nombre}`}
                         value={categoria.nombre}
                         {...register(fieldName, {
                           validate: (value) =>
                             Array.isArray(value) && value.length > 0
                               ? true
-                              : "Debes seleccionar al menos una zona",
+                              : 'Debes seleccionar al menos una zona',
                         })}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                       />
                       <label
-                        htmlFor={`${seccion.seccion}-${categoria.nombre}`}
+                        htmlFor={`${seccionName}-${categoria.nombre}`}
                         className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
                       >
                         {categoria.nombre}
@@ -80,11 +91,13 @@ const NuevasSeccionesCategorias = () => {
                 })}
               </div>
 
-              {errors.secciones_categorias?.[seccion.seccion] && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.secciones_categorias[seccion.seccion].message}
-                </p>
-              )}
+              {/* No mostramos errores para Experiencia */}
+              {!isExperiencia &&
+                errors.secciones_categorias?.[seccionName] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.secciones_categorias[seccionName].message}
+                  </p>
+                )}
             </div>
           );
         })}
