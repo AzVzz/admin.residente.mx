@@ -20,7 +20,7 @@ import Infografia from "./componentesColumna1/Infografia.jsx";
 import BannerChevrolet from "./BannerChevrolet.jsx";
 import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
 import { giveawayDescuentosGet } from '../../../componentes/api/giveawayDescuentosGet.js';
-import Colaboradores from "../../../componentes/residente/componentes/componentesColumna2/Colaboradores"
+import Colaboradores from "./componentesColumna2/Colaboradores.jsx";
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -250,15 +250,19 @@ const ListadoBannerRevista = ({
                                 <div className="mt-2">
                                     <NotasAcervo onCardClick={(nota) => handleCardClick(nota.id)} />
                                 </div>
+                                <div className="my-2">
+                                    <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
+                                    <Colaboradores />
+                                </div>
                             </>
                         )}
 
-                        {/*tipo === "Gastro-Destinos" && (
+                        {tipo === "Gastro-Destinos" && (
                             <div className="my-2">
                                 <GiveawayDescuentos giveaway={giveaway} cupones={cupones} />
                                 <Colaboradores />
                             </div>
-                        )*/}
+                        )}
 
                     </div>
                 );

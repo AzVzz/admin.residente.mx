@@ -1,5 +1,5 @@
 import { useEffect, useState, useLayoutEffect } from "react";
-import { getColaboradores } from "../../../api/temaSemanaApi";
+import { getColaboradores } from "../../../api/temaSemanaApi.js";
 import { useNavigate } from "react-router-dom";
 import { urlApi, imgApi } from "../../../api/url.js";
 
