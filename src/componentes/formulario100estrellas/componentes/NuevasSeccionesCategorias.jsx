@@ -2,52 +2,108 @@ import { useFormContext } from 'react-hook-form';
 import { useJsonData } from '../../../componentes/api/SeccionesDataFetcher.jsx';
 
 const NuevasSeccionesCategorias = () => {
-    const { data, loading, error } = useJsonData();
-    const { register, formState: { errors } } = useFormContext();
+  const { data, loading, error } = useJsonData();
+  const { register, formState: { errors }, watch, setValue } = useFormContext();
 
-    if (loading) return <p>Cargando opciones...</p>;
-    if (error) return <p>Error: {error}</p>;
+  if (loading) return <p>Cargando opciones...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-    return (
-        <div className="categorias">
-            <fieldset>
-                <legend>Secciones y Categorías *</legend>
+  return (
+    <div className="categorias">
+      <fieldset>
+        <legend>Secciones y Categorías *</legend>
 
-                {data?.map(seccion => (
-                    <div key={seccion.seccion} className="mb-6">
-                        <h3 className="font-bold text-lg mb-3">{seccion.seccion}</h3>
+        {data?.map((seccion) => {
+          const seccionName = (seccion.seccion || '').trim();
+          const isZona = seccionName === 'Zona';
+          const isExperiencia = seccionName === 'Experiencia';
 
-                        <div className="flex flex-wrap gap-3">
-                            {seccion.categorias.map(categoria => (
-                                <div key={categoria.nombre} className="flex items-center">
-                                    <input
-                                        type="radio"
-                                        id={`${seccion.seccion}-${categoria.nombre}`}
-                                        value={categoria.nombre}
-                                        {...register(`secciones_categorias.${seccion.seccion}`, {
-                                            required: `Debes seleccionar una categoría para ${seccion.seccion}`
-                                        })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                                    />
-                                    <label
-                                        htmlFor={`${seccion.seccion}-${categoria.nombre}`}
-                                        className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
-                                    >
-                                        {categoria.nombre}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                        {errors.secciones_categorias?.[seccion.seccion] && (
-                            <p className="text-red-500 text-sm mt-1">
-                                {errors.secciones_categorias[seccion.seccion].message}
-                            </p>
-                        )}
+          return (
+            <div key={seccionName} className="mb-6">
+              <h3 className="font-bold text-lg mb-3">{seccionName}</h3>
+
+              <div className="flex flex-wrap gap-3">
+                {seccion.categorias.map((categoria) => {
+                  const fieldName = `secciones_categorias.${seccionName}`;
+
+                  // ----- RADIOS: Nivel de gasto / Tipo de comida / Experiencia
+                  if (!isZona) {
+                    // Solo estas dos secciones son obligatorias
+                    const esRequerida =
+                      seccionName === 'Nivel de gasto' ||
+                      seccionName === 'Tipo de comida';
+
+                    const rules = esRequerida
+                      ? {
+                          required: `Debes seleccionar una categoría para ${seccionName}`,
+                        }
+                      : {}; // Experiencia = opcional
+
+                    return (
+                      <div key={categoria.nombre} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={`${seccionName}-${categoria.nombre}`}
+                          value={categoria.nombre}
+                          {...register(fieldName, rules)}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                          onClick={() => {
+                            const currentVal = watch(fieldName);
+                            // toggle: si haces click de nuevo, limpia
+                            if (currentVal === categoria.nombre) {
+                              setValue(fieldName, '');
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={`${seccionName}-${categoria.nombre}`}
+                          className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
+                        >
+                          {categoria.nombre}
+                        </label>
+                      </div>
+                    );
+                  }
+
+                  // ----- ZONA: checkbox múltiple obligatorio -----
+                  return (
+                    <div key={categoria.nombre} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`${seccionName}-${categoria.nombre}`}
+                        value={categoria.nombre}
+                        {...register(fieldName, {
+                          validate: (value) =>
+                            Array.isArray(value) && value.length > 0
+                              ? true
+                              : 'Debes seleccionar al menos una zona',
+                        })}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor={`${seccionName}-${categoria.nombre}`}
+                        className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
+                      >
+                        {categoria.nombre}
+                      </label>
                     </div>
-                ))}
-            </fieldset>
-        </div>
-    )
-}
+                  );
+                })}
+              </div>
+
+              {/* No mostramos errores para Experiencia */}
+              {!isExperiencia &&
+                errors.secciones_categorias?.[seccionName] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.secciones_categorias[seccionName].message}
+                  </p>
+                )}
+            </div>
+          );
+        })}
+      </fieldset>
+    </div>
+  );
+};
 
 export default NuevasSeccionesCategorias;

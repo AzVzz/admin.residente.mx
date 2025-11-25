@@ -137,11 +137,29 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                         <form onSubmit={methods.handleSubmit(async (data) => {
                             try {
 
-                                const seccionesCategorias = Object.entries(data.secciones_categorias || {})
-                                    .map(([seccion, categoria]) => ({
-                                        seccion,
-                                        categoria
-                                    }));
+                                baseDefaults.secciones_categorias = {};
+
+                                if (restaurante?.secciones_categorias) {
+                                    restaurante.secciones_categorias.forEach((item) => {
+                                        const { seccion, categoria } = item;
+
+                                        // Si la sección aún no existe, inicialízala
+                                        if (baseDefaults.secciones_categorias[seccion] === undefined) {
+                                            baseDefaults.secciones_categorias[seccion] = categoria;
+                                            return;
+                                        }
+
+                                        // Si ya había algo y no es array, conviértelo a array
+                                        if (!Array.isArray(baseDefaults.secciones_categorias[seccion])) {
+                                            baseDefaults.secciones_categorias[seccion] = [
+                                                baseDefaults.secciones_categorias[seccion],
+                                            ];
+                                        }
+
+                                        // Ahora sí, empuja la nueva categoría
+                                        baseDefaults.secciones_categorias[seccion].push(categoria);
+                                    });
+                                }
 
 
                                 // Construir payload como objeto JavaScript
