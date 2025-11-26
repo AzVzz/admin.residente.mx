@@ -38,6 +38,16 @@ const sizeConfig = {
     }
 };
 
+// Helper para usar proxy en desarrollo y evitar CORS con html-to-image
+const getProxiedUrl = (url) => {
+    if (!url) return url;
+    // Si estamos en localhost, usar el proxy del backend
+    if (window.location.hostname === 'localhost') {
+        return `http://localhost:3000/proxy-image?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+};
+
 const TicketPromo = forwardRef((props, ref) => {
     const {
         className = "",
@@ -188,7 +198,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
                         <img
-                            src={`${imgApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
+                            src={getProxiedUrl(`${imgApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`)}
                             alt="Residente Discy Promo Logo"
                             className={config.logo}
                         />
@@ -239,19 +249,24 @@ const TicketPromo = forwardRef((props, ref) => {
                         </p>
                     </div>
                 </div>
-                {/* Bottom section */}
-                <div className={`bg-[#FFF300] ${config.padding}  mt-auto relative`}>
-                    <h2 className={`mb-1 bg-black text-white text-center font-light font-roman leading-3 ${config.validity}`}>
-                        {validezPromo}
-                    </h2>
-                    <img
-                        src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
-                        alt="Código de barras"
-                        className={`w-full ${config.barcode} object-fill z-30 relative`}
-                    />
+
+                {/* Footer section */}
+                <div className="mt-auto">
+                    <div className={`border-t-2 border-dashed border-gray-300 ${config.validity} text-center font-bold text-gray-600`}>
+                        VÁLIDO: {validezPromo}
+                    </div>
+                    <div className="flex justify-center py-2">
+                        <img
+                            src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.webp`}
+                            alt="Código de barras"
+                            className={config.barcode}
+                        />
+                    </div>
                 </div>
             </div>
-            <div className={config.perforatedBottom}>
+
+            {/* Perforated bottom edge */}
+            <div className={config.perforatedBottom || "w-full"}>
                 <img
                     src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
                     alt="Perforado inferior"
@@ -261,5 +276,7 @@ const TicketPromo = forwardRef((props, ref) => {
         </div>
     );
 });
+
+TicketPromo.displayName = 'TicketPromo';
 
 export default TicketPromo;

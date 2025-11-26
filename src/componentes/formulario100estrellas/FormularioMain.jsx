@@ -31,10 +31,10 @@ import NuevasSeccionesCategorias from "./componentes/NuevasSeccionesCategorias";
 // Helper to get a stable ID for new forms across page reloads
 const getNewFormId = () => {
   const NEW_FORM_ID_KEY = "newRestaurantFormId";
-  let formId = localStorage.getItem(NEW_FORM_ID_KEY); // CAMBIADO a localStorage
+  let formId = sessionStorage.getItem(NEW_FORM_ID_KEY); // CAMBIADO a sessionStorage
   if (!formId) {
     formId = `nuevo_${Date.now()}`;
-    localStorage.setItem(NEW_FORM_ID_KEY, formId); // CAMBIADO a localStorage
+    sessionStorage.setItem(NEW_FORM_ID_KEY, formId); // CAMBIADO a sessionStorage
   }
   return formId;
 };
@@ -60,7 +60,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   const { usuario, token } = useAuth();
   const { loadedData, saveFormData, removeFormData } = useFormStorage(
     formId,
-    { disabled: false } // Habilitado siempre para auto-guardado
+    { disabled: true } // Deshabilitado para evitar persistencia no deseada
   );
 
   // Si no hay token, muestra el login
@@ -84,29 +84,29 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     ...restaurante,
   };
 
-baseDefaults.secciones_categorias = {};
+  baseDefaults.secciones_categorias = {};
 
-if (restaurante?.secciones_categorias) {
-  restaurante.secciones_categorias.forEach((item) => {
-    const { seccion, categoria } = item;
+  if (restaurante?.secciones_categorias) {
+    restaurante.secciones_categorias.forEach((item) => {
+      const { seccion, categoria } = item;
 
-    // Si la sección aún no existe, inicialízala
-    if (baseDefaults.secciones_categorias[seccion] === undefined) {
-      baseDefaults.secciones_categorias[seccion] = categoria;
-      return;
-    }
+      // Si la sección aún no existe, inicialízala
+      if (baseDefaults.secciones_categorias[seccion] === undefined) {
+        baseDefaults.secciones_categorias[seccion] = categoria;
+        return;
+      }
 
-    // Si ya había algo y no es array, conviértelo a array
-    if (!Array.isArray(baseDefaults.secciones_categorias[seccion])) {
-      baseDefaults.secciones_categorias[seccion] = [
-        baseDefaults.secciones_categorias[seccion],
-      ];
-    }
+      // Si ya había algo y no es array, conviértelo a array
+      if (!Array.isArray(baseDefaults.secciones_categorias[seccion])) {
+        baseDefaults.secciones_categorias[seccion] = [
+          baseDefaults.secciones_categorias[seccion],
+        ];
+      }
 
-    // Ahora sí, empuja la nueva categoría
-    baseDefaults.secciones_categorias[seccion].push(categoria);
-  });
-}
+      // Ahora sí, empuja la nueva categoría
+      baseDefaults.secciones_categorias[seccion].push(categoria);
+    });
+  }
 
 
   // Inicializar campo de comida
@@ -187,9 +187,7 @@ if (restaurante?.secciones_categorias) {
   // Efecto para resetear el formulario cuando los datos del restaurante (props) cambian.
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
-    if (restaurante) {
-      reset(baseDefaults);
-    }
+    reset(baseDefaults);
   }, [restaurante, reset]);
 
   // Cargar datos desde el hook de storage cuando esté listo.
@@ -250,9 +248,9 @@ if (restaurante?.secciones_categorias) {
                     fecha_inauguracion: data.fecha_inauguracion,
                     comida: data.comida
                       ? data.comida
-                          .split(",")
-                          .map((item) => item.trim())
-                          .filter(Boolean)
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
                       : [],
                     telefono: data.telefono,
                     ticket_promedio: data.ticket_promedio,
@@ -444,7 +442,7 @@ if (restaurante?.secciones_categorias) {
                     removeFormData();
                     // Si era un formulario nuevo, limpiar también el ID de sesión.
                     if (!esEdicion) {
-                      localStorage.removeItem("newRestaurantFormId"); // CAMBIADO a localStorage
+                      sessionStorage.removeItem("newRestaurantFormId");
                     }
                     console.log(
                       "Proceso completo: Formulario enviado y borrador local eliminado."
