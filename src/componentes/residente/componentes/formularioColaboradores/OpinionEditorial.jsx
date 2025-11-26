@@ -154,6 +154,7 @@ const OpinionEditorial = () => {
         otras_redes: ''
       });
       setFotografia(null);
+      setFotoPreview(null);
 
     } catch (error) {
       console.error('Error completo:', error);
@@ -182,8 +183,8 @@ const OpinionEditorial = () => {
           }}>
             {/* Header del formulario */}
             <Box sx={{ textAlign: 'left', mb: 6 }}>
-              <h1 className="text-2xl font-bold mb-4 text-center">
-                REGISTRO CONSEJEROS EDITORIALES
+              <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
+                REGISTRO DE COLABORADORES Y CONSEJEROS EDITORIALES
               </h1>
 
               <p className="mb-4 text-center text-black leading-[1.2] px-5">
@@ -192,22 +193,6 @@ const OpinionEditorial = () => {
                 destino de nuestro estado.
               </p>
             </Box>
-
-            {/* Mensaje de estado */}
-            {message.text && (
-              <Box sx={{
-                mb: 4,
-                p: 3,
-                borderRadius: 2,
-                backgroundColor: message.type === 'success' ? '#e8f5e8' : '#ffebee',
-                color: message.type === 'success' ? '#2e7d32' : '#c62828',
-                border: `1px solid ${message.type === 'success' ? '#4caf50' : '#f44336'}`,
-                textAlign: 'center'
-              }}>
-                {message.text}
-              </Box>
-            )}
-
             {/* Campos obligatorios */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
               <StyledTextField
@@ -456,6 +441,20 @@ const OpinionEditorial = () => {
                 {isSubmitting ? 'Enviando...' : 'ENVIAR SOLICITUD'}
               </Button>
             </Box>
+            {/* Mensaje de estado */}
+            {message.text && (
+              <Box sx={{
+                mb: 4,
+                p: 3,
+                borderRadius: 2,
+                backgroundColor: message.type === 'success' ? '#e8f5e8' : '#ffebee',
+                color: message.type === 'success' ? '#2e7d32' : '#c62828',
+                border: `1px solid ${message.type === 'success' ? '#4caf50' : '#f44336'}`,
+                textAlign: 'center'
+              }}>
+                {message.text}
+              </Box>
+            )}
           </Box>
         </div>
         {/* Barra lateral */}

@@ -181,7 +181,7 @@ const RespuestasSemana = () => {
                                     onChange={e => setRespuestaConsejo(e.target.checked)}
                                     className="form-checkbox h-5 w-5 text-blue-500 mr-2"
                                 />
-                                Mandanos tu consejo editorial
+                                Mandanos tu consejo editorial/No se publicará en tu perfil
                             </label>
                         </Box>
 
@@ -280,7 +280,11 @@ const RespuestasSemana = () => {
                                 }
                             }}
                         >
-                            {loading ? "Enviando..." : "Enviar respuesta"}
+                            {loading
+                            ? "Enviando..."
+                            : respuestaConsejo
+                                ? "Enviar consejo editorial"
+                                : "Enviar colaboración"}
                         </Button>
                         {mensaje && <Box mt={2} textAlign="center">{mensaje}</Box>}
                     </Box>
