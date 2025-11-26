@@ -133,7 +133,7 @@ const FormularioPromoTest = ({
                         <div className="flex flex-col pb-0">
                             <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Inicio (Programación) *</label>
                             <input
-                                type="date"
+                                type="datetime-local"
                                 value={formData.fechaInicio || ""}
                                 onChange={(e) => onFieldChange("fechaInicio", e.target.value)}
                                 className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
@@ -142,7 +142,7 @@ const FormularioPromoTest = ({
                         <div className="flex flex-col pb-0">
                             <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Fin (Programación) *</label>
                             <input
-                                type="date"
+                                type="datetime-local"
                                 value={formData.fechaFin || ""}
                                 onChange={(e) => onFieldChange("fechaFin", e.target.value)}
                                 className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
