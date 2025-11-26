@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -68,6 +68,13 @@ const OpinionEditorial = () => {
   const [fotoPreview, setFotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: '', text: '' }), 3000); // 3 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [message.text]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -409,8 +416,12 @@ const OpinionEditorial = () => {
                 <img
                   src={fotoPreview}
                   alt="Vista previa"
-                  style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
+                  className="w-full h-28 object-cover"
+                  style={{ maxWidth: '160px', borderRadius: '8px', margin: '0 auto' }}
                 />
+                <div style={{ fontSize: '13px', color: '#555', marginTop: '8px' }}>
+                  Así se verá tu imagen en tu perfil público
+                </div>
               </Box>
             )}
 
