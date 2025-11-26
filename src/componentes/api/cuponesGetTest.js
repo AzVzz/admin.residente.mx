@@ -9,7 +9,7 @@ export async function cuponesGetTest() {
 }
 
 export async function cuponesGetTodasTest(token) {
-    const response = await fetch(`${urlApi}api/tickets-test`, {
+    const response = await fetch(`${urlApi}api/tickets-test/mis-cupones`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!response.ok) {

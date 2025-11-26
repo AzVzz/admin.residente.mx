@@ -399,7 +399,7 @@ function App() {
                 </div>
               } />
 
-              <Route path="/tickets-test" element={
+              <Route path="/tickets/dashboard" element={
                 <div className="max-w-[1080px] mx-auto">
                   <ListaTicketsTest />
                 </div>
