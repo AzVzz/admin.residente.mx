@@ -42,3 +42,43 @@ export async function obtenerPreguntasTemaSemana(token) {
     throw error;
   }
 }
+
+// Editar pregunta semanal
+export async function editarPreguntaTemaSemana(id, datos, token) {
+  try {
+    const response = await fetch(`${urlApi}api/preguntas-tema-semanas/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(datos)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Error al editar la pregunta');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Borrar pregunta semanal
+export async function borrarPreguntaTemaSemana(id, token) {
+  try {
+    const response = await fetch(`${urlApi}api/preguntas-tema-semanas/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Error al borrar la pregunta');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+}
