@@ -186,7 +186,7 @@ const OpinionEditorial = () => {
                 REGISTRO CONSEJEROS EDITORIALES
               </h1>
 
-              <p className="mb-4 text-center text-black leading-[1.2] px-10">
+              <p className="mb-4 text-center text-black leading-[1.2] px-5">
                 Bienvenido al selecto grupo de críticos, consejeros y analistas de la cultura gastronómica de Nuevo León.
                 Ten por seguro que tu aportación será parte fundamental del futuro de nuestra industria y por ende del
                 destino de nuestro estado.
