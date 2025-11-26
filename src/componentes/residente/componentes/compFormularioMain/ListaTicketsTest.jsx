@@ -88,6 +88,33 @@ const ListaTicketsTest = () => {
                 </div>
             )}
 
+            {(() => {
+                const now = new Date();
+                const activePermanent = cupones.find(c => c.activo_manual && !c.fecha_inicio && !c.fecha_fin);
+                const activeDated = cupones.find(c => {
+                    if (!c.activo_manual || !c.fecha_inicio || !c.fecha_fin) return false;
+                    const start = new Date(c.fecha_inicio);
+                    const end = new Date(c.fecha_fin);
+                    return now >= start && now <= end;
+                });
+
+                if (activePermanent && activeDated) {
+                    return (
+                        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded shadow-sm" role="alert">
+                            <p className="font-bold flex items-center gap-2">
+                                <span className="text-xl">ℹ️</span> Aviso de Prioridad
+                            </p>
+                            <p className="mt-1">
+                                Actualmente tienes un cupón con fecha activo (<strong>{activeDated.titulo}</strong>) que vence el {new Date(activeDated.fecha_fin).toLocaleString()}.
+                                <br />
+                                Tu cupón permanente (<strong>{activePermanent.titulo}</strong>) está en espera y se mostrará automáticamente cuando el cupón con fecha expire o sea desactivado manualmente.
+                            </p>
+                        </div>
+                    );
+                }
+                return null;
+            })()}
+
             {loading ? (
                 <div className="p-6 text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
