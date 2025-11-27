@@ -29,7 +29,48 @@ const ListaTicketsTest = () => {
     useEffect(() => {
         setLoading(true);
         cuponesGetTodasTest(token)
-            .then(setCupones)
+            .then(async (data) => {
+                setCupones(data);
+
+                // --- LAZY DEACTIVATION LOGIC ---
+                // Check for coupons that are active but expired
+                const now = new Date();
+                const expiredCoupons = data.filter(c => {
+                    if (!c.activo_manual || !c.fecha_fin) return false;
+                    const endDate = new Date(c.fecha_fin);
+                    return now > endDate;
+                });
+
+                if (expiredCoupons.length > 0) {
+                    console.log(`Found ${expiredCoupons.length} expired coupons. Deactivating...`);
+                    let updatedCount = 0;
+
+                    // Process deactivations
+                    // We map to promises to do them in parallel
+                    const updates = expiredCoupons.map(async (c) => {
+                        try {
+                            await cuponEditarTest(c.id, { activo_manual: false }, token);
+                            updatedCount++;
+                            return c.id;
+                        } catch (err) {
+                            console.error(`Failed to auto-deactivate coupon ${c.id}`, err);
+                            return null;
+                        }
+                    });
+
+                    const deactivatedIds = await Promise.all(updates);
+                    const successfulIds = deactivatedIds.filter(id => id !== null);
+
+                    if (successfulIds.length > 0) {
+                        // Update local state to reflect changes
+                        setCupones(prevCupones => prevCupones.map(c =>
+                            successfulIds.includes(c.id) ? { ...c, activo_manual: false } : c
+                        ));
+                        // Optional: Notify user
+                        // alert(`Se han desactivado automáticamente ${successfulIds.length} cupones vencidos.`);
+                    }
+                }
+            })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, [token]);
@@ -147,7 +188,7 @@ const ListaTicketsTest = () => {
                     <p className="mt-2 text-gray-600">Cargando cupones...</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     {cupones.length === 0 ? (
                         <div className="col-span-full text-center text-gray-500 py-10">
                             No tienes cupones registrados.
@@ -164,21 +205,22 @@ const ListaTicketsTest = () => {
                                         {estado.label}
                                     </div>
 
-                                    {/* Visualización del Ticket (Small) */}
-                                    <div className="scale-90 origin-top">
+                                    {/* Visualización del Ticket (Large) */}
+                                    <div className="w-full flex justify-center mb-4">
                                         <TicketPromo
-                                            size="small"
+                                            size="large"
                                             nombreRestaurante={cupon.nombre_restaurante}
                                             nombrePromo={cupon.titulo}
                                             subPromo={cupon.subtitulo || cupon.descripcion}
                                             descripcionPromo={cupon.descripcion}
                                             validezPromo={cupon.fecha_validez}
                                             stickerUrl={cupon.imagen_url}
+                                            className="transform scale-90 sm:scale-100 origin-top" // Optional scaling for very small screens if needed, but keeping it large mostly
                                         />
                                     </div>
 
                                     {/* Info de Fechas */}
-                                    <div className="mt-[-20px] mb-4 text-center text-sm text-gray-600 bg-white p-2 rounded-lg shadow-sm border border-gray-100 w-full">
+                                    <div className="mb-4 text-center text-sm text-gray-600 bg-white p-2 rounded-lg shadow-sm border border-gray-100 w-full max-w-md">
                                         {cupon.fecha_inicio && cupon.fecha_fin ? (
                                             <>
                                                 <p><span className="font-semibold">Inicio:</span> {new Date(cupon.fecha_inicio).toLocaleDateString()}</p>
@@ -189,27 +231,29 @@ const ListaTicketsTest = () => {
                                         )}
                                     </div>
 
-                                    {/* Acciones */}
-                                    <button
-                                        onClick={() => handleEliminar(cupon.id)}
-                                        disabled={eliminando === cupon.id}
-                                        className="mt-auto w-full py-2 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm"
-                                    >
-                                        <FaTrash />
-                                        {eliminando === cupon.id ? "Eliminando..." : "Eliminar Cupón"}
-                                    </button>
+                                    <div className="w-full max-w-md flex flex-col gap-2">
+                                        {/* Toggle Activar/Desactivar */}
+                                        <button
+                                            onClick={() => handleToggleStatus(cupon.id, cupon.activo_manual)}
+                                            disabled={toggling === cupon.id}
+                                            className={`w-full py-3 border rounded-lg transition-colors flex items-center justify-center gap-2 font-bold shadow-sm text-lg ${cupon.activo_manual
+                                                ? "bg-white border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                                                : "bg-green-500 border-green-500 text-white hover:bg-green-600"
+                                                }`}
+                                        >
+                                            {toggling === cupon.id ? "Procesando..." : (cupon.activo_manual ? "Desactivar Cupón" : "Activar Cupón")}
+                                        </button>
 
-                                    {/* Toggle Activar/Desactivar */}
-                                    <button
-                                        onClick={() => handleToggleStatus(cupon.id, cupon.activo_manual)}
-                                        disabled={toggling === cupon.id}
-                                        className={`mt-2 w-full py-2 border rounded-lg transition-colors flex items-center justify-center gap-2 font-medium shadow-sm ${cupon.activo_manual
-                                            ? "bg-white border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-                                            : "bg-green-500 border-green-500 text-white hover:bg-green-600"
-                                            }`}
-                                    >
-                                        {toggling === cupon.id ? "Procesando..." : (cupon.activo_manual ? "Desactivar" : "Activar")}
-                                    </button>
+                                        {/* Acciones */}
+                                        <button
+                                            onClick={() => handleEliminar(cupon.id)}
+                                            disabled={eliminando === cupon.id}
+                                            className="w-full py-2 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm"
+                                        >
+                                            <FaTrash />
+                                            {eliminando === cupon.id ? "Eliminando..." : "Eliminar"}
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })
