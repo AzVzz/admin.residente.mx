@@ -124,7 +124,7 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
         </Slider>
       </div>
 
-      <img src={`${imgApi}/fotos/fotos-estaticas/componente-sin-carpetas/estrella.webp`} className="estrella-decorativa" alt="Estrella decorativa" />
+      <img src={estrella} className="estrella-decorativa" alt="Estrella decorativa" />
 
       <div className="contenedor-textos">
         <div className="badge-estrella">
