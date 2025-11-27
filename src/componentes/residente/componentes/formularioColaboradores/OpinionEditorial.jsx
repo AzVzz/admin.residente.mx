@@ -191,7 +191,7 @@ const OpinionEditorial = () => {
             {/* Header del formulario */}
             <Box sx={{ textAlign: 'left', mb: 6 }}>
               <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
-                REGISTRO DE COLABORADORES Y CONSEJEROS EDITORIALES
+                REGISTRO DE COLABORADORES Y <p></p>CONSEJEROS EDITORIALES
               </h1>
 
               <p className="mb-4 text-center text-black leading-[1.2] px-5">
@@ -208,15 +208,22 @@ const OpinionEditorial = () => {
                 label="Tu nombre *"
                 variant="outlined"
                 value={formData.nombre}
-                onChange={handleInputChange}
+                onChange={e => {
+                  const value = e.target.value.slice(0, 21);
+                  setFormData(prev => ({
+                    ...prev,
+                    nombre: value
+                  }));
+                }}
                 required
                 fullWidth
+                inputProps={{ maxLength: 21 }}
                 sx={{
                   '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
+                    borderColor: '#3b3b3c',
                   },
                   '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
+                    color: '#3b3b3c',
                   }
                 }}
               />
@@ -420,7 +427,7 @@ const OpinionEditorial = () => {
                   style={{ maxWidth: '160px', borderRadius: '8px', margin: '0 auto' }}
                 />
                 <div style={{ fontSize: '13px', color: '#555', marginTop: '8px' }}>
-                  Así se verá tu imagen en tu perfil público
+                  Así se verá tu imagen en tu blog de colaborador.
                 </div>
               </Box>
             )}
