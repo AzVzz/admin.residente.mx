@@ -48,6 +48,32 @@ const ListaTicketsTest = () => {
     };
 
     const handleToggleStatus = async (id, currentStatus) => {
+        const cupon = cupones.find(c => c.id === id);
+        if (!cupon) return;
+
+        // Lógica para ACTIVAR
+        if (!currentStatus) {
+            // Verificar si ya venció
+            if (cupon.fecha_fin) {
+                const now = new Date();
+                const endDate = new Date(cupon.fecha_fin);
+                if (now > endDate) {
+                    alert("No puedes activar este cupón porque su fecha de finalización ya ha pasado.");
+                    return;
+                }
+            }
+        }
+        // Lógica para DESACTIVAR
+        else {
+            // Advertencia si tiene fechas
+            if (cupon.fecha_inicio || cupon.fecha_fin) {
+                const confirmDeactivate = window.confirm(
+                    "Este cupón tiene fechas programadas. Si lo desactivas manualmente, dejará de mostrarse aunque esté dentro del rango de fechas. ¿Deseas continuar?"
+                );
+                if (!confirmDeactivate) return;
+            }
+        }
+
         setToggling(id);
         try {
             const nuevoStatus = !currentStatus;
