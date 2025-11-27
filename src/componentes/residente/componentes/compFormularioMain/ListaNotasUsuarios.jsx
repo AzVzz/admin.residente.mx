@@ -444,7 +444,8 @@ const ListaNotasUsuarios = () => {
                     onChange={handleInputChange}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="todos">Administrador (Todos)</option>
+                    <option value="usuario">Usuario General</option>
+                    <option value="todos">Administrador</option>
                     <option value="mama-de-rocco">Mamá de Rocco</option>
                     <option value="b2b">Usuario B2B</option>
 

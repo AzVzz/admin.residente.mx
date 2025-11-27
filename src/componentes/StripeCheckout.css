@@ -1,0 +1,111 @@
+/* Estilos para el componente de Stripe Checkout */
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+}
+
+.description {
+  text-align: center;
+}
+
+.description h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.description h5 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+#checkout-button {
+  background-color: #635bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 1rem;
+  min-width: 200px;
+}
+
+#checkout-button:hover {
+  background-color: #5851ea;
+}
+
+#checkout-button:active {
+  background-color: #4c46d8;
+}
+
+#checkout-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 1rem 0;
+  max-width: 500px;
+  width: 100%;
+}
+
+.error-message p {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin: 0;
+  text-align: center;
+}
+
+.Box-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+section p {
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Estilos para la pantalla de éxito */
+.product.Box-root {
+  background-color: #f0f9ff;
+  border: 2px solid #10b981;
+}
+
+.description.Box-root h3 {
+  color: #10b981;
+}
+
