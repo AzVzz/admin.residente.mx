@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -68,6 +68,13 @@ const OpinionEditorial = () => {
   const [fotoPreview, setFotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: '', text: '' }), 3000); // 3 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [message.text]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -154,6 +161,7 @@ const OpinionEditorial = () => {
         otras_redes: ''
       });
       setFotografia(null);
+      setFotoPreview(null);
 
     } catch (error) {
       console.error('Error completo:', error);
@@ -182,32 +190,16 @@ const OpinionEditorial = () => {
           }}>
             {/* Header del formulario */}
             <Box sx={{ textAlign: 'left', mb: 6 }}>
-              <h1 className="text-2xl font-bold mb-4 text-center">
-                REGISTRO CONSEJEROS EDITORIALES
+              <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
+                REGISTRO DE COLABORADORES Y CONSEJEROS EDITORIALES
               </h1>
 
-              <p className="mb-4 text-center text-black leading-[1.2] px-10">
+              <p className="mb-4 text-center text-black leading-[1.2] px-5">
                 Bienvenido al selecto grupo de críticos, consejeros y analistas de la cultura gastronómica de Nuevo León.
                 Ten por seguro que tu aportación será parte fundamental del futuro de nuestra industria y por ende del
                 destino de nuestro estado.
               </p>
             </Box>
-
-            {/* Mensaje de estado */}
-            {message.text && (
-              <Box sx={{
-                mb: 4,
-                p: 3,
-                borderRadius: 2,
-                backgroundColor: message.type === 'success' ? '#e8f5e8' : '#ffebee',
-                color: message.type === 'success' ? '#2e7d32' : '#c62828',
-                border: `1px solid ${message.type === 'success' ? '#4caf50' : '#f44336'}`,
-                textAlign: 'center'
-              }}>
-                {message.text}
-              </Box>
-            )}
-
             {/* Campos obligatorios */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
               <StyledTextField
@@ -424,8 +416,12 @@ const OpinionEditorial = () => {
                 <img
                   src={fotoPreview}
                   alt="Vista previa"
-                  style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '8px', margin: '0 auto' }}
+                  className="w-full h-28 object-cover"
+                  style={{ maxWidth: '160px', borderRadius: '8px', margin: '0 auto' }}
                 />
+                <div style={{ fontSize: '13px', color: '#555', marginTop: '8px' }}>
+                  Así se verá tu imagen en tu perfil público
+                </div>
               </Box>
             )}
 
@@ -456,6 +452,20 @@ const OpinionEditorial = () => {
                 {isSubmitting ? 'Enviando...' : 'ENVIAR SOLICITUD'}
               </Button>
             </Box>
+            {/* Mensaje de estado */}
+            {message.text && (
+              <Box sx={{
+                mb: 4,
+                p: 3,
+                borderRadius: 2,
+                backgroundColor: message.type === 'success' ? '#e8f5e8' : '#ffebee',
+                color: message.type === 'success' ? '#2e7d32' : '#c62828',
+                border: `1px solid ${message.type === 'success' ? '#4caf50' : '#f44336'}`,
+                textAlign: 'center'
+              }}>
+                {message.text}
+              </Box>
+            )}
           </Box>
         </div>
         {/* Barra lateral */}
