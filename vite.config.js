@@ -27,5 +27,14 @@ export default defineConfig({
         }
       }
     })
-  ],  
+  ],
+  server: {
+    proxy: {
+      '/fotos': {
+        target: 'https://residente.mx',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 })

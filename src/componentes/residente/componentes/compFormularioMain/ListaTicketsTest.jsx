@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { cuponesGetTodasTest, cuponBorrarTest, cuponEditarTest } from "../../../api/cuponesGetTest";
 import { FaTrash } from "react-icons/fa";
 import TicketPromo from "../../../promociones/componentes/TicketPromo";
@@ -66,8 +67,6 @@ const ListaTicketsTest = () => {
                         setCupones(prevCupones => prevCupones.map(c =>
                             successfulIds.includes(c.id) ? { ...c, activo_manual: false } : c
                         ));
-                        // Optional: Notify user
-                        // alert(`Se han desactivado automáticamente ${successfulIds.length} cupones vencidos.`);
                     }
                 }
             })
@@ -133,7 +132,7 @@ const ListaTicketsTest = () => {
 
     const getEstado = (inicio, fin, activoManual) => {
         if (!activoManual) return { label: "Inactivo", color: "text-gray-600 bg-gray-200" };
-        if (!inicio && !fin) return { label: "Permanente", color: "text-blue-600 bg-blue-100" };
+        if (!inicio && !fin) return { label: "Activo", color: "text-blue-600 bg-blue-100" };
 
         const now = new Date();
         const startDate = new Date(inicio);
@@ -146,9 +145,17 @@ const ListaTicketsTest = () => {
 
     return (
         <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                Mis Cupones (Dashboard)
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                    Mis Cupones (Dashboard)
+                </h2>
+                <Link
+                    to="/promo-test"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm flex items-center gap-2"
+                >
+                    <span className="text-xl">+</span> Agregar Cupón
+                </Link>
+            </div>
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     {error}
@@ -205,18 +212,19 @@ const ListaTicketsTest = () => {
                                         {estado.label}
                                     </div>
 
-                                    {/* Visualización del Ticket (Large) */}
+                                    {/* Visualización del Ticket (Imagen) */}
                                     <div className="w-full flex justify-center mb-4">
-                                        <TicketPromo
-                                            size="large"
-                                            nombreRestaurante={cupon.nombre_restaurante}
-                                            nombrePromo={cupon.titulo}
-                                            subPromo={cupon.subtitulo || cupon.descripcion}
-                                            descripcionPromo={cupon.descripcion}
-                                            validezPromo={cupon.fecha_validez}
-                                            stickerUrl={cupon.imagen_url}
-                                            className="transform scale-90 sm:scale-100 origin-top" // Optional scaling for very small screens if needed, but keeping it large mostly
-                                        />
+                                        {cupon.imagen_url ? (
+                                            <img
+                                                src={cupon.imagen_url}
+                                                alt={`Cupón: ${cupon.titulo}`}
+                                                className="w-full h-auto object-contain transform scale-90 sm:scale-100 origin-top shadow-lg rounded-sm"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-400 p-10 border-2 border-dashed border-gray-300 rounded-lg">
+                                                Imagen no disponible
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Info de Fechas */}
