@@ -129,24 +129,44 @@ const FormularioPromoTest = ({
                 </label>
 
                 {!formData.esPermanente && (
-                    <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div className="flex flex-col gap-4 mt-2">
+                        {/* Selector de Zona Horaria */}
                         <div className="flex flex-col pb-0">
-                            <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Inicio (Programación) *</label>
-                            <input
-                                type="datetime-local"
-                                value={formData.fechaInicio || ""}
-                                onChange={(e) => onFieldChange("fechaInicio", e.target.value)}
+                            <label className="block text-xl font-medium text-gray-950 mb-1">Zona Horaria *</label>
+                            <select
+                                value={formData.zonaHoraria || "America/Monterrey"}
+                                onChange={(e) => onFieldChange("zonaHoraria", e.target.value)}
                                 className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
-                            />
+                            >
+                                <option value="America/Monterrey">Monterrey / CDMX (Hora Central)</option>
+                                <option value="America/Tijuana">Tijuana / Pacífico</option>
+                                <option value="America/Chihuahua">Chihuahua / Montaña</option>
+                                <option value="America/Cancun">Cancún / Sureste</option>
+                            </select>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Las fechas seleccionadas se guardarán en esta zona horaria.
+                            </p>
                         </div>
-                        <div className="flex flex-col pb-0">
-                            <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Fin (Programación) *</label>
-                            <input
-                                type="datetime-local"
-                                value={formData.fechaFin || ""}
-                                onChange={(e) => onFieldChange("fechaFin", e.target.value)}
-                                className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
-                            />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col pb-0">
+                                <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Inicio *</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.fechaInicio || ""}
+                                    onChange={(e) => onFieldChange("fechaInicio", e.target.value)}
+                                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                                />
+                            </div>
+                            <div className="flex flex-col pb-0">
+                                <label className="block text-xl font-medium text-gray-950 mb-1">Fecha de Fin *</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.fechaFin || ""}
+                                    onChange={(e) => onFieldChange("fechaFin", e.target.value)}
+                                    className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
