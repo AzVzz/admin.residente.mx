@@ -2,7 +2,20 @@ import { urlApi, imgApi } from './url.js';
 
 export const restaurantesBasicosGet = async () => {
     try {
-        const response = await fetch(`${urlApi}api/restaurante/basicos`);
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${urlApi}api/restaurante/basicos`, {
+            method: 'GET',
+            headers: headers
+        });
+
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const result = await response.json();
         return result; // Array con id, nombre_restaurante, slug, secciones_categorias
