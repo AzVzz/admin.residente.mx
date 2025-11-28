@@ -19,10 +19,7 @@ export const loginPost = async (nombre_usuario, password) => {
         // Retorna el objeto completo con token y usuario
         return {
             token: data.token,
-            usuario: {
-                nombre_usuario,
-                permisos: data.permisos
-            }
+            usuario: data.usuario // ✅ Usar el objeto usuario completo del backend
         };
     } catch (error) {
         throw error;
