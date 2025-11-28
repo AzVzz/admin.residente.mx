@@ -53,6 +53,7 @@ const PromoMain = lazy(() => import('./componentes/promociones/PromoMain'));
 const PromoMainTest = lazy(() => import('./componentes/promociones/PromoMainTest')); // 👈 TEST
 const ListaTicketsTest = lazy(() => import('./componentes/residente/componentes/compFormularioMain/ListaTicketsTest')); // 👈 TEST
 const FormularioRevistaBannerNueva = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner'));
+const B2BDashboard = lazy(() => import('./componentes/residente/B2B/B2BDashboard'));
 
 const notasPrueba = [
   {
@@ -146,7 +147,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative z-50 ${showMegaMenu
+            className={`transition-all duration-300 relative z-20 ${showMegaMenu
               ? "-translate-y-full opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
               }`}
@@ -432,6 +433,13 @@ function App() {
               <Route path="/tickets" element={
                 <div className="max-w-[1080px] mx-auto">
                   <ListaTickets />
+                </div>
+              } />
+
+              {/* Admin */}
+              <Route path="/b2b-dashboard" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <B2BDashboard />
                 </div>
               } />
 

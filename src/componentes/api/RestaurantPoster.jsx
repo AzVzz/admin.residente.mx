@@ -1,8 +1,7 @@
-// src/componentes/api/RestaurantPoster.jsx
 import { useState } from 'react';
 import { urlApi, imgApi } from '../../componentes/api/url.js'
 
-const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
+const RestaurantPoster = ({ children, method = 'POST', slug = null, token = null }) => {
     const [isPosting, setIsPosting] = useState(false);
     const [postError, setPostError] = useState(null);
     const [postResponse, setPostResponse] = useState(null);
@@ -19,11 +18,20 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
                 url = `${urlApi}api/restaurante/${slug}`;
             }
 
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            console.log("RestaurantPoster: Token received:", token ? "Yes" : "No");
+            console.log("RestaurantPoster: Headers:", headers);
+
             const response = await fetch(url, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
 
@@ -49,8 +57,14 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
             // Usar ID en la URL
             const url = `${urlApi}api/restaurante/${restaurantId}/imagenes`;
 
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
+                headers: headers,
                 body: formData
             });
 
@@ -72,8 +86,15 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
         setIsPosting(true);
         try {
             const url = `${urlApi}api/restaurante/${restaurantId}/fotos-lugar`;
+
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
+                headers: headers,
                 body: formData
             });
 
@@ -91,10 +112,41 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null }) => {
         }
     };
 
+    const postLogo = async (restaurantId, formData) => {
+        setIsPosting(true);
+        try {
+            const url = `${urlApi}api/restaurante/${restaurantId}/logo`;
+
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error en logo (${response.status}): ${errorText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            setPostError(error.message);
+            throw error;
+        } finally {
+            setIsPosting(false);
+        }
+    };
+
     return children({
         postRestaurante,
         postImages,
         postFotosLugar,
+        postLogo,
         isPosting,
         postError,
         postResponse,

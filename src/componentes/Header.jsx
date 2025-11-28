@@ -108,7 +108,7 @@ const Header = () => {
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
           <div className="flex pr-3 ">
-            <Link to="" className="h-16 w-16 self-end object-contain bg-white rounded-full">
+            <Link to="https://residente.mx" className="h-16 w-16 self-end object-contain bg-white rounded-full">
               <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" alt="Logo Residente Circulo" />
             </Link>
           </div>

@@ -157,7 +157,7 @@ const ListaNotasUsuarios = () => {
     }
 
     setLogoFile(file);
-    
+
     // Crear preview
     const reader = new FileReader();
     reader.onload = (ev) => setLogoPreview(ev.target.result);
@@ -185,14 +185,14 @@ const ListaNotasUsuarios = () => {
       }
 
       const uploadData = await uploadResponse.json();
-      
+
       // El servidor puede devolver la URL en diferentes formatos
       let logoUrl = uploadData.url || uploadData.path || uploadData.imageUrl || uploadData.data?.url;
-      
+
       if (logoUrl) {
         // Limpiar la URL: eliminar espacios y asegurar formato correcto
         logoUrl = logoUrl.trim().replace(/\s+/g, '');
-        
+
         // Asegurar que la URL tenga el protocolo correcto
         if (logoUrl.startsWith('http s://')) {
           logoUrl = logoUrl.replace('http s://', 'https://');
@@ -200,14 +200,14 @@ const ListaNotasUsuarios = () => {
           // Si es http, convertir a https si es necesario
           logoUrl = logoUrl.replace('http://', 'https://');
         }
-        
+
         // Validar que sea una URL válida
         try {
           new URL(logoUrl); // Esto lanzará un error si la URL no es válida
         } catch (urlError) {
           throw new Error('La URL del logo no es válida');
         }
-        
+
         setFormData(prev => ({ ...prev, logo_url: logoUrl }));
         setError(''); // Limpiar errores previos si la subida fue exitosa
       } else {
@@ -479,7 +479,7 @@ const ListaNotasUsuarios = () => {
               {formData.permisos === 'nuevo-cliente' && (
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Subir Logo
+                    Subir Archivo
                   </label>
                   <div className="flex items-center space-x-4">
                     <div className="flex-1">
