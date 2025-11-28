@@ -146,7 +146,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative ${showMegaMenu
+            className={`transition-all duration-300 relative z-20 ${showMegaMenu
               ? "-translate-y-full opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
               }`}
