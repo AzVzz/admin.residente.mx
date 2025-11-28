@@ -15,7 +15,7 @@ export const loginPost = async (nombre_usuario, password) => {
             throw new Error(error.error || 'Error al iniciar sesión');
         }
         const data = await response.json();
-        
+
         // Retorna el objeto completo con token y usuario
         return {
             token: data.token,
