@@ -41,6 +41,7 @@ const Login = ({ redirectTo }) => {
             <span className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-bold text-white bg-black">
                 <FaUser className="text-sm -mt-0.5 mr-2" />
                 <span className="flex items-center">{usuario?.nombre_usuario}</span>
+                <span>{usuario.rol}</span>
             </span>
         );
     }

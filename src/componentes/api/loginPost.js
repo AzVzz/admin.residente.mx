@@ -16,13 +16,10 @@ export const loginPost = async (nombre_usuario, password) => {
         }
         const data = await response.json();
         
-        // Retorna el objeto completo con token y usuario
+        // Retorna el objeto completo con token y usuario (incluyendo rol)
         return {
             token: data.token,
-            usuario: {
-                nombre_usuario,
-                permisos: data.permisos
-            }
+            usuario: data.usuario
         };
     } catch (error) {
         throw error;
