@@ -1,11 +1,12 @@
 // src/componentes/ListaRestaurantes.jsx
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import './ListaRestaurantes.css'
 
 
 import { urlApi, imgApi } from '../../componentes/api/url.js';
+import { useAuth } from '../Context';
 
 
 const topofthetop = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/topofthetop.avif`;
@@ -35,6 +36,7 @@ import Footer from './componentes/Footer';
 import PromocionesMain from '../promociones/componentes/TicketPromo';
 
 const ListaRestaurantes = () => {
+  const { usuario } = useAuth();
   const [categoriasAgrupadas, setCategoriasAgrupadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,6 +75,32 @@ const ListaRestaurantes = () => {
       .split(' ')
       .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
       .join(' ');
+  };
+
+  const handleToggleStatus = async (restaurante) => {
+    try {
+      const newStatus = restaurante.status === 1 ? 0 : 1;
+      const response = await fetch(`${urlApi}api/restaurante/${restaurante.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        setCategoriasAgrupadas(prev => prev.map(cat => ({
+          ...cat,
+          restaurantes: cat.restaurantes.map(r =>
+            r.id === restaurante.id ? { ...r, status: newStatus } : r
+          )
+        })));
+      } else {
+        console.error('Error updating status');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
 
@@ -144,17 +172,33 @@ const ListaRestaurantes = () => {
                       .replace(/[^a-z0-9-]/g, '');
 
                     return (
-                      <li key={i} className="flex items-center justify-end gap-2">
-                        <Link
-                          to={`/formulario/${slug}`}
-                          className="text-gray-400 hover:text-blue-500 transition-colors"
-                          title="Editar Restaurante"
-                        >
-                          <FaEdit size={14} />
-                        </Link>
+                      <li key={i} className={`flex items-center justify-end gap-2 ${restaurante.status === 0 ? 'opacity-75' : ''}`}>
+                        {usuario?.rol === 'residente' && (
+                          <>
+                            <button
+                              onClick={() => handleToggleStatus(restaurante)}
+                              className="text-gray-500 hover:text-blue-500 transition-colors focus:outline-none mr-2"
+                              title={restaurante.status === 1 ? "Desactivar" : "Activar"}
+                            >
+                              {restaurante.status === 1 ? (
+                                <FaToggleOn size={22} className="text-green-600" />
+                              ) : (
+                                <FaToggleOff size={22} className="text-red-500" />
+                              )}
+                            </button>
+                            <Link
+                              to={`/formulario/${slug}`}
+                              className="text-gray-400 hover:text-blue-500 transition-colors"
+                              title="Editar Restaurante"
+                            >
+                              <FaEdit size={14} />
+                            </Link>
+                          </>
+                        )}
                         <Link
                           to={`/restaurante/${slug}`}
-                          className="enlace-restaurante"
+                          className={`enlace-restaurante ${restaurante.status === 0 ? 'text-red-800 line-through decoration-red-500' : ''}`}
+                          title={restaurante.status === 0 ? "Restaurante Inactivo" : ""}
                         >
                           {formatearNombre(restaurante.nombre_restaurante)}
                         </Link>
