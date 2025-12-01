@@ -13,20 +13,8 @@ const PromoMainTest = () => {
     const { usuario, token } = useAuth();
 
     console.log("Usuario actual:", usuario); // 👈 DEBUG
-    // Relaxed check for testing: check rol OR permisos
-    if (!usuario || (usuario.rol !== 'residente' && usuario.rol !== 'b2b' && usuario.permisos !== 'residente' && usuario.permisos !== 'b2b' && usuario.permisos !== 'todos')) {
-        return (
-            <div className="flex items-center justify-center h-[50vh]">
-                <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
-                    <p className="text-gray-600">
-                        No tienes permisos para crear cupones. <br />
-                        Solo usuarios Residentes y B2B pueden acceder a esta sección.
-                    </p>
-                </div>
-            </div>
-        );
-    }
+    // Check removed to allow access; backend handles data filtering.
+
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",

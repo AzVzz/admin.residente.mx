@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../Context';
-import { useClientesValidos } from '../../../../hooks/useClientesValidos';
+import { useClientesVgitalidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
 import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
@@ -399,7 +399,7 @@ const ListaNotasUsuarios = () => {
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center"
         >
           <FaUserPlus className="mr-2" />
-          Nuevo Cliente
+          Nuevo Usuario
         </button>
       </div>
 

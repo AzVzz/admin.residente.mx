@@ -15,11 +15,11 @@ export const loginPost = async (nombre_usuario, password) => {
             throw new Error(error.error || 'Error al iniciar sesión');
         }
         const data = await response.json();
-        
-        // Retorna el objeto completo con token y usuario (incluyendo rol)
+
+        // Retorna el objeto completo con token y usuario
         return {
             token: data.token,
-            usuario: data.usuario
+            usuario: data.usuario // ✅ Usar el objeto usuario completo del backend
         };
     } catch (error) {
         throw error;

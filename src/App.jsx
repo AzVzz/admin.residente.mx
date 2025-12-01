@@ -37,6 +37,7 @@ import PlantillaNotas from "./componentes/residente/PlantillasRehusables/Plantil
 import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
 import ListaTickets from './componentes/residente/componentes/compFormularioMain/ListaTickets';
 import InstaHistoryPage from './componentes/residente/InstaHistory/InstaHistoryPage.jsx';
+import FormMain from './componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx';
 
 //Admin
 const FormMainResidente = lazy(() => import('./componentes/residente/componentes/compFormularioMain/FormMainResidente'));
@@ -310,6 +311,12 @@ function App() {
                   <InstaHistoryPage />
                 </div>
               } />
+
+              <Route path="/registrob2b" element={
+                <div className="max-w-[650px] mx-auto">
+                  <FormMain />
+                </div>
+              }/>
 
 
 
