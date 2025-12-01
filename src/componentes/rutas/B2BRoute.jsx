@@ -5,7 +5,7 @@ import { useAuth } from "../Context";
 
 const B2BRoute = ({ children }) => {
   const { usuario, token } = useAuth();
-  const location = useLocation;
+  const location = useLocation();
 
   // Si no esta logeado mandar a /login
   if (!token || !usuario) {
