@@ -175,8 +175,8 @@ function App() {
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
             className={`transition-all duration-300 relative z-20 ${showMegaMenu
-                ? "-translate-y-full opacity-0 pointer-events-none"
-                : "translate-y-0 opacity-100"
+              ? "-translate-y-full opacity-0 pointer-events-none"
+              : "translate-y-0 opacity-100"
               }`}
           >
             <div />
@@ -188,8 +188,8 @@ function App() {
           location.pathname !== "/linkinbio" && (
             <div
               className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
-                  ? "translate-y-0 opacity-100"
-                  : "-translate-y-full opacity-0 pointer-events-none"
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-full opacity-0 pointer-events-none"
                 }`}
             >
               <div />
@@ -470,6 +470,16 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <Videos />
+                  </div>
+                }
+              />
+
+              {/* Admin */}
+              <Route
+                path="/"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <Login />
                   </div>
                 }
               />
