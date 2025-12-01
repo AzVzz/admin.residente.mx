@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../Context';
-import { useClientesVgitalidos } from '../../../../hooks/useClientesValidos';
+//import { useClientesVgitalidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
 import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
