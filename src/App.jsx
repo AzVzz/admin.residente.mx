@@ -174,11 +174,10 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative z-20 ${
-              showMegaMenu
+            className={`transition-all duration-300 relative z-20 ${showMegaMenu
                 ? "-translate-y-full opacity-0 pointer-events-none"
                 : "translate-y-0 opacity-100"
-            }`}
+              }`}
           >
             <div />
             <Header />
@@ -188,20 +187,18 @@ function App() {
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" && (
             <div
-              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-                showMegaMenu
+              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
                   ? "translate-y-0 opacity-100"
                   : "-translate-y-full opacity-0 pointer-events-none"
-              }`}
+                }`}
             >
               <div />
               <MegaMenu />
             </div>
           )}
         <main
-          className={`flex-grow overflow-x-hidden w-full relative z-10 ${
-            isLinkInBio ? "" : "px-10 sm:px-0"
-          }`}
+          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"
+            }`}
         >
           <Suspense fallback={<div>Cargando...</div>}>
             <Routes>
@@ -379,7 +376,7 @@ function App() {
                     <PlantillaNotas
                       posts={[...notasPrueba]}
                       notasDestacadas={[...notasPrueba]}
-                      handleCardClick={() => {}}
+                      handleCardClick={() => { }}
                     />
                   </div>
                 }
@@ -479,7 +476,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/"
+                path="/login"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <Login />
