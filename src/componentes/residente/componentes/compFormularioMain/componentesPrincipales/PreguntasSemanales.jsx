@@ -54,10 +54,8 @@ const PreguntasSemanales = () => {
       return
     }
 
-    // Al crear o editar pregunta
     const publicarEnConHora = publicarEn ? publicarEn + "T12:00:00" : "";
-    // Sumar un día a la fecha de expiración
-    const expirarEnConHora = expirarEn ? sumarDia(expirarEn) + "T00:00:00" : "";
+    const expirarEnConHora = expirarEn ? expirarEn + "T23:59:59" : ""; // Expira al final del día elegido
 
     // Verificar si ya existe una pregunta vigente para la fecha seleccionada
     const existePreguntaVigente = preguntas.some(p =>
@@ -98,16 +96,13 @@ const PreguntasSemanales = () => {
   }
 
   const handleEditarGuardar = async (id) => {
-    // Validación de fechas en edición
     if (editingPublicarEn && editingExpirarEn && editingExpirarEn <= editingPublicarEn) {
       setMensaje("La fecha de expiración debe ser posterior a la de publicación.")
       return
     }
 
-    // Al crear o editar pregunta
     const editarPublicarEnConHora = editingPublicarEn ? editingPublicarEn + "T12:00:00" : "";
-    // Sumar un día a la fecha de expiración
-    const editarExpirarEnConHora = editingExpirarEn ? sumarDia(editingExpirarEn) + "T00:00:00" : "";
+    const editarExpirarEnConHora = editingExpirarEn ? editingExpirarEn + "T23:59:59" : "";
 
     try {
       await editarPreguntaTemaSemana(id, {
@@ -143,13 +138,6 @@ const PreguntasSemanales = () => {
     } catch (error) {
       setMensaje(error.message)
     }
-  }
-
-  // Sumar un día a la fecha de expiración
-  function sumarDia(fechaStr) {
-    const fecha = new Date(fechaStr);
-    fecha.setDate(fecha.getDate() + 1);
-    return fecha.toISOString().slice(0, 10); // "YYYY-MM-DD"
   }
 
   return (

@@ -4,8 +4,10 @@ import { catalogoHeadersGet } from './api/CatalogoSeccionesGet';
 import { urlApi, imgApi } from './api/url';
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope, FaSearch, FaTimes } from "react-icons/fa";
 import SearchResults from "./SearchResults";
+import { useAuth } from "./Context";
 
 const Header = () => {
+  const { usuario } = useAuth();
   const location = useLocation();
   const [menuHeader, setMenuHeader] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -108,7 +110,7 @@ const Header = () => {
 
         <div className="flex pb-0 pt-11"> {/** Antes pt-5 (agregue 8 pixeles más)*/}
           <div className="flex pr-3 ">
-            <Link to="" className="h-16 w-16 self-end object-contain bg-white rounded-full">
+            <Link to="https://residente.mx" className="h-16 w-16 self-end object-contain bg-white rounded-full">
               <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" alt="Logo Residente Circulo" />
             </Link>
           </div>
@@ -147,7 +149,7 @@ const Header = () => {
                         key={idx}
                         className="relative group dropdown-container"
                       >
-                        <button 
+                        <button
                           onClick={() => handleDropdownToggle(idx)}
                           className="hover:underline text-black font-roman bg-transparent border-none cursor-pointer"
                         >
@@ -155,11 +157,10 @@ const Header = () => {
                         </button>
                         {/* Submenú desplegable */}
                         {section.submenu && (
-                          <div className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
-                            activeDropdown === idx 
-                              ? 'opacity-100 visible' 
-                              : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
-                          }`}>
+                          <div className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
+                            ? 'opacity-100 visible'
+                            : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+                            }`}>
                             <ul>
                               {section.submenu.map((item, subIdx) => (
                                 <li key={subIdx}>
@@ -180,22 +181,26 @@ const Header = () => {
                       </div>
                     )
                   )}
-                  <a href="/notas">Dashboard</a>
+                  {usuario?.rol === 'b2b' ? (
+                    <Link to="/dashboardb2b" className="hover:underline text-black font-roman">Dashboard</Link>
+                  ) : (
+                    <Link to="/notas" className="hover:underline text-black font-roman">Dashboard</Link>
+                  )}
                 </div>
                 <div className="sm:flex gap-1.5 hidden items-center">
                   {!isSearchOpen ? (
                     <>
-                    {/*se quito el href y el cursor pointer*/}
+                      {/*se quito el href y el cursor pointer*/}
                       <a href="/B2b">
                         <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp" className="object-contain h-4 w-12 b2b" alt="B2B" />
                       </a>
-                      
+
                       <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer"><FaInstagram className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer"><FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer"><FaYoutube className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="tel:+528114186985" target="_blank" rel="noopener noreferrer"><FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" /></a>
                       <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!"><FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" /></a>
-                      <button 
+                      <button
                         onClick={handleSearchToggle}
                         className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
                         title="Buscar"
@@ -223,10 +228,10 @@ const Header = () => {
                           <FaTimes className="w-4 h-4" />
                         </button>
                       </form>
-                      
+
                       {/* Dropdown de resultados */}
-                      <SearchResults 
-                        searchTerm={searchTerm} 
+                      <SearchResults
+                        searchTerm={searchTerm}
                         onClose={handleSearchClose}
                       />
                     </div>

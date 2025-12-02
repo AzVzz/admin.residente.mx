@@ -29,6 +29,7 @@ export default defineConfig({
     })
   ],
   server: {
+<<<<<<< HEAD
     host: 'localhost',
     port: 5173,
     strictPort: false,
@@ -50,4 +51,14 @@ export default defineConfig({
   },
   // Variables de entorno para Stripe
   envPrefix: 'VITE_'
+=======
+    proxy: {
+      '/fotos': {
+        target: 'https://residente.mx',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
+>>>>>>> ee596df99c02af7f07dd9607198e03f0183e83bd
 })

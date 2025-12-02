@@ -74,7 +74,7 @@ const GridComponent = ({
         <div className="flex-container">
             <div className="costo"> {/* 1 */}
                 <div className="costo-imagen">
-                    <img src={`${imgApi}/fotos/fotos-estaticas/componente-sin-carpetas/man.webp`} />
+                    <img src={man} alt="Ticket promedio" />
                 </div>
                 <div className="costo-info">
                     <h3 className="leading-tight">Ticket promedio <br /> por persona</h3>
@@ -99,13 +99,12 @@ const GridComponent = ({
             <div className="horario">{/* 4 */}
                 <h3>Horario</h3>
                 <a
-                    href={linkHorario}
+                    href={linkHorario || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
                 >
                     <FaClock
-                        href={linkHorario}
                         className="reloj"
                         style={{ color: 'black', cursor: 'pointer' }}
                     />
@@ -113,7 +112,7 @@ const GridComponent = ({
             </div>
             <div className="div5y6">
                 <div className="telefono"> {/* 5 */}
-                    <img src={`${imgApi}/fotos/fotos-estaticas/componente-sin-carpetas/telefono.webp`} />
+                    <img src={phone} alt="Teléfono" />
                     <h3>{formatTelefono(telefono) || "No disponible"}</h3>
                 </div>
                 <div className="ocasion"> {/* 6 */}

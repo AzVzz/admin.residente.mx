@@ -3,7 +3,7 @@ import { useAuth } from "../../../Context";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
-import { FaUser } from "react-icons/fa6";
+import { FaUser, FaStore } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -302,6 +302,7 @@ const ListaNotas = () => {
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -318,16 +319,22 @@ const ListaNotas = () => {
     { key: "usuarios", label: "Usuarios", icon: <FaUser className="mr-2" /> },
     { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
+    { key: "restaurante_link", label: "Restaurante", icon: <FaStore className="mr-2" /> },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
   // Si el usuario NO es admin (todos/todo), solo mostrar Notas y Recetas
   const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-  const menuOptions = esAdmin 
-    ? todasLasOpciones 
-    : todasLasOpciones.filter(option => 
-        option.key === "notas" || option.key === "recetas"
-      );
+  const esResidente = usuario?.permisos === 'residente';
+  const esB2B = usuario?.permisos === 'b2b';
+
+  const menuOptions = esAdmin
+    ? todasLasOpciones
+    : todasLasOpciones.filter(option =>
+      option.key === "notas" ||
+      option.key === "recetas" ||
+      ((esResidente || esB2B) && option.key === "restaurante_link")
+    );
 
   if (cargando) {
     return (
@@ -393,7 +400,11 @@ const ListaNotas = () => {
               <MenuItem
                 key={option.key}
                 onClick={() => {
-                  setVistaActiva(option.key);
+                  if (option.key === "restaurante_link") {
+                    navigate('/formulario');
+                  } else {
+                    setVistaActiva(option.key);
+                  }
                   handleMenuClose();
                 }}
                 selected={vistaActiva === option.key}
@@ -600,7 +611,7 @@ const ListaNotas = () => {
             </div>
             {mostrarFormularioReceta ? (
               <div className="text-center text-lg">
-                <FormularioReceta 
+                <FormularioReceta
                   key={recetaKey}
                   receta={recetaEditando}
                   onCancelar={() => {
@@ -615,7 +626,7 @@ const ListaNotas = () => {
                 />
               </div>
             ) : (
-              <ListaRecetas 
+              <ListaRecetas
                 key={recargarListaRecetas}
                 onEditar={(receta) => {
                   setRecetaEditando(receta);
