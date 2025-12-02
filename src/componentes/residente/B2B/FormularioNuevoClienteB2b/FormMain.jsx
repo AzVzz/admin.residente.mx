@@ -30,6 +30,7 @@ const FormMain = () => {
       const usuarioData = {
         nombre_usuario: formData.nombre_usuario,
         password: formData.password,
+        correo: formData.correo,
       };
       const usuarioRes = await registrob2bPost(usuarioData);
 
@@ -37,7 +38,6 @@ const FormMain = () => {
         usuario_id: usuarioRes.usuario.id,
         nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
         nombre_responsable: formData.nombre_responsable_restaurante,
-        correo: formData.correo,
         telefono: formData.telefono,
         nombre_restaurante: formData.nombre_restaurante,
         rfc: formData.rfc,
