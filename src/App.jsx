@@ -39,6 +39,7 @@ import ListaTickets from "./componentes/residente/componentes/compFormularioMain
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
+import TerminosyCondiciones from './componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx';
 
 //Admin
 const FormMainResidente = lazy(() =>
@@ -570,6 +571,8 @@ function App() {
                   </div>
                 }
               />
+
+              {/* Admin */}
               <Route
                 path="/dashboardb2b"
                 element={
@@ -580,6 +583,14 @@ function App() {
                   </B2BRoute>
                 }
               />
+
+              {/* Admin */}
+              <Route path="/terminos-y-condiciones" element={
+                <div className="max-w-[1080px] mx-auto">
+                  <TerminosyCondiciones />
+                </div>
+              } />
+
             </Routes>
           </Suspense>
         </main>
