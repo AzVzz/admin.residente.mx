@@ -91,6 +91,8 @@ const FormularioRevistaBannerNueva = lazy(() =>
 const B2BDashboard = lazy(() =>
   import("./componentes/residente/B2B/B2BDashboard")
 );
+const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
+const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
 
 const notasPrueba = [
   {
@@ -490,6 +492,24 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <Login />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/recuperar-password"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <ForgotPassword />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/restablecer-password/:token"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <ResetPassword />
                   </div>
                 }
               />
