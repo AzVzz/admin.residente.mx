@@ -34,19 +34,13 @@ import ListaNotasUanl from "./componentes/residente/componentes/compFormularioMa
 import DetalleColaborador from "./componentes/residente/Colaboradores/DetalleColaborador.jsx";
 import NewsletterPage from "./componentes/residente/Newsletter/NewsletterPage.jsx";
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
-<<<<<<< HEAD
-import B2BMain from './componentes/residente/B2B/B2BMain.jsx';
-import ListaTickets from './componentes/residente/componentes/compFormularioMain/ListaTickets';
-import InstaHistoryPage from './componentes/residente/InstaHistory/InstaHistoryPage.jsx';
-import StripeCheckout from './componentes/StripeCheckout.jsx';
-=======
 import B2BMain from "./componentes/residente/B2B/B2BMain.jsx";
 import ListaTickets from "./componentes/residente/componentes/compFormularioMain/ListaTickets";
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
+import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
-import TerminosyCondiciones from './componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx';
->>>>>>> ee596df99c02af7f07dd9607198e03f0183e83bd
+import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
 
 //Admin
 const FormMainResidente = lazy(() =>
@@ -359,14 +353,6 @@ function App() {
                 }
               />
 
-<<<<<<< HEAD
-              <Route path="/stripe-checkout" element={
-                <div className="max-w-[1080px] mx-auto py-10">
-                  <StripeCheckout />
-                </div>
-              } />
-
-=======
               <Route
                 path="/colaborador/:id"
                 element={
@@ -375,7 +361,15 @@ function App() {
                   </div>
                 }
               />
->>>>>>> ee596df99c02af7f07dd9607198e03f0183e83bd
+
+              <Route
+                path="/stripe-checkout"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <StripeCheckout />
+                  </div>
+                }
+              />
 
               <Route
                 path="/foto-news"
