@@ -402,6 +402,8 @@ const ListaNotas = () => {
                 onClick={() => {
                   if (option.key === "restaurante_link") {
                     navigate('/formulario');
+                  } else if (option.key === "cupones") {
+                    navigate('/promo');
                   } else {
                     setVistaActiva(option.key);
                   }
