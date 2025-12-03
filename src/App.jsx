@@ -537,7 +537,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/promo"
+                path="/promo-old"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMain />
@@ -547,7 +547,7 @@ function App() {
 
               {/* TEST ROUTES */}
               <Route
-                path="/promo-test"
+                path="/promo"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMainTest />
