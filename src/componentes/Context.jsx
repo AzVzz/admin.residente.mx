@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         const stored = localStorage.getItem('usuario');
         return stored ? JSON.parse(stored) : null;
     });
-    
+
     // Inicializa tipoNotaUsuario basado en el usuario almacenado
     const [tipoNotaUsuario, setTipoNotaUsuario] = useState(() => {
         const stored = localStorage.getItem('usuario');

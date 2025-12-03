@@ -14,6 +14,7 @@ import { notaDelete } from "../../../api/notaDelete";
 import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
 import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
 import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
+import ZonasSelector from './componentes/ZonasSelector.jsx';
 import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
 import InstafotoSelector from './componentes/InstafotoSelector.jsx';
 import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
@@ -84,6 +85,7 @@ const FormMainResidente = () => {
       instafoto: null,
       destacada: false,
       tiposDeNotaSeleccionadas: '',
+      zonas: [],
     }
   });
 
@@ -298,6 +300,7 @@ const FormMainResidente = () => {
             destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
             nombre_restaurante: data.nombre_restaurante || '',
             tiposDeNotaSeleccionadas: data.tipo_nota || '',
+            zonas: data.zonas ? (typeof data.zonas === 'string' ? JSON.parse(data.zonas) : data.zonas) : [],
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -370,7 +373,8 @@ const FormMainResidente = () => {
         destacada: data.destacada || false,
         destacada_normal: data.destacada_normal || false,
         // NUEVO: Indicar si se debe actualizar la fecha
-        actualizar_fecha: actualizarFecha
+        actualizar_fecha: actualizarFecha,
+        zonas: data.zonas,
 
       };
 
@@ -484,30 +488,18 @@ const FormMainResidente = () => {
                   onInstafotoEliminada={() => setInstafotoActual(null)}
                 />
 
-                {/* Filtros completamente ocultos para todos los usuarios */}
-                {/* <CategoriasTipoNotaSelector
-                  tipoDeNota={tipoDeNota}
-                  secciones={secciones}
-                  ocultarTipoNota={!!tipoNotaUsuario}
-                /> */}
-
-                {/* Si hay tipoNotaUsuario, muéstralo como texto prominente */}
-                {tipoNotaUsuario && (
-                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <label className="block text-sm font-medium text-blue-800 mb-2">Tipo de nota:</label>
-                    <div className="text-2xl font-bold text-blue-900 bg-white px-4 py-2 rounded-md border border-blue-300">
-                      📝 {tipoNotaUsuario}
-                    </div>
-                  </div>
-                )}
-
-                {/* Mostrar tipo de nota para usuarios con permisos 'todos' */}
-                {!tipoNotaUsuario && usuario?.permisos === 'todos' && (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <label className="block text-sm font-medium text-green-800 mb-2">Tipo de nota:</label>
-                    <div className="text-2xl font-bold text-green-900 bg-white px-4 py-2 rounded-md border border-green-300">
-                      📝 {watch('tiposDeNotaSeleccionadas') || ''}
-                    </div>
+                {/* Secciones de filtros unificadas para usuarios con permisos 'todos' */}
+                {usuario?.permisos === 'todos' && (
+                  <div className="mb-6">
+                    <CategoriasTipoNotaSelector
+                      tipoDeNota={tipoDeNota}
+                      secciones={[
+                        ...secciones.filter(s => s.seccion !== "Zona" && s.seccion !== "Experiencia"),
+                        ...(secciones.find(s => s.seccion === "Zona") ? [secciones.find(s => s.seccion === "Zona")] : []),
+                        ...secciones.filter(s => s.seccion === "Experiencia")
+                      ]}
+                      ocultarTipoNota={false}
+                    />
                   </div>
                 )}
 
@@ -519,15 +511,6 @@ const FormMainResidente = () => {
                       📝 Sin tipo asignado
                     </div>
                   </div>
-                )}
-
-                {/* Secciones de filtros restauradas para usuarios con permisos 'todos' */}
-                {usuario?.permisos === 'todos' && (
-                  <CategoriasTipoNotaSelector
-                    tipoDeNota={tipoDeNota}
-                    secciones={secciones}
-                    ocultarTipoNota={!!tipoNotaUsuario}
-                  />
                 )}
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
@@ -566,13 +549,9 @@ const FormMainResidente = () => {
                 })()}
 
                 <NombreRestaurante />
-
                 <Titulo />
-
                 <Subtitulo />
-
                 <Autor />
-
                 <Contenido />
 
                 <FormularioPromoExt
@@ -580,27 +559,24 @@ const FormMainResidente = () => {
                   stickerSeleccionado={watch('sticker')}
                   maxStickers={2}
                 />
-                {/* Mostrar el sticker seleccionado */}
+
                 <div className="mt-2 text-sm text-gray-700">
                   Sticker seleccionado: {watch('sticker')}
                 </div>
 
                 {/* Opciones de publicación */}
                 <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="text-sm text-yellow-800 mb-4">
-                  </div>
-
-                  {/* Opciones de publicación */}
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
                       Opciones de Publicación
                     </label>
-                    {/* --- Mensaje si faltan campos --- */}
+
                     {faltanCamposObligatorios && (
                       <div className="mb-2 text-red-600 text-sm font-medium">
                         Si quieres publicar llena los campos faltantes: {camposFaltantes.join(', ')}
                       </div>
                     )}
+
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <input
@@ -679,7 +655,6 @@ const FormMainResidente = () => {
                 )}
 
                 <div className="flex w-full gap-5">
-                  {/* Botón Actualizar/Publicar (azul) */}
                   <BotonSubmitNota
                     isPosting={isPosting}
                     notaId={notaId}
@@ -688,7 +663,6 @@ const FormMainResidente = () => {
                     disabled={isPosting}
                   />
 
-                  {/* Botón Guardar Cambios/Borrador (verde) */}
                   <BotonSubmitNota
                     isPosting={isPosting}
                     notaId={notaId}
@@ -698,34 +672,19 @@ const FormMainResidente = () => {
                   />
                 </div>
 
-
               </div>
             </div>
           </form>
         </FormProvider>
       </div>
 
-      {/* Vista previa de cómo se verá la nota */}
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           📱 Vista previa de tu nota
         </h2>
 
-        {/* Solo mostrar vista previa si hay contenido */}
         {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
           <div className="flex justify-center">
-            {/*<div className="grid grid-cols-[2.9fr_1.1fr] gap-5 py-6 border-b">
-              <PostHorizontal
-                titulo={titulo || 'Título de ejemplo'}
-                imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-                tipoNota={(watch('tiposDeNotaSeleccionadas') || []).join(' / ') || 'Tipo de nota'}
-              />
-              <PostLoMasVistoDirectorio
-                tipoDeNota={tipoNotaSeleccionada || 'Tipo de nota'}
-                titulo={titulo || 'Título de ejemplo'}
-                imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-              />
-            </div>*/}
             <div className="flex w-[680px]">
               <div>
                 <DetallePost
@@ -742,18 +701,6 @@ const FormMainResidente = () => {
                   sinFecha={false}
                 />
               </div>
-              {/*<div className="flex flex-col">
-                <PostLoMasVisto
-                  titulo={titulo || 'Título de ejemplo'}
-                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-                  fecha={fechaActual}
-                />
-                <PostVertical
-                  titulo={titulo || 'Título de ejemplo'}
-                  imagen={imagen && typeof imagen === 'object' ? URL.createObjectURL(imagen) : imagen}
-                  tipoNota={tipoNotaSeleccionada || 'Tipo de nota'}
-                />
-              </div>*/}
             </div>
           </div>
         ) : (

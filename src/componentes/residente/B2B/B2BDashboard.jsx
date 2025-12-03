@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { imgApi } from "../../api/url";
+import { useAuth } from "../../Context";
 
 const B2BDashboard = () => {
     const [showModal, setShowModal] = useState(false);
+    const { saveToken, saveUsuario } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (showModal) {
@@ -15,6 +19,12 @@ const B2BDashboard = () => {
             document.body.style.overflow = "";
         };
     }, [showModal]);
+
+    const handleLogout = () => {
+        saveToken(null);
+        saveUsuario(null);
+        navigate("/login");
+    };
 
     const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
@@ -28,8 +38,14 @@ const B2BDashboard = () => {
                 <img
                     src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
                     alt="Foto usuario"
-                    className="w-8 h-8 rounded-full object-cover border border-gray-300"
+                    className="w-8 h-8 rounded-full object-cover border border-gray-300 mr-4"
                 />
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
+                >
+                    Cerrar Sesión
+                </button>
             </div>
             {/* Grid de 3 columnas */}
             <div className="w-full grid grid-cols-3">
