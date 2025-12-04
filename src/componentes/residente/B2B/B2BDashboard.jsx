@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { imgApi } from "../../api/url";
+import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
-  const { saveToken, saveUsuario, usuario } = useAuth();
+  const { saveToken, saveUsuario, usuario, token } = useAuth();
   const navigate = useNavigate();
+  const [restaurante, setRestaurante] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [b2bUser, setB2bUser] = useState(null);
 
   // 🆕 Estado para productos y selección
   const [productos, setProductos] = useState([]);
@@ -61,6 +64,56 @@ const B2BDashboard = () => {
       return nuevoSeleccionados;
     });
   };
+  useEffect(() => {
+    const fetchRestaurante = async () => {
+      try {
+        // 1. Obtener lista de restaurantes del usuario
+        const response = await fetch(`${urlApi}api/restaurante/basicos`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            // 2. Tomar el primero (asumiendo que B2B tiene uno principal)
+            const primerRestaurante = data[0];
+
+            // 3. Obtener detalles completos para la imagen
+            const detailResponse = await fetch(`${urlApi}api/restaurante/${primerRestaurante.slug}`);
+            if (detailResponse.ok) {
+              const detailData = await detailResponse.json();
+              setRestaurante(detailData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching restaurante:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchB2BUser = async () => {
+      try {
+        if (usuario?.id) {
+          const response = await fetch(`${urlApi}api/usuariosb2b/user/${usuario.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setB2bUser(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching B2B user:", error);
+      }
+    };
+
+    if (token) {
+      fetchRestaurante();
+      fetchB2BUser();
+    }
+  }, [token, usuario]);
 
   const handleLogout = () => {
     saveToken(null);
@@ -68,7 +121,30 @@ const B2BDashboard = () => {
     navigate("/login");
   };
 
+  const handleEditar = () => {
+    if (restaurante) {
+      navigate(`/formulario/${restaurante.slug}`);
+    }
+  };
+
+  const handleVer = () => {
+    if (restaurante) {
+      navigate(`/restaurante/${restaurante.slug}`);
+    }
+  };
+
+  const handleCupones = () => {
+    navigate('/tickets/dashboard');
+  };
+
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
+
+  // Imagen por defecto si no hay restaurante o imagen
+  const imagenRestaurante = restaurante?.imagenes?.[0]?.src
+    ? (restaurante.imagenes[0].src.startsWith('http')
+      ? restaurante.imagenes[0].src
+      : `${imgApi}${restaurante.imagenes[0].src}`)
+    : `${imgApi}/fotos/platillos/default.webp`; // Fallback
 
   return (
     <div>
@@ -94,40 +170,59 @@ const B2BDashboard = () => {
         {/* Columna azul */}
         <div className="flex flex-col bg-blue-500/20 p-5">
           <p className="text-[40px] text-center">Mis Productos</p>
-          <div className="flex items-center gap-3">
-            <img
-              src={`${imgApi}/_image?href=https%3A%2F%2Fresidente.mx%2F%2Ffotos%2Fplatillos%2Fsan-carlos%2Fsan-carlos1.webp&w=300&h=300&f=webp`}
-              alt="San Carlos"
-              className="w-[110px] h-[68px] object-cover rounded"
-            />
-            <div>
-              <div className="font-bold text-base">San Carlos</div>
-              <div className="text-gray-700 text-sm">Comida regional</div>
+
+          {loading ? (
+            <div className="text-center py-4">Cargando restaurante...</div>
+          ) : restaurante ? (
+            <div className="flex items-center gap-3">
+              <img
+                src={imagenRestaurante}
+                alt={restaurante.nombre_restaurante}
+                className="w-[110px] h-[68px] object-cover rounded"
+              />
+              <div>
+                <div className="font-bold text-base">{restaurante.nombre_restaurante}</div>
+                <div className="text-gray-700 text-sm">{restaurante.categoria || "Restaurante"}</div>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-row gap-5">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+          ) : (
+            <div className="text-center py-4 text-gray-500">No tienes restaurantes registrados</div>
+          )}
+
+          <div className="flex flex-row gap-5 mt-4">
+            <button
+              onClick={handleEditar}
+              disabled={!restaurante}
+              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-400 cursor-not-allowed'}`}
+            >
               Editar restaurante
             </button>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+            <button
+              onClick={handleVer}
+              disabled={!restaurante}
+              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+            >
               Ver restaurante
             </button>
           </div>
           {/* Imagen de cupón y estado versión más pequeña */}
           <div className="mt-8 flex items-start gap-4">
-            <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+            <button
+              onClick={handleCupones}
+              className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+            >
               Ver mis Cupones
             </button>
           </div>
           <address className="flex flex-col mt-auto">
             <strong className="text-xs text-gray-900 font-roman">
-              Diego Azael (nombre del responsable)
+              {b2bUser?.nombre_responsable || b2bUser?.nombre_responsable_restaurante || "Nombre no disponible"}
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
-              diegoazaelvazquez2016@gmail.com
+              {b2bUser?.correo || "Correo no disponible"}
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
-              8110000000
+              {b2bUser?.telefono || "Teléfono no disponible"}
             </strong>
           </address>
         </div>
