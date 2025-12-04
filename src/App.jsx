@@ -92,6 +92,7 @@ const FormularioRevistaBannerNueva = lazy(() =>
 const B2BDashboard = lazy(() =>
   import("./componentes/residente/B2B/B2BDashboard")
 );
+
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
 
@@ -603,6 +604,8 @@ function App() {
                   </B2BRoute>
                 }
               />
+
+
 
               {/* Admin */}
               <Route path="/terminos-y-condiciones" element={
