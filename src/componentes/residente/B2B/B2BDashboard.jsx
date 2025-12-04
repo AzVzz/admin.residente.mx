@@ -9,6 +9,11 @@ const B2BDashboard = () => {
   const { saveToken, saveUsuario, usuario } = useAuth();
   const navigate = useNavigate();
 
+  // 🆕 Estado para productos y selección
+  const [productos, setProductos] = useState([]);
+  const [seleccionados, setSeleccionados] = useState({});
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = "hidden";
@@ -19,6 +24,43 @@ const B2BDashboard = () => {
       document.body.style.overflow = "";
     };
   }, [showModal]);
+
+  // 🆕 Cargar productos desde la API
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const res = await fetch("https://admin.residente.mx/api/productosb2b");
+        if (!res.ok) throw new Error("Error al obtener productos");
+        const data = await res.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al cargar productos B2B:", error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
+  // 🆕 Manejar selección de productos y total
+  const handleToggleProducto = (id) => {
+    setSeleccionados((prev) => {
+      const nuevoSeleccionados = {
+        ...prev,
+        [id]: !prev[id],
+      };
+
+      // Recalcular total con base en los seleccionados
+      const nuevoTotal = productos.reduce((suma, producto) => {
+        if (nuevoSeleccionados[producto.id]) {
+          return suma + Number(producto.monto);
+        }
+        return suma;
+      }, 0);
+
+      setTotal(nuevoTotal);
+      return nuevoSeleccionados;
+    });
+  };
 
   const handleLogout = () => {
     saveToken(null);
@@ -119,18 +161,32 @@ const B2BDashboard = () => {
             <div>
               <p className="text-[40px] text-center">Beneficios</p>
               <ol>
-                <li className="select-none flex flex-col">
-                  <p className="text-xl leading-tight">Producto 1</p>
-                  <div className="flex flex-row justify-between">
-                    <span className="text-lg leading-tight font-roman">
-                      $ 1,200.00
-                    </span>
-                    <label className="cursor-pointer">
-                      Agregar
-                      <input type="checkbox" />
-                    </label>
-                  </div>
-                </li>
+                {productos.map((producto) => (
+                  <li
+                    key={producto.id}
+                    className="select-none flex flex-col gap-3"
+                  >
+                    <p className="text-xl leading-tight">{producto.titulo}</p>
+                    <div className="flex flex-row justify-between">
+                      <span className="text-lg leading-tight font-roman">
+                        $
+                        {" " +
+                          Number(producto.monto).toLocaleString("es-MX", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                      </span>
+                      <label className="cursor-pointer inline-flex items-center gap-1">
+                        <span>Agregar</span>
+                        <input
+                          type="checkbox"
+                          checked={!!seleccionados[producto.id]}
+                          onChange={() => handleToggleProducto(producto.id)}
+                        />
+                      </label>
+                    </div>
+                  </li>
+                ))}
               </ol>
             </div>
 
@@ -138,7 +194,13 @@ const B2BDashboard = () => {
             <div className="mt-auto flex flex-col gap-2">
               <div className="flex gap-1">
                 <p>Total:</p>
-                <p className="font-roman">$1,200</p>
+                <p className="font-roman">
+                  $
+                  {total.toLocaleString("es-MX", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
               </div>
               <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
