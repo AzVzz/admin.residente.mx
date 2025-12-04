@@ -166,9 +166,9 @@ const B2BDashboard = () => {
         </button>
       </div>
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3">
+      <div className="w-full grid grid-cols-3 my-5">
         {/* Columna azul */}
-        <div className="flex flex-col bg-blue-500/20 p-5">
+        <div className="flex flex-col p-5">
           <p className="text-[40px] text-center">Mis Productos</p>
 
           {loading ? (
@@ -227,7 +227,7 @@ const B2BDashboard = () => {
           </address>
         </div>
         {/* Columna verde */}
-        <div className="flex flex-col items-center justify-center text-right bg-green-500/20 p-5">
+        <div className="flex flex-col items-center justify-center text-right p-5 border-x-2 border-black/40">
           <p className="text-[40px] text-center">Analiticas</p>
           <span className="">
             <p className="text-5xl">3,462</p>
@@ -250,7 +250,7 @@ const B2BDashboard = () => {
           </span>
         </div>
         {/* Columna roja */}
-        <div className="bg-red-500/20 p-5">
+        <div className="p-5">
           <div className="flex flex-col h-full">
             {/* Parte de arriba: título + lista */}
             <div>
