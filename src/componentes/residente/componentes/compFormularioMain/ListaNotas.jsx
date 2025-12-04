@@ -333,6 +333,7 @@ const ListaNotas = () => {
     : todasLasOpciones.filter(option =>
       option.key === "notas" ||
       option.key === "recetas" ||
+      option.key === "cupones" ||
       ((esResidente || esB2B) && option.key === "restaurante_link")
     );
 
@@ -403,7 +404,7 @@ const ListaNotas = () => {
                   if (option.key === "restaurante_link") {
                     navigate('/formulario');
                   } else if (option.key === "cupones") {
-                    navigate('/promo');
+                    navigate('/tickets/dashboard');
                   } else {
                     setVistaActiva(option.key);
                   }

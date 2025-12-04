@@ -6,7 +6,7 @@ import { useAuth } from "../../Context";
 
 const B2BDashboard = () => {
     const [showModal, setShowModal] = useState(false);
-    const { saveToken, saveUsuario } = useAuth();
+    const { saveToken, saveUsuario, usuario } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,7 +33,7 @@ const B2BDashboard = () => {
             {/* Barra superior del usuario */}
             <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-4 pr-6">
                 <span className="font-bold text-[14px] mr-3">
-                    Usuario B2B
+                    {usuario?.nombre_usuario || 'Usuario B2B'}
                 </span>
                 <img
                     src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
@@ -91,30 +91,32 @@ const B2BDashboard = () => {
                 </div>
             </div>
             {/* Modal para cupon ampliado */}
-            {showModal && (
-                <div>
-                    {createPortal(
-                        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] overflow-auto">
-                            <div className="relative">
-                                <img
-                                    src={cuponImg}
-                                    alt="Cupón ampliado"
-                                    className="w-auto h-auto max-h-[80vh]"
-                                />
-                                <button
-                                    className="absolute top-2 right-3 bg-red-600 rounded-full px-3 py-1 text-white font-bold cursor-pointer"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    X
-                                </button>
-                            </div>
-                        </div>,
-                        document.body
-                    )}
-                </div>
-            )}
+            {
+                showModal && (
+                    <div>
+                        {createPortal(
+                            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] overflow-auto">
+                                <div className="relative">
+                                    <img
+                                        src={cuponImg}
+                                        alt="Cupón ampliado"
+                                        className="w-auto h-auto max-h-[80vh]"
+                                    />
+                                    <button
+                                        className="absolute top-2 right-3 bg-red-600 rounded-full px-3 py-1 text-white font-bold cursor-pointer"
+                                        onClick={() => setShowModal(false)}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            </div>,
+                            document.body
+                        )}
+                    </div>
+                )
+            }
 
-        </div>
+        </div >
     );
 };
 
