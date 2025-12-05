@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import TerminosyCondiciones from "./TerminosyCondiciones";
 import { extensionB2bPost, registrob2bPost } from "../../../api/registrob2bPost";
 
 const FormMain = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+  const [stripeSessionId, setStripeSessionId] = useState("");
   const [formData, setFormData] = useState({
     nombre_responsable_restaurante: "",
     nombre_restaurante: "",
@@ -19,6 +27,157 @@ const FormMain = () => {
   });
   const [successMsg, setSuccessMsg] = useState("");
 
+  // Verificar si el pago fue completado al cargar el componente
+  useEffect(() => {
+    // Verificar query params primero (si viene del checkout)
+    const paymentSuccess = searchParams.get("payment_success");
+    const paymentCanceled = searchParams.get("payment_canceled");
+    
+    if (paymentSuccess === "true") {
+      const sessionId = searchParams.get("session_id");
+      setPaymentCompleted(true);
+      setShowPaymentModal(false);
+      setPaymentLoading(false);
+      setStripeSessionId(sessionId || "");
+      // Limpiar el query param
+      setSearchParams({});
+      // Guardar en localStorage para persistencia
+      localStorage.setItem("b2b_payment_completed", "true");
+      if (sessionId) {
+        localStorage.setItem("b2b_stripe_session_id", sessionId);
+      }
+      
+      // Restaurar los datos del formulario si existen
+      const savedFormData = localStorage.getItem("b2b_form_data");
+      if (savedFormData) {
+        try {
+          const parsedData = JSON.parse(savedFormData);
+          setFormData(parsedData);
+          // Limpiar los datos guardados después de restaurarlos
+          localStorage.removeItem("b2b_form_data");
+        } catch (error) {
+          console.error("Error al restaurar datos del formulario:", error);
+        }
+      }
+    } else if (paymentCanceled === "true") {
+      setShowPaymentModal(false);
+      setPaymentLoading(false);
+      setPaymentCompleted(false);
+      setSearchParams({});
+      // Limpiar localStorage cuando se cancela el pago
+      localStorage.removeItem("b2b_payment_completed");
+      localStorage.removeItem("b2b_stripe_session_id");
+    } else {
+      // Verificar localStorage como respaldo, pero solo si hay session_id válido
+      const storedPayment = localStorage.getItem("b2b_payment_completed");
+      const storedSessionId = localStorage.getItem("b2b_stripe_session_id");
+      
+      // Solo marcar como completado si hay tanto el flag como un session_id válido
+      if (storedPayment === "true" && storedSessionId && storedSessionId.trim() !== "") {
+        setPaymentCompleted(true);
+        setStripeSessionId(storedSessionId);
+      } else {
+        // Si no hay session_id válido, limpiar el estado completamente
+        setPaymentCompleted(false);
+        setStripeSessionId("");
+        localStorage.removeItem("b2b_payment_completed");
+        localStorage.removeItem("b2b_stripe_session_id");
+      }
+    }
+
+    // Escuchar mensajes de la ventana del checkout (si se abre en popup)
+    const handleMessage = (event) => {
+      if (event.data && event.data.type === "STRIPE_CHECKOUT_SUCCESS") {
+        setPaymentCompleted(true);
+        setShowPaymentModal(false);
+        setPaymentLoading(false);
+        localStorage.setItem("b2b_payment_completed", "true");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [searchParams, setSearchParams]);
+
+  const handlePaymentClick = () => {
+    // Mostrar el modal de checkout
+    setShowPaymentModal(true);
+    setPaymentError("");
+  };
+
+  const handleProceedToCheckout = async () => {
+    setPaymentLoading(true);
+    setPaymentError("");
+
+    try {
+      // Guardar el estado del formulario en localStorage antes de ir al checkout
+      localStorage.setItem("b2b_form_data", JSON.stringify(formData));
+
+      // Crear sesión de suscripción
+      const apiUrl = import.meta.env.DEV
+        ? "/api/stripe/create-subscription-session"
+        : "https://admin.residente.mx/api/stripe/create-subscription-session";
+
+      const successUrl = `${window.location.origin}/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${window.location.origin}/registrob2b?payment_canceled=true`;
+
+      // Preparar los datos del usuario para enviar al backend
+      // Formato exacto requerido por el backend
+      const userData = {
+        nombre_responsable_restaurante: formData.nombre_responsable_restaurante, // ✅ OBLIGATORIO
+        correo: formData.correo, // ✅ OBLIGATORIO
+        telefono: formData.telefono || null, // Opcional
+        nombre_responsable: formData.nombre_responsable_restaurante || null,
+        razon_social: formData.razon_social || null,
+        rfc: formData.rfc || null,
+        direccion_completa: formData.direccion_completa || null,
+        terminos_condiciones: true,
+        fecha_aceptacion_terminos: new Date().toISOString(),
+      };
+
+      // Validar campos obligatorios
+      if (!userData.nombre_responsable_restaurante || !userData.correo) {
+        setPaymentLoading(false);
+        setPaymentError("Por favor completa todos los campos obligatorios antes de pagar.");
+        return;
+      }
+
+      const requestBody = {
+        priceId: "price_1SY9IGRzQ7oLCa50mibJc2n3", // ✅ OBLIGATORIO
+        userData: userData, // ✅ OBLIGATORIO (el backend lo usa para crear el usuario)
+        customerEmail: formData.correo || "", // Opcional pero recomendado
+        successUrl: successUrl,
+        cancelUrl: cancelUrl,
+      };
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+
+      const data = await res.json();
+
+      if (data.url) {
+        // Redirigir directamente a Stripe Checkout
+        // Stripe manejará la redirección y cuando se complete el pago,
+        // redirigirá de vuelta a nuestra successUrl
+        window.location.href = data.url;
+      } else {
+        setPaymentLoading(false);
+        setPaymentError("Error: No se recibió la URL del checkout.");
+      }
+    } catch (error) {
+      setPaymentLoading(false);
+      setPaymentError(error.message || "Error creando la sesión de suscripción.");
+    }
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -27,16 +186,114 @@ const FormMain = () => {
     e.preventDefault();
 
     try {
-      const usuarioData = {
-        nombre_usuario: formData.nombre_usuario,
-        password: formData.password,
-        correo: formData.correo,
-      };
-      const usuarioRes = await registrob2bPost(usuarioData);
+      // Obtener el session_id de Stripe si existe
+      const savedSessionId = localStorage.getItem("b2b_stripe_session_id") || stripeSessionId;
+      
+      let usuarioRes;
+      let usuarioId;
+
+      // Intentar crear el usuario, pero si ya existe, intentar obtenerlo o actualizar
+      try {
+        const usuarioData = {
+          nombre_usuario: formData.nombre_usuario,
+          password: formData.password,
+          correo: formData.correo,
+        };
+        usuarioRes = await registrob2bPost(usuarioData);
+        usuarioId = usuarioRes.usuario.id;
+      } catch (error) {
+        // Si el error es que el usuario ya existe, intentar obtener el usuario B2B existente
+        if (error.message && error.message.includes("ya existe")) {
+          console.log("⚠️ El usuario ya existe, buscando usuario B2B existente...");
+          
+          // Si tenemos session_id, el backend debería poder encontrar el usuario B2B
+          // En este caso, solo necesitamos actualizar el usuario B2B con los datos del formulario
+          if (savedSessionId) {
+            // Intentar obtener el usuario B2B desde el backend usando el session_id
+            try {
+              const apiUrl = import.meta.env.DEV
+                ? "/api/stripe/checkout-session/" + savedSessionId
+                : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
+              
+              const sessionRes = await fetch(apiUrl);
+              const sessionData = await sessionRes.json();
+              
+              if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
+                const b2bId = parseInt(sessionData.session.metadata.b2b_id);
+                
+                // ⭐ CRÍTICO: Necesitamos obtener el usuario_id del usuario existente
+                // Por ahora, intentar obtenerlo desde el backend o usar el correo para buscarlo
+                // Actualizar el usuario B2B existente con los datos del formulario
+                const b2bData = {
+                  b2b_id: b2bId, // Especificar que es una actualización
+                  // ⚠️ IMPORTANTE: El backend debe buscar el usuario_id por correo o nombre_usuario
+                  // Por ahora, el backend debería poder encontrarlo si busca por correo
+                  nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
+                  correo: formData.correo, // ⭐ CRÍTICO: Para que el backend pueda buscar el usuario_id
+                  nombre_responsable: formData.nombre_responsable_restaurante,
+                  telefono: formData.telefono,
+                  nombre_restaurante: formData.nombre_restaurante,
+                  rfc: formData.rfc,
+                  direccion_completa: formData.direccion_completa,
+                  razon_social: formData.razon_social,
+                  terminos_condiciones: true,
+                  stripe_session_id: savedSessionId,
+                };
+                
+                const b2bRes = await extensionB2bPost(b2bData);
+                
+                setSuccessMsg("¡Cuenta actualizada exitosamente!");
+                setPaymentCompleted(false);
+                localStorage.removeItem("b2b_payment_completed");
+                localStorage.removeItem("b2b_stripe_session_id");
+                setTimeout(() => setSuccessMsg(""), 3000);
+                return;
+              }
+            } catch (sessionError) {
+              console.error("Error obteniendo sesión:", sessionError);
+            }
+          }
+          
+          // Si no podemos obtener el usuario B2B, mostrar error más específico
+          setSuccessMsg("");
+          setPaymentError("El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario.");
+          setTimeout(() => setPaymentError(""), 5000);
+          return;
+        } else {
+          // Si es otro error, lanzarlo
+          throw error;
+        }
+      }
+
+      // Si llegamos aquí, el usuario se creó exitosamente
+      usuarioId = usuarioRes.usuario.id;
+
+      // ⭐ CRÍTICO: Obtener el b2b_id desde el session_id si existe
+      // El backend ya creó un registro cuando se pagó, necesitamos actualizarlo, no crear uno nuevo
+      let b2bId = null;
+      if (savedSessionId) {
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "/api/stripe/checkout-session/" + savedSessionId
+            : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
+          
+          const sessionRes = await fetch(apiUrl);
+          const sessionData = await sessionRes.json();
+          
+          if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
+            b2bId = parseInt(sessionData.session.metadata.b2b_id);
+            console.log("✅ b2b_id obtenido desde session:", b2bId);
+          }
+        } catch (error) {
+          console.warn("⚠️ No se pudo obtener b2b_id desde session:", error);
+        }
+      }
 
       const b2bData = {
-        usuario_id: usuarioRes.usuario.id,
+        ...(b2bId && { b2b_id: b2bId }), // ⭐ CRÍTICO: Si hay b2b_id, enviarlo para actualizar el registro existente
+        usuario_id: usuarioId, // ⭐ CRÍTICO: El ID del usuario creado en tabla usuarios
         nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
+        correo: formData.correo, // IMPORTANTE: Para que el backend pueda buscar el registro si no hay b2b_id
         nombre_responsable: formData.nombre_responsable_restaurante,
         telefono: formData.telefono,
         nombre_restaurante: formData.nombre_restaurante,
@@ -44,8 +301,40 @@ const FormMain = () => {
         direccion_completa: formData.direccion_completa,
         razon_social: formData.razon_social,
         terminos_condiciones: true,
+        stripe_session_id: savedSessionId || undefined, // IMPORTANTE: Para que el backend pueda buscar el registro
       };
-      await extensionB2bPost(b2bData);
+      
+      console.log("📤 Enviando datos a /api/usuariosb2b:", {
+        b2b_id: b2bId,
+        usuario_id: usuarioId,
+        correo: formData.correo,
+        stripe_session_id: savedSessionId
+      });
+      
+      const b2bRes = await extensionB2bPost(b2bData);
+      
+      console.log("✅ Respuesta del backend usuariosb2b:", b2bRes);
+
+      // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
+      if (savedSessionId) {
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "/api/stripe/associate-session"
+            : "https://admin.residente.mx/api/stripe/associate-session";
+          
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              stripe_session_id: savedSessionId,
+              b2b_id: b2bRes?.id || b2bRes?.usuario?.id,
+            }),
+          });
+        } catch (error) {
+          console.warn("No se pudo asociar la sesión de Stripe:", error);
+          // No fallar si no se puede asociar, el webhook lo hará eventualmente
+        }
+      }
 
       setSuccessMsg("¡Registro exitoso!");
       setFormData({
@@ -59,9 +348,21 @@ const FormMain = () => {
         nombre_usuario: "",
         password: "",
       });
+      // Limpiar el estado de pago después de crear la cuenta exitosamente
+      setPaymentCompleted(false);
+      setStripeSessionId("");
+      localStorage.removeItem("b2b_payment_completed");
+      localStorage.removeItem("b2b_stripe_session_id");
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (error) {
-      console.error(error);
+      console.error("Error en handleSubmit:", error);
+      // Mostrar error más amigable al usuario
+      if (error.message && error.message.includes("ya existe")) {
+        setPaymentError("El usuario ya existe. Por favor, inicia sesión o elige otro nombre de usuario.");
+      } else {
+        setPaymentError(error.message || "Error al crear la cuenta. Por favor, intenta nuevamente.");
+      }
+      setTimeout(() => setPaymentError(""), 5000);
     }
   };
 
@@ -245,12 +546,138 @@ const FormMain = () => {
           <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
         )}
 
-        <button type="submit">
-          <div className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 w-full cursor-pointer">
-            Crear cuenta
+        {/* Mensaje de pago completado */}
+        {paymentCompleted && (
+          <div className="text-green-600 font-bold text-center mt-4 mb-4">
+            <div>✓ Pago completado exitosamente. Ahora puedes crear tu cuenta.</div>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentCompleted(false);
+                setStripeSessionId("");
+                localStorage.removeItem("b2b_payment_completed");
+                localStorage.removeItem("b2b_stripe_session_id");
+                setPaymentError("");
+              }}
+              className="text-sm text-blue-600 underline mt-2 hover:text-blue-800"
+            >
+              ¿No has pagado? Haz clic aquí para resetear y pagar
+            </button>
           </div>
+        )}
+
+        {/* Botón de Pagar */}
+        {!paymentCompleted && (
+          <button
+            type="button"
+            onClick={handlePaymentClick}
+            disabled={paymentLoading}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-6 w-full cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {paymentLoading ? "Procesando..." : "Pagar"}
+          </button>
+        )}
+
+        {/* Botón de Crear cuenta */}
+        <button
+          type="submit"
+          disabled={!paymentCompleted}
+          className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${
+            paymentCompleted
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
+        >
+          Crear cuenta
         </button>
       </form>
+
+      {/* Modal de Checkout de Stripe */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded shadow-lg max-w-lg w-full p-8 relative">
+            <button
+              className="absolute top-4 right-4 text-2xl text-gray-600 cursor-pointer hover:text-gray-800 z-10"
+              onClick={() => {
+                setShowPaymentModal(false);
+                setPaymentLoading(false);
+                setPaymentError("");
+              }}
+            >
+              ×
+            </button>
+            
+            <div className="mt-2">
+              <h2 className="text-2xl font-bold mb-6 text-center">Checkout de Pago</h2>
+              
+              {paymentError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                  <p className="font-bold">Error:</p>
+                  <p>{paymentError}</p>
+                </div>
+              )}
+
+              <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                <div className="text-center">
+                  <p className="text-xl font-semibold mb-2 text-gray-800">B2B Residente</p>
+                  <p className="text-3xl font-bold text-blue-600 mb-2">$2,199.00 MXN</p>
+                  <p className="text-sm text-gray-600 mb-1">Suscripción mensual</p>
+                  <p className="text-sm text-green-600 font-semibold italic">Ya con IVA incluido</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Plan:</span>
+                  <span className="font-semibold">B2B Residente</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Periodo:</span>
+                  <span className="font-semibold">Mensual</span>
+                </div>
+                <div className="flex justify-between text-sm border-t pt-2">
+                  <span className="text-gray-600">Total:</span>
+                  <span className="font-bold text-lg text-blue-600">$2,199.00 MXN</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleProceedToCheckout}
+                  disabled={paymentLoading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  {paymentLoading ? (
+                    <span className="flex items-center justify-center">
+                      <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                      Procesando...
+                    </span>
+                  ) : (
+                    "Continuar al Pago"
+                  )}
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setPaymentLoading(false);
+                    setPaymentError("");
+                  }}
+                  disabled={paymentLoading}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              <div className="mt-6 text-center text-xs text-gray-500">
+                <p>Serás redirigido a Stripe para completar el pago de forma segura.</p>
+                <p className="mt-1">Una vez completado el pago, regresarás aquí para crear tu cuenta.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

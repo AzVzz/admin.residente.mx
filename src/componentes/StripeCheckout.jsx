@@ -8,7 +8,7 @@ const ProductDisplay = ({ onSubscribe, loading, errorMessage }) => (
     <div className="product">
       <Logo />
       <div className="description">
-        <h3>Membresía Premium</h3>
+        <h3>B2B Residente</h3>
         <h5>$2,199.00 MXN al mes</h5>
         <p className="iva-text">Ya con IVA incluido</p>
       </div>
@@ -52,17 +52,39 @@ const StripeCheckout = () => {
   const [sessionId, setSessionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [stripe, setStripe] = useState(null);
+  const [returnUrl, setReturnUrl] = useState(null);
 
-  // Detectar ?success=true
+  // Detectar ?success=true y returnUrl
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
+    const returnUrlParam = query.get("returnUrl");
+    if (returnUrlParam) {
+      setReturnUrl(returnUrlParam);
+    }
+    
     if (query.get("success")) {
       setSuccess(true);
       setSessionId(query.get("session_id"));
+      
+      // Si hay un returnUrl, redirigir al formulario con el parámetro de éxito
+      if (returnUrlParam) {
+        // Guardar en localStorage que el pago fue completado
+        localStorage.setItem("b2b_payment_completed", "true");
+        // Redirigir al formulario con el parámetro de éxito
+        setTimeout(() => {
+          window.location.href = `${returnUrlParam}?payment_success=true&session_id=${query.get("session_id")}`;
+        }, 2000);
+      }
     }
     if (query.get("canceled")) {
       setSuccess(false);
       setMessage("La suscripción fue cancelada.");
+      // Si hay returnUrl y se canceló, redirigir de vuelta
+      if (returnUrlParam) {
+        setTimeout(() => {
+          window.location.href = returnUrlParam;
+        }, 2000);
+      }
     }
   }, []);
 
@@ -89,12 +111,26 @@ const StripeCheckout = () => {
         ? "/api/stripe/create-subscription-session"
         : "https://admin.residente.mx/api/stripe/create-subscription-session";
 
+      // Obtener returnUrl de los query params
+      const query = new URLSearchParams(window.location.search);
+      const returnUrlParam = query.get("returnUrl");
+      
+      // Construir las URLs de éxito y cancelación
+      let successUrl = `${window.location.origin}/stripe-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`;
+      let cancelUrl = `${window.location.origin}/stripe-checkout?canceled=true`;
+      
+      // Si hay returnUrl, incluirlo en los parámetros
+      if (returnUrlParam) {
+        successUrl += `&returnUrl=${encodeURIComponent(returnUrlParam)}`;
+        cancelUrl += `&returnUrl=${encodeURIComponent(returnUrlParam)}`;
+      }
+
       const requestBody = {
         priceId: "price_1SY9IGRzQ7oLCa50mibJc2n3",
         b2b_id: 1,
         customerEmail: "christophervalero05@hotmail.com",
-        successUrl: `${window.location.origin}/stripe-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/stripe-checkout?canceled=true`,
+        successUrl: successUrl,
+        cancelUrl: cancelUrl,
       };
 
       console.log("Enviando datos a:", apiUrl);
@@ -156,9 +192,7 @@ const Logo = () => (
     version="1.1"
   >
     <g fill="none" fillRule="evenodd">
-      <g transform="translate(-121,-40)" fill="#E184DF">
-        <path d="M127,50 L126,50 C123.238576,50 121,47.7614237 121,45 C121,42.2385763 123.238576,40 126,40 L135,40 L135,56 L133,56 L133,42 L129,42 L129,56 L127,56 L127,50 Z M127,48 L127,42 L126,42 C124.343146,42 123,43.3431458 123,45 C123,46.6568542 124.343146,48 126,48 L127,48 Z" />
-      </g>
+      
     </g>
   </svg>
 );

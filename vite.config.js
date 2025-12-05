@@ -29,7 +29,6 @@ export default defineConfig({
     })
   ],
   server: {
-<<<<<<< HEAD
     host: 'localhost',
     port: 5173,
     strictPort: false,
@@ -46,19 +45,21 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path,
         ws: true // Habilitar WebSocket para el proxy
-      }
-    }
-  },
-  // Variables de entorno para Stripe
-  envPrefix: 'VITE_'
-=======
-    proxy: {
+      },
+      '/api/stripe-suscripciones': {
+        target: 'https://admin.residente.mx',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+        ws: true
+      },
       '/fotos': {
         target: 'https://residente.mx',
         changeOrigin: true,
         secure: false,
       }
     }
-  }
->>>>>>> ee596df99c02af7f07dd9607198e03f0183e83bd
+  },
+  // Variables de entorno para Stripe
+  envPrefix: 'VITE_'
 })

@@ -32,7 +32,8 @@ const B2BRoute = ({ children }) => {
     );
   }
 
-  // Es b2b, deja pasar
+  // Permitir acceso sin verificar suscripción
+  // Verificación de suscripción deshabilitada
   return children;
 };
 export default B2BRoute;
