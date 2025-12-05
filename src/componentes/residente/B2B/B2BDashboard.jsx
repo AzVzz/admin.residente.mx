@@ -74,17 +74,17 @@ const B2BDashboard = () => {
       // Recalcular total con base en los seleccionados
       const nuevoTotal = productos.reduce((suma, producto, index) => {
         if (nuevoSeleccionados[producto.id]) {
-          // El primer producto (index === 0) usa $24,000
+          // El primer producto (index === 0) usa $9,900
           if (index === 0) {
-            return suma + 24000;
+            return suma + 9900;
           }
-          // El segundo producto (index === 1) usa $4,000
+          // El segundo producto (index === 1) usa $1,900
           if (index === 1) {
-            return suma + 4000;
+            return suma + 1900;
           }
-          // El tercer producto (index === 2) usa $5,000
+          // El tercer producto (index === 2) usa $1,000
           if (index === 2) {
-            return suma + 5000;
+            return suma + 1000;
           }
           return suma + Number(producto.monto);
         }
