@@ -22,6 +22,9 @@ const B2BDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [seleccionados, setSeleccionados] = useState({});
   const [total, setTotal] = useState(0);
+  
+  // Estado para la fecha actual
+  const [fechaActual, setFechaActual] = useState(new Date());
 
   useEffect(() => {
     if (showModal) {
@@ -34,9 +37,6 @@ const B2BDashboard = () => {
     };
   }, [showModal]);
 
-<<<<<<< HEAD
-  // Obtener restaurante
-=======
   // 🆕 Cargar productos desde la API
   useEffect(() => {
     const fetchProductos = async () => {
@@ -51,6 +51,15 @@ const B2BDashboard = () => {
     };
 
     fetchProductos();
+  }, []);
+
+  // Actualizar fecha automáticamente cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFechaActual(new Date());
+    }, 60000); // Actualizar cada minuto
+
+    return () => clearInterval(interval);
   }, []);
 
   // 🆕 Manejar selección de productos y total
@@ -73,7 +82,8 @@ const B2BDashboard = () => {
       return nuevoSeleccionados;
     });
   };
->>>>>>> 582dfb502a305143d0ffa485a0c1968e29451c8c
+
+  // Obtener restaurante
   useEffect(() => {
     const fetchRestaurante = async () => {
       try {
@@ -159,17 +169,23 @@ const B2BDashboard = () => {
           const response = await fetch(apiUrl);
           
           if (response.ok) {
-            const data = await response.json();
-            console.log("✅ Datos obtenidos:", data);
-            if (data.id) {
-              setB2bId(data.id);
-              setLoadingB2bId(false);
-              return;
-            } else if (data.usuario_b2b?.id) {
-              setB2bId(data.usuario_b2b.id);
-              setLoadingB2bId(false);
-              return;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              console.log("✅ Datos obtenidos:", data);
+              if (data.id) {
+                setB2bId(data.id);
+                setLoadingB2bId(false);
+                return;
+              } else if (data.usuario_b2b?.id) {
+                setB2bId(data.usuario_b2b.id);
+                setLoadingB2bId(false);
+                return;
+              }
             }
+          } else if (response.status === 404) {
+            // Si es 404, continuar con otros métodos de búsqueda
+            console.log("⚠️ No se encontró usuario B2B con ese ID, intentando otros métodos");
           }
         } catch (error) {
           console.log("⚠️ Error en primer intento:", error);
@@ -186,16 +202,24 @@ const B2BDashboard = () => {
           const response = await fetch(apiUrl);
           
           if (response.ok) {
-            const data = await response.json();
-            console.log("✅ Datos por usuario_id:", data);
-            if (Array.isArray(data) && data.length > 0) {
-              setB2bId(data[0].id);
-              setLoadingB2bId(false);
-              return;
-            } else if (data.id) {
-              setB2bId(data.id);
-              setLoadingB2bId(false);
-              return;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              console.log("✅ Datos por usuario_id:", data);
+              if (Array.isArray(data) && data.length > 0) {
+                // Si hay múltiples registros, buscar el que coincida con el usuario_id o usar el primero
+                const registroCorrecto = data.find(reg => reg.usuario_id === usuario.id) || data[0];
+                const idEncontrado = registroCorrecto.id;
+                console.log("✅ b2b_id encontrado:", idEncontrado, "de", data.length, "registros");
+                setB2bId(idEncontrado);
+                setLoadingB2bId(false);
+                return;
+              } else if (data.id) {
+                console.log("✅ b2b_id encontrado (objeto único):", data.id);
+                setB2bId(data.id);
+                setLoadingB2bId(false);
+                return;
+              }
             }
           }
         } catch (error) {
@@ -212,16 +236,19 @@ const B2BDashboard = () => {
           
           const response = await fetch(apiUrl);
           if (response.ok) {
-            const data = await response.json();
-            console.log("✅ Datos por correo:", data);
-            if (Array.isArray(data) && data.length > 0) {
-              setB2bId(data[0].id);
-              setLoadingB2bId(false);
-              return;
-            } else if (data.id) {
-              setB2bId(data.id);
-              setLoadingB2bId(false);
-              return;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              console.log("✅ Datos por correo:", data);
+              if (Array.isArray(data) && data.length > 0) {
+                setB2bId(data[0].id);
+                setLoadingB2bId(false);
+                return;
+              } else if (data.id) {
+                setB2bId(data.id);
+                setLoadingB2bId(false);
+                return;
+              }
             }
           }
         } catch (error) {
@@ -244,38 +271,101 @@ const B2BDashboard = () => {
   // Función para obtener información de suscripción
   const obtenerSuscripcion = async () => {
     if (!b2bId) {
+      console.log("⚠️ No hay b2bId disponible para obtener suscripción");
       setLoadingSubscription(false);
       return;
     }
 
+    console.log("🔍 Obteniendo suscripción para b2bId:", b2bId);
     setLoadingSubscription(true);
     setSubscriptionError(null);
 
     try {
       const apiUrl = import.meta.env.DEV
-        ? `/api/stripe-suscripciones/user-subscription/${b2bId}`
+        ? `${urlApi}api/stripe-suscripciones/user-subscription/${b2bId}`
         : `https://admin.residente.mx/api/stripe-suscripciones/user-subscription/${b2bId}`;
 
+      console.log("📡 Llamando a:", apiUrl);
       const response = await fetch(apiUrl);
+
+      // Verificar el tipo de contenido antes de parsear
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        // Si no es JSON, probablemente es un error 404 o HTML
+        if (response.status === 404) {
+          // Antes de mostrar error, verificar si el usuario tiene suscripción activa
+          if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
+            console.log('✅ Usuario tiene suscripción activa según objeto usuario (404 en API)');
+            setSubscriptionData({ 
+              suscripcionDB: { 
+                estado: 'active',
+                nombre_plan: 'B2B Residente',
+                facturas: 'month'
+              }, 
+              sincronizado: false 
+            });
+            setSubscriptionError(null);
+            return;
+          }
+          setSubscriptionError('No se encontró una suscripción activa');
+          return;
+        }
+        throw new Error('La respuesta del servidor no es válida');
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Error al obtener la suscripción');
       }
 
-      if (data.success && (data.subscription || data.suscripcionDB)) {
+      // Verificar si hay datos de suscripción (más flexible)
+      if (data.success || data.subscription || data.suscripcionDB || data.subscription_id) {
         setSubscriptionData(data);
         console.log('✅ Información de suscripción obtenida:', data);
+        // Limpiar error si se encontró información
+        setSubscriptionError(null);
       } else {
-        setSubscriptionError('No se encontró una suscripción activa');
+        // También verificar si el usuario tiene suscripción en su objeto
+        if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
+          console.log('✅ Usuario tiene suscripción activa según objeto usuario');
+          setSubscriptionData({ suscripcionDB: { estado: 'active' }, sincronizado: false });
+          setSubscriptionError(null);
+        } else {
+          setSubscriptionError('No se encontró una suscripción activa');
+        }
       }
     } catch (error) {
       console.error('❌ Error obteniendo suscripción:', error);
-      setSubscriptionError(error.message);
+      // Manejar errores de parsing de manera más amigable
+      if (error.message.includes('JSON') || error.message.includes('Unexpected token')) {
+        setSubscriptionError('No se encontró una suscripción activa');
+      } else {
+        setSubscriptionError(error.message || 'Error al obtener la suscripción');
+      }
     } finally {
       setLoadingSubscription(false);
     }
   };
+
+  // Verificar suscripción inicial desde el objeto usuario
+  useEffect(() => {
+    if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
+      console.log('✅ Usuario tiene suscripción activa según objeto usuario:', usuario.suscripcion);
+      // Si el usuario tiene suscripción activa pero no hay datos de API aún, mostrar estado activo
+      if (!subscriptionData && !loadingSubscription) {
+        setSubscriptionData({ 
+          suscripcionDB: { 
+            estado: 'active',
+            nombre_plan: 'B2B Residente',
+            facturas: 'month'
+          }, 
+          sincronizado: false 
+        });
+        setSubscriptionError(null);
+      }
+    }
+  }, [usuario]);
 
   // Obtener información de suscripción cuando b2bId esté disponible
   useEffect(() => {
@@ -316,7 +406,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-4 pr-6">
+      <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-2 pr-6">
         <span className="font-bold text-[14px] mr-3">
           {usuario?.nombre_usuario || "Usuario B2B"}
         </span>
@@ -332,53 +422,65 @@ const B2BDashboard = () => {
           Cerrar Sesión
         </button>
       </div>
+      {/* Nombre del restaurante centrado */}
+      {restaurante?.nombre_restaurante && (
+        <div className="w-full flex flex-col justify-center items-center py-2">
+          <h1 className="text-[80px] font-bold text-black">
+            {restaurante.nombre_restaurante}
+          </h1>
+          <p className="text-lg text-black mt-2">
+            {fechaActual.toLocaleDateString('es-MX', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+        </div>
+      )}
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3 my-5">
+      <div className="w-full grid grid-cols-3 my-0 relative">
+        {/* Línea divisoria izquierda */}
+        <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+        {/* Línea divisoria derecha */}
+        <div className="absolute left-[66.666%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+        
         {/* Columna azul */}
-        <div className="flex flex-col p-5">
-          <p className="text-[40px] text-center">Mis Productos</p>
+        <div className="flex flex-col p-3">
+          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenido</p>
 
           {loadingRestaurante ? (
-            <div className="text-center py-4">Cargando restaurante...</div>
+            <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
             <div className="flex items-center gap-3">
-              <img
-                src={imagenRestaurante}
-                alt={restaurante.nombre_restaurante}
-                className="w-[110px] h-[68px] object-cover rounded"
-              />
-              <div>
-                <div className="font-bold text-base">{restaurante.nombre_restaurante}</div>
-                <div className="text-gray-700 text-sm">{restaurante.categoria || "Restaurante"}</div>
-              </div>
+              
+              
             </div>
           ) : (
-            <div className="text-center py-4 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
           )}
 
-          <div className="flex flex-row gap-5 mt-4">
+          {/* Botones alineados a la izquierda en columna */}
+          <div className="flex flex-col gap-3 mt-4 items-start">
             <button
               onClick={handleEditar}
               disabled={!restaurante}
-              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
             >
-              Editar restaurante
+              MICROSITIO
             </button>
             <button
               onClick={handleVer}
               disabled={!restaurante}
-              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
             >
-              Ver restaurante
+              DESCUENTOS
             </button>
-          </div>
-          {/* Imagen de cupón y estado versión más pequeña */}
-          <div className="mt-8 flex items-start gap-4">
             <button
               onClick={handleCupones}
-              className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
             >
-              Ver mis Cupones
+              CLASIFICADO
             </button>
           </div>
           <address className="flex flex-col mt-auto">
@@ -393,184 +495,87 @@ const B2BDashboard = () => {
             </strong>
           </address>
         </div>
-<<<<<<< HEAD
-        {/* Columna verde - Información de Suscripción */}
-        <div className="bg-green-500/20 border-r border-gray-300 px-6 py-6">
-          <h2 className="font-bold text-black text-center text-[30px] mb-4">Mi Suscripción</h2>
+        {/* Columna verde - Estadísticas */}
+        <div className="flex flex-col p-5">
+          <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
-            {loadingSubscription ? (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-gray-500 text-sm text-center py-4">
-                  Cargando información de suscripción...
-                </div>
-              </div>
-            ) : subscriptionError ? (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-700 font-semibold">Estado:</span>
-                  <span className="bg-red-500 text-white font-bold px-3 py-1 rounded text-sm">
-                    Sin Suscripción
-                  </span>
-                </div>
-                <div className="text-gray-600 text-sm mt-2">
-                  <p className="text-red-600">{subscriptionError}</p>
-                </div>
-              </div>
-            ) : subscriptionData ? (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-700 font-semibold">Estado:</span>
-                  <span className={`${
-                    subscriptionData.subscription?.status === 'active' || subscriptionData.suscripcionDB?.estado === 'active'
-                      ? 'bg-green-500'
-                      : subscriptionData.subscription?.status === 'canceled' || subscriptionData.suscripcionDB?.estado === 'canceled'
-                      ? 'bg-red-500'
-                      : 'bg-yellow-500'
-                  } text-white font-bold px-3 py-1 rounded text-sm`}>
-                    {subscriptionData.subscription?.status === 'active' || subscriptionData.suscripcionDB?.estado === 'active'
-                      ? 'Activa'
-                      : subscriptionData.subscription?.status === 'canceled' || subscriptionData.suscripcionDB?.estado === 'canceled'
-                      ? 'Cancelada'
-                      : subscriptionData.subscription?.status || subscriptionData.suscripcionDB?.estado || 'Desconocido'}
-                  </span>
-                </div>
-                <div className="text-gray-600 text-sm space-y-1">
-                  <p>
-                    <span className="font-semibold">Plan:</span>{' '}
-                    {subscriptionData.suscripcionDB?.nombre_plan || 
-                     subscriptionData.subscription?.items?.data?.[0]?.price?.nickname || 
-                     'B2B Residente'}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Pago:</span>{' '}
-                    {subscriptionData.suscripcionDB?.facturas === 'month' 
-                      ? 'Mensual' 
-                      : subscriptionData.suscripcionDB?.facturas === 'year'
-                      ? 'Anual'
-                      : subscriptionData.subscription?.items?.data?.[0]?.price?.recurring?.interval === 'month'
-                      ? 'Mensual'
-                      : subscriptionData.subscription?.items?.data?.[0]?.price?.recurring?.interval === 'year'
-                      ? 'Anual'
-                      : subscriptionData.suscripcionDB?.facturas || 'Mensual'}
-                  </p>
-                  {subscriptionData.suscripcionDB?.monto && (
-                    <p>
-                      <span className="font-semibold">Monto:</span>{' '}
-                      ${(subscriptionData.suscripcionDB.monto / 100).toFixed(2)}{' '}
-                      {subscriptionData.suscripcionDB.moneda?.toUpperCase() || 'MXN'}
-                    </p>
-                  )}
-                  {subscriptionData.suscripcionDB?.fecha_fin_periodo_actual && (
-                    <p>
-                      <span className="font-semibold">Próximo pago:</span>{' '}
-                      {new Date(subscriptionData.suscripcionDB.fecha_fin_periodo_actual).toLocaleDateString('es-MX', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  )}
-                  {subscriptionData.sincronizado && (
-                    <p className="text-xs text-blue-600 mt-2">
-                      ✅ Sincronizado automáticamente
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-gray-500 text-sm text-center py-4">
-                  No hay información de suscripción disponible
-                </div>
-              </div>
-            )}
-            
-            {/* Botón de cancelar suscripción */}
-            {loadingB2bId ? (
-              <div className="text-gray-500 text-sm text-center py-4">
-                Cargando información de suscripción...
-              </div>
-            ) : (
-              <div className="mt-2">
-                {b2bId ? (
-                  <CancelSubscriptionButton 
-                    b2bId={b2bId}
-                    onCancelSuccess={(data) => {
-                      console.log("Suscripción cancelada:", data);
-                      obtenerSuscripcion();
-                    }}
-                  />
-                ) : (
-                  <div className="space-y-2">
-                    <div className="text-red-500 text-sm text-center py-2">
-                      ⚠️ No se pudo obtener el ID de suscripción
-                    </div>
-                    <div className="text-gray-500 text-xs text-center">
-                      Usuario: {usuario?.id || 'N/A'} | Correo: {usuario?.correo || 'N/A'}
-                    </div>
-                    <div className="text-gray-500 text-xs text-center">
-                      Por favor, contacta al soporte si necesitas cancelar tu suscripción.
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <div>
+              <p className="text-[40px] font-bold text-black leading-tight">3,462</p>
+              <p className="text-sm text-black">Alcance total del club Residente</p>
+            </div>
+            <div>
+              <p className="text-[40px] font-bold text-black leading-tight">6,145</p>
+              <p className="text-sm text-black">Page-views de TU MARCA en Gula NL Residente</p>
+            </div>
+            <div>
+              <p className="text-[40px] font-bold text-black leading-tight">12,128</p>
+              <p className="text-sm text-black">Page views de tumarca FUERA DE Gula NL Residente</p>
+            </div>
+            <div>
+              <p className="text-[40px] font-bold text-black leading-tight">6,532</p>
+              <p className="text-sm text-black">Clicks a tumarca (restaurantes y cupones)</p>
+            </div>
           </div>
-=======
-        {/* Columna verde */}
-        <div className="flex flex-col items-center justify-center text-right p-5 border-x-2 border-black/40">
-          <p className="text-[40px] text-center">Analiticas</p>
-          <span className="">
-            <p className="text-5xl">3,462</p>
-            <span className="text-sm">Alcance total del club Residente</span>
-
-            <p className="text-5xl">6,145</p>
-            <span className="text-sm">
-              Page-views de TU MARCA en Guia NL Residente
-            </span>
-
-            <p className="text-5xl">12,128</p>
-            <span className="text-sm">
-              Page views de tu marca FUERA DE Guia NL Residente
-            </span>
-
-            <p className="text-5xl">6,532</p>
-            <span className="text-sm">
-              Clicks a tu marca (restaurantes y cupones)
-            </span>
-          </span>
->>>>>>> 582dfb502a305143d0ffa485a0c1968e29451c8c
         </div>
         {/* Columna roja */}
-        <div className="p-5">
+        <div className="p-3">
           <div className="flex flex-col h-full">
             {/* Parte de arriba: título + lista */}
             <div>
-              <p className="text-[40px] text-center">Beneficios</p>
+              <p className="text-[35px] text-left mb-8 leading-none">Canjea tus<br />Beneficios</p>
               <ol>
-                {productos.map((producto) => (
+                {productos.slice(0, 3).map((producto, index) => (
                   <li
                     key={producto.id}
                     className="select-none flex flex-col gap-3"
                   >
-                    <p className="text-xl leading-tight">{producto.titulo}</p>
-                    <div className="flex flex-row justify-between">
-                      <span className="text-lg leading-tight font-roman">
-                        $
-                        {" " +
-                          Number(producto.monto).toLocaleString("es-MX", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                      </span>
-                      <label className="cursor-pointer inline-flex items-center gap-1">
-                        <span>Agregar</span>
-                        <input
-                          type="checkbox"
-                          checked={!!seleccionados[producto.id]}
-                          onChange={() => handleToggleProducto(producto.id)}
-                        />
-                      </label>
+                    <div>
+                      <p className="text-xl leading-tight font-bold">
+                        {index === 0 
+                          ? "Revista Residente" 
+                          : index === 1 
+                          ? "Pagina web Residente"
+                          : index === 2
+                          ? "Pagina web Residente"
+                          : producto.titulo}
+                      </p>
+                      {index === 0 && (
+                        <div>
+                        <p className="text-sm text-black mb-1">
+                          ANUNCIO EN REVISTA 1 PAGINA DE $24,000 A $9,900
+                        </p>
+                        <div className="flex justify-left mb-3">
+                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                          Agregar
+                        </button>
+                        </div>
+                        </div>
+                      )}
+                        
+                      {index === 1 && (
+                        <div>
+                        <p className="text-sm text-black mb-3">
+                          BANNER SEMANAL WEB DE$4,000 A $1,900
+                        </p>
+                        <div className="flex justify-left mb-3">
+                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                          Agregar
+                        </button>
+                        </div>
+                        </div>
+                        )}
+                      {index === 2 && (
+                        <div>
+                        <p className="text-sm text-black mb-3">
+                          NOTA PRINCIPAL PAGINA WEB DE $5,000 A $1,000
+                        </p>
+                        <div className="flex justify-left mb-3">
+                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                          Agregar
+                        </button>
+                        </div>
+                        </div>
+                        )}
                     </div>
                   </li>
                 ))}
@@ -589,7 +594,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              <button className="bg-[#fff200] hover:bg-yellow-400 text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
               </button>
             </div>
