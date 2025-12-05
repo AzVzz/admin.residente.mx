@@ -17,6 +17,7 @@ const B2BDashboard = () => {
   const [restaurante, setRestaurante] = useState(null);
   const [loadingRestaurante, setLoadingRestaurante] = useState(true);
   const [b2bUser, setB2bUser] = useState(null);
+  const [showFormularioPromo, setShowFormularioPromo] = useState(false);
 
   // 🆕 Estado para productos y selección
   const [productos, setProductos] = useState([]);
@@ -406,6 +407,14 @@ const B2BDashboard = () => {
     navigate('/tickets/dashboard');
   };
 
+  const handleFormularioPromo = () => {
+    navigate('/promo');
+  };
+
+  const handleClasificado = () => {
+    navigate('');
+  };
+
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
   // Imagen por defecto si no hay restaurante o imagen
@@ -482,14 +491,13 @@ const B2BDashboard = () => {
               MICROSITIO
             </button>
             <button
-              onClick={handleVer}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={handleFormularioPromo}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
             >
               DESCUENTOS
             </button>
             <button
-              onClick={handleCupones}
+              onClick={handleClasificado}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
             >
               CLASIFICADO
