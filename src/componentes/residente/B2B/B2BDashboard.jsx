@@ -71,8 +71,20 @@ const B2BDashboard = () => {
       };
 
       // Recalcular total con base en los seleccionados
-      const nuevoTotal = productos.reduce((suma, producto) => {
+      const nuevoTotal = productos.reduce((suma, producto, index) => {
         if (nuevoSeleccionados[producto.id]) {
+          // El primer producto (index === 0) usa $24,000
+          if (index === 0) {
+            return suma + 24000;
+          }
+          // El segundo producto (index === 1) usa $4,000
+          if (index === 1) {
+            return suma + 4000;
+          }
+          // El tercer producto (index === 2) usa $5,000
+          if (index === 2) {
+            return suma + 5000;
+          }
           return suma + Number(producto.monto);
         }
         return suma;
@@ -447,7 +459,7 @@ const B2BDashboard = () => {
         
         {/* Columna azul */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenido</p>
+          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenidos</p>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -542,11 +554,20 @@ const B2BDashboard = () => {
                       {index === 0 && (
                         <div>
                         <p className="text-sm text-black mb-1">
-                          ANUNCIO EN REVISTA 1 PAGINA DE $24,000 A $9,900
+                          ANUNCIO EN REVISTA 1 PAGINA DE 
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$24,000 A $9,900</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
                         <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                          Crea Tu Anuncio
                         </button>
                         </div>
                         </div>
@@ -554,24 +575,42 @@ const B2BDashboard = () => {
                         
                       {index === 1 && (
                         <div>
-                        <p className="text-sm text-black mb-3">
-                          BANNER SEMANAL WEB DE$4,000 A $1,900
+                        <p className="text-sm text-black mb-1">
+                          BANNER SEMANAL WEB DE
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$4,000 A $1,900</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
                         <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                          Crea Tu Banner
                         </button>
                         </div>
                         </div>
                         )}
                       {index === 2 && (
                         <div>
-                        <p className="text-sm text-black mb-3">
-                          NOTA PRINCIPAL PAGINA WEB DE $5,000 A $1,000
+                        <p className="text-sm text-black mb-1">
+                          NOTA PRINCIPAL PAGINA WEB DE
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$5,000 A $1,000</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
                         <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                          Crea Tu Nota
                         </button>
                         </div>
                         </div>
@@ -594,7 +633,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-[#fff200] hover:bg-yellow-400 text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              <button className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
               </button>
             </div>
