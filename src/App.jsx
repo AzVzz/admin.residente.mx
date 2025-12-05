@@ -94,6 +94,9 @@ const B2BDashboard = lazy(() =>
   import("./componentes/residente/B2B/B2BDashboard")
 );
 
+const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
+const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
+
 const notasPrueba = [
   {
     id: 1,
@@ -505,6 +508,24 @@ function App() {
                 }
               />
 
+              <Route
+                path="/recuperar-password"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <ForgotPassword />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/restablecer-password/:token"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <ResetPassword />
+                  </div>
+                }
+              />
+
               {/* Admin */}
               <Route
                 path="/formulario"
@@ -527,7 +548,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/promo"
+                path="/promo-old"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMain />
@@ -537,7 +558,7 @@ function App() {
 
               {/* TEST ROUTES */}
               <Route
-                path="/promo-test"
+                path="/promo"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMainTest />
@@ -593,6 +614,8 @@ function App() {
                   </B2BRoute>
                 }
               />
+
+
 
               {/* Admin */}
               <Route path="/terminos-y-condiciones" element={

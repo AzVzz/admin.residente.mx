@@ -23,7 +23,7 @@ const PromoMainTest = () => {
         fechaValidez: "",
         fechaInicio: "",
         fechaFin: "",
-        esPermanente: false, // NUEVO
+        esPermanente: true, // NUEVO - Default a true por ahora
         zonaHoraria: "America/Monterrey" // Default
     });
 

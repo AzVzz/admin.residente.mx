@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
@@ -194,6 +194,15 @@ const Login = () => {
           >
             Iniciar sesión
           </button>
+
+          <div className="mt-4 text-center">
+            <Link
+              to="/recuperar-password"
+              className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
 
           {error && (
             <div className="mt-4 text-red-600 text-center">{error}</div>

@@ -116,7 +116,8 @@ const FormularioPromoTest = ({
                 />
             </div>
 
-            {/* NUEVOS CAMPOS DE FECHA DE INICIO Y FIN */}
+            {/* NUEVOS CAMPOS DE FECHA DE INICIO Y FIN - DESHABILITADO POR AHORA (TODO PERMANENTE) */}
+            {/* 
             <div className="flex flex-col gap-2">
                 <label className="inline-flex items-center cursor-pointer">
                     <input
@@ -130,7 +131,6 @@ const FormularioPromoTest = ({
 
                 {!formData.esPermanente && (
                     <div className="flex flex-col gap-4 mt-2">
-                        {/* Selector de Zona Horaria */}
                         <div className="flex flex-col pb-0">
                             <label className="block text-xl font-medium text-gray-950 mb-1">Zona Horaria *</label>
                             <select
@@ -170,7 +170,8 @@ const FormularioPromoTest = ({
                         </div>
                     </div>
                 )}
-            </div>
+            </div> 
+            */}
 
             {/* Campo URL de promoción */}
             <div className="flex flex-col pb-0">

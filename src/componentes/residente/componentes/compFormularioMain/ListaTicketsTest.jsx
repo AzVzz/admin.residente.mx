@@ -150,7 +150,7 @@ const ListaTicketsTest = () => {
                     Mis Cupones (Dashboard)
                 </h2>
                 <Link
-                    to="/promo-test"
+                    to="/promo"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm flex items-center gap-2"
                 >
                     <span className="text-xl">+</span> Agregar Cupón
