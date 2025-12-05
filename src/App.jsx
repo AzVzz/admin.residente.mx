@@ -570,7 +570,7 @@ function App() {
                 path="/tickets/dashboard"
                 element={
                   <div className="max-w-[1080px] mx-auto">
-                    <ListaTicketsTest />
+                    <ListaTickets />
                   </div>
                 }
               />

@@ -18,6 +18,11 @@ const B2BDashboard = () => {
   const [loadingRestaurante, setLoadingRestaurante] = useState(true);
   const [b2bUser, setB2bUser] = useState(null);
 
+  // 🆕 Estado para productos y selección
+  const [productos, setProductos] = useState([]);
+  const [seleccionados, setSeleccionados] = useState({});
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = "hidden";
@@ -29,7 +34,46 @@ const B2BDashboard = () => {
     };
   }, [showModal]);
 
+<<<<<<< HEAD
   // Obtener restaurante
+=======
+  // 🆕 Cargar productos desde la API
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const res = await fetch("https://admin.residente.mx/api/productosb2b");
+        if (!res.ok) throw new Error("Error al obtener productos");
+        const data = await res.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al cargar productos B2B:", error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
+  // 🆕 Manejar selección de productos y total
+  const handleToggleProducto = (id) => {
+    setSeleccionados((prev) => {
+      const nuevoSeleccionados = {
+        ...prev,
+        [id]: !prev[id],
+      };
+
+      // Recalcular total con base en los seleccionados
+      const nuevoTotal = productos.reduce((suma, producto) => {
+        if (nuevoSeleccionados[producto.id]) {
+          return suma + Number(producto.monto);
+        }
+        return suma;
+      }, 0);
+
+      setTotal(nuevoTotal);
+      return nuevoSeleccionados;
+    });
+  };
+>>>>>>> 582dfb502a305143d0ffa485a0c1968e29451c8c
   useEffect(() => {
     const fetchRestaurante = async () => {
       try {
@@ -289,9 +333,9 @@ const B2BDashboard = () => {
         </button>
       </div>
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3">
+      <div className="w-full grid grid-cols-3 my-5">
         {/* Columna azul */}
-        <div className="flex flex-col bg-blue-500/20 p-5">
+        <div className="flex flex-col p-5">
           <p className="text-[40px] text-center">Mis Productos</p>
 
           {loadingRestaurante ? (
@@ -349,6 +393,7 @@ const B2BDashboard = () => {
             </strong>
           </address>
         </div>
+<<<<<<< HEAD
         {/* Columna verde - Información de Suscripción */}
         <div className="bg-green-500/20 border-r border-gray-300 px-6 py-6">
           <h2 className="font-bold text-black text-center text-[30px] mb-4">Mi Suscripción</h2>
@@ -471,26 +516,64 @@ const B2BDashboard = () => {
               </div>
             )}
           </div>
+=======
+        {/* Columna verde */}
+        <div className="flex flex-col items-center justify-center text-right p-5 border-x-2 border-black/40">
+          <p className="text-[40px] text-center">Analiticas</p>
+          <span className="">
+            <p className="text-5xl">3,462</p>
+            <span className="text-sm">Alcance total del club Residente</span>
+
+            <p className="text-5xl">6,145</p>
+            <span className="text-sm">
+              Page-views de TU MARCA en Guia NL Residente
+            </span>
+
+            <p className="text-5xl">12,128</p>
+            <span className="text-sm">
+              Page views de tu marca FUERA DE Guia NL Residente
+            </span>
+
+            <p className="text-5xl">6,532</p>
+            <span className="text-sm">
+              Clicks a tu marca (restaurantes y cupones)
+            </span>
+          </span>
+>>>>>>> 582dfb502a305143d0ffa485a0c1968e29451c8c
         </div>
         {/* Columna roja */}
-        <div className="bg-red-500/20 p-5">
+        <div className="p-5">
           <div className="flex flex-col h-full">
             {/* Parte de arriba: título + lista */}
             <div>
               <p className="text-[40px] text-center">Beneficios</p>
               <ol>
-                <li className="select-none flex flex-col">
-                  <p className="text-xl leading-tight">Producto 1</p>
-                  <div className="flex flex-row justify-between">
-                    <span className="text-lg leading-tight font-roman">
-                      $ 1,200.00
-                    </span>
-                    <label className="cursor-pointer">
-                      Agregar
-                      <input type="checkbox" />
-                    </label>
-                  </div>
-                </li>
+                {productos.map((producto) => (
+                  <li
+                    key={producto.id}
+                    className="select-none flex flex-col gap-3"
+                  >
+                    <p className="text-xl leading-tight">{producto.titulo}</p>
+                    <div className="flex flex-row justify-between">
+                      <span className="text-lg leading-tight font-roman">
+                        $
+                        {" " +
+                          Number(producto.monto).toLocaleString("es-MX", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                      </span>
+                      <label className="cursor-pointer inline-flex items-center gap-1">
+                        <span>Agregar</span>
+                        <input
+                          type="checkbox"
+                          checked={!!seleccionados[producto.id]}
+                          onChange={() => handleToggleProducto(producto.id)}
+                        />
+                      </label>
+                    </div>
+                  </li>
+                ))}
               </ol>
             </div>
 
@@ -498,7 +581,13 @@ const B2BDashboard = () => {
             <div className="mt-auto flex flex-col gap-2">
               <div className="flex gap-1">
                 <p>Total:</p>
-                <p className="font-roman">$1,200</p>
+                <p className="font-roman">
+                  $
+                  {total.toLocaleString("es-MX", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
               </div>
               <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
