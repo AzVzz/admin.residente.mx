@@ -594,7 +594,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg- hover: bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              <button className="bg-[#fff200] hover:bg-yellow-400 text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
               </button>
             </div>
