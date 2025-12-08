@@ -554,15 +554,15 @@ const B2BDashboard = () => {
                         {index === 0 
                           ? "Revista Residente" 
                           : index === 1 
-                          ? "Pagina web Residente"
+                          ? "Página web Residente"
                           : index === 2
-                          ? "Pagina web Residente"
+                          ? "Página web Residente"
                           : producto.titulo}
                       </p>
                       {index === 0 && (
                         <div>
                         <p className="text-sm text-black mb-1">
-                          ANUNCIO EN REVISTA 1 PAGINA DE 
+                          ANUNCIO EN REVISTA 1 PÁGINA DE 
                         </p>
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm text-black">$24,000 A $9,900</p>
@@ -574,7 +574,10 @@ const B2BDashboard = () => {
                           />
                         </div>
                         <div className="flex justify-left mb-3">
-                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                        <button 
+                          onClick={() => navigate("/anuncio-revista")}
+                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+                        >
                           Crea Tu Anuncio
                         </button>
                         </div>
@@ -605,7 +608,7 @@ const B2BDashboard = () => {
                       {index === 2 && (
                         <div>
                         <p className="text-sm text-black mb-1">
-                          NOTA PRINCIPAL PAGINA WEB DE
+                          NOTA PRINCIPAL PÁGINA WEB DE
                         </p>
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm text-black">$5,000 A $1,000</p>
