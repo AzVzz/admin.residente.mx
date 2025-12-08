@@ -70,8 +70,8 @@ const B2BDashboard = () => {
         // 1. Obtener lista de restaurantes del usuario
         const response = await fetch(`${urlApi}api/restaurante/basicos`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
@@ -81,7 +81,9 @@ const B2BDashboard = () => {
             const primerRestaurante = data[0];
 
             // 3. Obtener detalles completos para la imagen
-            const detailResponse = await fetch(`${urlApi}api/restaurante/${primerRestaurante.slug}`);
+            const detailResponse = await fetch(
+              `${urlApi}api/restaurante/${primerRestaurante.slug}`
+            );
             if (detailResponse.ok) {
               const detailData = await detailResponse.json();
               setRestaurante(detailData);
@@ -98,7 +100,9 @@ const B2BDashboard = () => {
     const fetchB2BUser = async () => {
       try {
         if (usuario?.id) {
-          const response = await fetch(`${urlApi}api/usuariosb2b/user/${usuario.id}`);
+          const response = await fetch(
+            `${urlApi}api/usuariosb2b/user/${usuario.id}`
+          );
           if (response.ok) {
             const data = await response.json();
             setB2bUser(data);
@@ -134,37 +138,36 @@ const B2BDashboard = () => {
   };
 
   const handleCupones = () => {
-    navigate('/tickets/dashboard');
+    navigate("/tickets/dashboard");
   };
 
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
   // Imagen por defecto si no hay restaurante o imagen
   const imagenRestaurante = restaurante?.imagenes?.[0]?.src
-    ? (restaurante.imagenes[0].src.startsWith('http')
+    ? restaurante.imagenes[0].src.startsWith("http")
       ? restaurante.imagenes[0].src
-      : `${imgApi}${restaurante.imagenes[0].src}`)
+      : `${imgApi}${restaurante.imagenes[0].src}`
     : `${imgApi}/fotos/platillos/default.webp`; // Fallback
 
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-4 pr-6">
-        <span className="font-bold text-[14px] mr-3">
-          {usuario?.nombre_usuario || "Usuario B2B"}
-        </span>
-        <img
-          src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
-          alt="Foto usuario"
-          className="w-8 h-8 rounded-full object-cover border border-gray-300 mr-4"
-        />
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
-        >
-          Cerrar Sesión
-        </button>
+      <div className="w-full h-10 bg-[#fff200] flex items-center justify-between mt-4 px-2">
+        <div>Logo del restaurante</div>
+        <div>
+          <span className="font-bold text-[14px] mr-3">
+            {usuario?.nombre_usuario || "Usuario B2B"}
+          </span>
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
+
       {/* Grid de 3 columnas */}
       <div className="w-full grid grid-cols-3 my-5">
         {/* Columna azul */}
@@ -174,33 +177,47 @@ const B2BDashboard = () => {
           {loading ? (
             <div className="text-center py-4">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <div className="">
+                <div className="font-bold text-base">
+                  {restaurante.nombre_restaurante}
+                </div>
+                <div className="text-gray-700 text-sm">
+                  {restaurante.categoria || "Restaurante"}
+                </div>
+              </div>
               <img
                 src={imagenRestaurante}
                 alt={restaurante.nombre_restaurante}
-                className="w-[110px] h-[68px] object-cover rounded"
+                className="w-full max-w-[360px] h-[140px] object-cover object-center"
               />
-              <div>
-                <div className="font-bold text-base">{restaurante.nombre_restaurante}</div>
-                <div className="text-gray-700 text-sm">{restaurante.categoria || "Restaurante"}</div>
-              </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-4 text-gray-500">
+              No tienes restaurantes registrados
+            </div>
           )}
 
           <div className="flex flex-row gap-5 mt-4">
             <button
               onClick={handleEditar}
               disabled={!restaurante}
-              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${
+                restaurante
+                  ? "bg-orange-600 hover:bg-orange-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
               Editar restaurante
             </button>
             <button
               onClick={handleVer}
               disabled={!restaurante}
-              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${restaurante ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer ${
+                restaurante
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
               Ver restaurante
             </button>
@@ -216,7 +233,9 @@ const B2BDashboard = () => {
           </div>
           <address className="flex flex-col mt-auto">
             <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.nombre_responsable || b2bUser?.nombre_responsable_restaurante || "Nombre no disponible"}
+              {b2bUser?.nombre_responsable ||
+                b2bUser?.nombre_responsable_restaurante ||
+                "Nombre no disponible"}
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
               {b2bUser?.correo || "Correo no disponible"}
@@ -228,7 +247,7 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde */}
         <div className="flex flex-col items-center justify-center text-right p-5 border-x-2 border-black/40">
-          <p className="text-[40px] text-center">Analiticas</p>
+          <p className="text-[40px] text-center mb-auto">Analiticas</p>
           <span className="">
             <p className="text-5xl">3,462</p>
             <span className="text-sm">Alcance total del club Residente</span>
