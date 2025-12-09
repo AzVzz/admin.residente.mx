@@ -78,14 +78,7 @@ const FormularioMainPage = lazy(() =>
   import("./componentes/formulario100estrellas/FormularioMainPage")
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
-const PromoMainTest = lazy(() =>
-  import("./componentes/promociones/PromoMainTest")
-); // 👈 TEST
-const ListaTicketsTest = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/ListaTicketsTest"
-  )
-); // 👈 TEST
+
 const FormularioRevistaBannerNueva = lazy(() =>
   import(
     "./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"
@@ -549,7 +542,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/promo-old"
+                path="/promo"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMain />
@@ -557,43 +550,7 @@ function App() {
                 }
               />
 
-              {/* TEST ROUTES */}
-              <Route
-                path="/promo"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <PromoMainTest />
-                  </div>
-                }
-              />
 
-              <Route
-                path="/tickets/dashboard"
-                element={
-                  <div className="max-w-[1080px] mx-auto">
-                    <ListaTickets />
-                  </div>
-                }
-              />
-              <Route
-                path="/anuncio-revista"
-                element={
-                  <B2BRoute>
-                    <div className="max-w-[1080px] mx-auto">
-                      <FormularioAnuncioRevista />
-                    </div>
-                  </B2BRoute>
-                }
-              />
-
-              <Route
-                path="/banner/crear"
-                element={
-                  <B2BRoute>
-                    <FormularioBanner />
-                  </B2BRoute>
-                }
-              />
 
               {/* Admin */}
               <Route
@@ -615,7 +572,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/tickets"
+                path="/dashboardtickets"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ListaTickets />

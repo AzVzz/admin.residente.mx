@@ -24,7 +24,7 @@ const B2BDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [seleccionados, setSeleccionados] = useState({});
   const [total, setTotal] = useState(0);
-  
+
   // Estado para la fecha actual
   const [fechaActual, setFechaActual] = useState(new Date());
 
@@ -102,7 +102,7 @@ const B2BDashboard = () => {
     const fetchRestaurante = async () => {
       try {
         if (!token) return;
-        
+
         const response = await fetch(`${urlApi}api/restaurante/basicos`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -184,7 +184,7 @@ const B2BDashboard = () => {
             : `https://admin.residente.mx/api/usuariosb2b/${usuario.id}`;
 
           const response = await fetch(apiUrl);
-          
+
           if (response.ok) {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
@@ -217,7 +217,7 @@ const B2BDashboard = () => {
             : `https://admin.residente.mx/api/usuariosb2b?usuario_id=${usuario.id}`;
 
           const response = await fetch(apiUrl);
-          
+
           if (response.ok) {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
@@ -250,7 +250,7 @@ const B2BDashboard = () => {
           const apiUrl = import.meta.env.DEV
             ? `${urlApi}api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`
             : `https://admin.residente.mx/api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`;
-          
+
           const response = await fetch(apiUrl);
           if (response.ok) {
             const contentType = response.headers.get("content-type");
@@ -313,13 +313,13 @@ const B2BDashboard = () => {
           // Antes de mostrar error, verificar si el usuario tiene suscripción activa
           if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
             console.log('✅ Usuario tiene suscripción activa según objeto usuario (404 en API)');
-            setSubscriptionData({ 
-              suscripcionDB: { 
+            setSubscriptionData({
+              suscripcionDB: {
                 estado: 'active',
                 nombre_plan: 'B2B Residente',
                 facturas: 'month'
-              }, 
-              sincronizado: false 
+              },
+              sincronizado: false
             });
             setSubscriptionError(null);
             return;
@@ -371,13 +371,13 @@ const B2BDashboard = () => {
       console.log('✅ Usuario tiene suscripción activa según objeto usuario:', usuario.suscripcion);
       // Si el usuario tiene suscripción activa pero no hay datos de API aún, mostrar estado activo
       if (!subscriptionData && !loadingSubscription) {
-        setSubscriptionData({ 
-          suscripcionDB: { 
+        setSubscriptionData({
+          suscripcionDB: {
             estado: 'active',
             nombre_plan: 'B2B Residente',
             facturas: 'month'
-          }, 
-          sincronizado: false 
+          },
+          sincronizado: false
         });
         setSubscriptionError(null);
       }
@@ -408,7 +408,7 @@ const B2BDashboard = () => {
   };
 
   const handleCupones = () => {
-    navigate("/tickets/dashboard");
+    navigate("/dashboardtickets");
   };
 
   const handleFormularioPromo = () => {
@@ -469,7 +469,7 @@ const B2BDashboard = () => {
         <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
         <div className="absolute left-[66.666%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
-        
+
         {/* Columna azul */}
         <div className="flex flex-col p-3">
           <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenidos</p>
@@ -478,8 +478,8 @@ const B2BDashboard = () => {
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
             <div className="flex items-center gap-3">
-              
-              
+
+
             </div>
           ) : (
             <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
@@ -557,84 +557,78 @@ const B2BDashboard = () => {
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold">
-                        {index === 0 
-                          ? "Revista Residente" 
-                          : index === 1 
-                          ? "Página web Residente"
-                          : index === 2
-                          ? "Página web Residente"
-                          : producto.titulo}
+                        {index === 0
+                          ? "Revista Residente"
+                          : index === 1
+                            ? "Pagina web Residente"
+                            : index === 2
+                              ? "Pagina web Residente"
+                              : producto.titulo}
                       </p>
                       {index === 0 && (
                         <div>
-                        <p className="text-sm text-black mb-1">
-                          ANUNCIO EN REVISTA 1 PÁGINA DE 
-                        </p>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm text-black">$24,000 A $9,900</p>
-                          <input
-                            type="checkbox"
-                            checked={!!seleccionados[producto.id]}
-                            onChange={() => handleToggleProducto(producto.id)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-left mb-3">
-                        <button 
-                          onClick={() => navigate("/anuncio-revista")}
-                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
-                        >
-                          Crea Tu Anuncio
-                        </button>
-                        </div>
+                          <p className="text-sm text-black mb-1">
+                            ANUNCIO EN REVISTA 1 PAGINA DE
+                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm text-black">$24,000 A $9,900</p>
+                            <input
+                              type="checkbox"
+                              checked={!!seleccionados[producto.id]}
+                              onChange={() => handleToggleProducto(producto.id)}
+                              className="w-4 h-4 cursor-pointer"
+                            />
+                          </div>
+                          <div className="flex justify-left mb-3">
+                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                              Crea Tu Anuncio
+                            </button>
+                          </div>
                         </div>
                       )}
-                        
+
                       {index === 1 && (
                         <div>
-                        <p className="text-sm text-black mb-1">
-                          BANNER SEMANAL WEB DE
-                        </p>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm text-black">$4,000 A $1,900</p>
-                          <input
-                            type="checkbox"
-                            checked={!!seleccionados[producto.id]}
-                            onChange={() => handleToggleProducto(producto.id)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
+                          <p className="text-sm text-black mb-1">
+                            BANNER SEMANAL WEB DE
+                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm text-black">$4,000 A $1,900</p>
+                            <input
+                              type="checkbox"
+                              checked={!!seleccionados[producto.id]}
+                              onChange={() => handleToggleProducto(producto.id)}
+                              className="w-4 h-4 cursor-pointer"
+                            />
+                          </div>
+                          <div className="flex justify-left mb-3">
+                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                              Crea Tu Banner
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex justify-left mb-3">
-                        <button 
-                          onClick={() => navigate('/banner/crear')}
-                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
-                        >
-                          Crea Tu Banner
-                        </button>
-                        </div>
-                        </div>
-                        )}
+                      )}
                       {index === 2 && (
                         <div>
-                        <p className="text-sm text-black mb-1">
-                          NOTA PRINCIPAL PÁGINA WEB DE
-                        </p>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm text-black">$5,000 A $1,000</p>
-                          <input
-                            type="checkbox"
-                            checked={!!seleccionados[producto.id]}
-                            onChange={() => handleToggleProducto(producto.id)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
+                          <p className="text-sm text-black mb-1">
+                            NOTA PRINCIPAL PAGINA WEB DE
+                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm text-black">$5,000 A $1,000</p>
+                            <input
+                              type="checkbox"
+                              checked={!!seleccionados[producto.id]}
+                              onChange={() => handleToggleProducto(producto.id)}
+                              className="w-4 h-4 cursor-pointer"
+                            />
+                          </div>
+                          <div className="flex justify-left mb-3">
+                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                              Crea Tu Nota
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex justify-left mb-3">
-                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Crea Tu Nota
-                        </button>
-                        </div>
-                        </div>
-                        )}
+                      )}
                     </div>
                   </li>
                 ))}
