@@ -37,9 +37,10 @@ import PlantillaNotas from "./componentes/residente/PlantillasRehusables/Plantil
 import B2BMain from "./componentes/residente/B2B/B2BMain.jsx";
 import ListaTickets from "./componentes/residente/componentes/compFormularioMain/ListaTickets";
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
+import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
-import TerminosyCondiciones from './componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx';
+import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
 
 //Admin
 const FormMainResidente = lazy(() =>
@@ -365,6 +366,15 @@ function App() {
               />
 
               <Route
+                path="/stripe-checkout"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <StripeCheckout />
+                  </div>
+                }
+              />
+
+              <Route
                 path="/foto-news"
                 element={
                   <div className="max-w-[1080px] mx-auto">
@@ -560,7 +570,7 @@ function App() {
                 path="/tickets/dashboard"
                 element={
                   <div className="max-w-[1080px] mx-auto">
-                    <ListaTicketsTest />
+                    <ListaTickets />
                   </div>
                 }
               />

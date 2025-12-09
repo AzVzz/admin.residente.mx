@@ -40,3 +40,35 @@ export async function cuponBorrar(id, token) {
     }
     return await response.json();
 }
+
+export async function cuponEditar(id, data, token) {
+    const response = await fetch(`${urlApi}api/tickets/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` })
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al actualizar el cupón');
+    }
+    return await response.json();
+}
+
+export async function cuponCrear(data, token) {
+    const response = await fetch(`${urlApi}api/tickets`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` })
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al crear el cupón');
+    }
+    return await response.json();
+}

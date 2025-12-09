@@ -29,12 +29,37 @@ export default defineConfig({
     })
   ],
   server: {
+    host: 'localhost',
+    port: 5173,
+    strictPort: false,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+      clientPort: 5173
+    },
     proxy: {
+      '/api/stripe': {
+        target: 'https://admin.residente.mx',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+        ws: true // Habilitar WebSocket para el proxy
+      },
+      '/api/stripe-suscripciones': {
+        target: 'https://admin.residente.mx',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+        ws: true
+      },
       '/fotos': {
         target: 'https://residente.mx',
         changeOrigin: true,
         secure: false,
       }
     }
-  }
+  },
+  // Variables de entorno para Stripe
+  envPrefix: 'VITE_'
 })

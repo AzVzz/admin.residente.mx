@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const ScrollToTopButton = () => {
     const [visible, setVisible] = useState(false);
     const [footerVisible, setFooterVisible] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -16,6 +18,9 @@ const ScrollToTopButton = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // Si estamos en /foto-news, no mostrar el botón
+    if (location.pathname === "/foto-news") return null;
 
     // Animación: fade y scale
     const show = visible && !footerVisible;
@@ -34,7 +39,7 @@ const ScrollToTopButton = () => {
             aria-label="Ir arriba"
             style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.25)" }}
         >
-            <span style={{fontSize: "2rem", lineHeight: 1}}>↑</span>
+            <span style={{ fontSize: "2rem", lineHeight: 1 }}>↑</span>
         </button>
     );
 };
