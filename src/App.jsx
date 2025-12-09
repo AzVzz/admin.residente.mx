@@ -77,14 +77,7 @@ const FormularioMainPage = lazy(() =>
   import("./componentes/formulario100estrellas/FormularioMainPage")
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
-const PromoMainTest = lazy(() =>
-  import("./componentes/promociones/PromoMainTest")
-); // 👈 TEST
-const ListaTicketsTest = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/ListaTicketsTest"
-  )
-); // 👈 TEST
+
 const FormularioRevistaBannerNueva = lazy(() =>
   import(
     "./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"
@@ -548,20 +541,10 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/promo-old"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <PromoMain />
-                  </div>
-                }
-              />
-
-              {/* TEST ROUTES */}
-              <Route
                 path="/promo"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
-                    <PromoMainTest />
+                    <PromoMain />
                   </div>
                 }
               />

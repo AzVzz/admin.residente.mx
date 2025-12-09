@@ -1,19 +1,29 @@
-//src/componentes/promociones/PromoMain.jsx
+//src/componentes/promociones/PromoMainTest.jsx
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../Context';
 import { toPng } from 'html-to-image';
-import FormularioPromo from "./componentes/FormularioPromo";
+import FormularioPromoTest from "./componentes/FormularioPromoTest";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
-import { ticketCrear } from '../../componentes/api/ticketCrearPost';
+import { cuponCrear } from '../../componentes/api/cuponesGet';
 import { restaurantesBasicosGet } from '../../componentes/api/restaurantesBasicosGet.js';
 import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
+
 const PromoMain = () => {
+    const { usuario, token } = useAuth();
+
+
+
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
         promoSubtitle: "",
         descPromo: "",
-        fechaValidez: ""
+        fechaValidez: "",
+        fechaInicio: "",
+        fechaFin: "",
+        esPermanente: true, // NUEVO - Default a true por ahora
+        zonaHoraria: "America/Monterrey" // Default
     });
 
     const [selectedStickers, setSelectedStickers] = useState([]);
@@ -117,6 +127,67 @@ const PromoMain = () => {
     const prepareApiData = () => {
         const restauranteSeleccionado = restaurantes.find(r => String(r.id) === String(selectedRestauranteId));
         const stickerClave = selectedStickers[0] || "";
+
+        // Función auxiliar para convertir fecha local + zona horaria a ISO string con offset
+        const formatWithTimezone = (dateString, timeZone) => {
+            if (!dateString) return null;
+
+            // Creamos una fecha "base" asumiendo que el input es UTC para extraer componentes
+            // Esto es porque datetime-local da "YYYY-MM-DDTHH:mm" sin zona
+            const date = new Date(dateString);
+
+            // Obtenemos los componentes de la fecha seleccionada
+            // Nota: Usamos métodos UTC porque queremos los valores literales que el usuario ingresó
+            // Ejemplo: Usuario pone 10:00, dateString es "...T10:00", new Date() en local podría variar, 
+            // pero si parseamos el string directamente es más seguro.
+            // Mejor enfoque: Crear fecha usando el string y forzar la interpretación en la zona horaria deseada.
+
+            // Enfoque robusto sin librerías externas:
+            // 1. Crear una fecha que represente ese instante en la zona horaria destino
+            // 2. Obtener el ISO string
+
+            try {
+                // Truco: Usamos toLocaleString con la zona horaria deseada para ver "qué hora es realmente"
+                // Pero aquí queremos lo contrario: El usuario dice "Son las 10:00 en Monterrey".
+                // Queremos el Timestamp que corresponde a eso.
+
+                // Creamos una fecha arbitraria y buscamos el offset
+                // Esto es complejo sin librerías. Vamos a simplificar asumiendo offsets fijos por ahora 
+                // o usando un enfoque de "Fecha Local" -> "UTC"
+
+                // Vamos a guardar la fecha tal cual con el offset calculado manualmente para las zonas comunes de MX
+                // Monterrey/CDMX: UTC-6 (Todo el año ahora)
+                // Tijuana: UTC-8 (Invierno) / UTC-7 (Verano)
+                // Chihuahua: UTC-7 (Invierno) / UTC-6 (Verano) - A veces cambia
+                // Cancun: UTC-5
+
+                let offset = -6; // Default Monterrey
+                if (timeZone === 'America/Tijuana') offset = -8; // Simplificación (debería detectar horario verano)
+                if (timeZone === 'America/Chihuahua') offset = -7;
+                if (timeZone === 'America/Cancun') offset = -5;
+
+                // Ajuste fino para horario de verano si fuera necesario, pero por ley 2022 MX eliminó horario verano en mayoría
+                // Tijuana y frontera norte SÍ tienen horario de verano (sincronizado con USA)
+                // Vamos a usar una aproximación simple o dejar que el backend maneje si enviamos la zona.
+                // Pero el backend espera un string de fecha.
+
+                // Mejor opción: Construir el ISO string con el offset explícito
+                // Input: "2023-10-27T10:30"
+                // Output deseado: "2023-10-27T10:30:00-06:00"
+
+                const offsetHours = Math.abs(Math.floor(offset));
+                const offsetSign = offset < 0 ? '-' : '+';
+                const offsetString = `${offsetSign}${String(offsetHours).padStart(2, '0')}:00`;
+
+                return `${dateString}:00${offsetString}`;
+            } catch (e) {
+                console.error("Error formateando fecha:", e);
+                return null;
+            }
+        };
+
+        const zonaHoraria = formData.zonaHoraria || "America/Monterrey";
+
         return {
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
@@ -127,11 +198,16 @@ const PromoMain = () => {
             tipo: 'promo',
             link: formData.urlPromo || "",
             fecha_validez: formData.fechaValidez,
+            fecha_inicio: formData.esPermanente ? null : formatWithTimezone(formData.fechaInicio, zonaHoraria),
+            fecha_fin: formData.esPermanente ? null : formatWithTimezone(formData.fechaFin, zonaHoraria),
+            es_permanente: formData.esPermanente,
+            zona_horaria: zonaHoraria, // Guardamos la zona horaria también por si acaso
             metadata: JSON.stringify({
-                sticker_url: stickerClave
+                sticker_url: stickerClave,
+                zona_horaria: zonaHoraria
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
-            estilos_campos: getTicketEstilosCampos() // 🟢 AGREGA LOS ESTILOS AQUÍ
+            estilos_campos: getTicketEstilosCampos()
         };
     };
 
@@ -142,6 +218,10 @@ const PromoMain = () => {
 
         try {
             if (!ticketRef.current) throw new Error("No se encontró el ticket para generar la imagen");
+
+            if (!formData.esPermanente) {
+                if (!formData.fechaInicio || !formData.fechaFin) throw new Error("Debes seleccionar fecha de inicio y fin, o marcar como Permanente");
+            }
 
             // 1. Generar la imagen
             const dataUrl = await toPng(ticketRef.current, {
@@ -158,7 +238,7 @@ const PromoMain = () => {
             apiData.imagen_base64 = base64Image; // agregar imagen al payload
 
             // 4. Llamar a tu endpoint
-            const response = await ticketCrear(apiData);
+            const response = await cuponCrear(apiData, token);
             console.log("✅ Promoción creada:", response);
 
             setSaveSuccess(true);
@@ -189,7 +269,7 @@ const PromoMain = () => {
     return (
         <div>
             <div className="grid grid-cols-2 gap-5">
-                <FormularioPromo
+                <FormularioPromoTest
                     formData={formData}
                     onFieldChange={handleFieldChange}
                     restaurantes={restaurantes}
