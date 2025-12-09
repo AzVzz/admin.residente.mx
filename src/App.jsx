@@ -34,7 +34,6 @@ import ListaNotasUanl from "./componentes/residente/componentes/compFormularioMa
 import DetalleColaborador from "./componentes/residente/Colaboradores/DetalleColaborador.jsx";
 import NewsletterPage from "./componentes/residente/Newsletter/NewsletterPage.jsx";
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
-import B2BMain from "./componentes/residente/B2B/B2BMain.jsx";
 import ListaTickets from "./componentes/residente/componentes/compFormularioMain/ListaTickets";
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
@@ -385,14 +384,14 @@ function App() {
                 }
               />
 
-              <Route
+             {/* <Route
                 path="/b2b"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <B2BMain />
                   </div>
                 }
-              />
+              /> */}
 
               <Route
                 path="/instahistory"
