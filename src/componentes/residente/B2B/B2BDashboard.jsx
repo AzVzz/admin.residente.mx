@@ -105,14 +105,15 @@ const B2BDashboard = () => {
         
         const response = await fetch(`${urlApi}api/restaurante/basicos`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
             const primerRestaurante = data[0];
+
             const detailResponse = await fetch(`${urlApi}api/restaurante/${primerRestaurante.slug}`);
             if (detailResponse.ok) {
               const detailData = await detailResponse.json();
@@ -137,7 +138,9 @@ const B2BDashboard = () => {
     const fetchB2BUser = async () => {
       try {
         if (usuario?.id) {
-          const response = await fetch(`${urlApi}api/usuariosb2b/user/${usuario.id}`);
+          const response = await fetch(
+            `${urlApi}api/usuariosb2b/user/${usuario.id}`
+          );
           if (response.ok) {
             const data = await response.json();
             setB2bUser(data);
@@ -405,7 +408,7 @@ const B2BDashboard = () => {
   };
 
   const handleCupones = () => {
-    navigate('/tickets/dashboard');
+    navigate("/tickets/dashboard");
   };
 
   const handleFormularioPromo = () => {
@@ -487,26 +490,28 @@ const B2BDashboard = () => {
             <button
               onClick={handleEditar}
               disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
             >
               MICROSITIO
             </button>
             <button
               onClick={handleFormularioPromo}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
             <button
               onClick={handleClasificado}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               CLASIFICADO
             </button>
           </div>
           <address className="flex flex-col mt-auto">
             <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.nombre_responsable || b2bUser?.nombre_responsable_restaurante || "Nombre no disponible"}
+              {b2bUser?.nombre_responsable ||
+                b2bUser?.nombre_responsable_restaurante ||
+                "Nombre no disponible"}
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
               {b2bUser?.correo || "Correo no disponible"}
