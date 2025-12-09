@@ -4,11 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
-<<<<<<< HEAD
 // import FormularioBanner from "./FormularioBanner";
-=======
-//import FormularioBanner from "./FormularioBanner";
->>>>>>> f0b1aff1baaaf2d8da86a747cfc9243036d958fa
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
