@@ -1,13 +1,15 @@
-//src/componentes/promociones/PromoMain.jsx
 import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import FormularioPromo from "./componentes/FormularioPromo";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
-import { ticketCrear } from '../../componentes/api/ticketCrearPost';
+import { cuponCrear } from '../../componentes/api/cuponesGet'; // Import correct API function
 import { restaurantesBasicosGet } from '../../componentes/api/restaurantesBasicosGet.js';
 import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
+import { useAuth } from '../Context'; // Import useAuth to get token
+
 const PromoMain = () => {
+    const { token } = useAuth(); // Get token from context
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
@@ -157,8 +159,8 @@ const PromoMain = () => {
             const apiData = prepareApiData();
             apiData.imagen_base64 = base64Image; // agregar imagen al payload
 
-            // 4. Llamar a tu endpoint
-            const response = await ticketCrear(apiData);
+            // 4. Llamar a tu endpoint con el TOKEN
+            const response = await cuponCrear(apiData, token);
             console.log("✅ Promoción creada:", response);
 
             setSaveSuccess(true);
