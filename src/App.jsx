@@ -42,6 +42,7 @@ import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/Form
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
+import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 //Admin
 const FormMainResidente = lazy(() =>
   import(
@@ -581,6 +582,15 @@ function App() {
                     <div className="max-w-[1080px] mx-auto">
                       <FormularioAnuncioRevista />
                     </div>
+                  </B2BRoute>
+                }
+              />
+
+              <Route
+                path="/banner/crear"
+                element={
+                  <B2BRoute>
+                    <FormularioBanner />
                   </B2BRoute>
                 }
               />

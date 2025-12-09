@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
+import FormularioBanner from "./FormularioBanner";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -599,7 +600,10 @@ const B2BDashboard = () => {
                           />
                         </div>
                         <div className="flex justify-left mb-3">
-                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                        <button 
+                          onClick={() => navigate('/banner/crear')}
+                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+                        >
                           Crea Tu Banner
                         </button>
                         </div>
