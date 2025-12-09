@@ -11,9 +11,6 @@ import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
 
 const PromoMain = () => {
     const { usuario, token } = useAuth();
-
-
-
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
@@ -237,7 +234,7 @@ const PromoMain = () => {
             const apiData = prepareApiData();
             apiData.imagen_base64 = base64Image; // agregar imagen al payload
 
-            // 4. Llamar a tu endpoint
+            // 4. Llamar a tu endpoint con el TOKEN
             const response = await cuponCrear(apiData, token);
             console.log("✅ Promoción creada:", response);
 
