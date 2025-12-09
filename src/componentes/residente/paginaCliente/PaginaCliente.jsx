@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { catalogoNotasGet } from "../../api/notasPublicadasGet";
+import { useClientesValidos } from "../../../hooks/useClientesValidos";
 
 import PostPrincipal from '../componentes/componentesColumna2/PostPrincipal';
 import TresTarjetas from '../componentes/componentesColumna2/TresTarjetas';
@@ -11,12 +12,15 @@ import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/Boto
 import Infografia from "../componentes/componentesColumna1/Infografia.jsx";
 import CincoNotasRRR from "../componentes/seccionesCategorias/componentes/CincoNotasRRR.jsx";
 import { urlApi, imgApi } from "../../api/url.js";
+import NoEncontrado from "../../NoEncontrado";
 
 const PaginaCliente = () => {
     const { nombreCliente } = useParams();
     const navigate = useNavigate();
     const [notas, setNotas] = useState([]);
     const [cargando, setCargando] = useState(true);
+
+    const { clientesValidos, loading } = useClientesValidos();
 
     // Función para manejar clicks en tarjetas
     const handleCardClick = (nota) => {
@@ -114,6 +118,12 @@ const PaginaCliente = () => {
 
         cargarNotasFiltradas();
     }, [nombreCliente]);
+
+    if (loading) return <div>Cargando...</div>;
+    // Solo valida cuando loading es false
+    if (!loading && (!clientesValidos.includes(nombreCliente) || nombreCliente === "b2b")) {
+      return <NoEncontrado />;
+    }
 
     if (cargando) return <div>Cargando...</div>;
 
