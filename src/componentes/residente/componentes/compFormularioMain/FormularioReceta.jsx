@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { urlApi } from "../../../api/url";
 
-export default function FormularioReceta({ onCancelar, onEnviado }) {
+export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
@@ -20,6 +20,42 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
+  // Cargar datos si se está editando
+  useEffect(() => {
+    if (receta) {
+      setFormData({
+        titulo: receta.titulo || "",
+        autor: receta.autor || "",
+        descripcion: receta.descripcion || "",
+        porciones: receta.porciones || "",
+        tiempo: receta.tiempo || "",
+        ingredientes: receta.ingredientes || "",
+        preparacion: receta.preparacion || "",
+        consejo: receta.consejo || "",
+        categoria: receta.categoria || "",
+        imagen: null, // La imagen no se repobla en el input file
+        creditos: receta.creditos || "",
+        instagram: receta.instagram || "",
+      });
+    } else {
+      // Resetear si no hay receta (modo crear)
+      setFormData({
+        titulo: "",
+        autor: "",
+        descripcion: "",
+        porciones: "",
+        tiempo: "",
+        ingredientes: "",
+        preparacion: "",
+        consejo: "",
+        categoria: "",
+        imagen: null,
+        creditos: "",
+        instagram: "",
+      });
+    }
+  }, [receta]);
+
   // Manejar cambios de input
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -37,39 +73,53 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
     setMensaje("");
 
     try {
-      const data = new FormData(); 
+      const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
+        // Si estamos editando y no se seleccionó nueva imagen, no enviarla
+        if (key === 'imagen' && !value && receta) {
+          return;
+        }
         if (value !== null && value !== "") {
           data.append(key, value);
         }
       });
 
-      const response = await fetch(`${urlApi}api/recetas`, {
-        method: "POST",
+      const url = receta
+        ? `${urlApi}api/recetas/${receta.id}`
+        : `${urlApi}api/recetas`;
+
+      const method = receta ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
         body: data,
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Error al enviar la receta");
+        throw new Error(errorData.error || `Error al ${receta ? 'actualizar' : 'enviar'} la receta`);
       }
 
-      setMensaje("Receta enviada correctamente.");
-      setFormData({
-        titulo: "",
-        autor: "",
-        descripcion: "",
-        porciones: "",
-        tiempo: "",
-        ingredientes: "",
-        preparacion: "",
-        consejo: "",
-        categoria: "",
-        imagen: null,
-        creditos: "",
-        instagram: "",
-      });
-      
+      setMensaje(`Receta ${receta ? 'actualizada' : 'enviada'} correctamente.`);
+
+      if (!receta) {
+        // Solo limpiar formulario si es creación nueva
+        setFormData({
+          titulo: "",
+          autor: "",
+          descripcion: "",
+          porciones: "",
+          tiempo: "",
+          ingredientes: "",
+          preparacion: "",
+          consejo: "",
+          categoria: "",
+          imagen: null,
+          creditos: "",
+          instagram: "",
+        });
+      }
+
       // Ocultar el formulario después de enviar exitosamente
       if (onEnviado) {
         setTimeout(() => {
@@ -78,7 +128,7 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
       }
     } catch (err) {
       console.error(err);
-      setMensaje("Hubo un error al enviar la receta: " + err.message);
+      setMensaje(`Hubo un error al ${receta ? 'actualizar' : 'enviar'} la receta: ` + err.message);
     } finally {
       setCargando(false);
     }
@@ -91,7 +141,7 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
         className="max-w-2xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-6 text-gray-800"
       >
         <h1 className="text-2xl font-bold text-center mb-4">
-          Formulario de envío de receta
+          {receta ? "Editar Receta" : "Formulario de envío de receta"}
         </h1>
         <p className="text-sm text-gray-600 text-center">
           Llena todos los campos con precisión. Los textos deben ser breves, claros y sin emojis.
@@ -99,11 +149,10 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
 
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${
-              mensaje.includes("correctamente")
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+              }`}
           >
             {mensaje}
           </div>
@@ -249,12 +298,17 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
 
         {/* Imagen */}
         <div>
-          <label className="block font-semibold">Imagen principal</label>
+          <label className="block font-semibold">
+            {receta ? "Cambiar imagen (opcional)" : "Imagen principal"}
+          </label>
+          {receta && !formData.imagen && (
+            <p className="text-sm text-gray-500 mb-2">Imagen actual configurada. Sube una nueva para cambiarla.</p>
+          )}
           <input
             type="file"
             name="imagen"
             accept=".jpg,.png"
-            required
+            required={!receta} // Solo requerido si no estamos editando
             onChange={handleChange}
             className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
           />
@@ -297,9 +351,8 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
               type="button"
               onClick={onCancelar}
               disabled={cargando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
-                cargando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               Cancelar
             </button>
@@ -307,11 +360,10 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
           <button
             type="submit"
             disabled={cargando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
-              cargando ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
-            {cargando ? "Enviando..." : "Enviar receta"}
+            {cargando ? "Enviando..." : (receta ? "Actualizar receta" : "Enviar receta")}
           </button>
         </div>
       </form>
