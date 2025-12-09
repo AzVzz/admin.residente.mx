@@ -404,7 +404,7 @@ const ListaNotas = () => {
                   if (option.key === "restaurante_link") {
                     navigate('/formulario');
                   } else if (option.key === "cupones") {
-                    navigate('/tickets/dashboard');
+                    navigate('/dashboardtickets');
                   } else {
                     setVistaActiva(option.key);
                   }
