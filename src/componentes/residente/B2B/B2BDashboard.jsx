@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
+import FormularioBanner from "./FormularioBanner";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +18,7 @@ const B2BDashboard = () => {
   const [restaurante, setRestaurante] = useState(null);
   const [loadingRestaurante, setLoadingRestaurante] = useState(true);
   const [b2bUser, setB2bUser] = useState(null);
+  const [showFormularioPromo, setShowFormularioPromo] = useState(false);
 
   // 🆕 Estado para productos y selección
   const [productos, setProductos] = useState([]);
@@ -71,8 +73,20 @@ const B2BDashboard = () => {
       };
 
       // Recalcular total con base en los seleccionados
-      const nuevoTotal = productos.reduce((suma, producto) => {
+      const nuevoTotal = productos.reduce((suma, producto, index) => {
         if (nuevoSeleccionados[producto.id]) {
+          // El primer producto (index === 0) usa $9,900
+          if (index === 0) {
+            return suma + 9900;
+          }
+          // El segundo producto (index === 1) usa $1,900
+          if (index === 1) {
+            return suma + 1900;
+          }
+          // El tercer producto (index === 2) usa $1,000
+          if (index === 2) {
+            return suma + 1000;
+          }
           return suma + Number(producto.monto);
         }
         return suma;
@@ -91,14 +105,15 @@ const B2BDashboard = () => {
         
         const response = await fetch(`${urlApi}api/restaurante/basicos`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
             const primerRestaurante = data[0];
+
             const detailResponse = await fetch(`${urlApi}api/restaurante/${primerRestaurante.slug}`);
             if (detailResponse.ok) {
               const detailData = await detailResponse.json();
@@ -123,7 +138,9 @@ const B2BDashboard = () => {
     const fetchB2BUser = async () => {
       try {
         if (usuario?.id) {
-          const response = await fetch(`${urlApi}api/usuariosb2b/user/${usuario.id}`);
+          const response = await fetch(
+            `${urlApi}api/usuariosb2b/user/${usuario.id}`
+          );
           if (response.ok) {
             const data = await response.json();
             setB2bUser(data);
@@ -391,7 +408,15 @@ const B2BDashboard = () => {
   };
 
   const handleCupones = () => {
-    navigate('/tickets/dashboard');
+    navigate("/tickets/dashboard");
+  };
+
+  const handleFormularioPromo = () => {
+    navigate('/promo');
+  };
+
+  const handleClasificado = () => {
+    navigate('');
   };
 
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
@@ -447,7 +472,7 @@ const B2BDashboard = () => {
         
         {/* Columna azul */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenido</p>
+          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenidos</p>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -465,27 +490,28 @@ const B2BDashboard = () => {
             <button
               onClick={handleEditar}
               disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
             >
               MICROSITIO
             </button>
             <button
-              onClick={handleVer}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={handleFormularioPromo}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
             <button
-              onClick={handleCupones}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer"
+              onClick={handleClasificado}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               CLASIFICADO
             </button>
           </div>
           <address className="flex flex-col mt-auto">
             <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.nombre_responsable || b2bUser?.nombre_responsable_restaurante || "Nombre no disponible"}
+              {b2bUser?.nombre_responsable ||
+                b2bUser?.nombre_responsable_restaurante ||
+                "Nombre no disponible"}
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
               {b2bUser?.correo || "Correo no disponible"}
@@ -534,19 +560,31 @@ const B2BDashboard = () => {
                         {index === 0 
                           ? "Revista Residente" 
                           : index === 1 
-                          ? "Pagina web Residente"
+                          ? "Página web Residente"
                           : index === 2
-                          ? "Pagina web Residente"
+                          ? "Página web Residente"
                           : producto.titulo}
                       </p>
                       {index === 0 && (
                         <div>
                         <p className="text-sm text-black mb-1">
-                          ANUNCIO EN REVISTA 1 PAGINA DE $24,000 A $9,900
+                          ANUNCIO EN REVISTA 1 PÁGINA DE 
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$24,000 A $9,900</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
-                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                        <button 
+                          onClick={() => navigate("/anuncio-revista")}
+                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+                        >
+                          Crea Tu Anuncio
                         </button>
                         </div>
                         </div>
@@ -554,24 +592,45 @@ const B2BDashboard = () => {
                         
                       {index === 1 && (
                         <div>
-                        <p className="text-sm text-black mb-3">
-                          BANNER SEMANAL WEB DE$4,000 A $1,900
+                        <p className="text-sm text-black mb-1">
+                          BANNER SEMANAL WEB DE
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$4,000 A $1,900</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
-                        <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                        <button 
+                          onClick={() => navigate('/banner/crear')}
+                          className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+                        >
+                          Crea Tu Banner
                         </button>
                         </div>
                         </div>
                         )}
                       {index === 2 && (
                         <div>
-                        <p className="text-sm text-black mb-3">
-                          NOTA PRINCIPAL PAGINA WEB DE $5,000 A $1,000
+                        <p className="text-sm text-black mb-1">
+                          NOTA PRINCIPAL PÁGINA WEB DE
                         </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">$5,000 A $1,000</p>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
                         <div className="flex justify-left mb-3">
                         <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                          Agregar
+                          Crea Tu Nota
                         </button>
                         </div>
                         </div>
@@ -594,7 +653,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-[#fff200] hover:bg-yellow-400 text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              <button className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
                 Ir a pagar
               </button>
             </div>
