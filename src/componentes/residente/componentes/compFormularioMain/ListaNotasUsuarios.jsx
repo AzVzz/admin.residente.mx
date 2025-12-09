@@ -57,7 +57,8 @@ const ListaNotasUsuarios = () => {
     razon_social: '',
     rfc: '',
     direccion: '',
-    terminos: false
+    terminos: false,
+    logo_url: null
   });
 
   // Cargar usuarios al montar el componente
@@ -134,7 +135,8 @@ const ListaNotasUsuarios = () => {
       razon_social: '',
       rfc: '',
       direccion: '',
-      terminos: false
+      terminos: false,
+      logo_url: null
     });
     setPermisoPersonalizado('');
     setLogoFile(null);
@@ -211,6 +213,7 @@ const ListaNotasUsuarios = () => {
         }
 
         setFormData(prev => ({ ...prev, logo_url: logoUrl }));
+        console.log('Logo subido exitosamente. URL:', logoUrl);
         setError(''); // Limpiar errores previos si la subida fue exitosa
       } else {
         throw new Error('No se recibió la URL del logo en la respuesta del servidor');
@@ -308,7 +311,8 @@ const ListaNotasUsuarios = () => {
         rol: formData.rol,
         estado: formData.estado,
         restaurante_id: null,
-        enviar_correo: false  // No enviar correo al crear usuario desde admin
+        enviar_correo: false,  // No enviar correo al crear usuario desde admin
+        logo_url: formData.logo_url || null  // Incluir logo_url si existe
       };
 
       // Validación final antes de enviar: asegurar que correo nunca sea null o undefined
@@ -331,6 +335,7 @@ const ListaNotasUsuarios = () => {
         correo_original: formData.correo,
         correo_final: datosEnvio.correo,
         tipo_correo: typeof datosEnvio.correo,
+        logo_url: datosEnvio.logo_url,
         body: datosEnvio
       });
 
@@ -373,7 +378,8 @@ const ListaNotasUsuarios = () => {
       confirmPassword: '',
       permisos: permisoSeleccionado,
       rol: user.rol || '',
-      estado: user.estado || 'activo'
+      estado: user.estado || 'activo',
+      logo_url: user.logo_url || null
     });
 
     // Si es un permiso personalizado, ponerlo en el campo de texto
@@ -382,6 +388,14 @@ const ListaNotasUsuarios = () => {
     } else {
       setPermisoPersonalizado('');
     }
+
+    // Cargar logo existente si hay uno
+    if (user.logo_url) {
+      setLogoPreview(user.logo_url);
+    } else {
+      setLogoPreview(null);
+    }
+    setLogoFile(null); // No hay archivo nuevo al editar
 
     setShowRegistro(true);
   };
