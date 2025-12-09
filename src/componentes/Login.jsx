@@ -26,28 +26,29 @@ const Login = () => {
     }
   };
 
-  const getFallbackByRole = (rol) => {
+  const getFallbackByRole = (rol, permisos) => {
     const r = rol?.toLowerCase();
-    if (r === "residente") return "/notas";
     if (r === "b2b") return "/dashboardb2b";
-    return "/"; // invitado u otros
+    // Para usuarios "residente" o "invitado" con permisos, redirigir a /notas
+    // Esto permite que usuarios "invitado" puedan acceder al dashboard para crear notas
+    if (r === "residente" || r === "invitado") return "/notas";
+    return "/"; // otros roles
   };
 
-  const rutaPermitidaParaRol = (rol, path) => {
+  const rutaPermitidaParaRol = (rol, path, permisos) => {
     const r = rol?.toLowerCase();
     if (!path) return false;
-
-    if (r === "residente") {
-      // residente puede ir a /notas y lo que cuelgue de ahí
-      return path.startsWith("/notas");
-    }
 
     if (r === "b2b") {
       // b2b solo a dashboardb2b (ajusta si quieres más)
       return path.startsWith("/dashboardb2b");
     }
 
-    // invitado, etc. ajusta aquí
+    // residente e invitado pueden ir a /notas y lo que cuelgue de ahí
+    if (r === "residente" || r === "invitado") {
+      return path.startsWith("/notas");
+    }
+
     return false;
   };
 
@@ -97,6 +98,7 @@ const Login = () => {
       setSuccess(true);
 
       const rol = respuesta.usuario?.rol;
+      const permisos = respuesta.usuario?.permisos;
       const redirectToParam = new URLSearchParams(location.search).get(
         "redirectTo"
       );
@@ -105,19 +107,19 @@ const Login = () => {
 
       if (
         redirectToParam &&
-        rutaPermitidaParaRol(rol, redirectToParam)
+        rutaPermitidaParaRol(rol, redirectToParam, permisos)
       ) {
         // La ruta que quería sí está permitida para su rol
         destino = redirectToParam;
       } else {
-        if (redirectToParam && !rutaPermitidaParaRol(rol, redirectToParam)) {
+        if (redirectToParam && !rutaPermitidaParaRol(rol, redirectToParam, permisos)) {
           // Quería entrar a algo que NO puede
           setError(
             "No tienes permiso para acceder a esa sección. Te enviamos a tu panel principal."
           );
         }
-        // Fallback según rol
-        destino = getFallbackByRole(rol);
+        // Fallback según rol y permisos
+        destino = getFallbackByRole(rol, permisos);
       }
 
       navigate(destino, { replace: true });
