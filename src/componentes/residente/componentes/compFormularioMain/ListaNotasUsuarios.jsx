@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../Context';
-//import { useClientesVgitalidos } from '../../../../hooks/useClientesValidos';
+import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
 import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
@@ -43,6 +43,7 @@ const ListaNotasUsuarios = () => {
   // Estados para el formulario de registro/edición
   const [formData, setFormData] = useState({
     nombre_usuario: '',
+    correo: '',
     password: '',
     confirmPassword: '',
     permisos: 'todos',
@@ -56,7 +57,8 @@ const ListaNotasUsuarios = () => {
     razon_social: '',
     rfc: '',
     direccion: '',
-    terminos: false
+    terminos: false,
+    logo_url: null
   });
 
   // Cargar usuarios al montar el componente
@@ -120,6 +122,7 @@ const ListaNotasUsuarios = () => {
   const resetForm = () => {
     setFormData({
       nombre_usuario: '',
+      correo: '',
       password: '',
       confirmPassword: '',
       permisos: 'todos',
@@ -132,7 +135,8 @@ const ListaNotasUsuarios = () => {
       razon_social: '',
       rfc: '',
       direccion: '',
-      terminos: false
+      terminos: false,
+      logo_url: null
     });
     setPermisoPersonalizado('');
     setLogoFile(null);
@@ -209,6 +213,7 @@ const ListaNotasUsuarios = () => {
         }
 
         setFormData(prev => ({ ...prev, logo_url: logoUrl }));
+        console.log('Logo subido exitosamente. URL:', logoUrl);
         setError(''); // Limpiar errores previos si la subida fue exitosa
       } else {
         throw new Error('No se recibió la URL del logo en la respuesta del servidor');
@@ -229,6 +234,15 @@ const ListaNotasUsuarios = () => {
     if (!formData.nombre_usuario || !formData.password) {
       setError('Nombre de usuario y contraseña son obligatorios');
       return;
+    }
+
+    // Validar formato de correo solo si se proporciona uno
+    if (formData.correo && formData.correo.trim() !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.correo)) {
+        setError('El correo electrónico no tiene un formato válido');
+        return;
+      }
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -257,16 +271,72 @@ const ListaNotasUsuarios = () => {
       // Si el rol es B2B, enviamos permiso 'b2b' (o lo que esté seleccionado)
       let permisosEnvio = formData.permisos === 'nuevo-cliente' ? permisoPersonalizado : formData.permisos;
 
+      // Generar correo automático si no se proporciona uno
+      // Usar formato válido de email estándar para evitar problemas con validaciones del backend
+      // Asegurar que siempre sea un string válido, nunca null o undefined
+      let correoFinal = '';
+      
+      // Limpiar y validar el correo ingresado
+      if (formData.correo && typeof formData.correo === 'string') {
+        const correoLimpio = formData.correo.trim();
+        if (correoLimpio !== '' && correoLimpio !== 'null' && correoLimpio !== 'undefined') {
+          correoFinal = correoLimpio;
+        }
+      }
+      
+      // Si no hay correo válido, generar uno automático
+      if (!correoFinal || correoFinal === '' || correoFinal === null || correoFinal === undefined) {
+        // Limpiar el nombre de usuario para usarlo en el correo
+        const nombreLimpio = (formData.nombre_usuario || 'usuario')
+          .replace(/\s+/g, '')
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .toLowerCase()
+          .substring(0, 50); // Limitar longitud
+        
+        // Usar un formato de email estándar que pase validaciones
+        correoFinal = `${nombreLimpio || 'usuario'}@no-reply.local`;
+      }
+      
+      // Validación final: asegurar que el correo nunca sea null, undefined o string vacío
+      if (!correoFinal || correoFinal.trim() === '' || correoFinal === null || correoFinal === undefined) {
+        correoFinal = `usuario${Date.now()}@no-reply.local`;
+      }
+
+      // Validación final antes de enviar
+      const datosEnvio = {
+        nombre_usuario: formData.nombre_usuario,
+        correo: correoFinal,
+        password: formData.password,
+        permisos: permisosEnvio,
+        rol: formData.rol,
+        estado: formData.estado,
+        restaurante_id: null,
+        enviar_correo: false,  // No enviar correo al crear usuario desde admin
+        logo_url: formData.logo_url || null  // Incluir logo_url si existe
+      };
+
+      // Validación final antes de enviar: asegurar que correo nunca sea null o undefined
+      if (!datosEnvio.correo || datosEnvio.correo === null || datosEnvio.correo === undefined || datosEnvio.correo.trim() === '') {
+        const nombreLimpio = (formData.nombre_usuario || 'usuario')
+          .replace(/\s+/g, '')
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .toLowerCase()
+          .substring(0, 50);
+        datosEnvio.correo = `${nombreLimpio || 'usuario'}@no-reply.local`;
+      }
+      
+      // Convertir a string explícitamente para evitar cualquier problema de tipo
+      datosEnvio.correo = String(datosEnvio.correo).trim();
+
       console.log('Enviando datos:', {
         url,
         method,
         token: token ? 'Token presente' : 'Token faltante',
-        body: {
-          nombre_usuario: formData.nombre_usuario,
-          permisos: permisosEnvio,
-          rol: formData.rol,
-          restaurante_id: null
-        }
+        correo_original: formData.correo,
+        correo_final: datosEnvio.correo,
+        tipo_correo: typeof datosEnvio.correo,
+        logo_url: datosEnvio.logo_url,
+        body: datosEnvio
       });
 
       const response = await fetch(url, {
@@ -275,14 +345,7 @@ const ListaNotasUsuarios = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          nombre_usuario: formData.nombre_usuario,
-          password: formData.password,
-          permisos: permisosEnvio,
-          rol: formData.rol,
-          estado: formData.estado,
-          restaurante_id: null
-        })
+        body: JSON.stringify(datosEnvio)
       });
 
       if (!response.ok) {
@@ -310,11 +373,13 @@ const ListaNotasUsuarios = () => {
 
     setFormData({
       nombre_usuario: user.nombre_usuario,
+      correo: user.correo || '',
       password: '',
       confirmPassword: '',
       permisos: permisoSeleccionado,
       rol: user.rol || '',
-      estado: user.estado || 'activo'
+      estado: user.estado || 'activo',
+      logo_url: user.logo_url || null
     });
 
     // Si es un permiso personalizado, ponerlo en el campo de texto
@@ -323,6 +388,14 @@ const ListaNotasUsuarios = () => {
     } else {
       setPermisoPersonalizado('');
     }
+
+    // Cargar logo existente si hay uno
+    if (user.logo_url) {
+      setLogoPreview(user.logo_url);
+    } else {
+      setLogoPreview(null);
+    }
+    setLogoFile(null); // No hay archivo nuevo al editar
 
     setShowRegistro(true);
   };
@@ -430,6 +503,19 @@ const ListaNotasUsuarios = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Correo Electrónico <span className="text-gray-400 text-xs">(Opcional)</span>
+                </label>
+                <input
+                  type="email"
+                  name="correo"
+                  value={formData.correo}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 

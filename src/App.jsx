@@ -36,10 +36,12 @@ import NewsletterPage from "./componentes/residente/Newsletter/NewsletterPage.js
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
 import ListaTickets from "./componentes/residente/componentes/compFormularioMain/ListaTickets";
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
+import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
-import TerminosyCondiciones from './componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx';
-
+import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
+import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
+// import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 //Admin
 const FormMainResidente = lazy(() =>
   import(
@@ -75,14 +77,7 @@ const FormularioMainPage = lazy(() =>
   import("./componentes/formulario100estrellas/FormularioMainPage")
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
-const PromoMainTest = lazy(() =>
-  import("./componentes/promociones/PromoMainTest")
-); // 👈 TEST
-const ListaTicketsTest = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/ListaTicketsTest"
-  )
-); // 👈 TEST
+
 const FormularioRevistaBannerNueva = lazy(() =>
   import(
     "./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"
@@ -91,6 +86,7 @@ const FormularioRevistaBannerNueva = lazy(() =>
 const B2BDashboard = lazy(() =>
   import("./componentes/residente/B2B/B2BDashboard")
 );
+
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
 
@@ -363,6 +359,15 @@ function App() {
               />
 
               <Route
+                path="/stripe-checkout"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <StripeCheckout />
+                  </div>
+                }
+              />
+
+              <Route
                 path="/foto-news"
                 element={
                   <div className="max-w-[1080px] mx-auto">
@@ -544,24 +549,7 @@ function App() {
                 }
               />
 
-              {/* TEST ROUTES */}
-              <Route
-                path="/promo-test"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <PromoMainTest />
-                  </div>
-                }
-              />
 
-              <Route
-                path="/tickets/dashboard"
-                element={
-                  <div className="max-w-[1080px] mx-auto">
-                    <ListaTicketsTest />
-                  </div>
-                }
-              />
 
               {/* Admin */}
               <Route
@@ -583,7 +571,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/tickets"
+                path="/dashboardtickets"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ListaTickets />
@@ -602,6 +590,8 @@ function App() {
                   </B2BRoute>
                 }
               />
+
+
 
               {/* Admin */}
               <Route path="/terminos-y-condiciones" element={
