@@ -15,7 +15,11 @@ const PromoMain = () => {
         promoName: "",
         promoSubtitle: "",
         descPromo: "",
-        fechaValidez: ""
+        fechaValidez: "",
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: ""
     });
 
     const [selectedStickers, setSelectedStickers] = useState([]);
@@ -133,7 +137,11 @@ const PromoMain = () => {
                 sticker_url: stickerClave
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
-            estilos_campos: getTicketEstilosCampos() // 🟢 AGREGA LOS ESTILOS AQUÍ
+            estilos_campos: getTicketEstilosCampos(), // 🟢 AGREGA LOS ESTILOS AQUÍ
+            seo_alt_text: formData.seo_alt_text,
+            seo_title: formData.seo_title,
+            seo_keyword: formData.seo_keyword,
+            meta_description: formData.meta_description
         };
     };
 
