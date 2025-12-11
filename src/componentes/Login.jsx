@@ -38,16 +38,17 @@ const Login = () => {
     if (!path) return false;
 
     if (r === "residente") {
-      // residente puede ir a /notas y lo que cuelgue de ahí
       return path.startsWith("/notas");
     }
 
     if (r === "b2b") {
-      // b2b solo a dashboardb2b (ajusta si quieres más)
       return path.startsWith("/dashboardb2b");
     }
 
-    // invitado, etc. ajusta aquí
+    if (r === "invitado") {
+      return path.startsWith("/notas");
+    }
+
     return false;
   };
 

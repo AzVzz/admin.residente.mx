@@ -119,7 +119,6 @@ const notasPrueba = [
     fecha: "Octubre 2025",
     sticker: ["categoria3"],
   },
-  // ...agrega más si quieres
 ];
 
 function App() {

@@ -62,6 +62,7 @@ const ListaNotas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
 
+  // 
   useEffect(() => {
     if (error && (error.status === 403 || error.status === 401)) {
       saveToken(null);
@@ -175,7 +176,6 @@ const ListaNotas = () => {
   const mapeoPermisosATipoNota = {
     'mama-de-rocco': 'Mamá de Rocco',
     'barrio-antiguo': 'Barrio Antiguo',
-
   };
 
   // Función para normalizar texto para búsqueda

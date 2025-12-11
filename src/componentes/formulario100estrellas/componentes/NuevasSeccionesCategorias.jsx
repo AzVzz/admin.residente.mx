@@ -30,8 +30,7 @@ const NuevasSeccionesCategorias = () => {
                   if (!isZona) {
                     // Solo estas dos secciones son obligatorias
                     const esRequerida =
-                      seccionName === 'Nivel de gasto' ||
-                      seccionName === 'Tipo de comida';
+                      seccionName === 'Nivel de gasto';
 
                     const rules = esRequerida
                       ? {
