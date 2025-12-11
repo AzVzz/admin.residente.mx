@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../Context';
 import { toPng } from 'html-to-image';
-import FormularioPromoTest from "./componentes/FormularioPromoTest";
+import FormularioPromo from "./componentes/FormularioPromo";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
 import { cuponCrear } from '../../componentes/api/cuponesGet';
@@ -17,17 +17,14 @@ const PromoMain = () => {
         promoSubtitle: "",
         descPromo: "",
         fechaValidez: "",
-<<<<<<< HEAD
         fechaInicio: "",
         fechaFin: "",
         esPermanente: true, // NUEVO - Default a true por ahora
-        zonaHoraria: "America/Monterrey" // Default
-=======
+        zonaHoraria: "America/Monterrey", // Default
         seo_alt_text: "",
         seo_title: "",
         seo_keyword: "",
         meta_description: ""
->>>>>>> 6c1021639701b10ce5bf1e2bcd982fe266529c52
     });
 
     const [selectedStickers, setSelectedStickers] = useState([]);
@@ -211,15 +208,11 @@ const PromoMain = () => {
                 zona_horaria: zonaHoraria
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
-<<<<<<< HEAD
-            estilos_campos: getTicketEstilosCampos()
-=======
-            estilos_campos: getTicketEstilosCampos(), // 🟢 AGREGA LOS ESTILOS AQUÍ
+            estilos_campos: getTicketEstilosCampos(),
             seo_alt_text: formData.seo_alt_text,
             seo_title: formData.seo_title,
             seo_keyword: formData.seo_keyword,
             meta_description: formData.meta_description
->>>>>>> 6c1021639701b10ce5bf1e2bcd982fe266529c52
         };
     };
 
@@ -281,7 +274,7 @@ const PromoMain = () => {
     return (
         <div>
             <div className="grid grid-cols-2 gap-5">
-                <FormularioPromoTest
+                <FormularioPromo
                     formData={formData}
                     onFieldChange={handleFieldChange}
                     restaurantes={restaurantes}
