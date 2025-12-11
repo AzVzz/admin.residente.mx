@@ -39,23 +39,12 @@ const Login = () => {
     const r = rol?.toLowerCase();
     if (!path) return false;
 
-<<<<<<< HEAD
-=======
-    if (r === "residente") {
-      return path.startsWith("/notas");
-    }
-
->>>>>>> 1c830684735867e36188cae898bce3ac6396626d
     if (r === "b2b") {
       return path.startsWith("/dashboardb2b");
     }
 
-<<<<<<< HEAD
     // residente e invitado pueden ir a /notas y lo que cuelgue de ahí
     if (r === "residente" || r === "invitado") {
-=======
-    if (r === "invitado") {
->>>>>>> 1c830684735867e36188cae898bce3ac6396626d
       return path.startsWith("/notas");
     }
 
