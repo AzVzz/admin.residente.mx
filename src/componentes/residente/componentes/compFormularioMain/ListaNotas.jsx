@@ -62,6 +62,7 @@ const ListaNotas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
 
+  // 
   useEffect(() => {
     // Si hay un error 403 o 401, verificar si es por permisos limitados
     if (error && (error.status === 403 || error.status === 401)) {
@@ -217,7 +218,6 @@ const ListaNotas = () => {
   const mapeoPermisosATipoNota = {
     'mama-de-rocco': 'Mamá de Rocco',
     'barrio-antiguo': 'Barrio Antiguo',
-
   };
 
   // Función para normalizar texto para búsqueda
