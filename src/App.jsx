@@ -40,9 +40,9 @@ import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
+import Registro from "./componentes/residente/Registro.jsx";
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
-import Registro from "./componentes/residente/Registro.jsx";
 
 //Admin
 const FormMainResidente = lazy(() =>
@@ -91,6 +91,9 @@ const B2BDashboard = lazy(() =>
 
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
+const RegistroInvitados = lazy(() =>
+  import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados")
+);
 
 const notasPrueba = [
   {
@@ -417,11 +420,11 @@ function App() {
                 }
               />
 
-              <Route 
-                path="/registro"
+              <Route
+                path="/registroinvitados"
                 element={
-                  <div className="max-w-[650] mx-auto pt-9">
-                    <Registro />
+                  <div className="max-w-[650px] mx-auto">
+                    <RegistroInvitados />
                   </div>
                 }
               />

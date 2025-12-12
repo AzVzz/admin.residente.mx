@@ -22,3 +22,14 @@ export const registrob2bPost = async (formData) => {
   if (!response.ok) throw new Error(data.error || 'Error al registrar usuario B2B');
   return data;
 };
+
+export const registroInvitadosPost = async (formData) => {
+  const response = await fetch(`${urlApi}api/usuarios/registro-invitados`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Error al registrar invitado');
+  return data;
+};
