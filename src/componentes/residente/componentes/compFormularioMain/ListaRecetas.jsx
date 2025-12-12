@@ -3,7 +3,10 @@ import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
 import { FaTrash, FaEdit, FaCopy, FaEllipsisV } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
 
+import { useAuth } from "../../../Context";
+
 const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
+    const { usuario } = useAuth();
     const [recetas, setRecetas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,7 +22,30 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
         setError(null);
         try {
             const data = await recetasGetTodas(1, 1000);
-            setRecetas(Array.isArray(data) ? data : []);
+            let recetasData = Array.isArray(data) ? data : [];
+
+            // Filtrar por permisos si no es admin
+            if (usuario?.permisos && usuario.permisos !== 'todos' && usuario.permisos !== 'todo') {
+                // Normalizar permiso: 'mama-de-rocco' -> 'Mama De Rocco' (aprox) o usar mapeo específico
+                // En ListaNotas usan replace(/-/g, ' ') y Title Case.
+                // Vamos a intentar coincidir con 'autor' o 'categoria'
+
+                const permiso = usuario.permisos.toLowerCase();
+                // Mapeo específico si es necesario, similar a ListaNotas
+                const mapeoPermisos = {
+                    'mama-de-rocco': 'Mamá de Rocco', // Ajustar según lo que devuelve el backend en receta.autor
+                };
+
+                const permisoNormalizado = mapeoPermisos[usuario.permisos] || usuario.permisos.replace(/-/g, ' ');
+
+                recetasData = recetasData.filter(receta => {
+                    const autor = (receta.autor || '').toLowerCase();
+                    const permisoLower = permisoNormalizado.toLowerCase();
+                    return autor.includes(permisoLower) || autor.includes(permiso.replace(/-/g, ' '));
+                });
+            }
+
+            setRecetas(recetasData);
         } catch (err) {
             setError(err.message || 'Error al cargar las recetas');
         } finally {
@@ -69,8 +95,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     const formatearFecha = (fecha) => {
         if (!fecha) return "Sin fecha";
         const date = new Date(fecha);
-        const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         const dia = date.getDate();
         const mes = meses[date.getMonth()];
         const año = date.getFullYear();
@@ -86,20 +112,20 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
             if (!receta?.imagen) {
                 return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
             }
-            
+
             const imagenStr = String(receta.imagen).trim();
-            
+
             // Si está vacío después de trim
             if (!imagenStr) {
                 return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
             }
-            
+
             // Si ya es una URL completa
             if (imagenStr.startsWith('http://') || imagenStr.startsWith('https://')) {
                 try {
                     const urlObj = new URL(imagenStr);
                     const pathname = urlObj.pathname;
-                    
+
                     // IMPORTANTE: Si la URL apunta a admin.residente.mx, extraer el nombre del archivo
                     // y usar la API del backend para normalizar todas las URLs
                     if (urlObj.hostname.includes('admin.residente.mx')) {
@@ -110,7 +136,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                             return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
                         }
                     }
-                    
+
                     // Si es una URL de residente.mx (no admin), usar directamente
                     if (urlObj.hostname.includes('residente.mx') && !urlObj.hostname.includes('admin')) {
                         // Codificar la URL normalmente
@@ -121,13 +147,13 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                         urlObj.pathname = pathSegments.join('/');
                         return urlObj.toString();
                     }
-                    
+
                     // Para otras URLs, intentar extraer el nombre del archivo y usar la API
                     const filename = pathname.split('/').pop();
                     if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                         return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
                     }
-                    
+
                     // Si no se puede extraer el nombre, usar la URL original codificada
                     return encodeURI(imagenStr);
                 } catch (e) {
@@ -140,32 +166,32 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                 }
             }
-            
+
             // Si es una ruta relativa que empieza con /uploads/recetas/ (imágenes antiguas)
             if (imagenStr.startsWith('/uploads/recetas/')) {
                 const filename = imagenStr.split('/').pop();
                 // Usar la API del backend que normaliza las URLs
                 return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
             }
-            
+
             // Si es una ruta relativa que empieza con /fotos/ (nuevas imágenes WebP)
             // Construir URL completa con imgApi (residente.mx)
             if (imagenStr.startsWith('/fotos/')) {
-                const pathSegments = imagenStr.split('/').map(segment => 
+                const pathSegments = imagenStr.split('/').map(segment =>
                     segment ? encodeURIComponent(segment) : ''
                 ).join('/');
                 return `${imgApi.replace(/\/$/, '')}${pathSegments}`;
             }
-            
+
             // Si es otra ruta relativa, intentar extraer el nombre del archivo si es posible
             const filename = imagenStr.split('/').pop();
             if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                 return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
             }
-            
+
             // Si no se puede determinar, construir URL completa con imgApi
             const imagenPath = imagenStr.startsWith('/') ? imagenStr : `/${imagenStr}`;
-            const pathSegments = imagenPath.split('/').map(segment => 
+            const pathSegments = imagenPath.split('/').map(segment =>
                 segment ? encodeURIComponent(segment) : ''
             ).join('/');
             return `${imgApi.replace(/\/$/, '')}${pathSegments}`;
@@ -215,17 +241,17 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                                         if (e.target.src.includes('SinFoto')) {
                                             return;
                                         }
-                                        
+
                                         // Si ya intentamos usar la API del backend y falló, mostrar placeholder
                                         if (e.target.src.includes('/api/recetas/imagen/')) {
                                             e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                                             return;
                                         }
-                                        
+
                                         // Intentar extraer el nombre del archivo y usar la API del backend
                                         if (receta.imagen) {
                                             let filename = null;
-                                            
+
                                             // Si es una URL completa, extraer el nombre del archivo
                                             if (receta.imagen.startsWith('http://') || receta.imagen.startsWith('https://')) {
                                                 try {
@@ -238,16 +264,16 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                                                         filename = match[1];
                                                     }
                                                 }
-                                            } 
+                                            }
                                             // Si es una ruta relativa, extraer el nombre del archivo
                                             else if (receta.imagen.includes('/')) {
                                                 filename = receta.imagen.split('/').pop();
-                                            } 
+                                            }
                                             // Si es solo el nombre del archivo
                                             else {
                                                 filename = receta.imagen;
                                             }
-                                            
+
                                             // Si encontramos un nombre de archivo válido, usar la API del backend
                                             if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                                                 const urlApiBackend = `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
@@ -255,7 +281,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                                                 return;
                                             }
                                         }
-                                        
+
                                         // Si todas las alternativas fallan, usar placeholder
                                         e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                                     }}
@@ -263,7 +289,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                                         // Imagen cargada correctamente
                                     }}
                                 />
-                                
+
                                 {/* Tag de estado - Por defecto "Publicada" */}
                                 <div className="absolute top-3 left-3 z-20">
                                     <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-md">
@@ -339,7 +365,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     ))}
                 </div>
             )}
-            
+
             {/* Cerrar menú al hacer clic fuera */}
             {menuAbierto && (
                 <div
