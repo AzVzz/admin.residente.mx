@@ -492,7 +492,7 @@ const ListaNotas = () => {
                 )}
                 <Link
                   to="/notas/nueva"
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+                  className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
                 >
                   <svg
                     className="-ml-1 mr-2 h-5 w-5"
@@ -661,7 +661,6 @@ const ListaNotas = () => {
               </button>
             </div>
             {mostrarFormularioReceta ? (
-              <div className="text-center text-lg">
                 <FormularioReceta
                   key={recetaKey}
                   receta={recetaEditando}
@@ -675,7 +674,6 @@ const ListaNotas = () => {
                     setRecargarListaRecetas(prev => prev + 1);
                   }}
                 />
-              </div>
             ) : (
               <ListaRecetas
                 key={recargarListaRecetas}

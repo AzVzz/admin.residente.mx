@@ -72,7 +72,7 @@ export default function LoginForm({
 
   return (
     <div className="flex justify-center">
-      <form onSubmit={handleSubmit} className="">
+      <form onSubmit={handleSubmit} className="flex flex-col">
         <h2 className="leading-tight text-2xl">Iniciar Sesión</h2>
 
         <div className="mb-4 max-w-[250px]">
@@ -123,7 +123,7 @@ export default function LoginForm({
         <button
           type="submit"
           disabled={loading}
-          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${
+          className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase ${
             loading
               ? "bg-gray-400 text-gray-600 cursor-not-allowed"
               : "bg-[#fff200] text-black"

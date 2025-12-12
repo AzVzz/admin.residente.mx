@@ -21,7 +21,7 @@ const Registro = () => {
               <a href="/registrob2b">
                 <button
                   type="submit"
-                  className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] bg-[#fff200] text-black"
+                  className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
                 >
                   Registrarte en B2B
                 </button>
@@ -33,7 +33,7 @@ const Registro = () => {
               <a href="/registrob2b">
                 <button
                   type="submit"
-                  className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] bg-[#fff200] text-black"
+                  className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
                 >
                   Registrarte como invitado
                 </button>
@@ -45,7 +45,7 @@ const Registro = () => {
               <a href="/oped">
                 <button
                   type="submit"
-                  className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] bg-[#fff200] text-black"
+                  className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
                 >
                   Registrarte como invitado
                 </button>

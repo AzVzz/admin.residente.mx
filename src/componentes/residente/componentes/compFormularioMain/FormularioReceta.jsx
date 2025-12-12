@@ -159,15 +159,10 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
     <div className="py-8">
       <form
         onSubmit={handleSubmit}
-        className="max-w-2xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-6 text-gray-800"
       >
-        <h1 className="text-2xl font-bold text-center mb-4">
+        <h1 className="leading-tight text-2xl">
           {receta ? "Editar Receta" : "Formulario de envío de receta"}
         </h1>
-        <p className="text-sm text-gray-600 text-center">
-          Llena todos los campos con precisión. Los textos deben ser breves, claros y sin emojis.
-        </p>
-
         {mensaje && (
           <div
             className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
@@ -180,8 +175,8 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         )}
 
         {/* Título */}
-        <div>
-          <label className="block font-semibold">Título de la receta</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Título de la receta</label>
           <input
             type="text"
             name="titulo"
@@ -190,13 +185,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.titulo}
             onChange={handleChange}
             placeholder="Ej. Arroz caldoso con camarón seco y chile piquín"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
         {/* Autor */}
-        <div>
-          <label className="block font-semibold">Autor / Creador</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Autor / Creador</label>
           <input
             type="text"
             name="autor"
@@ -205,13 +200,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.autor}
             onChange={handleChange}
             placeholder="Ej. Mamá de Roco"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
         {/* Descripción */}
-        <div>
-          <label className="block font-semibold">Descripción corta</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Descripción corta</label>
           <textarea
             name="descripcion"
             maxLength="300"
@@ -220,13 +215,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.descripcion}
             onChange={handleChange}
             placeholder="Breve contexto o idea del plato..."
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           ></textarea>
         </div>
 
         {/* Porciones */}
-        <div>
-          <label className="block font-semibold">Porciones</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Porciones</label>
           <input
             type="text"
             name="porciones"
@@ -235,13 +230,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.porciones}
             onChange={handleChange}
             placeholder="Ej. 4 porciones"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
         {/* Tiempo */}
-        <div>
-          <label className="block font-semibold">Tiempo total</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Tiempo total</label>
           <input
             type="text"
             name="tiempo"
@@ -250,13 +245,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.tiempo}
             onChange={handleChange}
             placeholder="Ej. 45 minutos"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
         {/* Ingredientes */}
-        <div>
-          <label className="block font-semibold">Ingredientes</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Ingredientes</label>
           <textarea
             name="ingredientes"
             maxLength="500"
@@ -265,13 +260,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.ingredientes}
             onChange={handleChange}
             placeholder="- 2 tazas de arroz\n- 1 litro de caldo de camarón\n- 1 chile piquín seco"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           ></textarea>
         </div>
 
         {/* Preparación */}
-        <div>
-          <label className="block font-semibold">Preparación / Método</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Preparación / Método</label>
           <textarea
             name="preparacion"
             maxLength="1000"
@@ -280,13 +275,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.preparacion}
             onChange={handleChange}
             placeholder="1. Sofríe el arroz...\n2. Agrega el caldo..."
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           ></textarea>
         </div>
 
         {/* Consejo */}
-        <div>
-          <label className="block font-semibold">Consejo o toque personal (opcional)</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Consejo o toque personal (opcional)</label>
           <textarea
             name="consejo"
             maxLength="200"
@@ -294,19 +289,19 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.consejo}
             onChange={handleChange}
             placeholder="Ej. Puedes sustituir el camarón por setas..."
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           ></textarea>
         </div>
 
         {/* Categoría */}
-        <div>
-          <label className="block font-semibold">Categoría</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Categoría</label>
           <select
             name="categoria"
             required
             value={formData.categoria}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           >
             <option value="">Selecciona una opción</option>
             <option>Entrante</option>
@@ -318,8 +313,8 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         </div>
 
         {/* Imagen */}
-        <div>
-          <label className="block font-semibold">
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">
             {receta ? "Cambiar imagen (opcional)" : "Imagen principal"}
           </label>
           {receta && !formData.imagen && (
@@ -331,14 +326,14 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             accept=".jpg,.png"
             required={!receta} // Solo requerido si no estamos editando
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
           <p className="text-xs text-gray-400">Formato JPG o PNG, máx. 5MB</p>
         </div>
 
         {/* Créditos */}
-        <div>
-          <label className="block font-semibold">Créditos adicionales (opcional)</label>
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Créditos adicionales (opcional)</label>
           <input
             type="text"
             name="creditos"
@@ -346,7 +341,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.creditos}
             onChange={handleChange}
             placeholder="Fotografía: Dna Alanis"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
@@ -356,7 +351,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
           {/* SEO Alt Text */}
           <div className="mb-4">
-            <label className="block font-semibold">Texto Alt de Imagen</label>
+            <label className="space-y-2 font-roman font-bold">Texto Alt de Imagen</label>
             <input
               type="text"
               name="seo_alt_text"
@@ -364,13 +359,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
               value={formData.seo_alt_text}
               onChange={handleChange}
               placeholder="Descripción de la imagen para buscadores"
-              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
             />
           </div>
 
           {/* SEO Title */}
           <div className="mb-4">
-            <label className="block font-semibold">Título SEO</label>
+            <label className="space-y-2 font-roman font-bold">Título SEO</label>
             <input
               type="text"
               name="seo_title"
@@ -378,13 +373,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
               value={formData.seo_title}
               onChange={handleChange}
               placeholder="Título para pestaña del navegador y Google"
-              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
             />
           </div>
 
           {/* SEO Keyword */}
           <div className="mb-4">
-            <label className="block font-semibold">Palabra Clave Objetivo</label>
+            <label className="space-y-2 font-roman font-bold">Palabra Clave Objetivo</label>
             <input
               type="text"
               name="seo_keyword"
@@ -392,13 +387,13 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
               value={formData.seo_keyword}
               onChange={handleChange}
               placeholder="Palabra clave principal"
-              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
             />
           </div>
 
           {/* Meta Description */}
           <div className="mb-4">
-            <label className="block font-semibold">Meta Descripción</label>
+            <label className="space-y-2 font-roman font-bold">Meta Descripción</label>
             <textarea
               name="meta_description"
               maxLength="300"
@@ -406,14 +401,14 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
               value={formData.meta_description}
               onChange={handleChange}
               placeholder="Resumen para resultados de búsqueda (Google)"
-              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
             ></textarea>
           </div>
         </div>
 
         {/* Instagram */}
         <div>
-          <label className="block font-semibold">Instagram o red del creador</label>
+          <label className="space-y-2 font-roman font-bold">Instagram o red del creador</label>
           <input
             type="text"
             name="instagram"
@@ -421,7 +416,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             value={formData.instagram}
             onChange={handleChange}
             placeholder="@mamaderoco"
-            className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
         </div>
 
