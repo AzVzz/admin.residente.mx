@@ -41,6 +41,7 @@ import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
+import Registro from "./componentes/residente/Registro.jsx";
 
 //Admin
 const FormMainResidente = lazy(() =>
@@ -418,6 +419,15 @@ function App() {
                 element={
                   <div className="max-w-[650px] mx-auto">
                     <FormMain />
+                  </div>
+                }
+              />
+
+              <Route 
+                path="/registro"
+                element={
+                  <div className="max-w-[650] mx-auto pt-9">
+                    <Registro />
                   </div>
                 }
               />

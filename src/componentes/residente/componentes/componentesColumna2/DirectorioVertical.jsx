@@ -48,16 +48,16 @@ const DirectorioVertical = () => {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-2 relative min-w-full max-w-[348px] items-center">{/**items-center */}
+        <div ref={menuRef} className="bg-transparent text-white flex flex-col gap-1.5 relative min-w-full max-w-[348px] items-center pl-10">{/**items-center */}
             <div className="flex justify-center">
                 <div className="absolute left-0 right-0 top-4 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                 <img src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-guia-nl.webp" className="w-42 h-auto relative z-10 px-4" />
             </div>
 
             <p className="text-[23px] leading-4.5 text-black">Tu concierge restaurantero</p>
-            <ol className="flex flex-row mt-1 gap-1.5">
+            <ol className="flex flex-row mt-1 w-full">
                 {data.map((seccion, i) => (
-                    <li key={seccion.seccion} className="flex justify-left items-center">
+                    <li key={seccion.seccion} className="relative group flex flex-col items-center w-full data-item">
                         <button
                             ref={el => (buttonRefs.current[i] = el)}
                             className="w-full flex flex-col items-center justify-between font-bold rounded-full hover:bg-transparent transition cursor-pointer"
