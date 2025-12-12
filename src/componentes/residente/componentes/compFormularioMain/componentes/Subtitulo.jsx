@@ -12,9 +12,8 @@ const Subtitulo = () => {
                 placeholder="Agrega un subtítulo"
                 {...register('subtitulo',)}
                 rows={1}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 h-24 max-h-50 min-h-24 ${
-                    errors.subtitulo ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 h-24 max-h-50 min-h-24 bg-white ${errors.subtitulo ? 'border-red-500' : 'border-gray-300'
+                    }`}
             />
             {/*
             {errors.subtitulo && (

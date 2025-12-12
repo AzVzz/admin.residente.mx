@@ -25,57 +25,57 @@ const FormularioPromoExt = ({ onStickerSelect, stickerSeleccionado, maxStickers 
 
     return (
         <div>
-            <div className="bg-white p-5 rounded-xl">
+            <div className="bg-white p-5 rounded-xl border border-gray-300">
                 <div className="flex flex-col pb-5">
-                    <label className="block text-4xl font-medium text-gray-950 mb-1 pb-4">Elige stickers para tu cupón ! *</label>
+                    <label className="block text-lg font-medium text-gray-700 mb-1 pb-4">Elige stickers para tu cupón ! *</label>
                     {/* Mensaje de error */}
                     {noIconSelected && (
                         <p className="text-red-500 text-lg mb-2">⚠️ Falta ícono a elegir</p>
                     )}
-                    <h4 className="pb-2">Lo dice la crítica</h4>
-                    <div className="flex flex-row justify-evenly w-full h-auto rounded-full items-center">
+                    <h4 className="pb-2 text-md font-medium text-gray-600">Lo dice la crítica</h4>
+                    <div className="flex flex-wrap justify-center gap-6 w-full h-auto rounded-full items-center">
                         {Iconografia.categorias.map(categoria => (
                             <div key={categoria.clave} className="flex flex-col justify-center items-center"> {/* Usa clave como key si es única */}
                                 <img
                                     src={categoria.icono}
                                     onClick={() => handleStickerClick(categoria.clave)} // Llama a la nueva función
-                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(categoria.clave) ? 'ring-1 ring-yellow-400' : ''}`}
+                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(categoria.clave) ? 'ring-2 ring-yellow-400 rounded-full' : ''}`}
                                     alt={categoria.nombre}
                                 />
-                                <p>{categoria.nombre}</p>
+                                <p className="text-sm text-gray-500 mt-1">{categoria.nombre}</p>
                             </div>
                         ))}
                     </div>
                 </div>
                 {/* Sección de stickers para ocasiones y zonas */}
                 <div className="flex flex-col pb-5">
-                    <h4 className="pb-2">Ocasión</h4>
-                    <div className="flex flex-row justify-evenly w-full h-auto items-center">
+                    <h4 className="pb-2 text-md font-medium text-gray-600">Ocasión</h4>
+                    <div className="flex flex-wrap justify-center gap-6 w-full h-auto items-center">
                         {Iconografia.ocasiones.map(ocasion => (
                             <div key={ocasion.clave} className="flex flex-col justify-center items-center">
                                 <img
                                     src={ocasion.icono}
                                     onClick={() => handleStickerClick(ocasion.clave)}
-                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(ocasion.clave) ? 'ring-1 ring-yellow-400' : ''}`}
+                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(ocasion.clave) ? 'ring-2 ring-yellow-400 rounded-full' : ''}`}
                                     alt={ocasion.nombre}
                                 />
-                                <p>{ocasion.nombre}</p>
+                                <p className="text-sm text-gray-500 mt-1">{ocasion.nombre}</p>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div className="flex flex-col">
-                    <h4 className="pb-2">Por zona</h4>
-                    <div className="flex flex-row justify-evenly w-full h-auto items-center">
+                    <h4 className="pb-2 text-md font-medium text-gray-600">Por zona</h4>
+                    <div className="flex flex-wrap justify-center gap-6 w-full h-auto items-center">
                         {Iconografia.zonas.map(zona => (
                             <div key={zona.clave} className="flex flex-col justify-center items-center">
                                 <img
                                     src={zona.icono}
                                     onClick={() => handleStickerClick(zona.clave)}
-                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(zona.clave) ? 'ring-1 ring-yellow-400' : ''}`}
+                                    className={`w-20 h-20 object-contain cursor-pointer drop-shadow-[-1.2px_2.5px_2px_rgba(0,0,0,0.35)] ${isSelected(zona.clave) ? 'ring-2 ring-yellow-400 rounded-full' : ''}`}
                                     alt={zona.nombre}
                                 />
-                                <p>{zona.nombre}</p>
+                                <p className="text-sm text-gray-500 mt-1">{zona.nombre}</p>
                             </div>
                         ))}
                     </div>
