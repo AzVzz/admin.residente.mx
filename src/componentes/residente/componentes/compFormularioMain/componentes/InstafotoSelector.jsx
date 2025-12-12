@@ -24,19 +24,19 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, toke
 
     const handleEliminarInstafoto = async () => {
         if (!window.confirm('¿Seguro que deseas eliminar la instafoto?')) return;
-        
+
         try {
-            console.log('Intentando eliminar instafoto:', { 
-                instafotoActual, 
-                notaId, 
+            console.log('Intentando eliminar instafoto:', {
+                instafotoActual,
+                notaId,
                 tipoNotaId: typeof notaId,
                 esValido: notaId && !isNaN(notaId)
             });
-            
+
             // Si hay una instafoto actual en la base de datos, eliminarla
             if (instafotoActual && notaId) {
                 console.log('Eliminando instafoto de la base de datos...');
-                
+
                 try {
                     // Intentar primero con DELETE
                     await notaInstafotoDelete(notaId, token);
@@ -52,13 +52,13 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, toke
                         throw putError;
                     }
                 }
-                
+
                 onInstafotoEliminada();
             } else {
                 console.log('No hay instafoto en la base de datos o falta notaId');
                 // Aún así, limpiar la interfaz
             }
-            
+
             // Limpiar el input de archivo y la previsualización
             setValue('instafoto', null);
             setPreviewUrl(null);
@@ -66,7 +66,7 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, toke
         } catch (error) {
             console.error('Error al eliminar la instafoto:', error);
             console.error('Detalles del error:', error.message);
-            
+
             // Si es un error 404, mostrar mensaje más específico
             if (error.message.includes('404') || error.message.includes('no encontrada')) {
                 alert('La instafoto ya no existe en la base de datos. Se limpiará de la interfaz.');
@@ -85,8 +85,23 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, toke
             <label className="block text-sm font-medium text-gray-700 mb-1">
                 Instafoto
             </label>
+            <Controller
+                name="instafoto"
+                control={control}
+                render={({ field }) => (
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => {
+                            const file = e.target.files[0];
+                            field.onChange(file);
+                        }}
+                        className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer bg-white"
+                    />
+                )}
+            />
             {mostrarImagen && (
-                <div className="mb-2">
+                <div className="mt-2">
                     <img
                         src={mostrarImagen}
                         alt="Instafoto"
@@ -103,21 +118,6 @@ const InstafotoSelector = ({ instafotoActual, notaId, onInstafotoEliminada, toke
                     )}
                 </div>
             )}
-            <Controller
-                name="instafoto"
-                control={control}
-                render={({ field }) => (
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={e => {
-                            const file = e.target.files[0];
-                            field.onChange(file);
-                        }}
-                        className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer"
-                    />
-                )}
-            />
         </div>
     );
 };

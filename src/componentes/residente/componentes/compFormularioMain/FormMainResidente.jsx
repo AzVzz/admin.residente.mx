@@ -471,13 +471,13 @@ const FormMainResidente = () => {
 
   return (
     <div className="py-8">
-      <div className="mx-auto">
+      <div className="mx-auto max-w-[1080px]">
         <FormProvider {...methods}>
           {/* Cambiar el form para usar el handleSubmit genérico */}
           <form onSubmit={(e) => e.preventDefault()}>
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-              <div className="text-center px-6 py-6 border-b border-gray-200">
-                <h1 className="text-3xl font-bold text-gray-800">
+            <div className="">
+              <div className="mb-4">
+                <h1 className="leading-tight text-2xl font-bold">
                   {notaId ? 'Editar Nota' : 'Nueva Nota'}
                 </h1>
                 <p className="text-gray-600 mt-2">
@@ -485,39 +485,39 @@ const FormMainResidente = () => {
                 </p>
               </div>
 
-              <div className="px-6 py-6 space-y-6">
-                <AlertaNota postResponse={postResponse} postError={postError} notaId={notaId} />
+              <div className="">
+                <div className="pb-4">
+                  <AlertaNota postResponse={postResponse} postError={postError} notaId={notaId} />
+                </div>
 
-                <ImagenNotaSelector
-                  imagenActual={imagenActual}
-                  notaId={notaId}
-                  onImagenEliminada={() => setImagenActual(null)}
-                />
+                <div className="grid grid-cols-2 gap-4 pb-4">
+                  <ImagenNotaSelector
+                    imagenActual={imagenActual}
+                    notaId={notaId}
+                    onImagenEliminada={() => setImagenActual(null)}
+                  />
+                  <InstafotoSelector
+                    instafotoActual={instafotoActual}
+                    notaId={notaId}
+                    onInstafotoEliminada={() => setInstafotoActual(null)}
+                  />
+                </div>
 
-                <InstafotoSelector
-                  instafotoActual={instafotoActual}
-                  notaId={notaId}
-                  onInstafotoEliminada={() => setInstafotoActual(null)}
-                />
-
-                {/* Secciones de filtros unificadas para usuarios con permisos 'todos' */}
-                {usuario?.permisos === 'todos' && (
-                  <div className="mb-6">
-                    <CategoriasTipoNotaSelector
-                      tipoDeNota={tipoDeNota}
-                      secciones={[
-                        ...secciones.filter(s => s.seccion !== "Zona" && s.seccion !== "Experiencia"),
-                        ...(secciones.find(s => s.seccion === "Zona") ? [secciones.find(s => s.seccion === "Zona")] : []),
-                        ...secciones.filter(s => s.seccion === "Experiencia")
-                      ]}
-                      ocultarTipoNota={false}
-                    />
-                  </div>
-                )}
+                <div className="mb-6 pb-4">
+                  <CategoriasTipoNotaSelector
+                    tipoDeNota={tipoDeNota}
+                    secciones={[
+                      ...secciones.filter(s => s.seccion !== "Zona" && s.seccion !== "Experiencia"),
+                      ...(secciones.find(s => s.seccion === "Zona") ? [secciones.find(s => s.seccion === "Zona")] : []),
+                      ...secciones.filter(s => s.seccion === "Experiencia")
+                    ]}
+                    ocultarTipoNota={false}
+                  />
+                </div>
 
                 {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
                 {!tipoNotaUsuario && usuario?.permisos !== 'todos' && (
-                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                     <label className="block text-sm font-medium text-gray-800 mb-2">Tipo de nota:</label>
                     <div className="text-2xl font-bold text-gray-900 bg-white px-4 py-2 rounded-md border border-gray-300">
                       📝 Sin tipo asignado
@@ -535,7 +535,7 @@ const FormMainResidente = () => {
 
                   if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
                     return (
-                      <div className="mb-4 flex gap-6">
+                      <div className="mb-4 pb-4 flex gap-6">
                         <label className="inline-flex items-center">
                           <input
                             type="checkbox"
@@ -560,24 +560,36 @@ const FormMainResidente = () => {
                   return null;
                 })()}
 
-                <NombreRestaurante />
-                <Titulo />
-                <Subtitulo />
-                <Autor />
-                <Contenido />
+                <div className="pb-4">
+                  <NombreRestaurante />
+                </div>
+                <div className="pb-4">
+                  <Titulo />
+                </div>
+                <div className="pb-4">
+                  <Subtitulo />
+                </div>
+                <div className="pb-4">
+                  <Autor />
+                </div>
+                <div className="pb-4">
+                  <Contenido />
+                </div>
 
-                <FormularioPromoExt
-                  onStickerSelect={clave => setValue('sticker', clave)}
-                  stickerSeleccionado={watch('sticker')}
-                  maxStickers={2}
-                />
+                <div className="pb-4">
+                  <FormularioPromoExt
+                    onStickerSelect={clave => setValue('sticker', clave)}
+                    stickerSeleccionado={watch('sticker')}
+                    maxStickers={2}
+                  />
+                </div>
 
-                <div className="mt-2 text-sm text-gray-700">
+                <div className="mt-2 text-sm text-gray-700 pb-4">
                   Sticker seleccionado: {watch('sticker')}
                 </div>
 
                 {/* Opciones de publicación */}
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="mb-6 pb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
                       Opciones de Publicación
@@ -650,7 +662,7 @@ const FormMainResidente = () => {
                 </div>
 
                 {/* Sección SEO Metadata */}
-                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">SEO Metadata (Opcional)</h3>
 
                   <div className="grid grid-cols-1 gap-4">
@@ -695,7 +707,7 @@ const FormMainResidente = () => {
 
                 {/* Botón para eliminar la nota */}
                 {notaId && (
-                  <div className="flex justify-end">
+                  <div className="flex justify-end pb-4">
                     <button
                       type="button"
                       onClick={eliminarNota}
