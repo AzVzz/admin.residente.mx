@@ -91,6 +91,9 @@ const B2BDashboard = lazy(() =>
 
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
+const RegistroInvitados = lazy(() =>
+  import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados")
+);
 
 const notasPrueba = [
   {
@@ -417,11 +420,11 @@ function App() {
                 }
               />
 
-              <Route 
-                path="/registro"
+              <Route
+                path="/registroinvitados"
                 element={
-                  <div className="max-w-[650] mx-auto pt-9">
-                    <Registro />
+                  <div className="max-w-[650px] mx-auto">
+                    <RegistroInvitados />
                   </div>
                 }
               />
