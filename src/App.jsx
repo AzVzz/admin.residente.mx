@@ -40,13 +40,10 @@ import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
-<<<<<<< HEAD
 import Registro from "./componentes/residente/Registro.jsx";
 
-=======
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
->>>>>>> 48522cf283943930440619ce0c849626009b9eee
 //Admin
 const FormMainResidente = lazy(() =>
   import(
