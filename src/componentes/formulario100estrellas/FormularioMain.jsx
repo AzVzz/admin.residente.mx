@@ -97,6 +97,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     colaboracion_coca_cola: false,
     colaboracion_modelo: false,
     secciones_categorias: [],
+    seo_alt_text: "",
+    seo_title: "",
+    seo_keyword: "",
+    meta_description: "",
     ...restaurante,
   };
 
@@ -300,7 +304,13 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   })),
                   experiencia_opinion: [],
                   reconocimientos: [],
+                  experiencia_opinion: [],
+                  reconocimientos: [],
                   secciones_categorias: seccionesCategorias,
+                  seo_alt_text: data.seo_alt_text,
+                  seo_title: data.seo_title,
+                  seo_keyword: data.seo_keyword,
+                  meta_description: data.meta_description,
                 };
 
                 // Construir arrays estructurados
@@ -507,6 +517,54 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
+
+                {/* Sección SEO Metadata */}
+                <div className="form-seo">
+                  <fieldset>
+                    <legend>SEO Metadata (Opcional)</legend>
+
+                    <div className="input-group">
+                      <label htmlFor="seo_alt_text">Texto Alt de Imagen</label>
+                      <input
+                        id="seo_alt_text"
+                        type="text"
+                        {...methods.register("seo_alt_text")}
+                        placeholder="Descripción para buscadores"
+                      />
+                    </div>
+
+                    <div className="input-group">
+                      <label htmlFor="seo_title">Título SEO</label>
+                      <input
+                        id="seo_title"
+                        type="text"
+                        {...methods.register("seo_title")}
+                        placeholder="Título optimizado para Google"
+                      />
+                    </div>
+
+                    <div className="input-group">
+                      <label htmlFor="seo_keyword">Palabra Clave</label>
+                      <input
+                        id="seo_keyword"
+                        type="text"
+                        {...methods.register("seo_keyword")}
+                        placeholder="Keyword principal"
+                      />
+                    </div>
+
+                    <div className="input-group">
+                      <label htmlFor="meta_description">Meta Descripción</label>
+                      <textarea
+                        id="meta_description"
+                        {...methods.register("meta_description")}
+                        rows={4}
+                        placeholder="Resumen corto para resultados de búsqueda"
+                        style={{ resize: 'vertical' }}
+                      />
+                    </div>
+                  </fieldset>
+                </div>
                 {postError && (
                   <div className="error-message">Error: {postError}</div>
                 )}

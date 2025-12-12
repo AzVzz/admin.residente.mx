@@ -5,6 +5,7 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
+// import FormularioBanner from "./FormularioBanner";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);

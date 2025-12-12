@@ -62,6 +62,7 @@ const ListaNotas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
 
+  // 
   useEffect(() => {
     // Si hay un error 403 o 401, verificar si es por permisos limitados
     if (error && (error.status === 403 || error.status === 401)) {
@@ -96,8 +97,8 @@ const ListaNotas = () => {
       // Si el usuario es "invitado" o tiene permisos limitados, no intentar la llamada
       const rolUsuario = usuario?.rol?.toLowerCase();
       const permisosUsuario = usuario?.permisos;
-      
-      if (rolUsuario === 'invitado' || (rolUsuario !== 'residente' && permisosUsuario !== 'todos' && permisosUsuario !== 'todo')) {
+
+      if (rolUsuario !== 'invitado' && rolUsuario !== 'residente' && permisosUsuario !== 'todos' && permisosUsuario !== 'todo') {
         // Usuario sin permisos para ver todas las notas
         // Mostrar mensaje pero permitir que use el dashboard para crear notas/recetas
         setError({
@@ -151,7 +152,10 @@ const ListaNotas = () => {
               (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
               (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
 
-            return coincide;
+            // También mostrar notas creadas por el propio usuario (notas personales)
+            const esAutor = (nota.autor || '').toLowerCase() === (usuario.nombre_usuario || '').toLowerCase();
+
+            return coincide || esAutor;
           });
         }
       }
@@ -168,7 +172,7 @@ const ListaNotas = () => {
       // Manejo específico de errores 403
       if (err.status === 403) {
         console.error('Error 403: Acceso denegado. Verificar permisos del usuario o token expirado');
-        
+
         // Si el usuario es "invitado" o tiene permisos limitados, mostrar mensaje pero mantener sesión
         // Esto permite que el usuario pueda ver el dashboard y crear notas/recetas aunque no pueda ver todas las notas
         const rolUsuario = usuario?.rol?.toLowerCase();
@@ -181,7 +185,7 @@ const ListaNotas = () => {
           setNotas([]);
           return;
         }
-        
+
         // Para otros casos de 403 (token expirado, etc.), limpiar sesión y redirigir
         saveToken(null);
         saveUsuario(null);
@@ -217,7 +221,6 @@ const ListaNotas = () => {
   const mapeoPermisosATipoNota = {
     'mama-de-rocco': 'Mamá de Rocco',
     'barrio-antiguo': 'Barrio Antiguo',
-
   };
 
   // Función para normalizar texto para búsqueda
@@ -369,13 +372,14 @@ const ListaNotas = () => {
   const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
   const esResidente = usuario?.permisos === 'residente';
   const esB2B = usuario?.permisos === 'b2b';
+  const esInvitado = usuario?.rol === 'invitado';
 
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(option =>
       option.key === "notas" ||
       option.key === "recetas" ||
-      option.key === "cupones" ||
+      (option.key === "cupones" && !esInvitado) ||
       ((esResidente || esB2B) && option.key === "restaurante_link")
     );
 
@@ -389,7 +393,7 @@ const ListaNotas = () => {
 
   // Verificar si el error es 403 por permisos limitados (no token expirado)
   const rolUsuario = usuario?.rol?.toLowerCase();
-  const esError403SinPermisos = error && error.status === 403 && 
+  const esError403SinPermisos = error && error.status === 403 &&
     (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos'));
 
   if (error && !esError403SinPermisos) {

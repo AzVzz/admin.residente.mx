@@ -14,7 +14,12 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
     categoria: "",
     imagen: null,
     creditos: "",
+    creditos: "",
     instagram: "",
+    seo_alt_text: "",
+    seo_title: "",
+    seo_keyword: "",
+    meta_description: "",
   });
 
   const [cargando, setCargando] = useState(false);
@@ -36,6 +41,10 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         imagen: null, // La imagen no se repobla en el input file
         creditos: receta.creditos || "",
         instagram: receta.instagram || "",
+        seo_alt_text: receta.seo_alt_text || "",
+        seo_title: receta.seo_title || "",
+        seo_keyword: receta.seo_keyword || "",
+        meta_description: receta.meta_description || "",
       });
     } else {
       // Resetear si no hay receta (modo crear)
@@ -51,7 +60,16 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         categoria: "",
         imagen: null,
         creditos: "",
+        creditos: "",
         instagram: "",
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: "",
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: "",
       });
     }
   }, [receta]);
@@ -74,15 +92,18 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
     try {
       const data = new FormData();
+      // Primero agregar todos los campos de texto
       Object.entries(formData).forEach(([key, value]) => {
-        // Si estamos editando y no se seleccionó nueva imagen, no enviarla
-        if (key === 'imagen' && !value && receta) {
-          return;
-        }
+        if (key === 'imagen') return; // Saltar imagen por ahora
         if (value !== null && value !== "") {
           data.append(key, value);
         }
       });
+
+      // Agregar la imagen al final si existe
+      if (formData.imagen) {
+        data.append('imagen', formData.imagen);
+      }
 
       const url = receta
         ? `${urlApi}api/recetas/${receta.id}`
@@ -327,6 +348,67 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             placeholder="Fotografía: Dna Alanis"
             className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
           />
+        </div>
+
+        {/* Sección SEO Metadata */}
+        <div className="border-t pt-4 mt-6">
+          <h2 className="text-xl font-bold mb-4">SEO Metadata (Opcional)</h2>
+
+          {/* SEO Alt Text */}
+          <div className="mb-4">
+            <label className="block font-semibold">Texto Alt de Imagen</label>
+            <input
+              type="text"
+              name="seo_alt_text"
+              maxLength="255"
+              value={formData.seo_alt_text}
+              onChange={handleChange}
+              placeholder="Descripción de la imagen para buscadores"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* SEO Title */}
+          <div className="mb-4">
+            <label className="block font-semibold">Título SEO</label>
+            <input
+              type="text"
+              name="seo_title"
+              maxLength="255"
+              value={formData.seo_title}
+              onChange={handleChange}
+              placeholder="Título para pestaña del navegador y Google"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* SEO Keyword */}
+          <div className="mb-4">
+            <label className="block font-semibold">Palabra Clave Objetivo</label>
+            <input
+              type="text"
+              name="seo_keyword"
+              maxLength="255"
+              value={formData.seo_keyword}
+              onChange={handleChange}
+              placeholder="Palabra clave principal"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* Meta Description */}
+          <div className="mb-4">
+            <label className="block font-semibold">Meta Descripción</label>
+            <textarea
+              name="meta_description"
+              maxLength="300"
+              rows="3"
+              value={formData.meta_description}
+              onChange={handleChange}
+              placeholder="Resumen para resultados de búsqueda (Google)"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            ></textarea>
+          </div>
         </div>
 
         {/* Instagram */}

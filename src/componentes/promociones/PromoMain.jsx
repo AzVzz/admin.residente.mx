@@ -20,7 +20,11 @@ const PromoMain = () => {
         fechaInicio: "",
         fechaFin: "",
         esPermanente: true, // NUEVO - Default a true por ahora
-        zonaHoraria: "America/Monterrey" // Default
+        zonaHoraria: "America/Monterrey", // Default
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: ""
     });
 
     const [selectedStickers, setSelectedStickers] = useState([]);
@@ -204,7 +208,11 @@ const PromoMain = () => {
                 zona_horaria: zonaHoraria
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
-            estilos_campos: getTicketEstilosCampos()
+            estilos_campos: getTicketEstilosCampos(),
+            seo_alt_text: formData.seo_alt_text,
+            seo_title: formData.seo_title,
+            seo_keyword: formData.seo_keyword,
+            meta_description: formData.meta_description
         };
     };
 

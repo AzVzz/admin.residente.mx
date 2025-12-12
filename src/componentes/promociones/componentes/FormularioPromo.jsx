@@ -140,6 +140,55 @@ const FormularioPromo = ({
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
                 />
             </div>
+
+            {/* Sección SEO Metadata */}
+            <div className="flex flex-col pb-0 mt-4 border-t pt-4">
+                <h3 className="text-xl font-bold text-gray-950 mb-3">SEO Metadata (Opcional)</h3>
+
+                <div className="flex flex-col pb-3">
+                    <label className="block text-lg font-medium text-gray-950 mb-1">Texto Alt de Imagen</label>
+                    <input
+                        type="text"
+                        value={formData.seo_alt_text || ""}
+                        onChange={(e) => onFieldChange("seo_alt_text", e.target.value)}
+                        placeholder="Descripción de la imagen"
+                        className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                    />
+                </div>
+
+                <div className="flex flex-col pb-3">
+                    <label className="block text-lg font-medium text-gray-950 mb-1">Título SEO</label>
+                    <input
+                        type="text"
+                        value={formData.seo_title || ""}
+                        onChange={(e) => onFieldChange("seo_title", e.target.value)}
+                        placeholder="Título para buscadores"
+                        className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                    />
+                </div>
+
+                <div className="flex flex-col pb-3">
+                    <label className="block text-lg font-medium text-gray-950 mb-1">Palabra Clave</label>
+                    <input
+                        type="text"
+                        value={formData.seo_keyword || ""}
+                        onChange={(e) => onFieldChange("seo_keyword", e.target.value)}
+                        placeholder="Palabra clave principal"
+                        className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                    />
+                </div>
+
+                <div className="flex flex-col pb-0">
+                    <label className="block text-lg font-medium text-gray-950 mb-1">Meta Descripción</label>
+                    <textarea
+                        value={formData.meta_description || ""}
+                        onChange={(e) => onFieldChange("meta_description", e.target.value)}
+                        placeholder="Resumen para Google"
+                        rows={3}
+                        className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg resize-none"
+                    />
+                </div>
+            </div>
         </div>
     )
 }

@@ -40,6 +40,8 @@ import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
+import Registro from "./componentes/residente/Registro.jsx";
+
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 //Admin
@@ -89,6 +91,9 @@ const B2BDashboard = lazy(() =>
 
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
+const RegistroInvitados = lazy(() =>
+  import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados")
+);
 
 const notasPrueba = [
   {
@@ -112,7 +117,6 @@ const notasPrueba = [
     fecha: "Octubre 2025",
     sticker: ["categoria3"],
   },
-  // ...agrega más si quieres
 ];
 
 function App() {
@@ -412,6 +416,15 @@ function App() {
                 element={
                   <div className="max-w-[650px] mx-auto">
                     <FormMain />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/registroinvitados"
+                element={
+                  <div className="max-w-[650px] mx-auto">
+                    <RegistroInvitados />
                   </div>
                 }
               />

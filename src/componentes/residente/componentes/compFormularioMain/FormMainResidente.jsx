@@ -86,6 +86,10 @@ const FormMainResidente = () => {
       destacada: false,
       tiposDeNotaSeleccionadas: '',
       zonas: [],
+      seo_alt_text: '',
+      seo_title: '',
+      seo_keyword: '',
+      meta_description: '',
     }
   });
 
@@ -301,6 +305,10 @@ const FormMainResidente = () => {
             nombre_restaurante: data.nombre_restaurante || '',
             tiposDeNotaSeleccionadas: data.tipo_nota || '',
             zonas: data.zonas ? (typeof data.zonas === 'string' ? JSON.parse(data.zonas) : data.zonas) : [],
+            seo_alt_text: data.seo_alt_text || '',
+            seo_title: data.seo_title || '',
+            seo_keyword: data.seo_keyword || '',
+            meta_description: data.meta_description || '',
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -375,6 +383,10 @@ const FormMainResidente = () => {
         // NUEVO: Indicar si se debe actualizar la fecha
         actualizar_fecha: actualizarFecha,
         zonas: data.zonas,
+        seo_alt_text: data.seo_alt_text,
+        seo_title: data.seo_title,
+        seo_keyword: data.seo_keyword,
+        meta_description: data.meta_description,
 
       };
 
@@ -637,6 +649,50 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
+                {/* Sección SEO Metadata */}
+                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">SEO Metadata (Opcional)</h3>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Texto Alt de Imagen</label>
+                      <input
+                        type="text"
+                        {...methods.register("seo_alt_text")}
+                        placeholder="Descripción para buscadores"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Título SEO</label>
+                      <input
+                        type="text"
+                        {...methods.register("seo_title")}
+                        placeholder="Título optimizado para Google"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Palabra Clave</label>
+                      <input
+                        type="text"
+                        {...methods.register("seo_keyword")}
+                        placeholder="Keyword principal"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Meta Descripción</label>
+                      <textarea
+                        {...methods.register("meta_description")}
+                        rows={3}
+                        placeholder="Resumen corto para resultados de búsqueda"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Botón para eliminar la nota */}
                 {notaId && (
                   <div className="flex justify-end">
@@ -709,7 +765,7 @@ const FormMainResidente = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
