@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { urlApi } from "../../../api/url";
 
-export default function FormularioReceta({ onCancelar, onEnviado }) {
+export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
@@ -14,11 +14,65 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
     categoria: "",
     imagen: null,
     creditos: "",
+    creditos: "",
     instagram: "",
+    seo_alt_text: "",
+    seo_title: "",
+    seo_keyword: "",
+    meta_description: "",
   });
 
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+
+  // Cargar datos si se está editando
+  useEffect(() => {
+    if (receta) {
+      setFormData({
+        titulo: receta.titulo || "",
+        autor: receta.autor || "",
+        descripcion: receta.descripcion || "",
+        porciones: receta.porciones || "",
+        tiempo: receta.tiempo || "",
+        ingredientes: receta.ingredientes || "",
+        preparacion: receta.preparacion || "",
+        consejo: receta.consejo || "",
+        categoria: receta.categoria || "",
+        imagen: null, // La imagen no se repobla en el input file
+        creditos: receta.creditos || "",
+        instagram: receta.instagram || "",
+        seo_alt_text: receta.seo_alt_text || "",
+        seo_title: receta.seo_title || "",
+        seo_keyword: receta.seo_keyword || "",
+        meta_description: receta.meta_description || "",
+      });
+    } else {
+      // Resetear si no hay receta (modo crear)
+      setFormData({
+        titulo: "",
+        autor: "",
+        descripcion: "",
+        porciones: "",
+        tiempo: "",
+        ingredientes: "",
+        preparacion: "",
+        consejo: "",
+        categoria: "",
+        imagen: null,
+        creditos: "",
+        creditos: "",
+        instagram: "",
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: "",
+        seo_alt_text: "",
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: "",
+      });
+    }
+  }, [receta]);
 
   // Manejar cambios de input
   const handleChange = (e) => {
@@ -37,39 +91,56 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
     setMensaje("");
 
     try {
-      const data = new FormData(); 
+      const data = new FormData();
+      // Primero agregar todos los campos de texto
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === 'imagen') return; // Saltar imagen por ahora
         if (value !== null && value !== "") {
           data.append(key, value);
         }
       });
 
-      const response = await fetch(`${urlApi}api/recetas`, {
-        method: "POST",
+      // Agregar la imagen al final si existe
+      if (formData.imagen) {
+        data.append('imagen', formData.imagen);
+      }
+
+      const url = receta
+        ? `${urlApi}api/recetas/${receta.id}`
+        : `${urlApi}api/recetas`;
+
+      const method = receta ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
         body: data,
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Error al enviar la receta");
+        throw new Error(errorData.error || `Error al ${receta ? 'actualizar' : 'enviar'} la receta`);
       }
 
-      setMensaje("Receta enviada correctamente.");
-      setFormData({
-        titulo: "",
-        autor: "",
-        descripcion: "",
-        porciones: "",
-        tiempo: "",
-        ingredientes: "",
-        preparacion: "",
-        consejo: "",
-        categoria: "",
-        imagen: null,
-        creditos: "",
-        instagram: "",
-      });
-      
+      setMensaje(`Receta ${receta ? 'actualizada' : 'enviada'} correctamente.`);
+
+      if (!receta) {
+        // Solo limpiar formulario si es creación nueva
+        setFormData({
+          titulo: "",
+          autor: "",
+          descripcion: "",
+          porciones: "",
+          tiempo: "",
+          ingredientes: "",
+          preparacion: "",
+          consejo: "",
+          categoria: "",
+          imagen: null,
+          creditos: "",
+          instagram: "",
+        });
+      }
+
       // Ocultar el formulario después de enviar exitosamente
       if (onEnviado) {
         setTimeout(() => {
@@ -78,7 +149,7 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
       }
     } catch (err) {
       console.error(err);
-      setMensaje("Hubo un error al enviar la receta: " + err.message);
+      setMensaje(`Hubo un error al ${receta ? 'actualizar' : 'enviar'} la receta: ` + err.message);
     } finally {
       setCargando(false);
     }
@@ -91,7 +162,7 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
         className="max-w-2xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-6 text-gray-800"
       >
         <h1 className="text-2xl font-bold text-center mb-4">
-          Formulario de envío de receta
+          {receta ? "Editar Receta" : "Formulario de envío de receta"}
         </h1>
         <p className="text-sm text-gray-600 text-center">
           Llena todos los campos con precisión. Los textos deben ser breves, claros y sin emojis.
@@ -99,11 +170,10 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
 
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${
-              mensaje.includes("correctamente")
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+              }`}
           >
             {mensaje}
           </div>
@@ -249,12 +319,17 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
 
         {/* Imagen */}
         <div>
-          <label className="block font-semibold">Imagen principal</label>
+          <label className="block font-semibold">
+            {receta ? "Cambiar imagen (opcional)" : "Imagen principal"}
+          </label>
+          {receta && !formData.imagen && (
+            <p className="text-sm text-gray-500 mb-2">Imagen actual configurada. Sube una nueva para cambiarla.</p>
+          )}
           <input
             type="file"
             name="imagen"
             accept=".jpg,.png"
-            required
+            required={!receta} // Solo requerido si no estamos editando
             onChange={handleChange}
             className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
           />
@@ -273,6 +348,67 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
             placeholder="Fotografía: Dna Alanis"
             className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
           />
+        </div>
+
+        {/* Sección SEO Metadata */}
+        <div className="border-t pt-4 mt-6">
+          <h2 className="text-xl font-bold mb-4">SEO Metadata (Opcional)</h2>
+
+          {/* SEO Alt Text */}
+          <div className="mb-4">
+            <label className="block font-semibold">Texto Alt de Imagen</label>
+            <input
+              type="text"
+              name="seo_alt_text"
+              maxLength="255"
+              value={formData.seo_alt_text}
+              onChange={handleChange}
+              placeholder="Descripción de la imagen para buscadores"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* SEO Title */}
+          <div className="mb-4">
+            <label className="block font-semibold">Título SEO</label>
+            <input
+              type="text"
+              name="seo_title"
+              maxLength="255"
+              value={formData.seo_title}
+              onChange={handleChange}
+              placeholder="Título para pestaña del navegador y Google"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* SEO Keyword */}
+          <div className="mb-4">
+            <label className="block font-semibold">Palabra Clave Objetivo</label>
+            <input
+              type="text"
+              name="seo_keyword"
+              maxLength="255"
+              value={formData.seo_keyword}
+              onChange={handleChange}
+              placeholder="Palabra clave principal"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            />
+          </div>
+
+          {/* Meta Description */}
+          <div className="mb-4">
+            <label className="block font-semibold">Meta Descripción</label>
+            <textarea
+              name="meta_description"
+              maxLength="300"
+              rows="3"
+              value={formData.meta_description}
+              onChange={handleChange}
+              placeholder="Resumen para resultados de búsqueda (Google)"
+              className="w-full border rounded-lg p-2 mt-1 focus:outline-none focus:ring"
+            ></textarea>
+          </div>
         </div>
 
         {/* Instagram */}
@@ -297,9 +433,8 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
               type="button"
               onClick={onCancelar}
               disabled={cargando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
-                cargando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               Cancelar
             </button>
@@ -307,11 +442,10 @@ export default function FormularioReceta({ onCancelar, onEnviado }) {
           <button
             type="submit"
             disabled={cargando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
-              cargando ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
-            {cargando ? "Enviando..." : "Enviar receta"}
+            {cargando ? "Enviando..." : (receta ? "Actualizar receta" : "Enviar receta")}
           </button>
         </div>
       </form>

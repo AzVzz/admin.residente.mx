@@ -64,7 +64,16 @@ const ListaNotas = () => {
 
   // 
   useEffect(() => {
+    // Si hay un error 403 o 401, verificar si es por permisos limitados
     if (error && (error.status === 403 || error.status === 401)) {
+      const rolUsuario = usuario?.rol?.toLowerCase();
+      // Si el usuario es "invitado" o tiene permisos limitados, NO limpiar la sesión
+      // Esto permite que el usuario pueda ver el dashboard y crear notas/recetas
+      if (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos')) {
+        // Mantener la sesión activa, solo mostrar el error
+        return;
+      }
+      // Para otros casos (token expirado, etc.), limpiar sesión y redirigir
       saveToken(null);
       saveUsuario(null);
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
@@ -81,6 +90,25 @@ const ListaNotas = () => {
     try {
       if (!token) {
         throw new Error('No hay token de autenticación');
+      }
+
+      // Verificar permisos ANTES de hacer la llamada a la API
+      // El backend requiere rol "residente" para acceder a /api/notas/todas
+      // Si el usuario es "invitado" o tiene permisos limitados, no intentar la llamada
+      const rolUsuario = usuario?.rol?.toLowerCase();
+      const permisosUsuario = usuario?.permisos;
+      
+      if (rolUsuario === 'invitado' || (rolUsuario !== 'residente' && permisosUsuario !== 'todos' && permisosUsuario !== 'todo')) {
+        // Usuario sin permisos para ver todas las notas
+        // Mostrar mensaje pero permitir que use el dashboard para crear notas/recetas
+        setError({
+          message: 'No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.',
+          status: 403
+        });
+        setTodasLasNotas([]);
+        setNotas([]);
+        setCargando(false);
+        return; // Salir sin hacer la llamada a la API
       }
 
       // Cargar todas las notas sin paginación
@@ -141,7 +169,21 @@ const ListaNotas = () => {
       // Manejo específico de errores 403
       if (err.status === 403) {
         console.error('Error 403: Acceso denegado. Verificar permisos del usuario o token expirado');
-        // Limpiar token y usuario si es 403
+        
+        // Si el usuario es "invitado" o tiene permisos limitados, mostrar mensaje pero mantener sesión
+        // Esto permite que el usuario pueda ver el dashboard y crear notas/recetas aunque no pueda ver todas las notas
+        const rolUsuario = usuario?.rol?.toLowerCase();
+        if (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos')) {
+          setError({
+            message: 'No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.',
+            status: 403
+          });
+          setTodasLasNotas([]);
+          setNotas([]);
+          return;
+        }
+        
+        // Para otros casos de 403 (token expirado, etc.), limpiar sesión y redirigir
         saveToken(null);
         saveUsuario(null);
         navigate('/login', { replace: true });
@@ -345,7 +387,13 @@ const ListaNotas = () => {
     );
   }
 
-  if (error) {
+  // Verificar si el error es 403 por permisos limitados (no token expirado)
+  const rolUsuario = usuario?.rol?.toLowerCase();
+  const esError403SinPermisos = error && error.status === 403 && 
+    (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos'));
+
+  if (error && !esError403SinPermisos) {
+    // Para otros errores (no 403 por permisos), mostrar el componente de error normal
     return <ErrorNotas error={error} onRetry={fetchTodasLasNotas} />;
   }
 
@@ -404,7 +452,7 @@ const ListaNotas = () => {
                   if (option.key === "restaurante_link") {
                     navigate('/formulario');
                   } else if (option.key === "cupones") {
-                    navigate('/tickets/dashboard');
+                    navigate('/dashboardtickets');
                   } else {
                     setVistaActiva(option.key);
                   }

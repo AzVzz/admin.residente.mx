@@ -29,7 +29,8 @@ Generales y de Radio
 .form-cinco-razones fieldset,
 .form-que-pido fieldset,
 .form-expertos-opinan fieldset,
-.form-testimonios fieldset {
+.form-testimonios fieldset,
+.form-seo fieldset {
     border: 2px solid #000000;
     border-radius: 15px;
     padding: 1.5rem;
@@ -51,7 +52,8 @@ Generales y de Radio
 .form-cinco-razones legend,
 .form-que-pido legend,
 .form-expertos-opinan legend,
-.form-testimonios legend {
+.form-testimonios legend,
+.form-seo legend {
     color: #000000;
     font-weight: 700;
     padding: 0 1rem;
@@ -64,7 +66,8 @@ Generales y de Radio
 .form-resena label,
 .form-cinco-razones label,
 .form-que-pido label,
-.form-testimonios label {
+.form-testimonios label,
+.form-seo label {
     font-size: clamp(20px, 2.5vw, 1.8rem);
 }
 
@@ -197,7 +200,8 @@ Textos
 .form-cinco-razones .input-group,
 .form-que-pido .input-group,
 .form-expertos-opinan .input-group,
-.form-testimonios .input-group {
+.form-testimonios .input-group,
+.form-seo .input-group {
     margin: 1rem 0;
 }
 
@@ -208,7 +212,8 @@ Textos
 .form-cinco-razones label,
 .form-que-pido label,
 .form-expertos-opinan label,
-.form-testimonios label {
+.form-testimonios label,
+.form-seo label {
     display: block;
     margin-bottom: 0.5rem;
     color: #000000;
@@ -223,7 +228,9 @@ Textos
 .form-cinco-razones input,
 .form-que-pido input,
 .form-expertos-opinan input,
-.form-testimonios input {
+.form-testimonios input,
+.form-seo input,
+.form-seo textarea {
     width: 100%;
     padding: 12px;
     border: 2px solid #ffedd5;
@@ -238,7 +245,9 @@ Textos
 .form-cinco-razones input:focus,
 .form-que-pido input:focus,
 .form-expertos-opinan input:focus,
-.form-testimonios input:focus {
+.form-testimonios input:focus,
+.form-seo input:focus,
+.form-seo textarea:focus {
     border-color: #f97316;
     outline: none;
     box-shadow: 0 0 0 3px #fdba74;

@@ -34,15 +34,19 @@ import ListaNotasUanl from "./componentes/residente/componentes/compFormularioMa
 import DetalleColaborador from "./componentes/residente/Colaboradores/DetalleColaborador.jsx";
 import NewsletterPage from "./componentes/residente/Newsletter/NewsletterPage.jsx";
 import PlantillaNotas from "./componentes/residente/PlantillasRehusables/PlantillaNotas";
-import B2BMain from "./componentes/residente/B2B/B2BMain.jsx";
 import ListaTickets from "./componentes/residente/componentes/compFormularioMain/ListaTickets";
 import InstaHistoryPage from "./componentes/residente/InstaHistory/InstaHistoryPage.jsx";
 import StripeCheckout from "./componentes/StripeCheckout.jsx";
 import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
+<<<<<<< HEAD
 import Registro from "./componentes/residente/Registro.jsx";
 
+=======
+import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
+// import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
+>>>>>>> 48522cf283943930440619ce0c849626009b9eee
 //Admin
 const FormMainResidente = lazy(() =>
   import(
@@ -78,14 +82,7 @@ const FormularioMainPage = lazy(() =>
   import("./componentes/formulario100estrellas/FormularioMainPage")
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
-const PromoMainTest = lazy(() =>
-  import("./componentes/promociones/PromoMainTest")
-); // 👈 TEST
-const ListaTicketsTest = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/ListaTicketsTest"
-  )
-); // 👈 TEST
+
 const FormularioRevistaBannerNueva = lazy(() =>
   import(
     "./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"
@@ -396,14 +393,14 @@ function App() {
                 }
               />
 
-              <Route
+              {/* <Route
                 path="/b2b"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <B2BMain />
                   </div>
                 }
-              />
+              /> */}
 
               <Route
                 path="/instahistory"
@@ -557,7 +554,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/promo-old"
+                path="/promo"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <PromoMain />
@@ -565,24 +562,7 @@ function App() {
                 }
               />
 
-              {/* TEST ROUTES */}
-              <Route
-                path="/promo"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <PromoMainTest />
-                  </div>
-                }
-              />
 
-              <Route
-                path="/tickets/dashboard"
-                element={
-                  <div className="max-w-[1080px] mx-auto">
-                    <ListaTickets />
-                  </div>
-                }
-              />
 
               {/* Admin */}
               <Route
@@ -604,7 +584,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/tickets"
+                path="/dashboardtickets"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ListaTickets />
