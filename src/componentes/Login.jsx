@@ -40,7 +40,6 @@ const Login = () => {
     if (!path) return false;
 
     if (r === "b2b") {
-      // b2b solo a dashboardb2b (ajusta si quieres más)
       return path.startsWith("/dashboardb2b");
     }
 
