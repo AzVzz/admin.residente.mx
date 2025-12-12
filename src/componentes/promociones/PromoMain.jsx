@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../Context';
 import { toPng } from 'html-to-image';
-import FormularioPromoTest from "./componentes/FormularioPromoTest";
+import FormularioPromo from "./componentes/FormularioPromo";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from './componentes/FormularioPromoExt';
 import { cuponCrear } from '../../componentes/api/cuponesGet';
@@ -266,7 +266,7 @@ const PromoMain = () => {
     return (
         <div>
             <div className="grid grid-cols-2 gap-5">
-                <FormularioPromoTest
+                <FormularioPromo
                     formData={formData}
                     onFieldChange={handleFieldChange}
                     restaurantes={restaurantes}

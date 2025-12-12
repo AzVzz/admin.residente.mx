@@ -295,7 +295,7 @@ function App() {
               />
 
               <Route
-                path="/oped"
+                path="/registrocolaboradores"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <OpinionEditorial />

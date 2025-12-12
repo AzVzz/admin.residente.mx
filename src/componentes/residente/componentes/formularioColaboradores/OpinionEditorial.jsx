@@ -61,7 +61,10 @@ const OpinionEditorial = () => {
     curriculum: '',
     instagram: '',
     facebook: '',
-    otras_redes: ''
+    otras_redes: '',
+    nombre_usuario: '',
+    password: '',
+    correo: ''
   });
 
   const [fotografia, setFotografia] = useState(null);
@@ -114,7 +117,15 @@ const OpinionEditorial = () => {
     e.preventDefault();
 
     // Validación de campos obligatorios
-    if (!formData.nombre || !formData.correo_electronico || !formData.anio_nacimiento || !formData.lugar_nacimiento) {
+    if (
+      !formData.nombre_usuario ||
+      !formData.password ||
+      !formData.correo ||
+      !formData.nombre ||
+      !formData.correo_electronico ||
+      !formData.anio_nacimiento ||
+      !formData.lugar_nacimiento
+    ) {
       setMessage({ type: 'error', text: 'Por favor completa todos los campos obligatorios.' });
       return;
     }
@@ -125,6 +136,9 @@ const OpinionEditorial = () => {
     try {
       // Preparar datos para la API - SOLO los campos que espera tu API
       const dataToSend = {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+        correo: formData.correo,
         nombre: formData.nombre,
         correo_electronico: formData.correo_electronico,
         anio_nacimiento: formData.anio_nacimiento,
@@ -151,6 +165,9 @@ const OpinionEditorial = () => {
 
       // Limpiar formulario
       setFormData({
+        nombre_usuario: '',
+        password: '',
+        correo: '',
         nombre: '',
         correo_electronico: '',
         anio_nacimiento: '',
@@ -384,6 +401,42 @@ const OpinionEditorial = () => {
                     color: '#3b3b3c', // gris oscuro
                   }
                 }}
+              />
+            </Box>
+
+            {/* Nuevos campos: Nombre de usuario y contraseña */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
+              <StyledTextField
+                id="nombre_usuario"
+                name="nombre_usuario"
+                label="Nombre de usuario *"
+                variant="outlined"
+                value={formData.nombre_usuario}
+                onChange={handleInputChange}
+                required
+                fullWidth
+              />
+              <StyledTextField
+                id="password"
+                name="password"
+                label="Contraseña *"
+                variant="outlined"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                fullWidth
+              />
+              <StyledTextField
+                id="correo"
+                name="correo"
+                label="Correo para acceso *"
+                variant="outlined"
+                type="email"
+                value={formData.correo}
+                onChange={handleInputChange}
+                required
+                fullWidth
               />
             </Box>
 

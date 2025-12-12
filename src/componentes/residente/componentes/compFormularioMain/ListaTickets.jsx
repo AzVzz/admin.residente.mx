@@ -226,6 +226,16 @@ const ListaTickets = () => {
                     )}
                   </div>
 
+                  {/* Badges de vistas y clicks */}
+                  <div className="flex justify-center gap-2 mb-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
+                      {cupon.views ?? 0} Vistas
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold">
+                      {cupon.clicks ?? 0} Clicks
+                    </span>
+                  </div>
+
                   {/* Info de Fechas */}
                   <div className="mb-2 text-center text-sm text-gray-600 w-full max-w-md">
                     {cupon.fecha_inicio && cupon.fecha_fin ? (
