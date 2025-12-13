@@ -400,7 +400,7 @@ const OpinionEditorial = () => {
             </div>
             <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
-                Subir Fotografía (Opcional)
+                Subir Fotografía*
               </label>
               <input
                 type="file"
