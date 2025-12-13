@@ -43,6 +43,8 @@ function formatFecha(fecha) {
 
 const FormMainResidente = () => {
   const { usuario, token } = useAuth(); // usuario viene del contexto
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   // Determina el tipo de nota por el permiso del usuario
   // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
@@ -53,10 +55,12 @@ const FormMainResidente = () => {
       : '')
   ) : '';
 
-
-
-  const { id } = useParams();
-  const navigate = useNavigate();
+  // Redirect B2B users to their dashboard
+  useEffect(() => {
+    if (usuario?.rol?.toLowerCase() === 'b2b' || usuario?.permisos === 'b2b') {
+      navigate('/dashboardb2b', { replace: true });
+    }
+  }, [usuario, navigate]);
 
 
 
