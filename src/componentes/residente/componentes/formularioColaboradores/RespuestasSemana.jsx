@@ -153,7 +153,7 @@ const RespuestasSemana = () => {
                                     {pregunta ? pregunta : "No hay preguntas por el momento"}
                                 </h2>
                                 {/* Campo Colaborador solo lectura */}
-                                <div>
+                                <div className="mb-4">
                                     <label className="space-y-2 font-roman font-bold">
                                         Colaborador*
                                     </label>
@@ -167,7 +167,7 @@ const RespuestasSemana = () => {
                                     />
                                 </div>
                                 {!respuestaConsejo && (
-                                    <div>
+                                    <div className="mb-4">
                                         <label className="space-y-2 font-roman font-bold">
                                             Título
                                         </label>
@@ -192,7 +192,7 @@ const RespuestasSemana = () => {
                                 </div>
                                 {!respuestaConsejo ? (
                                     <>
-                                        <div>
+                                        <div className="mb-4">
                                             <label className="space-y-2 font-roman font-bold">
                                                 Colabora con nosotros*
                                             </label>
@@ -204,7 +204,7 @@ const RespuestasSemana = () => {
                                                 rows={6}
                                             />
                                         </div>
-                                        <div>
+                                        <div className="mb-4">
                                             <label className="space-y-2 font-roman font-bold">
                                                 Subir Imagen (Opcional)
                                             </label>
@@ -227,7 +227,7 @@ const RespuestasSemana = () => {
                                         )}
                                     </>
                                 ) : (
-                                    <div>
+                                    <div className="mb-4">
                                         <label className="space-y-2 font-roman font-bold">
                                             Escribe tu consejo*
                                         </label>
@@ -246,20 +246,23 @@ const RespuestasSemana = () => {
                                         {mensaje}
                                     </div>
                                 )}
-                                <button
-                                    type="submit"
-                                    className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${loading || !isLogged || !isColaborador
-                                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                                        : "bg-[#fff200] hover:bg-[#e6d900] text-black"
+                                <div className="flex flex-col items-center gap-4 mt-6">
+                                    <button
+                                        type="submit"
+                                        className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${
+                                            loading || !isLogged || !isColaborador
+                                                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                                : "bg-[#fff200] text-black"
                                         }`}
-                                    disabled={loading || !isLogged || !isColaborador}
-                                >
-                                    {loading
-                                        ? "Enviando..."
-                                        : respuestaConsejo
-                                            ? "Enviar consejo editorial"
-                                            : "Enviar colaboración"}
-                                </button>
+                                        disabled={loading || !isLogged || !isColaborador}
+                                    >
+                                        {loading
+                                            ? "Enviando..."
+                                            : respuestaConsejo
+                                                ? "Enviar consejo editorial"
+                                                : "Enviar colaboración"}
+                                    </button>
+                                </div>
                                 {!isLogged && (
                                     <div className="text-center font-bold mt-4 text-red-600">
                                         Debes iniciar sesión para publicar.

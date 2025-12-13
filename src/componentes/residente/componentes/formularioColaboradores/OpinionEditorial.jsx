@@ -201,7 +201,7 @@ const OpinionEditorial = () => {
             destino de nuestro estado.
           </p>
           <form onSubmit={handleSubmit}>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Código de Acceso*
               </label>
@@ -236,7 +236,7 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Año de nacimiento*
               </label>
@@ -256,7 +256,7 @@ const OpinionEditorial = () => {
                 pattern="[0-9]*"
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Lugar de nacimiento*
               </label>
@@ -270,7 +270,7 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Curriculum
               </label>
@@ -283,7 +283,7 @@ const OpinionEditorial = () => {
                 rows={4}
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Instagram
               </label>
@@ -296,7 +296,7 @@ const OpinionEditorial = () => {
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Facebook
               </label>
@@ -309,7 +309,7 @@ const OpinionEditorial = () => {
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Otras redes sociales
               </label>
@@ -322,7 +322,7 @@ const OpinionEditorial = () => {
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Nombre de usuario*
               </label>
@@ -336,7 +336,7 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Correo electrónico*
               </label>
@@ -350,7 +350,7 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Contraseña*
               </label>
@@ -374,7 +374,7 @@ const OpinionEditorial = () => {
                 </button>
               </div>
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Confirmar Contraseña*
               </label>
@@ -398,7 +398,7 @@ const OpinionEditorial = () => {
                 </button>
               </div>
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Subir Fotografía (Opcional)
               </label>
