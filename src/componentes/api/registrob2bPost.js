@@ -27,7 +27,13 @@ export const registroInvitadosPost = async (formData) => {
   const response = await fetch(`${urlApi}api/usuarios/registro-invitados`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData)
+    body: JSON.stringify({
+      nombre_usuario: formData.nombre_institucion || formData.nombre_usuario, // Handle both key names just in case
+      correo: formData.correo,
+      password: formData.password,
+      logo_base64: formData.logo_base64,
+      codigo: formData.codigo // ADDED
+    })
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Error al registrar invitado');

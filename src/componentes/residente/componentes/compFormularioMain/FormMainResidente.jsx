@@ -476,7 +476,7 @@ const FormMainResidente = () => {
           {/* Cambiar el form para usar el handleSubmit genérico */}
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="">
-              <div className="mb-4">
+              <div className="mb-4 text-center">
                 <h1 className="leading-tight text-2xl font-bold">
                   {notaId ? 'Editar Nota' : 'Nueva Nota'}
                 </h1>
