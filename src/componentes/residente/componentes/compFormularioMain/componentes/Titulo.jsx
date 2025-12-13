@@ -29,9 +29,8 @@ const Titulo = () => {
             message: 'El título solo puede tener 165 caracteres'
           }
         })}
-        className={`w-full px-3 py-2 border rounded-md  ${
-          errors.titulo ? 'border-red-500' : 'border-gray-300'
-        }`}
+        className={`w-full px-3 py-2 border rounded-md bg-white ${errors.titulo ? 'border-red-500' : 'border-gray-300'
+          }`}
       />
       <div className="flex justify-between items-center mt-1">
         <span className="text-xs text-gray-500">{tituloValue.length}/165</span>

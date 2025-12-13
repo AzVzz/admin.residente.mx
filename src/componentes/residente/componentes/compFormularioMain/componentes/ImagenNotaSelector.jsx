@@ -24,14 +24,14 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
 
     const handleEliminarImagen = async () => {
         if (!window.confirm('¿Seguro que deseas eliminar la imagen?')) return;
-        
+
         try {
             // Si hay una imagen actual en la base de datos, eliminarla
             if (imagenActual && notaId) {
                 await notaImagenDelete(notaId);
                 onImagenEliminada();
             }
-            
+
             // Limpiar el input de archivo y la previsualización
             setValue('imagen', null);
             setPreviewUrl(null);
@@ -46,8 +46,23 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen de la nota
             </label>
+            <Controller
+                name="imagen"
+                control={control}
+                render={({ field }) => (
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => {
+                            const file = e.target.files[0];
+                            field.onChange(file);
+                        }}
+                        className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer bg-white"
+                    />
+                )}
+            />
             {mostrarImagen && (
-                <div className="mb-2">
+                <div className="mt-2">
                     <img
                         src={mostrarImagen}
                         alt="Imagen de la nota"
@@ -64,21 +79,6 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
                     )}
                 </div>
             )}
-            <Controller
-                name="imagen"
-                control={control}
-                render={({ field }) => (
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={e => {
-                            const file = e.target.files[0];
-                            field.onChange(file);
-                        }}
-                        className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer"
-                    />
-                )}
-            />
         </div>
     );
 };
