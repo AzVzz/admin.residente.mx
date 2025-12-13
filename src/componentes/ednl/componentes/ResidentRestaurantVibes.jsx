@@ -8,22 +8,40 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  if (fotos.length === 0) {
+  // Filtrar solo las fotos que tienen una URL válida y no son objetos vacíos
+  const fotosToShow = fotos.filter(foto => {
+    // Verificar que el objeto foto existe y no está vacío
+    if (!foto || typeof foto !== 'object' || Object.keys(foto).length === 0) {
+      return false;
+    }
+    
+    // Buscar la URL en diferentes propiedades posibles
+    const imageUrl = foto?.src || foto?.url_imagen || foto?.url || foto?.imagen;
+    
+    // Verificar que la URL existe, no está vacía y no es solo espacios
+    if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '') {
+      return false;
+    }
+    
+    return true;
+  });
+
+  if (fotosToShow.length === 0) {
     return null;
   }
-
+  
   const settings = {
-    dots: fotos.length > 1,
-    infinite: fotos.length > 1,
+    dots: fotosToShow.length > 1,
+    infinite: fotosToShow.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    autoplay: fotos.length > 1,
+    autoplay: fotosToShow.length > 1,
     autoplaySpeed: 5000,
     pauseOnHover: false,
     adaptiveHeight: false,
-    prevArrow: <CustomArrow direction="prev" />,
-    nextArrow: <CustomArrow direction="next" />,
+    prevArrow: fotosToShow.length > 1 ? <CustomArrow direction="prev" /> : null,
+    nextArrow: fotosToShow.length > 1 ? <CustomArrow direction="next" /> : null,
   };
 
   const modalSettings = {
@@ -112,22 +130,32 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
       </h3>
 
       <div className="space-y-4">
-        <div className={`relative w-full ${fotos.length > 1 ? 'pb-12' : ''}`}>
+        <div className={`relative w-full ${fotosToShow.length > 1 ? 'pb-12' : ''}`}>
           <Slider {...settings} className="h-full">
-            {fotos.map((foto, index) => (
+            {fotosToShow.map((foto, index) => {
+              // Buscar la URL en diferentes propiedades posibles
+              const imageUrl = foto.src || foto.url_imagen || foto.url || foto.imagen;
+              // Si la URL ya es completa (empieza con http), usarla directamente
+              // Si no, construirla con imgApi
+              const finalUrl = imageUrl 
+                ? (imageUrl.startsWith('http') ? imageUrl : `${imgApi}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`)
+                : "/placeholder.svg";
+              
+              return (
               <div key={index} className="h-full">
                 <div
                   className="w-full aspect-video cursor-pointer"
                   onClick={() => openModal(index)}
                 >
                   <img
-                    src={foto.url_imagen ? `${urlApi}${foto.url_imagen}` : "/placeholder.svg"}
+                    src={finalUrl}
                     alt={`Vibes del restaurante ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
-            ))}
+              );
+            })}
           </Slider>
         </div>
       </div>
@@ -150,20 +178,30 @@ const ResidentRestaurantVibes = ({ fotos = [] }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <Slider {...modalSettings}>
-              {fotos.map((foto, index) => (
+              {fotosToShow.map((foto, index) => {
+                // Buscar la URL en diferentes propiedades posibles
+                const imageUrl = foto.src || foto.url_imagen || foto.url || foto.imagen;
+                // Si la URL ya es completa (empieza con http), usarla directamente
+                // Si no, construirla con imgApi
+                const finalUrl = imageUrl 
+                  ? (imageUrl.startsWith('http') ? imageUrl : `${imgApi}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`)
+                  : "/placeholder.svg";
+                
+                return (
                 <div key={`modal-${index}`} className="h-[80vh] flex items-center justify-center">
                   <img
-                    src={foto.url_imagen ? `${urlApi}${foto.url_imagen}` : "/placeholder.svg"}
+                    src={finalUrl}
                     alt={`Vibes ampliada ${index + 1}`}
                     className="max-w-full max-h-full object-contain mx-auto"
                   />
                 </div>
-              ))}
+                );
+              })}
             </Slider>
           </div>
 
           <p className="text-white mt-4 text-center">
-            {currentSlide + 1} / {fotos.length}
+            {currentSlide + 1} / {fotosToShow.length}
           </p>
         </div>
       )}

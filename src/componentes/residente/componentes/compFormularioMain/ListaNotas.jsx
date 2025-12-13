@@ -80,6 +80,13 @@ const ListaNotas = () => {
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
       return;
     }
+
+    // Redirect B2B users to their dashboard
+    if (usuario?.rol === 'b2b') {
+      navigate('/dashboardb2b', { replace: true });
+      return;
+    }
+
     if (!token || !usuario) {
       navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
     }
@@ -379,11 +386,13 @@ const ListaNotas = () => {
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(option =>
-      option.key === "notas" ||
-      option.key === "recetas" ||
-      (option.key === "cupones" && !esInvitado) ||
-      ((esResidente || esB2B) && option.key === "restaurante_link") ||
-      (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
+      (usuario?.rol !== 'b2b') && ( // Hide all menu options for B2B users if they are here
+        option.key === "notas" ||
+        option.key === "recetas" ||
+        (option.key === "cupones" && !esInvitado) ||
+        (esResidente && option.key === "restaurante_link") ||
+        (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
+      )
     );
 
   if (cargando) {

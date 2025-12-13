@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { consejerosPost } from '../../../api/consejerosApi.js';
+import { useNavigate } from "react-router-dom";
 import DirectorioVertical from '../../../residente/componentes/componentesColumna2/DirectorioVertical';
 import Infografia from '../../../residente/componentes/componentesColumna1/Infografia';
 import BotonesAnunciateSuscribirme from '../../../residente/componentes/componentesColumna1/BotonesAnunciateSuscribirme';
@@ -9,7 +10,6 @@ import PortadaRevista from "../componentesColumna2/PortadaRevista";
 const OpinionEditorial = () => {
   const [formData, setFormData] = useState({
     nombre: '',
-    correo_electronico: '',
     anio_nacimiento: '',
     lugar_nacimiento: '',
     curriculum: '',
@@ -28,6 +28,7 @@ const OpinionEditorial = () => {
   const [fotoPreview, setFotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (message.text) {
@@ -78,7 +79,6 @@ const OpinionEditorial = () => {
       !formData.password ||
       !formData.correo ||
       !formData.nombre ||
-      !formData.correo_electronico ||
       !formData.anio_nacimiento ||
       !formData.lugar_nacimiento
     ) {
@@ -100,7 +100,6 @@ const OpinionEditorial = () => {
         password: formData.password,
         correo: formData.correo,
         nombre: formData.nombre,
-        correo_electronico: formData.correo_electronico,
         anio_nacimiento: formData.anio_nacimiento,
         lugar_nacimiento: formData.lugar_nacimiento,
         curriculum: formData.curriculum || null,
@@ -119,14 +118,12 @@ const OpinionEditorial = () => {
         type: 'success',
         text: '¡Registro enviado exitosamente! Te contactaremos pronto.'
       });
-
       setFormData({
         nombre_usuario: '',
         password: '',
         confirm_password: '',
         correo: '',
         nombre: '',
-        correo_electronico: '',
         anio_nacimiento: '',
         lugar_nacimiento: '',
         curriculum: '',
@@ -137,10 +134,40 @@ const OpinionEditorial = () => {
       setFotografia(null);
       setFotoPreview(null);
 
+      // Redirige después de 2 segundos
+      setTimeout(() => {
+        navigate('/registro');
+      }, 2000);
     } catch (error) {
+      let errorMsg = `Error al enviar el formulario: ${error.message}`;
+      // Intenta parsear el error si es JSON
+      try {
+        const errObj = JSON.parse(error.message.replace(/^Error del servidor: [^ ]+ [^ ]+ - /, ''));
+        if (
+          errObj?.sequelize &&
+          Array.isArray(errObj.sequelize) &&
+          errObj.sequelize[0]?.type === "unique violation" &&
+          errObj.sequelize[0]?.path === "nombre_usuario"
+        ) {
+          errorMsg = "El nombre de usuario ya existe, elige otro.";
+        }
+        if (
+          errObj?.sequelize &&
+          Array.isArray(errObj.sequelize) &&
+          errObj.sequelize[0]?.type === "unique violation" &&
+          errObj.sequelize[0]?.path === "correo"
+        ) {
+          errorMsg = "El correo electrónico ya está registrado, usa otro.";
+        }
+      } catch {
+        // Si no se puede parsear, busca el texto en el mensaje
+        if (error.message.includes("unique violation") && error.message.includes("nombre_usuario")) {
+          errorMsg = "El nombre de usuario ya existe, elige otro.";
+        }
+      }
       setMessage({
         type: 'error',
-        text: `Error al enviar el formulario: ${error.message}`
+        text: errorMsg
       });
     } finally {
       setIsSubmitting(false);
@@ -179,20 +206,6 @@ const OpinionEditorial = () => {
                 placeholder="Ej. Juan Pérez"
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 maxLength={21}
-                required
-              />
-            </div>
-            <div>
-              <label className="space-y-2 font-roman font-bold">
-                Correo electrónico*
-              </label>
-              <input
-                type="email"
-                name="correo_electronico"
-                value={formData.correo_electronico}
-                onChange={handleInputChange}
-                placeholder="correo@ejemplo.com"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 required
               />
             </div>
@@ -292,6 +305,20 @@ const OpinionEditorial = () => {
                 value={formData.nombre_usuario}
                 onChange={handleInputChange}
                 placeholder="Usuario para acceso"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                required
+              />
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Correo electrónico*
+              </label>
+              <input
+                type="email"
+                name="correo"
+                value={formData.correo}
+                onChange={handleInputChange}
+                placeholder="correo@ejemplo.com"
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 required
               />

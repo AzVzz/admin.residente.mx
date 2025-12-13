@@ -4,6 +4,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import TerminosyCondiciones from "./TerminosyCondiciones";
 import { extensionB2bPost, registrob2bPost } from "../../../api/registrob2bPost";
+import DirectorioVertical from "../../componentes/componentesColumna2/DirectorioVertical";
+import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
+import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 
 const FormMain = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -367,18 +370,20 @@ const FormMain = () => {
   };
 
   return (
-    <div className="py-8">
+    
+    <div className="grid grid-cols-[minmax(680px,2fr)_minmax(350px,1fr)] gap-x-12 gap-y-9 max-w-[1400px] mx-auto py-8">
+      <div className="flex flex-col left-column translate-x-[-200px]">
       <img
         className="w-25 pb-5"
         src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
       />
 
-      <h1 className="leading-tight text-2xl">Suscripción B2B</h1>
+      <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
 
       <form onSubmit={handleSubmit}>
         {/* Campo nombre del responsable */}
         <div>
-          <label className="space-y-2 font-roman font-bold">
+          <label className="space-y-2 font-roman font-bold ">
             Nombre del responsable*
           </label>
           <input
@@ -387,7 +392,7 @@ const FormMain = () => {
             value={formData.nombre_responsable_restaurante}
             onChange={handleChange}
             placeholder="Nombre del responsable"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -401,7 +406,7 @@ const FormMain = () => {
             value={formData.nombre_restaurante}
             onChange={handleChange}
             placeholder="Nombre del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -415,7 +420,7 @@ const FormMain = () => {
             value={formData.telefono}
             onChange={handleChange}
             placeholder="Teléfono del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -429,7 +434,7 @@ const FormMain = () => {
             value={formData.correo}
             onChange={handleChange}
             placeholder="Escribe tu correo electrónico"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -443,7 +448,7 @@ const FormMain = () => {
             value={formData.rfc}
             onChange={handleChange}
             placeholder="Escribe tu RFC"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -457,7 +462,7 @@ const FormMain = () => {
             value={formData.direccion_completa}
             onChange={handleChange}
             placeholder="Calle, número, colonia, municipio, código postal"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -471,7 +476,7 @@ const FormMain = () => {
             value={formData.razon_social}
             onChange={handleChange}
             placeholder="Escribe la razón social"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -485,7 +490,7 @@ const FormMain = () => {
             value={formData.nombre_usuario}
             onChange={handleChange}
             placeholder="Tu nombre de usuario"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -500,7 +505,7 @@ const FormMain = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Escribe  contraseña"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
             />
             <button
               type="button"
@@ -566,30 +571,33 @@ const FormMain = () => {
           </div>
         )}
 
-        {/* Botón de Pagar */}
-        {!paymentCompleted && (
-          <button
-            type="button"
-            onClick={handlePaymentClick}
-            disabled={paymentLoading}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-6 w-full cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {paymentLoading ? "Procesando..." : "Pagar"}
-          </button>
-        )}
+        {/* Botones */}
+        <div className="flex flex-col items-center gap-4 mt-6">
+          {/* Botón de Pagar */}
+          {!paymentCompleted && (
+            <button
+              type="button"
+              onClick={handlePaymentClick}
+              disabled={paymentLoading}
+              className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {paymentLoading ? "Procesando..." : "Pagar"}
+            </button>
+          )}
 
-        {/* Botón de Crear cuenta */}
-        <button
-          type="submit"
-          disabled={!paymentCompleted}
-          className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${
-            paymentCompleted
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-gray-400 text-gray-600 cursor-not-allowed"
-          }`}
-        >
-          Crear cuenta
-        </button>
+          {/* Botón de Crear cuenta */}
+          <button
+            type="submit"
+            disabled={!paymentCompleted}
+            className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${
+              paymentCompleted
+                ? "bg-[#fff200] text-black"
+                : "bg-gray-400 text-gray-600 cursor-not-allowed"
+            }`}
+          >
+            Crear cuenta
+          </button>
+        </div>
       </form>
 
       {/* Modal de Checkout de Stripe */}
@@ -676,8 +684,15 @@ const FormMain = () => {
               </div>
             </div>
           </div>
+          </div>
+        )}
+      </div>
+      {/* Barra lateral */}
+      <div className="flex flex-col items-end justify-start gap-10 translate-x-[-200px]">
+        <DirectorioVertical />
+        <PortadaRevista />
+        <BotonesAnunciateSuscribirme />
         </div>
-      )}
     </div>
   );
 };
