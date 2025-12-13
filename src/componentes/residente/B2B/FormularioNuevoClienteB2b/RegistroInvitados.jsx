@@ -11,6 +11,7 @@ const RegistroInvitados = () => {
         correo: "",
         password: "",
         confirm_password: "",
+        codigo: "", // ADDED
     });
     const [logoBase64, setLogoBase64] = useState("");
     const [msg, setMsg] = useState("");
@@ -42,18 +43,19 @@ const RegistroInvitados = () => {
             return;
         }
 
-        if (!formData.nombre_institucion || !formData.correo || !formData.password) {
-            setError("Todos los campos obligatorios deben ser completados");
+        if (!formData.nombre_institucion || !formData.correo || !formData.password || !formData.codigo) {
+            setError("Todos los campos obligatorios deben ser completados, incluyendo el código de acceso");
             return;
         }
 
         setLoading(true);
         try {
             const data = await registroInvitadosPost({
-                nombre_usuario: formData.nombre_institucion,
+                nombre_institucion: formData.nombre_institucion,
                 correo: formData.correo,
                 password: formData.password,
                 logo_base64: logoBase64,
+                codigo: formData.codigo, // ADDED
             });
 
             setMsg("¡Registro exitoso! Redirigiendo...");
@@ -72,14 +74,28 @@ const RegistroInvitados = () => {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label className="space-y-2 font-roman font-bold">
-                        Nombre de Institución*
+                        Código de Acceso*
+                    </label>
+                    <input
+                        type="text"
+                        name="codigo"
+                        value={formData.codigo}
+                        onChange={handleChange}
+                        placeholder="Ingresa tu código de invitación"
+                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                    />
+                </div>
+
+                <div>
+                    <label className="space-y-2 font-roman font-bold">
+                        Nombre de Restaurante*
                     </label>
                     <input
                         type="text"
                         name="nombre_institucion"
                         value={formData.nombre_institucion}
                         onChange={handleChange}
-                        placeholder="Ej. Universidad X"
+                        placeholder="Ej. Noreste Grill"
                         className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                     />
                 </div>
