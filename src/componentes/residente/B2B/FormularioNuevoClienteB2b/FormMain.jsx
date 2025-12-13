@@ -378,12 +378,12 @@ const FormMain = () => {
         src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
       />
 
-      <h1 className="leading-tight text-2xl">Suscripción B2B</h1>
+      <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
 
       <form onSubmit={handleSubmit}>
         {/* Campo nombre del responsable */}
         <div>
-          <label className="space-y-2 font-roman font-bold">
+          <label className="space-y-2 font-roman font-bold ">
             Nombre del responsable*
           </label>
           <input
@@ -392,7 +392,7 @@ const FormMain = () => {
             value={formData.nombre_responsable_restaurante}
             onChange={handleChange}
             placeholder="Nombre del responsable"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -406,7 +406,7 @@ const FormMain = () => {
             value={formData.nombre_restaurante}
             onChange={handleChange}
             placeholder="Nombre del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -420,7 +420,7 @@ const FormMain = () => {
             value={formData.telefono}
             onChange={handleChange}
             placeholder="Teléfono del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -434,7 +434,7 @@ const FormMain = () => {
             value={formData.correo}
             onChange={handleChange}
             placeholder="Escribe tu correo electrónico"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -448,7 +448,7 @@ const FormMain = () => {
             value={formData.rfc}
             onChange={handleChange}
             placeholder="Escribe tu RFC"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -462,7 +462,7 @@ const FormMain = () => {
             value={formData.direccion_completa}
             onChange={handleChange}
             placeholder="Calle, número, colonia, municipio, código postal"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -476,7 +476,7 @@ const FormMain = () => {
             value={formData.razon_social}
             onChange={handleChange}
             placeholder="Escribe la razón social"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -490,7 +490,7 @@ const FormMain = () => {
             value={formData.nombre_usuario}
             onChange={handleChange}
             placeholder="Tu nombre de usuario"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
           />
         </div>
 
@@ -505,7 +505,7 @@ const FormMain = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Escribe  contraseña"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
             />
             <button
               type="button"

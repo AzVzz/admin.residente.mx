@@ -32,6 +32,7 @@ const Login = () => {
     // Para usuarios "residente" o "invitado" con permisos, redirigir a /notas
     // Esto permite que usuarios "invitado" puedan acceder al dashboard para crear notas
     if (r === "residente" || r === "invitado") return "/notas";
+    if (r === "colaborador") return "/colaboradores";
     return "/"; // otros roles
   };
 
