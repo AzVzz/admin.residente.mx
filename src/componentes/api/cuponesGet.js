@@ -72,3 +72,11 @@ export async function cuponCrear(data, token) {
     }
     return await response.json();
 }
+
+export async function cuponesGetActivos() {
+    const response = await fetch(`${urlApi}api/tickets/activos`);
+    if (!response.ok) {
+        throw new Error('Error al obtener los cupones activos');
+    }
+    return await response.json();
+}
