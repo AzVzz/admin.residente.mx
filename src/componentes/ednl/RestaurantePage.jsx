@@ -69,7 +69,16 @@ const RestaurantePage = () => {
         const testimonios = Array.isArray(rawTestimonios) ? rawTestimonios : [];
         const sucursales = Array.isArray(rawSucursales) ? rawSucursales : [];
         const imagenes = Array.isArray(rawImagenes) ? rawImagenes : [];
-        const fotos_lugar = Array.isArray(rawFotosLugar) ? rawFotosLugar : [];
+        // Filtrar solo las fotos que tienen una URL válida
+        const fotos_lugar = Array.isArray(rawFotosLugar) 
+          ? rawFotosLugar.filter(foto => {
+              if (!foto || typeof foto !== 'object' || Object.keys(foto).length === 0) {
+                return false;
+              }
+              const imageUrl = foto?.src || foto?.url_imagen || foto?.url || foto?.imagen;
+              return imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '';
+            })
+          : [];
         const historia = rawHistoria || "";
 
 
