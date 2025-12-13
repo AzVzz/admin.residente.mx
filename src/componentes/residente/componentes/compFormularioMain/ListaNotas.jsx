@@ -17,6 +17,7 @@ import { IoNewspaper } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
+import { MdAdminPanelSettings } from "react-icons/md"; // Added icon for admin codes
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -365,12 +366,13 @@ const ListaNotas = () => {
     { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
     { key: "restaurante_link", label: "Restaurante", icon: <FaStore className="mr-2" /> },
+    { key: "codigos_admin", label: "Códigos", icon: <MdAdminPanelSettings className="mr-2" /> }, // Added option
   ];
 
   // Filtrar opciones del menú según permisos del usuario
   // Si el usuario NO es admin (todos/todo), solo mostrar Notas y Recetas
   const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-  const esResidente = usuario?.permisos === 'residente';
+  const esResidente = usuario?.permisos === 'residente' || usuario?.rol === 'residente'; // Checked rol as well just in case
   const esB2B = usuario?.permisos === 'b2b';
   const esInvitado = usuario?.rol === 'invitado';
 
@@ -380,7 +382,8 @@ const ListaNotas = () => {
       option.key === "notas" ||
       option.key === "recetas" ||
       (option.key === "cupones" && !esInvitado) ||
-      ((esResidente || esB2B) && option.key === "restaurante_link")
+      ((esResidente || esB2B) && option.key === "restaurante_link") ||
+      (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
     );
 
   if (cargando) {
@@ -457,6 +460,8 @@ const ListaNotas = () => {
                     navigate('/formulario');
                   } else if (option.key === "cupones") {
                     navigate('/dashboardtickets');
+                  } else if (option.key === "codigos_admin") {
+                    navigate('/admin/codigos');
                   } else {
                     setVistaActiva(option.key);
                   }
