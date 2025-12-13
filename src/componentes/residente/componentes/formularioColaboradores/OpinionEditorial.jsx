@@ -1,56 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { FiUpload } from 'react-icons/fi';
-import { styled } from '@mui/material/styles';
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { consejerosPost } from '../../../api/consejerosApi.js';
 import DirectorioVertical from '../../../residente/componentes/componentesColumna2/DirectorioVertical';
 import Infografia from '../../../residente/componentes/componentesColumna1/Infografia';
 import BotonesAnunciateSuscribirme from '../../../residente/componentes/componentesColumna1/BotonesAnunciateSuscribirme';
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
-
-
-// Input oculto para subir archivos
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
-
-// Estilos personalizados para los campos - directamente sobre fondo amarillo
-const StyledTextField = styled(TextField)({
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: 'white', // igual que RespuestasSemana
-    '& fieldset': {
-      borderColor: '#e0e0e0',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-    },
-    '&:hover fieldset': {
-      borderColor: '#bdbdbd',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: '#3b3b3c', // gris oscuro igual que RespuestasSemana
-    },
-  },
-  '& .MuiInputLabel-root': {
-    color: '#000000',
-    fontWeight: 'bold',
-    fontSize: '16px',
-  },
-  '& .MuiInputBase-input': {
-    fontSize: '16px',
-    padding: '12px 14px',
-    color: '#000000',
-  },
-});
 
 const OpinionEditorial = () => {
   const [formData, setFormData] = useState({
@@ -64,9 +18,12 @@ const OpinionEditorial = () => {
     otras_redes: '',
     nombre_usuario: '',
     password: '',
+    confirm_password: '',
     correo: ''
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fotografia, setFotografia] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,7 +31,7 @@ const OpinionEditorial = () => {
 
   useEffect(() => {
     if (message.text) {
-      const timer = setTimeout(() => setMessage({ type: '', text: '' }), 3000); // 3 segundos
+      const timer = setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       return () => clearTimeout(timer);
     }
   }, [message.text]);
@@ -116,7 +73,6 @@ const OpinionEditorial = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación de campos obligatorios
     if (
       !formData.nombre_usuario ||
       !formData.password ||
@@ -130,11 +86,15 @@ const OpinionEditorial = () => {
       return;
     }
 
+    if (formData.password !== formData.confirm_password) {
+      setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage({ type: '', text: '' });
 
     try {
-      // Preparar datos para la API - SOLO los campos que espera tu API
       const dataToSend = {
         nombre_usuario: formData.nombre_usuario,
         password: formData.password,
@@ -149,24 +109,21 @@ const OpinionEditorial = () => {
         otras_redes: formData.otras_redes || null
       };
 
-      // Agregar la imagen si existe
       if (fotografia) {
         dataToSend.fotografia = fotografia;
       }
 
-      const response = await consejerosPost(dataToSend);
-
-      //console.log('Respuesta exitosa:', response);
+      await consejerosPost(dataToSend);
 
       setMessage({
         type: 'success',
         text: '¡Registro enviado exitosamente! Te contactaremos pronto.'
       });
 
-      // Limpiar formulario
       setFormData({
         nombre_usuario: '',
         password: '',
+        confirm_password: '',
         correo: '',
         nombre: '',
         correo_electronico: '',
@@ -181,10 +138,6 @@ const OpinionEditorial = () => {
       setFotoPreview(null);
 
     } catch (error) {
-      console.error('Error completo:', error);
-      console.error('Mensaje del error:', error.message);
-      console.error('Stack del error:', error.stack);
-
       setMessage({
         type: 'error',
         text: `Error al enviar el formulario: ${error.message}`
@@ -199,31 +152,22 @@ const OpinionEditorial = () => {
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
         {/* Columna principal: formulario */}
         <div>
-          <Box component="form" onSubmit={handleSubmit} sx={{
-            p: 2,
-            maxWidth: 800,
-            mx: "auto",
-            backgroundColor: "transparent"
-          }}>
-            {/* Header del formulario */}
-            <Box sx={{ textAlign: 'left', mb: 6 }}>
-              <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
-                REGISTRO DE COLABORADORES Y <p></p>CONSEJEROS EDITORIALES
-              </h1>
-
-              <p className="mb-4 text-center text-black leading-[1.2] px-5">
-                Bienvenido al selecto grupo de críticos, consejeros y analistas de la cultura gastronómica de Nuevo León.
-                Ten por seguro que tu aportación será parte fundamental del futuro de nuestra industria y por ende del
-                destino de nuestro estado.
-              </p>
-            </Box>
-            {/* Campos obligatorios */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
-              <StyledTextField
-                id="nombre"
+          <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
+            REGISTRO DE COLABORADORES Y <br />CONSEJEROS EDITORIALES
+          </h1>
+          <p className="mb-4 text-center text-black leading-[1.2] px-5">
+            Bienvenido al selecto grupo de críticos, consejeros y analistas de la cultura gastronómica de Nuevo León.
+            Ten por seguro que tu aportación será parte fundamental del futuro de nuestra industria y por ende del
+            destino de nuestro estado.
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Tu nombre*
+              </label>
+              <input
+                type="text"
                 name="nombre"
-                label="Tu nombre *"
-                variant="outlined"
                 value={formData.nombre}
                 onChange={e => {
                   const value = e.target.value.slice(0, 21);
@@ -232,301 +176,214 @@ const OpinionEditorial = () => {
                     nombre: value
                   }));
                 }}
+                placeholder="Ej. Juan Pérez"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                maxLength={21}
                 required
-                fullWidth
-                inputProps={{ maxLength: 21 }}
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c',
-                  }
-                }}
               />
-
-              <StyledTextField
-                id="correo_electronico"
-                name="correo_electronico"
-                label="Correo electrónico *"
-                variant="outlined"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Correo electrónico*
+              </label>
+              <input
                 type="email"
+                name="correo_electronico"
                 value={formData.correo_electronico}
                 onChange={handleInputChange}
+                placeholder="correo@ejemplo.com"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 required
-                fullWidth
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
               />
-            </Box>
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
-              <StyledTextField
-                id="anio_nacimiento"
-                name="anio_nacimiento"
-                label="Año de nacimiento *"
-                variant="outlined"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Año de nacimiento*
+              </label>
+              <input
                 type="number"
+                name="anio_nacimiento"
                 value={formData.anio_nacimiento}
                 onChange={e => {
                   const value = e.target.value.slice(0, 4);
                   handleInputChange({ target: { name: 'anio_nacimiento', value } });
                 }}
+                placeholder="Ej. 1990"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                maxLength={4}
                 required
-                fullWidth
-                inputProps={{
-                  maxLength: 4,
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*',
-                  // Oculta los botones en Chrome, Edge y Safari
-                  style: { MozAppearance: 'textfield' }
-                }}
-                sx={{
-                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
-                    WebkitAppearance: 'none',
-                    margin: 0
-                  },
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
-
-
-              <StyledTextField
-                id="lugar_nacimiento"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Lugar de nacimiento*
+              </label>
+              <input
+                type="text"
                 name="lugar_nacimiento"
-                label="Lugar de nacimiento *"
-                variant="outlined"
                 value={formData.lugar_nacimiento}
                 onChange={handleInputChange}
+                placeholder="Ej. Monterrey, NL"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 required
-                fullWidth
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
               />
-            </Box>
-
-            <Box sx={{ mb: 4 }}>
-              <StyledTextField
-                id="curriculum"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Curriculum
+              </label>
+              <textarea
                 name="curriculum"
-                label="Curriculum"
-                multiline
-                rows={6}
                 value={formData.curriculum}
                 onChange={handleInputChange}
-                fullWidth
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
+                placeholder="Describe tu experiencia"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                rows={4}
               />
-            </Box>
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
-              <StyledTextField
-                id="instagram"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Instagram
+              </label>
+              <input
+                type="text"
                 name="instagram"
-                label="Instagram"
-                variant="outlined"
                 value={formData.instagram}
                 onChange={handleInputChange}
-                fullWidth
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
+                placeholder="@usuario"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
-
-              <StyledTextField
-                id="facebook"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Facebook
+              </label>
+              <input
+                type="text"
                 name="facebook"
-                label="Facebook"
-                variant="outlined"
                 value={formData.facebook}
                 onChange={handleInputChange}
-                fullWidth
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
+                placeholder="facebook.com/usuario"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
-
-              <StyledTextField
-                id="otras_redes"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Otras redes sociales
+              </label>
+              <input
+                type="text"
                 name="otras_redes"
-                label="Otras redes sociales"
-                variant="outlined"
                 value={formData.otras_redes}
                 onChange={handleInputChange}
-                fullWidth
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3b3b3c', // gris oscuro
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#3b3b3c', // gris oscuro
-                  }
-                }}
+                placeholder="Enlace o usuario"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
-            </Box>
-
-            {/* Nuevos campos: Nombre de usuario y contraseña */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
-              <StyledTextField
-                id="nombre_usuario"
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Nombre de usuario*
+              </label>
+              <input
+                type="text"
                 name="nombre_usuario"
-                label="Nombre de usuario *"
-                variant="outlined"
                 value={formData.nombre_usuario}
                 onChange={handleInputChange}
+                placeholder="Usuario para acceso"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                 required
-                fullWidth
               />
-              <StyledTextField
-                id="password"
-                name="password"
-                label="Contraseña *"
-                variant="outlined"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                fullWidth
-              />
-              <StyledTextField
-                id="correo"
-                name="correo"
-                label="Correo para acceso *"
-                variant="outlined"
-                type="email"
-                value={formData.correo}
-                onChange={handleInputChange}
-                required
-                fullWidth
-              />
-            </Box>
-
-            {/* Botón para subir archivos */}
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<FiUpload />}
-                disabled={isSubmitting}
-                sx={{
-                  borderColor: '#fff300',
-                  color: '#000',
-                  backgroundColor: '#fff300',
-                  '&:hover': {
-                    borderColor: '#fff300',
-                    backgroundColor: '#dbcf27ff'
-                  },
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {fotografia ? fotografia.name : 'SUBIR FOTOGRAFÍA'}
-                <VisuallyHiddenInput
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleFileChange}
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Contraseña*
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="********"
+                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm pr-10"
+                  required
                 />
-              </Button>
-            </Box>
-
-            {/* Vista previa de la fotografía seleccionada */}
+                <button
+                  type="button"
+                  className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Confirmar Contraseña*
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirm_password"
+                  value={formData.confirm_password}
+                  onChange={handleInputChange}
+                  placeholder="********"
+                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Subir Fotografía (Opcional)
+              </label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileChange}
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+              />
+            </div>
             {fotoPreview && (
-              <Box sx={{ textAlign: 'center', mb: 2 }}>
+              <div className="text-center mb-2 mt-4">
                 <img
                   src={fotoPreview}
                   alt="Vista previa"
-                  className="w-full h-28 object-cover"
-                  style={{ maxWidth: '160px', borderRadius: '8px', margin: '0 auto' }}
+                  className="w-full h-28 object-cover mx-auto"
+                  style={{ maxWidth: '160px', borderRadius: '8px' }}
                 />
-                <div style={{ fontSize: '13px', color: '#555', marginTop: '8px' }}>
+                <div className="text-xs text-gray-600 mt-2">
                   Así se verá tu imagen en tu blog de colaborador.
                 </div>
-              </Box>
+              </div>
             )}
-
-            {/* Botón de envío */}
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={isSubmitting}
-                sx={{
-                  backgroundColor: '#fff300',
-                  color: '#000',
-                  padding: '16px 48px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  borderRadius: '8px',
-                  textTransform: 'uppercase',
-                  width: '100%',
-                  '&:hover': {
-                    backgroundColor: '#dbcf27ff',
-                  },
-                  '&:disabled': {
-                    backgroundColor: '#222',
-                    color: '#fff300'
-                  }
-                }}
-              >
-                {isSubmitting ? 'Enviando...' : 'ENVIAR SOLICITUD'}
-              </Button>
-            </Box>
-            {/* Mensaje de estado */}
             {message.text && (
-              <Box sx={{
-                mb: 4,
-                p: 3,
-                borderRadius: 2,
-                backgroundColor: message.type === 'success' ? '#e8f5e8' : '#ffebee',
-                color: message.type === 'success' ? '#2e7d32' : '#c62828',
-                border: `1px solid ${message.type === 'success' ? '#4caf50' : '#f44336'}`,
-                textAlign: 'center'
-              }}>
+              <div className={`text-center font-bold mt-4 ${message.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
                 {message.text}
-              </Box>
+              </div>
             )}
-          </Box>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${isSubmitting
+                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                : "bg-[#fff200] hover:bg-[#e6d900] text-black"
+                }`}
+            >
+              {isSubmitting ? "Procesando..." : "Crear cuenta"}
+            </button>
+          </form>
         </div>
         {/* Barra lateral */}
         <div className="flex flex-col items-end justify-start gap-10">
