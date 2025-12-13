@@ -73,7 +73,7 @@ export default function LoginForm({
   return (
     <div className="flex justify-center">
       <form onSubmit={handleSubmit} className="">
-        <h2 className="leading-tight text-2xl">Iniciar Sesión</h2>
+        <h2 className="leading-tight text-4xl text-center mb-8">Iniciar Sesión</h2>
 
         <div className="mb-4 max-w-[250px]">
           <label className="space-y-2 font-roman font-bold" htmlFor="usuario">
@@ -124,8 +124,8 @@ export default function LoginForm({
           type="submit"
           disabled={loading}
           className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading
-              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-              : "bg-[#fff200] text-black"
+            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+            : "bg-[#fff200] text-black"
             }`}
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}

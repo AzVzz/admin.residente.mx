@@ -11,10 +11,10 @@ const Videos = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams(); // Obtener el ID de la URL si existe
-  
+
   // Determinar si estamos en modo edición
   const esModoEdicion = !!id;
-  
+
   const [formData, setFormData] = useState({
     imagen: null,
     url: "",
@@ -22,7 +22,7 @@ const Videos = () => {
     activo: true, // Por defecto, los videos se crean como activos
     tipo: 'editorial' // Por defecto, los videos se crean como editoriales
   });
-  
+
   const [cargando, setCargando] = useState(false);
   const [cargandoInicial, setCargandoInicial] = useState(esModoEdicion);
   const [error, setError] = useState(null);
@@ -31,7 +31,7 @@ const Videos = () => {
 
   // Verificar autenticación
   if (!token || !usuario) {
-    navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+    navigate(`/registro`, { replace: true });
     return null;
   }
 
@@ -46,13 +46,13 @@ const Videos = () => {
     try {
       setCargandoInicial(true);
       setError(null);
-      
+
       const video = await obtenerVideoPorId(id, token);
       //console.log('Video cargado para editar:', video);
-      
+
       // Formatear la fecha para el input de tipo date
       const fechaFormateada = video.fecha ? new Date(video.fecha).toISOString().split('T')[0] : '';
-      
+
       setFormData({
         imagen: null, // No cargar imagen en el input, solo mostrar preview
         url: video.url || "",
@@ -60,11 +60,11 @@ const Videos = () => {
         activo: video.activo !== undefined ? video.activo : video.estado,
         tipo: video.tipo || 'editorial'
       });
-      
+
       // Mostrar la imagen actual
       setImagenActual(video.imagen);
       setImagenPreview(video.imagen);
-      
+
     } catch (err) {
       console.error('Error al cargar video para editar:', err);
       setError('Error al cargar el video para editar');
@@ -88,7 +88,7 @@ const Videos = () => {
         ...prev,
         imagen: file
       }));
-      
+
       // Crear preview de la nueva imagen
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -120,11 +120,11 @@ const Videos = () => {
 
       // Crear FormData para enviar archivos
       const formDataToSend = new FormData();
-      
+
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
       }
-      
+
       formDataToSend.append('url', formData.url);
       formDataToSend.append('fecha', formData.fecha);
       formDataToSend.append('tipo', formData.tipo);
@@ -140,7 +140,7 @@ const Videos = () => {
       }
 
       let resultado;
-      
+
       if (esModoEdicion) {
         // Modo edición
         //console.log('Iniciando edición de video...');
@@ -154,7 +154,7 @@ const Videos = () => {
         //console.log("Video creado exitosamente:", resultado);
         alert("¡Video agregado exitosamente!");
       }
-      
+
       // Éxito - limpiar el formulario
       setFormData({
         imagen: null,
@@ -165,10 +165,10 @@ const Videos = () => {
       });
       setImagenPreview(null);
       setImagenActual(null);
-      
+
       // Redirigir a la lista de videos
       navigate("/videosDashboard");
-      
+
     } catch (err) {
       console.error('Error en el formulario:', err);
       setError(err.message || "Error al procesar el video");
@@ -328,11 +328,10 @@ const Videos = () => {
             <button
               type="submit"
               disabled={cargando}
-              className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-                cargando
+              className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${cargando
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+                }`}
             >
               {cargando ? (
                 <div className="flex items-center justify-center">

@@ -37,7 +37,7 @@ const ResetPassword = () => {
             setMessage(`Contraseña actualizada para el usuario: ${usuarioActualizado}. Redirigiendo...`);
 
             setTimeout(() => {
-                navigate("/login");
+                navigate("/registro");
             }, 5000);
         } catch (err) {
             setError(

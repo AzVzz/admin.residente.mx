@@ -415,7 +415,7 @@ const B2BDashboard = () => {
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
-    navigate("/login");
+    navigate("/registro");
   };
 
   const handleEditar = () => {

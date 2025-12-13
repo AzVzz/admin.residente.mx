@@ -181,7 +181,9 @@ const Header = () => {
                       </div>
                     )
                   )}
-                  {usuario?.rol === 'b2b' ? (
+                  {!usuario ? (
+                    <Link to="/registro" className="hover:underline text-black font-roman">Iniciar Sesión</Link>
+                  ) : usuario.rol === 'b2b' ? (
                     <Link to="/dashboardb2b" className="hover:underline text-black font-roman">Dashboard</Link>
                   ) : (
                     <Link to="/notas" className="hover:underline text-black font-roman">Dashboard</Link>

@@ -215,7 +215,7 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="space-y-2 font-roman font-bold">
                 Tu nombre*
               </label>
