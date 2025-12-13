@@ -464,7 +464,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   slug={restaurante?.slug}
                   existingImages={restaurante?.imagenes}
                 />
-                <FotosLugar existingFotos={restaurante?.fotos_lugar || []} />
+                <FotosLugar 
+                  existingFotos={restaurante?.fotos_lugar || []} 
+                  restaurantId={idNegocio || restaurante?.id}
+                />
                 <TipoRestaurante />
                 <Categorias />
                 <RedesSociales />
