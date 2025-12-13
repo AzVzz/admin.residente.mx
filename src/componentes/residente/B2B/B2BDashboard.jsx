@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
+import { cuponesGetActivos } from "../../api/cuponesGet";
 // import FormularioBanner from "./FormularioBanner";
 
 const B2BDashboard = () => {
@@ -27,6 +28,9 @@ const B2BDashboard = () => {
 
   // Estado para la fecha actual
   const [fechaActual, setFechaActual] = useState(new Date());
+  const [cupon, setCupon] = useState(null);
+  const [loadingCupon, setLoadingCupon] = useState(true);
+  const [cupones, setCupones] = useState([]);
 
   useEffect(() => {
     if (showModal) {
@@ -389,6 +393,25 @@ const B2BDashboard = () => {
     obtenerSuscripcion();
   }, [b2bId]);
 
+  // Obtener el cupón del usuario
+  useEffect(() => {
+    const fetchCupones = async () => {
+      setLoadingCupon(true);
+      try {
+        const cuponesActivos = await cuponesGetActivos();
+        const misCupones = cuponesActivos.filter(c => c.user_id === usuario.id);
+        setCupones(misCupones);
+        setCupon(misCupones[0] || null); // Si quieres seguir mostrando el primero
+      } catch (err) {
+        setCupones([]);
+        setCupon(null);
+      } finally {
+        setLoadingCupon(false);
+      }
+    };
+    if (usuario) fetchCupones();
+  }, [usuario]);
+
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
@@ -427,6 +450,14 @@ const B2BDashboard = () => {
       ? restaurante.imagenes[0].src
       : `${imgApi}${restaurante.imagenes[0].src}`)
     : `${imgApi}/fotos/platillos/default.webp`;
+
+  // Calcular total de interacciones de los cupones del usuario
+  const totalInteraccionesCupones = cupones
+    .filter(c => c.user_id === usuario.id)
+    .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
+
+  const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
+  const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
 
   return (
     <div>
@@ -495,7 +526,7 @@ const B2BDashboard = () => {
               MICROSITIO
             </button>
             <button
-              onClick={handleFormularioPromo}
+              onClick={handleCupones}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               DESCUENTOS
@@ -526,21 +557,53 @@ const B2BDashboard = () => {
           <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
             <div>
-              <p className="text-[40px] font-bold text-black leading-tight">3,462</p>
-              <p className="text-sm text-black">Alcance total del club Residente</p>
+              <p className="text-[40px] font-bold text-black leading-tight">
+                {restaurante?.views?.toLocaleString("es-MX") || 0}
+              </p>
+              <p className="text-sm text-black">Vistas totales en tu restaurante</p>
             </div>
             <div>
-              <p className="text-[40px] font-bold text-black leading-tight">6,145</p>
-              <p className="text-sm text-black">Page-views de TU MARCA en Gula NL Residente</p>
+              <p className="text-[40px] font-bold text-black leading-tight">
+                {restaurante?.clicks?.toLocaleString("es-MX") || 0}
+              </p>
+              <p className="text-sm text-black">Clicks totales en tu restaurante</p>
             </div>
-            <div>
-              <p className="text-[40px] font-bold text-black leading-tight">12,128</p>
-              <p className="text-sm text-black">Page views de tumarca FUERA DE Gula NL Residente</p>
-            </div>
-            <div>
-              <p className="text-[40px] font-bold text-black leading-tight">6,532</p>
-              <p className="text-sm text-black">Clicks a tumarca (restaurantes y cupones)</p>
-            </div>
+            {restaurante && (
+              <div>
+                <p className="text-[40px] font-bold text-black leading-tight">
+                  {restaurante.total_interacciones?.toLocaleString("es-MX") || 0}
+                </p>
+                <p className="text-sm text-black">Total de interacciones (vistas y clicks) en tu restaurante</p>
+              </div>
+            )}
+            {/* Mostrar cupón del usuario */}
+            {/* Mostrar views y clicks del cupón del usuario */}
+            {loadingCupon ? (
+              <div>Cargando cupón...</div>
+            ) : cupon ? (
+              <>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.views?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Vistas totales de tu cupón</p>
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.clicks?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Clicks totales de tu cupón</p>
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.total_interacciones?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Total de interacciones (vistas y clicks) de tu cupón</p>
+                </div>
+              </>
+            ) : (
+              <div>No tienes cupones activos.</div>
+            )}
           </div>
         </div>
         {/* Columna roja */}

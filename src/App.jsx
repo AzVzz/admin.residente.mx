@@ -302,7 +302,7 @@ function App() {
               />
 
               <Route
-                path="/oped"
+                path="/registrocolaboradores"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <OpinionEditorial />
@@ -426,7 +426,7 @@ function App() {
               <Route
                 path="/registroinvitados"
                 element={
-                  <div className="max-w-[650px] mx-auto">
+                  <div className="max-w-[1080px] mx-auto py-10">
                     <RegistroInvitados />
                   </div>
                 }
