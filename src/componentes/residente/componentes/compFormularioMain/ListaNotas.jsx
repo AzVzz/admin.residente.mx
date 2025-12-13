@@ -389,7 +389,7 @@ const ListaNotas = () => {
       (usuario?.rol !== 'b2b') && ( // Hide all menu options for B2B users if they are here
         option.key === "notas" ||
         option.key === "recetas" ||
-        (option.key === "cupones" && !esInvitado) ||
+        (option.key === "cupones" && !esInvitado && usuario?.rol !== 'colaborador') ||
         (esResidente && option.key === "restaurante_link") ||
         (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
       )
