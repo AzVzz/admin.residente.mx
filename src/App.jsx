@@ -421,6 +421,15 @@ function App() {
               />
 
               <Route
+                path="/registro"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <Registro />
+                  </div>
+                }
+              />
+
+              <Route
                 path="/registroinvitados"
                 element={
                   <div className="max-w-[650px] mx-auto">

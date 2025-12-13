@@ -42,7 +42,7 @@ const Registro = () => {
 
             <div className="flex flex-col">
               <span className="leading-tight text-2xl">Colaborador</span>
-              <a href="/oped">
+              <a href="/registrocolaboradores">
                 <button
                   type="submit"
                   className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] bg-[#fff200] text-black"
