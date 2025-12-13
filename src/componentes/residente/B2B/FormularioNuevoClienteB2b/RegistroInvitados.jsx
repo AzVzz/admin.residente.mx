@@ -63,7 +63,7 @@ const RegistroInvitados = () => {
             });
 
             setMsg("¡Registro exitoso! Redirigiendo...");
-            setTimeout(() => navigate("/login"), 2000);
+            setTimeout(() => navigate("/registro"), 2000);
         } catch (err) {
             setError(err.message || "Error al registrar");
         } finally {

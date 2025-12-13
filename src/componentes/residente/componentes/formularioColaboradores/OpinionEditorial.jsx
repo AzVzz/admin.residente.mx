@@ -9,6 +9,10 @@ import PortadaRevista from "../componentesColumna2/PortadaRevista";
 
 const OpinionEditorial = () => {
   const [formData, setFormData] = useState({
+    nombre_usuario: '',
+    password: '',
+    confirm_password: '',
+    correo: '',
     nombre: '',
     anio_nacimiento: '',
     lugar_nacimiento: '',
@@ -16,10 +20,7 @@ const OpinionEditorial = () => {
     instagram: '',
     facebook: '',
     otras_redes: '',
-    nombre_usuario: '',
-    password: '',
-    confirm_password: '',
-    correo: ''
+    codigo: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -80,7 +81,8 @@ const OpinionEditorial = () => {
       !formData.correo ||
       !formData.nombre ||
       !formData.anio_nacimiento ||
-      !formData.lugar_nacimiento
+      !formData.lugar_nacimiento ||
+      !formData.codigo
     ) {
       setMessage({ type: 'error', text: 'Por favor completa todos los campos obligatorios.' });
       return;
@@ -105,7 +107,8 @@ const OpinionEditorial = () => {
         curriculum: formData.curriculum || null,
         instagram: formData.instagram || null,
         facebook: formData.facebook || null,
-        otras_redes: formData.otras_redes || null
+        otras_redes: formData.otras_redes || null,
+        codigo: formData.codigo
       };
 
       if (fotografia) {
@@ -129,7 +132,8 @@ const OpinionEditorial = () => {
         curriculum: '',
         instagram: '',
         facebook: '',
-        otras_redes: ''
+        otras_redes: '',
+        codigo: ''
       });
       setFotografia(null);
       setFotoPreview(null);
@@ -139,32 +143,41 @@ const OpinionEditorial = () => {
         navigate('/registro');
       }, 2000);
     } catch (error) {
-      let errorMsg = `Error al enviar el formulario: ${error.message}`;
-      // Intenta parsear el error si es JSON
+      console.error("Error catch:", error);
+      let errorMsg = "Error al enviar el formulario.";
+
       try {
-        const errObj = JSON.parse(error.message.replace(/^Error del servidor: [^ ]+ [^ ]+ - /, ''));
-        if (
-          errObj?.sequelize &&
-          Array.isArray(errObj.sequelize) &&
-          errObj.sequelize[0]?.type === "unique violation" &&
-          errObj.sequelize[0]?.path === "nombre_usuario"
-        ) {
-          errorMsg = "El nombre de usuario ya existe, elige otro.";
+        // Extract JSON part if present
+        const jsonStart = error.message.indexOf('{');
+        const jsonEnd = error.message.lastIndexOf('}');
+
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          const jsonStr = error.message.substring(jsonStart, jsonEnd + 1);
+          const errObj = JSON.parse(jsonStr);
+
+          if (errObj?.sequelize && Array.isArray(errObj.sequelize)) {
+            const violation = errObj.sequelize[0];
+            if (violation?.type === "unique violation") {
+              if (violation.path === "nombre_usuario") {
+                errorMsg = "El nombre de usuario ya existe, pofavor elige otro.";
+              } else if (violation.path === "correo") {
+                errorMsg = "El correo electrónico ya está registrado.";
+              }
+            }
+          } else if (errObj.error) {
+            errorMsg = errObj.error;
+          } else if (errObj.details) {
+            errorMsg = errObj.details;
+          }
+        } else {
+          // Fallback if no JSON found
+          errorMsg = error.message;
         }
-        if (
-          errObj?.sequelize &&
-          Array.isArray(errObj.sequelize) &&
-          errObj.sequelize[0]?.type === "unique violation" &&
-          errObj.sequelize[0]?.path === "correo"
-        ) {
-          errorMsg = "El correo electrónico ya está registrado, usa otro.";
-        }
-      } catch {
-        // Si no se puede parsear, busca el texto en el mensaje
-        if (error.message.includes("unique violation") && error.message.includes("nombre_usuario")) {
-          errorMsg = "El nombre de usuario ya existe, elige otro.";
-        }
+      } catch (e) {
+        console.error("Error parsing error response:", e);
+        errorMsg = error.message;
       }
+
       setMessage({
         type: 'error',
         text: errorMsg
@@ -188,6 +201,20 @@ const OpinionEditorial = () => {
             destino de nuestro estado.
           </p>
           <form onSubmit={handleSubmit}>
+            <div>
+              <label className="space-y-2 font-roman font-bold">
+                Código de Acceso*
+              </label>
+              <input
+                type="text"
+                name="codigo"
+                value={formData.codigo}
+                onChange={handleInputChange}
+                placeholder="Ingresa tu código de invitación"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                required
+              />
+            </div>
             <div>
               <label className="space-y-2 font-roman font-bold">
                 Tu nombre*

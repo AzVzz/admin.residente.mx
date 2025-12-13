@@ -35,7 +35,7 @@ const FormMain = () => {
     // Verificar query params primero (si viene del checkout)
     const paymentSuccess = searchParams.get("payment_success");
     const paymentCanceled = searchParams.get("payment_canceled");
-    
+
     if (paymentSuccess === "true") {
       const sessionId = searchParams.get("session_id");
       setPaymentCompleted(true);
@@ -49,7 +49,7 @@ const FormMain = () => {
       if (sessionId) {
         localStorage.setItem("b2b_stripe_session_id", sessionId);
       }
-      
+
       // Restaurar los datos del formulario si existen
       const savedFormData = localStorage.getItem("b2b_form_data");
       if (savedFormData) {
@@ -74,7 +74,7 @@ const FormMain = () => {
       // Verificar localStorage como respaldo, pero solo si hay session_id válido
       const storedPayment = localStorage.getItem("b2b_payment_completed");
       const storedSessionId = localStorage.getItem("b2b_stripe_session_id");
-      
+
       // Solo marcar como completado si hay tanto el flag como un session_id válido
       if (storedPayment === "true" && storedSessionId && storedSessionId.trim() !== "") {
         setPaymentCompleted(true);
@@ -191,7 +191,7 @@ const FormMain = () => {
     try {
       // Obtener el session_id de Stripe si existe
       const savedSessionId = localStorage.getItem("b2b_stripe_session_id") || stripeSessionId;
-      
+
       let usuarioRes;
       let usuarioId;
 
@@ -208,7 +208,7 @@ const FormMain = () => {
         // Si el error es que el usuario ya existe, intentar obtener el usuario B2B existente
         if (error.message && error.message.includes("ya existe")) {
           console.log("⚠️ El usuario ya existe, buscando usuario B2B existente...");
-          
+
           // Si tenemos session_id, el backend debería poder encontrar el usuario B2B
           // En este caso, solo necesitamos actualizar el usuario B2B con los datos del formulario
           if (savedSessionId) {
@@ -217,13 +217,13 @@ const FormMain = () => {
               const apiUrl = import.meta.env.DEV
                 ? "/api/stripe/checkout-session/" + savedSessionId
                 : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
-              
+
               const sessionRes = await fetch(apiUrl);
               const sessionData = await sessionRes.json();
-              
+
               if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
                 const b2bId = parseInt(sessionData.session.metadata.b2b_id);
-                
+
                 // ⭐ CRÍTICO: Necesitamos obtener el usuario_id del usuario existente
                 // Por ahora, intentar obtenerlo desde el backend o usar el correo para buscarlo
                 // Actualizar el usuario B2B existente con los datos del formulario
@@ -242,9 +242,9 @@ const FormMain = () => {
                   terminos_condiciones: true,
                   stripe_session_id: savedSessionId,
                 };
-                
+
                 const b2bRes = await extensionB2bPost(b2bData);
-                
+
                 setSuccessMsg("¡Cuenta actualizada exitosamente!");
                 setPaymentCompleted(false);
                 localStorage.removeItem("b2b_payment_completed");
@@ -256,7 +256,7 @@ const FormMain = () => {
               console.error("Error obteniendo sesión:", sessionError);
             }
           }
-          
+
           // Si no podemos obtener el usuario B2B, mostrar error más específico
           setSuccessMsg("");
           setPaymentError("El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario.");
@@ -279,10 +279,10 @@ const FormMain = () => {
           const apiUrl = import.meta.env.DEV
             ? "/api/stripe/checkout-session/" + savedSessionId
             : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
-          
+
           const sessionRes = await fetch(apiUrl);
           const sessionData = await sessionRes.json();
-          
+
           if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
             b2bId = parseInt(sessionData.session.metadata.b2b_id);
             console.log("✅ b2b_id obtenido desde session:", b2bId);
@@ -306,16 +306,16 @@ const FormMain = () => {
         terminos_condiciones: true,
         stripe_session_id: savedSessionId || undefined, // IMPORTANTE: Para que el backend pueda buscar el registro
       };
-      
+
       console.log("📤 Enviando datos a /api/usuariosb2b:", {
         b2b_id: b2bId,
         usuario_id: usuarioId,
         correo: formData.correo,
         stripe_session_id: savedSessionId
       });
-      
+
       const b2bRes = await extensionB2bPost(b2bData);
-      
+
       console.log("✅ Respuesta del backend usuariosb2b:", b2bRes);
 
       // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
@@ -324,7 +324,7 @@ const FormMain = () => {
           const apiUrl = import.meta.env.DEV
             ? "/api/stripe/associate-session"
             : "https://admin.residente.mx/api/stripe/associate-session";
-          
+
           await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -356,7 +356,11 @@ const FormMain = () => {
       setStripeSessionId("");
       localStorage.removeItem("b2b_payment_completed");
       localStorage.removeItem("b2b_stripe_session_id");
-      setTimeout(() => setSuccessMsg(""), 3000);
+      localStorage.removeItem("b2b_stripe_session_id");
+      setTimeout(() => {
+        setSuccessMsg("");
+        window.location.href = "/login";
+      }, 3000);
     } catch (error) {
       console.error("Error en handleSubmit:", error);
       // Mostrar error más amigable al usuario
@@ -370,320 +374,319 @@ const FormMain = () => {
   };
 
   return (
-    
+
     <div className="grid grid-cols-[minmax(680px,2fr)_minmax(350px,1fr)] gap-x-12 gap-y-9 max-w-[1400px] mx-auto py-8">
       <div className="flex flex-col left-column translate-x-[-200px]">
-      <img
-        className="w-25 pb-5"
-        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
-      />
+        <img
+          className="w-25 pb-5"
+          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
+        />
 
-      <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
+        <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
 
-      <form onSubmit={handleSubmit}>
-        {/* Campo nombre del responsable */}
-        <div>
-          <label className="space-y-2 font-roman font-bold ">
-            Nombre del responsable*
-          </label>
-          <input
-            type="text"
-            name="nombre_responsable_restaurante"
-            value={formData.nombre_responsable_restaurante}
-            onChange={handleChange}
-            placeholder="Nombre del responsable"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Nombre comercial del restaurante*
-          </label>
-          <input
-            type="text"
-            name="nombre_restaurante"
-            value={formData.nombre_restaurante}
-            onChange={handleChange}
-            placeholder="Nombre del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Teléfono*
-          </label>
-          <input
-            type="text"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            placeholder="Teléfono del restaurante"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Correo Electrónico*
-          </label>
-          <input
-            type="text"
-            name="correo"
-            value={formData.correo}
-            onChange={handleChange}
-            placeholder="Escribe tu correo electrónico"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            RFC*
-          </label>
-          <input
-            type="text"
-            name="rfc"
-            value={formData.rfc}
-            onChange={handleChange}
-            placeholder="Escribe tu RFC"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Dirección completa del restaurante*
-          </label>
-          <input
-            type="text"
-            name="direccion_completa"
-            value={formData.direccion_completa}
-            onChange={handleChange}
-            placeholder="Calle, número, colonia, municipio, código postal"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Razón Social*
-          </label>
-          <input
-            type="text"
-            name="razon_social"
-            value={formData.razon_social}
-            onChange={handleChange}
-            placeholder="Escribe la razón social"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Nombre de usuario*
-          </label>
-          <input
-            type="text"
-            name="nombre_usuario"
-            value={formData.nombre_usuario}
-            onChange={handleChange}
-            placeholder="Tu nombre de usuario"
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-          />
-        </div>
-
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Contraseña*
-          </label>
-          <div className="relative">
+        <form onSubmit={handleSubmit}>
+          {/* Campo nombre del responsable */}
+          <div>
+            <label className="space-y-2 font-roman font-bold ">
+              Nombre del responsable*
+            </label>
             <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
+              type="text"
+              name="nombre_responsable_restaurante"
+              value={formData.nombre_responsable_restaurante}
               onChange={handleChange}
-              placeholder="Escribe  contraseña"
+              placeholder="Nombre del responsable"
               className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
             />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Nombre comercial del restaurante*
+            </label>
+            <input
+              type="text"
+              name="nombre_restaurante"
+              value={formData.nombre_restaurante}
+              onChange={handleChange}
+              placeholder="Nombre del restaurante"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Teléfono*
+            </label>
+            <input
+              type="text"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              placeholder="Teléfono del restaurante"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Correo Electrónico*
+            </label>
+            <input
+              type="text"
+              name="correo"
+              value={formData.correo}
+              onChange={handleChange}
+              placeholder="Escribe tu correo electrónico"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              RFC*
+            </label>
+            <input
+              type="text"
+              name="rfc"
+              value={formData.rfc}
+              onChange={handleChange}
+              placeholder="Escribe tu RFC"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Dirección completa del restaurante*
+            </label>
+            <input
+              type="text"
+              name="direccion_completa"
+              value={formData.direccion_completa}
+              onChange={handleChange}
+              placeholder="Calle, número, colonia, municipio, código postal"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Razón Social*
+            </label>
+            <input
+              type="text"
+              name="razon_social"
+              value={formData.razon_social}
+              onChange={handleChange}
+              placeholder="Escribe la razón social"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Nombre de usuario*
+            </label>
+            <input
+              type="text"
+              name="nombre_usuario"
+              value={formData.nombre_usuario}
+              onChange={handleChange}
+              placeholder="Tu nombre de usuario"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+            />
+          </div>
+
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Contraseña*
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Escribe  contraseña"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="flex items-center space-y-2 font-roman font-bold space-x-2">
+              <input type="checkbox" className="w-6 h-6" />
+              <span>
+                Acepto los{" "}
+                <span
+                  className="text-blue-600 underline cursor-pointer"
+                  onClick={() => setShowModal(true)}
+                >
+                  Términos y Condiciones
+                </span>
+                *
+              </span>
+            </label>
+          </div>
+          {showModal && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
+              <div className="bg-white rounded shadow-lg max-w-lg w-full p-6 relative overflow-y-auto max-h-[80vh]">
+                <button
+                  className="absolute top-2 right-3 text-xl text-gray-600 cursor-pointer"
+                  onClick={() => setShowModal(false)}
+                >
+                  ×
+                </button>
+                <TerminosyCondiciones />
+              </div>
+            </div>
+          )}
+
+          {/* Mensaje de exito */}
+          {successMsg && (
+            <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
+          )}
+
+          {/* Mensaje de pago completado */}
+          {paymentCompleted && (
+            <div className="text-green-600 font-bold text-center mt-4 mb-4">
+              <div>✓ Pago completado exitosamente. Ahora puedes crear tu cuenta.</div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPaymentCompleted(false);
+                  setStripeSessionId("");
+                  localStorage.removeItem("b2b_payment_completed");
+                  localStorage.removeItem("b2b_stripe_session_id");
+                  setPaymentError("");
+                }}
+                className="text-sm text-blue-600 underline mt-2 hover:text-blue-800"
+              >
+                ¿No has pagado? Haz clic aquí para resetear y pagar
+              </button>
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="flex flex-col items-center gap-4 mt-6">
+            {/* Botón de Pagar */}
+            {!paymentCompleted && (
+              <button
+                type="button"
+                onClick={handlePaymentClick}
+                disabled={paymentLoading}
+                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {paymentLoading ? "Procesando..." : "Pagar"}
+              </button>
+            )}
+
+            {/* Botón de Crear cuenta */}
             <button
-              type="button"
-              className="absolute right-3 top-2 text-xl text-black cursor-pointer"
-              onClick={() => setShowPassword((v) => !v)}
+              type="submit"
+              disabled={!paymentCompleted}
+              className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${paymentCompleted
+                ? "bg-[#fff200] text-black"
+                : "bg-gray-400 text-gray-600 cursor-not-allowed"
+                }`}
             >
-              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              Crear cuenta
             </button>
           </div>
-        </div>
+        </form>
 
-        <div className="mt-4">
-          <label className="flex items-center space-y-2 font-roman font-bold space-x-2">
-            <input type="checkbox" className="w-6 h-6" />
-            <span>
-              Acepto los{" "}
-              <span
-                className="text-blue-600 underline cursor-pointer"
-                onClick={() => setShowModal(true)}
-              >
-                Términos y Condiciones
-              </span>
-              *
-            </span>
-          </label>
-        </div>
-        {showModal && (
+        {/* Modal de Checkout de Stripe */}
+        {showPaymentModal && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
-            <div className="bg-white rounded shadow-lg max-w-lg w-full p-6 relative overflow-y-auto max-h-[80vh]">
+            <div className="bg-white rounded shadow-lg max-w-lg w-full p-8 relative">
               <button
-                className="absolute top-2 right-3 text-xl text-gray-600 cursor-pointer"
-                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-2xl text-gray-600 cursor-pointer hover:text-gray-800 z-10"
+                onClick={() => {
+                  setShowPaymentModal(false);
+                  setPaymentLoading(false);
+                  setPaymentError("");
+                }}
               >
                 ×
               </button>
-              <TerminosyCondiciones />
-            </div>
-          </div>
-        )}
 
-        {/* Mensaje de exito */}
-        {successMsg && (
-          <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
-        )}
+              <div className="mt-2">
+                <h2 className="text-2xl font-bold mb-6 text-center">Checkout de Pago</h2>
 
-        {/* Mensaje de pago completado */}
-        {paymentCompleted && (
-          <div className="text-green-600 font-bold text-center mt-4 mb-4">
-            <div>✓ Pago completado exitosamente. Ahora puedes crear tu cuenta.</div>
-            <button
-              type="button"
-              onClick={() => {
-                setPaymentCompleted(false);
-                setStripeSessionId("");
-                localStorage.removeItem("b2b_payment_completed");
-                localStorage.removeItem("b2b_stripe_session_id");
-                setPaymentError("");
-              }}
-              className="text-sm text-blue-600 underline mt-2 hover:text-blue-800"
-            >
-              ¿No has pagado? Haz clic aquí para resetear y pagar
-            </button>
-          </div>
-        )}
+                {paymentError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <p className="font-bold">Error:</p>
+                    <p>{paymentError}</p>
+                  </div>
+                )}
 
-        {/* Botones */}
-        <div className="flex flex-col items-center gap-4 mt-6">
-          {/* Botón de Pagar */}
-          {!paymentCompleted && (
-            <button
-              type="button"
-              onClick={handlePaymentClick}
-              disabled={paymentLoading}
-              className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {paymentLoading ? "Procesando..." : "Pagar"}
-            </button>
-          )}
-
-          {/* Botón de Crear cuenta */}
-          <button
-            type="submit"
-            disabled={!paymentCompleted}
-            className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${
-              paymentCompleted
-                ? "bg-[#fff200] text-black"
-                : "bg-gray-400 text-gray-600 cursor-not-allowed"
-            }`}
-          >
-            Crear cuenta
-          </button>
-        </div>
-      </form>
-
-      {/* Modal de Checkout de Stripe */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
-          <div className="bg-white rounded shadow-lg max-w-lg w-full p-8 relative">
-            <button
-              className="absolute top-4 right-4 text-2xl text-gray-600 cursor-pointer hover:text-gray-800 z-10"
-              onClick={() => {
-                setShowPaymentModal(false);
-                setPaymentLoading(false);
-                setPaymentError("");
-              }}
-            >
-              ×
-            </button>
-            
-            <div className="mt-2">
-              <h2 className="text-2xl font-bold mb-6 text-center">Checkout de Pago</h2>
-              
-              {paymentError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                  <p className="font-bold">Error:</p>
-                  <p>{paymentError}</p>
+                <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  <div className="text-center">
+                    <p className="text-xl font-semibold mb-2 text-gray-800">B2B Residente</p>
+                    <p className="text-3xl font-bold text-blue-600 mb-2">$2,199.00 MXN</p>
+                    <p className="text-sm text-gray-600 mb-1">Suscripción mensual</p>
+                    <p className="text-sm text-green-600 font-semibold italic">Ya con IVA incluido</p>
+                  </div>
                 </div>
-              )}
 
-              <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                <div className="text-center">
-                  <p className="text-xl font-semibold mb-2 text-gray-800">B2B Residente</p>
-                  <p className="text-3xl font-bold text-blue-600 mb-2">$2,199.00 MXN</p>
-                  <p className="text-sm text-gray-600 mb-1">Suscripción mensual</p>
-                  <p className="text-sm text-green-600 font-semibold italic">Ya con IVA incluido</p>
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Plan:</span>
+                    <span className="font-semibold">B2B Residente</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Periodo:</span>
+                    <span className="font-semibold">Mensual</span>
+                  </div>
+                  <div className="flex justify-between text-sm border-t pt-2">
+                    <span className="text-gray-600">Total:</span>
+                    <span className="font-bold text-lg text-blue-600">$2,199.00 MXN</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Plan:</span>
-                  <span className="font-semibold">B2B Residente</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Periodo:</span>
-                  <span className="font-semibold">Mensual</span>
-                </div>
-                <div className="flex justify-between text-sm border-t pt-2">
-                  <span className="text-gray-600">Total:</span>
-                  <span className="font-bold text-lg text-blue-600">$2,199.00 MXN</span>
-                </div>
-              </div>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={handleProceedToCheckout}
+                    disabled={paymentLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {paymentLoading ? (
+                      <span className="flex items-center justify-center">
+                        <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                        Procesando...
+                      </span>
+                    ) : (
+                      "Continuar al Pago"
+                    )}
+                  </button>
 
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={handleProceedToCheckout}
-                  disabled={paymentLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                >
-                  {paymentLoading ? (
-                    <span className="flex items-center justify-center">
-                      <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                      Procesando...
-                    </span>
-                  ) : (
-                    "Continuar al Pago"
-                  )}
-                </button>
-                
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setPaymentLoading(false);
-                    setPaymentError("");
-                  }}
-                  disabled={paymentLoading}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
+                  <button
+                    onClick={() => {
+                      setShowPaymentModal(false);
+                      setPaymentLoading(false);
+                      setPaymentError("");
+                    }}
+                    disabled={paymentLoading}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
 
-              <div className="mt-6 text-center text-xs text-gray-500">
-                <p>Serás redirigido a Stripe para completar el pago de forma segura.</p>
-                <p className="mt-1">Una vez completado el pago, regresarás aquí para crear tu cuenta.</p>
+                <div className="mt-6 text-center text-xs text-gray-500">
+                  <p>Serás redirigido a Stripe para completar el pago de forma segura.</p>
+                  <p className="mt-1">Una vez completado el pago, regresarás aquí para crear tu cuenta.</p>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         )}
       </div>
@@ -692,7 +695,7 @@ const FormMain = () => {
         <DirectorioVertical />
         <PortadaRevista />
         <BotonesAnunciateSuscribirme />
-        </div>
+      </div>
     </div>
   );
 };

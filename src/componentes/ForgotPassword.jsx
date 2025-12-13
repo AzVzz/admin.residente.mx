@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { urlApi } from "./api/url";
 import axios from "axios";
+import BotonesAnunciateSuscribirme from "./residente/componentes/componentesColumna1/BotonesAnunciateSuscribirme";
+import Infografia from "./residente/componentes/componentesColumna1/Infografia";
+import DirectorioVertical from "./residente/componentes/componentesColumna2/DirectorioVertical";
+import PortadaRevista from "./residente/componentes/componentesColumna2/PortadaRevista";
 
 const ForgotPassword = () => {
     const [correo, setCorreo] = useState("");
@@ -30,55 +34,67 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xs border border-gray-200">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-                    Recuperar Contraseña
-                </h2>
+        <div className="max-w-[1080px] mx-auto py-8">
+            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
+                <div className="flex flex-col">
+                    <div className="mb-8">
+                        <h1 className="text-[40px] mb-8 text-center">Recuperar Contraseña</h1>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label
-                            className="block text-gray-700 text-sm font-bold mb-2"
-                            htmlFor="correo"
-                        >
-                            Correo Electrónico
-                        </label>
-                        <input
-                            id="correo"
-                            type="email"
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            placeholder="tu@email.com"
-                            value={correo}
-                            onChange={(e) => setCorreo(e.target.value)}
-                            required
-                        />
+                        <div className="flex justify-center">
+                            <form onSubmit={handleSubmit} className="">
+                                <div className="mb-4 max-w-[250px]">
+                                    <label
+                                        className="space-y-2 font-roman font-bold"
+                                        htmlFor="correo"
+                                    >
+                                        Correo Electrónico
+                                    </label>
+                                    <input
+                                        id="correo"
+                                        type="email"
+                                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm max-w-[250px]"
+                                        placeholder="tu@email.com"
+                                        value={correo}
+                                        onChange={(e) => setCorreo(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading ? "bg-gray-400 text-gray-600" : "bg-[#fff200] text-black"
+                                        }`}
+                                >
+                                    {loading ? "Enviando..." : "Enviar enlace"}
+                                </button>
+
+                                {message && (
+                                    <div className="mt-4 text-green-600 font-bold max-w-[250px]">
+                                        {message}
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="mt-4 text-red-600 font-bold max-w-[250px]">{error}</div>
+                                )}
+
+                                <div className="mt-4 max-w-[250px] text-center">
+                                    <Link to="/registro" className="text-sm font-bold text-black hover:underline">
+                                        Volver al registro
+                                    </Link>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+                </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={`w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-white ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                            }`}
-                    >
-                        {loading ? "Enviando..." : "Enviar enlace"}
-                    </button>
-                </form>
-
-                {message && (
-                    <div className="mt-4 text-green-600 text-center text-sm">
-                        {message}
-                    </div>
-                )}
-
-                {error && (
-                    <div className="mt-4 text-red-600 text-center text-sm">{error}</div>
-                )}
-
-                <div className="mt-4 text-center">
-                    <Link to="/login" className="text-sm text-blue-500 hover:text-blue-800">
-                        Volver al inicio de sesión
-                    </Link>
+                {/* Barra lateral */}
+                <div className="flex flex-col items-end justify-start gap-10">
+                    <DirectorioVertical />
+                    <PortadaRevista />
+                    <BotonesAnunciateSuscribirme />
+                    <Infografia />
                 </div>
             </div>
         </div>

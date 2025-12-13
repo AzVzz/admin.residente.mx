@@ -123,11 +123,10 @@ export default function LoginForm({
         <button
           type="submit"
           disabled={loading}
-          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${
-            loading
+          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading
               ? "bg-gray-400 text-gray-600 cursor-not-allowed"
               : "bg-[#fff200] text-black"
-          }`}
+            }`}
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}
         </button>
@@ -138,6 +137,12 @@ export default function LoginForm({
             ¡Sesión iniciada correctamente!
           </div>
         )}
+
+        <div className="mt-4 text-center">
+          <a href="/recuperar-password" className="text-sm font-bold text-black hover:underline cursor-pointer">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
       </form>
     </div>
   );
