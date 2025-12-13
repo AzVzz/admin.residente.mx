@@ -1,7 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { getPreguntaActual, getConsejerosNombres, postRespuestaSemana } from "../../../api/temaSemanaApi";
-import { FiUpload } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { getPreguntaActual, getColaboradores, postRespuestaSemana } from "../../../api/temaSemanaApi";
 import DirectorioVertical from "../componentesColumna2/DirectorioVertical";
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
@@ -11,8 +9,6 @@ const RespuestasSemana = () => {
     const [pregunta, setPregunta] = useState("");
     const [consejeros, setConsejeros] = useState([]);
     const [idConsejero, setIdConsejero] = useState("");
-    const [consejeroInput, setConsejeroInput] = useState("");
-    const [showDropdown, setShowDropdown] = useState(false);
     const [curriculum, setCurriculum] = useState("");
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
@@ -21,45 +17,42 @@ const RespuestasSemana = () => {
     const [imagenPreview, setImagenPreview] = useState(null);
     const [respuestaConsejo, setRespuestaConsejo] = useState(false);
     const [textoConsejo, setTextoConsejo] = useState("");
-    const inputRef = useRef(null);
+    const [isLogged, setIsLogged] = useState(false);
+    const [isColaborador, setIsColaborador] = useState(false);
+    const [nombreColaborador, setNombreColaborador] = useState("");
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
         getPreguntaActual()
             .then(data => setPregunta(data.pregunta || ""))
             .catch(() => setPregunta(""));
-        getConsejerosNombres()
+        getColaboradores()
             .then(setConsejeros)
             .catch(() => setConsejeros([]));
     }, []);
 
-    // Filtra los consejeros según lo que escribe el usuario
-    const filteredConsejeros = consejeros.filter(c =>
-        c.nombre.toLowerCase().includes(consejeroInput.toLowerCase())
-    );
-
-    // Cuando selecciona un consejero de la lista
-    const handleSelectConsejero = (c) => {
-        setIdConsejero(c.id);
-        setConsejeroInput(c.nombre);
-        setShowDropdown(false);
-    };
-
-    // Si el usuario borra el input, borra el id también
     useEffect(() => {
-        if (!consejeroInput) setIdConsejero("");
-    }, [consejeroInput]);
+        const usuarioStr = localStorage.getItem("usuario");
+        let usuario = null;
+        try {
+            usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
+        } catch {
+            usuario = null;
+        }
+        setIsLogged(!!usuario);
+        setIsColaborador(usuario?.rol === "colaborador");
+        setNombreColaborador(usuario?.nombre_usuario || "");
 
-    // Cierra el dropdown si hace click fuera
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (inputRef.current && !inputRef.current.contains(event.target)) {
-                setShowDropdown(false);
+        // Busca el id del consejero por usuario_id (¡más seguro!)
+        if (usuario?.rol === "colaborador" && consejeros.length > 0 && usuario?.id) {
+            const consejero = consejeros.find(c => c.usuario_id === usuario.id);
+            if (consejero) {
+                setIdConsejero(consejero.id);
+            } else {
+                setIdConsejero(""); // No encontrado
             }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        }
+    }, [consejeros]);
 
     const handleImageChange = (e) => {
         const file = e.target.files && e.target.files[0];
@@ -74,7 +67,22 @@ const RespuestasSemana = () => {
         setMensaje("");
         setLoading(true);
 
-        // Si es consejo, limpia los campos de colaboración normal
+        if (!isLogged) {
+            setMensaje("Debes iniciar sesión para publicar.");
+            setLoading(false);
+            return;
+        }
+        if (!isColaborador) {
+            setMensaje("Solo los colaboradores pueden publicar.");
+            setLoading(false);
+            return;
+        }
+        if (!idConsejero) {
+            setMensaje("No se encontró tu usuario en la lista de colaboradores. Contacta a soporte.");
+            setLoading(false);
+            return;
+        }
+
         let curriculumToSend = curriculum;
         let tituloToSend = titulo;
         let imagenToSend = imagen;
@@ -96,8 +104,6 @@ const RespuestasSemana = () => {
             });
             setMensaje("¡Respuesta enviada correctamente!");
             setCurriculum("");
-            setIdConsejero("");
-            setConsejeroInput("");
             setTitulo("");
             setImagen(null);
             setImagenPreview(null);
@@ -133,37 +139,19 @@ const RespuestasSemana = () => {
                         <h2 className="text-xl font-bold mb-4 text-center">
                             {pregunta ? pregunta : "No hay preguntas por el momento"}
                         </h2>
-                        {/* Autocomplete manual */}
-                        <div ref={inputRef}>
+                        {/* Campo Colaborador solo lectura */}
+                        <div>
                             <label className="space-y-2 font-roman font-bold">
                                 Colaborador*
                             </label>
                             <input
                                 type="text"
-                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                value={consejeroInput}
-                                onChange={e => {
-                                    setConsejeroInput(e.target.value);
-                                    setShowDropdown(true);
-                                }}
-                                onFocus={() => setShowDropdown(true)}
-                                autoComplete="off"
+                                className="bg-gray-100 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none font-family-roman font-bold text-sm"
+                                value={nombreColaborador}
+                                readOnly
                                 required
-                                placeholder="Escribe tu nombre y selecciónalo"
+                                placeholder="Nombre del colaborador"
                             />
-                            {showDropdown && filteredConsejeros.length > 0 && (
-                                <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-48 overflow-y-auto shadow-lg">
-                                    {filteredConsejeros.map(c => (
-                                        <li
-                                            key={c.id}
-                                            className="px-4 py-2 hover:bg-yellow-100 cursor-pointer"
-                                            onClick={() => handleSelectConsejero(c)}
-                                        >
-                                            {c.nombre}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
                         </div>
                         {!respuestaConsejo && (
                             <div>
@@ -239,6 +227,7 @@ const RespuestasSemana = () => {
                                 />
                             </div>
                         )}
+                        {/* Mensaje de éxito o error justo arriba del botón */}
                         {mensaje && (
                             <div className="text-center font-bold mt-4 text-black">
                                 {mensaje}
@@ -246,11 +235,11 @@ const RespuestasSemana = () => {
                         )}
                         <button
                             type="submit"
-                            className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${loading
+                            className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${loading || !isLogged || !isColaborador
                                 ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                                 : "bg-[#fff200] hover:bg-[#e6d900] text-black"
                                 }`}
-                            disabled={loading}
+                            disabled={loading || !isLogged || !isColaborador}
                         >
                             {loading
                                 ? "Enviando..."
@@ -258,6 +247,16 @@ const RespuestasSemana = () => {
                                     ? "Enviar consejo editorial"
                                     : "Enviar colaboración"}
                         </button>
+                        {!isLogged && (
+                            <div className="text-center font-bold mt-4 text-red-600">
+                                Debes iniciar sesión para publicar.
+                            </div>
+                        )}
+                        {isLogged && !isColaborador && (
+                            <div className="text-center font-bold mt-4 text-red-600">
+                                Solo los colaboradores pueden publicar.
+                            </div>
+                        )}
                     </form>
                 </div>
                 {/* Columna lateral */}
