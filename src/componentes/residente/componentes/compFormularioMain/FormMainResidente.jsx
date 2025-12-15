@@ -121,6 +121,7 @@ const FormMainResidente = () => {
   const contenido = watch('contenido');
   const imagen = watch('imagen');
   const instafoto = watch('instafoto');
+  const nombreRestaurante = watch('nombre_restaurante');
 
 
   function isContenidoVacio(contenido) {
@@ -162,6 +163,61 @@ const FormMainResidente = () => {
     }
   }, [faltanCamposObligatorios, setValue]);
 
+
+  useEffect(() => {
+    if (faltanCamposObligatorios) {
+      setValue('opcionPublicacion', 'borrador');
+    }
+  }, [faltanCamposObligatorios, setValue]);
+
+  // --- AUTO-GENERACIÓN SEO (Notas) ---
+  const zonas = watch('zonas');
+  const tiposDeNotaSeleccionadas = watch('tiposDeNotaSeleccionadas');
+
+  useEffect(() => {
+    // Evitar ejecutar si no hay datos mínimos
+    if (!titulo) return;
+
+    // Helper para limpiar HTML
+    const stripHtml = (html) => {
+      if (!html) return "";
+      const tmp = document.createElement("DIV");
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || "";
+    };
+
+    // 1. Obtener valores
+    const restaurantName = nombreRestaurante;
+    const noteType = tiposDeNotaSeleccionadas || tipoNotaUsuario || "Nota";
+
+    // 2. Generar Formulas
+
+    // Título SEO: If Restaurant ? "{Titulo} - {Restaurant} | Residente" : "{Titulo} | Residente"
+    const seoTitle = restaurantName
+      ? `${titulo} - ${restaurantName} | Residente`
+      : `${titulo} | Residente`;
+
+    // Meta Descripción: Subtitulo (Pri 1) OR Contenido truncado (Pri 2)
+    let metaDesc = subtitulo;
+    if (!metaDesc && contenido) {
+      const cleanContent = stripHtml(contenido);
+      metaDesc = cleanContent.substring(0, 155);
+    }
+
+    // Palabra Clave: Restaurant (Pri 1) OR Titulo (Pri 2)
+    const seoKeyword = restaurantName || titulo;
+
+    // Texto Alt Imagen: "Imagen de {Tipo}: {Titulo} - Residente"
+    const altText = `Imagen de ${noteType}: ${titulo} - Residente`;
+
+    // 3. Asignar Valores (Evitando loops si ya son iguales)
+    setValue('seo_title', seoTitle);
+    setValue('meta_description', metaDesc || "");
+    setValue('seo_keyword', seoKeyword);
+    setValue('seo_alt_text', altText);
+
+  }, [titulo, subtitulo, nombreRestaurante, contenido, tiposDeNotaSeleccionadas, tipoNotaUsuario, setValue]);
+  // -----------------------------------
 
   useEffect(() => {
     // Limpia la URL anterior si existe
@@ -665,8 +721,8 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
-                {/* Sección SEO Metadata */}
-                <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+                <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ display: 'none' }}>
                   <h3 className="text-lg font-bold text-gray-800 mb-4">SEO Metadata (Opcional)</h3>
 
                   <div className="grid grid-cols-1 gap-4">

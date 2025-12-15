@@ -11,7 +11,7 @@ const B2BRoute = ({ children }) => {
   if (!token || !usuario) {
     return (
       <Navigate
-        to={`/login?redirectTo=${encodeURIComponent(location.pathname)}`}
+        to={`/registro`}
         replace
       />
     );

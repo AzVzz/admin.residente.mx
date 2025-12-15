@@ -202,7 +202,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }
 
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
-  const { watch, reset } = methods;
+  const { watch, reset, setValue } = methods;
 
   // Efecto para resetear el formulario cuando los datos del restaurante (props) cambian.
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
@@ -210,7 +210,6 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     reset(baseDefaults);
   }, [restaurante, reset]);
 
-  // Cargar datos desde el hook de storage cuando esté listo.
   useEffect(() => {
     // Solo resetear el form con datos locales si existen (no es un objeto vacío)
     if (loadedData && Object.keys(loadedData).length > 0) {
@@ -218,6 +217,55 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       reset(loadedData);
     }
   }, [loadedData, reset]);
+
+  // --- AUTO-GENERACIÓN SEO ---
+  const nombreRestaurante = watch('nombre_restaurante');
+  const tipoRestaurante = watch('tipo_restaurante');
+  const comida = watch('comida');
+  const sucursales = watch('sucursales');
+
+  useEffect(() => {
+    if (!nombreRestaurante) return;
+
+    // 1. Obtener datos
+    const tipo = tipoRestaurante || "";
+    // Usamos 'comida' como "Especialidad" o "Tipo de comida" si comida está vacío
+    const especialidad = comida || tipo;
+
+    // Zona: Primera sucursal o cadena vacía si no hay
+    let zona = "";
+    if (Array.isArray(sucursales) && sucursales.length > 0) {
+      zona = sucursales[0];
+    }
+
+    // 2. Generar Formulas
+
+    // Meta Title: {Nombre del restaurante} - {Tipo de comida}
+    // Nota: Usamos tipoRestaurante que suele ser "Pizza", "Tacos", etc.
+    const generatedTitle = `${nombreRestaurante} - ${tipo}`;
+
+    // Meta Description: Substring({Menciona la especialidad} + " en " + {Zona}, 0, 155)
+    const rawDescription = `${especialidad} en ${zona}`;
+    // Si especialidad o zona están vacíos, ajustar para que no quede raro " en "
+    const cleanDescription = (!especialidad && !zona) ? "" : rawDescription;
+    const generatedDescription = cleanDescription.length > 155
+      ? cleanDescription.substring(0, 155) // El user pidió Substring exacto
+      : cleanDescription;
+
+    // Focus Keyword: {Nombre del restaurante}
+    const generatedKeyword = nombreRestaurante;
+
+    // Image Alt: {Nombre del restaurante} + {Tipo de comida}
+    const generatedAltText = `${nombreRestaurante} ${tipo}`;
+
+    // 3. Asignar Valores
+    setValue("seo_title", generatedTitle);
+    setValue("meta_description", generatedDescription);
+    setValue("seo_keyword", generatedKeyword);
+    setValue("seo_alt_text", generatedAltText);
+
+  }, [nombreRestaurante, tipoRestaurante, comida, sucursales, setValue]);
+  // ---------------------------
 
   // Auto-guardado: Suscribirse a cambios en el formulario
   useEffect(() => {
@@ -259,6 +307,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   });
                 }
 
+                // Helper cleaning function
+                const cleanText = (text) => {
+                  if (typeof text !== 'string') return text;
+                  return text
+                    .replace(/[\n\r]+/g, ' ') // Replace newlines with space
+                    .replace(/\s+/g, ' ')     // Normalize spaces
+                    .replace(/"/g, "'")       // Replace double quotes with single (avoids \" in JSON)
+                    .trim();
+                };
+
                 // Construir payload
                 const payload = {
                   nombre_restaurante: data.nombre_restaurante,
@@ -292,7 +350,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   ].filter(Boolean),
                   codigo_vestir: data.codigo_vestir,
                   tipo_area: data.tipo_area,
-                  historia: data.historia,
+                  historia: cleanText(data.historia),
                   logros: [],
                   razones: [],
                   platillos: [],
@@ -300,7 +358,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
                   reseñas: reseñasFields.map((field) => ({
-                    [field]: data[field],
+                    [field]: cleanText(data[field]),
                   })),
                   experiencia_opinion: [],
                   reconocimientos: [],
@@ -518,8 +576,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 </div>
                 <Colaboraciones />
 
-                {/* Sección SEO Metadata */}
-                <div className="form-seo">
+                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+                <div className="form-seo" style={{ display: 'none' }}>
                   <fieldset>
                     <legend>SEO Metadata (Opcional)</legend>
 

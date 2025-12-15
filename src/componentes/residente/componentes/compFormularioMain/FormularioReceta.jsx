@@ -84,6 +84,43 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
     });
   };
 
+  // --- AUTO-GENERACIÓN SEO (Recetas) ---
+  useEffect(() => {
+    const { titulo, categoria, descripcion, autor } = formData;
+
+    // Evitar actualizaciones innecesarias si no hay datos básicos
+    if (!titulo && !categoria && !descripcion) return;
+
+    const newSeoTitle = `${titulo || ''} - ${categoria || ''}`;
+    const newSeoKeyword = titulo || '';
+    const newAltText = `${titulo || ''} ${categoria || ''}`;
+
+    // Meta Description: Truncate to 155
+    const baseDesc = `${descripcion || ''} - Receta por ${autor || ''}`;
+    const newMetaDesc = baseDesc.length > 155 ? baseDesc.substring(0, 155) : baseDesc;
+
+    setFormData(prev => {
+      // Solo actualizar si hay cambios para evitar re-renders excesivos
+      if (
+        prev.seo_title === newSeoTitle &&
+        prev.seo_keyword === newSeoKeyword &&
+        prev.seo_alt_text === newAltText &&
+        prev.meta_description === newMetaDesc
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        seo_title: newSeoTitle,
+        seo_keyword: newSeoKeyword,
+        seo_alt_text: newAltText,
+        meta_description: newMetaDesc
+      };
+    });
+  }, [formData.titulo, formData.categoria, formData.descripcion, formData.autor]);
+  // -------------------------------------
+
   // Enviar datos
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -350,8 +387,8 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           />
         </div>
 
-        {/* Sección SEO Metadata */}
-        <div className="border-t pt-4 mt-6">
+        {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+        <div className="border-t pt-4 mt-6" style={{ display: 'none' }}>
           <h2 className="text-xl font-bold mb-4">SEO Metadata (Opcional)</h2>
 
           {/* SEO Alt Text */}
