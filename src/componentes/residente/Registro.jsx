@@ -41,7 +41,7 @@ const Registro = () => {
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrar Restaurante
+                    RESTAURANTE
                   </button>
                 </a>
               </div>
@@ -53,7 +53,7 @@ const Registro = () => {
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrar como invitado
+                    INVITADO
                   </button>
                 </a>
               </div>
@@ -65,7 +65,7 @@ const Registro = () => {
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrar como colaborador
+                    COLABORADOR
                   </button>
                 </a>
               </div>
