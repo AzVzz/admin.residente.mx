@@ -146,6 +146,7 @@ const ListadoBannerRevista = ({
                                     />
                                 )}
 
+                                <SeccionesPrincipales />
                                 <TresTarjetas
                                     posts={postsFiltrados.slice(1, 25)}
                                     onCardClick={(post) => handleCardClick(post.id)}

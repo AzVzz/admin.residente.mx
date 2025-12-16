@@ -208,7 +208,7 @@ function App() {
           <Suspense fallback={<div>Cargando...</div>}>
             <Routes>
               <Route
-                path="/antiguo-main"
+                path="/"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ResidenteMain />
@@ -499,7 +499,7 @@ function App() {
 
               {/* Admin */}
               <Route
-                path="/"
+                path="/admin"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <Login />
