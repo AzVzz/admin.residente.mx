@@ -15,7 +15,7 @@ const Registro = () => {
     if (rol === "b2b") {
       navigate("/dashboardb2b");
     } else if (rol === "colaborador") {
-      navigate("/registrocolaboradores");
+      navigate("/colaboradores");
     } else if (rol === "residente" || rol === "invitado") {
       navigate("/notas");
     } else {

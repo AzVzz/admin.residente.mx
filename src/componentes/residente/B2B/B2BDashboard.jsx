@@ -421,14 +421,16 @@ const B2BDashboard = () => {
   const handleEditar = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
+    } else {
+      navigate('/formulario');
     }
   };
 
-  const handleVer = () => {
+  {/*const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };
+  };*/}
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -508,20 +510,19 @@ const B2BDashboard = () => {
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
-
-
-            </div>
+            <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-2 text-gray-500">
+              Aún no tienes un restaurante registrado.<br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+            </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
               onClick={handleEditar}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               MICROSITIO
             </button>
