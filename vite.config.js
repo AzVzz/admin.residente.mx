@@ -53,6 +53,13 @@ export default defineConfig({
         rewrite: (path) => path,
         ws: true
       },
+      '/api/tienda': {
+        target: 'https://admin.residente.mx',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+        ws: true
+      },
       '/fotos': {
         target: 'https://residente.mx',
         changeOrigin: true,

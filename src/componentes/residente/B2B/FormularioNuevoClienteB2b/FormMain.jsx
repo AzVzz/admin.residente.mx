@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import TerminosyCondiciones from "./TerminosyCondiciones";
@@ -10,6 +10,7 @@ import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/B
 
 const FormMain = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -17,6 +18,7 @@ const FormMain = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [stripeSessionId, setStripeSessionId] = useState("");
+  const [creatingAccount, setCreatingAccount] = useState(false);
   const [formData, setFormData] = useState({
     nombre_responsable_restaurante: "",
     nombre_restaurante: "",
@@ -29,6 +31,181 @@ const FormMain = () => {
     password: "",
   });
   const [successMsg, setSuccessMsg] = useState("");
+  const accountCreationInProgress = useRef(false);
+
+  const handleCreateAccountAfterPayment = useCallback(async (formDataToUse, sessionId) => {
+    // Prevenir ejecuciones duplicadas
+    if (accountCreationInProgress.current) {
+      console.log("⚠️ La creación de cuenta ya está en progreso, ignorando llamada duplicada");
+      return;
+    }
+
+    accountCreationInProgress.current = true;
+    setCreatingAccount(true);
+    setPaymentError("");
+
+    try {
+      // Obtener el session_id de Stripe
+      const savedSessionId = sessionId || localStorage.getItem("b2b_stripe_session_id") || stripeSessionId;
+
+      let usuarioRes;
+      let usuarioId;
+
+      // Intentar crear el usuario
+      try {
+        const usuarioData = {
+          nombre_usuario: formDataToUse.nombre_usuario,
+          password: formDataToUse.password,
+          correo: formDataToUse.correo,
+        };
+        usuarioRes = await registrob2bPost(usuarioData);
+        usuarioId = usuarioRes.usuario.id;
+      } catch (error) {
+        // Si el usuario ya existe, intentar obtener el usuario B2B existente
+        if (error.message && error.message.includes("ya existe")) {
+          console.log("⚠️ El usuario ya existe, buscando usuario B2B existente...");
+
+          if (savedSessionId) {
+            try {
+              const apiUrl = import.meta.env.DEV
+                ? "/api/stripe/checkout-session/" + savedSessionId
+                : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
+
+              const sessionRes = await fetch(apiUrl);
+              const sessionData = await sessionRes.json();
+
+              if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
+                const b2bId = parseInt(sessionData.session.metadata.b2b_id);
+
+                const b2bData = {
+                  b2b_id: b2bId,
+                  nombre_responsable_restaurante: formDataToUse.nombre_responsable_restaurante,
+                  correo: formDataToUse.correo,
+                  nombre_responsable: formDataToUse.nombre_responsable_restaurante,
+                  telefono: formDataToUse.telefono,
+                  nombre_restaurante: formDataToUse.nombre_restaurante,
+                  rfc: formDataToUse.rfc,
+                  direccion_completa: formDataToUse.direccion_completa,
+                  razon_social: formDataToUse.razon_social,
+                  terminos_condiciones: true,
+                  stripe_session_id: savedSessionId,
+                };
+
+                await extensionB2bPost(b2bData);
+
+                // Limpiar el estado de pago
+                setPaymentCompleted(false);
+                setStripeSessionId("");
+                localStorage.removeItem("b2b_payment_completed");
+                localStorage.removeItem("b2b_stripe_session_id");
+                
+                // Redirigir al dashboard de B2B
+                navigate("/dashboardb2b");
+                return;
+              }
+            } catch (sessionError) {
+              console.error("Error obteniendo sesión:", sessionError);
+            }
+          }
+
+          setPaymentError("El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario.");
+          setTimeout(() => setPaymentError(""), 5000);
+          return;
+        } else {
+          throw error;
+        }
+      }
+
+      // Si llegamos aquí, el usuario se creó exitosamente
+      usuarioId = usuarioRes.usuario.id;
+
+      // Obtener el b2b_id desde el session_id si existe
+      let b2bId = null;
+      if (savedSessionId) {
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "/api/stripe/checkout-session/" + savedSessionId
+            : "https://admin.residente.mx/api/stripe/checkout-session/" + savedSessionId;
+
+          const sessionRes = await fetch(apiUrl);
+          const sessionData = await sessionRes.json();
+
+          if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
+            b2bId = parseInt(sessionData.session.metadata.b2b_id);
+            console.log("✅ b2b_id obtenido desde session:", b2bId);
+          }
+        } catch (error) {
+          console.warn("⚠️ No se pudo obtener b2b_id desde session:", error);
+        }
+      }
+
+      const b2bData = {
+        ...(b2bId && { b2b_id: b2bId }),
+        usuario_id: usuarioId,
+        nombre_responsable_restaurante: formDataToUse.nombre_responsable_restaurante,
+        correo: formDataToUse.correo,
+        nombre_responsable: formDataToUse.nombre_responsable_restaurante,
+        telefono: formDataToUse.telefono,
+        nombre_restaurante: formDataToUse.nombre_restaurante,
+        rfc: formDataToUse.rfc,
+        direccion_completa: formDataToUse.direccion_completa,
+        razon_social: formDataToUse.razon_social,
+        terminos_condiciones: true,
+        stripe_session_id: savedSessionId || undefined,
+      };
+
+      console.log("📤 Enviando datos a /api/usuariosb2b:", {
+        b2b_id: b2bId,
+        usuario_id: usuarioId,
+        correo: formDataToUse.correo,
+        stripe_session_id: savedSessionId
+      });
+
+      const b2bRes = await extensionB2bPost(b2bData);
+
+      console.log("✅ Respuesta del backend usuariosb2b:", b2bRes);
+
+      // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
+      if (savedSessionId) {
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "/api/stripe/associate-session"
+            : "https://admin.residente.mx/api/stripe/associate-session";
+
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              stripe_session_id: savedSessionId,
+              b2b_id: b2bRes?.id || b2bRes?.usuario?.id,
+            }),
+          });
+        } catch (error) {
+          console.warn("No se pudo asociar la sesión de Stripe:", error);
+        }
+      }
+
+      // Limpiar el estado de pago después de crear la cuenta exitosamente
+      setPaymentCompleted(false);
+      setStripeSessionId("");
+      localStorage.removeItem("b2b_payment_completed");
+      localStorage.removeItem("b2b_stripe_session_id");
+      localStorage.removeItem("b2b_form_data");
+      
+      // Redirigir al dashboard de B2B
+      navigate("/dashboardb2b");
+    } catch (error) {
+      console.error("Error en handleCreateAccountAfterPayment:", error);
+      if (error.message && error.message.includes("ya existe")) {
+        setPaymentError("El usuario ya existe. Por favor, inicia sesión o elige otro nombre de usuario.");
+      } else {
+        setPaymentError(error.message || "Error al crear la cuenta. Por favor, intenta nuevamente.");
+      }
+      setTimeout(() => setPaymentError(""), 5000);
+    } finally {
+      setCreatingAccount(false);
+    }
+  }, [navigate, stripeSessionId]);
 
   // Verificar si el pago fue completado al cargar el componente
   useEffect(() => {
@@ -52,12 +229,15 @@ const FormMain = () => {
 
       // Restaurar los datos del formulario si existen
       const savedFormData = localStorage.getItem("b2b_form_data");
-      if (savedFormData) {
+      if (savedFormData && !accountCreationInProgress.current) {
         try {
           const parsedData = JSON.parse(savedFormData);
           setFormData(parsedData);
           // Limpiar los datos guardados después de restaurarlos
           localStorage.removeItem("b2b_form_data");
+          
+          // Crear la cuenta automáticamente después del pago
+          handleCreateAccountAfterPayment(parsedData, sessionId);
         } catch (error) {
           console.error("Error al restaurar datos del formulario:", error);
         }
@@ -91,10 +271,27 @@ const FormMain = () => {
     // Escuchar mensajes de la ventana del checkout (si se abre en popup)
     const handleMessage = (event) => {
       if (event.data && event.data.type === "STRIPE_CHECKOUT_SUCCESS") {
+        const sessionId = event.data.sessionId || "";
         setPaymentCompleted(true);
         setShowPaymentModal(false);
         setPaymentLoading(false);
+        setStripeSessionId(sessionId);
         localStorage.setItem("b2b_payment_completed", "true");
+        if (sessionId) {
+          localStorage.setItem("b2b_stripe_session_id", sessionId);
+        }
+        
+        // Crear la cuenta automáticamente después del pago
+        const savedFormData = localStorage.getItem("b2b_form_data");
+        if (savedFormData && !accountCreationInProgress.current) {
+          try {
+            const parsedData = JSON.parse(savedFormData);
+            setFormData(parsedData);
+            handleCreateAccountAfterPayment(parsedData, sessionId);
+          } catch (error) {
+            console.error("Error al restaurar datos del formulario:", error);
+          }
+        }
       }
     };
 
@@ -103,6 +300,11 @@ const FormMain = () => {
   }, [searchParams, setSearchParams]);
 
   const handlePaymentClick = () => {
+    // Validar campos obligatorios antes de mostrar el modal
+    if (!formData.nombre_responsable_restaurante || !formData.correo || !formData.nombre_usuario || !formData.password) {
+      setPaymentError("Por favor completa todos los campos obligatorios antes de pagar.");
+      return;
+    }
     // Mostrar el modal de checkout
     setShowPaymentModal(true);
     setPaymentError("");
@@ -384,7 +586,7 @@ const FormMain = () => {
 
         <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); }}>
           {/* Campo nombre del responsable */}
           <div>
             <label className="space-y-2 font-roman font-bold ">
@@ -556,49 +758,30 @@ const FormMain = () => {
           )}
 
           {/* Mensaje de pago completado */}
-          {paymentCompleted && (
-            <div className="text-green-600 font-bold text-center mt-4 mb-4">
-              <div>✓ Pago completado exitosamente. Ahora puedes crear tu cuenta.</div>
-              <button
-                type="button"
-                onClick={() => {
-                  setPaymentCompleted(false);
-                  setStripeSessionId("");
-                  localStorage.removeItem("b2b_payment_completed");
-                  localStorage.removeItem("b2b_stripe_session_id");
-                  setPaymentError("");
-                }}
-                className="text-sm text-blue-600 underline mt-2 hover:text-blue-800"
-              >
-                ¿No has pagado? Haz clic aquí para resetear y pagar
-              </button>
+          {paymentCompleted && creatingAccount && (
+            <div className="text-blue-600 font-bold text-center mt-4 mb-4">
+              <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
+            </div>
+          )}
+
+          {/* Mensaje de error */}
+          {paymentError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-center">
+              <p className="font-bold">Error:</p>
+              <p>{paymentError}</p>
             </div>
           )}
 
           {/* Botones */}
           <div className="flex flex-col items-center gap-4 mt-6">
             {/* Botón de Pagar */}
-            {!paymentCompleted && (
-              <button
-                type="button"
-                onClick={handlePaymentClick}
-                disabled={paymentLoading}
-                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {paymentLoading ? "Procesando..." : "Pagar"}
-              </button>
-            )}
-
-            {/* Botón de Crear cuenta */}
             <button
-              type="submit"
-              disabled={!paymentCompleted}
-              className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${paymentCompleted
-                ? "bg-[#fff200] text-black"
-                : "bg-gray-400 text-gray-600 cursor-not-allowed"
-                }`}
+              type="button"
+              onClick={handlePaymentClick}
+              disabled={paymentLoading || creatingAccount}
+              className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Crear cuenta
+              {paymentLoading || creatingAccount ? "Procesando..." : "Pagar"}
             </button>
           </div>
         </form>
@@ -631,9 +814,9 @@ const FormMain = () => {
                 <div className="bg-gray-50 rounded-lg p-6 mb-6">
                   <div className="text-center">
                     <p className="text-xl font-semibold mb-2 text-gray-800">B2B Residente</p>
-                    <p className="text-3xl font-bold text-blue-600 mb-2">$2,199.00 MXN</p>
+                    <p className="text-3xl font-bold text-black mb-2">$2,199.00 MXN</p>
                     <p className="text-sm text-gray-600 mb-1">Suscripción mensual</p>
-                    <p className="text-sm text-green-600 font-semibold italic">Ya con IVA incluido</p>
+                    <p className="text-sm text-green-600 font-semibold italic">Más IVA</p>
                   </div>
                 </div>
 
@@ -648,7 +831,7 @@ const FormMain = () => {
                   </div>
                   <div className="flex justify-between text-sm border-t pt-2">
                     <span className="text-gray-600">Total:</span>
-                    <span className="font-bold text-lg text-blue-600">$2,199.00 MXN</span>
+                    <span className="font-bold text-lg text-black">$2,199.00 MXN</span>
                   </div>
                 </div>
 
@@ -656,7 +839,7 @@ const FormMain = () => {
                   <button
                     onClick={handleProceedToCheckout}
                     disabled={paymentLoading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    className="bg-[#fff200] hover:bg-[#fff200] text-black font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
                   >
                     {paymentLoading ? (
                       <span className="flex items-center justify-center">
@@ -675,7 +858,7 @@ const FormMain = () => {
                       setPaymentError("");
                     }}
                     disabled={paymentLoading}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors"
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -683,7 +866,7 @@ const FormMain = () => {
 
                 <div className="mt-6 text-center text-xs text-gray-500">
                   <p>Serás redirigido a Stripe para completar el pago de forma segura.</p>
-                  <p className="mt-1">Una vez completado el pago, regresarás aquí para crear tu cuenta.</p>
+                  <p className="mt-1">Una vez completado el pago, tu cuenta se creará automáticamente y serás redirigido al dashboard.</p>
                 </div>
               </div>
             </div>
