@@ -444,51 +444,53 @@ const ListaNotas = () => {
         </div>
 
         {/* Menú de pestañas */}
-        <div className="flex justify-start  py-2 rounded-md">
-          <Button
-            aria-controls={open ? 'fade-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-            onClick={handleMenuClick}
-            startIcon={<MenuIcon />}
-            variant="contained"
-            color="inherit"
-            sx={{ backgroundColor: "#ffff", color: "#222" }}
-          >
-            Menú
-          </Button>
-          <Menu
-            id="fade-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleMenuClose}
-            TransitionComponent={Fade}
-          >
-            {menuOptions.map(option => (
-              <MenuItem
-                key={option.key}
-                onClick={() => {
-                  if (option.key === "restaurante_link") {
-                    navigate('/formulario');
-                  } else if (option.key === "cupones") {
-                    navigate('/dashboardtickets');
-                  } else if (option.key === "codigos_admin") {
-                    navigate('/admin/codigos');
-                  } else if (option.key === "ednl") {
-                    navigate('/ednl');
-                  } else {
-                    setVistaActiva(option.key);
-                  }
-                  handleMenuClose();
-                }}
-                selected={vistaActiva === option.key}
-              >
-                {option.icon}
-                {option.label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </div>
+        {usuario?.rol !== "colaborador" && (
+          <div className="flex justify-start  py-2 rounded-md">
+            <Button
+              aria-controls={open ? 'fade-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleMenuClick}
+              startIcon={<MenuIcon />}
+              variant="contained"
+              color="inherit"
+              sx={{ backgroundColor: "#ffff", color: "#222" }}
+            >
+              Menú
+            </Button>
+            <Menu
+              id="fade-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              TransitionComponent={Fade}
+            >
+              {menuOptions.map(option => (
+                <MenuItem
+                  key={option.key}
+                  onClick={() => {
+                    if (option.key === "restaurante_link") {
+                      navigate('/formulario');
+                    } else if (option.key === "cupones") {
+                      navigate('/dashboardtickets');
+                    } else if (option.key === "codigos_admin") {
+                      navigate('/admin/codigos');
+                    } else if (option.key === "ednl") {
+                      navigate('/ednl');
+                    } else {
+                      setVistaActiva(option.key);
+                    }
+                    handleMenuClose();
+                  }}
+                  selected={vistaActiva === option.key}
+                >
+                  {option.icon}
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </div>
+        )}
       </div>
 
       {/* Contenido de las pestañas */}
