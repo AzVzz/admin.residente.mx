@@ -5,7 +5,7 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
-import axios from 'axios'; 
+import axios from 'axios';
 // import FormularioBanner from "./FormularioBanner";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
@@ -129,7 +129,7 @@ const B2BDashboard = () => {
 
     try {
       console.log('🚀 Enviando request a:', `${API_URL}/create-checkout-session`);
-      
+
       const resp = await axios.post(`${API_URL}/create-checkout-session`, {
         items,
         b2bId: b2bId,
@@ -562,7 +562,7 @@ const B2BDashboard = () => {
 
             </div>
           ) : (
-            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-2 text-gray-500"></div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
@@ -759,7 +759,7 @@ const B2BDashboard = () => {
                 </p>
               </div>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
-              <button 
+              <button
                 onClick={handleIrAPagar}
                 className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
               >
