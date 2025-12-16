@@ -286,7 +286,7 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
 
                 <div className="flex flex-wrap gap-4 mt-4">
                     {previews.length === 0 && (
-                        <p className="text-gray-500 text-sm">No hay fotos cargadas. Haz clic en "Elegir archivos" para agregar fotos.</p>
+                        <p className="text-gray-500 text-sm">No hay fotos cargadas. Haz clic en "Elegir archivos" para agregar fotos. Máximo 15MB</p>
                     )}
                     {previews.map((foto, index) => {
                         const imageUrl = foto.url || foto.preview;
