@@ -5,7 +5,10 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
+import axios from 'axios'; 
 // import FormularioBanner from "./FormularioBanner";
+
+import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +34,12 @@ const B2BDashboard = () => {
   const [cupon, setCupon] = useState(null);
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
+
+  // 👇 AGREGADO: URL de la API de tienda
+  // En desarrollo usa el proxy de Vite, en producción usa la URL directa
+  const API_URL = import.meta.env.DEV
+    ? '/api/tienda'  // Usa el proxy configurado en vite.config.js
+    : `${urlApi}api/tienda`;  // URL directa en producción
 
   useEffect(() => {
     if (showModal) {
@@ -99,6 +108,46 @@ const B2BDashboard = () => {
       setTotal(nuevoTotal);
       return nuevoSeleccionados;
     });
+  };
+
+  // 👇 AGREGADO: Función para ir a pagar con Stripe
+  const handleIrAPagar = async () => {
+    // Filtrar productos seleccionados
+    const items = productos
+      .filter((p) => seleccionados[p.id])
+      .map((p) => ({
+        productId: p.id.toString(),
+        quantity: 1,
+      }));
+
+    console.log('📦 Productos seleccionados:', items);
+
+    if (items.length === 0) {
+      alert("Selecciona al menos un beneficio para pagar.");
+      return;
+    }
+
+    try {
+      console.log('🚀 Enviando request a:', `${API_URL}/create-checkout-session`);
+      
+      const resp = await axios.post(`${API_URL}/create-checkout-session`, {
+        items,
+        b2bId: b2bId,
+      });
+
+      console.log('✅ Respuesta del servidor:', resp.data);
+
+      if (resp.data.url) {
+        console.log('🔗 Redirigiendo a:', resp.data.url);
+        window.location.href = resp.data.url;
+      } else {
+        alert("No se pudo obtener la URL de pago.");
+      }
+    } catch (err) {
+      console.error('❌ Error al crear la sesión de pago:', err);
+      const errorMsg = err.response?.data?.error || err.message || 'Error desconocido';
+      alert(`Error al crear la sesión de pago: ${errorMsg}`);
+    }
   };
 
   // Obtener restaurante
@@ -709,7 +758,11 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
+              <button 
+                onClick={handleIrAPagar}
+                className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+              >
                 Ir a pagar
               </button>
             </div>
