@@ -3,7 +3,7 @@ import { useAuth } from "../../../Context";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
-import { FaUser, FaStore } from "react-icons/fa6";
+import { FaUser, FaStore, FaStar } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -373,7 +373,8 @@ const ListaNotas = () => {
     { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
     { key: "restaurante_link", label: "Restaurante", icon: <FaStore className="mr-2" /> },
-    { key: "codigos_admin", label: "Códigos", icon: <MdAdminPanelSettings className="mr-2" /> }, // Added option
+    { key: "ednl", label: "Ednl", icon: <FaStar className="mr-2" /> },
+    { key: "codigos_admin", label: "Códigos", icon: <MdAdminPanelSettings className="mr-2" /> },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
@@ -391,6 +392,7 @@ const ListaNotas = () => {
         option.key === "recetas" ||
         (option.key === "cupones" && !esInvitado && usuario?.rol !== 'colaborador') ||
         (esResidente && option.key === "restaurante_link") ||
+        (usuario?.rol === 'residente' && option.key === "ednl") || // EDNL only for residente role
         (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
       )
     );
@@ -471,6 +473,8 @@ const ListaNotas = () => {
                     navigate('/dashboardtickets');
                   } else if (option.key === "codigos_admin") {
                     navigate('/admin/codigos');
+                  } else if (option.key === "ednl") {
+                    navigate('/ednl');
                   } else {
                     setVistaActiva(option.key);
                   }

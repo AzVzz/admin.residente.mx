@@ -1,10 +1,11 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
 import RestaurantPoster from "../api/RestaurantPoster";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { useAuth } from "../Context";
 import Login from "../Login";
 import { useFormStorage } from "../../hooks/useFormStorage";
+import { urlApi } from "../api/url.js";
 
 import "./FormularioMain.css";
 import TipoRestaurante from "./componentes/TipoRestaurante";
@@ -64,142 +65,131 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     { disabled: true } // Deshabilitado para evitar persistencia no deseada
   );
 
-  // Si no hay token, muestra el login
-  if (!token) {
-    return (
-      <div className="max-w-[400px] mx-auto mt-10">
-        <Login />
-      </div>
-    );
-  }
+  // ⚠️ TODOS LOS HOOKS DEBEN ESTAR AL PRINCIPIO ANTES DE CUALQUIER RETURN
+  // Estado para verificar si el usuario B2B ya tiene un restaurante
+  // Inicializar en true si es B2B en modo creación para que verifique primero
+  const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
+    usuario?.rol === 'b2b' && !esEdicion
+  );
+  const [tieneRestaurante, setTieneRestaurante] = useState(false);
+  const [error403, setError403] = useState(false);
 
-  // Verificar roles permitidos
-  if (usuario && usuario.rol !== 'residente' && usuario.rol !== 'b2b') {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
-          <p className="text-gray-600">
-            No tienes permisos para crear restaurantes. <br />
-            Solo usuarios Residentes y B2B pueden acceder a esta sección.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Preparar baseDefaults
+  const baseDefaults = useMemo(() => {
+    const defaults = {
+      sucursales: [],
+      tipo_area: [],
+      tipo_area_restaurante: [],
+      fotos_lugar: restaurante?.fotos_lugar || [],
+      fotos_eliminadas: [],
+      colaboracion_coca_cola: false,
+      colaboracion_modelo: false,
+      secciones_categorias: [],
+      seo_alt_text: "",
+      seo_title: "",
+      seo_keyword: "",
+      meta_description: "",
+      ...restaurante,
+    };
 
-  const baseDefaults = {
-    sucursales: [],
-    tipo_area: [],
-    tipo_area_restaurante: [],
-    fotos_lugar: restaurante?.fotos_lugar || [],
-    fotos_eliminadas: [],
-    colaboracion_coca_cola: false,
-    colaboracion_modelo: false,
-    secciones_categorias: [],
-    seo_alt_text: "",
-    seo_title: "",
-    seo_keyword: "",
-    meta_description: "",
-    ...restaurante,
-  };
+    defaults.secciones_categorias = {};
 
-  baseDefaults.secciones_categorias = {};
+    if (restaurante?.secciones_categorias) {
+      restaurante.secciones_categorias.forEach((item) => {
+        const { seccion, categoria } = item;
 
-  if (restaurante?.secciones_categorias) {
-    restaurante.secciones_categorias.forEach((item) => {
-      const { seccion, categoria } = item;
+        // Si la sección aún no existe, inicialízala
+        if (defaults.secciones_categorias[seccion] === undefined) {
+          defaults.secciones_categorias[seccion] = categoria;
+          return;
+        }
 
-      // Si la sección aún no existe, inicialízala
-      if (baseDefaults.secciones_categorias[seccion] === undefined) {
-        baseDefaults.secciones_categorias[seccion] = categoria;
-        return;
-      }
+        // Si ya había algo y no es array, conviértelo a array
+        if (!Array.isArray(defaults.secciones_categorias[seccion])) {
+          defaults.secciones_categorias[seccion] = [
+            defaults.secciones_categorias[seccion],
+          ];
+        }
 
-      // Si ya había algo y no es array, conviértelo a array
-      if (!Array.isArray(baseDefaults.secciones_categorias[seccion])) {
-        baseDefaults.secciones_categorias[seccion] = [
-          baseDefaults.secciones_categorias[seccion],
-        ];
-      }
+        // Ahora sí, empuja la nueva categoría
+        defaults.secciones_categorias[seccion].push(categoria);
+      });
+    }
 
-      // Ahora sí, empuja la nueva categoría
-      baseDefaults.secciones_categorias[seccion].push(categoria);
+    // Inicializar campo de comida
+    defaults.comida = restaurante?.comida
+      ? restaurante.comida.join(", ") // Convertir array a string separado por comas
+      : "";
+
+    // Inicializar campos de reseñas
+    reseñasFields.forEach((field) => {
+      // Buscar el valor en el array de reseñas
+      const reseñaObj = restaurante?.reseñas?.find((item) => item[field]);
+      defaults[field] = reseñaObj ? reseñaObj[field] : "";
     });
-  }
 
+    // Inicializar campos de platillos
+    for (let i = 1; i <= 6; i++) {
+      defaults[`platillo_${i}`] = restaurante?.platillos?.[i - 1] || "";
+    }
 
-  // Inicializar campo de comida
-  baseDefaults.comida = restaurante?.comida
-    ? restaurante.comida.join(", ") // Convertir array a string separado por comas
-    : "";
+    // Inicializar campos de testimonios
+    for (let i = 1; i <= 3; i++) {
+      defaults[`testimonio_descripcion_${i}`] =
+        restaurante?.testimonios?.[i - 1]?.descripcion || "";
+      defaults[`testimonio_persona_${i}`] =
+        restaurante?.testimonios?.[i - 1]?.persona || "";
+    }
 
-  // Inicializar campos de reseñas
-  reseñasFields.forEach((field) => {
-    // Buscar el valor en el array de reseñas
-    const reseñaObj = restaurante?.reseñas?.find((item) => item[field]);
-    baseDefaults[field] = reseñaObj ? reseñaObj[field] : "";
-  });
+    // Inicializar campos de logros
+    if (restaurante?.logros) {
+      restaurante.logros.forEach((logro, index) => {
+        const num = index + 1;
+        if (num <= 5) {
+          defaults[`logro_fecha_${num}`] = logro.fecha.toString();
+          defaults[`logro_descripcion_${num}`] = logro.descripcion;
+        }
+      });
+    }
 
-  // Inicializar campos de platillos
-  for (let i = 1; i <= 6; i++) {
-    baseDefaults[`platillo_${i}`] = restaurante?.platillos?.[i - 1] || "";
-  }
+    // Inicializar campos de razones (cinco razones)
+    for (let i = 1; i <= 5; i++) {
+      const razon = restaurante?.razones?.[i - 1];
+      defaults[`razon_titulo_${i}`] = razon?.titulo || "";
+      defaults[`razon_descripcion_${i}`] = razon?.descripcion || "";
+    }
 
-  // Inicializar campos de testimonios
-  for (let i = 1; i <= 3; i++) {
-    baseDefaults[`testimonio_descripcion_${i}`] =
-      restaurante?.testimonios?.[i - 1]?.descripcion || "";
-    baseDefaults[`testimonio_persona_${i}`] =
-      restaurante?.testimonios?.[i - 1]?.persona || "";
-  }
+    // Inicializar campos de experiencia_opinion
+    if (
+      restaurante?.experiencia_opinion &&
+      restaurante.experiencia_opinion.length > 0
+    ) {
+      const experto = restaurante.experiencia_opinion[0];
+      defaults.exp_op_frase = experto.frase || "";
+      defaults.exp_op_nombre = experto.nombre || "";
+      defaults.exp_op_puesto = experto.puesto || "";
+      defaults.exp_op_empresa = experto.empresa || "";
+    } else {
+      defaults.exp_op_frase = "";
+      defaults.exp_op_nombre = "";
+      defaults.exp_op_puesto = "";
+      defaults.exp_op_empresa = "";
+    }
 
-  // Inicializar campos de logros
-  if (restaurante?.logros) {
-    restaurante.logros.forEach((logro, index) => {
-      const num = index + 1;
-      if (num <= 5) {
-        baseDefaults[`logro_fecha_${num}`] = logro.fecha.toString();
-        baseDefaults[`logro_descripcion_${num}`] = logro.descripcion;
-      }
-    });
-  }
+    // Inicializar ocasiones ideales
+    if (
+      restaurante?.ocasiones_ideales &&
+      Array.isArray(restaurante.ocasiones_ideales)
+    ) {
+      restaurante.ocasiones_ideales.forEach((ocasion, index) => {
+        if (index < 3) {
+          defaults[`ocasion_ideal_${index + 1}`] = ocasion;
+        }
+      });
+    }
 
-  // Inicializar campos de razones (cinco razones)
-  for (let i = 1; i <= 5; i++) {
-    const razon = restaurante?.razones?.[i - 1];
-    baseDefaults[`razon_titulo_${i}`] = razon?.titulo || "";
-    baseDefaults[`razon_descripcion_${i}`] = razon?.descripcion || "";
-  }
-
-  // Inicializar campos de experiencia_opinion
-  if (
-    restaurante?.experiencia_opinion &&
-    restaurante.experiencia_opinion.length > 0
-  ) {
-    const experto = restaurante.experiencia_opinion[0];
-    baseDefaults.exp_op_frase = experto.frase || "";
-    baseDefaults.exp_op_nombre = experto.nombre || "";
-    baseDefaults.exp_op_puesto = experto.puesto || "";
-    baseDefaults.exp_op_empresa = experto.empresa || "";
-  } else {
-    baseDefaults.exp_op_frase = "";
-    baseDefaults.exp_op_nombre = "";
-    baseDefaults.exp_op_puesto = "";
-    baseDefaults.exp_op_empresa = "";
-  }
-
-  // Inicializar ocasiones ideales
-  if (
-    restaurante?.ocasiones_ideales &&
-    Array.isArray(restaurante.ocasiones_ideales)
-  ) {
-    restaurante.ocasiones_ideales.forEach((ocasion, index) => {
-      if (index < 3) {
-        baseDefaults[`ocasion_ideal_${index + 1}`] = ocasion;
-      }
-    });
-  }
+    return defaults;
+  }, [restaurante]);
 
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
   const { watch, reset, setValue } = methods;
@@ -208,7 +198,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
     reset(baseDefaults);
-  }, [restaurante, reset]);
+  }, [restaurante, reset, baseDefaults]);
 
   useEffect(() => {
     // Solo resetear el form con datos locales si existen (no es un objeto vacío)
@@ -275,6 +265,101 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     return () => subscription.unsubscribe();
   }, [watch, saveFormData]);
 
+  // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
+  useEffect(() => {
+    // Solo verificar si es usuario B2B y NO está en modo edición
+    if (usuario?.rol === 'b2b' && !esEdicion && token) {
+      const verificarRestaurante = async () => {
+        setLoadingRestauranteCheck(true);
+        try {
+          const response = await fetch(`${urlApi}api/restaurante/basicos`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // Si el usuario tiene algún restaurante registrado
+            if (data && data.length > 0) {
+              setTieneRestaurante(true);
+            } else {
+              setTieneRestaurante(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error verificando restaurante:", error);
+          // En caso de error, permitir el acceso (evitar bloqueos por problemas de red)
+          setTieneRestaurante(false);
+        } finally {
+          setLoadingRestauranteCheck(false);
+        }
+      };
+
+      verificarRestaurante();
+    } else {
+      // Si no es B2B o está en modo edición, no necesita verificar
+      setLoadingRestauranteCheck(false);
+    }
+  }, [usuario, token, esEdicion]);
+
+  // ✅ AHORA SÍ PODEMOS HACER RETURNS CONDICIONALES
+  // Si no hay token, muestra el login
+  if (!token) {
+    return (
+      <div className="max-w-[400px] mx-auto mt-10">
+        <Login />
+      </div>
+    );
+  }
+
+  // Verificar roles permitidos
+  if (usuario && usuario.rol !== 'residente' && usuario.rol !== 'b2b') {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
+          <p className="text-gray-600">
+            No tienes permisos para crear restaurantes. <br />
+            Solo usuarios Residentes y B2B pueden acceder a esta sección.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si es usuario B2B y ya tiene un restaurante, mostrar mensaje
+  if ((usuario?.rol === 'b2b' && !esEdicion && tieneRestaurante) || error403) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Límite de Restaurantes Alcanzado</h2>
+          <p className="text-gray-600 mb-4">
+            Solo puedes tener un restaurante registrado. <br />
+            Para editar tu restaurante existente, ve a tu dashboard.
+          </p>
+          <button
+            onClick={() => navigate('/dashboardb2b')}
+            className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition-colors"
+          >
+            Ir al Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar mientras verifica
+  if (loadingRestauranteCheck) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8">
+          <p className="text-gray-600">Verificando permisos...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="form-container">
       <FormProvider {...methods}>
@@ -294,6 +379,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
           }) => {
             const onSubmit = async (data) => {
               try {
+                // Validación adicional: Si es B2B y ya tiene restaurante, no permitir
+                if (usuario?.rol === 'b2b' && !esEdicion && tieneRestaurante) {
+                  setError403(true);
+                  return;
+                }
+
                 const seccionesCategorias = [];
                 if (data.secciones_categorias) {
                   Object.entries(data.secciones_categorias).forEach(([seccion, valor]) => {
@@ -510,6 +601,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 }
               } catch (error) {
                 console.error("Error en el envío:", error);
+                // Detectar error 403 y mostrar mensaje amigable
+                if (error.message && error.message.includes('403')) {
+                  setError403(true);
+                  setTieneRestaurante(true);
+                }
               }
             };
 

@@ -519,11 +519,10 @@ const B2BDashboard = () => {
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
-              onClick={handleEditar}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={restaurante ? handleVer : () => navigate('/formulario')}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
-              MICROSITIO
+              {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
             </button>
             <button
               onClick={handleCupones}

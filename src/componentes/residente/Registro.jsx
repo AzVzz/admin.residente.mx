@@ -55,7 +55,7 @@ const Registro = () => {
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrarte como invitado
+                    Registrar como invitado
                   </button>
                 </a>
               </div>
@@ -67,7 +67,7 @@ const Registro = () => {
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrarte como colaborador
+                    Registrar como colaborador
                   </button>
                 </a>
               </div>
