@@ -470,14 +470,16 @@ const B2BDashboard = () => {
   const handleEditar = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
+    } else {
+      navigate('/formulario');
     }
   };
 
-  const handleVer = () => {
+  {/*const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };
+  };*/}
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -557,12 +559,12 @@ const B2BDashboard = () => {
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
-
-
-            </div>
+            <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500"></div>
+            <div className="text-center py-2 text-gray-500">
+              Aún no tienes un restaurante registrado.<br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+            </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}

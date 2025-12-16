@@ -45,3 +45,37 @@ export const getRespuestasPorColaborador = async (id_consejero) => {
   if (!res.ok) throw new Error("No se pudo obtener las colaboraciones");
   return await res.json();
 };
+
+// ACTUALIZAR respuesta/colaboración existente
+export const putRespuestaSemana = async (id, data) => {
+  const formData = new FormData();
+  formData.append("pregunta", data.pregunta);
+  formData.append("respuesta_colaboracion", data.respuesta_colaboracion);
+  formData.append("titulo", data.titulo);
+  if (data.imagen) formData.append("imagen", data.imagen);
+  formData.append("respuesta_consejo", data.respuesta_consejo ? 1 : 0);
+  formData.append("texto_consejo", data.texto_consejo || "");
+
+  const res = await fetch(`${urlApi}api/respuestas-tema-semanas/${id}`, {
+    method: "PUT",
+    body: formData
+  });
+  if (!res.ok) throw new Error("No se pudo actualizar la respuesta");
+  return await res.json();
+};
+
+// ELIMINAR respuesta/colaboración
+export const deleteRespuestaSemana = async (id) => {
+  const res = await fetch(`${urlApi}api/respuestas-tema-semanas/${id}`, {
+    method: "DELETE"
+  });
+  if (!res.ok) throw new Error("No se pudo eliminar la respuesta");
+  return await res.json();
+};
+
+// Obtener una respuesta/colaboración por ID
+export const getRespuestaPorId = async (id) => {
+  const res = await fetch(`${urlApi}api/respuestas-tema-semanas/${id}`);
+  if (!res.ok) throw new Error("No se pudo obtener la colaboración");
+  return await res.json();
+};

@@ -14,7 +14,9 @@ const Registro = () => {
 
     if (rol === "b2b") {
       navigate("/dashboardb2b");
-    } else if (rol === "colaborador" || rol === "residente" || rol === "invitado") {
+    } else if (rol === "colaborador") {
+      navigate("/colaboradores");
+    } else if (rol === "residente" || rol === "invitado") {
       navigate("/notas");
     } else {
       navigate("/");

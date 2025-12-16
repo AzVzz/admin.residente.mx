@@ -7,11 +7,13 @@ import { extensionB2bPost, registrob2bPost } from "../../../api/registrob2bPost"
 import DirectorioVertical from "../../componentes/componentesColumna2/DirectorioVertical";
 import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
+import { Dialog, Transition } from '@headlessui/react'
 
 const FormMain = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // <-- nuevo estado
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
@@ -29,6 +31,7 @@ const FormMain = () => {
     razon_social: "",
     nombre_usuario: "",
     password: "",
+    confirm_password: "", // <-- nuevo campo
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
@@ -390,6 +393,13 @@ const FormMain = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validar que las contraseñas coincidan
+    if (formData.password !== formData.confirm_password) {
+      setPaymentError("Las contraseñas no coinciden.");
+      setTimeout(() => setPaymentError(""), 5000);
+      return;
+    }
+
     try {
       // Obtener el session_id de Stripe si existe
       const savedSessionId = localStorage.getItem("b2b_stripe_session_id") || stripeSessionId;
@@ -552,6 +562,7 @@ const FormMain = () => {
         razon_social: "",
         nombre_usuario: "",
         password: "",
+        confirm_password: "", // <-- limpiar el nuevo campo
       });
       // Limpiar el estado de pago después de crear la cuenta exitosamente
       setPaymentCompleted(false);
@@ -574,6 +585,17 @@ const FormMain = () => {
       setTimeout(() => setPaymentError(""), 5000);
     }
   };
+
+  // Efecto para manejar el scroll del body al abrir/cerrar el modal
+  useEffect(() => {
+    if (showModal) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    // Limpieza por si el componente se desmonta con el modal abierto
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [showModal]);
 
   return (
 
@@ -723,34 +745,46 @@ const FormMain = () => {
             </div>
           </div>
 
-          <div className="mt-4">
-            <label className="flex items-center space-y-2 font-roman font-bold space-x-2">
-              <input type="checkbox" className="w-6 h-6" />
-              <span>
-                Acepto los{" "}
-                <span
-                  className="text-blue-600 underline cursor-pointer"
-                  onClick={() => setShowModal(true)}
-                >
-                  Términos y Condiciones
-                </span>
-                *
-              </span>
+          <div>
+            <label className="space-y-2 font-roman font-bold">
+              Confirmar Contraseña*
             </label>
-          </div>
-          {showModal && (
-            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
-              <div className="bg-white rounded shadow-lg max-w-lg w-full p-6 relative overflow-y-auto max-h-[80vh]">
-                <button
-                  className="absolute top-2 right-3 text-xl text-gray-600 cursor-pointer"
-                  onClick={() => setShowModal(false)}
-                >
-                  ×
-                </button>
-                <TerminosyCondiciones />
-              </div>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirm_password"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                placeholder="Confirma tu contraseña"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </button>
             </div>
-          )}
+          </div>
+
+          <div className="mt-4 flex items-center">
+            <input type="checkbox" className="w-6 h-6 mr-2 cursor-pointer" />
+            <span className="font-roman font-bold">
+              Acepto los{" "}
+              <span
+                className="text-black underline cursor-pointer"
+                onClick={() => setShowModal(true)}
+                tabIndex={0}
+                role="button"
+              >
+                Términos y Condiciones
+              </span>
+              *
+            </span>
+          </div>
 
           {/* Mensaje de exito */}
           {successMsg && (
@@ -872,6 +906,60 @@ const FormMain = () => {
             </div>
           </div>
         )}
+
+        {/* Modal de Términos y Condiciones */}
+        <Transition appear show={showModal} as={Fragment}>
+          <Dialog as="div" className="relative z-[9999]" onClose={() => setShowModal(false)}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black/60" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-[#fff200] p-4 shadow-2xl transition-all relative">
+                    {/* Botón X para cerrar */}
+                    <button
+                      onClick={() => setShowModal(false)}
+                      className="absolute top-4 right-4 text-black hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                      aria-label="Cerrar modal"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    {/* Título */}
+                    <Dialog.Title className="text-2xl font-bold mb-2 pr-8">
+                      Términos y Condiciones
+                    </Dialog.Title>
+
+                    {/* Contenido scrolleable */}
+                    <div className="max-h-[60vh] overflow-y-auto pr-2 scroll-modal">
+                      <TerminosyCondiciones />
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
       </div>
       {/* Barra lateral */}
       <div className="flex flex-col items-end justify-start gap-10 translate-x-[-200px]">
