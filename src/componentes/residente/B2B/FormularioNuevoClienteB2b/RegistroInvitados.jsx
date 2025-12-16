@@ -47,8 +47,8 @@ const RegistroInvitados = () => {
             return;
         }
 
-        if (!formData.nombre_institucion || !formData.correo || !formData.password || !formData.codigo) {
-            setError("Todos los campos obligatorios deben ser completados, incluyendo el código de acceso");
+        if (!formData.nombre_institucion || !formData.correo || !formData.password || !formData.codigo || !logoBase64) {
+            setError("Todos los campos obligatorios deben ser completados, incluyendo el código de acceso y el logo.");
             return;
         }
 
@@ -76,10 +76,7 @@ const RegistroInvitados = () => {
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                 {/* Columna principal: formulario */}
                 <div>
-                    <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">Registro de Invitados</h1>
-                    <p className="mb-8 text-center text-black leading-[1.2] px-5">
-                        Ingresa los datos correspondientes para generar tu cuenta.
-                    </p>
+                    <h1 className="text-[40px] leading-[1.2] font-bold mb-4 text-center">Registro de Invitados</h1>
 
                     <form onSubmit={handleSubmit}>
                         <div>
@@ -98,7 +95,7 @@ const RegistroInvitados = () => {
 
                         <div className="mt-4">
                             <label className="space-y-2 font-roman font-bold">
-                                Nombre de Restaurante*
+                                Nombre de Institución o Empresa*
                             </label>
                             <input
                                 type="text"
@@ -163,7 +160,7 @@ const RegistroInvitados = () => {
 
                         <div className="mt-4">
                             <label className="space-y-2 font-roman font-bold">
-                                Subir Logo (Opcional)
+                                Subir Logo*
                             </label>
                             <input
                                 type="file"

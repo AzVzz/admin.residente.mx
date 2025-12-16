@@ -43,6 +43,44 @@ const PromoMain = () => {
             .catch(err => console.error("Error cargando restaurantes:", err));
     }, []);
 
+    // --- AUTO-GENERACIÓN SEO (Cupones) ---
+    useEffect(() => {
+        const { promoName, restaurantName, promoSubtitle, descPromo, fechaValidez } = formData;
+
+        // Evitar actualizaciones innecesarias si no hay datos básicos
+        if (!promoName && !restaurantName) return;
+
+        // 1. Generar Formulas
+        const generatedTitle = `${promoName || ''} en ${restaurantName || ''} | Cupón Residente`;
+
+        const cleanDesc = descPromo ? descPromo.substring(0, 100) : "";
+        const lengthDiff = (descPromo || "").length > (cleanDesc || "").length;
+        const generatedMetaDesc = `${promoSubtitle || ''}. ${cleanDesc}${lengthDiff ? '...' : ''} Válido hasta: ${fechaValidez || ''}. ¡Descarga tu cupón aquí!`;
+
+        const generatedKeyword = `Cupón ${restaurantName || ''}`;
+        const generatedAltText = `Cupón digital ${promoName || ''} - ${restaurantName || ''}`;
+
+        setFormData(prev => {
+            if (
+                prev.seo_title === generatedTitle &&
+                prev.meta_description === generatedMetaDesc &&
+                prev.seo_keyword === generatedKeyword &&
+                prev.seo_alt_text === generatedAltText
+            ) {
+                return prev;
+            }
+            return {
+                ...prev,
+                seo_title: generatedTitle,
+                meta_description: generatedMetaDesc,
+                seo_keyword: generatedKeyword,
+                seo_alt_text: generatedAltText
+            };
+        });
+
+    }, [formData.promoName, formData.restaurantName, formData.promoSubtitle, formData.descPromo, formData.fechaValidez]);
+    // -------------------------------------
+
     const handleRestauranteChange = (e) => {
         const id = e.target.value;
         setSelectedRestauranteId(id);

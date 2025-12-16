@@ -77,7 +77,7 @@ const ListaNotas = () => {
       // Para otros casos (token expirado, etc.), limpiar sesión y redirigir
       saveToken(null);
       saveUsuario(null);
-      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      navigate(`/registro`, { replace: true });
       return;
     }
 
@@ -88,7 +88,7 @@ const ListaNotas = () => {
     }
 
     if (!token || !usuario) {
-      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      navigate(`/registro`, { replace: true });
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
@@ -197,7 +197,7 @@ const ListaNotas = () => {
         // Para otros casos de 403 (token expirado, etc.), limpiar sesión y redirigir
         saveToken(null);
         saveUsuario(null);
-        navigate('/login', { replace: true });
+        navigate('/registro', { replace: true });
         return;
       }
 
@@ -425,7 +425,7 @@ const ListaNotas = () => {
                 onClick={() => {
                   saveToken(null);
                   saveUsuario(null);
-                  navigate("/");
+                  navigate("/registro");
                 }}
                 className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer rounded-xl"
                 title="Cerrar sesión"

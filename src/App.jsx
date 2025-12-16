@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Suspense, lazy } from "react";
 
@@ -435,7 +435,7 @@ function App() {
               <Route
                 path="/registroinvitados"
                 element={
-                  <div className="max-w-[1080px] mx-auto py-10">
+                  <div className="max-w-[1080px] mx-auto">
                     <RegistroInvitados />
                   </div>
                 }
@@ -509,11 +509,7 @@ function App() {
               {/* Admin */}
               <Route
                 path="/"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <Login />
-                  </div>
-                }
+                element={<Navigate to="/registro" replace />}
               />
 
               {/* Admin */}

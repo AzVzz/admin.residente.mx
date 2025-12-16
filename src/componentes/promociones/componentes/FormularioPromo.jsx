@@ -141,8 +141,8 @@ const FormularioPromo = ({
                 />
             </div>
 
-            {/* Sección SEO Metadata */}
-            <div className="flex flex-col pb-0 mt-4 border-t pt-4">
+            {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+            <div className="flex flex-col pb-0 mt-4 border-t pt-4" style={{ display: 'none' }}>
                 <h3 className="text-xl font-bold text-gray-950 mb-3">SEO Metadata (Opcional)</h3>
 
                 <div className="flex flex-col pb-3">
