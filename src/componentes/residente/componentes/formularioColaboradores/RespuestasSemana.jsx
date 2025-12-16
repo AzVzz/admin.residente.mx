@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { getPreguntaActual, getColaboradores, postRespuestaSemana } from "../../../api/temaSemanaApi";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { getPreguntaActual, getColaboradores, postRespuestaSemana, putRespuestaSemana, getRespuestaPorId } from "../../../api/temaSemanaApi";
 import DirectorioVertical from "../componentesColumna2/DirectorioVertical";
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "../componentesColumna1/Infografia";
 
 const RespuestasSemana = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const editarId = searchParams.get("editar");
+
     const [pregunta, setPregunta] = useState("");
     const [consejeros, setConsejeros] = useState([]);
     const [idConsejero, setIdConsejero] = useState("");
@@ -20,6 +25,8 @@ const RespuestasSemana = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [isColaborador, setIsColaborador] = useState(false);
     const [nombreColaborador, setNombreColaborador] = useState("");
+    const [imagenActual, setImagenActual] = useState(null); // Para guardar la imagen actual en edición
+    const [cargandoDatos, setCargandoDatos] = useState(editarId ? true : false);
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
@@ -31,6 +38,7 @@ const RespuestasSemana = () => {
             .catch(() => setConsejeros([]));
     }, []);
 
+    // Cargar datos del usuario logueado
     useEffect(() => {
         const usuarioStr = localStorage.getItem("usuario");
         let usuario = null;
@@ -43,16 +51,43 @@ const RespuestasSemana = () => {
         setIsColaborador(usuario?.rol === "colaborador");
         setNombreColaborador(usuario?.nombre_usuario || "");
 
-        // Busca el id del consejero por usuario_id (¡más seguro!)
         if (usuario?.rol === "colaborador" && consejeros.length > 0 && usuario?.id) {
             const consejero = consejeros.find(c => c.usuario_id === usuario.id);
             if (consejero) {
                 setIdConsejero(consejero.id);
             } else {
-                setIdConsejero(""); // No encontrado
+                setIdConsejero("");
             }
         }
     }, [consejeros]);
+
+    // Cargar colaboración si viene en modo edición
+    useEffect(() => {
+        if (editarId && isLogged) {
+            const loadColaboracion = async () => {
+                try {
+                    const data = await getRespuestaPorId(editarId);
+                    setTitulo(data.titulo || "");
+                    setCurriculum(data.respuesta_colaboracion || "");
+                    setTextoConsejo(data.texto_consejo || "");
+                    setRespuestaConsejo(data.respuesta_consejo === 1 || data.respuesta_consejo === true);
+                    
+                    // Guardar la imagen actual (URL del servidor)
+                    if (data.imagen) {
+                        setImagenActual(data.imagen);
+                        setImagenPreview(data.imagen);
+                    }
+                } catch (error) {
+                    console.error("Error cargando colaboración:", error);
+                    setMensaje("Error al cargar los datos de la colaboración");
+                } finally {
+                    setCargandoDatos(false);
+                }
+            };
+
+            loadColaboracion();
+        }
+    }, [editarId, isLogged]);
 
     const handleImageChange = (e) => {
         const file = e.target.files && e.target.files[0];
@@ -60,6 +95,13 @@ const RespuestasSemana = () => {
             setImagen(file);
             setImagenPreview(URL.createObjectURL(file));
         }
+    };
+
+    // Limpiar la imagen
+    const eliminarImagenPreview = () => {
+        setImagen(null);
+        setImagenActual(null);
+        setImagenPreview(null);
     };
 
     const handleSubmit = async (e) => {
@@ -93,27 +135,50 @@ const RespuestasSemana = () => {
         }
 
         try {
-            await postRespuestaSemana({
-                id_consejero: idConsejero,
-                pregunta,
-                respuesta_colaboracion: curriculumToSend,
-                titulo: tituloToSend,
-                imagen: imagenToSend,
-                respuesta_consejo: respuestaConsejo,
-                texto_consejo: textoConsejo
-            });
-            setMensaje("¡Respuesta enviada correctamente!");
-            setCurriculum("");
-            setTitulo("");
-            setImagen(null);
-            setImagenPreview(null);
-            setRespuestaConsejo(false);
-            setTextoConsejo("");
-        } catch {
-            setMensaje("Error al enviar la respuesta.");
+            if (editarId) {
+                // Modo EDICIÓN - usar PUT
+                await putRespuestaSemana(editarId, {
+                    pregunta,
+                    respuesta_colaboracion: curriculumToSend,
+                    titulo: tituloToSend,
+                    imagen: imagenToSend,
+                    respuesta_consejo: respuestaConsejo,
+                    texto_consejo: textoConsejo
+                });
+                setMensaje("¡Colaboración actualizada correctamente!");
+            } else {
+                // Modo CREAR - usar POST
+                await postRespuestaSemana({
+                    id_consejero: idConsejero,
+                    pregunta,
+                    respuesta_colaboracion: curriculumToSend,
+                    titulo: tituloToSend,
+                    imagen: imagenToSend,
+                    respuesta_consejo: respuestaConsejo,
+                    texto_consejo: textoConsejo
+                });
+                setMensaje("¡Respuesta enviada correctamente!");
+                setCurriculum("");
+                setTitulo("");
+                setImagen(null);
+                setImagenPreview(null);
+                setRespuestaConsejo(false);
+                setTextoConsejo("");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setMensaje(editarId ? "Error al actualizar la colaboración." : "Error al enviar la respuesta.");
         }
         setLoading(false);
     };
+
+    if (cargandoDatos) {
+        return (
+            <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1080px] mx-auto py-8">
@@ -142,7 +207,7 @@ const RespuestasSemana = () => {
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <h1 className="text-2xl font-bold mb-4 text-center">
-                                    Entrada de colaboraciones
+                                    {editarId ? "Editar colaboración" : "Entrada de colaboraciones"}
                                 </h1>
                                 <p className="mb-4 text-center text-gray-700 leading-[1.2] px-10">
                                     Gracias por ser parte de la comunidad de consejeros editoriales y colaboradores especializados de Residente.
@@ -223,6 +288,15 @@ const RespuestasSemana = () => {
                                                     className="w-full h-28 object-cover mx-auto"
                                                     style={{ maxWidth: '160px', borderRadius: '8px' }}
                                                 />
+                                                {editarId && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={eliminarImagenPreview}
+                                                        className="mt-2 text-sm text-red-600 hover:text-red-800 font-bold"
+                                                    >
+                                                        Eliminar imagen
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                     </>
@@ -258,9 +332,13 @@ const RespuestasSemana = () => {
                                     >
                                         {loading
                                             ? "Enviando..."
-                                            : respuestaConsejo
-                                                ? "Enviar consejo editorial"
-                                                : "Enviar colaboración"}
+                                            : editarId
+                                                ? respuestaConsejo
+                                                    ? "Actualizar consejo editorial"
+                                                    : "Actualizar colaboración"
+                                                : respuestaConsejo
+                                                    ? "Enviar consejo editorial"
+                                                    : "Enviar colaboración"}
                                     </button>
                                 </div>
                                 {!isLogged && (

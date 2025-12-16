@@ -38,6 +38,7 @@ import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
 import ListaTickets from "./ListaTickets";
 import FormularioReceta from "./FormularioReceta";
 import ListaRecetas from "./ListaRecetas";
+import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -496,12 +497,14 @@ const ListaNotas = () => {
           <>
             {/* Barra de búsqueda y filtros para vista de notas */}
             <div className="flex justify-between mb-5 gap-4 items-center">
-              {/* Barra de búsqueda */}
-              <div className="flex-1 max-w-md">
-                <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-              </div>
+              {/* Barra de búsqueda - solo para no colaboradores */}
+              {usuario?.rol !== "colaborador" && (
+                <div className="flex-1 max-w-md">
+                  <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                </div>
+              )}
 
-              {/* Filtros */}
+              {/* Filtros - SIEMPRE VISIBLE */}
               <div className="flex gap-2 items-center">
                 {usuario?.permisos === 'todos' && (
                   <FiltroEstadoNota estado={estado} setEstado={setEstado} />
@@ -512,117 +515,145 @@ const ListaNotas = () => {
                 {usuario?.permisos === 'todos' && (
                   <FiltroAutor autor={autor} setAutor={setAutor} />
                 )}
-                <Link
-                  to="/notas/nueva"
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-                >
-                  <svg
-                    className="-ml-1 mr-2 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                {usuario?.rol === "colaborador" ? (
+                  <Link
+                    to="/colaboradores"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Nueva Nota
-                </Link>
+                    <svg
+                      className="-ml-1 mr-2 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Nueva Colaboración
+                  </Link>
+                ) : (
+                  <Link
+                    to="/notas/nueva"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+                  >
+                    <svg
+                      className="-ml-1 mr-2 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Nueva Nota
+                  </Link>
+                )}
               </div>
             </div>
 
-            {!notas || notas.length === 0 ? (
-              <SinNotas />
-            ) : notasFiltradas.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-500 text-lg">
-                  {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
-                </div>
-              </div>
+            {/* Contenido */}
+            {usuario?.rol === "colaborador" ? (
+              // Si es colaborador, mostrar sus blogs en lugar de notas
+              <ListaBlogsColaborador />
             ) : (
+              // Si NO es colaborador, mostrar la lista de notas normal
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {notasPaginaActual.map((nota) => (
-                    <NotaCard
-                      key={nota.id}
-                      nota={nota}
-                      onEliminar={eliminarNota}
-                      eliminando={eliminando}
-                    />
-                  ))}
-                </div>
-
-                {/* Información de resultados y paginación */}
-                <div className="flex flex-col items-center mt-8 space-y-4">
-                  {/* Información de paginación */}
-                  <div className="text-sm text-gray-600">
-                    Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
-                    {searchTerm && ` (filtradas por "${searchTerm}")`}
+                {!notas || notas.length === 0 ? (
+                  <SinNotas />
+                ) : notasFiltradas.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-500 text-lg">
+                      {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {notasPaginaActual.map((nota) => (
+                        <NotaCard
+                          key={nota.id}
+                          nota={nota}
+                          onEliminar={eliminarNota}
+                          eliminando={eliminando}
+                        />
+                      ))}
+                    </div>
 
-                  {/* Navegación de páginas */}
-                  {totalPaginas > 1 && (
-                    <div className="flex items-center space-x-2">
-                      {/* Botón anterior */}
-                      <button
-                        onClick={irAPaginaAnterior}
-                        disabled={paginaActual === 1}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                          }`}
-                      >
-                        ← Anterior
-                      </button>
-
-                      {/* Números de página */}
-                      <div className="flex space-x-1">
-                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
-                          // Mostrar solo un rango de páginas alrededor de la actual
-                          const mostrarPagina =
-                            numero === 1 ||
-                            numero === totalPaginas ||
-                            (numero >= paginaActual - 2 && numero <= paginaActual + 2);
-
-                          if (!mostrarPagina) {
-                            // Mostrar puntos suspensivos
-                            if (numero === paginaActual - 3 || numero === paginaActual + 3) {
-                              return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
-                            }
-                            return null;
-                          }
-
-                          return (
-                            <button
-                              key={numero}
-                              onClick={() => irAPagina(numero)}
-                              className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                                }`}
-                            >
-                              {numero}
-                            </button>
-                          );
-                        })}
+                    {/* Información de resultados y paginación */}
+                    <div className="flex flex-col items-center mt-8 space-y-4">
+                      {/* Información de paginación */}
+                      <div className="text-sm text-gray-600">
+                        Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
+                        {searchTerm && ` (filtradas por "${searchTerm}")`}
                       </div>
 
-                      {/* Botón siguiente */}
-                      <button
-                        onClick={irAPaginaSiguiente}
-                        disabled={paginaActual === totalPaginas}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                          }`}
-                      >
-                        Siguiente →
-                      </button>
+                      {/* Navegación de páginas */}
+                      {totalPaginas > 1 && (
+                        <div className="flex items-center space-x-2">
+                          {/* Botón anterior */}
+                          <button
+                            onClick={irAPaginaAnterior}
+                            disabled={paginaActual === 1}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                          >
+                            ← Anterior
+                          </button>
+
+                          {/* Números de página */}
+                          <div className="flex space-x-1">
+                            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                              const mostrarPagina =
+                                numero === 1 ||
+                                numero === totalPaginas ||
+                                (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+
+                              if (!mostrarPagina) {
+                                if (numero === paginaActual - 3 || numero === paginaActual + 3) {
+                                  return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
+                                }
+                                return null;
+                              }
+
+                              return (
+                                <button
+                                  key={numero}
+                                  onClick={() => irAPagina(numero)}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                                    }`}
+                                >
+                                  {numero}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Botón siguiente */}
+                          <button
+                            onClick={irAPaginaSiguiente}
+                            disabled={paginaActual === totalPaginas}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                          >
+                            Siguiente →
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
               </>
             )}
           </>
