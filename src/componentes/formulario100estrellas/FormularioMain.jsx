@@ -303,6 +303,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     }
   }, [usuario, token, esEdicion]);
 
+  // --- SINCRONIZAR "Tipo de comida" con "tipo_restaurante" ---
+  const tipoComida = watch('secciones_categorias.Tipo de comida');
+
+  useEffect(() => {
+    if (tipoComida) {
+      setValue('tipo_restaurante', tipoComida);
+    }
+  }, [tipoComida, setValue]);
+  // -----------------------------------------------------------
+
   // ✅ AHORA SÍ PODEMOS HACER RETURNS CONDICIONALES
   // Si no hay token, muestra el login
   if (!token) {
@@ -613,7 +623,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
               <form onSubmit={methods.handleSubmit(onSubmit)}>
                 <NuevasSeccionesCategorias />
                 <Informacion />
-                <Logo existingLogo={restaurante?.logo} />
+                {/* <Logo existingLogo={restaurante?.logo} /> */}
                 <Imagenes
                   slug={restaurante?.slug}
                   existingImages={restaurante?.imagenes}
@@ -622,7 +632,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   existingFotos={restaurante?.fotos_lugar || []} 
                   restaurantId={idNegocio || restaurante?.id}
                 />
-                <TipoRestaurante />
+                {/* <TipoRestaurante /> */}
                 <Categorias />
                 <RedesSociales />
                 <OcasionIdeal />
