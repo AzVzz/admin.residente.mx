@@ -6,12 +6,9 @@ const QuePedir = ({ platillos }) => {
 
   if (items.length === 0) return null; // No renderizar si no hay platillos
 
-  const capitalizarPalabras = (str) => {
-    return str
-      .toLowerCase()
-      .split(' ')
-      .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-      .join(' ');
+  const capitalizarFrase = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
   return (
@@ -21,7 +18,7 @@ const QuePedir = ({ platillos }) => {
         {items.map((platillo, index) => (
           <div className="div1" key={index}>
             <h4>{index + 1}</h4>
-            <p className="text-global leading-tight">{capitalizarPalabras(platillo)}</p>
+            <p className="text-global leading-tight">{capitalizarFrase(platillo)}</p>
           </div>
         ))}
       </div>

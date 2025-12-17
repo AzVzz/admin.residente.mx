@@ -11,6 +11,7 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
     const fileInputRef = useRef(null);
     const [fotosEliminadas, setFotosEliminadas] = useState([]);
     const existingFotosRef = useRef(null);
+    const [mostrarMensaje, setMostrarMensaje] = useState(false);
 
     useEffect(() => {
         register('fotos_lugar');
@@ -191,6 +192,7 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
             if (combinedPreviews.length >= 5) {
                 setLimitReached(true);
             }
+            setMostrarMensaje(true); // Mostrar mensaje si hay archivos seleccionados
         }
         
         // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
@@ -246,7 +248,6 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
                 <legend className="text-black px-4 text-3xl uppercase font-bold">
                     Fotos del Lugar (Máximo 5)
                 </legend>
-
                 <div className="mb-4">
                     <input
                         type="file"
@@ -257,13 +258,11 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
                         className="hidden"
                         disabled={limitReached}
                     />
-
                     <input
                         type="hidden"
                         {...register('fotos_eliminadas')}
                         value={JSON.stringify(fotosEliminadas)}
                     />
-
                     <button
                         type="button"
                         onClick={() => !limitReached && fileInputRef.current.click()}
@@ -273,7 +272,12 @@ const FotosLugar = ({ existingFotos, restaurantId }) => {
                     >
                         {limitReached ? 'Límite alcanzado' : 'Elegir archivos'}
                     </button>
-
+                    {/* Mensaje solo si hay fotos seleccionadas */}
+                    {mostrarMensaje && (
+                        <p className="text-info-fotos" style={{ color: '#b91c1c', fontWeight: 'bold', marginTop: 4 }}>
+                            Las fotos deben ser horizontales. Si subes fotos verticales, no se verán bien en la galería.
+                        </p>
+                    )}
                     {limitReached && (
                         <div className="mt-3 flex items-center bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
                             <FiAlertCircle className="text-yellow-500 text-xl mr-2" />
