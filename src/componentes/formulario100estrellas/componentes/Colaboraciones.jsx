@@ -6,7 +6,9 @@ const Colaboraciones = () => {
     // Opciones de colaboración
     const opcionesColaboracion = [
         { id: 'coca_cola', label: 'Colaboración con Coca Cola' },
-        { id: 'modelo', label: 'Colaboración con Modelo' }
+        { id: 'modelo', label: 'Colaboración con Modelo' },
+        { id: 'heineken', label: 'Colaboración con Heineken' },
+        { id: 'descuentosx6', label: 'Colaboración con Descuentos x6' }
     ];
 
     return (

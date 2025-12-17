@@ -5,7 +5,7 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
-import axios from 'axios'; 
+import axios from 'axios';
 // import FormularioBanner from "./FormularioBanner";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
@@ -496,14 +496,16 @@ const B2BDashboard = () => {
   const handleEditar = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
+    } else {
+      navigate('/formulario');
     }
   };
 
-  const handleVer = () => {
+  {/*const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };
+  };*/}
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -583,22 +585,21 @@ const B2BDashboard = () => {
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
-
-
-            </div>
+            <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+              Aún no tienes un restaurante registrado.<br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+            </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
-              onClick={handleEditar}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={restaurante ? handleVer : () => navigate('/formulario')}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
-              MICROSITIO
+              {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
             </button>
             <button
               onClick={handleCupones}
@@ -786,7 +787,7 @@ const B2BDashboard = () => {
                 </p>
               </div>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
-              <button 
+              <button
                 onClick={handleIrAPagar}
                 className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
               >

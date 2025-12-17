@@ -1,10 +1,11 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
 import RestaurantPoster from "../api/RestaurantPoster";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { useAuth } from "../Context";
 import Login from "../Login";
 import { useFormStorage } from "../../hooks/useFormStorage";
+import { urlApi } from "../api/url.js";
 
 import "./FormularioMain.css";
 import TipoRestaurante from "./componentes/TipoRestaurante";
@@ -64,96 +65,94 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     { disabled: true } // Deshabilitado para evitar persistencia no deseada
   );
 
-  // Si no hay token, muestra el login
-  if (!token) {
-    return (
-      <div className="max-w-[400px] mx-auto mt-10">
-        <Login />
-      </div>
-    );
-  }
+  // ⚠️ TODOS LOS HOOKS DEBEN ESTAR AL PRINCIPIO ANTES DE CUALQUIER RETURN
+  // Estado para verificar si el usuario B2B ya tiene un restaurante
+  // Inicializar en true si es B2B en modo creación para que verifique primero
+  const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
+    usuario?.rol === "b2b" && !esEdicion
+  );
+  const [tieneRestaurante, setTieneRestaurante] = useState(false);
+  const [error403, setError403] = useState(false);
 
-  // Verificar roles permitidos
-  if (usuario && usuario.rol !== 'residente' && usuario.rol !== 'b2b') {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
-          <p className="text-gray-600">
-            No tienes permisos para crear restaurantes. <br />
-            Solo usuarios Residentes y B2B pueden acceder a esta sección.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Preparar baseDefaults
+  const baseDefaults = useMemo(() => {
+    const defaults = {
+      sucursales: [],
+      tipo_area: [],
+      tipo_area_restaurante: [],
+      fotos_lugar: restaurante?.fotos_lugar || [],
+      fotos_eliminadas: [],
+      colaboracion_coca_cola: false,
+      colaboracion_modelo: false,
+      colaboracion_heineken: false,
+      colaboracion_descuentosx6: false,
+      secciones_categorias: [],
+      seo_alt_text: "",
+      seo_title: "",
+      seo_keyword: "",
+      meta_description: "",
+      ...restaurante,
+    };
 
-  const baseDefaults = {
-    sucursales: [],
-    tipo_area: [],
-    tipo_area_restaurante: [],
-    fotos_lugar: restaurante?.fotos_lugar || [],
-    fotos_eliminadas: [],
-    colaboracion_coca_cola: false,
-    colaboracion_modelo: false,
-    secciones_categorias: [],
-    seo_alt_text: "",
-    seo_title: "",
-    seo_keyword: "",
-    meta_description: "",
-    ...restaurante,
-  };
+    defaults.secciones_categorias = {};
 
-  baseDefaults.secciones_categorias = {};
+    if (restaurante?.secciones_categorias) {
+      restaurante.secciones_categorias.forEach((item) => {
+        const { seccion, categoria } = item;
 
-  if (restaurante?.secciones_categorias) {
-    restaurante.secciones_categorias.forEach((item) => {
-      const { seccion, categoria } = item;
+        // Si la sección aún no existe, inicialízala
+        if (defaults.secciones_categorias[seccion] === undefined) {
+          defaults.secciones_categorias[seccion] = categoria;
+          return;
+        }
 
-      // Si la sección aún no existe, inicialízala
-      if (baseDefaults.secciones_categorias[seccion] === undefined) {
-        baseDefaults.secciones_categorias[seccion] = categoria;
-        return;
-      }
+        // Si ya había algo y no es array, conviértelo a array
+        if (!Array.isArray(defaults.secciones_categorias[seccion])) {
+          defaults.secciones_categorias[seccion] = [
+            defaults.secciones_categorias[seccion],
+          ];
+        }
 
-      // Si ya había algo y no es array, conviértelo a array
-      if (!Array.isArray(baseDefaults.secciones_categorias[seccion])) {
-        baseDefaults.secciones_categorias[seccion] = [
-          baseDefaults.secciones_categorias[seccion],
-        ];
-      }
+        // Ahora sí, empuja la nueva categoría
+        defaults.secciones_categorias[seccion].push(categoria);
+      });
+    }
 
-      // Ahora sí, empuja la nueva categoría
-      baseDefaults.secciones_categorias[seccion].push(categoria);
+    // Inicializar campo de comida
+    defaults.comida = restaurante?.comida
+      ? restaurante.comida.join(", ") // Convertir array a string separado por comas
+      : "";
+
+    // Inicializar campos de reseñas
+    reseñasFields.forEach((field) => {
+      // Buscar el valor en el array de reseñas
+      const reseñaObj = restaurante?.reseñas?.find((item) => item[field]);
+      defaults[field] = reseñaObj ? reseñaObj[field] : "";
     });
-  }
 
+    // Inicializar campos de platillos
+    for (let i = 1; i <= 6; i++) {
+      defaults[`platillo_${i}`] = restaurante?.platillos?.[i - 1] || "";
+    }
 
-  // Inicializar campo de comida
-  baseDefaults.comida = restaurante?.comida
-    ? restaurante.comida.join(", ") // Convertir array a string separado por comas
-    : "";
+    // Inicializar campos de testimonios
+    for (let i = 1; i <= 3; i++) {
+      defaults[`testimonio_descripcion_${i}`] =
+        restaurante?.testimonios?.[i - 1]?.descripcion || "";
+      defaults[`testimonio_persona_${i}`] =
+        restaurante?.testimonios?.[i - 1]?.persona || "";
+    }
 
-  // Inicializar campos de reseñas
-  reseñasFields.forEach((field) => {
-    // Buscar el valor en el array de reseñas
-    const reseñaObj = restaurante?.reseñas?.find((item) => item[field]);
-    baseDefaults[field] = reseñaObj ? reseñaObj[field] : "";
-  });
-
-  // Inicializar campos de platillos
-  for (let i = 1; i <= 6; i++) {
-    baseDefaults[`platillo_${i}`] = restaurante?.platillos?.[i - 1] || "";
-  }
-
-  // Inicializar campos de testimonios
-  for (let i = 1; i <= 3; i++) {
-    baseDefaults[`testimonio_descripcion_${i}`] =
-      restaurante?.testimonios?.[i - 1]?.descripcion || "";
-    baseDefaults[`testimonio_persona_${i}`] =
-      restaurante?.testimonios?.[i - 1]?.persona || "";
-  }
-
+    // Inicializar campos de logros
+    if (restaurante?.logros) {
+      restaurante.logros.forEach((logro, index) => {
+        const num = index + 1;
+        if (num <= 5) {
+          defaults[`logro_fecha_${num}`] = logro.fecha.toString();
+          defaults[`logro_descripcion_${num}`] = logro.descripcion;
+        }
+      });
+    }
   // Inicializar campos de logros
   if (restaurante?.logros) {
     restaurante.logros.forEach((logro, index) => {
@@ -176,41 +175,44 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     });
   }
 
-  // Inicializar campos de razones (cinco razones)
-  for (let i = 1; i <= 5; i++) {
-    const razon = restaurante?.razones?.[i - 1];
-    baseDefaults[`razon_titulo_${i}`] = razon?.titulo || "";
-    baseDefaults[`razon_descripcion_${i}`] = razon?.descripcion || "";
-  }
+    // Inicializar campos de razones (cinco razones)
+    for (let i = 1; i <= 5; i++) {
+      const razon = restaurante?.razones?.[i - 1];
+      defaults[`razon_titulo_${i}`] = razon?.titulo || "";
+      defaults[`razon_descripcion_${i}`] = razon?.descripcion || "";
+    }
 
-  // Inicializar campos de experiencia_opinion
-  if (
-    restaurante?.experiencia_opinion &&
-    restaurante.experiencia_opinion.length > 0
-  ) {
-    const experto = restaurante.experiencia_opinion[0];
-    baseDefaults.exp_op_frase = experto.frase || "";
-    baseDefaults.exp_op_nombre = experto.nombre || "";
-    baseDefaults.exp_op_puesto = experto.puesto || "";
-    baseDefaults.exp_op_empresa = experto.empresa || "";
-  } else {
-    baseDefaults.exp_op_frase = "";
-    baseDefaults.exp_op_nombre = "";
-    baseDefaults.exp_op_puesto = "";
-    baseDefaults.exp_op_empresa = "";
-  }
+    // Inicializar campos de experiencia_opinion
+    if (
+      restaurante?.experiencia_opinion &&
+      restaurante.experiencia_opinion.length > 0
+    ) {
+      const experto = restaurante.experiencia_opinion[0];
+      defaults.exp_op_frase = experto.frase || "";
+      defaults.exp_op_nombre = experto.nombre || "";
+      defaults.exp_op_puesto = experto.puesto || "";
+      defaults.exp_op_empresa = experto.empresa || "";
+    } else {
+      defaults.exp_op_frase = "";
+      defaults.exp_op_nombre = "";
+      defaults.exp_op_puesto = "";
+      defaults.exp_op_empresa = "";
+    }
 
-  // Inicializar ocasiones ideales
-  if (
-    restaurante?.ocasiones_ideales &&
-    Array.isArray(restaurante.ocasiones_ideales)
-  ) {
-    restaurante.ocasiones_ideales.forEach((ocasion, index) => {
-      if (index < 3) {
-        baseDefaults[`ocasion_ideal_${index + 1}`] = ocasion;
-      }
-    });
-  }
+    // Inicializar ocasiones ideales
+    if (
+      restaurante?.ocasiones_ideales &&
+      Array.isArray(restaurante.ocasiones_ideales)
+    ) {
+      restaurante.ocasiones_ideales.forEach((ocasion, index) => {
+        if (index < 3) {
+          defaults[`ocasion_ideal_${index + 1}`] = ocasion;
+        }
+      });
+    }
+
+    return defaults;
+  }, [restaurante]);
 
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
   const { watch, reset, setValue } = methods;
@@ -219,7 +221,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
     reset(baseDefaults);
-  }, [restaurante, reset]);
+  }, [restaurante, reset, baseDefaults]);
 
   useEffect(() => {
     // Solo resetear el form con datos locales si existen (no es un objeto vacío)
@@ -230,10 +232,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }, [loadedData, reset]);
 
   // --- AUTO-GENERACIÓN SEO ---
-  const nombreRestaurante = watch('nombre_restaurante');
-  const tipoRestaurante = watch('tipo_restaurante');
-  const comida = watch('comida');
-  const sucursales = watch('sucursales');
+  const nombreRestaurante = watch("nombre_restaurante");
+  const tipoRestaurante = watch("tipo_restaurante");
+  const comida = watch("comida");
+  const sucursales = watch("sucursales");
 
   useEffect(() => {
     if (!nombreRestaurante) return;
@@ -258,10 +260,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     // Meta Description: Substring({Menciona la especialidad} + " en " + {Zona}, 0, 155)
     const rawDescription = `${especialidad} en ${zona}`;
     // Si especialidad o zona están vacíos, ajustar para que no quede raro " en "
-    const cleanDescription = (!especialidad && !zona) ? "" : rawDescription;
-    const generatedDescription = cleanDescription.length > 155
-      ? cleanDescription.substring(0, 155) // El user pidió Substring exacto
-      : cleanDescription;
+    const cleanDescription = !especialidad && !zona ? "" : rawDescription;
+    const generatedDescription =
+      cleanDescription.length > 155
+        ? cleanDescription.substring(0, 155) // El user pidió Substring exacto
+        : cleanDescription;
 
     // Focus Keyword: {Nombre del restaurante}
     const generatedKeyword = nombreRestaurante;
@@ -274,7 +277,6 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     setValue("meta_description", generatedDescription);
     setValue("seo_keyword", generatedKeyword);
     setValue("seo_alt_text", generatedAltText);
-
   }, [nombreRestaurante, tipoRestaurante, comida, sucursales, setValue]);
   // ---------------------------
 
@@ -285,6 +287,115 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     });
     return () => subscription.unsubscribe();
   }, [watch, saveFormData]);
+
+  // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
+  useEffect(() => {
+    // Solo verificar si es usuario B2B y NO está en modo edición
+    if (usuario?.rol === "b2b" && !esEdicion && token) {
+      const verificarRestaurante = async () => {
+        setLoadingRestauranteCheck(true);
+        try {
+          const response = await fetch(`${urlApi}api/restaurante/basicos`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // Si el usuario tiene algún restaurante registrado
+            if (data && data.length > 0) {
+              setTieneRestaurante(true);
+            } else {
+              setTieneRestaurante(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error verificando restaurante:", error);
+          // En caso de error, permitir el acceso (evitar bloqueos por problemas de red)
+          setTieneRestaurante(false);
+        } finally {
+          setLoadingRestauranteCheck(false);
+        }
+      };
+
+      verificarRestaurante();
+    } else {
+      // Si no es B2B o está en modo edición, no necesita verificar
+      setLoadingRestauranteCheck(false);
+    }
+  }, [usuario, token, esEdicion]);
+
+  // --- SINCRONIZAR "Tipo de comida" con "tipo_restaurante" ---
+  const tipoComida = watch("secciones_categorias.Tipo de comida");
+
+  useEffect(() => {
+    if (tipoComida) {
+      setValue("tipo_restaurante", tipoComida);
+    }
+  }, [tipoComida, setValue]);
+  // -----------------------------------------------------------
+
+  // ✅ AHORA SÍ PODEMOS HACER RETURNS CONDICIONALES
+  // Si no hay token, muestra el login
+  if (!token) {
+    return (
+      <div className="max-w-[400px] mx-auto mt-10">
+        <Login />
+      </div>
+    );
+  }
+
+  // Verificar roles permitidos
+  if (usuario && usuario.rol !== "residente" && usuario.rol !== "b2b") {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Acceso Restringido
+          </h2>
+          <p className="text-gray-600">
+            No tienes permisos para crear restaurantes. <br />
+            Solo usuarios Residentes y B2B pueden acceder a esta sección.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si es usuario B2B y ya tiene un restaurante, mostrar mensaje
+  if ((usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) || error403) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Límite de Restaurantes Alcanzado
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Solo puedes tener un restaurante registrado. <br />
+            Para editar tu restaurante existente, ve a tu dashboard.
+          </p>
+          <button
+            onClick={() => navigate("/dashboardb2b")}
+            className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition-colors"
+          >
+            Ir al Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar mientras verifica
+  if (loadingRestauranteCheck) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8">
+          <p className="text-gray-600">Verificando permisos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="form-container">
@@ -305,26 +416,34 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
           }) => {
             const onSubmit = async (data) => {
               try {
+                // Validación adicional: Si es B2B y ya tiene restaurante, no permitir
+                if (usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) {
+                  setError403(true);
+                  return;
+                }
+
                 const seccionesCategorias = [];
                 if (data.secciones_categorias) {
-                  Object.entries(data.secciones_categorias).forEach(([seccion, valor]) => {
-                    if (Array.isArray(valor)) {
-                      valor.forEach((categoria) =>
-                        seccionesCategorias.push({ seccion, categoria })
-                      );
-                    } else if (valor) {
-                      seccionesCategorias.push({ seccion, categoria: valor });
+                  Object.entries(data.secciones_categorias).forEach(
+                    ([seccion, valor]) => {
+                      if (Array.isArray(valor)) {
+                        valor.forEach((categoria) =>
+                          seccionesCategorias.push({ seccion, categoria })
+                        );
+                      } else if (valor) {
+                        seccionesCategorias.push({ seccion, categoria: valor });
+                      }
                     }
-                  });
+                  );
                 }
 
                 // Helper cleaning function
                 const cleanText = (text) => {
-                  if (typeof text !== 'string') return text;
+                  if (typeof text !== "string") return text;
                   return text
-                    .replace(/[\n\r]+/g, ' ') // Replace newlines with space
-                    .replace(/\s+/g, ' ')     // Normalize spaces
-                    .replace(/"/g, "'")       // Replace double quotes with single (avoids \" in JSON)
+                    .replace(/[\n\r]+/g, " ") // Replace newlines with space
+                    .replace(/\s+/g, " ") // Normalize spaces
+                    .replace(/"/g, "'") // Replace double quotes with single (avoids \" in JSON)
                     .trim();
                 };
 
@@ -334,9 +453,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   fecha_inauguracion: data.fecha_inauguracion,
                   comida: data.comida
                     ? data.comida
-                      .split(",")
-                      .map((item) => item.trim())
-                      .filter(Boolean)
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
                     : [],
                   telefono: data.telefono,
                   ticket_promedio: data.ticket_promedio,
@@ -368,11 +487,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   testimonios: [],
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
+                  colaboracion_heineken: data.colaboracion_heineken || false,
+                  colaboracion_descuentosx6:
+                    data.colaboracion_descuentosx6 || false,
                   reseñas: reseñasFields.map((field) => ({
                     [field]: cleanText(data[field]),
                   })),
-                  experiencia_opinion: [],
-                  reconocimientos: [],
                   experiencia_opinion: [],
                   reconocimientos: [],
                   secciones_categorias: seccionesCategorias,
@@ -460,7 +580,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   // Procesar imágenes
                   const imagenes = data.imagenes || [];
                   const imagenesEliminadas = data.imagenesEliminadas || [];
-                  const newImages = imagenes.filter((img) => img instanceof File);
+                  const newImages = imagenes.filter(
+                    (img) => img instanceof File
+                  );
 
                   // Procesar FOTOS DEL LUGAR
                   const fotosLugar = data.fotos_lugar || [];
@@ -469,7 +591,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     .filter((foto) => !foto.isExisting && foto.file)
                     .map((foto) => foto.file);
                   const fotosConservadasIds = fotosLugar
-                    .filter((foto) => foto.isExisting && !fotosEliminadas.includes(foto.id))
+                    .filter(
+                      (foto) =>
+                        foto.isExisting && !fotosEliminadas.includes(foto.id)
+                    )
                     .map((foto) => foto.id);
                   const fotosEliminadasIds = data.fotos_eliminadas || [];
 
@@ -478,8 +603,14 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     nuevasFotos.forEach((file) => {
                       formDataFotos.append("fotos", file);
                     });
-                    formDataFotos.append("eliminadas", JSON.stringify(fotosEliminadasIds));
-                    formDataFotos.append("conservadas", JSON.stringify(fotosConservadasIds));
+                    formDataFotos.append(
+                      "eliminadas",
+                      JSON.stringify(fotosEliminadasIds)
+                    );
+                    formDataFotos.append(
+                      "conservadas",
+                      JSON.stringify(fotosConservadasIds)
+                    );
                     await postFotosLugar(restaurantId, formDataFotos);
                   }
 
@@ -488,22 +619,26 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     newImages.forEach((img) => {
                       formData.append("fotos", img);
                     });
-                    formData.append("imagenesEliminadas", JSON.stringify(imagenesEliminadas));
+                    formData.append(
+                      "imagenesEliminadas",
+                      JSON.stringify(imagenesEliminadas)
+                    );
                     await postImages(restaurantId, formData);
                   }
 
                   // Procesar LOGO
                   const logo = data.logo || [];
                   const logoEliminado = data.logoEliminado;
-                  const newLogo = logo.length > 0 && logo[0] instanceof File ? logo[0] : null;
+                  const newLogo =
+                    logo.length > 0 && logo[0] instanceof File ? logo[0] : null;
 
                   if (newLogo || logoEliminado) {
                     const formDataLogo = new FormData();
                     if (newLogo) {
-                      formDataLogo.append('logo', newLogo);
+                      formDataLogo.append("logo", newLogo);
                     }
                     if (logoEliminado) {
-                      formDataLogo.append('eliminar', 'true');
+                      formDataLogo.append("eliminar", "true");
                     }
                     await postLogo(restaurantId, formDataLogo);
                   }
@@ -514,13 +649,19 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   }
                   console.log("Proceso completo.");
 
-                  const finalSlug = result.data.slug || (esEdicion ? restaurante.slug : null);
+                  const finalSlug =
+                    result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
                     navigate(`/restaurante/${finalSlug}`);
                   }
                 }
               } catch (error) {
                 console.error("Error en el envío:", error);
+                // Detectar error 403 y mostrar mensaje amigable
+                if (error.message && error.message.includes("403")) {
+                  setError403(true);
+                  setTieneRestaurante(true);
+                }
               }
             };
 
@@ -528,16 +669,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
               <form onSubmit={methods.handleSubmit(onSubmit)}>
                 <NuevasSeccionesCategorias />
                 <Informacion />
-                <Logo existingLogo={restaurante?.logo} />
+                {/* <Logo existingLogo={restaurante?.logo} /> */}
                 <Imagenes
                   slug={restaurante?.slug}
                   existingImages={restaurante?.imagenes}
                 />
-                <FotosLugar 
-                  existingFotos={restaurante?.fotos_lugar || []} 
+                <FotosLugar
+                  existingFotos={restaurante?.fotos_lugar || []}
                   restaurantId={idNegocio || restaurante?.id}
                 />
-                <TipoRestaurante />
+                {/* <TipoRestaurante /> */}
                 <Categorias />
                 <RedesSociales />
                 <OcasionIdeal />
@@ -589,9 +730,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-
                 {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
-                <div className="form-seo" style={{ display: 'none' }}>
+                <div className="form-seo" style={{ display: "none" }}>
                   <fieldset>
                     <legend>SEO Metadata (Opcional)</legend>
 
@@ -632,7 +772,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                         {...methods.register("meta_description")}
                         rows={4}
                         placeholder="Resumen corto para resultados de búsqueda"
-                        style={{ resize: 'vertical' }}
+                        style={{ resize: "vertical" }}
                       />
                     </div>
                   </fieldset>

@@ -95,7 +95,7 @@ const RegistroInvitados = () => {
 
                         <div className="mt-4">
                             <label className="space-y-2 font-roman font-bold">
-                                Nombre de Institución o Empresa*
+                                Nombre de Institución o Empresa* (Este será tu nombre de usuario)
                             </label>
                             <input
                                 type="text"

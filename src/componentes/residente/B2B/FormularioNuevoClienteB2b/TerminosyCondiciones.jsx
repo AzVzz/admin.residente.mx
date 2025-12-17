@@ -2,7 +2,6 @@ import React from "react";
 
 const TerminosyCondiciones = () => (
   <div className="p-6 bg-[#3c3c3b] shadow text-gray-800 text-sm leading-relaxed mt-6">
-    <h2 className="text-[25px] text-white mb-4">Términos y Condiciones</h2>
     <p className="mb-4 text-white text-[14px]">
       Al registrarte y utilizar nuestros servicios, aceptas cumplir con los siguientes términos y condiciones. 
       El usuario se compromete a proporcionar información verídica y actualizada, así como a respetar las normas de la plataforma.

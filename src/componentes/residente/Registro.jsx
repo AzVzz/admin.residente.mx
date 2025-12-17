@@ -15,7 +15,7 @@ const Registro = () => {
     if (rol === "b2b") {
       navigate("/dashboardb2b");
     } else if (rol === "colaborador") {
-      navigate("/registrocolaboradores");
+      navigate("/notas");
     } else if (rol === "residente" || rol === "invitado") {
       navigate("/notas");
     } else {
@@ -41,9 +41,9 @@ const Registro = () => {
 
                   <button
                     type="submit"
-                    className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrar Restaurante
+                    RESTAURANTE
                   </button>
                 </a>
               </div>
@@ -53,9 +53,9 @@ const Registro = () => {
 
                   <button
                     type="submit"
-                    className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrarte como invitado
+                    INVITADO
                   </button>
                 </a>
               </div>
@@ -65,9 +65,9 @@ const Registro = () => {
 
                   <button
                     type="submit"
-                    className="font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
-                    Registrarte como colaborador
+                    COLABORADOR
                   </button>
                 </a>
               </div>

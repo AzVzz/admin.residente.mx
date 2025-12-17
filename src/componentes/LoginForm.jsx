@@ -73,7 +73,7 @@ export default function LoginForm({
   return (
     <div className="flex justify-center">
       <form onSubmit={handleSubmit} className="">
-        <h2 className="leading-tight text-4xl text-center mb-8">Iniciar Sesión</h2>
+        <h2 className="leading-tight text-4xl text-center mb-4">Iniciar Sesión</h2>
 
         <div className="mb-4 max-w-[250px]">
           <label className="space-y-2 font-roman font-bold" htmlFor="usuario">
