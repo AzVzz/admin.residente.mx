@@ -72,8 +72,8 @@ export default function LoginForm({
 
   return (
     <div className="flex justify-center">
-      <form onSubmit={handleSubmit} className="flex flex-col">
-        <h2 className="leading-tight text-2xl">Iniciar Sesión</h2>
+      <form onSubmit={handleSubmit} className="">
+        <h2 className="leading-tight text-4xl text-center mb-4">Iniciar Sesión</h2>
 
         <div className="mb-4 max-w-[250px]">
           <label className="space-y-2 font-roman font-bold" htmlFor="usuario">
@@ -123,11 +123,10 @@ export default function LoginForm({
         <button
           type="submit"
           disabled={loading}
-          className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase ${
-            loading
-              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-              : "bg-[#fff200] text-black"
-          }`}
+          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading
+            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+            : "bg-[#fff200] text-black"
+            }`}
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}
         </button>
@@ -138,6 +137,12 @@ export default function LoginForm({
             ¡Sesión iniciada correctamente!
           </div>
         )}
+
+        <div className="mt-4 text-center">
+          <a href="/recuperar-password" className="text-sm font-bold text-black hover:underline cursor-pointer">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
       </form>
     </div>
   );

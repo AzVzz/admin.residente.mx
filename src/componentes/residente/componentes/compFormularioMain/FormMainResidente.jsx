@@ -1,27 +1,36 @@
-import { useForm, FormProvider } from 'react-hook-form';
-import { useAuth } from '../../../Context';
-import Login from '../../../../componentes/Login';
+import { useForm, FormProvider } from "react-hook-form";
+import { useAuth } from "../../../Context";
+import Login from "../../../../componentes/Login";
 
 import Autor from "./componentes/Autor";
 import Contenido from "./componentes/Contenido";
 import OpcionesPublicacion from "./componentes/OpcionesPublicacion";
 import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { notaCrear, notaEditar, notaImagenPut, notaInstafotoPut, notaInstafotoDelete } from '../../../../componentes/api/notaCrearPostPut.js';
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  notaCrear,
+  notaEditar,
+  notaImagenPut,
+  notaInstafotoPut,
+  notaInstafotoDelete,
+} from "../../../../componentes/api/notaCrearPostPut.js";
 import { notaDelete } from "../../../api/notaDelete";
-import { notaGetById } from '../../../../componentes/api/notasCompletasGet.js';
-import { catalogoSeccionesGet, catalogoTipoNotaGet } from '../../../../componentes/api/CatalogoSeccionesGet.js';
-import CategoriasTipoNotaSelector from './componentes/CategoriasTipoNotaSelector.jsx';
-import ZonasSelector from './componentes/ZonasSelector.jsx';
-import ImagenNotaSelector from './componentes/ImagenNotaSelector.jsx';
-import InstafotoSelector from './componentes/InstafotoSelector.jsx';
-import BotonSubmitNota from './componentes/BotonSubmitNota.jsx';
-import AlertaNota from './componentes/AlertaNota.jsx';
-import FormularioPromoExt from '../../../promociones/componentes/FormularioPromoExt.jsx';
-import NombreRestaurante from './componentes/NombreRestaurante.jsx';
-import DetallePost from '../DetallePost.jsx';
+import { notaGetById } from "../../../../componentes/api/notasCompletasGet.js";
+import {
+  catalogoSeccionesGet,
+  catalogoTipoNotaGet,
+} from "../../../../componentes/api/CatalogoSeccionesGet.js";
+import CategoriasTipoNotaSelector from "./componentes/CategoriasTipoNotaSelector.jsx";
+import ZonasSelector from "./componentes/ZonasSelector.jsx";
+import ImagenNotaSelector from "./componentes/ImagenNotaSelector.jsx";
+import InstafotoSelector from "./componentes/InstafotoSelector.jsx";
+import BotonSubmitNota from "./componentes/BotonSubmitNota.jsx";
+import AlertaNota from "./componentes/AlertaNota.jsx";
+import FormularioPromoExt from "../../../promociones/componentes/FormularioPromoExt.jsx";
+import NombreRestaurante from "./componentes/NombreRestaurante.jsx";
+import DetallePost from "../DetallePost.jsx";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -31,8 +40,18 @@ const tipoNotaPorPermiso = {
 
 function formatFecha(fecha) {
   const meses = [
-    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
-    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+    "ENERO",
+    "FEBRERO",
+    "MARZO",
+    "ABRIL",
+    "MAYO",
+    "JUNIO",
+    "JULIO",
+    "AGOSTO",
+    "SEPTIEMBRE",
+    "OCTUBRE",
+    "NOVIEMBRE",
+    "DICIEMBRE",
   ];
   const d = new Date(fecha);
   const dia = d.getDate();
@@ -43,22 +62,29 @@ function formatFecha(fecha) {
 
 const FormMainResidente = () => {
   const { usuario, token } = useAuth(); // usuario viene del contexto
-
-  // Determina el tipo de nota por el permiso del usuario
-  // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
-  const tipoNotaUsuario = usuario ? (
-    tipoNotaPorPermiso[usuario.permisos] ||
-    (usuario.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo' && usuario.permisos !== 'todos'
-      ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-      : '')
-  ) : '';
-
-
-
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Determina el tipo de nota por el permiso del usuario
+  // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
+  const tipoNotaUsuario = usuario
+    ? tipoNotaPorPermiso[usuario.permisos] ||
+      (usuario.permisos &&
+      usuario.permisos !== "usuario" &&
+      usuario.permisos !== "todo" &&
+      usuario.permisos !== "todos"
+        ? usuario.permisos
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+        : "")
+    : "";
 
+  // Redirect B2B users to their dashboard
+  useEffect(() => {
+    if (usuario?.rol?.toLowerCase() === "b2b" || usuario?.permisos === "b2b") {
+      navigate("/dashboardb2b", { replace: true });
+    }
+  }, [usuario, navigate]);
 
   // Si no hay token, muestra el login
   if (!token) {
@@ -72,25 +98,25 @@ const FormMainResidente = () => {
   // Configuración de React Hook Form
   const methods = useForm({
     defaultValues: {
-      titulo: '',
-      subtitulo: '',
-      autor: '',
-      contenido: '',
+      titulo: "",
+      subtitulo: "",
+      autor: "",
+      contenido: "",
       sticker: [],
-      opcionPublicacion: 'publicada',
-      fechaProgramada: '',
-      tipoDeNotaSeleccionada: tipoNotaUsuario || '',
+      opcionPublicacion: "publicada",
+      fechaProgramada: "",
+      tipoDeNotaSeleccionada: tipoNotaUsuario || "",
       categoriasSeleccionadas: {},
       imagen: null,
       instafoto: null,
       destacada: false,
-      tiposDeNotaSeleccionadas: '',
+      tiposDeNotaSeleccionadas: "",
       zonas: [],
-      seo_alt_text: '',
-      seo_title: '',
-      seo_keyword: '',
-      meta_description: '',
-    }
+      seo_alt_text: "",
+      seo_title: "",
+      seo_keyword: "",
+      meta_description: "",
+    },
   });
 
   const { handleSubmit, reset, control, watch, setValue } = methods;
@@ -109,55 +135,123 @@ const FormMainResidente = () => {
   const [imagenPreview, setImagenPreview] = useState(null);
   const imagenPreviewUrlRef = useRef(null);
 
-
   // Watch para mostrar en tiempo real las notas editandose:
-  const titulo = watch('titulo');
-  const subtitulo = watch('subtitulo');
-  const autor = watch('autor');
-  const contenido = watch('contenido');
-  const imagen = watch('imagen');
-  const instafoto = watch('instafoto');
-
+  const titulo = watch("titulo");
+  const subtitulo = watch("subtitulo");
+  const autor = watch("autor");
+  const contenido = watch("contenido");
+  const imagen = watch("imagen");
+  const instafoto = watch("instafoto");
+  const nombreRestaurante = watch("nombre_restaurante");
 
   function isContenidoVacio(contenido) {
     // Elimina etiquetas HTML y espacios
     const textoPlano = contenido
-      ? contenido.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()
-      : '';
+      ? contenido
+          .replace(/<[^>]*>/g, "")
+          .replace(/&nbsp;/g, "")
+          .trim()
+      : "";
     return !textoPlano;
   }
 
-
   // --- Lógica para campos obligatorios ---
   const camposFaltantes = [];
-  if (!titulo) camposFaltantes.push('título');
-  if (!subtitulo) camposFaltantes.push('subtítulo');
-  if (!imagen && !imagenActual) camposFaltantes.push('imagen');
-  if (isContenidoVacio(contenido)) camposFaltantes.push('contenido');
-  if (!tipoNotaUsuario && !watch('tiposDeNotaSeleccionadas')) {
-    camposFaltantes.push('tipo de nota');
+  if (!titulo) camposFaltantes.push("título");
+  if (!subtitulo) camposFaltantes.push("subtítulo");
+  if (!imagen && !imagenActual) camposFaltantes.push("imagen");
+  if (isContenidoVacio(contenido)) camposFaltantes.push("contenido");
+  if (!tipoNotaUsuario && !watch("tiposDeNotaSeleccionadas")) {
+    camposFaltantes.push("tipo de nota");
   }
   if (
-    watch('destacada') &&
-    (watch('tiposDeNotaSeleccionadas') === "Restaurantes" || watch('tiposDeNotaSeleccionadas') === "Food & Drink") &&
-    !watch('nombre_restaurante')
+    watch("destacada") &&
+    (watch("tiposDeNotaSeleccionadas") === "Restaurantes" ||
+      watch("tiposDeNotaSeleccionadas") === "Food & Drink") &&
+    !watch("nombre_restaurante")
   ) {
-    camposFaltantes.push('nombre del restaurante');
+    camposFaltantes.push("nombre del restaurante");
   }
   // Validación de stickers
-  const stickersSeleccionados = Array.isArray(watch('sticker')) ? watch('sticker') : [];
+  const stickersSeleccionados = Array.isArray(watch("sticker"))
+    ? watch("sticker")
+    : [];
   if (stickersSeleccionados.length < 2) {
-    camposFaltantes.push(`selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? '' : 's'}`);
+    camposFaltantes.push(
+      `selecciona ${2 - stickersSeleccionados.length} sticker${
+        2 - stickersSeleccionados.length === 1 ? "" : "s"
+      }`
+    );
   }
   const faltanCamposObligatorios = camposFaltantes.length > 0;
 
-
   useEffect(() => {
     if (faltanCamposObligatorios) {
-      setValue('opcionPublicacion', 'borrador');
+      setValue("opcionPublicacion", "borrador");
     }
   }, [faltanCamposObligatorios, setValue]);
 
+  useEffect(() => {
+    if (faltanCamposObligatorios) {
+      setValue("opcionPublicacion", "borrador");
+    }
+  }, [faltanCamposObligatorios, setValue]);
+
+  // --- AUTO-GENERACIÓN SEO (Notas) ---
+  const zonas = watch("zonas");
+  const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
+
+  useEffect(() => {
+    // Evitar ejecutar si no hay datos mínimos
+    if (!titulo) return;
+
+    // Helper para limpiar HTML
+    const stripHtml = (html) => {
+      if (!html) return "";
+      const tmp = document.createElement("DIV");
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || "";
+    };
+
+    // 1. Obtener valores
+    const restaurantName = nombreRestaurante;
+    const noteType = tiposDeNotaSeleccionadas || tipoNotaUsuario || "Nota";
+
+    // 2. Generar Formulas
+
+    // Título SEO: If Restaurant ? "{Titulo} - {Restaurant} | Residente" : "{Titulo} | Residente"
+    const seoTitle = restaurantName
+      ? `${titulo} - ${restaurantName} | Residente`
+      : `${titulo} | Residente`;
+
+    // Meta Descripción: Subtitulo (Pri 1) OR Contenido truncado (Pri 2)
+    let metaDesc = subtitulo;
+    if (!metaDesc && contenido) {
+      const cleanContent = stripHtml(contenido);
+      metaDesc = cleanContent.substring(0, 155);
+    }
+
+    // Palabra Clave: Restaurant (Pri 1) OR Titulo (Pri 2)
+    const seoKeyword = restaurantName || titulo;
+
+    // Texto Alt Imagen: "Imagen de {Tipo}: {Titulo} - Residente"
+    const altText = `Imagen de ${noteType}: ${titulo} - Residente`;
+
+    // 3. Asignar Valores (Evitando loops si ya son iguales)
+    setValue("seo_title", seoTitle);
+    setValue("meta_description", metaDesc || "");
+    setValue("seo_keyword", seoKeyword);
+    setValue("seo_alt_text", altText);
+  }, [
+    titulo,
+    subtitulo,
+    nombreRestaurante,
+    contenido,
+    tiposDeNotaSeleccionadas,
+    tipoNotaUsuario,
+    setValue,
+  ]);
+  // -----------------------------------
 
   useEffect(() => {
     // Limpia la URL anterior si existe
@@ -166,7 +260,7 @@ const FormMainResidente = () => {
       imagenPreviewUrlRef.current = null;
     }
 
-    if (imagen && typeof imagen === 'object' && imagen instanceof File) {
+    if (imagen && typeof imagen === "object" && imagen instanceof File) {
       const url = URL.createObjectURL(imagen);
       setImagenPreview(url);
       imagenPreviewUrlRef.current = url;
@@ -186,7 +280,7 @@ const FormMainResidente = () => {
       imagenPreviewUrlRef.current = null;
     }
 
-    if (imagen && typeof imagen === 'object' && imagen instanceof File) {
+    if (imagen && typeof imagen === "object" && imagen instanceof File) {
       const url = URL.createObjectURL(imagen);
       setImagenPreview(url);
       imagenPreviewUrlRef.current = url;
@@ -198,8 +292,6 @@ const FormMainResidente = () => {
       setImagenPreview(null);
     }
   }, [imagen, imagenActual]);
-
-
 
   // Cargar catálogos
   useEffect(() => {
@@ -207,7 +299,7 @@ const FormMainResidente = () => {
       try {
         const [seccionesRes, tiposNotaRes] = await Promise.all([
           catalogoSeccionesGet(),
-          catalogoTipoNotaGet()
+          catalogoTipoNotaGet(),
         ]);
 
         setSecciones(seccionesRes);
@@ -217,10 +309,10 @@ const FormMainResidente = () => {
         // Inicializar categorías para nuevas notas
         if (!id) {
           const inicialCategorias = {};
-          seccionesRes.forEach(seccion => {
+          seccionesRes.forEach((seccion) => {
             inicialCategorias[seccion.seccion] = ""; // <-- Ninguna seleccionada
           });
-          setValue('categoriasSeleccionadas', inicialCategorias);
+          setValue("categoriasSeleccionadas", inicialCategorias);
         }
       } catch (error) {
         console.error("❌ Error obteniendo catálogos:", error);
@@ -238,12 +330,12 @@ const FormMainResidente = () => {
           const response = await notaGetById(id);
           const data = Array.isArray(response) ? response[0] : response;
 
-          if (!data) throw new Error('Nota no encontrada');
+          if (!data) throw new Error("Nota no encontrada");
 
           setNotaId(data.id);
 
           // --- CONVERSIÓN DE FECHA ---
-          let fechaProgramada = '';
+          let fechaProgramada = "";
           if (data.programar_publicacion) {
             try {
               // Crear objeto Date (maneja automáticamente UTC a hora local)
@@ -251,15 +343,15 @@ const FormMainResidente = () => {
 
               // Formatear a YYYY-MM-DDTHH:MM para el input datetime-local
               const anio = fecha.getFullYear();
-              const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-              const dia = String(fecha.getDate()).padStart(2, '0');
-              const horas = String(fecha.getHours()).padStart(2, '0');
-              const minutos = String(fecha.getMinutes()).padStart(2, '0');
+              const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+              const dia = String(fecha.getDate()).padStart(2, "0");
+              const horas = String(fecha.getHours()).padStart(2, "0");
+              const minutos = String(fecha.getMinutes()).padStart(2, "0");
 
               fechaProgramada = `${anio}-${mes}-${dia}T${horas}:${minutos}`;
             } catch (e) {
-              console.error('Error convirtiendo fecha:', e);
-              fechaProgramada = '';
+              console.error("Error convirtiendo fecha:", e);
+              fechaProgramada = "";
             }
           }
 
@@ -268,53 +360,60 @@ const FormMainResidente = () => {
           if (!autor) {
             // Intenta obtener el usuario de localStorage
             try {
-              const usuarioLS = localStorage.getItem('usuario');
+              const usuarioLS = localStorage.getItem("usuario");
               if (usuarioLS) {
                 const usuarioObj = JSON.parse(usuarioLS);
-                autor = usuarioObj.nombre_usuario || '';
+                autor = usuarioObj.nombre_usuario || "";
               }
             } catch (e) {
-              autor = '';
+              autor = "";
             }
           }
 
-          let opcionPublicacion = 'publicada'; // valor por defecto
-          if (data.estatus === 'borrador') {
-            opcionPublicacion = 'borrador';
+          let opcionPublicacion = "publicada"; // valor por defecto
+          if (data.estatus === "borrador") {
+            opcionPublicacion = "borrador";
           } else if (data.programar_publicacion) {
-            opcionPublicacion = 'programar';
+            opcionPublicacion = "programar";
           }
 
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
             autor: autor,
-            contenido: data.descripcion || '',
+            contenido: data.descripcion || "",
             opcionPublicacion: opcionPublicacion,
-            fechaProgramada: fechaProgramada || '',
-            tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || '',
+            fechaProgramada: fechaProgramada || "",
+            tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
-              ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
-                acc[seccion] = categoria;
-                return acc;
-              }, {})
+              ? data.secciones_categorias.reduce(
+                  (acc, { seccion, categoria }) => {
+                    acc[seccion] = categoria;
+                    return acc;
+                  },
+                  {}
+                )
               : {},
-            sticker: data.sticker || '',
+            sticker: data.sticker || "",
             destacada: !!data.destacada,
             destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
-            nombre_restaurante: data.nombre_restaurante || '',
-            tiposDeNotaSeleccionadas: data.tipo_nota || '',
-            zonas: data.zonas ? (typeof data.zonas === 'string' ? JSON.parse(data.zonas) : data.zonas) : [],
-            seo_alt_text: data.seo_alt_text || '',
-            seo_title: data.seo_title || '',
-            seo_keyword: data.seo_keyword || '',
-            meta_description: data.meta_description || '',
+            nombre_restaurante: data.nombre_restaurante || "",
+            tiposDeNotaSeleccionadas: data.tipo_nota || "",
+            zonas: data.zonas
+              ? typeof data.zonas === "string"
+                ? JSON.parse(data.zonas)
+                : data.zonas
+              : [],
+            seo_alt_text: data.seo_alt_text || "",
+            seo_title: data.seo_title || "",
+            seo_keyword: data.seo_keyword || "",
+            meta_description: data.meta_description || "",
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
         } catch (error) {
-          console.error('Error detallado:', error);
-          setPostError('Error cargando nota: ' + error.message);
+          console.error("Error detallado:", error);
+          setPostError("Error cargando nota: " + error.message);
         } finally {
           setCargandoNota(false);
         }
@@ -327,7 +426,7 @@ const FormMainResidente = () => {
   useEffect(() => {
     // Si hay tipoNotaUsuario, fuerza el valor en el formulario
     if (tipoNotaUsuario) {
-      setValue('tipoDeNotaSeleccionada', tipoNotaUsuario);
+      setValue("tipoDeNotaSeleccionada", tipoNotaUsuario);
     }
   }, [tipoNotaUsuario, setValue]);
 
@@ -345,20 +444,21 @@ const FormMainResidente = () => {
       !data.subtitulo ||
       !data.contenido
     ) {
-      estadoFinal = 'borrador';
-    } else if (usuario?.permisos === 'todos') {
-      estadoFinal = data.opcionPublicacion === 'programar'
-        ? 'programada'
-        : data.opcionPublicacion === 'borrador'
-          ? 'borrador'
-          : 'publicada';
-
+      estadoFinal = "borrador";
+    } else if (usuario?.permisos === "todos") {
+      estadoFinal =
+        data.opcionPublicacion === "programar"
+          ? "programada"
+          : data.opcionPublicacion === "borrador"
+          ? "borrador"
+          : "publicada";
     } else {
-      estadoFinal = data.opcionPublicacion === 'programar'
-        ? 'programada'
-        : data.opcionPublicacion === 'borrador'
-          ? 'borrador'
-          : 'publicada';
+      estadoFinal =
+        data.opcionPublicacion === "programar"
+          ? "programada"
+          : data.opcionPublicacion === "borrador"
+          ? "borrador"
+          : "publicada";
     }
 
     try {
@@ -366,7 +466,8 @@ const FormMainResidente = () => {
         .filter(([_, categoria]) => categoria)
         .map(([seccion, categoria]) => ({ seccion, categoria }));
 
-      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      const tipoNotaFinal =
+        tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
       const tipoNotaSecundaria = null;
       const datosNota = {
         tipo_nota: tipoNotaFinal,
@@ -387,15 +488,13 @@ const FormMainResidente = () => {
         seo_title: data.seo_title,
         seo_keyword: data.seo_keyword,
         meta_description: data.meta_description,
-
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"
       if (actualizarFecha) {
         datosNota.programar_publicacion =
-          data.opcionPublicacion === 'programar' ? data.fechaProgramada : null;
+          data.opcionPublicacion === "programar" ? data.fechaProgramada : null;
       }
-
 
       // Guardar nombre_restaurante SIEMPRE
       datosNota.nombre_restaurante = data.nombre_restaurante || null;
@@ -418,16 +517,17 @@ const FormMainResidente = () => {
 
       setPostResponse(resultado);
 
-      if (estadoFinal === 'borrador') {
+      if (estadoFinal === "borrador") {
         setPostResponse({
           ...resultado,
-          mensaje: 'Nota guardada como borrador. Un administrador la revisará y publicará.'
+          mensaje:
+            "Nota guardada como borrador. Un administrador la revisará y publicará.",
         });
       }
 
-      setTimeout(() => navigate('/notas'), 1);
+      setTimeout(() => navigate("/notas"), 1);
     } catch (error) {
-      setPostError(error.message || 'Error al guardar la nota');
+      setPostError(error.message || "Error al guardar la nota");
     } finally {
       setIsPosting(false);
     }
@@ -460,65 +560,77 @@ const FormMainResidente = () => {
   }
 
   // Obteniendo el valor seleccionado del tipo de nota
-  const tipoNotaSeleccionada = watch('tiposDeNotaSeleccionadas') || tipoNotaUsuario;
+  const tipoNotaSeleccionada =
+    watch("tiposDeNotaSeleccionadas") || tipoNotaUsuario;
 
   const fechaActual = formatFecha(new Date());
 
   // Llaman a onSubmit con el flag 'actualizarFecha'
-  const submitActualizada = methods.handleSubmit((data) => onSubmit(data, true));
+  const submitActualizada = methods.handleSubmit((data) =>
+    onSubmit(data, true)
+  );
   const submitCambios = methods.handleSubmit((data) => onSubmit(data, false));
-
 
   return (
     <div className="py-8">
-      <div className="mx-auto">
+      <div className="mx-auto max-w-[1080px]">
         <FormProvider {...methods}>
           {/* Cambiar el form para usar el handleSubmit genérico */}
           <form onSubmit={(e) => e.preventDefault()}>
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-              <div className="text-center px-6 py-6 border-b border-gray-200">
-                <h1 className="text-3xl font-bold text-gray-800">
-                  {notaId ? 'Editar Nota' : 'Nueva Nota'}
+            <div className="">
+              <div className="mb-4 text-center">
+                <h1 className="leading-tight text-2xl font-bold">
+                  {notaId ? "Editar Nota" : "Nueva Nota"}
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  {notaId ? 'Edita la publicación existente' : 'Crea una nueva publicación completando los siguientes campos'}
+                  {notaId
+                    ? "Edita la publicación existente"
+                    : "Crea una nueva publicación completando los siguientes campos"}
                 </p>
               </div>
 
-              <div className="px-6 py-6 space-y-6">
-                <AlertaNota postResponse={postResponse} postError={postError} notaId={notaId} />
+              <div className="">
+                <div className="pb-4">
+                  <AlertaNota
+                    postResponse={postResponse}
+                    postError={postError}
+                    notaId={notaId}
+                  />
+                </div>
 
-                <ImagenNotaSelector
-                  imagenActual={imagenActual}
-                  notaId={notaId}
-                  onImagenEliminada={() => setImagenActual(null)}
+                <div className="grid grid-cols-2 gap-4 pb-4">
+                  <ImagenNotaSelector
+                    imagenActual={imagenActual}
+                    notaId={notaId}
+                    onImagenEliminada={() => setImagenActual(null)}
+                  />
+                  <InstafotoSelector
+                    instafotoActual={instafotoActual}
+                    notaId={notaId}
+                    onInstafotoEliminada={() => setInstafotoActual(null)}
+                  />
+                </div>
+
+                <CategoriasTipoNotaSelector
+                  tipoDeNota={tipoDeNota}
+                  secciones={[
+                    ...secciones.filter(
+                      (s) => s.seccion !== "Zona" && s.seccion !== "Experiencia"
+                    ),
+                    ...(secciones.find((s) => s.seccion === "Zona")
+                      ? [secciones.find((s) => s.seccion === "Zona")]
+                      : []),
+                    ...secciones.filter((s) => s.seccion === "Experiencia"),
+                  ]}
+                  ocultarTipoNota={false}
                 />
-
-                <InstafotoSelector
-                  instafotoActual={instafotoActual}
-                  notaId={notaId}
-                  onInstafotoEliminada={() => setInstafotoActual(null)}
-                />
-
-                {/* Secciones de filtros unificadas para usuarios con permisos 'todos' */}
-                {usuario?.permisos === 'todos' && (
-                  <div className="mb-6">
-                    <CategoriasTipoNotaSelector
-                      tipoDeNota={tipoDeNota}
-                      secciones={[
-                        ...secciones.filter(s => s.seccion !== "Zona" && s.seccion !== "Experiencia"),
-                        ...(secciones.find(s => s.seccion === "Zona") ? [secciones.find(s => s.seccion === "Zona")] : []),
-                        ...secciones.filter(s => s.seccion === "Experiencia")
-                      ]}
-                      ocultarTipoNota={false}
-                    />
-                  </div>
-                )}
 
                 {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
-                {!tipoNotaUsuario && usuario?.permisos !== 'todos' && (
-                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-800 mb-2">Tipo de nota:</label>
+                {!tipoNotaUsuario && usuario?.permisos !== "todos" && (
+                  <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                      Tipo de nota:
+                    </label>
                     <div className="text-2xl font-bold text-gray-900 bg-white px-4 py-2 rounded-md border border-gray-300">
                       📝 Sin tipo asignado
                     </div>
@@ -527,22 +639,29 @@ const FormMainResidente = () => {
 
                 {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
                 {(() => {
-                  const tipoNota = watch('tiposDeNotaSeleccionadas');
-                  const esDestacada = watch('destacada');
+                  const tipoNota = watch("tiposDeNotaSeleccionadas");
+                  const esDestacada = watch("destacada");
                   let textoDestacada = "Marcar como destacada";
-                  if (tipoNota === "Restaurantes") textoDestacada = "Marcar como restaurante recomendado";
-                  if (tipoNota === "Food & Drink") textoDestacada = "Marcar como platillo icónico";
+                  if (tipoNota === "Restaurantes")
+                    textoDestacada = "Marcar como restaurante recomendado";
+                  if (tipoNota === "Food & Drink")
+                    textoDestacada = "Marcar como platillo icónico";
 
-                  if (tipoNota === "Restaurantes" || tipoNota === "Food & Drink") {
+                  if (
+                    tipoNota === "Restaurantes" ||
+                    tipoNota === "Food & Drink"
+                  ) {
                     return (
-                      <div className="mb-4 flex gap-6">
+                      <div className="mb-4 pb-4 flex gap-6">
                         <label className="inline-flex items-center">
                           <input
                             type="checkbox"
                             {...methods.register("destacada")}
                             className="form-checkbox h-5 w-5 text-yellow-500"
                           />
-                          <span className="ml-2 text-gray-700 font-medium">{textoDestacada}</span>
+                          <span className="ml-2 text-gray-700 font-medium">
+                            {textoDestacada}
+                          </span>
                         </label>
                         {esDestacada && (
                           <label className="inline-flex items-center">
@@ -551,7 +670,9 @@ const FormMainResidente = () => {
                               {...methods.register("destacada_normal")}
                               className="form-checkbox h-5 w-5 text-blue-500"
                             />
-                            <span className="ml-2 text-gray-700 font-medium">También mostrar como destacada normal</span>
+                            <span className="ml-2 text-gray-700 font-medium">
+                              También mostrar como destacada normal
+                            </span>
                           </label>
                         )}
                       </div>
@@ -560,24 +681,36 @@ const FormMainResidente = () => {
                   return null;
                 })()}
 
-                <NombreRestaurante />
-                <Titulo />
-                <Subtitulo />
-                <Autor />
-                <Contenido />
+                <div>
+                  <NombreRestaurante />
+                </div>
+                <div className="pb-4">
+                  <Titulo />
+                </div>
+                <div className="pb-4">
+                  <Subtitulo />
+                </div>
+                <div className="pb-4">
+                  <Autor />
+                </div>
+                <div className="pb-4">
+                  <Contenido />
+                </div>
 
-                <FormularioPromoExt
-                  onStickerSelect={clave => setValue('sticker', clave)}
-                  stickerSeleccionado={watch('sticker')}
-                  maxStickers={2}
-                />
+                <div className="pb-4">
+                  <FormularioPromoExt
+                    onStickerSelect={(clave) => setValue("sticker", clave)}
+                    stickerSeleccionado={watch("sticker")}
+                    maxStickers={2}
+                  />
+                </div>
 
-                <div className="mt-2 text-sm text-gray-700">
-                  Sticker seleccionado: {watch('sticker')}
+                <div className="mt-2 text-sm text-gray-700 pb-4 hidden">
+                  Sticker seleccionado: {watch("sticker")}
                 </div>
 
                 {/* Opciones de publicación */}
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="mb-6 pb-4 p-4 bg-white rounded-lg">
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-yellow-800 mb-3">
                       Opciones de Publicación
@@ -585,7 +718,8 @@ const FormMainResidente = () => {
 
                     {faltanCamposObligatorios && (
                       <div className="mb-2 text-red-600 text-sm font-medium">
-                        Si quieres publicar llena los campos faltantes: {camposFaltantes.join(', ')}
+                        Si quieres publicar llena los campos faltantes:{" "}
+                        {camposFaltantes.join(", ")}
                       </div>
                     )}
 
@@ -599,7 +733,14 @@ const FormMainResidente = () => {
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
                           disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="publicar-ahora" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <label
+                          htmlFor="publicar-ahora"
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
                           Publicar ahora
                         </label>
                       </div>
@@ -613,22 +754,32 @@ const FormMainResidente = () => {
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
                           disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="programar" className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <label
+                          htmlFor="programar"
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
                           Programar publicación
                         </label>
                       </div>
 
                       <div className="ml-6 space-y-2">
-                        <label htmlFor="fecha-programada" className="block text-xs text-yellow-700">
+                        <label
+                          htmlFor="fecha-programada"
+                          className="block text-xs text-yellow-700"
+                        >
                           Fecha y hora de publicación
                         </label>
                         <input
                           id="fecha-programada"
                           type="datetime-local"
                           {...methods.register("fechaProgramada")}
-                          className="w-full max-w-xs px-3 py-2 border border-yellow-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 disabled:bg-yellow-100 disabled:cursor-not-allowed"
-                          disabled={watch('opcionPublicacion') !== "programar"}
-                          required={watch('opcionPublicacion') === "programar"}
+                          className="w-full max-w-xs px-3 py-2 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-yellow-500 disabled:bg-yellow-100 disabled:cursor-not-allowed"
+                          disabled={watch("opcionPublicacion") !== "programar"}
+                          required={watch("opcionPublicacion") === "programar"}
                         />
                       </div>
 
@@ -641,7 +792,10 @@ const FormMainResidente = () => {
                           className="w-4 h-4 text-yellow-600 bg-white border-yellow-300 focus:ring-yellow-500"
                           disabled={faltanCamposObligatorios}
                         />
-                        <label htmlFor="borrador" className="text-sm text-yellow-800 cursor-pointer">
+                        <label
+                          htmlFor="borrador"
+                          className="text-sm text-yellow-800 cursor-pointer"
+                        >
                           Guardar como borrador
                         </label>
                       </div>
@@ -649,13 +803,20 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
-                {/* Sección SEO Metadata */}
-                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">SEO Metadata (Opcional)</h3>
+                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+                <div
+                  className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg"
+                  style={{ display: "none" }}
+                >
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">
+                    SEO Metadata (Opcional)
+                  </h3>
 
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Texto Alt de Imagen</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Texto Alt de Imagen
+                      </label>
                       <input
                         type="text"
                         {...methods.register("seo_alt_text")}
@@ -664,7 +825,9 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Título SEO</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Título SEO
+                      </label>
                       <input
                         type="text"
                         {...methods.register("seo_title")}
@@ -673,7 +836,9 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Palabra Clave</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Palabra Clave
+                      </label>
                       <input
                         type="text"
                         {...methods.register("seo_keyword")}
@@ -682,7 +847,9 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Meta Descripción</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Meta Descripción
+                      </label>
                       <textarea
                         {...methods.register("meta_description")}
                         rows={3}
@@ -695,15 +862,16 @@ const FormMainResidente = () => {
 
                 {/* Botón para eliminar la nota */}
                 {notaId && (
-                  <div className="flex justify-end">
+                  <div className="flex justify-end pb-4">
                     <button
                       type="button"
                       onClick={eliminarNota}
                       disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${eliminando
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-red-600 text-white hover:bg-red-700"
-                        }`}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
                     >
                       {eliminando ? "Eliminando..." : "Eliminar Nota"}
                     </button>
@@ -727,7 +895,6 @@ const FormMainResidente = () => {
                     disabled={isPosting}
                   />
                 </div>
-
               </div>
             </div>
           </form>
@@ -739,7 +906,7 @@ const FormMainResidente = () => {
           📱 Vista previa de tu nota
         </h2>
 
-        {(titulo || subtitulo || autor || contenido || imagen || instafoto) ? (
+        {titulo || subtitulo || autor || contenido || imagen || instafoto ? (
           <div className="flex justify-center">
             <div className="flex w-[680px]">
               <div>
@@ -751,7 +918,7 @@ const FormMainResidente = () => {
                     descripcion: contenido,
                     imagen: imagenPreview,
                     tipo_nota: tipoNotaSeleccionada,
-                    nombre_restaurante: watch('nombre_restaurante'),
+                    nombre_restaurante: watch("nombre_restaurante"),
                     fecha: fechaActual,
                   }}
                   sinFecha={false}
@@ -765,7 +932,7 @@ const FormMainResidente = () => {
           </div>
         )}
       </div>
-    </div >
+    </div>
   );
 };
 

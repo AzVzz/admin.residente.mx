@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
+import { cuponesGetActivos } from "../../api/cuponesGet";
+import axios from 'axios';
 // import FormularioBanner from "./FormularioBanner";
+
+import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -27,6 +31,15 @@ const B2BDashboard = () => {
 
   // Estado para la fecha actual
   const [fechaActual, setFechaActual] = useState(new Date());
+  const [cupon, setCupon] = useState(null);
+  const [loadingCupon, setLoadingCupon] = useState(true);
+  const [cupones, setCupones] = useState([]);
+
+  // 👇 AGREGADO: URL de la API de tienda
+  // En desarrollo usa el proxy de Vite, en producción usa la URL directa
+  const API_URL = import.meta.env.DEV
+    ? '/api/tienda'  // Usa el proxy configurado en vite.config.js
+    : `${urlApi}api/tienda`;  // URL directa en producción
 
   useEffect(() => {
     if (showModal) {
@@ -95,6 +108,46 @@ const B2BDashboard = () => {
       setTotal(nuevoTotal);
       return nuevoSeleccionados;
     });
+  };
+
+  // 👇 AGREGADO: Función para ir a pagar con Stripe
+  const handleIrAPagar = async () => {
+    // Filtrar productos seleccionados
+    const items = productos
+      .filter((p) => seleccionados[p.id])
+      .map((p) => ({
+        productId: p.id.toString(),
+        quantity: 1,
+      }));
+
+    console.log('📦 Productos seleccionados:', items);
+
+    if (items.length === 0) {
+      alert("Selecciona al menos un beneficio para pagar.");
+      return;
+    }
+
+    try {
+      console.log('🚀 Enviando request a:', `${API_URL}/create-checkout-session`);
+
+      const resp = await axios.post(`${API_URL}/create-checkout-session`, {
+        items,
+        b2bId: b2bId,
+      });
+
+      console.log('✅ Respuesta del servidor:', resp.data);
+
+      if (resp.data.url) {
+        console.log('🔗 Redirigiendo a:', resp.data.url);
+        window.location.href = resp.data.url;
+      } else {
+        alert("No se pudo obtener la URL de pago.");
+      }
+    } catch (err) {
+      console.error('❌ Error al crear la sesión de pago:', err);
+      const errorMsg = err.response?.data?.error || err.message || 'Error desconocido';
+      alert(`Error al crear la sesión de pago: ${errorMsg}`);
+    }
   };
 
   // Obtener restaurante
@@ -389,23 +442,44 @@ const B2BDashboard = () => {
     obtenerSuscripcion();
   }, [b2bId]);
 
+  // Obtener el cupón del usuario
+  useEffect(() => {
+    const fetchCupones = async () => {
+      setLoadingCupon(true);
+      try {
+        const cuponesActivos = await cuponesGetActivos();
+        const misCupones = cuponesActivos.filter(c => c.user_id === usuario.id);
+        setCupones(misCupones);
+        setCupon(misCupones[0] || null); // Si quieres seguir mostrando el primero
+      } catch (err) {
+        setCupones([]);
+        setCupon(null);
+      } finally {
+        setLoadingCupon(false);
+      }
+    };
+    if (usuario) fetchCupones();
+  }, [usuario]);
+
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
-    navigate("/login");
+    navigate("/registro");
   };
 
   const handleEditar = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
+    } else {
+      navigate('/formulario');
     }
   };
 
-  const handleVer = () => {
+  {/*const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };
+  };*/}
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -427,6 +501,14 @@ const B2BDashboard = () => {
       ? restaurante.imagenes[0].src
       : `${imgApi}${restaurante.imagenes[0].src}`)
     : `${imgApi}/fotos/platillos/default.webp`;
+
+  // Calcular total de interacciones de los cupones del usuario
+  const totalInteraccionesCupones = cupones
+    .filter(c => c.user_id === usuario.id)
+    .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
+
+  const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
+  const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
 
   return (
     <div>
@@ -477,25 +559,24 @@ const B2BDashboard = () => {
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
-
-
-            </div>
+            <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+              Aún no tienes un restaurante registrado.<br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+            </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
-              onClick={handleEditar}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={restaurante ? handleVer : () => navigate('/formulario')}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
-              MICROSITIO
+              {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
             </button>
             <button
-              onClick={handleFormularioPromo}
+              onClick={handleCupones}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               DESCUENTOS
@@ -526,21 +607,53 @@ const B2BDashboard = () => {
           <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
             <div>
-              <p className="text-[40px] font-bold text-black leading-tight">3,462</p>
-              <p className="text-sm text-black">Alcance total del club Residente</p>
+              <p className="text-[40px] font-bold text-black leading-tight">
+                {restaurante?.views?.toLocaleString("es-MX") || 0}
+              </p>
+              <p className="text-sm text-black">Vistas totales en tu restaurante</p>
             </div>
             <div>
-              <p className="text-[40px] font-bold text-black leading-tight">6,145</p>
-              <p className="text-sm text-black">Page-views de TU MARCA en Gula NL Residente</p>
+              <p className="text-[40px] font-bold text-black leading-tight">
+                {restaurante?.clicks?.toLocaleString("es-MX") || 0}
+              </p>
+              <p className="text-sm text-black">Clicks totales en tu restaurante</p>
             </div>
-            <div>
-              <p className="text-[40px] font-bold text-black leading-tight">12,128</p>
-              <p className="text-sm text-black">Page views de tumarca FUERA DE Gula NL Residente</p>
-            </div>
-            <div>
-              <p className="text-[40px] font-bold text-black leading-tight">6,532</p>
-              <p className="text-sm text-black">Clicks a tumarca (restaurantes y cupones)</p>
-            </div>
+            {restaurante && (
+              <div>
+                <p className="text-[40px] font-bold text-black leading-tight">
+                  {restaurante.total_interacciones?.toLocaleString("es-MX") || 0}
+                </p>
+                <p className="text-sm text-black">Total de interacciones (vistas y clicks) en tu restaurante</p>
+              </div>
+            )}
+            {/* Mostrar cupón del usuario */}
+            {/* Mostrar views y clicks del cupón del usuario */}
+            {loadingCupon ? (
+              <div>Cargando cupón...</div>
+            ) : cupon ? (
+              <>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.views?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Vistas totales de tu cupón</p>
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.clicks?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Clicks totales de tu cupón</p>
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {cupon.total_interacciones?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Total de interacciones (vistas y clicks) de tu cupón</p>
+                </div>
+              </>
+            ) : (
+              <div>No tienes cupones activos.</div>
+            )}
           </div>
         </div>
         {/* Columna roja */}
@@ -647,7 +760,11 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
+              <button
+                onClick={handleIrAPagar}
+                className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+              >
                 Ir a pagar
               </button>
             </div>

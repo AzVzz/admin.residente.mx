@@ -29,9 +29,8 @@ const Login = () => {
   const getFallbackByRole = (rol, permisos) => {
     const r = rol?.toLowerCase();
     if (r === "b2b") return "/dashboardb2b";
-    // Para usuarios "residente" o "invitado" con permisos, redirigir a /notas
-    // Esto permite que usuarios "invitado" puedan acceder al dashboard para crear notas
-    if (r === "residente" || r === "invitado") return "/notas";
+    // Para usuarios "residente", "invitado" o "colaborador", redirigir a /notas
+    if (r === "residente" || r === "invitado" || r === "colaborador") return "/notas";
     return "/"; // otros roles
   };
 
@@ -43,8 +42,8 @@ const Login = () => {
       return path.startsWith("/dashboardb2b");
     }
 
-    // residente e invitado pueden ir a /notas y lo que cuelgue de ahí
-    if (r === "residente" || r === "invitado") {
+    // residente, invitado y colaborador pueden ir a /notas y lo que cuelgue de ahí
+    if (r === "residente" || r === "invitado" || r === "colaborador") {
       return path.startsWith("/notas");
     }
 
@@ -127,10 +126,19 @@ const Login = () => {
     }
   };
 
+
   // Formulario de login centrado solo en /login
   if (location.pathname === "/login") {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="flex justify-center mb-4">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
+            alt="Logo Residente"
+            className="h-16 w-auto"
+          />
+        </div>
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xs border border-gray-200"
@@ -191,7 +199,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+            className="bg-[#fff200] hover:bg-[#fff200] cursor-pointer text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
           >
             Iniciar sesión
           </button>
@@ -199,7 +207,7 @@ const Login = () => {
           <div className="mt-4 text-center">
             <Link
               to="/recuperar-password"
-              className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+              className="inline-block align-baseline font-bold text-sm text-black hover:text-black"
             >
               ¿Olvidaste tu contraseña?
             </Link>

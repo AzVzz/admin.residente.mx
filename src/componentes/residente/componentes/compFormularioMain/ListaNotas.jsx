@@ -3,7 +3,7 @@ import { useAuth } from "../../../Context";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
-import { FaUser, FaStore } from "react-icons/fa6";
+import { FaUser, FaStore, FaStar } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -17,6 +17,7 @@ import { IoNewspaper } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
+import { MdAdminPanelSettings } from "react-icons/md"; // Added icon for admin codes
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -37,6 +38,7 @@ import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
 import ListaTickets from "./ListaTickets";
 import FormularioReceta from "./FormularioReceta";
 import ListaRecetas from "./ListaRecetas";
+import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -76,11 +78,18 @@ const ListaNotas = () => {
       // Para otros casos (token expirado, etc.), limpiar sesión y redirigir
       saveToken(null);
       saveUsuario(null);
-      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      navigate(`/registro`, { replace: true });
       return;
     }
+
+    // Redirect B2B users to their dashboard
+    if (usuario?.rol === 'b2b') {
+      navigate('/dashboardb2b', { replace: true });
+      return;
+    }
+
     if (!token || !usuario) {
-      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      navigate(`/registro`, { replace: true });
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
@@ -189,7 +198,7 @@ const ListaNotas = () => {
         // Para otros casos de 403 (token expirado, etc.), limpiar sesión y redirigir
         saveToken(null);
         saveUsuario(null);
-        navigate('/login', { replace: true });
+        navigate('/registro', { replace: true });
         return;
       }
 
@@ -365,22 +374,28 @@ const ListaNotas = () => {
     { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
     { key: "restaurante_link", label: "Restaurante", icon: <FaStore className="mr-2" /> },
+    { key: "ednl", label: "Ednl", icon: <FaStar className="mr-2" /> },
+    { key: "codigos_admin", label: "Códigos", icon: <MdAdminPanelSettings className="mr-2" /> },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
   // Si el usuario NO es admin (todos/todo), solo mostrar Notas y Recetas
   const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-  const esResidente = usuario?.permisos === 'residente';
+  const esResidente = usuario?.permisos === 'residente' || usuario?.rol === 'residente'; // Checked rol as well just in case
   const esB2B = usuario?.permisos === 'b2b';
   const esInvitado = usuario?.rol === 'invitado';
 
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(option =>
-      option.key === "notas" ||
-      option.key === "recetas" ||
-      (option.key === "cupones" && !esInvitado) ||
-      ((esResidente || esB2B) && option.key === "restaurante_link")
+      (usuario?.rol !== 'b2b') && ( // Hide all menu options for B2B users if they are here
+        option.key === "notas" ||
+        option.key === "recetas" ||
+        (option.key === "cupones" && !esInvitado && usuario?.rol !== 'colaborador') ||
+        (esResidente && option.key === "restaurante_link") ||
+        (usuario?.rol === 'residente' && option.key === "ednl") || // EDNL only for residente role
+        (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
+      )
     );
 
   if (cargando) {
@@ -413,7 +428,7 @@ const ListaNotas = () => {
                 onClick={() => {
                   saveToken(null);
                   saveUsuario(null);
-                  navigate("/");
+                  navigate("/registro");
                 }}
                 className="inline-flex items-center px-4 py-2 bg-red-600 text-white shadow hover:bg-red-700 transition text-sm font-bold cursor-pointer rounded-xl"
                 title="Cerrar sesión"
@@ -457,6 +472,10 @@ const ListaNotas = () => {
                     navigate('/formulario');
                   } else if (option.key === "cupones") {
                     navigate('/dashboardtickets');
+                  } else if (option.key === "codigos_admin") {
+                    navigate('/admin/codigos');
+                  } else if (option.key === "ednl") {
+                    navigate('/ednl');
                   } else {
                     setVistaActiva(option.key);
                   }
@@ -478,12 +497,14 @@ const ListaNotas = () => {
           <>
             {/* Barra de búsqueda y filtros para vista de notas */}
             <div className="flex justify-between mb-5 gap-4 items-center">
-              {/* Barra de búsqueda */}
-              <div className="flex-1 max-w-md">
-                <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-              </div>
+              {/* Barra de búsqueda - solo para no colaboradores */}
+              {usuario?.rol !== "colaborador" && (
+                <div className="flex-1 max-w-md">
+                  <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                </div>
+              )}
 
-              {/* Filtros */}
+              {/* Filtros - SIEMPRE VISIBLE */}
               <div className="flex gap-2 items-center">
                 {usuario?.permisos === 'todos' && (
                   <FiltroEstadoNota estado={estado} setEstado={setEstado} />
@@ -494,117 +515,145 @@ const ListaNotas = () => {
                 {usuario?.permisos === 'todos' && (
                   <FiltroAutor autor={autor} setAutor={setAutor} />
                 )}
-                <Link
-                  to="/notas/nueva"
-                  className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
-                >
-                  <svg
-                    className="-ml-1 mr-2 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                {usuario?.rol === "colaborador" ? (
+                  <Link
+                    to="/colaboradores"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Nueva Nota
-                </Link>
+                    <svg
+                      className="-ml-1 mr-2 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Nueva Colaboración
+                  </Link>
+                ) : (
+                  <Link
+                    to="/notas/nueva"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
+                  >
+                    <svg
+                      className="-ml-1 mr-2 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Nueva Nota
+                  </Link>
+                )}
               </div>
             </div>
 
-            {!notas || notas.length === 0 ? (
-              <SinNotas />
-            ) : notasFiltradas.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-500 text-lg">
-                  {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
-                </div>
-              </div>
+            {/* Contenido */}
+            {usuario?.rol === "colaborador" ? (
+              // Si es colaborador, mostrar sus blogs en lugar de notas
+              <ListaBlogsColaborador />
             ) : (
+              // Si NO es colaborador, mostrar la lista de notas normal
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {notasPaginaActual.map((nota) => (
-                    <NotaCard
-                      key={nota.id}
-                      nota={nota}
-                      onEliminar={eliminarNota}
-                      eliminando={eliminando}
-                    />
-                  ))}
-                </div>
-
-                {/* Información de resultados y paginación */}
-                <div className="flex flex-col items-center mt-8 space-y-4">
-                  {/* Información de paginación */}
-                  <div className="text-sm text-gray-600">
-                    Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
-                    {searchTerm && ` (filtradas por "${searchTerm}")`}
+                {!notas || notas.length === 0 ? (
+                  <SinNotas />
+                ) : notasFiltradas.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-500 text-lg">
+                      {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {notasPaginaActual.map((nota) => (
+                        <NotaCard
+                          key={nota.id}
+                          nota={nota}
+                          onEliminar={eliminarNota}
+                          eliminando={eliminando}
+                        />
+                      ))}
+                    </div>
 
-                  {/* Navegación de páginas */}
-                  {totalPaginas > 1 && (
-                    <div className="flex items-center space-x-2">
-                      {/* Botón anterior */}
-                      <button
-                        onClick={irAPaginaAnterior}
-                        disabled={paginaActual === 1}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                          }`}
-                      >
-                        ← Anterior
-                      </button>
-
-                      {/* Números de página */}
-                      <div className="flex space-x-1">
-                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
-                          // Mostrar solo un rango de páginas alrededor de la actual
-                          const mostrarPagina =
-                            numero === 1 ||
-                            numero === totalPaginas ||
-                            (numero >= paginaActual - 2 && numero <= paginaActual + 2);
-
-                          if (!mostrarPagina) {
-                            // Mostrar puntos suspensivos
-                            if (numero === paginaActual - 3 || numero === paginaActual + 3) {
-                              return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
-                            }
-                            return null;
-                          }
-
-                          return (
-                            <button
-                              key={numero}
-                              onClick={() => irAPagina(numero)}
-                              className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                                }`}
-                            >
-                              {numero}
-                            </button>
-                          );
-                        })}
+                    {/* Información de resultados y paginación */}
+                    <div className="flex flex-col items-center mt-8 space-y-4">
+                      {/* Información de paginación */}
+                      <div className="text-sm text-gray-600">
+                        Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
+                        {searchTerm && ` (filtradas por "${searchTerm}")`}
                       </div>
 
-                      {/* Botón siguiente */}
-                      <button
-                        onClick={irAPaginaSiguiente}
-                        disabled={paginaActual === totalPaginas}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                          }`}
-                      >
-                        Siguiente →
-                      </button>
+                      {/* Navegación de páginas */}
+                      {totalPaginas > 1 && (
+                        <div className="flex items-center space-x-2">
+                          {/* Botón anterior */}
+                          <button
+                            onClick={irAPaginaAnterior}
+                            disabled={paginaActual === 1}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                          >
+                            ← Anterior
+                          </button>
+
+                          {/* Números de página */}
+                          <div className="flex space-x-1">
+                            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                              const mostrarPagina =
+                                numero === 1 ||
+                                numero === totalPaginas ||
+                                (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+
+                              if (!mostrarPagina) {
+                                if (numero === paginaActual - 3 || numero === paginaActual + 3) {
+                                  return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
+                                }
+                                return null;
+                              }
+
+                              return (
+                                <button
+                                  key={numero}
+                                  onClick={() => irAPagina(numero)}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                                    }`}
+                                >
+                                  {numero}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Botón siguiente */}
+                          <button
+                            onClick={irAPaginaSiguiente}
+                            disabled={paginaActual === totalPaginas}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              }`}
+                          >
+                            Siguiente →
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
               </>
             )}
           </>

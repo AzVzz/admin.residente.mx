@@ -164,3 +164,27 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
+
+/* Scrollbar bonito solo para el modal de términos */
+.scroll-modal::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+.scroll-modal::-webkit-scrollbar-thumb {
+  background: #e5e7eb; /* gris claro */
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.scroll-modal:hover::-webkit-scrollbar-thumb {
+  background: #bdbdbd; /* gris más oscuro al hacer hover */
+}
+.scroll-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+.scroll-modal:hover {
+  scrollbar-color: #bdbdbd transparent;
+}

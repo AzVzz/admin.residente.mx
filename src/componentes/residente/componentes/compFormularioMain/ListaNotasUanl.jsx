@@ -20,7 +20,7 @@ const ListaNotasUanl = () => {
 
   useEffect(() => {
     if (!token || !usuario) {
-      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`, { replace: true });
+      navigate(`/registro`, { replace: true });
       return;
     }
     setCargando(true);
@@ -80,7 +80,7 @@ const ListaNotasUanl = () => {
               className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-              }`}
+                }`}
             >
               ← Anterior
             </button>
@@ -105,7 +105,7 @@ const ListaNotasUanl = () => {
                     className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
                       ? 'bg-blue-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                    }`}
+                      }`}
                   >
                     {numero}
                   </button>
@@ -118,7 +118,7 @@ const ListaNotasUanl = () => {
               className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-              }`}
+                }`}
             >
               Siguiente →
             </button>

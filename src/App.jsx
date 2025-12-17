@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Suspense, lazy } from "react";
 
@@ -41,9 +41,9 @@ import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/Form
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
 import Registro from "./componentes/residente/Registro.jsx";
-
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
+
 //Admin
 const FormMainResidente = lazy(() =>
   import(
@@ -92,7 +92,12 @@ const B2BDashboard = lazy(() =>
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
 const RegistroInvitados = lazy(() =>
-  import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados")
+  import(
+    "./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados"
+  )
+);
+const GestionCodigos = lazy(() =>
+  import("./componentes/residente/Admin/GestionCodigos")
 );
 
 const notasPrueba = [
@@ -176,10 +181,11 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative z-20 ${showMegaMenu
-              ? "-translate-y-full opacity-0 pointer-events-none"
-              : "translate-y-0 opacity-100"
-              }`}
+            className={`transition-all duration-300 relative z-20 ${
+              showMegaMenu
+                ? "-translate-y-full opacity-0 pointer-events-none"
+                : "translate-y-0 opacity-100"
+            }`}
           >
             <div />
             <Header />
@@ -189,20 +195,26 @@ function App() {
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" && (
             <div
-              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
-                ? "translate-y-0 opacity-100"
-                : "-translate-y-full opacity-0 pointer-events-none"
-                }`}
+              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+                showMegaMenu
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-full opacity-0 pointer-events-none"
+              }`}
             >
               <div />
               <MegaMenu />
             </div>
           )}
         <main
-          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"
-            }`}
+          className={`flex-grow overflow-x-hidden w-full relative z-10 ${
+            isLinkInBio ? "" : "px-10 sm:px-0"
+          }`}
         >
-          <Suspense fallback={<div>Cargando...</div>}>
+          <Suspense
+            fallback={
+              <div className="max-w-[1080px] mx-auto py-8">Cargando...</div>
+            }
+          >
             <Routes>
               <Route
                 path="/antiguo-main"
@@ -299,7 +311,7 @@ function App() {
               />
 
               <Route
-                path="/oped"
+                path="/registrocolaboradores"
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <OpinionEditorial />
@@ -387,7 +399,7 @@ function App() {
                     <PlantillaNotas
                       posts={[...notasPrueba]}
                       notasDestacadas={[...notasPrueba]}
-                      handleCardClick={() => { }}
+                      handleCardClick={() => {}}
                     />
                   </div>
                 }
@@ -421,9 +433,18 @@ function App() {
               />
 
               <Route
+                path="/registro"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <Registro />
+                  </div>
+                }
+              />
+
+              <Route
                 path="/registroinvitados"
                 element={
-                  <div className="max-w-[650px] mx-auto">
+                  <div className="max-w-[1080px] mx-auto">
                     <RegistroInvitados />
                   </div>
                 }
@@ -495,14 +516,7 @@ function App() {
               />
 
               {/* Admin */}
-              <Route
-                path="/"
-                element={
-                  <div className="max-w-[1080px] mx-auto py-10">
-                    <Login />
-                  </div>
-                }
-              />
+              <Route path="/" element={<Navigate to="/registro" replace />} />
 
               {/* Admin */}
               <Route
@@ -562,8 +576,6 @@ function App() {
                 }
               />
 
-
-
               {/* Admin */}
               <Route
                 path="/revistas/nueva"
@@ -604,15 +616,24 @@ function App() {
                 }
               />
 
-
+              <Route
+                path="/admin/codigos"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <GestionCodigos />
+                  </div>
+                }
+              />
 
               {/* Admin */}
-              <Route path="/terminos-y-condiciones" element={
-                <div className="max-w-[1080px] mx-auto">
-                  <TerminosyCondiciones />
-                </div>
-              } />
-
+              <Route
+                path="/terminos-y-condiciones"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <TerminosyCondiciones />
+                  </div>
+                }
+              />
             </Routes>
           </Suspense>
         </main>
