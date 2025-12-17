@@ -137,7 +137,10 @@ const RestaurantePage = () => {
               didi={restaurante.didi_link || ""}
             />
 
-            {(restaurante.colaboracion_coca_cola || restaurante.colaboracion_modelo) && (
+            {(restaurante.colaboracion_coca_cola || 
+              restaurante.colaboracion_modelo || 
+              restaurante.colaboracion_heineken || 
+              restaurante.colaboracion_descuentosx6) && (
               <Colaboraciones
                 colaboracion_coca_cola={restaurante.colaboracion_coca_cola}
                 colaboracion_modelo={restaurante.colaboracion_modelo}
