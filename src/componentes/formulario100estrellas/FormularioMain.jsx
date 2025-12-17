@@ -69,7 +69,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Estado para verificar si el usuario B2B ya tiene un restaurante
   // Inicializar en true si es B2B en modo creación para que verifique primero
   const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
-    usuario?.rol === 'b2b' && !esEdicion
+    usuario?.rol === "b2b" && !esEdicion
   );
   const [tieneRestaurante, setTieneRestaurante] = useState(false);
   const [error403, setError403] = useState(false);
@@ -211,10 +211,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }, [loadedData, reset]);
 
   // --- AUTO-GENERACIÓN SEO ---
-  const nombreRestaurante = watch('nombre_restaurante');
-  const tipoRestaurante = watch('tipo_restaurante');
-  const comida = watch('comida');
-  const sucursales = watch('sucursales');
+  const nombreRestaurante = watch("nombre_restaurante");
+  const tipoRestaurante = watch("tipo_restaurante");
+  const comida = watch("comida");
+  const sucursales = watch("sucursales");
 
   useEffect(() => {
     if (!nombreRestaurante) return;
@@ -239,10 +239,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     // Meta Description: Substring({Menciona la especialidad} + " en " + {Zona}, 0, 155)
     const rawDescription = `${especialidad} en ${zona}`;
     // Si especialidad o zona están vacíos, ajustar para que no quede raro " en "
-    const cleanDescription = (!especialidad && !zona) ? "" : rawDescription;
-    const generatedDescription = cleanDescription.length > 155
-      ? cleanDescription.substring(0, 155) // El user pidió Substring exacto
-      : cleanDescription;
+    const cleanDescription = !especialidad && !zona ? "" : rawDescription;
+    const generatedDescription =
+      cleanDescription.length > 155
+        ? cleanDescription.substring(0, 155) // El user pidió Substring exacto
+        : cleanDescription;
 
     // Focus Keyword: {Nombre del restaurante}
     const generatedKeyword = nombreRestaurante;
@@ -255,7 +256,6 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     setValue("meta_description", generatedDescription);
     setValue("seo_keyword", generatedKeyword);
     setValue("seo_alt_text", generatedAltText);
-
   }, [nombreRestaurante, tipoRestaurante, comida, sucursales, setValue]);
   // ---------------------------
 
@@ -270,7 +270,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
   useEffect(() => {
     // Solo verificar si es usuario B2B y NO está en modo edición
-    if (usuario?.rol === 'b2b' && !esEdicion && token) {
+    if (usuario?.rol === "b2b" && !esEdicion && token) {
       const verificarRestaurante = async () => {
         setLoadingRestauranteCheck(true);
         try {
@@ -306,11 +306,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }, [usuario, token, esEdicion]);
 
   // --- SINCRONIZAR "Tipo de comida" con "tipo_restaurante" ---
-  const tipoComida = watch('secciones_categorias.Tipo de comida');
+  const tipoComida = watch("secciones_categorias.Tipo de comida");
 
   useEffect(() => {
     if (tipoComida) {
-      setValue('tipo_restaurante', tipoComida);
+      setValue("tipo_restaurante", tipoComida);
     }
   }, [tipoComida, setValue]);
   // -----------------------------------------------------------
@@ -326,11 +326,13 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }
 
   // Verificar roles permitidos
-  if (usuario && usuario.rol !== 'residente' && usuario.rol !== 'b2b') {
+  if (usuario && usuario.rol !== "residente" && usuario.rol !== "b2b") {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Acceso Restringido
+          </h2>
           <p className="text-gray-600">
             No tienes permisos para crear restaurantes. <br />
             Solo usuarios Residentes y B2B pueden acceder a esta sección.
@@ -341,17 +343,19 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }
 
   // Si es usuario B2B y ya tiene un restaurante, mostrar mensaje
-  if ((usuario?.rol === 'b2b' && !esEdicion && tieneRestaurante) || error403) {
+  if ((usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) || error403) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Límite de Restaurantes Alcanzado</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Límite de Restaurantes Alcanzado
+          </h2>
           <p className="text-gray-600 mb-4">
             Solo puedes tener un restaurante registrado. <br />
             Para editar tu restaurante existente, ve a tu dashboard.
           </p>
           <button
-            onClick={() => navigate('/dashboardb2b')}
+            onClick={() => navigate("/dashboardb2b")}
             className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition-colors"
           >
             Ir al Dashboard
@@ -392,31 +396,33 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
             const onSubmit = async (data) => {
               try {
                 // Validación adicional: Si es B2B y ya tiene restaurante, no permitir
-                if (usuario?.rol === 'b2b' && !esEdicion && tieneRestaurante) {
+                if (usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) {
                   setError403(true);
                   return;
                 }
 
                 const seccionesCategorias = [];
                 if (data.secciones_categorias) {
-                  Object.entries(data.secciones_categorias).forEach(([seccion, valor]) => {
-                    if (Array.isArray(valor)) {
-                      valor.forEach((categoria) =>
-                        seccionesCategorias.push({ seccion, categoria })
-                      );
-                    } else if (valor) {
-                      seccionesCategorias.push({ seccion, categoria: valor });
+                  Object.entries(data.secciones_categorias).forEach(
+                    ([seccion, valor]) => {
+                      if (Array.isArray(valor)) {
+                        valor.forEach((categoria) =>
+                          seccionesCategorias.push({ seccion, categoria })
+                        );
+                      } else if (valor) {
+                        seccionesCategorias.push({ seccion, categoria: valor });
+                      }
                     }
-                  });
+                  );
                 }
 
                 // Helper cleaning function
                 const cleanText = (text) => {
-                  if (typeof text !== 'string') return text;
+                  if (typeof text !== "string") return text;
                   return text
-                    .replace(/[\n\r]+/g, ' ') // Replace newlines with space
-                    .replace(/\s+/g, ' ')     // Normalize spaces
-                    .replace(/"/g, "'")       // Replace double quotes with single (avoids \" in JSON)
+                    .replace(/[\n\r]+/g, " ") // Replace newlines with space
+                    .replace(/\s+/g, " ") // Normalize spaces
+                    .replace(/"/g, "'") // Replace double quotes with single (avoids \" in JSON)
                     .trim();
                 };
 
@@ -426,9 +432,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   fecha_inauguracion: data.fecha_inauguracion,
                   comida: data.comida
                     ? data.comida
-                      .split(",")
-                      .map((item) => item.trim())
-                      .filter(Boolean)
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
                     : [],
                   telefono: data.telefono,
                   ticket_promedio: data.ticket_promedio,
@@ -461,12 +467,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
                   colaboracion_heineken: data.colaboracion_heineken || false,
-                  colaboracion_descuentosx6: data.colaboracion_descuentosx6 || false,
+                  colaboracion_descuentosx6:
+                    data.colaboracion_descuentosx6 || false,
                   reseñas: reseñasFields.map((field) => ({
                     [field]: cleanText(data[field]),
                   })),
-                  experiencia_opinion: [],
-                  reconocimientos: [],
                   experiencia_opinion: [],
                   reconocimientos: [],
                   secciones_categorias: seccionesCategorias,
@@ -554,7 +559,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   // Procesar imágenes
                   const imagenes = data.imagenes || [];
                   const imagenesEliminadas = data.imagenesEliminadas || [];
-                  const newImages = imagenes.filter((img) => img instanceof File);
+                  const newImages = imagenes.filter(
+                    (img) => img instanceof File
+                  );
 
                   // Procesar FOTOS DEL LUGAR
                   const fotosLugar = data.fotos_lugar || [];
@@ -563,7 +570,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     .filter((foto) => !foto.isExisting && foto.file)
                     .map((foto) => foto.file);
                   const fotosConservadasIds = fotosLugar
-                    .filter((foto) => foto.isExisting && !fotosEliminadas.includes(foto.id))
+                    .filter(
+                      (foto) =>
+                        foto.isExisting && !fotosEliminadas.includes(foto.id)
+                    )
                     .map((foto) => foto.id);
                   const fotosEliminadasIds = data.fotos_eliminadas || [];
 
@@ -572,8 +582,14 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     nuevasFotos.forEach((file) => {
                       formDataFotos.append("fotos", file);
                     });
-                    formDataFotos.append("eliminadas", JSON.stringify(fotosEliminadasIds));
-                    formDataFotos.append("conservadas", JSON.stringify(fotosConservadasIds));
+                    formDataFotos.append(
+                      "eliminadas",
+                      JSON.stringify(fotosEliminadasIds)
+                    );
+                    formDataFotos.append(
+                      "conservadas",
+                      JSON.stringify(fotosConservadasIds)
+                    );
                     await postFotosLugar(restaurantId, formDataFotos);
                   }
 
@@ -582,22 +598,26 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     newImages.forEach((img) => {
                       formData.append("fotos", img);
                     });
-                    formData.append("imagenesEliminadas", JSON.stringify(imagenesEliminadas));
+                    formData.append(
+                      "imagenesEliminadas",
+                      JSON.stringify(imagenesEliminadas)
+                    );
                     await postImages(restaurantId, formData);
                   }
 
                   // Procesar LOGO
                   const logo = data.logo || [];
                   const logoEliminado = data.logoEliminado;
-                  const newLogo = logo.length > 0 && logo[0] instanceof File ? logo[0] : null;
+                  const newLogo =
+                    logo.length > 0 && logo[0] instanceof File ? logo[0] : null;
 
                   if (newLogo || logoEliminado) {
                     const formDataLogo = new FormData();
                     if (newLogo) {
-                      formDataLogo.append('logo', newLogo);
+                      formDataLogo.append("logo", newLogo);
                     }
                     if (logoEliminado) {
-                      formDataLogo.append('eliminar', 'true');
+                      formDataLogo.append("eliminar", "true");
                     }
                     await postLogo(restaurantId, formDataLogo);
                   }
@@ -608,7 +628,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   }
                   console.log("Proceso completo.");
 
-                  const finalSlug = result.data.slug || (esEdicion ? restaurante.slug : null);
+                  const finalSlug =
+                    result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
                     navigate(`/restaurante/${finalSlug}`);
                   }
@@ -616,7 +637,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
               } catch (error) {
                 console.error("Error en el envío:", error);
                 // Detectar error 403 y mostrar mensaje amigable
-                if (error.message && error.message.includes('403')) {
+                if (error.message && error.message.includes("403")) {
                   setError403(true);
                   setTieneRestaurante(true);
                 }
@@ -688,9 +709,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-
                 {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
-                <div className="form-seo" style={{ display: 'none' }}>
+                <div className="form-seo" style={{ display: "none" }}>
                   <fieldset>
                     <legend>SEO Metadata (Opcional)</legend>
 
@@ -731,7 +751,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                         {...methods.register("meta_description")}
                         rows={4}
                         placeholder="Resumen corto para resultados de búsqueda"
-                        style={{ resize: 'vertical' }}
+                        style={{ resize: "vertical" }}
                       />
                     </div>
                   </fieldset>

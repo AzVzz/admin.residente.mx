@@ -21,7 +21,7 @@ import { notaGetById } from "../../../../componentes/api/notasCompletasGet.js";
 import {
   catalogoSeccionesGet,
   catalogoTipoNotaGet,
-} from "../../../../componentes/api/CatalogoSeccionesGet.js";
+} from "../../../../componentes/api/catalogoSeccionesGet.js";
 import CategoriasTipoNotaSelector from "./componentes/CategoriasTipoNotaSelector.jsx";
 import ZonasSelector from "./componentes/ZonasSelector.jsx";
 import ImagenNotaSelector from "./componentes/ImagenNotaSelector.jsx";
