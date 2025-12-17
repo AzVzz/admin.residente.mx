@@ -232,7 +232,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <input
             type="text"
             name="titulo"
-            maxLength="100"
             required
             value={formData.titulo}
             onChange={handleChange}
@@ -258,7 +257,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           </label>
           <textarea
             name="descripcion"
-            maxLength="300"
             rows="3"
             required
             value={formData.descripcion}
@@ -274,7 +272,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <input
             type="text"
             name="porciones"
-            maxLength="30"
             required
             value={formData.porciones}
             onChange={handleChange}
@@ -289,7 +286,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <input
             type="text"
             name="tiempo"
-            maxLength="30"
             required
             value={formData.tiempo}
             onChange={handleChange}
@@ -303,7 +299,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <label className="space-y-2 font-roman font-bold">Ingredientes</label>
           <textarea
             name="ingredientes"
-            maxLength="500"
             rows="6"
             required
             value={formData.ingredientes}
@@ -320,7 +315,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           </label>
           <textarea
             name="preparacion"
-            maxLength="1000"
             rows="8"
             required
             value={formData.preparacion}
@@ -393,7 +387,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <input
             type="text"
             name="creditos"
-            maxLength="100"
             value={formData.creditos}
             onChange={handleChange}
             placeholder="Fotografía: Dna Alanis"
@@ -413,7 +406,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             <input
               type="text"
               name="seo_alt_text"
-              maxLength="255"
               value={formData.seo_alt_text}
               onChange={handleChange}
               placeholder="Descripción de la imagen para buscadores"
@@ -427,7 +419,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             <input
               type="text"
               name="seo_title"
-              maxLength="255"
               value={formData.seo_title}
               onChange={handleChange}
               placeholder="Título para pestaña del navegador y Google"
@@ -443,7 +434,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             <input
               type="text"
               name="seo_keyword"
-              maxLength="255"
               value={formData.seo_keyword}
               onChange={handleChange}
               placeholder="Palabra clave principal"
@@ -458,7 +448,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
             </label>
             <textarea
               name="meta_description"
-              maxLength="300"
               rows="3"
               value={formData.meta_description}
               onChange={handleChange}
@@ -476,7 +465,6 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <input
             type="text"
             name="instagram"
-            maxLength="80"
             value={formData.instagram}
             onChange={handleChange}
             placeholder="@mamaderoco"
