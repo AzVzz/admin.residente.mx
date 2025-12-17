@@ -84,6 +84,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       fotos_eliminadas: [],
       colaboracion_coca_cola: false,
       colaboracion_modelo: false,
+      colaboracion_heineken: false,
+      colaboracion_descuentosx6: false,
       secciones_categorias: [],
       seo_alt_text: "",
       seo_title: "",
@@ -458,6 +460,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   testimonios: [],
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
+                  colaboracion_heineken: data.colaboracion_heineken || false,
+                  colaboracion_descuentosx6: data.colaboracion_descuentosx6 || false,
                   reseñas: reseñasFields.map((field) => ({
                     [field]: cleanText(data[field]),
                   })),
@@ -628,8 +632,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   slug={restaurante?.slug}
                   existingImages={restaurante?.imagenes}
                 />
-                <FotosLugar 
-                  existingFotos={restaurante?.fotos_lugar || []} 
+                <FotosLugar
+                  existingFotos={restaurante?.fotos_lugar || []}
                   restaurantId={idNegocio || restaurante?.id}
                 />
                 {/* <TipoRestaurante /> */}
