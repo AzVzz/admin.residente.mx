@@ -22,6 +22,10 @@ const RespuestasSemana = () => {
     const [imagenPreview, setImagenPreview] = useState(null);
     const [respuestaConsejo, setRespuestaConsejo] = useState(false);
     const [textoConsejo, setTextoConsejo] = useState("");
+    const [enviandoConsejo, setEnviandoConsejo] = useState(false);
+    const [mensajeConsejo, setMensajeConsejo] = useState("");
+    const [imagenConsejo, setImagenConsejo] = useState(null);
+    const [imagenConsejoPreview, setImagenConsejoPreview] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
     const [isColaborador, setIsColaborador] = useState(false);
     const [nombreColaborador, setNombreColaborador] = useState("");
@@ -71,7 +75,7 @@ const RespuestasSemana = () => {
                     setCurriculum(data.respuesta_colaboracion || "");
                     setTextoConsejo(data.texto_consejo || "");
                     setRespuestaConsejo(data.respuesta_consejo === 1 || data.respuesta_consejo === true);
-                    
+
                     // Guardar la imagen actual (URL del servidor)
                     if (data.imagen) {
                         setImagenActual(data.imagen);
@@ -201,119 +205,71 @@ const RespuestasSemana = () => {
                             <div className="mb-3 p-4 bg-[#fff200] text-start rounded">
                                 <span className="font-bold">
                                     IMPORTANTE:<br />
-                                    Si envías tu colaboración se publicará en tu perfil.<br />
-                                    Si envías tu consejo no se publicará en tu perfil.
+                                    Tu colaboración se publicará en tu perfil.
                                 </span>
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <h1 className="text-2xl font-bold mb-4 text-center">
                                     {editarId ? "Editar colaboración" : "Entrada de colaboraciones"}
                                 </h1>
-                                <p className="mb-4 text-center text-gray-700 leading-[1.2] px-10">
-                                    Gracias por ser parte de la comunidad de consejeros editoriales y colaboradores especializados de Residente.
-                                    A continuación podrás enviarnos tu colaboración con el tema de tu elección o bien colaborar opinando
-                                    sobre el tema de la semana presentado a continuación:
-                                </p>
                                 <h2 className="text-xl font-bold mb-4 text-center">
                                     {pregunta ? pregunta : "No hay preguntas por el momento"}
                                 </h2>
-                                {/* Campo Colaborador solo lectura */}
                                 <div className="mb-4">
                                     <label className="space-y-2 font-roman font-bold">
-                                        Colaborador*
+                                        Título
                                     </label>
                                     <input
                                         type="text"
-                                        className="bg-gray-100 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none font-family-roman font-bold text-sm"
-                                        value={nombreColaborador}
-                                        readOnly
-                                        required
-                                        placeholder="Nombre del colaborador"
+                                        value={titulo}
+                                        onChange={e => setTitulo(e.target.value)}
+                                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                                     />
                                 </div>
-                                {!respuestaConsejo && (
-                                    <div className="mb-4">
-                                        <label className="space-y-2 font-roman font-bold">
-                                            Título
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={titulo}
-                                            onChange={e => setTitulo(e.target.value)}
-                                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                        />
-                                    </div>
-                                )}
-                                <div className="p-4 bg-blue-50 border border-gray-200 rounded my-4">
-                                    <label className="block text-sm font-medium text-gray-500 mb-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={respuestaConsejo}
-                                            onChange={e => setRespuestaConsejo(e.target.checked)}
-                                            className="form-checkbox h-5 w-5 text-blue-500 mr-2"
-                                        />
-                                        Mandanos tu consejo editorial/No se publicará en tu perfil
+                                <div className="mb-4">
+                                    <label className="space-y-2 font-roman font-bold">
+                                        Colabora con nosotros*
                                     </label>
+                                    <textarea
+                                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                                        value={curriculum}
+                                        onChange={e => setCurriculum(e.target.value)}
+                                        required
+                                        rows={6}
+                                    />
                                 </div>
-                                {!respuestaConsejo ? (
-                                    <>
-                                        <div className="mb-4">
-                                            <label className="space-y-2 font-roman font-bold">
-                                                Colabora con nosotros*
-                                            </label>
-                                            <textarea
-                                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                                value={curriculum}
-                                                onChange={e => setCurriculum(e.target.value)}
-                                                required
-                                                rows={6}
-                                            />
-                                        </div>
-                                        <div className="mb-4">
-                                            <label className="space-y-2 font-roman font-bold">
-                                                Subir Imagen (Opcional)
-                                            </label>
-                                            <input
-                                                type="file"
-                                                accept="image/jpeg,image/png,image/webp"
-                                                onChange={handleImageChange}
-                                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                            />
-                                        </div>
-                                        {imagenPreview && (
-                                            <div className="text-center mb-2 mt-4">
-                                                <img
-                                                    src={imagenPreview}
-                                                    alt="Vista previa"
-                                                    className="w-full h-28 object-cover mx-auto"
-                                                    style={{ maxWidth: '160px', borderRadius: '8px' }}
-                                                />
-                                                {editarId && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={eliminarImagenPreview}
-                                                        className="mt-2 text-sm text-red-600 hover:text-red-800 font-bold"
-                                                    >
-                                                        Eliminar imagen
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="mb-4">
-                                        <label className="space-y-2 font-roman font-bold">
-                                            Escribe tu consejo*
-                                        </label>
-                                        <textarea
-                                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                            value={textoConsejo}
-                                            onChange={e => setTextoConsejo(e.target.value)}
-                                            required
-                                            rows={3}
+                                <div className="mb-4">
+                                    <label className="space-y-2 font-roman font-bold">
+                                        Subir Imagen*
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleImageChange}
+                                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                                        required={!editarId && !imagenPreview}
+                                    />
+                                </div>
+                                {imagenPreview && (
+                                    <div className="text-center mb-2 mt-4">
+                                        <img
+                                            src={imagenPreview}
+                                            alt="Vista previa"
+                                            className="w-full h-28 object-cover mx-auto"
+                                            style={{ maxWidth: '160px', borderRadius: '8px' }}
                                         />
+                                        {editarId && (
+                                            <button
+                                                type="button"
+                                                onClick={eliminarImagenPreview}
+                                                className="mt-2 text-sm text-red-600 hover:text-red-800 font-bold"
+                                            >
+                                                Eliminar imagen
+                                            </button>
+                                        )}
                                     </div>
                                 )}
+
                                 {/* Mensaje de éxito o error justo arriba del botón */}
                                 {mensaje && (
                                     <div className="text-center font-bold mt-4 text-black">
@@ -323,22 +279,13 @@ const RespuestasSemana = () => {
                                 <div className="flex flex-col items-center gap-4 mt-6">
                                     <button
                                         type="submit"
-                                        className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${
-                                            loading || !isLogged || !isColaborador
-                                                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                                                : "bg-[#fff200] text-black"
-                                        }`}
+                                        className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${loading || !isLogged || !isColaborador
+                                            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                            : "bg-[#fff200] text-black"
+                                            }`}
                                         disabled={loading || !isLogged || !isColaborador}
                                     >
-                                        {loading
-                                            ? "Enviando..."
-                                            : editarId
-                                                ? respuestaConsejo
-                                                    ? "Actualizar consejo editorial"
-                                                    : "Actualizar colaboración"
-                                                : respuestaConsejo
-                                                    ? "Enviar consejo editorial"
-                                                    : "Enviar colaboración"}
+                                        {loading ? "Enviando..." : editarId ? "Actualizar colaboración" : "Enviar colaboración"}
                                     </button>
                                 </div>
                                 {!isLogged && (
@@ -352,6 +299,102 @@ const RespuestasSemana = () => {
                                     </div>
                                 )}
                             </form>
+
+                            {/* Formulario separado para Consejos Editoriales */}
+                            <div className="mt-10 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                                <h2 className="text-xl font-bold mb-4 text-center">
+                                    Envíanos tu consejo editorial
+                                </h2>
+                                <p className="text-sm text-gray-600 mb-4 text-center">
+                                    Tu consejo será enviado directamente a nuestro equipo y no se publicará en tu perfil.
+                                </p>
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    if (!textoConsejo.trim()) {
+                                        setMensajeConsejo("Por favor escribe tu consejo.");
+                                        return;
+                                    }
+                                    setEnviandoConsejo(true);
+                                    setMensajeConsejo("");
+                                    try {
+                                        await postRespuestaSemana({
+                                            id_consejero: idConsejero,
+                                            pregunta,
+                                            respuesta_colaboracion: "",
+                                            titulo: "",
+                                            imagen: imagenConsejo,
+                                            respuesta_consejo: true,
+                                            texto_consejo: textoConsejo
+                                        });
+                                        setMensajeConsejo("¡Consejo enviado correctamente!");
+                                        setTextoConsejo("");
+                                        setImagenConsejo(null);
+                                        setImagenConsejoPreview(null);
+                                    } catch (error) {
+                                        console.error("Error enviando consejo:", error);
+                                        setMensajeConsejo("Error al enviar el consejo.");
+                                    }
+                                    setEnviandoConsejo(false);
+                                }}>
+                                    <div className="mb-4">
+                                        <label className="space-y-2 font-roman font-bold">
+                                            Tu consejo*
+                                        </label>
+                                        <textarea
+                                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                                            value={textoConsejo}
+                                            onChange={e => setTextoConsejo(e.target.value)}
+                                            required
+                                            rows={3}
+                                            placeholder="Escribe aquí tu consejo editorial..."
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="space-y-2 font-roman font-bold">
+                                            Subir Imagen (Opcional)
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={(e) => {
+                                                const file = e.target.files && e.target.files[0];
+                                                if (file) {
+                                                    setImagenConsejo(file);
+                                                    setImagenConsejoPreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                                        />
+                                    </div>
+                                    {imagenConsejoPreview && (
+                                        <div className="text-center mb-4">
+                                            <img
+                                                src={imagenConsejoPreview}
+                                                alt="Vista previa"
+                                                className="w-full h-28 object-cover mx-auto"
+                                                style={{ maxWidth: '160px', borderRadius: '8px' }}
+                                            />
+                                        </div>
+                                    )}
+                                    {mensajeConsejo && (
+                                        <div className={`text-center font-bold mb-4 ${mensajeConsejo.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+                                            {mensajeConsejo}
+                                        </div>
+                                    )}
+                                    <div className="flex justify-center">
+                                        <button
+                                            type="submit"
+                                            disabled={enviandoConsejo}
+                                            className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${enviandoConsejo
+                                                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                                : "bg-[#fff200] text-black hover:bg-yellow-400"
+                                                }`}
+                                        >
+                                            {enviandoConsejo ? "Enviando..." : "Enviar consejo"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </>
                     )}
                 </div>
