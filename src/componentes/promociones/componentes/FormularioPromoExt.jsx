@@ -36,7 +36,7 @@ const FormularioPromoExt = ({
       <div className="bg-white p-5 rounded-xl border border-gray-300">
         <div className="flex flex-col pb-5">
           <label className="block text-lg font-medium text-gray-700 mb-1 pb-4">
-            Selecciona 2 stickers*
+            Selecciona {maxStickers} {maxStickers === 1 ? 'sticker' : 'stickers'}*
           </label>
           {/* Mensaje de error */}
           {noIconSelected && (
