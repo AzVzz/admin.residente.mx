@@ -525,7 +525,7 @@ const FormMainResidente = () => {
         });
       }
 
-      setTimeout(() => navigate("/notas"), 1);
+      setTimeout(() => navigate("/dashboard"), 1);
     } catch (error) {
       setPostError(error.message || "Error al guardar la nota");
     } finally {
@@ -542,7 +542,7 @@ const FormMainResidente = () => {
       try {
         await notaDelete(notaId, token); // Llama a la API para eliminar la nota
         alert("Nota eliminada con éxito.");
-        navigate("/notas"); // Redirige a la lista de notas
+        navigate("/dashboard"); // Redirige a la lista de notas
       } catch (error) {
         alert("Error al eliminar la nota.");
       } finally {

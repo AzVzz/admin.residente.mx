@@ -1,9 +1,52 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { urlApi } from "../../../api/url";
 import { useAuth } from "../../../Context";
 
-export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
+// Límites de caracteres según el modelo Recetas.js
+const CHAR_LIMITS = {
+  titulo: 255,
+  descripcion: 3000,
+  porciones: 255,
+  tiempo: 300,
+  creditos: 255,
+  instagram: 80,
+  seo_alt_text: 255,
+  seo_title: 255,
+  seo_keyword: 255,
+  meta_description: 300,
+};
+
+// Componente de contador de caracteres
+const CharCounter = ({ value, max }) => {
+  const current = value?.length || 0;
+  const isNearLimit = current >= max * 0.9;
+  const isAtLimit = current >= max;
+
+  return (
+    <span
+      className={`text-xs ${isAtLimit
+          ? "text-red-500 font-bold"
+          : isNearLimit
+            ? "text-amber-500"
+            : "text-gray-400"
+        }`}
+    >
+      {current}/{max}
+    </span>
+  );
+};
+
+export default function FormularioReceta({
+  onCancelar,
+  onEnviado,
+  receta: recetaProp,
+}) {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { usuario } = useAuth();
+  const [receta, setReceta] = useState(recetaProp || null);
+  const [cargandoReceta, setCargandoReceta] = useState(false);
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
@@ -26,6 +69,26 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+
+  // Cargar receta desde URL si hay ID
+  useEffect(() => {
+    if (id && !recetaProp) {
+      setCargandoReceta(true);
+      fetch(`${urlApi}api/recetas/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("Receta cargada desde API:", data);
+          // Manejar si la respuesta viene con data wrapper o directamente
+          const recetaData = data.receta || data.data || data;
+          setReceta(recetaData);
+          setCargandoReceta(false);
+        })
+        .catch((err) => {
+          console.error("Error al cargar receta:", err);
+          setCargandoReceta(false);
+        });
+    }
+  }, [id, recetaProp]);
 
   // Cargar datos si se está editando
   useEffect(() => {
@@ -192,6 +255,11 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         setTimeout(() => {
           onEnviado();
         }, 1500);
+      } else {
+        // Si no hay callback, navegar de vuelta a la lista
+        setTimeout(() => {
+          navigate("/dashboard?vista=recetas");
+        }, 1500);
       }
     } catch (err) {
       console.error(err);
@@ -203,6 +271,15 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
       setCargando(false);
     }
   };
+
+  // Si está cargando la receta desde URL, mostrar loading
+  if (cargandoReceta) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
@@ -223,13 +300,15 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
         {/* Título */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">
-            Título de la receta
-          </label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">Título de la receta</label>
+            <CharCounter value={formData.titulo} max={CHAR_LIMITS.titulo} />
+          </div>
           <input
             type="text"
             name="titulo"
             required
+            maxLength={CHAR_LIMITS.titulo}
             value={formData.titulo}
             onChange={handleChange}
             placeholder="Ej. Arroz caldoso con camarón seco y chile piquín"
@@ -249,13 +328,18 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
         {/* Descripción */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">
-            Descripción corta
-          </label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">Descripción corta</label>
+            <CharCounter
+              value={formData.descripcion}
+              max={CHAR_LIMITS.descripcion}
+            />
+          </div>
           <textarea
             name="descripcion"
             rows="3"
             required
+            maxLength={CHAR_LIMITS.descripcion}
             value={formData.descripcion}
             onChange={handleChange}
             placeholder="Breve contexto o idea del plato..."
@@ -265,11 +349,18 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
         {/* Porciones */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">Porciones</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">Porciones</label>
+            <CharCounter
+              value={formData.porciones}
+              max={CHAR_LIMITS.porciones}
+            />
+          </div>
           <input
             type="text"
             name="porciones"
             required
+            maxLength={CHAR_LIMITS.porciones}
             value={formData.porciones}
             onChange={handleChange}
             placeholder="Ej. 4 porciones"
@@ -279,11 +370,15 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
         {/* Tiempo */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">Tiempo total</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">Tiempo total</label>
+            <CharCounter value={formData.tiempo} max={CHAR_LIMITS.tiempo} />
+          </div>
           <input
             type="text"
             name="tiempo"
             required
+            maxLength={CHAR_LIMITS.tiempo}
             value={formData.tiempo}
             onChange={handleChange}
             placeholder="Ej. 45 minutos"
@@ -391,12 +486,16 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
 
         {/* Créditos */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">
-            Créditos adicionales (opcional)
-          </label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">
+              Créditos adicionales (opcional)
+            </label>
+            <CharCounter value={formData.creditos} max={CHAR_LIMITS.creditos} />
+          </div>
           <input
             type="text"
             name="creditos"
+            maxLength={CHAR_LIMITS.creditos}
             value={formData.creditos}
             onChange={handleChange}
             placeholder="Fotografía: Dna Alanis"
@@ -468,13 +567,20 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         </div>
 
         {/* Instagram */}
-        <div>
-          <label className="space-y-2 font-roman font-bold">
-            Instagram o red del creador
-          </label>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">
+              Instagram o red del creador
+            </label>
+            <CharCounter
+              value={formData.instagram}
+              max={CHAR_LIMITS.instagram}
+            />
+          </div>
           <input
             type="text"
             name="instagram"
+            maxLength={CHAR_LIMITS.instagram}
             value={formData.instagram}
             onChange={handleChange}
             placeholder="@mamaderoco"

@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../Context";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { FaUser, FaStore, FaStar } from "react-icons/fa6";
@@ -18,16 +23,16 @@ import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
 import { MdAdminPanelSettings } from "react-icons/md"; // Added icon for admin codes
-import MenuIcon from '@mui/icons-material/Menu';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Fade from '@mui/material/Fade';
+import MenuIcon from "@mui/icons-material/Menu";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Fade from "@mui/material/Fade";
 
-import FiltroEstadoNota from './FiltroEstadoNota';
-import FiltroTipoCliente from './FiltroTipoCliente';
-import FiltroAutor from './FiltroAutor';
-import SearchNotasLocal from './SearchNotasLocal';
+import FiltroEstadoNota from "./FiltroEstadoNota";
+import FiltroTipoCliente from "./FiltroTipoCliente";
+import FiltroAutor from "./FiltroAutor";
+import SearchNotasLocal from "./SearchNotasLocal";
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
@@ -44,15 +49,25 @@ const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [notas, setNotas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
-  const [vistaActiva, setVistaActiva] = useState("notas");
-  const [estado, setEstado] = useState('');
-  const [tipoCliente, setTipoCliente] = useState('');
-  const [autor, setAutor] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  // Leer vistaActiva de la URL o usar "notas" por defecto
+  const [vistaActiva, setVistaActivaInternal] = useState(
+    searchParams.get("vista") || "notas"
+  );
+
+  // Función para cambiar vistaActiva y actualizar URL
+  const setVistaActiva = (vista) => {
+    setVistaActivaInternal(vista);
+    setSearchParams({ vista });
+  };
+  const [estado, setEstado] = useState("");
+  const [tipoCliente, setTipoCliente] = useState("");
+  const [autor, setAutor] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [recetaKey, setRecetaKey] = useState(0);
@@ -64,14 +79,17 @@ const ListaNotas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
 
-  // 
+  //
   useEffect(() => {
     // Si hay un error 403 o 401, verificar si es por permisos limitados
     if (error && (error.status === 403 || error.status === 401)) {
       const rolUsuario = usuario?.rol?.toLowerCase();
       // Si el usuario es "invitado" o tiene permisos limitados, NO limpiar la sesión
       // Esto permite que el usuario pueda ver el dashboard y crear notas/recetas
-      if (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos')) {
+      if (
+        rolUsuario === "invitado" ||
+        (usuario?.permisos && usuario.permisos !== "todos")
+      ) {
         // Mantener la sesión activa, solo mostrar el error
         return;
       }
@@ -83,8 +101,8 @@ const ListaNotas = () => {
     }
 
     // Redirect B2B users to their dashboard
-    if (usuario?.rol === 'b2b') {
-      navigate('/dashboardb2b', { replace: true });
+    if (usuario?.rol === "b2b") {
+      navigate("/dashboardb2b", { replace: true });
       return;
     }
 
@@ -98,7 +116,7 @@ const ListaNotas = () => {
     setError(null);
     try {
       if (!token) {
-        throw new Error('No hay token de autenticación');
+        throw new Error("No hay token de autenticación");
       }
 
       // Verificar permisos ANTES de hacer la llamada a la API
@@ -107,12 +125,18 @@ const ListaNotas = () => {
       const rolUsuario = usuario?.rol?.toLowerCase();
       const permisosUsuario = usuario?.permisos;
 
-      if (rolUsuario !== 'invitado' && rolUsuario !== 'residente' && permisosUsuario !== 'todos' && permisosUsuario !== 'todo') {
+      if (
+        rolUsuario !== "invitado" &&
+        rolUsuario !== "residente" &&
+        permisosUsuario !== "todos" &&
+        permisosUsuario !== "todo"
+      ) {
         // Usuario sin permisos para ver todas las notas
         // Mostrar mensaje pero permitir que use el dashboard para crear notas/recetas
         setError({
-          message: 'No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.',
-          status: 403
+          message:
+            "No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.",
+          status: 403,
         });
         setTodasLasNotas([]);
         setNotas([]);
@@ -121,48 +145,60 @@ const ListaNotas = () => {
       }
 
       // Cargar todas las notas sin paginación
-      const data = await notasTodasGet(token, 1, 'all');
+      const data = await notasTodasGet(token, 1, "all");
 
       // Validar respuesta del servidor
       if (!data) {
-        throw new Error('El servidor no devolvió datos');
+        throw new Error("El servidor no devolvió datos");
       }
 
       if (!Array.isArray(data.notas)) {
-        throw new Error('Formato de respuesta inválido del servidor');
+        throw new Error("Formato de respuesta inválido del servidor");
       }
 
       // FILTRAR NOTAS POR USUARIO/CLIENTE
       let notasFiltradas = data.notas;
 
       // Si el usuario NO es admin (todos), filtrar por sus notas
-      if (usuario?.permisos !== 'todos') {
-        const tipoNotaUsuario = usuario?.permisos && usuario.permisos !== 'usuario' && usuario.permisos !== 'todo'
-          ? usuario.permisos.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-          : '';
+      if (usuario?.permisos !== "todos") {
+        const tipoNotaUsuario =
+          usuario?.permisos &&
+          usuario.permisos !== "usuario" &&
+          usuario.permisos !== "todo"
+            ? usuario.permisos
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())
+            : "";
 
         if (tipoNotaUsuario) {
           const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
 
-          notasFiltradas = data.notas.filter(nota => {
-            const tipoNota = (nota.tipo_nota || '').toLowerCase();
-            const tipoNota2 = (nota.tipo_nota2 || '').toLowerCase();
+          notasFiltradas = data.notas.filter((nota) => {
+            const tipoNota = (nota.tipo_nota || "").toLowerCase();
+            const tipoNota2 = (nota.tipo_nota2 || "").toLowerCase();
 
             // Buscar coincidencias más flexibles
-            const coincide = tipoNota.includes(tipoNotaUsuarioLower) ||
+            const coincide =
+              tipoNota.includes(tipoNotaUsuarioLower) ||
               tipoNota2.includes(tipoNotaUsuarioLower) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '')) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, '-')) ||
+              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
+              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
+              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
+              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
               // Para "mama de rocco" específicamente
-              (tipoNotaUsuarioLower.includes('mama') && tipoNota.includes('mama')) ||
-              (tipoNotaUsuarioLower.includes('mama') && tipoNota2.includes('mama')) ||
-              (tipoNotaUsuarioLower.includes('rocco') && tipoNota.includes('rocco')) ||
-              (tipoNotaUsuarioLower.includes('rocco') && tipoNota2.includes('rocco'));
+              (tipoNotaUsuarioLower.includes("mama") &&
+                tipoNota.includes("mama")) ||
+              (tipoNotaUsuarioLower.includes("mama") &&
+                tipoNota2.includes("mama")) ||
+              (tipoNotaUsuarioLower.includes("rocco") &&
+                tipoNota.includes("rocco")) ||
+              (tipoNotaUsuarioLower.includes("rocco") &&
+                tipoNota2.includes("rocco"));
 
             // También mostrar notas creadas por el propio usuario (notas personales)
-            const esAutor = (nota.autor || '').toLowerCase() === (usuario.nombre_usuario || '').toLowerCase();
+            const esAutor =
+              (nota.autor || "").toLowerCase() ===
+              (usuario.nombre_usuario || "").toLowerCase();
 
             return coincide || esAutor;
           });
@@ -173,22 +209,28 @@ const ListaNotas = () => {
       setNotas(notasFiltradas);
       setPaginaActual(1); // Resetear a página 1 al cargar
     } catch (err) {
-      console.error('Error detallado:', err);
-      console.error('Mensaje del error:', err.message);
-      console.error('Status del error:', err.status);
-      console.error('Stack trace:', err.stack);
+      console.error("Error detallado:", err);
+      console.error("Mensaje del error:", err.message);
+      console.error("Status del error:", err.status);
+      console.error("Stack trace:", err.stack);
 
       // Manejo específico de errores 403
       if (err.status === 403) {
-        console.error('Error 403: Acceso denegado. Verificar permisos del usuario o token expirado');
+        console.error(
+          "Error 403: Acceso denegado. Verificar permisos del usuario o token expirado"
+        );
 
         // Si el usuario es "invitado" o tiene permisos limitados, mostrar mensaje pero mantener sesión
         // Esto permite que el usuario pueda ver el dashboard y crear notas/recetas aunque no pueda ver todas las notas
         const rolUsuario = usuario?.rol?.toLowerCase();
-        if (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos')) {
+        if (
+          rolUsuario === "invitado" ||
+          (usuario?.permisos && usuario.permisos !== "todos")
+        ) {
           setError({
-            message: 'No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.',
-            status: 403
+            message:
+              "No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.",
+            status: 403,
           });
           setTodasLasNotas([]);
           setNotas([]);
@@ -198,7 +240,7 @@ const ListaNotas = () => {
         // Para otros casos de 403 (token expirado, etc.), limpiar sesión y redirigir
         saveToken(null);
         saveUsuario(null);
-        navigate('/registro', { replace: true });
+        navigate("/registro", { replace: true });
         return;
       }
 
@@ -214,7 +256,6 @@ const ListaNotas = () => {
     // eslint-disable-next-line
   }, [token, usuario]);
 
-
   const eliminarNota = async (id) => {
     setEliminando(id);
     try {
@@ -228,38 +269,47 @@ const ListaNotas = () => {
   };
 
   const mapeoPermisosATipoNota = {
-    'mama-de-rocco': 'Mamá de Rocco',
-    'barrio-antiguo': 'Barrio Antiguo',
+    "mama-de-rocco": "Mamá de Rocco",
+    "barrio-antiguo": "Barrio Antiguo",
   };
 
   // Función para normalizar texto para búsqueda
   const normalizarTexto = (texto) => {
-    if (!texto) return '';
+    if (!texto) return "";
     return texto
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-      .replace(/[¿?¡!.,]/g, '') // Quitar signos de puntuación
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+      .replace(/[¿?¡!.,]/g, "") // Quitar signos de puntuación
       .trim();
   };
 
-  const notasFiltradas = todasLasNotas.filter(nota => {
-    const cumpleEstado = !estado || (nota.estatus || '').toLowerCase().trim() === estado.toLowerCase().trim();
-    const cumpleAutor = !autor || (nota.autor || '').toLowerCase().trim() === autor.toLowerCase().trim();
+  const notasFiltradas = todasLasNotas.filter((nota) => {
+    const cumpleEstado =
+      !estado ||
+      (nota.estatus || "").toLowerCase().trim() === estado.toLowerCase().trim();
+    const cumpleAutor =
+      !autor ||
+      (nota.autor || "").toLowerCase().trim() === autor.toLowerCase().trim();
 
     let cumpleTipoCliente = true;
     if (tipoCliente) {
       const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente];
       if (tipoNotaEsperado) {
-        cumpleTipoCliente = (nota.tipo_nota || '') === tipoNotaEsperado;
+        cumpleTipoCliente = (nota.tipo_nota || "") === tipoNotaEsperado;
       } else {
         const tipoClienteFormateado = tipoCliente
-          .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
 
-        cumpleTipoCliente = (nota.tipo_nota || '').toLowerCase().includes(tipoClienteFormateado.toLowerCase()) ||
-          (nota.tipo_nota || '').toLowerCase().includes(tipoCliente.toLowerCase());
+        cumpleTipoCliente =
+          (nota.tipo_nota || "")
+            .toLowerCase()
+            .includes(tipoClienteFormateado.toLowerCase()) ||
+          (nota.tipo_nota || "")
+            .toLowerCase()
+            .includes(tipoCliente.toLowerCase());
       }
     }
 
@@ -273,25 +323,32 @@ const ListaNotas = () => {
       const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
 
       // Búsqueda exacta
-      if (tituloNormalizado.includes(queryNormalizado) ||
+      if (
+        tituloNormalizado.includes(queryNormalizado) ||
         subtituloNormalizado.includes(queryNormalizado) ||
         autorNormalizado.includes(queryNormalizado) ||
-        tipoNotaNormalizado.includes(queryNormalizado)) {
+        tipoNotaNormalizado.includes(queryNormalizado)
+      ) {
         cumpleBusqueda = true;
       } else {
         // Búsqueda por palabras individuales
-        const palabrasQuery = queryNormalizado.split(/\s+/).filter(p => p.length > 2);
+        const palabrasQuery = queryNormalizado
+          .split(/\s+/)
+          .filter((p) => p.length > 2);
         if (palabrasQuery.length > 0) {
           let coincidencias = 0;
           for (const palabraQuery of palabrasQuery) {
-            if (tituloNormalizado.includes(palabraQuery) ||
+            if (
+              tituloNormalizado.includes(palabraQuery) ||
               subtituloNormalizado.includes(palabraQuery) ||
               autorNormalizado.includes(palabraQuery) ||
-              tipoNotaNormalizado.includes(palabraQuery)) {
+              tipoNotaNormalizado.includes(palabraQuery)
+            ) {
               coincidencias++;
             }
           }
-          cumpleBusqueda = coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
+          cumpleBusqueda =
+            coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
         } else {
           cumpleBusqueda = false;
         }
@@ -305,11 +362,13 @@ const ListaNotas = () => {
   const totalNotasFiltradas = notasFiltradas.length;
   const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
-  const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
+  const finIndice = Math.min(
+    inicioIndice + notasPorPagina,
+    totalNotasFiltradas
+  );
 
   // Obtener notas para la página actual
   const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
-
 
   // Resetear a página 1 cuando cambien los filtros o búsqueda
   useEffect(() => {
@@ -325,7 +384,8 @@ const ListaNotas = () => {
 
   // Validar que los clientes solo puedan acceder a vistas permitidas
   useEffect(() => {
-    const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
+    const esAdmin =
+      usuario?.permisos === "todos" || usuario?.permisos === "todo";
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
       setVistaActiva("notas");
@@ -363,40 +423,75 @@ const ListaNotas = () => {
 
   // Opciones del menú
   const todasLasOpciones = [
-    { key: "notas", label: "Notas", icon: <RiStickyNoteFill className="mr-2" /> },
-    { key: "preguntas", label: "Preguntas", icon: <RiQuestionnaireFill className="mr-2" /> },
-    { key: "revistas", label: "Revistas", icon: <FaBookOpen className="mr-2" /> },
+    {
+      key: "notas",
+      label: "Notas",
+      icon: <RiStickyNoteFill className="mr-2" />,
+    },
+    {
+      key: "preguntas",
+      label: "Preguntas",
+      icon: <RiQuestionnaireFill className="mr-2" />,
+    },
+    {
+      key: "revistas",
+      label: "Revistas",
+      icon: <FaBookOpen className="mr-2" />,
+    },
     { key: "videos", label: "Videos", icon: <IoMdPlay className="mr-2" /> },
-    { key: "newsletter", label: "Newsletter", icon: <IoNewspaper className="mr-2" /> },
-    { key: "infografias", label: "Infografías", icon: <FaLightbulb className="mr-2" /> },
+    {
+      key: "newsletter",
+      label: "Newsletter",
+      icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "infografias",
+      label: "Infografías",
+      icon: <FaLightbulb className="mr-2" />,
+    },
     { key: "uanl", label: "UANL", icon: <LuUnderline className="mr-2" /> },
     { key: "usuarios", label: "Usuarios", icon: <FaUser className="mr-2" /> },
-    { key: "cupones", label: "Cupones", icon: <FaTicketSimple className="mr-2" /> },
+    {
+      key: "cupones",
+      label: "Cupones",
+      icon: <FaTicketSimple className="mr-2" />,
+    },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
-    { key: "restaurante_link", label: "Restaurante", icon: <FaStore className="mr-2" /> },
+    {
+      key: "restaurante_link",
+      label: "Restaurante",
+      icon: <FaStore className="mr-2" />,
+    },
     { key: "ednl", label: "Ednl", icon: <FaStar className="mr-2" /> },
-    { key: "codigos_admin", label: "Códigos", icon: <MdAdminPanelSettings className="mr-2" /> },
+    {
+      key: "codigos_admin",
+      label: "Códigos",
+      icon: <MdAdminPanelSettings className="mr-2" />,
+    },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
   // Si el usuario NO es admin (todos/todo), solo mostrar Notas y Recetas
-  const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-  const esResidente = usuario?.permisos === 'residente' || usuario?.rol === 'residente'; // Checked rol as well just in case
-  const esB2B = usuario?.permisos === 'b2b';
-  const esInvitado = usuario?.rol === 'invitado';
+  const esAdmin = usuario?.permisos === "todos" || usuario?.permisos === "todo";
+  const esResidente =
+    usuario?.permisos === "residente" || usuario?.rol === "residente"; // Checked rol as well just in case
+  const esB2B = usuario?.permisos === "b2b";
+  const esInvitado = usuario?.rol === "invitado";
 
   const menuOptions = esAdmin
     ? todasLasOpciones
-    : todasLasOpciones.filter(option =>
-      (usuario?.rol !== 'b2b') && ( // Hide all menu options for B2B users if they are here
-        option.key === "notas" ||
-        option.key === "recetas" ||
-        (option.key === "cupones" && !esInvitado && usuario?.rol !== 'colaborador') ||
-        (esResidente && option.key === "restaurante_link") ||
-        (usuario?.rol === 'residente' && option.key === "ednl") || // EDNL only for residente role
-        (usuario?.rol === 'residente' && option.key === "codigos_admin") // Only for residente role
-      )
-    );
+    : todasLasOpciones.filter(
+        (option) =>
+          usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
+          (option.key === "notas" ||
+            option.key === "recetas" ||
+            (option.key === "cupones" &&
+              !esInvitado &&
+              usuario?.rol !== "colaborador") ||
+            (esResidente && option.key === "restaurante_link") ||
+            (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
+            (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+      );
 
   if (cargando) {
     return (
@@ -408,8 +503,11 @@ const ListaNotas = () => {
 
   // Verificar si el error es 403 por permisos limitados (no token expirado)
   const rolUsuario = usuario?.rol?.toLowerCase();
-  const esError403SinPermisos = error && error.status === 403 &&
-    (rolUsuario === 'invitado' || (usuario?.permisos && usuario.permisos !== 'todos'));
+  const esError403SinPermisos =
+    error &&
+    error.status === 403 &&
+    (rolUsuario === "invitado" ||
+      (usuario?.permisos && usuario.permisos !== "todos"));
 
   if (error && !esError403SinPermisos) {
     // Para otros errores (no 403 por permisos), mostrar el componente de error normal
@@ -421,7 +519,9 @@ const ListaNotas = () => {
       {/* Encabezado */}
       <div className="flex flex-col gap-5 justify-between">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-black rounded-2xl py-1">Panel de Administración</h1>
+          <h1 className="text-3xl font-bold text-black rounded-2xl py-1">
+            Panel de Administración
+          </h1>
           {usuario && (
             <div className="flex items-center gap-5">
               <button
@@ -437,7 +537,9 @@ const ListaNotas = () => {
               </button>
               <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black rounded-xl">
                 <FaUser className="text-sm -mt-0.5 mr-2" />
-                <span className="flex items-center">{usuario?.nombre_usuario}</span>
+                <span className="flex items-center">
+                  {usuario?.nombre_usuario}
+                </span>
               </span>
             </div>
           )}
@@ -445,18 +547,19 @@ const ListaNotas = () => {
 
         {/* Menú de pestañas */}
         {usuario?.rol !== "colaborador" && (
-          <div className="flex justify-start  py-2 rounded-md">
+          <div className="flex justify-start items-center gap-3 py-2 rounded-md">
             <Button
-              aria-controls={open ? 'fade-menu' : undefined}
+              aria-controls={open ? "fade-menu" : undefined}
               aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
+              aria-expanded={open ? "true" : undefined}
               onClick={handleMenuClick}
               startIcon={<MenuIcon />}
               variant="contained"
               color="inherit"
               sx={{ backgroundColor: "#ffff", color: "#222" }}
             >
-              Menú
+              {menuOptions.find((opt) => opt.key === vistaActiva)?.label ||
+                "Menú"}
             </Button>
             <Menu
               id="fade-menu"
@@ -465,18 +568,18 @@ const ListaNotas = () => {
               onClose={handleMenuClose}
               TransitionComponent={Fade}
             >
-              {menuOptions.map(option => (
+              {menuOptions.map((option) => (
                 <MenuItem
                   key={option.key}
                   onClick={() => {
                     if (option.key === "restaurante_link") {
-                      navigate('/formulario');
+                      navigate("/formulario");
                     } else if (option.key === "cupones") {
-                      navigate('/dashboardtickets');
+                      navigate("/dashboardtickets");
                     } else if (option.key === "codigos_admin") {
-                      navigate('/admin/codigos');
+                      navigate("/admin/codigos");
                     } else if (option.key === "ednl") {
-                      navigate('/ednl');
+                      navigate("/ednl");
                     } else {
                       setVistaActiva(option.key);
                     }
@@ -502,19 +605,25 @@ const ListaNotas = () => {
               {/* Barra de búsqueda - solo para no colaboradores */}
               {usuario?.rol !== "colaborador" && (
                 <div className="flex-1 max-w-md">
-                  <SearchNotasLocal searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                  <SearchNotasLocal
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                  />
                 </div>
               )}
 
               {/* Filtros - SIEMPRE VISIBLE */}
               <div className="flex gap-2 items-center">
-                {usuario?.permisos === 'todos' && (
+                {usuario?.permisos === "todos" && (
                   <FiltroEstadoNota estado={estado} setEstado={setEstado} />
                 )}
-                {usuario?.permisos === 'todos' && (
-                  <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={setTipoCliente} />
+                {usuario?.permisos === "todos" && (
+                  <FiltroTipoCliente
+                    tipoCliente={tipoCliente}
+                    setTipoCliente={setTipoCliente}
+                  />
                 )}
-                {usuario?.permisos === 'todos' && (
+                {usuario?.permisos === "todos" && (
                   <FiltroAutor autor={autor} setAutor={setAutor} />
                 )}
                 {usuario?.rol === "colaborador" ? (
@@ -538,7 +647,7 @@ const ListaNotas = () => {
                   </Link>
                 ) : (
                   <Link
-                    to="/notas/nueva"
+                    to="/dashboard/nota/nueva"
                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                   >
                     <svg
@@ -571,7 +680,9 @@ const ListaNotas = () => {
                 ) : notasFiltradas.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="text-gray-500 text-lg">
-                      {searchTerm ? `No se encontraron notas que coincidan con "${searchTerm}"` : 'No hay notas que coincidan con los filtros seleccionados'}
+                      {searchTerm
+                        ? `No se encontraron notas que coincidan con "${searchTerm}"`
+                        : "No hay notas que coincidan con los filtros seleccionados"}
                     </div>
                   </div>
                 ) : (
@@ -591,7 +702,8 @@ const ListaNotas = () => {
                     <div className="flex flex-col items-center mt-8 space-y-4">
                       {/* Información de paginación */}
                       <div className="text-sm text-gray-600">
-                        Mostrando {inicioIndice + 1} - {finIndice} de {totalNotasFiltradas} notas
+                        Mostrando {inicioIndice + 1} - {finIndice} de{" "}
+                        {totalNotasFiltradas} notas
                         {searchTerm && ` (filtradas por "${searchTerm}")`}
                       </div>
 
@@ -602,25 +714,40 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaAnterior}
                             disabled={paginaActual === 1}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                              }`}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                              paginaActual === 1
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                            }`}
                           >
                             ← Anterior
                           </button>
 
                           {/* Números de página */}
                           <div className="flex space-x-1">
-                            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                            {Array.from(
+                              { length: totalPaginas },
+                              (_, i) => i + 1
+                            ).map((numero) => {
                               const mostrarPagina =
                                 numero === 1 ||
                                 numero === totalPaginas ||
-                                (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+                                (numero >= paginaActual - 2 &&
+                                  numero <= paginaActual + 2);
 
                               if (!mostrarPagina) {
-                                if (numero === paginaActual - 3 || numero === paginaActual + 3) {
-                                  return <span key={numero} className="px-2 py-2 text-gray-400">...</span>;
+                                if (
+                                  numero === paginaActual - 3 ||
+                                  numero === paginaActual + 3
+                                ) {
+                                  return (
+                                    <span
+                                      key={numero}
+                                      className="px-2 py-2 text-gray-400"
+                                    >
+                                      ...
+                                    </span>
+                                  );
                                 }
                                 return null;
                               }
@@ -629,10 +756,11 @@ const ListaNotas = () => {
                                 <button
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
-                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                                    }`}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                    numero === paginaActual
+                                      ? "bg-blue-600 text-white"
+                                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                  }`}
                                 >
                                   {numero}
                                 </button>
@@ -644,10 +772,11 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaSiguiente}
                             disabled={paginaActual === totalPaginas}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                              }`}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                              paginaActual === totalPaginas
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                            }`}
                           >
                             Siguiente →
                           </button>
@@ -662,42 +791,53 @@ const ListaNotas = () => {
         )}
 
         {vistaActiva === "preguntas" && (
-          <div className="text-center text-lg"><PreguntasSemanales /></div>
+          <div className="text-center text-lg">
+            <PreguntasSemanales />
+          </div>
         )}
 
         {vistaActiva === "revistas" && (
-          <div className="text-center text-lg"><FormularioRevistaBannerNueva /></div>
+          <div className="text-center text-lg">
+            <FormularioRevistaBannerNueva />
+          </div>
         )}
 
         {vistaActiva === "videos" && (
-          <div className="text-center text-lg"><VideosDashboard /></div>
+          <div className="text-center text-lg">
+            <VideosDashboard />
+          </div>
         )}
 
         {vistaActiva === "newsletter" && (
-          <div className="text-center text-lg"><FormNewsletter /></div>
+          <div className="text-center text-lg">
+            <FormNewsletter />
+          </div>
         )}
         {vistaActiva === "infografias" && (
-          <div className="text-center text-lg"><InfografiaForm /></div>
+          <div className="text-center text-lg">
+            <InfografiaForm />
+          </div>
         )}
         {vistaActiva === "uanl" && (
-          <div className="text-center text-lg"><ListaNotasUanl /></div>
+          <div className="text-center text-lg">
+            <ListaNotasUanl />
+          </div>
         )}
         {vistaActiva === "usuarios" && (
-          <div className="text-center text-lg"><ListaNotasUsuarios /></div>
+          <div className="text-center text-lg">
+            <ListaNotasUsuarios />
+          </div>
         )}
         {vistaActiva === "cupones" && (
-          <div className="text-center text-lg"><ListaTickets /></div>
+          <div className="text-center text-lg">
+            <ListaTickets />
+          </div>
         )}
         {vistaActiva === "recetas" && (
           <div>
             <div className="flex justify-end mb-5">
               <button
-                onClick={() => {
-                  // Mostrar el formulario y resetearlo
-                  setRecetaEditando(null);
-                  setMostrarFormularioReceta(true);
-                  setRecetaKey(prev => prev + 1);
-                }}
+                onClick={() => navigate("/dashboard/receta/nueva")}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
               >
                 <svg
@@ -715,42 +855,26 @@ const ListaNotas = () => {
                 Nueva Receta
               </button>
             </div>
-            {mostrarFormularioReceta ? (
-                <FormularioReceta
-                  key={recetaKey}
-                  receta={recetaEditando}
-                  onCancelar={() => {
-                    setMostrarFormularioReceta(false);
-                    setRecetaEditando(null);
-                  }}
-                  onEnviado={() => {
-                    setMostrarFormularioReceta(false);
-                    setRecetaEditando(null);
-                    setRecargarListaRecetas(prev => prev + 1);
-                  }}
-                />
-            ) : (
-              <ListaRecetas
-                key={recargarListaRecetas}
-                onEditar={(receta) => {
-                  setRecetaEditando(receta);
-                  setMostrarFormularioReceta(true);
-                  setRecetaKey(prev => prev + 1);
-                }}
-                onCopiar={(receta) => {
-                  // Copiar datos de la receta
-                  const recetaParaCopiar = {
-                    ...receta,
-                    id: undefined
-                  };
-                  navigator.clipboard.writeText(JSON.stringify(recetaParaCopiar, null, 2));
-                  alert("Datos de la receta copiados al portapapeles");
-                }}
-                onRecetaEliminada={() => {
-                  setRecargarListaRecetas(prev => prev + 1);
-                }}
-              />
-            )}
+            <ListaRecetas
+              key={recargarListaRecetas}
+              onEditar={(receta) => {
+                navigate(`/dashboard/receta/editar/${receta.id}`);
+              }}
+              onCopiar={(receta) => {
+                // Copiar datos de la receta
+                const recetaParaCopiar = {
+                  ...receta,
+                  id: undefined,
+                };
+                navigator.clipboard.writeText(
+                  JSON.stringify(recetaParaCopiar, null, 2)
+                );
+                alert("Datos de la receta copiados al portapapeles");
+              }}
+              onRecetaEliminada={() => {
+                setRecargarListaRecetas((prev) => prev + 1);
+              }}
+            />
           </div>
         )}
       </div>
