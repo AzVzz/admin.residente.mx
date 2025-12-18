@@ -228,7 +228,7 @@ const Header = () => {
                     </Link>
                   ) : (
                     <Link
-                      to="/notas"
+                      to="/dashboard"
                       className="hover:underline text-black font-roman"
                     >
                       Dashboard
