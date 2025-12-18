@@ -25,12 +25,13 @@ const CharCounter = ({ value, max }) => {
 
   return (
     <span
-      className={`text-xs ${isAtLimit
-        ? "text-red-500 font-bold"
-        : isNearLimit
+      className={`text-xs ${
+        isAtLimit
+          ? "text-red-500 font-bold"
+          : isNearLimit
           ? "text-amber-500"
           : "text-gray-400"
-        }`}
+      }`}
     >
       {current}/{max}
     </span>
@@ -69,6 +70,7 @@ export default function FormularioReceta({
 
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [imagenPreview, setImagenPreview] = useState(null);
 
   // Cargar receta desde URL si hay ID
   useEffect(() => {
@@ -139,11 +141,23 @@ export default function FormularioReceta({
   // Manejar cambios de input
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]:
-        type === "checkbox" ? checked : type === "file" ? files[0] : value,
-    });
+
+    // Si es un archivo de imagen, crear preview
+    if (type === "file" && files && files[0]) {
+      const file = files[0];
+      setFormData({
+        ...formData,
+        [name]: file,
+      });
+      // Crear URL preview para mostrar la imagen
+      const previewUrl = URL.createObjectURL(file);
+      setImagenPreview(previewUrl);
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === "checkbox" ? checked : value,
+      });
+    }
   };
 
   // --- AUTO-GENERACIÓN SEO (Recetas) ---
@@ -200,9 +214,8 @@ export default function FormularioReceta({
       // Primero agregar todos los campos de texto
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "imagen") return; // Saltar imagen por ahora
-        if (value !== null && value !== "") {
-          data.append(key, value);
-        }
+        // Enviar todos los campos, incluyendo vacíos (para poder borrar valores)
+        data.append(key, value !== null ? value : "");
       });
 
       // Agregar la imagen al final si existe
@@ -225,7 +238,7 @@ export default function FormularioReceta({
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.error ||
-          `Error al ${receta ? "actualizar" : "enviar"} la receta`
+            `Error al ${receta ? "actualizar" : "enviar"} la receta`
         );
       }
 
@@ -265,7 +278,7 @@ export default function FormularioReceta({
       console.error(err);
       setMensaje(
         `Hubo un error al ${receta ? "actualizar" : "enviar"} la receta: ` +
-        err.message
+          err.message
       );
     } finally {
       setCargando(false);
@@ -289,14 +302,67 @@ export default function FormularioReceta({
         </h1>
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-              }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${
+              mensaje.includes("correctamente")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
           >
             {mensaje}
           </div>
         )}
+
+        {/* Imagen */}
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">
+            {receta ? "Cambiar imagen (opcional)" : "Imagen principal"}
+          </label>
+
+          {/* Mostrar vista previa de imagen seleccionada */}
+          {imagenPreview && (
+            <div className="mb-3">
+              <p className="text-sm text-gray-500 mb-2">Vista previa:</p>
+              <img
+                src={imagenPreview}
+                alt="Vista previa de la imagen"
+                className="max-w-xs max-h-48 object-cover rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
+
+          {/* Mostrar imagen actual cuando se está editando (solo si no hay preview) */}
+          {!imagenPreview && receta && receta.imagen && !formData.imagen && (
+            <div className="mb-3">
+              <p className="text-sm text-gray-500 mb-2">Imagen actual:</p>
+              <img
+                src={
+                  receta.imagen.startsWith("http")
+                    ? receta.imagen
+                    : `${urlApi}api/recetas/imagen/${encodeURIComponent(
+                        receta.imagen.split("/").pop()
+                      )}`
+                }
+                alt="Imagen actual de la receta"
+                className="max-w-xs max-h-48 object-cover rounded-lg border border-gray-300"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            </div>
+          )}
+
+          <input
+            type="file"
+            name="imagen"
+            accept=".jpg,.png"
+            required={!receta} // Solo requerido si no estamos editando
+            onChange={handleChange}
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+          />
+          <p className="text-xs text-gray-400 font-roman">
+            Formato JPG o PNG, máx. 5MB
+          </p>
+        </div>
 
         {/* Título */}
         <div className="mb-4">
@@ -452,7 +518,9 @@ export default function FormularioReceta({
 
         {/* Tipo de Receta */}
         <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">Tipo de Receta</label>
+          <label className="space-y-2 font-roman font-bold">
+            Tipo de Receta
+          </label>
           <input
             type="text"
             name="tipo_receta"
@@ -461,27 +529,6 @@ export default function FormularioReceta({
             placeholder="Ej. Casera, Gourmet, Tradicional, Fusión..."
             className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
           />
-        </div>
-
-        {/* Imagen */}
-        <div className="mb-4">
-          <label className="space-y-2 font-roman font-bold">
-            {receta ? "Cambiar imagen (opcional)" : "Imagen principal"}
-          </label>
-          {receta && !formData.imagen && (
-            <p className="text-sm text-gray-500 mb-2">
-              Imagen actual configurada. Sube una nueva para cambiarla.
-            </p>
-          )}
-          <input
-            type="file"
-            name="imagen"
-            accept=".jpg,.png"
-            required={!receta} // Solo requerido si no estamos editando
-            onChange={handleChange}
-            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-          />
-          <p className="text-xs text-gray-400">Formato JPG o PNG, máx. 5MB</p>
         </div>
 
         {/* Créditos */}
@@ -595,8 +642,9 @@ export default function FormularioReceta({
               type="button"
               onClick={onCancelar}
               disabled={cargando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
+                cargando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               Cancelar
             </button>
@@ -604,14 +652,15 @@ export default function FormularioReceta({
           <button
             type="submit"
             disabled={cargando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
+              cargando ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {cargando
               ? "Enviando..."
               : receta
-                ? "Actualizar receta"
-                : "Enviar receta"}
+              ? "Actualizar receta"
+              : "Enviar receta"}
           </button>
         </div>
       </form>
