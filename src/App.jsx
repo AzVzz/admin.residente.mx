@@ -100,6 +100,14 @@ const RegistroInvitados = lazy(() =>
 const GestionCodigos = lazy(() =>
   import("./componentes/residente/Admin/GestionCodigos")
 );
+const FormularioReceta = lazy(() =>
+  import(
+    "./componentes/residente/componentes/compFormularioMain/FormularioReceta"
+  )
+);
+const ListaRecetas = lazy(() =>
+  import("./componentes/residente/componentes/compFormularioMain/ListaRecetas")
+);
 
 const notasPrueba = [
   {
@@ -453,32 +461,52 @@ function App() {
 
               {/*================================*/}
 
-              {/* Admin */}
+              {/* Dashboard - Panel Principal */}
               <Route
-                path="notas/nueva"
-                element={
-                  <div className="max-w-[1080px] mx-auto">
-                    <FormMainResidente />
-                  </div>
-                }
-              />
-
-              {/* Admin */}
-              <Route
-                path="notas/editar/:id"
-                element={
-                  <div className="max-w-[1080px] mx-auto">
-                    <FormMainResidente />
-                  </div>
-                }
-              />
-
-              {/* Admin */}
-              <Route
-                path="/notas"
+                path="/dashboard"
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ListaNotas />
+                  </div>
+                }
+              />
+
+              {/* Dashboard - Nota Nueva */}
+              <Route
+                path="dashboard/nota/nueva"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormMainResidente />
+                  </div>
+                }
+              />
+
+              {/* Dashboard - Nota Editar */}
+              <Route
+                path="dashboard/nota/editar/:id"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormMainResidente />
+                  </div>
+                }
+              />
+
+              {/* Dashboard - Receta Nueva */}
+              <Route
+                path="dashboard/receta/nueva"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormularioReceta />
+                  </div>
+                }
+              />
+
+              {/* Dashboard - Receta Editar */}
+              <Route
+                path="dashboard/receta/editar/:id"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormularioReceta />
                   </div>
                 }
               />

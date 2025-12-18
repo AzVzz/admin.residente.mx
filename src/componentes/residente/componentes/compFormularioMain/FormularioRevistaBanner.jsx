@@ -18,39 +18,40 @@ const FormularioRevistaBannerNueva = () => {
   const [postResponse, setPostResponse] = useState(null);
   const [imagenBannerPreview, setImagenBannerPreview] = useState(null);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleImagenPortadaChange = e => {
+  const handleImagenPortadaChange = (e) => {
     const file = e.target.files[0];
     setForm({ ...form, imagen_portada: file });
     if (file) {
       const reader = new FileReader();
-      reader.onload = ev => setImagenPortadaPreview(ev.target.result);
+      reader.onload = (ev) => setImagenPortadaPreview(ev.target.result);
       reader.readAsDataURL(file);
     } else {
       setImagenPortadaPreview(null);
     }
   };
 
-  const handlePdfChange = e => {
+  const handlePdfChange = (e) => {
     const file = e.target.files[0];
     setForm({ ...form, pdf: file });
     setPdfNombre(file ? file.name : "");
   };
 
-  const handleImagenBannerChange = e => {
+  const handleImagenBannerChange = (e) => {
     const file = e.target.files[0];
     setForm({ ...form, imagen_banner: file });
     if (file) {
       const reader = new FileReader();
-      reader.onload = ev => setImagenBannerPreview(ev.target.result);
+      reader.onload = (ev) => setImagenBannerPreview(ev.target.result);
       reader.readAsDataURL(file);
     } else {
       setImagenBannerPreview(null);
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsPosting(true);
     setPostError(null);
@@ -58,7 +59,7 @@ const FormularioRevistaBannerNueva = () => {
     try {
       await revistasPost(form);
       setPostResponse("Revista creada correctamente");
-      setTimeout(() => navigate("/notas"), 1200);
+      setTimeout(() => navigate("/dashboard"), 1200);
     } catch (error) {
       setPostError("Error al crear la revista");
     } finally {
@@ -69,7 +70,10 @@ const FormularioRevistaBannerNueva = () => {
   return (
     <div className="py-8">
       <div className="max-w-[600px] mx-auto">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-lg border border-gray-200 px-8 py-8 space-y-6"
+        >
           <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
             Nueva Revista
           </h1>
@@ -87,7 +91,9 @@ const FormularioRevistaBannerNueva = () => {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Título
+            </label>
             <input
               name="titulo"
               value={form.titulo}
@@ -98,7 +104,9 @@ const FormularioRevistaBannerNueva = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descripción
+            </label>
             <textarea
               name="descripcion"
               value={form.descripcion}
@@ -111,7 +119,9 @@ const FormularioRevistaBannerNueva = () => {
           </div>
           {/* PDF */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Archivo PDF</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Archivo PDF
+            </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
               <input
                 type="file"
@@ -127,7 +137,9 @@ const FormularioRevistaBannerNueva = () => {
                   <div className="flex gap-3 justify-center">
                     <button
                       type="button"
-                      onClick={() => document.getElementById('pdf-revista').click()}
+                      onClick={() =>
+                        document.getElementById("pdf-revista").click()
+                      }
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Cambiar PDF
@@ -137,7 +149,7 @@ const FormularioRevistaBannerNueva = () => {
                       onClick={() => {
                         setPdfNombre("");
                         setForm({ ...form, pdf: null });
-                        document.getElementById('pdf-revista').value = '';
+                        document.getElementById("pdf-revista").value = "";
                       }}
                       className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
@@ -147,13 +159,24 @@ const FormularioRevistaBannerNueva = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 48 48">
-                    <rect width="48" height="48" rx="8" fill="#F3F4F6"/>
-                    <path d="M16 32h16M16 24h16M16 16h16" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"/>
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                  >
+                    <rect width="48" height="48" rx="8" fill="#F3F4F6" />
+                    <path
+                      d="M16 32h16M16 24h16M16 16h16"
+                      stroke="#9CA3AF"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   <button
                     type="button"
-                    onClick={() => document.getElementById('pdf-revista').click()}
+                    onClick={() =>
+                      document.getElementById("pdf-revista").click()
+                    }
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Elegir PDF
@@ -165,7 +188,9 @@ const FormularioRevistaBannerNueva = () => {
           </div>
           {/* Imagen Portada */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen Portada</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Imagen Portada
+            </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
               <input
                 type="file"
@@ -182,11 +207,17 @@ const FormularioRevistaBannerNueva = () => {
                     alt="Preview"
                     className="mx-auto h-32 w-auto object-cover"
                   />
-                  <p className="text-sm text-gray-600 mb-3">Imagen seleccionada</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Imagen seleccionada
+                  </p>
                   <div className="flex gap-3 justify-center">
                     <button
                       type="button"
-                      onClick={() => document.getElementById('imagen-portada-revista').click()}
+                      onClick={() =>
+                        document
+                          .getElementById("imagen-portada-revista")
+                          .click()
+                      }
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Cambiar Imagen
@@ -196,7 +227,9 @@ const FormularioRevistaBannerNueva = () => {
                       onClick={() => {
                         setImagenPortadaPreview(null);
                         setForm({ ...form, imagen_portada: null });
-                        document.getElementById('imagen-portada-revista').value = '';
+                        document.getElementById(
+                          "imagen-portada-revista"
+                        ).value = "";
                       }}
                       className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
@@ -225,20 +258,28 @@ const FormularioRevistaBannerNueva = () => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => document.getElementById('imagen-portada-revista').click()}
+                      onClick={() =>
+                        document
+                          .getElementById("imagen-portada-revista")
+                          .click()
+                      }
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Elegir Imagen
                     </button>
                   </div>
-                  <p className="text-sm text-gray-500">JPG, PNG, WEBP hasta 5MB</p>
+                  <p className="text-sm text-gray-500">
+                    JPG, PNG, WEBP hasta 5MB
+                  </p>
                 </div>
               )}
             </div>
           </div>
           {/* Imagen Banner */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen Banner</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Imagen Banner
+            </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
               <input
                 type="file"
@@ -255,11 +296,15 @@ const FormularioRevistaBannerNueva = () => {
                     alt="Preview"
                     className="mx-auto h-32 w-auto object-cover"
                   />
-                  <p className="text-sm text-gray-600 mb-3">Imagen seleccionada</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Imagen seleccionada
+                  </p>
                   <div className="flex gap-3 justify-center">
                     <button
                       type="button"
-                      onClick={() => document.getElementById('imagen-banner-revista').click()}
+                      onClick={() =>
+                        document.getElementById("imagen-banner-revista").click()
+                      }
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Cambiar Imagen
@@ -269,7 +314,8 @@ const FormularioRevistaBannerNueva = () => {
                       onClick={() => {
                         setImagenBannerPreview(null);
                         setForm({ ...form, imagen_banner: null });
-                        document.getElementById('imagen-banner-revista').value = '';
+                        document.getElementById("imagen-banner-revista").value =
+                          "";
                       }}
                       className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
@@ -298,13 +344,17 @@ const FormularioRevistaBannerNueva = () => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => document.getElementById('imagen-banner-revista').click()}
+                      onClick={() =>
+                        document.getElementById("imagen-banner-revista").click()
+                      }
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Elegir Imagen
                     </button>
                   </div>
-                  <p className="text-sm text-gray-500">JPG, PNG, WEBP hasta 5MB</p>
+                  <p className="text-sm text-gray-500">
+                    JPG, PNG, WEBP hasta 5MB
+                  </p>
                 </div>
               )}
             </div>
@@ -312,7 +362,9 @@ const FormularioRevistaBannerNueva = () => {
           <button
             type="submit"
             disabled={isPosting}
-            className={`w-full py-2 px-4 font-bold rounded text-white bg-blue-600 hover:bg-blue-700 transition ${isPosting ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`w-full py-2 px-4 font-bold rounded text-white bg-blue-600 hover:bg-blue-700 transition ${
+              isPosting ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {isPosting ? "Guardando..." : "Crear Revista"}
           </button>

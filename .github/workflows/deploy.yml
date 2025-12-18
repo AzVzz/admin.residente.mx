@@ -1,68 +1,42 @@
-name: Deploy to Production admin.residente.mx
+name: Deploy admin.residente.mx
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - name: Enable pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.9 --activate
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install deps
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build project
+      - name: Build
         run: pnpm run build
 
-      - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.7
+      - name: Prepare package
+        run: |
+          mkdir -p deploy_package
+          cp -r dist/. deploy_package/
+
+      - name: Deploy via rsync
+        uses: burnett01/rsync-deployments@7.1.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "dist/*"
-          target: "/home/residente/admin.residente.mx/httpdocs_temp"
-          strip_components: 1
-
-      - name: Update files on server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /home/residente/admin.residente.mx/httpdocs
-            # Backup old files (optional, remove if not needed)
-            # rm -rf assets_backup index_backup.html
-            # mv assets assets_backup 2>/dev/null || true
-            # mv index.html index_backup.html 2>/dev/null || true
-
-            # Remove old assets and index.html
-            rm -rf assets
-            rm -f index.html
-
-            # Move new files from temp
-            mv /home/residente/admin.residente.mx/httpdocs_temp/assets ./
-            mv /home/residente/admin.residente.mx/httpdocs_temp/index.html ./
-
-            # Clean up temp directory
-            rm -rf /home/residente/admin.residente.mx/httpdocs_temp
-
-            echo "✅ Deploy completed successfully!"
+          switches: -avz --delete
+          path: deploy_package/
+          remote_path: ~/admin.residente.mx/httpdocs/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USERNAME }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
