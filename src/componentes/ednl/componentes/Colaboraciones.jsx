@@ -19,6 +19,7 @@ const Colaboraciones = ({
 
   return (
     <div className="py-1 my-1 text-center">
+      <h3 className="text-categoria">Bebidas</h3>
       <div className="flex flex-col items-center gap-0">
         {colaboracion_coca_cola && (
           <div className="w-full max-w-2xl">
@@ -53,7 +54,7 @@ const Colaboraciones = ({
         {colaboracion_descuentosx6 && (
           <div className="w-full max-w-2xl">
             <img
-              src={`${imgApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-descuentosx6.webp`}
+              src={`${imgApi}fotos/fotos-estaticas/componente-restaurante/colaboracion-descuentosx6.png`}
               alt="Descuentos x6"
               className="w-full h-auto max-h-40 object-contain mx-auto"
             />
