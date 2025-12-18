@@ -26,10 +26,10 @@ const CharCounter = ({ value, max }) => {
   return (
     <span
       className={`text-xs ${isAtLimit
-          ? "text-red-500 font-bold"
-          : isNearLimit
-            ? "text-amber-500"
-            : "text-gray-400"
+        ? "text-red-500 font-bold"
+        : isNearLimit
+          ? "text-amber-500"
+          : "text-gray-400"
         }`}
     >
       {current}/{max}
