@@ -135,22 +135,12 @@ const B2BDashboard = () => {
         [id]: !prev[id],
       };
 
-      // Recalcular total con base en los seleccionados
-      const nuevoTotal = productos.reduce((suma, producto, index) => {
+      // Recalcular total con base en los seleccionados usando precio_descuento de la API
+      const nuevoTotal = productos.reduce((suma, producto) => {
         if (nuevoSeleccionados[producto.id]) {
-          // El primer producto (index === 0) usa $9,900
-          if (index === 0) {
-            return suma + 9900;
-          }
-          // El segundo producto (index === 1) usa $1,900
-          if (index === 1) {
-            return suma + 1900;
-          }
-          // El tercer producto (index === 2) usa $1,000
-          if (index === 2) {
-            return suma + 1000;
-          }
-          return suma + Number(producto.monto);
+          // Usar precio_descuento si existe, si no usar monto
+          const precio = Number(producto.precio_descuento || producto.monto || 0);
+          return suma + precio;
         }
         return suma;
       }, 0);
@@ -175,14 +165,9 @@ const B2BDashboard = () => {
 
   // 👇 AGREGADO: Función para ir a pagar con Stripe
   const handleIrAPagar = async () => {
-    const items = productos
-      .filter((p) => seleccionados[p.id])
-      .map((p) => ({
-        productId: p.id.toString(),
-        quantity: 1,
-      }));
+    const productosSeleccionados = productos.filter((p) => seleccionados[p.id]);
 
-    if (items.length === 0) {
+    if (productosSeleccionados.length === 0) {
       alert("Selecciona al menos un beneficio para pagar.");
       return;
     }
@@ -191,6 +176,12 @@ const B2BDashboard = () => {
       const successUrl = `${window.location.origin}/dashboardb2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/dashboardb2b?payment_canceled=true`;
       
+      // Formato exacto que espera el backend: { productId: '1', quantity: 1 }
+      const items = productosSeleccionados.map((p) => ({
+        productId: p.id.toString(),
+        quantity: 1,
+      }));
+
       const paymentData = {
         items,
         b2bId: b2bId,
@@ -200,6 +191,8 @@ const B2BDashboard = () => {
         cancelUrl: cancelUrl,
       };
       
+      console.log('📦 Enviando datos de pago:', paymentData);
+      
       const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
 
       if (resp.data.url) {
@@ -208,7 +201,8 @@ const B2BDashboard = () => {
         alert("No se pudo obtener la URL de pago.");
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.message || 'Error desconocido';
+      console.error('❌ Error en pago:', err.response?.data || err);
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error desconocido';
       alert(`Error al crear la sesión de pago: ${errorMsg}`);
     }
   };
@@ -689,85 +683,42 @@ const B2BDashboard = () => {
             <div>
               <p className="text-[35px] text-left mb-8 leading-none">Canjea tus<br />Beneficios</p>
               <ol>
-                {productos.slice(0, 3).map((producto, index) => (
+                {productos.map((producto) => (
                   <li
                     key={producto.id}
                     className="select-none flex flex-col gap-3"
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold">
-                        {index === 0
-                          ? "Revista Residente"
-                          : index === 1
-                            ? "Pagina web Residente"
-                            : index === 2
-                              ? "Pagina web Residente"
-                              : producto.titulo}
+                        {producto.titulo}
                       </p>
-                      {index === 0 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            ANUNCIO EN REVISTA 1 PAGINA DE
+                      <div>
+                        <p className="text-sm text-black mb-1 uppercase">
+                          {producto.descripcion}
+                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">
+                            {producto.precio_original ? (
+                              <>
+                                <span className="line-through text-gray-500">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
+                                {" "}
+                              </>
+                            ) : null}
+                            ${Number(producto.precio_descuento || producto.monto || 0).toLocaleString("es-MX")}
                           </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$24,000 A $9,900</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Anuncio
-                            </button>
-                          </div>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
                         </div>
-                      )}
-
-                      {index === 1 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            BANNER SEMANAL WEB DE
-                          </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$4,000 A $1,900</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Banner
-                            </button>
-                          </div>
+                        <div className="flex justify-left mb-3">
+                          <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                            {producto.boton_texto || `Crea Tu ${producto.titulo?.split(' ')[0] || 'Contenido'}`}
+                          </button>
                         </div>
-                      )}
-                      {index === 2 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            NOTA PRINCIPAL PAGINA WEB DE
-                          </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$5,000 A $1,000</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Nota
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </li>
                 ))}
