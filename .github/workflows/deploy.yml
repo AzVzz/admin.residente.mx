@@ -36,7 +36,7 @@ jobs:
         with:
           switches: -avz --delete
           path: deploy_package/
-          remote_path: /home/residente/admin.residente.mx/httpdocs/
+          remote_path: ~/admin.residente.mx/httpdocs/
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
