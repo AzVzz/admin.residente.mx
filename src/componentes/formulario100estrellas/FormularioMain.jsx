@@ -29,6 +29,7 @@ import ExpertosOpinan from "./componentes/ExpertosOpinan";
 import FotosLugar from "./componentes/FotosLugar";
 import Colaboraciones from "./componentes/Colaboraciones";
 import NuevasSeccionesCategorias from "./componentes/NuevasSeccionesCategorias";
+import FormularioPromoExt from "../promociones/componentes/FormularioPromoExt.jsx";
 
 // Helper to get a stable ID for new forms across page reloads
 const getNewFormId = () => {
@@ -86,6 +87,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       colaboracion_modelo: false,
       colaboracion_heineken: false,
       colaboracion_descuentosx6: false,
+      icon: [],
       secciones_categorias: [],
       seo_alt_text: "",
       seo_title: "",
@@ -467,8 +469,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
                   colaboracion_heineken: data.colaboracion_heineken || false,
-                  colaboracion_descuentosx6:
-                    data.colaboracion_descuentosx6 || false,
+                  colaboracion_descuentosx6: data.colaboracion_descuentosx6 || false,
+                  icon: data.icon || [],
                   reseñas: reseñasFields.map((field) => ({
                     [field]: cleanText(data[field]),
                   })),
@@ -709,6 +711,20 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
+                    
+                {/* Selector de Iconos/Stickers */}
+                <div className="form-iconos">
+                  <fieldset>
+                    <legend>Selecciona íconos para tu restaurante</legend>
+                    <FormularioPromoExt
+                      onStickerSelect={(stickers) => methods.setValue('icon', stickers)}
+                      stickerSeleccionado={methods.watch('icon') || []}
+                      maxStickers={1} 
+                    />
+                  </fieldset>
+                </div>
+
+
                 {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
                 <div className="form-seo" style={{ display: "none" }}>
                   <fieldset>
