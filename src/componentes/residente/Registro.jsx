@@ -15,9 +15,9 @@ const Registro = () => {
     if (rol === "b2b") {
       navigate("/dashboardb2b");
     } else if (rol === "colaborador") {
-      navigate("/notas");
+      navigate("/dashboard");
     } else if (rol === "residente" || rol === "invitado") {
-      navigate("/notas");
+      navigate("/dashboard");
     } else {
       navigate("/");
     }
@@ -28,17 +28,20 @@ const Registro = () => {
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
         <div className="flex flex-col">
           <div className="mb-8">
-
             <div className="flex justify-center">
               <LoginForm onSuccess={handleLoginSuccess} />
             </div>
           </div>
           <div>
-            <h2 className="text-[40px] text-center mb-8">Ó registrate como...</h2>
+            <h2 className="text-[40px] text-center mb-8">
+              Ó registrate como...
+            </h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center">
-                <a href="/registrob2b" className="group w-full flex flex-col items-center">
-
+                <a
+                  href="/registrob2b"
+                  className="group w-full flex flex-col items-center"
+                >
                   <button
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
@@ -49,8 +52,10 @@ const Registro = () => {
               </div>
 
               <div className="flex flex-col items-center">
-                <a href="/registroinvitados" className="group w-full flex flex-col items-center">
-
+                <a
+                  href="/registroinvitados"
+                  className="group w-full flex flex-col items-center"
+                >
                   <button
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
@@ -61,8 +66,10 @@ const Registro = () => {
               </div>
 
               <div className="flex flex-col items-center">
-                <a href="/registrocolaboradores" className="group w-full flex flex-col items-center">
-
+                <a
+                  href="/registrocolaboradores"
+                  className="group w-full flex flex-col items-center"
+                >
                   <button
                     type="submit"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
