@@ -14,6 +14,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
     preparacion: "",
     consejo: "",
     categoria: "",
+    tipo_receta: "",
     imagen: null,
     creditos: "",
     instagram: "",
@@ -39,6 +40,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         preparacion: receta.preparacion || "",
         consejo: receta.consejo || "",
         categoria: receta.categoria || "",
+        tipo_receta: receta.tipo_receta || "",
         imagen: null, // La imagen no se repobla en el input file
         creditos: receta.creditos || "",
         instagram: receta.instagram || "",
@@ -59,6 +61,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         preparacion: "",
         consejo: "",
         categoria: "",
+        tipo_receta: "",
         imagen: null,
         creditos: "",
         instagram: "",
@@ -159,7 +162,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.error ||
-            `Error al ${receta ? "actualizar" : "enviar"} la receta`
+          `Error al ${receta ? "actualizar" : "enviar"} la receta`
         );
       }
 
@@ -177,6 +180,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           preparacion: "",
           consejo: "",
           categoria: "",
+          tipo_receta: "",
           imagen: null,
           creditos: "",
           instagram: "",
@@ -193,7 +197,7 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
       console.error(err);
       setMensaje(
         `Hubo un error al ${receta ? "actualizar" : "enviar"} la receta: ` +
-          err.message
+        err.message
       );
     } finally {
       setCargando(false);
@@ -208,11 +212,10 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
         </h1>
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${
-              mensaje.includes("correctamente")
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+              }`}
           >
             {mensaje}
           </div>
@@ -352,6 +355,19 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           </select>
         </div>
 
+        {/* Tipo de Receta */}
+        <div className="mb-4">
+          <label className="space-y-2 font-roman font-bold">Tipo de Receta</label>
+          <input
+            type="text"
+            name="tipo_receta"
+            value={formData.tipo_receta}
+            onChange={handleChange}
+            placeholder="Ej. Casera, Gourmet, Tradicional, Fusión..."
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+          />
+        </div>
+
         {/* Imagen */}
         <div className="mb-4">
           <label className="space-y-2 font-roman font-bold">
@@ -473,9 +489,8 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
               type="button"
               onClick={onCancelar}
               disabled={cargando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
-                cargando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               Cancelar
             </button>
@@ -483,15 +498,14 @@ export default function FormularioReceta({ onCancelar, onEnviado, receta }) {
           <button
             type="submit"
             disabled={cargando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
-              cargando ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {cargando
               ? "Enviando..."
               : receta
-              ? "Actualizar receta"
-              : "Enviar receta"}
+                ? "Actualizar receta"
+                : "Enviar receta"}
           </button>
         </div>
       </form>
