@@ -18,6 +18,8 @@ const RegistroInvitados = () => {
         codigo: "", // ADDED
     });
     const [logoBase64, setLogoBase64] = useState("");
+    const [permisoNotas, setPermisoNotas] = useState(false);
+    const [permisoRecetas, setPermisoRecetas] = useState(false);
     const [msg, setMsg] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -52,6 +54,11 @@ const RegistroInvitados = () => {
             return;
         }
 
+        if (!permisoNotas && !permisoRecetas) {
+            setError("Debes seleccionar al menos un permiso: Notas o Recetas.");
+            return;
+        }
+
         setLoading(true);
         try {
             const data = await registroInvitadosPost({
@@ -59,7 +66,9 @@ const RegistroInvitados = () => {
                 correo: formData.correo,
                 password: formData.password,
                 logo_base64: logoBase64,
-                codigo: formData.codigo, // ADDED
+                codigo: formData.codigo,
+                permiso_notas: permisoNotas,
+                permiso_recetas: permisoRecetas
             });
 
             setMsg("¡Registro exitoso! Redirigiendo...");
@@ -168,6 +177,33 @@ const RegistroInvitados = () => {
                                 onChange={handleFileChange}
                                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
                             />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold block mb-2">
+                                Permisos de Publicación*
+                            </label>
+                            <div className="flex flex-col gap-3 p-4 border border-gray-300 rounded-md bg-white">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={permisoNotas}
+                                        onChange={(e) => setPermisoNotas(e.target.checked)}
+                                        className="w-5 h-5 accent-[#fff200]"
+                                    />
+                                    <span className="font-roman text-sm">Publicar Notas</span>
+                                </label>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={permisoRecetas}
+                                        onChange={(e) => setPermisoRecetas(e.target.checked)}
+                                        className="w-5 h-5 accent-[#fff200]"
+                                    />
+                                    <span className="font-roman text-sm">Publicar Recetas</span>
+                                </label>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Selecciona al menos una opción</p>
                         </div>
 
                         {error && <div className="text-red-600 font-bold text-center mt-4">{error}</div>}

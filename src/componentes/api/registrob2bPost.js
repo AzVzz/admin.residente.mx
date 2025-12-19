@@ -32,7 +32,9 @@ export const registroInvitadosPost = async (formData) => {
       correo: formData.correo,
       password: formData.password,
       logo_base64: formData.logo_base64,
-      codigo: formData.codigo // ADDED
+      codigo: formData.codigo,
+      permiso_notas: formData.permiso_notas,
+      permiso_recetas: formData.permiso_recetas
     })
   });
   const data = await response.json();
