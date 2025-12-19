@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { urlApi } from '../../api/url.js';
+import { useAuth } from '../../Context';
 
 const NoticiasAdmin = () => {
   const [noticias, setNoticias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const { usuario } = useAuth(); // Obtener usuario del contexto
 
   const API_URL = 'https://admin.residente.mx';
 
@@ -50,7 +52,8 @@ const NoticiasAdmin = () => {
           urlToImage: noticia.urlToImage,
           publishedAt: noticia.publishedAt,
           source: noticia.source,
-          author: noticia.author
+          author: noticia.author,
+          usuario_id: usuario?.id // ID del usuario que guarda la nota
         })
       });
 
