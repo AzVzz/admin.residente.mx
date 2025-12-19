@@ -18,14 +18,25 @@ export default function LoginForm({
   onSuccess, // callback opcional
   showLoggedBadge = true, // si quieres mostrar el badge cuando ya está logeado
 }) {
-  const [nombre_usuario, setNombreUsuario] = useState("");
+  const [identificador, setIdentificador] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const { saveToken, saveUsuario, token, usuario } = useAuth();
+
+  // Leer correo/usuario de los parámetros de la URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const correoParam = params.get('correo') || params.get('usuario');
+    if (correoParam) {
+      setIdentificador(correoParam);
+      setShowWelcome(true);
+    }
+  }, []);
 
   // si token expiró, limpia
   useEffect(() => {
@@ -57,7 +68,7 @@ export default function LoginForm({
     setLoading(true);
 
     try {
-      const respuesta = await loginPost(nombre_usuario, password);
+      const respuesta = await loginPost(identificador, password);
       saveToken(respuesta.token);
       saveUsuario(respuesta.usuario);
       setSuccess(true);
@@ -75,18 +86,24 @@ export default function LoginForm({
       <form onSubmit={handleSubmit} className="">
         <h2 className="leading-tight text-4xl text-center mb-4">Iniciar Sesión</h2>
 
+        {showWelcome && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded text-center max-w-[250px]">
+            ¡Cuenta creada! Ingresa tu contraseña para continuar.
+          </div>
+        )}
+
         <div className="mb-4 max-w-[250px]">
           <label className="space-y-2 font-roman font-bold" htmlFor="usuario">
-            Nombre de usuario
+            Correo o usuario
           </label>
 
           <input
             id="usuario"
             type="text"
             className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm max-w-[250px]"
-            placeholder="Usuario"
-            value={nombre_usuario}
-            onChange={(e) => setNombreUsuario(e.target.value)}
+            placeholder="Correo o nombre de usuario"
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
             autoComplete="username"
           />
         </div>

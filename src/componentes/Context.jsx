@@ -64,17 +64,38 @@ const readFromCookies = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    // Inicializar desde localStorage primero, luego sincronizar con cookies
+    // Inicializar desde cookies primero (prioridad en producción)
     const [token, setToken] = useState(() => {
+        // En localhost, localStorage tiene prioridad (cookies pueden fallar sin dominio)
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const stored = localStorage.getItem('token');
-        if (stored) return stored;
-        // Fallback: leer de cookies (si viene de otro subdominio)
-        const { token: cookieToken } = readFromCookies();
-        return cookieToken;
+
+        if (!isLocalhost) {
+            const { token: cookieToken } = readFromCookies();
+
+            // Si hay cookie y es diferente (o local está vacío), cookie gana
+            if (cookieToken && cookieToken !== stored) {
+                return cookieToken;
+            }
+            // Si no hay cookie per local existe -> Logout (se cerró en otro lado)
+            if (!cookieToken && stored) {
+                return null;
+            }
+        }
+
+        // Fallback: localStorage
+        return stored;
     });
 
     const [usuario, setUsuario] = useState(() => {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const stored = localStorage.getItem('usuario');
+
+        if (!isLocalhost) {
+            const { usuario: cookieUsuario } = readFromCookies();
+            if (cookieUsuario) return cookieUsuario;
+        }
+
         if (stored) {
             try {
                 return JSON.parse(stored);
@@ -82,24 +103,33 @@ export const AuthProvider = ({ children }) => {
                 return null;
             }
         }
-        // Fallback: leer de cookies
-        const { usuario: cookieUsuario } = readFromCookies();
-        return cookieUsuario;
+        return null;
     });
 
     // Inicializa tipoNotaUsuario basado en el usuario almacenado
     const [tipoNotaUsuario, setTipoNotaUsuario] = useState(() => {
-        const stored = localStorage.getItem('usuario');
-        if (stored) {
-            const usuarioGuardado = JSON.parse(stored);
-            return tipoNotaPorPermiso[usuarioGuardado.permisos] || null;
+        if (usuario) {
+            return tipoNotaPorPermiso[usuario.permisos] || null;
         }
         return null;
     });
 
-    // Sincronizar al montar si hay datos en localStorage pero no en cookies
+    // Sincronizar estado inicial con localStorage si cambió por cookies
     useEffect(() => {
-        if (token && usuario) {
+        const storedToken = localStorage.getItem('token');
+
+        // Si el estado actual (token) es diferente al stored, actualizar stored
+        if (token && token !== storedToken) {
+            localStorage.setItem('token', token);
+            if (usuario) localStorage.setItem('usuario', JSON.stringify(usuario));
+            // También asegurar cookie
+            syncToCookies(token, usuario);
+        } else if (!token && storedToken) {
+            // Si estado es null pero stored tenía algo, limpiar stored
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+        } else if (token && usuario) {
+            // Asegurar cookie en mount
             syncToCookies(token, usuario);
         }
     }, []);

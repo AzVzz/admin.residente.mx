@@ -520,7 +520,7 @@ const ListaNotas = () => {
       <div className="flex flex-col gap-5 justify-between">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-black rounded-2xl py-1">
-            Panel de Administración
+            Dashboard de Administración
           </h1>
           {usuario && (
             <div className="flex items-center gap-5">
