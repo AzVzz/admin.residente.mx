@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { registroInvitadosPost } from "../../../api/registrob2bPost";
+import { registrarInvitado } from "../../../api/invitadosApi";
 import { useNavigate } from "react-router-dom";
 import DirectorioVertical from '../../componentes/componentesColumna2/DirectorioVertical';
 import Infografia from '../../componentes/componentesColumna1/Infografia';
@@ -61,7 +61,7 @@ const RegistroInvitados = () => {
 
         setLoading(true);
         try {
-            const data = await registroInvitadosPost({
+            const data = await registrarInvitado({
                 nombre_institucion: formData.nombre_institucion,
                 correo: formData.correo,
                 password: formData.password,
@@ -72,7 +72,7 @@ const RegistroInvitados = () => {
             });
 
             setMsg("¡Registro exitoso! Redirigiendo...");
-            setTimeout(() => navigate("/registro"), 2000);
+            setTimeout(() => navigate(`/registro?correo=${encodeURIComponent(formData.correo)}`), 2000);
         } catch (err) {
             setError(err.message || "Error al registrar");
         } finally {
