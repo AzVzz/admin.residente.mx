@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Login from "../Login";
 import LoginForm from "../LoginForm";
 import BotonesAnunciateSuscribirme from "./componentes/componentesColumna1/BotonesAnunciateSuscribirme";
@@ -8,6 +9,10 @@ import PortadaRevista from "./componentes/componentesColumna2/PortadaRevista";
 
 const Registro = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleLoginSuccess = (respuesta) => {
     const rol = respuesta.usuario?.rol?.toLowerCase();
