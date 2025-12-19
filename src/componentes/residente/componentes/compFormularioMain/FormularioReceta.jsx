@@ -69,6 +69,7 @@ export default function FormularioReceta({
   });
 
   const [cargando, setCargando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [imagenPreview, setImagenPreview] = useState(null);
 
@@ -285,7 +286,48 @@ export default function FormularioReceta({
     }
   };
 
-  // Si está cargando la receta desde URL, mostrar loading
+  // Función para eliminar (desactivar) la receta
+  const handleEliminar = async () => {
+    if (!receta?.id) return;
+
+    const confirmacion = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta receta? La receta será desactivada y ya no aparecerá en las publicadas."
+    );
+
+    if (!confirmacion) return;
+
+    setEliminando(true);
+    setMensaje("");
+
+    try {
+      const response = await fetch(`${urlApi}api/recetas/${receta.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Error al eliminar la receta");
+      }
+
+      setMensaje("Receta eliminada correctamente.");
+
+      // Navegar de vuelta a la lista después de eliminar
+      if (onEnviado) {
+        setTimeout(() => {
+          onEnviado();
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          navigate("/dashboard?vista=recetas");
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      setMensaje("Hubo un error al eliminar la receta: " + err.message);
+    } finally {
+      setEliminando(false);
+    }
+  };
   if (cargandoReceta) {
     return (
       <div className="flex justify-center py-12">
@@ -641,9 +683,9 @@ export default function FormularioReceta({
             <button
               type="button"
               onClick={onCancelar}
-              disabled={cargando}
+              disabled={cargando || eliminando}
               className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
-                cargando ? "opacity-50 cursor-not-allowed" : ""
+                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               Cancelar
@@ -651,9 +693,9 @@ export default function FormularioReceta({
           )}
           <button
             type="submit"
-            disabled={cargando}
+            disabled={cargando || eliminando}
             className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
-              cargando ? "opacity-50 cursor-not-allowed" : ""
+              cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {cargando
@@ -662,6 +704,18 @@ export default function FormularioReceta({
               ? "Actualizar receta"
               : "Enviar receta"}
           </button>
+          {receta && (
+            <button
+              type="button"
+              onClick={handleEliminar}
+              disabled={cargando || eliminando}
+              className={`flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition ${
+                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {eliminando ? "Eliminando..." : "Eliminar"}
+            </button>
+          )}
         </div>
       </form>
     </div>
