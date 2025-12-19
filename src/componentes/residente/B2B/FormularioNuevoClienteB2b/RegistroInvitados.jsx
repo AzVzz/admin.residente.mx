@@ -8,6 +8,7 @@ import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/B
 import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
 
 const RegistroInvitados = () => {
+<<<<<<< HEAD
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,6 +22,23 @@ const RegistroInvitados = () => {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+=======
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        nombre_institucion: "",
+        correo: "",
+        password: "",
+        confirm_password: "",
+        codigo: "", // ADDED
+    });
+    const [logoBase64, setLogoBase64] = useState("");
+    const [permisoNotas, setPermisoNotas] = useState(false);
+    const [permisoRecetas, setPermisoRecetas] = useState(false);
+    const [msg, setMsg] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+>>>>>>> a91d1952430ea1035bd8a84eb31db920c6a76a98
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,6 +78,7 @@ const RegistroInvitados = () => {
       return;
     }
 
+<<<<<<< HEAD
     setLoading(true);
     try {
       const data = await registroInvitadosPost({
@@ -69,6 +88,24 @@ const RegistroInvitados = () => {
         logo_base64: logoBase64,
         codigo: formData.codigo, // ADDED
       });
+=======
+        if (!permisoNotas && !permisoRecetas) {
+            setError("Debes seleccionar al menos un permiso: Notas o Recetas.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const data = await registroInvitadosPost({
+                nombre_institucion: formData.nombre_institucion,
+                correo: formData.correo,
+                password: formData.password,
+                logo_base64: logoBase64,
+                codigo: formData.codigo,
+                permiso_notas: permisoNotas,
+                permiso_recetas: permisoRecetas
+            });
+>>>>>>> a91d1952430ea1035bd8a84eb31db920c6a76a98
 
       setMsg("¡Registro exitoso! Redirigiendo...");
       setTimeout(() => navigate("/registro"), 2000);
@@ -88,6 +125,7 @@ const RegistroInvitados = () => {
             Registro de Invitados
           </h1>
 
+<<<<<<< HEAD
           <form onSubmit={handleSubmit}>
             <div>
               <label className="space-y-2 font-roman font-bold">
@@ -101,6 +139,149 @@ const RegistroInvitados = () => {
                 placeholder="Ingresa tu código de invitación"
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
+=======
+                    <form onSubmit={handleSubmit}>
+                        <div>
+                            <label className="space-y-2 font-roman font-bold">
+                                Código de Acceso*
+                            </label>
+                            <input
+                                type="text"
+                                name="codigo"
+                                value={formData.codigo}
+                                onChange={handleChange}
+                                placeholder="Ingresa tu código de invitación"
+                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold">
+                                Nombre de Institución o Empresa* (Este será tu nombre de usuario)
+                            </label>
+                            <input
+                                type="text"
+                                name="nombre_institucion"
+                                value={formData.nombre_institucion}
+                                onChange={handleChange}
+                                placeholder="Ej. Noreste Grill"
+                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold">
+                                Correo Electrónico*
+                            </label>
+                            <input
+                                type="email"
+                                name="correo"
+                                value={formData.correo}
+                                onChange={handleChange}
+                                placeholder="correo@ejemplo.com"
+                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold">
+                                Contraseña*
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="********"
+                                    className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold">
+                                Confirmar Contraseña*
+                            </label>
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                value={formData.confirm_password}
+                                onChange={handleChange}
+                                placeholder="********"
+                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold">
+                                Subir Logo*
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="space-y-2 font-roman font-bold block mb-2">
+                                Permisos de Publicación*
+                            </label>
+                            <div className="flex flex-col gap-3 p-4 border border-gray-300 rounded-md bg-white">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={permisoNotas}
+                                        onChange={(e) => setPermisoNotas(e.target.checked)}
+                                        className="w-5 h-5 accent-[#fff200]"
+                                    />
+                                    <span className="font-roman text-sm">Publicar Notas</span>
+                                </label>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={permisoRecetas}
+                                        onChange={(e) => setPermisoRecetas(e.target.checked)}
+                                        className="w-5 h-5 accent-[#fff200]"
+                                    />
+                                    <span className="font-roman text-sm">Publicar Recetas</span>
+                                </label>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Selecciona al menos una opción</p>
+                        </div>
+
+                        {error && <div className="text-red-600 font-bold text-center mt-4">{error}</div>}
+                        {msg && <div className="text-green-600 font-bold text-center mt-4">{msg}</div>}
+
+                        <div className="flex justify-center mt-5">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
+                            >
+                                {loading ? "Procesando..." : "Crear cuenta"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Barra lateral */}
+                <div className="flex flex-col items-end justify-start gap-10">
+                    <DirectorioVertical />
+                    <PortadaRevista />
+                    <BotonesAnunciateSuscribirme />
+                    <Infografia />
+                </div>
+>>>>>>> a91d1952430ea1035bd8a84eb31db920c6a76a98
             </div>
 
             <div className="mt-4">
