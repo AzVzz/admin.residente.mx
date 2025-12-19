@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { registroInvitadosPost } from "../../../api/registrob2bPost";
 import { useNavigate } from "react-router-dom";
@@ -18,11 +18,75 @@ const RegistroInvitados = () => {
     codigo: "",
   });
   const [logoBase64, setLogoBase64] = useState("");
+  const [logoPreview, setLogoPreview] = useState(null);
   const [permisoNotas, setPermisoNotas] = useState(false);
   const [permisoRecetas, setPermisoRecetas] = useState(false);
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Estados para verificación de correo
+  const [emailExists, setEmailExists] = useState(false);
+  const [emailValid, setEmailValid] = useState(true);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const emailDebounceRef = useRef(null);
+
+  // Verificar si el correo ya existe (con debounce)
+  useEffect(() => {
+    if (emailDebounceRef.current) {
+      clearTimeout(emailDebounceRef.current);
+    }
+
+    const correo = formData.correo.trim();
+
+    // Si no hay correo, resetear estado
+    if (!correo) {
+      setEmailExists(false);
+      setEmailValid(true);
+      setCheckingEmail(false);
+      return;
+    }
+
+    // Validar formato básico antes de hacer petición
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+      setEmailExists(false);
+      setEmailValid(false);
+      setCheckingEmail(false);
+      return;
+    }
+
+    setCheckingEmail(true);
+    setEmailValid(true);
+
+    emailDebounceRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          "https://admin.residente.mx/api/usuarios/verificar-correo",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo }),
+          }
+        );
+
+        const data = await response.json();
+        setEmailExists(data.exists === true);
+        setEmailValid(data.valid !== false);
+      } catch (error) {
+        console.error("Error verificando correo:", error);
+        setEmailExists(false);
+      } finally {
+        setCheckingEmail(false);
+      }
+    }, 500);
+
+    return () => {
+      if (emailDebounceRef.current) {
+        clearTimeout(emailDebounceRef.current);
+      }
+    };
+  }, [formData.correo]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,6 +95,10 @@ const RegistroInvitados = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Crear URL de vista previa
+      const previewUrl = URL.createObjectURL(file);
+      setLogoPreview(previewUrl);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoBase64(reader.result.split(",")[1]);
@@ -59,6 +127,18 @@ const RegistroInvitados = () => {
       setError(
         "Todos los campos obligatorios deben ser completados, incluyendo el código de acceso y el logo."
       );
+      return;
+    }
+
+    // Validar que el correo no exista
+    if (emailExists) {
+      setError("Este correo ya está registrado. Por favor usa otro.");
+      return;
+    }
+
+    // Validar formato de correo
+    if (!emailValid) {
+      setError("Por favor ingresa un correo electrónico válido.");
       return;
     }
 
@@ -136,9 +216,39 @@ const RegistroInvitados = () => {
                 name="correo"
                 value={formData.correo}
                 onChange={handleChange}
-                placeholder="correo@ejemplo.com"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                placeholder="Escribe tu correo electrónico"
+                className={`bg-white w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-family-roman font-bold text-sm ${
+                  emailExists || !emailValid
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
               />
+              {checkingEmail && (
+                <p className="text-gray-500 text-xs mt-1">
+                  Verificando correo...
+                </p>
+              )}
+              {!emailValid && !checkingEmail && formData.correo && (
+                <p className="text-red-500 text-sm mt-1 font-bold">
+                  ⚠️ El formato del correo no es válido
+                </p>
+              )}
+              {emailExists && emailValid && !checkingEmail && (
+                <p className="text-red-500 text-sm mt-1 font-bold">
+                  ⚠️ Este correo ya está registrado. Por favor, usa otro o
+                  inicia sesión.
+                </p>
+              )}
+              {!emailExists &&
+                emailValid &&
+                !checkingEmail &&
+                formData.correo &&
+                formData.correo.includes("@") && (
+                  <p className="text-green-500 text-xs mt-1">
+                    ✓ Correo disponible
+                  </p>
+                )}
+              <div className="mb-4"></div>
             </div>
 
             <div className="mt-4">
@@ -182,12 +292,28 @@ const RegistroInvitados = () => {
               <label className="space-y-2 font-roman font-bold">
                 Subir Logo*
               </label>
+
+              {/* Mostrar vista previa del logo seleccionado */}
+              {logoPreview && (
+                <div className="mb-3">
+                  <p className="text-sm text-gray-500 mb-2">Vista previa:</p>
+                  <img
+                    src={logoPreview}
+                    alt="Vista previa del logo"
+                    className="max-w-xs max-h-48 object-cover rounded-lg border border-gray-300"
+                  />
+                </div>
+              )}
+
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
                 className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
               />
+              <p className="text-xs text-gray-400 font-roman">
+                Formato JPG o PNG, máx. 5MB
+              </p>
             </div>
 
             <div className="mt-4">
@@ -233,8 +359,12 @@ const RegistroInvitados = () => {
             <div className="flex justify-center mt-5">
               <button
                 type="submit"
-                disabled={loading}
-                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase"
+                disabled={loading || emailExists || checkingEmail}
+                className={`inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] text-sm uppercase ${
+                  loading || emailExists || checkingEmail
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#fff200] text-black"
+                }`}
               >
                 {loading ? "Procesando..." : "Crear cuenta"}
               </button>
