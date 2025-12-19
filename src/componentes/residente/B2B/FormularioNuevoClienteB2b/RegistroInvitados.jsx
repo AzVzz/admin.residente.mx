@@ -69,7 +69,7 @@ const RegistroInvitados = () => {
 
         setLoading(true);
         try {
-            const data = await registroInvitadosPost({
+            const data = await registrarInvitado({
                 nombre_institucion: formData.nombre_institucion,
                 correo: formData.correo,
                 password: formData.password,
