@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { registrarInvitado } from "../../../api/invitadosApi";
 import { useNavigate } from "react-router-dom";
-import DirectorioVertical from '../../componentes/componentesColumna2/DirectorioVertical';
-import Infografia from '../../componentes/componentesColumna1/Infografia';
-import BotonesAnunciateSuscribirme from '../../componentes/componentesColumna1/BotonesAnunciateSuscribirme';
+import DirectorioVertical from "../../componentes/componentesColumna2/DirectorioVertical";
+import Infografia from "../../componentes/componentesColumna1/Infografia";
+import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
 
 const RegistroInvitados = () => {
@@ -15,7 +15,7 @@ const RegistroInvitados = () => {
         correo: "",
         password: "",
         confirm_password: "",
-        codigo: "", // ADDED
+        codigo: "",
     });
     const [logoBase64, setLogoBase64] = useState("");
     const [permisoNotas, setPermisoNotas] = useState(false);
@@ -49,8 +49,16 @@ const RegistroInvitados = () => {
             return;
         }
 
-        if (!formData.nombre_institucion || !formData.correo || !formData.password || !formData.codigo || !logoBase64) {
-            setError("Todos los campos obligatorios deben ser completados, incluyendo el código de acceso y el logo.");
+        if (
+            !formData.nombre_institucion ||
+            !formData.correo ||
+            !formData.password ||
+            !formData.codigo ||
+            !logoBase64
+        ) {
+            setError(
+                "Todos los campos obligatorios deben ser completados, incluyendo el código de acceso y el logo."
+            );
             return;
         }
 
@@ -61,7 +69,7 @@ const RegistroInvitados = () => {
 
         setLoading(true);
         try {
-            const data = await registrarInvitado({
+            const data = await registroInvitadosPost({
                 nombre_institucion: formData.nombre_institucion,
                 correo: formData.correo,
                 password: formData.password,
@@ -72,7 +80,7 @@ const RegistroInvitados = () => {
             });
 
             setMsg("¡Registro exitoso! Redirigiendo...");
-            setTimeout(() => navigate(`/registro?correo=${encodeURIComponent(formData.correo)}`), 2000);
+            setTimeout(() => navigate("/registro"), 2000);
         } catch (err) {
             setError(err.message || "Error al registrar");
         } finally {
@@ -85,7 +93,9 @@ const RegistroInvitados = () => {
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                 {/* Columna principal: formulario */}
                 <div>
-                    <h1 className="text-[40px] leading-[1.2] font-bold mb-4 text-center">Registro de Invitados</h1>
+                    <h1 className="text-[40px] leading-[1.2] font-bold mb-4 text-center">
+                        Registro de Invitados
+                    </h1>
 
                     <form onSubmit={handleSubmit}>
                         <div>
@@ -104,7 +114,8 @@ const RegistroInvitados = () => {
 
                         <div className="mt-4">
                             <label className="space-y-2 font-roman font-bold">
-                                Nombre de Institución o Empresa* (Este será tu nombre de usuario)
+                                Nombre de Institución o Empresa* (Este será tu nombre de
+                                usuario)
                             </label>
                             <input
                                 type="text"
@@ -203,17 +214,27 @@ const RegistroInvitados = () => {
                                     <span className="font-roman text-sm">Publicar Recetas</span>
                                 </label>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Selecciona al menos una opción</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Selecciona al menos una opción
+                            </p>
                         </div>
 
-                        {error && <div className="text-red-600 font-bold text-center mt-4">{error}</div>}
-                        {msg && <div className="text-green-600 font-bold text-center mt-4">{msg}</div>}
+                        {error && (
+                            <div className="text-red-600 font-bold text-center mt-4">
+                                {error}
+                            </div>
+                        )}
+                        {msg && (
+                            <div className="text-green-600 font-bold text-center mt-4">
+                                {msg}
+                            </div>
+                        )}
 
                         <div className="flex justify-center mt-5">
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px]  bg-[#fff200] text-black text-sm uppercase"
+                                className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase"
                             >
                                 {loading ? "Procesando..." : "Crear cuenta"}
                             </button>

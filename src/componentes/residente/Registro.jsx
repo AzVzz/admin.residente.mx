@@ -86,8 +86,6 @@ const Registro = () => {
         <div className="flex flex-col items-end justify-start gap-10">
           <DirectorioVertical />
           <PortadaRevista />
-          <BotonesAnunciateSuscribirme />
-          <Infografia />
         </div>
       </div>
     </div>
