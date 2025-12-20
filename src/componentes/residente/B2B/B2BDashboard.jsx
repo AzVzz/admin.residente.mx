@@ -522,7 +522,7 @@ const B2BDashboard = () => {
       : `${imgApi}${restaurante.imagenes[0].src}`)
     : `${imgApi}/fotos/platillos/default.webp`;
 
-  // Calcular total de interacciones de los cupones del usuario
+  // Calcular total de interacciones de  cupones del usuario
   const totalInteraccionesCupones = cupones
     .filter(c => c.user_id === usuario.id)
     .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
