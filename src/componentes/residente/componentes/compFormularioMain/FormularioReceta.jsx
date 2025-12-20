@@ -25,13 +25,12 @@ const CharCounter = ({ value, max }) => {
 
   return (
     <span
-      className={`text-xs ${
-        isAtLimit
-          ? "text-red-500 font-bold"
-          : isNearLimit
+      className={`text-xs ${isAtLimit
+        ? "text-red-500 font-bold"
+        : isNearLimit
           ? "text-amber-500"
           : "text-gray-400"
-      }`}
+        }`}
     >
       {current}/{max}
     </span>
@@ -66,6 +65,7 @@ export default function FormularioReceta({
     seo_title: "",
     seo_keyword: "",
     meta_description: "",
+    destacada_invitado: 0,
   });
 
   const [cargando, setCargando] = useState(false);
@@ -114,6 +114,7 @@ export default function FormularioReceta({
         seo_title: receta.seo_title || "",
         seo_keyword: receta.seo_keyword || "",
         meta_description: receta.meta_description || "",
+        destacada_invitado: receta.destacada_invitado || 0,
       });
     } else {
       // Resetear si no hay receta (modo crear)
@@ -135,6 +136,7 @@ export default function FormularioReceta({
         seo_title: "",
         seo_keyword: "",
         meta_description: "",
+        destacada_invitado: 0,
       });
     }
   }, [receta]);
@@ -239,7 +241,7 @@ export default function FormularioReceta({
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.error ||
-            `Error al ${receta ? "actualizar" : "enviar"} la receta`
+          `Error al ${receta ? "actualizar" : "enviar"} la receta`
         );
       }
 
@@ -261,6 +263,7 @@ export default function FormularioReceta({
           imagen: null,
           creditos: "",
           instagram: "",
+          destacada_invitado: 0,
         });
       }
 
@@ -279,7 +282,7 @@ export default function FormularioReceta({
       console.error(err);
       setMensaje(
         `Hubo un error al ${receta ? "actualizar" : "enviar"} la receta: ` +
-          err.message
+        err.message
       );
     } finally {
       setCargando(false);
@@ -344,11 +347,10 @@ export default function FormularioReceta({
         </h1>
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${
-              mensaje.includes("correctamente")
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+              }`}
           >
             {mensaje}
           </div>
@@ -381,8 +383,8 @@ export default function FormularioReceta({
                   receta.imagen.startsWith("http")
                     ? receta.imagen
                     : `${urlApi}api/recetas/imagen/${encodeURIComponent(
-                        receta.imagen.split("/").pop()
-                      )}`
+                      receta.imagen.split("/").pop()
+                    )}`
                 }
                 alt="Imagen actual de la receta"
                 className="max-w-xs max-h-48 object-cover rounded-lg border border-gray-300"
@@ -573,6 +575,30 @@ export default function FormularioReceta({
           />
         </div>
 
+        {/* Destacada Invitado */}
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              name="destacada_invitado"
+              checked={formData.destacada_invitado === 1}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  destacada_invitado: e.target.checked ? 1 : 0,
+                });
+              }}
+              className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+            />
+            <span className="ml-2 font-roman font-bold text-gray-700">
+              ⭐ Marcar como receta destacada
+            </span>
+          </label>
+          <p className="text-xs text-gray-500 mt-1">
+            Las recetas destacadas aparecen en secciones especiales del sitio
+          </p>
+        </div>
+
         {/* Créditos */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-1">
@@ -684,9 +710,8 @@ export default function FormularioReceta({
               type="button"
               onClick={onCancelar}
               disabled={cargando || eliminando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
-                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               Cancelar
             </button>
@@ -694,24 +719,22 @@ export default function FormularioReceta({
           <button
             type="submit"
             disabled={cargando || eliminando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
-              cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {cargando
               ? "Enviando..."
               : receta
-              ? "Actualizar receta"
-              : "Enviar receta"}
+                ? "Actualizar receta"
+                : "Enviar receta"}
           </button>
           {receta && (
             <button
               type="button"
               onClick={handleEliminar}
               disabled={cargando || eliminando}
-              className={`flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition ${
-                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {eliminando ? "Eliminando..." : "Eliminar"}
             </button>
