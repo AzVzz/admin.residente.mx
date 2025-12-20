@@ -163,11 +163,11 @@ const ListaNotas = () => {
       if (usuario?.permisos !== "todos") {
         const tipoNotaUsuario =
           usuario?.permisos &&
-          usuario.permisos !== "usuario" &&
-          usuario.permisos !== "todo"
+            usuario.permisos !== "usuario" &&
+            usuario.permisos !== "todo"
             ? usuario.permisos
-                .replace(/-/g, " ")
-                .replace(/\b\w/g, (l) => l.toUpperCase())
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())
             : "";
 
         if (tipoNotaUsuario) {
@@ -481,17 +481,17 @@ const ListaNotas = () => {
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(
-        (option) =>
-          usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
-          (option.key === "notas" ||
-            option.key === "recetas" ||
-            (option.key === "cupones" &&
-              !esInvitado &&
-              usuario?.rol !== "colaborador") ||
-            (esResidente && option.key === "restaurante_link") ||
-            (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-            (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
-      );
+      (option) =>
+        usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
+        (option.key === "notas" ||
+          option.key === "recetas" ||
+          (option.key === "cupones" &&
+            !esInvitado &&
+            usuario?.rol !== "colaborador") ||
+          (esResidente && option.key === "restaurante_link") ||
+          (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
+          (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+    );
 
   if (cargando) {
     return (
@@ -643,7 +643,7 @@ const ListaNotas = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Nueva Colaboración
+                    Nueva Colaboración o Consejo
                   </Link>
                 ) : (
                   <Link
@@ -714,11 +714,10 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaAnterior}
                             disabled={paginaActual === 1}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                              paginaActual === 1
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
                                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                            }`}
+                              }`}
                           >
                             ← Anterior
                           </button>
@@ -756,11 +755,10 @@ const ListaNotas = () => {
                                 <button
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
-                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                    numero === paginaActual
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
                                       ? "bg-blue-600 text-white"
                                       : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                  }`}
+                                    }`}
                                 >
                                   {numero}
                                 </button>
@@ -772,11 +770,10 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaSiguiente}
                             disabled={paginaActual === totalPaginas}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                              paginaActual === totalPaginas
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
                                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                            }`}
+                              }`}
                           >
                             Siguiente →
                           </button>
