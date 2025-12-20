@@ -4,21 +4,51 @@ import { useAuth } from '../../Context';
 
 const NoticiasAdmin = () => {
   const [noticias, setNoticias] = useState([]);
+  const [noticiasGuardadas, setNoticiasGuardadas] = useState([]); // Noticias ya guardadas
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const [filtroEstado, setFiltroEstado] = useState('pendientes'); // pendientes, guardadas, todas
+  const [filtroFuente, setFiltroFuente] = useState('todas'); // todas o nombre de fuente
   const { usuario } = useAuth(); // Obtener usuario del contexto
 
   const API_URL = 'https://admin.residente.mx';
 
+  // Obtener noticias ya guardadas de la base de datos
+  const fetchNoticiasGuardadas = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/noticias/guardadas`);
+      const data = await response.json();
+      
+      if (data.success && data.notas) {
+        setNoticiasGuardadas(data.notas);
+        return data.notas;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo noticias guardadas:', error);
+      return [];
+    }
+  };
+
   const fetchNoticias = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/noticias?pageSize=9`);
+      // Primero obtener las ya guardadas
+      const guardadas = await fetchNoticiasGuardadas();
+      const titulosGuardados = guardadas.map(n => n.titulo?.toLowerCase().trim());
+      
+      // Luego obtener las nuevas de la API
+      const response = await fetch(`${API_URL}/api/noticias?pageSize=100`);
       const data = await response.json();
       
       if (data.success) {
-        setNoticias(data.articles);
+        // Filtrar las que ya están guardadas (por título)
+        const noticiasFiltradas = data.articles.filter(article => {
+          const tituloArticle = article.title?.toLowerCase().trim();
+          return !titulosGuardados.includes(tituloArticle);
+        });
+        setNoticias(noticiasFiltradas);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -61,7 +91,9 @@ const NoticiasAdmin = () => {
 
       if (data.success) {
         setMensaje({ tipo: 'exito', texto: `"${noticia.title.substring(0, 40)}..." guardada como nota` });
-        // Quitar la noticia de la lista
+        // Mover la noticia a la lista de guardadas
+        setNoticiasGuardadas(prev => [...prev, { ...noticia, guardadaEn: new Date() }]);
+        // Quitar de la lista de pendientes
         setNoticias(prev => prev.filter((_, i) => i !== index));
         
         // Limpiar mensaje después de 3 segundos
@@ -129,21 +161,79 @@ const NoticiasAdmin = () => {
         </div>
       )}
 
-      
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        {/* Filtro por estado */}
+        <select
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-full bg-white text-gray-700 font-roman cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          <option value="pendientes">Pendientes ({noticias.length})</option>
+          <option value="guardadas">Guardadas ({noticiasGuardadas.length})</option>
+          <option value="todas">Todas ({noticias.length + noticiasGuardadas.length})</option>
+        </select>
+
+        {/* Filtro por fuente */}
+        <select
+          value={filtroFuente}
+          onChange={(e) => setFiltroFuente(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-full bg-white text-gray-700 font-roman cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          <option value="todas">Todas las fuentes</option>
+          {[...new Set([...noticias, ...noticiasGuardadas].map(n => n.source).filter(Boolean))].map(fuente => (
+            <option key={fuente} value={fuente}>{fuente}</option>
+          ))}
+        </select>
+
+        {/* Contador */}
+        <span className="px-4 py-2 bg-gray-100 rounded-full text-gray-600 font-roman">
+          {filtroEstado === 'guardadas' 
+            ? `${noticiasGuardadas.length} guardadas` 
+            : filtroEstado === 'pendientes'
+            ? `${noticias.length} pendientes`
+            : `${noticias.length + noticiasGuardadas.length} total`
+          }
+        </span>
+      </div>
 
       {/* Grid de noticias estilo tarjetas como las notas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {noticias.map((noticia, index) => (
-          <NoticiaCard 
-            key={index}
-            index={index}
-            noticia={noticia} 
-            formatDate={formatDate}
-            getCategoryColor={getCategoryColor}
-            onGuardar={guardarComoNota}
-            guardando={guardando}
-          />
-        ))}
+        {/* Mostrar noticias pendientes */}
+        {(filtroEstado === 'pendientes' || filtroEstado === 'todas') && 
+          noticias
+            .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
+            .map((noticia, index) => (
+              <NoticiaCard 
+                key={`pendiente-${index}`}
+                index={index}
+                noticia={noticia} 
+                formatDate={formatDate}
+                getCategoryColor={getCategoryColor}
+                onGuardar={guardarComoNota}
+                guardando={guardando}
+                esGuardada={false}
+              />
+            ))
+        }
+        
+        {/* Mostrar noticias guardadas */}
+        {(filtroEstado === 'guardadas' || filtroEstado === 'todas') && 
+          noticiasGuardadas
+            .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
+            .map((noticia, index) => (
+              <NoticiaCard 
+                key={`guardada-${index}`}
+                index={index}
+                noticia={noticia} 
+                formatDate={formatDate}
+                getCategoryColor={getCategoryColor}
+                onGuardar={null}
+                guardando={null}
+                esGuardada={true}
+              />
+            ))
+        }
       </div>
 
       {noticias.length === 0 && (
@@ -162,7 +252,7 @@ const NoticiasAdmin = () => {
 };
 
 // Componente de tarjeta con el diseño exacto de las notas
-const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando }) => {
+const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando, esGuardada = false }) => {
   const categoryColor = getCategoryColor(noticia.source);
   const [imagenError, setImagenError] = useState(false);
   
@@ -199,9 +289,13 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
         <div className="flex justify-between items-start">
           {/* Datos de la izquierda */}
           <div className="flex flex-col gap-1">
-            {/* Etiqueta de estado - Pendiente de importar */}
-            <span className="px-2 py-1 text-xs rounded-full bg-yellow-500 text-white font-bold w-fit">
-              Pendiente
+            {/* Etiqueta de estado */}
+            <span className={`px-2 py-1 text-xs rounded-full font-bold w-fit ${
+              esGuardada 
+                ? 'bg-green-500 text-white' 
+                : 'bg-yellow-500 text-white'
+            }`}>
+              {esGuardada ? 'Guardada' : 'Pendiente'}
             </span>
             {/* Fecha */}
             <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-black/40 backdrop-blur-md text-white drop-shadow w-fit">
@@ -228,19 +322,33 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
             
             {/* Botones de acción */}
             <div className="flex gap-2 mt-2">
-              <button 
-                onClick={(e) => onGuardar(noticia, index, e)}
-                disabled={guardando === index}
-                className={`flex-1 px-3 py-1.5 rounded font-bold transition-colors text-xs ${
-                  guardando === index
-                    ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                }`}
+              {esGuardada ? (
+                <span className="flex-1 px-3 py-1.5 rounded font-bold text-xs bg-green-100 text-green-800 text-center">
+                  ✓ Ya guardada
+                </span>
+              ) : (
+                <button 
+                  onClick={(e) => onGuardar && onGuardar(noticia, index, e)}
+                  disabled={guardando === index}
+                  className={`flex-1 px-3 py-1.5 rounded font-bold transition-colors text-xs ${
+                    guardando === index
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {guardando === index ? 'Guardando...' : 'Guardar como Nota'}
+                </button>
+              )}
+              
+              <a 
+                href={noticia.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors text-xs text-center"
               >
-                {guardando === index ? 'Guardando...' : 'Guardar como Nota'}
-              </button>
-              
-              
+                Ver
+              </a>
             </div>
           </div>
         </div>

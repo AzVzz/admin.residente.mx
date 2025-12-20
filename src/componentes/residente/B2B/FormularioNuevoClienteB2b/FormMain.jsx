@@ -526,9 +526,9 @@ const FormMain = () => {
       }
 
       const requestBody = {
-        priceId: "price_1SY9IGRzQ7oLCa50mibJc2n3", // ✅ OBLIGATORIO
-        userData: userData, // ✅ OBLIGATORIO (el backend lo usa para crear el usuario)
-        customerEmail: formData.correo || "", // Opcional pero recomendado
+        // El priceId ahora se maneja en el backend (STRIPE_PRICE_ID_B2B en .env)
+        userData: userData, // el backend lo usa para crear el usuario
+        customerEmail: formData.correo || "", 
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
