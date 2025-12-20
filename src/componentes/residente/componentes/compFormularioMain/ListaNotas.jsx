@@ -76,6 +76,13 @@ const ListaNotas = () => {
   const [recetaEditando, setRecetaEditando] = useState(null);
   const [recargarListaRecetas, setRecargarListaRecetas] = useState(0);
 
+  // Estados para permisos de invitado
+  const [permisosInvitado, setPermisosInvitado] = useState({
+    permiso_notas: true,
+    permiso_recetas: true,
+    cargando: true,
+  });
+
   // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
   const notasPorPagina = 15;
@@ -111,6 +118,68 @@ const ListaNotas = () => {
       navigate(`/registro`, { replace: true });
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
+
+  // Verificar permisos de invitado usando la API
+  useEffect(() => {
+    const verificarPermisosInvitado = async () => {
+      // Solo verificar si el rol es "invitado"
+      if (usuario?.rol?.toLowerCase() !== "invitado") {
+        setPermisosInvitado({
+          permiso_notas: true,
+          permiso_recetas: true,
+          cargando: false,
+        });
+        return;
+      }
+
+      // Obtener el permiso del usuario (puede estar en localStorage o en usuario.permisos)
+      const permisoUsuario =
+        usuario?.permisos || localStorage.getItem("permisos");
+
+      if (!permisoUsuario) {
+        setPermisosInvitado({
+          permiso_notas: false,
+          permiso_recetas: false,
+          cargando: false,
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://admin.residente.mx/api/invitados/permiso/${encodeURIComponent(
+            permisoUsuario
+          )}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setPermisosInvitado({
+            permiso_notas: data.permiso_notas === 1,
+            permiso_recetas: data.permiso_recetas === 1,
+            cargando: false,
+          });
+          console.log("✅ Permisos de invitado cargados:", data);
+        } else {
+          console.warn("⚠️ No se pudieron obtener permisos de invitado");
+          setPermisosInvitado({
+            permiso_notas: false,
+            permiso_recetas: false,
+            cargando: false,
+          });
+        }
+      } catch (error) {
+        console.error("❌ Error al verificar permisos de invitado:", error);
+        setPermisosInvitado({
+          permiso_notas: false,
+          permiso_recetas: false,
+          cargando: false,
+        });
+      }
+    };
+
+    verificarPermisosInvitado();
+  }, [usuario]);
 
   const fetchTodasLasNotas = async () => {
     setCargando(true);
@@ -164,11 +233,11 @@ const ListaNotas = () => {
       if (usuario?.permisos !== "todos") {
         const tipoNotaUsuario =
           usuario?.permisos &&
-            usuario.permisos !== "usuario" &&
-            usuario.permisos !== "todo"
+          usuario.permisos !== "usuario" &&
+          usuario.permisos !== "todo"
             ? usuario.permisos
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())
             : "";
 
         if (tipoNotaUsuario) {
@@ -387,11 +456,43 @@ const ListaNotas = () => {
   useEffect(() => {
     const esAdmin =
       usuario?.permisos === "todos" || usuario?.permisos === "todo";
+    const esInvitadoLocal = usuario?.rol?.toLowerCase() === "invitado";
+
+    if (esAdmin) return; // Admin puede ver todo
+
+    // Para invitados, verificar permisos específicos
+    if (esInvitadoLocal && !permisosInvitado.cargando) {
+      // Si no tiene permiso para notas y está en notas, redirigir a recetas (si tiene permiso)
+      if (vistaActiva === "notas" && !permisosInvitado.permiso_notas) {
+        if (permisosInvitado.permiso_recetas) {
+          setVistaActiva("recetas");
+        }
+        return;
+      }
+      // Si no tiene permiso para recetas y está en recetas, redirigir a notas (si tiene permiso)
+      if (vistaActiva === "recetas" && !permisosInvitado.permiso_recetas) {
+        if (permisosInvitado.permiso_notas) {
+          setVistaActiva("notas");
+        }
+        return;
+      }
+      // Si está en una vista que no es notas ni recetas, redirigir a la primera permitida
+      if (vistaActiva !== "notas" && vistaActiva !== "recetas") {
+        if (permisosInvitado.permiso_notas) {
+          setVistaActiva("notas");
+        } else if (permisosInvitado.permiso_recetas) {
+          setVistaActiva("recetas");
+        }
+      }
+      return;
+    }
+
+    // Para otros usuarios no admin
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
       setVistaActiva("notas");
     }
-  }, [vistaActiva, usuario]);
+  }, [vistaActiva, usuario, permisosInvitado]);
 
   // Funciones de navegación local
   const irAPaginaAnterior = () => {
@@ -484,20 +585,21 @@ const ListaNotas = () => {
   const esB2B = usuario?.permisos === "b2b";
   const esInvitado = usuario?.rol === "invitado";
 
+  // Filtrar opciones del menú para invitados según sus permisos específicos
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(
-      (option) =>
-        usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
-        (option.key === "notas" ||
-          option.key === "recetas" ||
-          (option.key === "cupones" &&
-            !esInvitado &&
-            usuario?.rol !== "colaborador") ||
-          (esResidente && option.key === "restaurante_link") ||
-          (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-          (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
-    );
+        (option) =>
+          usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
+          (option.key === "notas" ||
+            option.key === "recetas" ||
+            (option.key === "cupones" &&
+              !esInvitado &&
+              usuario?.rol !== "colaborador") ||
+            (esResidente && option.key === "restaurante_link") ||
+            (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
+            (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+      );
 
   if (cargando) {
     return (
@@ -551,8 +653,8 @@ const ListaNotas = () => {
           )}
         </div>
 
-        {/* Menú de pestañas */}
-        {usuario?.rol !== "colaborador" && (
+        {/* Menú de pestañas - Solo mostrar si hay más de 1 opción */}
+        {usuario?.rol !== "colaborador" && menuOptions.length > 1 && (
           <div className="flex justify-start items-center gap-3 py-2 rounded-md">
             <Button
               aria-controls={open ? "fade-menu" : undefined}
@@ -601,7 +703,6 @@ const ListaNotas = () => {
           </div>
         )}
       </div>
-
       {/* Contenido de las pestañas */}
       <div>
         {vistaActiva === "notas" && (
@@ -720,10 +821,11 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaAnterior}
                             disabled={paginaActual === 1}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                              paginaActual === 1
                                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                              }`}
+                            }`}
                           >
                             ← Anterior
                           </button>
@@ -761,10 +863,11 @@ const ListaNotas = () => {
                                 <button
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
-                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                    numero === paginaActual
                                       ? "bg-blue-600 text-white"
                                       : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                    }`}
+                                  }`}
                                 >
                                   {numero}
                                 </button>
@@ -776,10 +879,11 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaSiguiente}
                             disabled={paginaActual === totalPaginas}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                              paginaActual === totalPaginas
                                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                              }`}
+                            }`}
                           >
                             Siguiente →
                           </button>
