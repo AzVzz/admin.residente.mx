@@ -582,33 +582,18 @@ const ListaNotas = () => {
   // Filtrar opciones del menú para invitados según sus permisos específicos
   const menuOptions = esAdmin
     ? todasLasOpciones
-    : todasLasOpciones.filter((option) => {
-        // Para usuarios B2B, ocultar todo
-        if (usuario?.rol === "b2b") return false;
-
-        // Para invitados, filtrar según permisos específicos
-        if (esInvitado) {
-          if (option.key === "notas") {
-            return permisosInvitado.permiso_notas;
-          }
-          if (option.key === "recetas") {
-            return permisosInvitado.permiso_recetas;
-          }
-          return false; // Ocultar todas las demás opciones para invitados
-        }
-
-        // Para otros roles (residente, colaborador, etc.)
-        return (
-          option.key === "notas" ||
-          option.key === "recetas" ||
-          (option.key === "cupones" &&
-            !esInvitado &&
-            usuario?.rol !== "colaborador") ||
-          (esResidente && option.key === "restaurante_link") ||
-          (usuario?.rol === "residente" && option.key === "ednl") ||
-          (usuario?.rol === "residente" && option.key === "codigos_admin")
-        );
-      });
+    : todasLasOpciones.filter(
+        (option) =>
+          usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
+          (option.key === "notas" ||
+            option.key === "recetas" ||
+            (option.key === "cupones" &&
+              !esInvitado &&
+              usuario?.rol !== "colaborador") ||
+            (esResidente && option.key === "restaurante_link") ||
+            (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
+            (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+      );
 
   if (cargando) {
     return (
@@ -759,7 +744,7 @@ const ListaNotas = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Nueva Colaboración
+                    Nueva Colaboración o Consejo
                   </Link>
                 ) : (
                   <Link
