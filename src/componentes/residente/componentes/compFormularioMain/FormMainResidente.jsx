@@ -482,6 +482,7 @@ const FormMainResidente = () => {
         estatus: estadoFinal,
         destacada: data.destacada || false,
         destacada_normal: data.destacada_normal || false,
+        destacada_invitado: data.destacada_invitado || 0,
         // NUEVO: Indicar si se debe actualizar la fecha
         actualizar_fecha: actualizarFecha,
         zonas: data.zonas,
