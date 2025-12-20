@@ -737,6 +737,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
+              <p className="text-sm text-black">El total es el costo de los beneficios seleccionados.</p>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
               <button
                 onClick={handleIrAPagar}
