@@ -683,25 +683,27 @@ const FormMainResidente = () => {
                   return null;
                 })()}
 
-                {/* Checkbox para destacada_invitado - siempre visible */}
-                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={watch("destacada_invitado") === 1}
-                      onChange={(e) => {
-                        setValue("destacada_invitado", e.target.checked ? 1 : 0);
-                      }}
-                      className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                    />
-                    <span className="ml-2 font-roman font-bold text-gray-700">
-                      ⭐ Marcar como nota destacada para invitados
-                    </span>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Las notas destacadas aparecen en secciones especiales del sitio
-                  </p>
-                </div>
+                {/* Checkbox para destacada_invitado - solo visible para usuarios con rol invitado */}
+                {(usuario?.rol?.toLowerCase() === 'invitado' || usuario?.rol?.toLowerCase() === 'invitados' || usuario?.permisos?.toLowerCase() === 'invitado' || usuario?.permisos?.toLowerCase() === 'invitados') && (
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={watch("destacada_invitado") === 1}
+                        onChange={(e) => {
+                          setValue("destacada_invitado", e.target.checked ? 1 : 0);
+                        }}
+                        className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+                      />
+                      <span className="ml-2 font-roman font-bold text-gray-700">
+                        ⭐ Marcar como nota destacada para invitados
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Las notas destacadas aparecen en secciones especiales del sitio
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <NombreRestaurante />
