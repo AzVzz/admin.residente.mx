@@ -44,6 +44,7 @@ import ListaTickets from "./ListaTickets";
 import FormularioReceta from "./FormularioReceta";
 import ListaRecetas from "./ListaRecetas";
 import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
+import NoticiasAdmin from "../NoticiasAdmin.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -468,6 +469,11 @@ const ListaNotas = () => {
       label: "Códigos",
       icon: <MdAdminPanelSettings className="mr-2" />,
     },
+    {
+      key: "noticias",
+      label: "Noticias",
+      icon: <IoNewspaper className="mr-2" />,
+    },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
@@ -872,6 +878,11 @@ const ListaNotas = () => {
                 setRecargarListaRecetas((prev) => prev + 1);
               }}
             />
+          </div>
+        )}
+        {vistaActiva === "noticias" && (
+          <div className="text-center text-lg">
+            <NoticiasAdmin />
           </div>
         )}
       </div>

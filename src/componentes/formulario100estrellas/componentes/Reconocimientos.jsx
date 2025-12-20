@@ -5,14 +5,24 @@ const Reconocimientos = ({ numero }) => {
     const { register, watch, setValue, formState: { errors } } = useFormContext();
 
     // Obtener los valores iniciales para este reconocimiento
-    const reconocimientoInicial = watch(`reconocimientos.${numero - 1}.titulo`) || "";
-    const fechaInicial = watch(`reconocimientos.${numero - 1}.fecha`) || "";
+    // Primero buscar en formato plano (reconocimiento_1), luego en formato anidado (reconocimientos.0.titulo)
+    const valorPlano = watch(`reconocimiento_${numero}`);
+    const valorAnidado = watch(`reconocimientos.${numero - 1}.titulo`);
+    const reconocimientoInicial = valorPlano || valorAnidado || "";
 
-    // Inicializar valores al cargar
+    const fechaPlana = watch(`fecha_reconocimiento_${numero}`);
+    const fechaAnidada = watch(`reconocimientos.${numero - 1}.fecha`);
+    const fechaInicial = fechaPlana || fechaAnidada || "";
+
+    // Inicializar valores al cargar (solo si hay valores anidados y no hay valores planos)
     useEffect(() => {
-        setValue(`reconocimiento_${numero}`, reconocimientoInicial);
-        setValue(`fecha_reconocimiento_${numero}`, fechaInicial);
-    }, [numero, reconocimientoInicial, fechaInicial, setValue]);
+        if (!valorPlano && valorAnidado) {
+            setValue(`reconocimiento_${numero}`, valorAnidado);
+        }
+        if (!fechaPlana && fechaAnidada) {
+            setValue(`fecha_reconocimiento_${numero}`, fechaAnidada);
+        }
+    }, [numero, valorPlano, valorAnidado, fechaPlana, fechaAnidada, setValue]);
 
     // Validaciones condicionales
     const validations = {

@@ -156,6 +156,17 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       });
     }
 
+    // Inicializar campos de reconocimientos
+    if (restaurante?.reconocimientos) {
+      restaurante.reconocimientos.forEach((reconocimiento, index) => {
+        const num = index + 1;
+        if (num <= 5) {
+          defaults[`reconocimiento_${num}`] = reconocimiento.titulo || "";
+          defaults[`fecha_reconocimiento_${num}`] = reconocimiento.fecha?.toString() || "";
+        }
+      });
+    }
+
     // Inicializar campos de razones (cinco razones)
     for (let i = 1; i <= 5; i++) {
       const razon = restaurante?.razones?.[i - 1];

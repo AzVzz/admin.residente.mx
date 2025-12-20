@@ -42,6 +42,7 @@ import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx";
 import Registro from "./componentes/residente/Registro.jsx";
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
+import SuccessTienda from "./componentes/residente/B2B/SuccessTienda.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -642,6 +643,12 @@ function App() {
                     </div>
                   </B2BRoute>
                 }
+              />
+
+              {/* Ruta de éxito después de pago en tienda B2B */}
+              <Route
+                path="/success-tienda"
+                element={<SuccessTienda />}
               />
 
               <Route
