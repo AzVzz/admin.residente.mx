@@ -109,6 +109,8 @@ const FormMainResidente = () => {
       categoriasSeleccionadas: {},
       imagen: null,
       instafoto: null,
+      programarInstafoto: false,
+      fechaProgramadaInstafoto: "",
       destacada: false,
       tiposDeNotaSeleccionadas: "",
       zonas: [],
@@ -378,6 +380,23 @@ const FormMainResidente = () => {
             opcionPublicacion = "programar";
           }
 
+          // --- CONVERSIÓN DE FECHA INSTAFOTO ---
+          let fechaProgramadaInstafoto = "";
+          if (data.programar_insta_imagen) {
+            try {
+              const fechaInsta = new Date(data.programar_insta_imagen);
+              const anioInsta = fechaInsta.getFullYear();
+              const mesInsta = String(fechaInsta.getMonth() + 1).padStart(2, "0");
+              const diaInsta = String(fechaInsta.getDate()).padStart(2, "0");
+              const horasInsta = String(fechaInsta.getHours()).padStart(2, "0");
+              const minutosInsta = String(fechaInsta.getMinutes()).padStart(2, "0");
+              fechaProgramadaInstafoto = `${anioInsta}-${mesInsta}-${diaInsta}T${horasInsta}:${minutosInsta}`;
+            } catch (e) {
+              console.error("Error convirtiendo fecha instafoto:", e);
+              fechaProgramadaInstafoto = "";
+            }
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
@@ -410,6 +429,8 @@ const FormMainResidente = () => {
             seo_keyword: data.seo_keyword || "",
             meta_description: data.meta_description || "",
             destacada_invitado: data.destacada_invitado || 0,
+            programarInstafoto: !!data.programar_insta_imagen,
+            fechaProgramadaInstafoto: fechaProgramadaInstafoto,
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -501,6 +522,13 @@ const FormMainResidente = () => {
 
       // Guardar nombre_restaurante SIEMPRE
       datosNota.nombre_restaurante = data.nombre_restaurante || null;
+
+      // Programar instafoto
+      if (data.programarInstafoto && data.fechaProgramadaInstafoto) {
+        datosNota.programar_insta_imagen = data.fechaProgramadaInstafoto;
+      } else {
+        datosNota.programar_insta_imagen = null;
+      }
 
       let resultado;
       if (notaId) {
