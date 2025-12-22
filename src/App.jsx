@@ -43,6 +43,7 @@ import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoCli
 import Registro from "./componentes/residente/Registro.jsx";
 import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx";
 import SuccessTienda from "./componentes/residente/B2B/SuccessTienda.jsx";
+import InstaRecomendacionesPage from "./componentes/residente/InstaHistory/InstaHistoryRecomendaciones/InstaRecomendacionesPage.jsx";
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -428,6 +429,15 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <InstaHistoryPage />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/instarecomendaciones"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <InstaRecomendacionesPage />
                   </div>
                 }
               />
