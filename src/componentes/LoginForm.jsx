@@ -69,8 +69,8 @@ export default function LoginForm({
 
     try {
       const respuesta = await loginPost(identificador, password);
-      saveToken(respuesta.token);
-      saveUsuario(respuesta.usuario);
+      saveUsuario(respuesta.usuario);   // primero usuario
+      saveToken(respuesta.token);       // luego token -> syncToCookies encontrará usuario
       setSuccess(true);
 
       onSuccess?.(respuesta);
