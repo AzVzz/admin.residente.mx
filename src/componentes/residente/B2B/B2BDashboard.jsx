@@ -118,7 +118,7 @@ const B2BDashboard = () => {
     fetchProductos();
   }, []);
 
-  // Actualizar fecha automáticamente cada minuto
+  // Actualizar fecha automáticamente cada mínuto
   useEffect(() => {
     const interval = setInterval(() => {
       setFechaActual(new Date());
