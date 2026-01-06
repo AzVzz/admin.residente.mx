@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
@@ -34,24 +34,6 @@ import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
 import SearchNotasLocal from "./SearchNotasLocal";
-<<<<<<< Updated upstream
-import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
-import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
-import VideosDashboard from "./VideosDashboard.jsx";
-import FormNewsletter from "./FormNewsletter.jsx";
-import InfografiaForm from "../../infografia/InfografiaForm.jsx";
-import ListaNotasUanl from "./ListaNotasUanl.jsx";
-import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
-import ListaTickets from "./ListaTickets";
-import FormularioReceta from "./FormularioReceta";
-import ListaRecetas from "./ListaRecetas";
-import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
-import NoticiasAdmin from "../NoticiasAdmin.jsx";
-import ClientesVetados from "../ClientesVetados.jsx";
-=======
-
-// 🚀 LAZY LOADING: Cargar componentes pesados solo cuando se necesitan
-import { lazy, Suspense } from "react";
 
 const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
 const FormularioRevistaBannerNueva = lazy(() => import("./FormularioRevistaBanner.jsx"));
@@ -65,6 +47,7 @@ const FormularioReceta = lazy(() => import("./FormularioReceta"));
 const ListaRecetas = lazy(() => import("./ListaRecetas"));
 const ListaBlogsColaborador = lazy(() => import("./ListaBlogsColaborador.jsx"));
 const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
+const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -75,7 +58,6 @@ const LazyFallback = () => (
     <span className="ml-3 text-gray-500">Cargando...</span>
   </div>
 );
->>>>>>> Stashed changes
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -687,14 +669,14 @@ const ListaNotas = () => {
       {credencialesNuevas && createPortal(
         <>
           {/* Overlay */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/60"
             style={{ zIndex: 9998 }}
             onClick={cerrarBannerCredenciales}
           />
-          
+
           {/* Modal */}
-          <div 
+          <div
             className="fixed inset-0 flex items-center justify-center pointer-events-none"
             style={{ zIndex: 9999 }}
           >
@@ -705,7 +687,7 @@ const ListaNotas = () => {
                   Credenciales de Acceso
                 </h2>
               </div>
-              
+
               {/* Content */}
               <div className="px-6 py-5">
                 <div className="space-y-4">
@@ -727,7 +709,7 @@ const ListaNotas = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Footer */}
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
                 <button
