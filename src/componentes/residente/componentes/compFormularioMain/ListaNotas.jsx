@@ -1,14 +1,6 @@
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
-import useDebounce from "../../../../hooks/useDebounce";
-
-// Componente de fallback para Suspense
-const LazyFallback = () => (
-  <div className="flex justify-center py-12">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-  </div>
-);
 import {
   Link,
   useLocation,
