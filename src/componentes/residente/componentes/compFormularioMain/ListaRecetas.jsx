@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
+import useSWR from "swr";
 import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
 import { FaTrash, FaEdit, FaCopy, FaEllipsisV } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
 
 import { useAuth } from "../../../Context";
 
+// 🚀 Fetcher para SWR
+const fetchRecetas = async () => {
+  const data = await recetasGetTodas(1, 100);
+  return Array.isArray(data) ? data : [];
+};
+
 const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const { usuario } = useAuth();
-  const [recetas, setRecetas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(null);
 
@@ -17,55 +21,48 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const [paginaActual, setPaginaActual] = useState(1);
   const recetasPorPagina = 15;
 
-  useEffect(() => {
-    cargarRecetas();
-  }, []);
-
-  const cargarRecetas = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // 🚀 OPTIMIZADO: Límite de 100 recetas
-      const data = await recetasGetTodas(1, 100);
-      let recetasData = Array.isArray(data) ? data : [];
-
-      // Filtrar por permisos si no es admin
-      if (
-        usuario?.permisos &&
-        usuario.permisos !== "todos" &&
-        usuario.permisos !== "todo"
-      ) {
-        // Normalizar permiso: 'mama-de-rocco' -> 'Mama De Rocco' (aprox) o usar mapeo específico
-        // En ListaNotas usan replace(/-/g, ' ') y Title Case.
-        // Vamos a intentar coincidir con 'autor' o 'categoria'
-
-        const permiso = usuario.permisos.toLowerCase();
-        // Mapeo específico si es necesario, similar a ListaNotas
-        const mapeoPermisos = {
-          "mama-de-rocco": "Mamá de Rocco", // Ajustar según lo que devuelve el backend en receta.autor
-        };
-
-        const permisoNormalizado =
-          mapeoPermisos[usuario.permisos] ||
-          usuario.permisos.replace(/-/g, " ");
-
-        recetasData = recetasData.filter((receta) => {
-          const autor = (receta.autor || "").toLowerCase();
-          const permisoLower = permisoNormalizado.toLowerCase();
-          return (
-            autor.includes(permisoLower) ||
-            autor.includes(permiso.replace(/-/g, " "))
-          );
-        });
-      }
-
-      setRecetas(recetasData);
-    } catch (err) {
-      setError(err.message || "Error al cargar las recetas");
-    } finally {
-      setLoading(false);
+  // 🚀 SWR: Cache automático (5 minutos), revalidación en background
+  const { data: recetasData, error, isLoading, mutate } = useSWR(
+    "recetas-lista",
+    fetchRecetas,
+    {
+      dedupingInterval: 5 * 60 * 1000, // 5 minutos sin duplicar requests
+      revalidateOnFocus: false, // No revalidar al enfocar ventana
+      revalidateOnReconnect: false,
+      keepPreviousData: true, // Mantener datos mientras revalida
     }
-  };
+  );
+
+  // Filtrar por permisos si no es admin
+  const recetas = useMemo(() => {
+    if (!recetasData) return [];
+
+    if (
+      usuario?.permisos &&
+      usuario.permisos !== "todos" &&
+      usuario.permisos !== "todo"
+    ) {
+      const permiso = usuario.permisos.toLowerCase();
+      const mapeoPermisos = {
+        "mama-de-rocco": "Mamá de Rocco",
+      };
+
+      const permisoNormalizado =
+        mapeoPermisos[usuario.permisos] ||
+        usuario.permisos.replace(/-/g, " ");
+
+      return recetasData.filter((receta) => {
+        const autor = (receta.autor || "").toLowerCase();
+        const permisoLower = permisoNormalizado.toLowerCase();
+        return (
+          autor.includes(permisoLower) ||
+          autor.includes(permiso.replace(/-/g, " "))
+        );
+      });
+    }
+
+    return recetasData;
+  }, [recetasData, usuario?.permisos]);
 
   const handleEliminar = async (id) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta receta?")) return;
@@ -73,7 +70,11 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     setMenuAbierto(null);
     try {
       await recetaBorrar(id);
-      setRecetas(recetas.filter((r) => r.id !== id));
+      // 🚀 Refrescar cache de SWR (optimistic update)
+      mutate(
+        recetasData.filter((r) => r.id !== id),
+        false // No revalidar inmediatamente
+      );
       if (onRecetaEliminada) {
         onRecetaEliminada();
       }
@@ -82,6 +83,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
       alert(
         "Error al borrar la receta: " + (err.message || "Error desconocido")
       );
+      // Revalidar en caso de error
+      mutate();
     } finally {
       setEliminando(null);
     }
@@ -252,7 +255,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-6 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -264,7 +267,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        {error}
+        {error.message || "Error al cargar las recetas"}
       </div>
     );
   }
