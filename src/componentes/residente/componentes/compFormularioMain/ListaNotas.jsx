@@ -732,8 +732,8 @@ const ListaNotas = () => {
             Dashboard de Administración
           </h1>
 
-          {/* Credenciales - se muestra si existen o si hay usuario */}
-          {(credencialesNuevas || usuario) && (
+          {/* Credenciales - solo para invitados y colaboradores */}
+          {(credencialesNuevas || (usuario && (usuario.rol?.toLowerCase() === "invitado" || usuario.rol?.toLowerCase() === "colaborador"))) && (
             <div className="flex items-center gap-2">
               <p className="text-sm text-black font-roman">
                 <span className="font-bold">Usuario:</span> {credencialesNuevas?.nombre_usuario || usuario?.nombre_usuario}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { consejerosPost } from "../../../api/consejerosApi.js";
+import { loginPost } from "../../../api/loginPost";
+import { useAuth } from "../../../Context";
 import { useNavigate } from "react-router-dom";
 import DirectorioVertical from "../../../residente/componentes/componentesColumna2/DirectorioVertical";
 import Infografia from "../../../residente/componentes/componentesColumna1/Infografia";
@@ -8,6 +10,7 @@ import BotonesAnunciateSuscribirme from "../../../residente/componentes/componen
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 
 const OpinionEditorial = () => {
+  const { saveToken, saveUsuario } = useAuth();
   const [formData, setFormData] = useState({
     nombre_usuario: "",
     password: "",
@@ -245,8 +248,15 @@ const OpinionEditorial = () => {
 
       setMessage({
         type: "success",
-        text: "¡Registro enviado exitosamente! Te contactaremos pronto.",
+        text: "¡Registro exitoso! Iniciando sesión automáticamente...",
       });
+
+      // Guardar credenciales para usar en login automático
+      const credencialesParaLogin = {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+      };
+
       setFormData({
         nombre_usuario: "",
         password: "",
@@ -264,10 +274,35 @@ const OpinionEditorial = () => {
       setFotografia(null);
       setFotoPreview(null);
 
-      // Redirige después de 2 segundos
-      setTimeout(() => {
-        navigate("/registro");
-      }, 2000);
+      // Login automático
+      try {
+        const respuesta = await loginPost(credencialesParaLogin.nombre_usuario, credencialesParaLogin.password);
+        saveToken(respuesta.token);
+        saveUsuario(respuesta.usuario);
+
+        // Guardar credenciales temporalmente para mostrar en el dashboard
+        sessionStorage.setItem(
+          "credenciales_nuevas",
+          JSON.stringify({
+            nombre_usuario: respuesta.usuario.nombre_usuario,
+            password: credencialesParaLogin.password,
+          })
+        );
+
+        // Redirigir al dashboard
+        setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 1500);
+      } catch (loginErr) {
+        // Si falla el login automático, redirigir al login manual
+        setMessage({
+          type: "success",
+          text: "¡Registro exitoso! Redirigiendo al login...",
+        });
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
     } catch (error) {
       console.error("Error catch:", error);
       let errorMsg = "Error al enviar el formulario.";
