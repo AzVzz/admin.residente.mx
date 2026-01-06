@@ -1,8 +1,25 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+// Rutas que NO deben tener el viewport ajustado (usan viewport móvil normal)
+const RUTAS_VIEWPORT_NORMAL = ['/registrob2b', '/registroinvitados', '/registrocolaboradores'];
 
 const ViewportAdjuster = () => {
+    const location = useLocation();
+
     useEffect(() => {
         const updateViewport = () => {
+            const currentPath = window.location.pathname;
+            let viewportMeta = document.querySelector('meta[name="viewport"]');
+            
+            // Si estamos en una ruta que necesita viewport normal, no ajustar
+            if (RUTAS_VIEWPORT_NORMAL.includes(currentPath)) {
+                if (viewportMeta) {
+                    viewportMeta.content = 'width=device-width, initial-scale=1, user-scalable=yes';
+                }
+                return;
+            }
+
             const viewportWidth = window.innerWidth;
             const userAgent = navigator.userAgent.toLowerCase();
             let viewportContent = 'width=device-width, initial-scale=1, user-scalable=yes';
@@ -20,13 +37,13 @@ const ViewportAdjuster = () => {
             }
 
             // Actualizar el meta viewport
-            let viewportMeta = document.querySelector('meta[name="viewport"]');
             if (viewportMeta) {
                 viewportMeta.content = viewportContent;
             }
         };
 
-        // Ejecutar al cargar
+        // Ejecutar al cargar y cuando cambia la ruta
+        updateViewport();
         setTimeout(updateViewport, 100); // Pequeño retraso para asegurar que el DOM esté listo
 
         // Escuchar cambios
@@ -37,7 +54,7 @@ const ViewportAdjuster = () => {
             window.removeEventListener('resize', updateViewport);
             window.removeEventListener('orientationchange', updateViewport);
         };
-    }, []);
+    }, [location.pathname]); // Re-ejecutar cuando cambia la ruta
 
     return null;
 };

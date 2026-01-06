@@ -686,7 +686,11 @@ function App() {
         <BotonScroll />
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" && (
-            <footer>
+            <footer className={
+              location.pathname === "/registrob2b" || location.pathname === "/registroinvitados" || location.pathname === "/registrocolaboradores"
+                ? "hidden sm:block" 
+                : ""
+            }>
               <FooterPrincipal />
             </footer>
           )}

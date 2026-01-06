@@ -130,7 +130,8 @@ const NoticiasAdmin = () => {
           publishedAt: noticia.publishedAt,
           source: noticia.source,
           author: noticia.author,
-          usuario_id: usuario?.id
+          usuario_id: usuario?.id,
+          url: noticia.url  
         })
       });
 
@@ -258,7 +259,7 @@ const NoticiasAdmin = () => {
         </div>
       )}
 
-      {/* ============ TAB NOTICIAS ============ */}
+    
       {tabActiva === 'noticias' && (
         <>
           {/* Filtros */}
@@ -330,7 +331,7 @@ const NoticiasAdmin = () => {
         </>
       )}
 
-      {/* ============ TAB MIS NOTAS GUARDADAS ============ */}
+     
       {tabActiva === 'guardadas' && (
         <>
           {loadingNotas ? (
@@ -339,7 +340,7 @@ const NoticiasAdmin = () => {
               <p className="text-gray-600 font-roman">Cargando tus notas guardadas...</p>
             </div>
           ) : notaSeleccionada ? (
-            /* ========== VISTA DE EDICIÓN DE NOTA (SIN POPUP) ========== */
+           
             <EditarNoticia 
               nota={notaSeleccionada}
               onVolver={() => setNotaSeleccionada(null)}

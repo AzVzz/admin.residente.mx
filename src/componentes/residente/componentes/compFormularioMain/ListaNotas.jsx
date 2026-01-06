@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
   Link,
@@ -45,6 +46,7 @@ import FormularioReceta from "./FormularioReceta";
 import ListaRecetas from "./ListaRecetas";
 import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
 import NoticiasAdmin from "../NoticiasAdmin.jsx";
+import ClientesVetados from "../ClientesVetados.jsx";
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -82,6 +84,28 @@ const ListaNotas = () => {
     permiso_recetas: true,
     cargando: true,
   });
+
+  // Estado para mostrar credenciales de nuevo usuario
+  const [credencialesNuevas, setCredencialesNuevas] = useState(null);
+
+  // Verificar si hay credenciales nuevas en sessionStorage
+  useEffect(() => {
+    const credencialesGuardadas = sessionStorage.getItem("credenciales_nuevas");
+    if (credencialesGuardadas) {
+      try {
+        const datos = JSON.parse(credencialesGuardadas);
+        setCredencialesNuevas(datos);
+      } catch (e) {
+        console.error("Error parseando credenciales:", e);
+      }
+    }
+  }, []);
+
+  // Función para cerrar el banner de credenciales
+  const cerrarBannerCredenciales = () => {
+    sessionStorage.removeItem("credenciales_nuevas");
+    setCredencialesNuevas(null);
+  };
 
   // Estados para paginación local
   const [paginaActual, setPaginaActual] = useState(1);
@@ -571,8 +595,8 @@ const ListaNotas = () => {
       icon: <MdAdminPanelSettings className="mr-2" />,
     },
     {
-      key: "noticias",
-      label: "Noticias",
+      key: "vetados",
+      label: "Restringidos",
       icon: <IoNewspaper className="mr-2" />,
     },
   ];
@@ -624,12 +648,85 @@ const ListaNotas = () => {
 
   return (
     <div className="space-y-6 py-5">
+      {/* Popup de credenciales para nuevos usuarios - usando Portal */}
+      {credencialesNuevas && createPortal(
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/60"
+            style={{ zIndex: 9998 }}
+            onClick={cerrarBannerCredenciales}
+          />
+          
+          {/* Modal */}
+          <div 
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              {/* Header */}
+              <div className="bg-[#fff200] px-6 py-4">
+                <h2 className="text-xl font-bold text-black font-roman">
+                  Credenciales de Acceso
+                </h2>
+              </div>
+              
+              {/* Content */}
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Nombre de usuario
+                    </label>
+                    <p className="text-2xl font-bold text-black font-roman">
+                      {credencialesNuevas.nombre_usuario}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Contraseña
+                    </label>
+                    <p className="text-sm text-black font-roman">
+                      Usa la misma contraseña que usaste para registrarte.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={cerrarBannerCredenciales}
+                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* Encabezado */}
       <div className="flex flex-col gap-5 justify-between">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-black rounded-2xl py-1">
             Dashboard de Administración
           </h1>
+
+          {/* Credenciales - se muestra si existen o si hay usuario */}
+          {(credencialesNuevas || usuario) && (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-black font-roman">
+                <span className="font-bold">Usuario:</span> {credencialesNuevas?.nombre_usuario || usuario?.nombre_usuario}
+              </p>
+              <p className="text-sm text-black font-roman">
+                <span className="font-bold">Contraseña:</span> La misma que usaste para el registro
+              </p>
+            </div>
+          )}
+
           {usuario && (
             <div className="flex items-center gap-5">
               <button
@@ -984,9 +1081,9 @@ const ListaNotas = () => {
             />
           </div>
         )}
-        {vistaActiva === "noticias" && (
-          <div className="text-center text-lg">
-            <NoticiasAdmin />
+        {vistaActiva === "vetados" && (
+          <div className="w-full">
+            <ClientesVetados />
           </div>
         )}
       </div>
