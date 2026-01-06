@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
@@ -7,6 +7,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import useDebounce from "../../../../hooks/useDebounce";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { FaUser, FaStore, FaStar } from "react-icons/fa6";
@@ -47,6 +48,12 @@ import ListaRecetas from "./ListaRecetas";
 import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
 import NoticiasAdmin from "../NoticiasAdmin.jsx";
 import ClientesVetados from "../ClientesVetados.jsx";
+
+const LazyFallback = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+);
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
