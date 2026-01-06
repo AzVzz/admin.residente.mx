@@ -34,13 +34,15 @@
     "react-icons": "5.5.0",
     "react-router-dom": "7.6.0",
     "react-slick": "0.30.3",
+    "react-window": "^2.2.4",
     "slick-carousel": "1.8.1",
+    "swr": "^2.3.8",
     "tailwindcss": "4.1.11",
     "use-fit-text": "2.4.0"
   },
   "devDependencies": {
-    "@swc/core": "1.10.7",
     "@eslint/js": "9.33.0",
+    "@swc/core": "1.10.7",
     "@types/react": "19.1.2",
     "@types/react-dom": "19.1.2",
     "@vitejs/plugin-react-swc": "3.9.0",

@@ -1,13 +1,13 @@
 import { urlApi } from './url.js';
 
-// Obtener todas las recetas
-export async function recetasGetTodas(page = 1, limit = 1000) {
+// Obtener todas las recetas (límite optimizado para reducir tráfico)
+export async function recetasGetTodas(page = 1, limit = 100) {
     const response = await fetch(`${urlApi}api/recetas?page=${page}&limit=${limit}`);
     if (!response.ok) {
         throw new Error('Error al obtener las recetas');
     }
     const data = await response.json();
-    
+
     // Manejar diferentes formatos de respuesta
     if (Array.isArray(data)) {
         // Si la respuesta es directamente un array
