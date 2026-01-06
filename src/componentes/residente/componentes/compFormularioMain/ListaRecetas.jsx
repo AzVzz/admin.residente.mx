@@ -21,7 +21,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await recetasGetTodas(1, 1000);
+      // 🚀 OPTIMIZADO: Límite de 100 recetas
+      const data = await recetasGetTodas(1, 100);
       let recetasData = Array.isArray(data) ? data : [];
 
       // Filtrar por permisos si no es admin
