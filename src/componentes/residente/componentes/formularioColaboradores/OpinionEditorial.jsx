@@ -274,9 +274,14 @@ const OpinionEditorial = () => {
       setFotografia(null);
       setFotoPreview(null);
 
+      // Esperar un momento para que el backend procese el registro
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Login automático
       try {
+        console.log("Intentando login con:", credencialesParaLogin.nombre_usuario);
         const respuesta = await loginPost(credencialesParaLogin.nombre_usuario, credencialesParaLogin.password);
+        console.log("Login exitoso:", respuesta);
         saveToken(respuesta.token);
         saveUsuario(respuesta.usuario);
 
@@ -289,11 +294,17 @@ const OpinionEditorial = () => {
           })
         );
 
+        setMessage({
+          type: "success",
+          text: "¡Login exitoso! Redirigiendo al dashboard...",
+        });
+
         // Redirigir al dashboard
         setTimeout(() => {
           navigate("/dashboard", { replace: true });
         }, 1500);
       } catch (loginErr) {
+        console.error("Error en login automático:", loginErr);
         // Si falla el login automático, redirigir al login manual
         setMessage({
           type: "success",
