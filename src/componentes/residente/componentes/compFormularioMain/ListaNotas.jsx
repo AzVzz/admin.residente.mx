@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
@@ -35,19 +35,30 @@ import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
 import SearchNotasLocal from "./SearchNotasLocal";
-import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
-import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
-import VideosDashboard from "./VideosDashboard.jsx";
-import FormNewsletter from "./FormNewsletter.jsx";
-import InfografiaForm from "../../infografia/InfografiaForm.jsx";
-import ListaNotasUanl from "./ListaNotasUanl.jsx";
-import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
-import ListaTickets from "./ListaTickets";
-import FormularioReceta from "./FormularioReceta";
-import ListaRecetas from "./ListaRecetas";
-import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
-import NoticiasAdmin from "../NoticiasAdmin.jsx";
-import ClientesVetados from "../ClientesVetados.jsx";
+
+const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
+const FormularioRevistaBannerNueva = lazy(() => import("./FormularioRevistaBanner.jsx"));
+const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
+const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
+const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
+const ListaNotasUanl = lazy(() => import("./ListaNotasUanl.jsx"));
+const ListaNotasUsuarios = lazy(() => import("./ListaNotasUsuarios.jsx"));
+const ListaTickets = lazy(() => import("./ListaTickets"));
+const FormularioReceta = lazy(() => import("./FormularioReceta"));
+const ListaRecetas = lazy(() => import("./ListaRecetas"));
+const ListaBlogsColaborador = lazy(() => import("./ListaBlogsColaborador.jsx"));
+const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
+const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
+
+import useDebounce from "../../../../hooks/useDebounce";
+
+// Componente de fallback para lazy loading
+const LazyFallback = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    <span className="ml-3 text-gray-500">Cargando...</span>
+  </div>
+);
 
 const LazyFallback = () => (
   <div className="flex justify-center items-center py-12">
@@ -665,14 +676,14 @@ const ListaNotas = () => {
       {credencialesNuevas && createPortal(
         <>
           {/* Overlay */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/60"
             style={{ zIndex: 9998 }}
             onClick={cerrarBannerCredenciales}
           />
-          
+
           {/* Modal */}
-          <div 
+          <div
             className="fixed inset-0 flex items-center justify-center pointer-events-none"
             style={{ zIndex: 9999 }}
           >
@@ -683,7 +694,7 @@ const ListaNotas = () => {
                   Credenciales de Acceso
                 </h2>
               </div>
-              
+
               {/* Content */}
               <div className="px-6 py-5">
                 <div className="space-y-4">
@@ -705,7 +716,7 @@ const ListaNotas = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Footer */}
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
                 <button
