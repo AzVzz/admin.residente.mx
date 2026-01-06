@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, lazy, Suspense } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
@@ -59,6 +59,11 @@ const LazyFallback = () => (
   </div>
 );
 
+const mapeoPermisosATipoNota = {
+  "mama-de-rocco": "Mamá de Rocco",
+  "barrio-antiguo": "Barrio Antiguo",
+};
+
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -76,12 +81,15 @@ const ListaNotas = () => {
   // Función para cambiar vistaActiva y actualizar URL
   const setVistaActiva = (vista) => {
     setVistaActivaInternal(vista);
-    setSearchParams({ vista });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("vista", vista);
+    setSearchParams(newParams);
   };
   const [estado, setEstado] = useState("");
   const [tipoCliente, setTipoCliente] = useState("");
   const [autor, setAutor] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [recetaKey, setRecetaKey] = useState(0);
@@ -118,9 +126,39 @@ const ListaNotas = () => {
     setCredencialesNuevas(null);
   };
 
-  // Estados para paginación local
-  const [paginaActual, setPaginaActual] = useState(1);
+  // Leer página inicial de URL
+  const paginaInicial = parseInt(searchParams.get("pageNotas")) || 1;
+
+  // Estados para paginación del servidor
+  const [paginaActual, setPaginaActualInternal] = useState(paginaInicial);
+  const [totalNotas, setTotalNotas] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(0);
   const notasPorPagina = 15;
+
+  // Función para cambiar página y actualizar URL
+  const setPaginaActual = useCallback((pagina) => {
+    const nuevaPagina = typeof pagina === 'function' ? pagina(paginaActual) : pagina;
+    setPaginaActualInternal(nuevaPagina);
+
+    // Actualizar URL manteniendo otros params
+    const newParams = new URLSearchParams(searchParams);
+    if (nuevaPagina === 1) {
+      newParams.delete("pageNotas");
+    } else {
+      newParams.set("pageNotas", nuevaPagina.toString());
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [paginaActual, searchParams, setSearchParams]);
+
+  // 🚀 CACHE: Almacena las páginas ya cargadas
+  const cacheRef = useRef(new Map());
+  const prefetchingRef = useRef(false);
+  const isFirstRun = useRef(true);
+
+  // Función para generar clave de caché
+  const getCacheKey = useCallback((page, filtros) => {
+    return `${page}-${JSON.stringify(filtros)}`;
+  }, []);
 
   //
   useEffect(() => {
@@ -216,7 +254,22 @@ const ListaNotas = () => {
     verificarPermisosInvitado();
   }, [usuario]);
 
-  const fetchTodasLasNotas = async () => {
+  // Construir filtros actuales
+  const buildFiltros = useCallback(() => {
+    const filtros = {};
+    if (estado) filtros.estatus = estado;
+    if (autor) filtros.autor = autor;
+    if (tipoCliente) {
+      const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente] || tipoCliente;
+      filtros.tipo_nota = tipoNotaEsperado;
+    }
+    if (debouncedSearchTerm?.trim()) {
+      filtros.q = debouncedSearchTerm.trim();
+    }
+    return filtros;
+  }, [estado, autor, tipoCliente, debouncedSearchTerm]);
+
+  const fetchTodasLasNotas = async (usarCache = true) => {
     setCargando(true);
     setError(null);
     try {
@@ -249,8 +302,23 @@ const ListaNotas = () => {
         return; // Salir sin hacer la llamada a la API
       }
 
-      // Cargar todas las notas sin paginación
-      const data = await notasTodasGet(token, 1, "all");
+      // Construir filtros para la API
+      const filtros = buildFiltros();
+      const cacheKey = getCacheKey(paginaActual, filtros);
+
+      // Si está en caché y podemos usarla, retornar inmediatamente
+      if (usarCache && cacheRef.current.has(cacheKey)) {
+        const cached = cacheRef.current.get(cacheKey);
+        setNotas(cached.notas);
+        setTodasLasNotas(cached.notas);
+        setTotalNotas(cached.total);
+        setTotalPaginas(cached.totalPages);
+        setCargando(false);
+        return cached;
+      }
+
+      // Cargar notas con paginación del servidor
+      const data = await notasTodasGet(token, paginaActual, notasPorPagina, "", filtros);
 
       // Validar respuesta del servidor
       if (!data) {
@@ -310,9 +378,20 @@ const ListaNotas = () => {
         }
       }
 
+      // Guardar en caché
+      const resultadoCache = {
+        notas: notasFiltradas,
+        total: data.total || notasFiltradas.length,
+        totalPages: data.totalPages || Math.ceil((data.total || notasFiltradas.length) / notasPorPagina)
+      };
+      cacheRef.current.set(cacheKey, resultadoCache);
+
       setTodasLasNotas(notasFiltradas);
       setNotas(notasFiltradas);
-      setPaginaActual(1); // Resetear a página 1 al cargar
+      setTotalNotas(resultadoCache.total);
+      setTotalPaginas(resultadoCache.totalPages);
+
+      return resultadoCache;
     } catch (err) {
       console.error("Error detallado:", err);
       console.error("Mensaje del error:", err.message);
@@ -355,11 +434,7 @@ const ListaNotas = () => {
     }
   };
 
-  useEffect(() => {
-    if (!token) return;
-    fetchTodasLasNotas();
-    // eslint-disable-next-line
-  }, [token, usuario]);
+  // La carga inicial se maneja en el useEffect que depende de paginaActual y filtros
 
   const eliminarNota = async (id) => {
     setEliminando(id);
@@ -373,10 +448,7 @@ const ListaNotas = () => {
     }
   };
 
-  const mapeoPermisosATipoNota = {
-    "mama-de-rocco": "Mamá de Rocco",
-    "barrio-antiguo": "Barrio Antiguo",
-  };
+
 
   // Función para normalizar texto para búsqueda
   const normalizarTexto = (texto) => {
@@ -389,102 +461,86 @@ const ListaNotas = () => {
       .trim();
   };
 
-  // 🚀 OPTIMIZACIÓN: Debounce del término de búsqueda (300ms)
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // 🚀 OPTIMIZACIÓN: Memorizar el filtrado para evitar recálculos innecesarios
-  const notasFiltradas = useMemo(() => {
-    return todasLasNotas.filter((nota) => {
-      const cumpleEstado =
-        !estado ||
-        (nota.estatus || "").toLowerCase().trim() === estado.toLowerCase().trim();
-      const cumpleAutor =
-        !autor ||
-        (nota.autor || "").toLowerCase().trim() === autor.toLowerCase().trim();
+  // Con paginación del servidor, las notas ya vienen paginadas
+  // notasFiltradas contiene las notas de la página actual
+  // Las notas ya vienen paginadas del servidor
+  const totalNotasFiltradas = totalNotas;
 
-      let cumpleTipoCliente = true;
-      if (tipoCliente) {
-        const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente];
-        if (tipoNotaEsperado) {
-          cumpleTipoCliente = (nota.tipo_nota || "") === tipoNotaEsperado;
-        } else {
-          const tipoClienteFormateado = tipoCliente
-            .split("-")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ");
-
-          cumpleTipoCliente =
-            (nota.tipo_nota || "")
-              .toLowerCase()
-              .includes(tipoClienteFormateado.toLowerCase()) ||
-            (nota.tipo_nota || "")
-              .toLowerCase()
-              .includes(tipoCliente.toLowerCase());
-        }
-      }
-
-      // Filtro de búsqueda local (usando debouncedSearchTerm)
-      let cumpleBusqueda = true;
-      if (debouncedSearchTerm.trim()) {
-        const queryNormalizado = normalizarTexto(debouncedSearchTerm);
-        const tituloNormalizado = normalizarTexto(nota.titulo);
-        const subtituloNormalizado = normalizarTexto(nota.subtitulo);
-        const autorNormalizado = normalizarTexto(nota.autor);
-        const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
-
-        // Búsqueda exacta
-        if (
-          tituloNormalizado.includes(queryNormalizado) ||
-          subtituloNormalizado.includes(queryNormalizado) ||
-          autorNormalizado.includes(queryNormalizado) ||
-          tipoNotaNormalizado.includes(queryNormalizado)
-        ) {
-          cumpleBusqueda = true;
-        } else {
-          // Búsqueda por palabras individuales
-          const palabrasQuery = queryNormalizado
-            .split(/\s+/)
-            .filter((p) => p.length > 2);
-          if (palabrasQuery.length > 0) {
-            let coincidencias = 0;
-            for (const palabraQuery of palabrasQuery) {
-              if (
-                tituloNormalizado.includes(palabraQuery) ||
-                subtituloNormalizado.includes(palabraQuery) ||
-                autorNormalizado.includes(palabraQuery) ||
-                tipoNotaNormalizado.includes(palabraQuery)
-              ) {
-                coincidencias++;
-              }
-            }
-            cumpleBusqueda =
-              coincidencias >= Math.ceil(palabrasQuery.length * 0.5);
-          } else {
-            cumpleBusqueda = false;
-          }
-        }
-      }
-
-      return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
-    });
-  }, [todasLasNotas, estado, tipoCliente, autor, debouncedSearchTerm, mapeoPermisosATipoNota, normalizarTexto]);
-
-  // Calcular paginación local
-  const totalNotasFiltradas = notasFiltradas.length;
-  const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
+  // Variables para el cálculo de índices de paginación
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
-  const finIndice = Math.min(
-    inicioIndice + notasPorPagina,
-    totalNotasFiltradas
-  );
+  const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
 
-  // Obtener notas para la página actual
-  const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
+  // 🚀 PREFETCH: Cargar la siguiente página en segundo plano
+  const prefetchNextPage = useCallback(async (currentPage, filtros, maxPages) => {
+    if (prefetchingRef.current) return;
+    if (currentPage >= maxPages) return;
 
-  // Resetear a página 1 cuando cambien los filtros o búsqueda (debounced)
+    const nextPage = currentPage + 1;
+    const cacheKey = getCacheKey(nextPage, filtros);
+
+    // Si ya está en caché, no prefetch
+    if (cacheRef.current.has(cacheKey)) return;
+
+    prefetchingRef.current = true;
+    try {
+      const data = await notasTodasGet(token, nextPage, notasPorPagina, "", filtros);
+      if (data && Array.isArray(data.notas)) {
+        cacheRef.current.set(cacheKey, {
+          notas: data.notas,
+          total: data.total || data.notas.length,
+          totalPages: data.totalPages || Math.ceil((data.total || data.notas.length) / notasPorPagina)
+        });
+        console.log(`[Prefetch] Página ${nextPage} de notas cargada en caché`);
+      }
+    } catch (err) {
+      console.log(`[Prefetch] Error cargando página ${nextPage}:`, err.message);
+    } finally {
+      prefetchingRef.current = false;
+    }
+  }, [token, notasPorPagina, getCacheKey]);
+
+  // Recargar notas cuando cambien los filtros, búsqueda o página
   useEffect(() => {
+    if (!token) return;
+
+    fetchTodasLasNotas().then((result) => {
+      // Después de cargar, prefetch la siguiente página
+      if (result && result.totalPages > paginaActual) {
+        const filtros = buildFiltros();
+        setTimeout(() => {
+          prefetchNextPage(paginaActual, filtros, result.totalPages);
+        }, 500); // Esperar 500ms antes de prefetch
+      }
+    });
+    // eslint-disable-next-line
+  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm]);
+
+  // Wrappers para setters que resetean la página y el caché al cambiar filtros
+  const handleSetEstado = useCallback((val) => {
+    setEstado(val);
+    cacheRef.current.clear();
     setPaginaActual(1);
-  }, [estado, tipoCliente, autor, debouncedSearchTerm]);
+  }, []);
+
+  const handleSetTipoCliente = useCallback((val) => {
+    setTipoCliente(val);
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetAutor = useCallback((val) => {
+    setAutor(val);
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetSearchTerm = useCallback((val) => {
+    setSearchTerm(val);
+    // Solo si hay cambio real y no está vacío (opcional)
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
 
   // Ocultar el formulario de recetas cuando se cambia de vista
   useEffect(() => {
@@ -828,7 +884,7 @@ const ListaNotas = () => {
                 <div className="flex-1 max-w-md">
                   <SearchNotasLocal
                     searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
+                    setSearchTerm={handleSetSearchTerm}
                   />
                 </div>
               )}
@@ -836,16 +892,16 @@ const ListaNotas = () => {
               {/* Filtros - SIEMPRE VISIBLE */}
               <div className="flex gap-2 items-center">
                 {usuario?.permisos === "todos" && (
-                  <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+                  <FiltroEstadoNota estado={estado} setEstado={handleSetEstado} />
                 )}
                 {usuario?.permisos === "todos" && (
                   <FiltroTipoCliente
                     tipoCliente={tipoCliente}
-                    setTipoCliente={setTipoCliente}
+                    setTipoCliente={handleSetTipoCliente}
                   />
                 )}
                 {usuario?.permisos === "todos" && (
-                  <FiltroAutor autor={autor} setAutor={setAutor} />
+                  <FiltroAutor autor={autor} setAutor={handleSetAutor} />
                 )}
                 {usuario?.rol === "colaborador" ? (
                   <Link
@@ -889,7 +945,6 @@ const ListaNotas = () => {
               </div>
             </div>
 
-            {/* Contenido */}
             {usuario?.rol === "colaborador" ? (
               // Si es colaborador, mostrar sus blogs en lugar de notas
               <Suspense fallback={<LazyFallback />}>
@@ -899,19 +954,21 @@ const ListaNotas = () => {
               // Si NO es colaborador, mostrar la lista de notas normal
               <>
                 {!notas || notas.length === 0 ? (
-                  <SinNotas />
-                ) : notasFiltradas.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-gray-500 text-lg">
-                      {searchTerm
-                        ? `No se encontraron notas que coincidan con "${searchTerm}"`
-                        : "No hay notas que coincidan con los filtros seleccionados"}
+                  (searchTerm || estado || autor || tipoCliente) ? (
+                    <div className="text-center py-12">
+                      <div className="text-gray-500 text-lg">
+                        {searchTerm
+                          ? `No se encontraron notas que coincidan con "${searchTerm}"`
+                          : "No hay notas que coincidan con los filtros seleccionados"}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <SinNotas />
+                  )
                 ) : (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {notasPaginaActual.map((nota) => (
+                      {notas.map((nota) => (
                         <NotaCard
                           key={nota.id}
                           nota={nota}
