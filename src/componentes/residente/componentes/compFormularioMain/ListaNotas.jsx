@@ -257,11 +257,11 @@ const ListaNotas = () => {
       if (usuario?.permisos !== "todos") {
         const tipoNotaUsuario =
           usuario?.permisos &&
-          usuario.permisos !== "usuario" &&
-          usuario.permisos !== "todo"
+            usuario.permisos !== "usuario" &&
+            usuario.permisos !== "todo"
             ? usuario.permisos
-                .replace(/-/g, " ")
-                .replace(/\b\w/g, (l) => l.toUpperCase())
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())
             : "";
 
         if (tipoNotaUsuario) {
@@ -378,79 +378,85 @@ const ListaNotas = () => {
       .trim();
   };
 
-  const notasFiltradas = todasLasNotas.filter((nota) => {
-    const cumpleEstado =
-      !estado ||
-      (nota.estatus || "").toLowerCase().trim() === estado.toLowerCase().trim();
-    const cumpleAutor =
-      !autor ||
-      (nota.autor || "").toLowerCase().trim() === autor.toLowerCase().trim();
+  // 🚀 OPTIMIZACIÓN: Debounce del término de búsqueda (300ms)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-    let cumpleTipoCliente = true;
-    if (tipoCliente) {
-      const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente];
-      if (tipoNotaEsperado) {
-        cumpleTipoCliente = (nota.tipo_nota || "") === tipoNotaEsperado;
-      } else {
-        const tipoClienteFormateado = tipoCliente
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
+  // 🚀 OPTIMIZACIÓN: Memorizar el filtrado para evitar recálculos innecesarios
+  const notasFiltradas = useMemo(() => {
+    return todasLasNotas.filter((nota) => {
+      const cumpleEstado =
+        !estado ||
+        (nota.estatus || "").toLowerCase().trim() === estado.toLowerCase().trim();
+      const cumpleAutor =
+        !autor ||
+        (nota.autor || "").toLowerCase().trim() === autor.toLowerCase().trim();
 
-        cumpleTipoCliente =
-          (nota.tipo_nota || "")
-            .toLowerCase()
-            .includes(tipoClienteFormateado.toLowerCase()) ||
-          (nota.tipo_nota || "")
-            .toLowerCase()
-            .includes(tipoCliente.toLowerCase());
-      }
-    }
-
-    // Filtro de búsqueda local
-    let cumpleBusqueda = true;
-    if (searchTerm.trim()) {
-      const queryNormalizado = normalizarTexto(searchTerm);
-      const tituloNormalizado = normalizarTexto(nota.titulo);
-      const subtituloNormalizado = normalizarTexto(nota.subtitulo);
-      const autorNormalizado = normalizarTexto(nota.autor);
-      const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
-
-      // Búsqueda exacta
-      if (
-        tituloNormalizado.includes(queryNormalizado) ||
-        subtituloNormalizado.includes(queryNormalizado) ||
-        autorNormalizado.includes(queryNormalizado) ||
-        tipoNotaNormalizado.includes(queryNormalizado)
-      ) {
-        cumpleBusqueda = true;
-      } else {
-        // Búsqueda por palabras individuales
-        const palabrasQuery = queryNormalizado
-          .split(/\s+/)
-          .filter((p) => p.length > 2);
-        if (palabrasQuery.length > 0) {
-          let coincidencias = 0;
-          for (const palabraQuery of palabrasQuery) {
-            if (
-              tituloNormalizado.includes(palabraQuery) ||
-              subtituloNormalizado.includes(palabraQuery) ||
-              autorNormalizado.includes(palabraQuery) ||
-              tipoNotaNormalizado.includes(palabraQuery)
-            ) {
-              coincidencias++;
-            }
-          }
-          cumpleBusqueda =
-            coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
+      let cumpleTipoCliente = true;
+      if (tipoCliente) {
+        const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente];
+        if (tipoNotaEsperado) {
+          cumpleTipoCliente = (nota.tipo_nota || "") === tipoNotaEsperado;
         } else {
-          cumpleBusqueda = false;
+          const tipoClienteFormateado = tipoCliente
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+          cumpleTipoCliente =
+            (nota.tipo_nota || "")
+              .toLowerCase()
+              .includes(tipoClienteFormateado.toLowerCase()) ||
+            (nota.tipo_nota || "")
+              .toLowerCase()
+              .includes(tipoCliente.toLowerCase());
         }
       }
-    }
 
-    return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
-  });
+      // Filtro de búsqueda local (usando debouncedSearchTerm)
+      let cumpleBusqueda = true;
+      if (debouncedSearchTerm.trim()) {
+        const queryNormalizado = normalizarTexto(debouncedSearchTerm);
+        const tituloNormalizado = normalizarTexto(nota.titulo);
+        const subtituloNormalizado = normalizarTexto(nota.subtitulo);
+        const autorNormalizado = normalizarTexto(nota.autor);
+        const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
+
+        // Búsqueda exacta
+        if (
+          tituloNormalizado.includes(queryNormalizado) ||
+          subtituloNormalizado.includes(queryNormalizado) ||
+          autorNormalizado.includes(queryNormalizado) ||
+          tipoNotaNormalizado.includes(queryNormalizado)
+        ) {
+          cumpleBusqueda = true;
+        } else {
+          // Búsqueda por palabras individuales
+          const palabrasQuery = queryNormalizado
+            .split(/\s+/)
+            .filter((p) => p.length > 2);
+          if (palabrasQuery.length > 0) {
+            let coincidencias = 0;
+            for (const palabraQuery of palabrasQuery) {
+              if (
+                tituloNormalizado.includes(palabraQuery) ||
+                subtituloNormalizado.includes(palabraQuery) ||
+                autorNormalizado.includes(palabraQuery) ||
+                tipoNotaNormalizado.includes(palabraQuery)
+              ) {
+                coincidencias++;
+              }
+            }
+            cumpleBusqueda =
+              coincidencias >= Math.ceil(palabrasQuery.length * 0.5);
+          } else {
+            cumpleBusqueda = false;
+          }
+        }
+      }
+
+      return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
+    });
+  }, [todasLasNotas, estado, tipoCliente, autor, debouncedSearchTerm, mapeoPermisosATipoNota, normalizarTexto]);
 
   // Calcular paginación local
   const totalNotasFiltradas = notasFiltradas.length;
@@ -464,10 +470,10 @@ const ListaNotas = () => {
   // Obtener notas para la página actual
   const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
 
-  // Resetear a página 1 cuando cambien los filtros o búsqueda
+  // Resetear a página 1 cuando cambien los filtros o búsqueda (debounced)
   useEffect(() => {
     setPaginaActual(1);
-  }, [estado, tipoCliente, autor, searchTerm]);
+  }, [estado, tipoCliente, autor, debouncedSearchTerm]);
 
   // Ocultar el formulario de recetas cuando se cambia de vista
   useEffect(() => {
@@ -613,17 +619,17 @@ const ListaNotas = () => {
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(
-        (option) =>
-          usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
-          (option.key === "notas" ||
-            option.key === "recetas" ||
-            (option.key === "cupones" &&
-              !esInvitado &&
-              usuario?.rol !== "colaborador") ||
-            (esResidente && option.key === "restaurante_link") ||
-            (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-            (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
-      );
+      (option) =>
+        usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
+        (option.key === "notas" ||
+          option.key === "recetas" ||
+          (option.key === "cupones" &&
+            !esInvitado &&
+            usuario?.rol !== "colaborador") ||
+          (esResidente && option.key === "restaurante_link") ||
+          (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
+          (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+    );
 
   if (cargando) {
     return (
@@ -875,7 +881,9 @@ const ListaNotas = () => {
             {/* Contenido */}
             {usuario?.rol === "colaborador" ? (
               // Si es colaborador, mostrar sus blogs en lugar de notas
-              <ListaBlogsColaborador />
+              <Suspense fallback={<LazyFallback />}>
+                <ListaBlogsColaborador />
+              </Suspense>
             ) : (
               // Si NO es colaborador, mostrar la lista de notas normal
               <>
@@ -918,11 +926,10 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaAnterior}
                             disabled={paginaActual === 1}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                              paginaActual === 1
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                              }`}
                           >
                             ← Anterior
                           </button>
@@ -960,11 +967,10 @@ const ListaNotas = () => {
                                 <button
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
-                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                    numero === paginaActual
-                                      ? "bg-blue-600 text-white"
-                                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                  }`}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                    }`}
                                 >
                                   {numero}
                                 </button>
@@ -976,11 +982,10 @@ const ListaNotas = () => {
                           <button
                             onClick={irAPaginaSiguiente}
                             disabled={paginaActual === totalPaginas}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                              paginaActual === totalPaginas
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                              }`}
                           >
                             Siguiente →
                           </button>
@@ -995,91 +1000,109 @@ const ListaNotas = () => {
         )}
 
         {vistaActiva === "preguntas" && (
-          <div className="text-center text-lg">
-            <PreguntasSemanales />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <PreguntasSemanales />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "revistas" && (
-          <div className="text-center text-lg">
-            <FormularioRevistaBannerNueva />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <FormularioRevistaBannerNueva />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "videos" && (
-          <div className="text-center text-lg">
-            <VideosDashboard />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <VideosDashboard />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "newsletter" && (
-          <div className="text-center text-lg">
-            <FormNewsletter />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <FormNewsletter />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "infografias" && (
-          <div className="text-center text-lg">
-            <InfografiaForm />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <InfografiaForm />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "uanl" && (
-          <div className="text-center text-lg">
-            <ListaNotasUanl />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaNotasUanl />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "usuarios" && (
-          <div className="text-center text-lg">
-            <ListaNotasUsuarios />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaNotasUsuarios />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "cupones" && (
-          <div className="text-center text-lg">
-            <ListaTickets />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaTickets />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "recetas" && (
-          <div>
-            <div className="flex justify-end mb-5">
-              <button
-                onClick={() => navigate("/dashboard/receta/nueva")}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-              >
-                <svg
-                  className="-ml-1 mr-2 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+          <Suspense fallback={<LazyFallback />}>
+            <div>
+              <div className="flex justify-end mb-5">
+                <button
+                  onClick={() => navigate("/dashboard/receta/nueva")}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Nueva Receta
-              </button>
+                  <svg
+                    className="-ml-1 mr-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Nueva Receta
+                </button>
+              </div>
+              <ListaRecetas
+                key={recargarListaRecetas}
+                onEditar={(receta) => {
+                  navigate(`/dashboard/receta/editar/${receta.id}`);
+                }}
+                onCopiar={(receta) => {
+                  // Copiar datos de la receta
+                  const recetaParaCopiar = {
+                    ...receta,
+                    id: undefined,
+                  };
+                  navigator.clipboard.writeText(
+                    JSON.stringify(recetaParaCopiar, null, 2)
+                  );
+                  alert("Datos de la receta copiados al portapapeles");
+                }}
+                onRecetaEliminada={() => {
+                  setRecargarListaRecetas((prev) => prev + 1);
+                }}
+              />
             </div>
-            <ListaRecetas
-              key={recargarListaRecetas}
-              onEditar={(receta) => {
-                navigate(`/dashboard/receta/editar/${receta.id}`);
-              }}
-              onCopiar={(receta) => {
-                // Copiar datos de la receta
-                const recetaParaCopiar = {
-                  ...receta,
-                  id: undefined,
-                };
-                navigator.clipboard.writeText(
-                  JSON.stringify(recetaParaCopiar, null, 2)
-                );
-                alert("Datos de la receta copiados al portapapeles");
-              }}
-              onRecetaEliminada={() => {
-                setRecargarListaRecetas((prev) => prev + 1);
-              }}
-            />
-          </div>
+          </Suspense>
         )}
         {vistaActiva === "vetados" && (
           <div className="w-full">

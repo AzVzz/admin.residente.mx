@@ -1,66 +1,68 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
+import useSWR from "swr";
 import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
 import { FaTrash, FaEdit, FaCopy, FaEllipsisV } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
 
 import { useAuth } from "../../../Context";
 
+// 🚀 Fetcher para SWR
+const fetchRecetas = async () => {
+  const data = await recetasGetTodas(1, 100);
+  return Array.isArray(data) ? data : [];
+};
+
 const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const { usuario } = useAuth();
-  const [recetas, setRecetas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(null);
 
-  useEffect(() => {
-    cargarRecetas();
-  }, []);
+  // 🚀 PAGINACIÓN: 15 recetas por página
+  const [paginaActual, setPaginaActual] = useState(1);
+  const recetasPorPagina = 15;
 
-  const cargarRecetas = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await recetasGetTodas(1, 1000);
-      let recetasData = Array.isArray(data) ? data : [];
-
-      // Filtrar por permisos si no es admin
-      if (
-        usuario?.permisos &&
-        usuario.permisos !== "todos" &&
-        usuario.permisos !== "todo"
-      ) {
-        // Normalizar permiso: 'mama-de-rocco' -> 'Mama De Rocco' (aprox) o usar mapeo específico
-        // En ListaNotas usan replace(/-/g, ' ') y Title Case.
-        // Vamos a intentar coincidir con 'autor' o 'categoria'
-
-        const permiso = usuario.permisos.toLowerCase();
-        // Mapeo específico si es necesario, similar a ListaNotas
-        const mapeoPermisos = {
-          "mama-de-rocco": "Mamá de Rocco", // Ajustar según lo que devuelve el backend en receta.autor
-        };
-
-        const permisoNormalizado =
-          mapeoPermisos[usuario.permisos] ||
-          usuario.permisos.replace(/-/g, " ");
-
-        recetasData = recetasData.filter((receta) => {
-          const autor = (receta.autor || "").toLowerCase();
-          const permisoLower = permisoNormalizado.toLowerCase();
-          return (
-            autor.includes(permisoLower) ||
-            autor.includes(permiso.replace(/-/g, " "))
-          );
-        });
-      }
-
-      setRecetas(recetasData);
-    } catch (err) {
-      setError(err.message || "Error al cargar las recetas");
-    } finally {
-      setLoading(false);
+  // 🚀 SWR: Cache automático (5 minutos), revalidación en background
+  const { data: recetasData, error, isLoading, mutate } = useSWR(
+    "recetas-lista",
+    fetchRecetas,
+    {
+      dedupingInterval: 5 * 60 * 1000, // 5 minutos sin duplicar requests
+      revalidateOnFocus: false, // No revalidar al enfocar ventana
+      revalidateOnReconnect: false,
+      keepPreviousData: true, // Mantener datos mientras revalida
     }
-  };
+  );
+
+  // Filtrar por permisos si no es admin
+  const recetas = useMemo(() => {
+    if (!recetasData) return [];
+
+    if (
+      usuario?.permisos &&
+      usuario.permisos !== "todos" &&
+      usuario.permisos !== "todo"
+    ) {
+      const permiso = usuario.permisos.toLowerCase();
+      const mapeoPermisos = {
+        "mama-de-rocco": "Mamá de Rocco",
+      };
+
+      const permisoNormalizado =
+        mapeoPermisos[usuario.permisos] ||
+        usuario.permisos.replace(/-/g, " ");
+
+      return recetasData.filter((receta) => {
+        const autor = (receta.autor || "").toLowerCase();
+        const permisoLower = permisoNormalizado.toLowerCase();
+        return (
+          autor.includes(permisoLower) ||
+          autor.includes(permiso.replace(/-/g, " "))
+        );
+      });
+    }
+
+    return recetasData;
+  }, [recetasData, usuario?.permisos]);
 
   const handleEliminar = async (id) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta receta?")) return;
@@ -68,7 +70,11 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     setMenuAbierto(null);
     try {
       await recetaBorrar(id);
-      setRecetas(recetas.filter((r) => r.id !== id));
+      // 🚀 Refrescar cache de SWR (optimistic update)
+      mutate(
+        recetasData.filter((r) => r.id !== id),
+        false // No revalidar inmediatamente
+      );
       if (onRecetaEliminada) {
         onRecetaEliminada();
       }
@@ -77,6 +83,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
       alert(
         "Error al borrar la receta: " + (err.message || "Error desconocido")
       );
+      // Revalidar en caso de error
+      mutate();
     } finally {
       setEliminando(null);
     }
@@ -247,7 +255,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-6 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -259,10 +267,22 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        {error}
+        {error.message || "Error al cargar las recetas"}
       </div>
     );
   }
+
+  // 🚀 PAGINACIÓN: Calcular recetas de la página actual
+  const totalRecetas = recetas.length;
+  const totalPaginas = Math.ceil(totalRecetas / recetasPorPagina);
+  const inicioIndice = (paginaActual - 1) * recetasPorPagina;
+  const finIndice = Math.min(inicioIndice + recetasPorPagina, totalRecetas);
+  const recetasPaginaActual = recetas.slice(inicioIndice, finIndice);
+
+  // Funciones de navegación
+  const irAPagina = (pagina) => setPaginaActual(pagina);
+  const irAPaginaAnterior = () => setPaginaActual((prev) => Math.max(prev - 1, 1));
+  const irAPaginaSiguiente = () => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas));
 
   return (
     <div className="space-y-6">
@@ -271,119 +291,148 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
           <p className="text-gray-500">No hay recetas registradas</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recetas.map((receta) => (
-            <div
-              key={receta.id}
-              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative cursor-pointer"
-              onClick={() => handleEditar(receta)}
-            >
-              {/* Imagen */}
-              <div className="relative h-64 overflow-hidden bg-gray-200">
-                <img
-                  src={construirUrlImagen(receta)}
-                  alt={receta.titulo}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Si ya estamos mostrando el placeholder, no hacer nada más
-                    if (e.target.src.includes("SinFoto")) {
-                      return;
-                    }
-
-                    // Si ya intentamos usar la API del backend y falló, mostrar placeholder
-                    if (e.target.src.includes("/api/recetas/imagen/")) {
-                      e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
-                      return;
-                    }
-
-                    // Intentar extraer el nombre del archivo y usar la API del backend
-                    if (receta.imagen) {
-                      let filename = null;
-
-                      // Si es una URL completa, extraer el nombre del archivo
-                      if (
-                        receta.imagen.startsWith("http://") ||
-                        receta.imagen.startsWith("https://")
-                      ) {
-                        try {
-                          const urlObj = new URL(receta.imagen);
-                          filename = urlObj.pathname.split("/").pop();
-                        } catch (err) {
-                          // Intentar extraer manualmente
-                          const match = receta.imagen.match(
-                            /\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i
-                          );
-                          if (match && match[1]) {
-                            filename = match[1];
-                          }
-                        }
-                      }
-                      // Si es una ruta relativa, extraer el nombre del archivo
-                      else if (receta.imagen.includes("/")) {
-                        filename = receta.imagen.split("/").pop();
-                      }
-                      // Si es solo el nombre del archivo
-                      else {
-                        filename = receta.imagen;
-                      }
-
-                      // Si encontramos un nombre de archivo válido, usar la API del backend
-                      if (
-                        filename &&
-                        filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)
-                      ) {
-                        const urlApiBackend = `${urlApi.replace(
-                          /\/$/,
-                          ""
-                        )}/api/recetas/imagen/${encodeURIComponent(filename)}`;
-                        e.target.src = urlApiBackend;
+        <>
+          {/* Grid de recetas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recetasPaginaActual.map((receta) => (
+              <div
+                key={receta.id}
+                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative cursor-pointer"
+                onClick={() => handleEditar(receta)}
+              >
+                {/* Imagen */}
+                <div className="relative h-64 overflow-hidden bg-gray-200">
+                  <img
+                    src={construirUrlImagen(receta)}
+                    alt={receta.titulo}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      if (e.target.src.includes("SinFoto")) return;
+                      if (e.target.src.includes("/api/recetas/imagen/")) {
+                        e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                         return;
                       }
+                      if (receta.imagen) {
+                        let filename = null;
+                        if (receta.imagen.startsWith("http://") || receta.imagen.startsWith("https://")) {
+                          try {
+                            const urlObj = new URL(receta.imagen);
+                            filename = urlObj.pathname.split("/").pop();
+                          } catch (err) {
+                            const match = receta.imagen.match(/\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i);
+                            if (match && match[1]) filename = match[1];
+                          }
+                        } else if (receta.imagen.includes("/")) {
+                          filename = receta.imagen.split("/").pop();
+                        } else {
+                          filename = receta.imagen;
+                        }
+                        if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                          e.target.src = `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+                          return;
+                        }
+                      }
+                      e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
+                    }}
+                  />
+                  <div className="absolute top-3 left-3 z-20">
+                    <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                      Publicada
+                    </span>
+                  </div>
+                  <div className="absolute top-0 right-0 bg-pink-500 text-white px-3 py-1.5 font-bold text-xs z-20">
+                    {receta.autor ? receta.autor.toUpperCase() : "AUTOR"}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-white">
+                    <div className="text-[10px] mb-0.5 font-medium">
+                      {formatearFecha(receta.fecha_envio)}
+                    </div>
+                    <div className="text-[10px] opacity-90">
+                      Último autor: {receta.autor || "Desconocido"}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    <span className="font-semibold">{receta.autor || "Autor"}:</span>{" "}
+                    {receta.descripcion || receta.titulo || "Sin descripción"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 🚀 PAGINACIÓN */}
+          <div className="flex flex-col items-center mt-8 space-y-4">
+            {/* Info de paginación */}
+            <div className="text-sm text-gray-600">
+              Mostrando {inicioIndice + 1} - {finIndice} de {totalRecetas} recetas
+            </div>
+
+            {/* Controles de paginación */}
+            {totalPaginas > 1 && (
+              <div className="flex items-center space-x-2">
+                {/* Botón anterior */}
+                <button
+                  onClick={irAPaginaAnterior}
+                  disabled={paginaActual === 1}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                    }`}
+                >
+                  ← Anterior
+                </button>
+
+                {/* Números de página */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                    const mostrarPagina =
+                      numero === 1 ||
+                      numero === totalPaginas ||
+                      (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+
+                    if (!mostrarPagina) {
+                      if (numero === paginaActual - 3 || numero === paginaActual + 3) {
+                        return (
+                          <span key={numero} className="px-2 py-2 text-gray-400">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
                     }
 
-                    // Si todas las alternativas fallan, usar placeholder
-                    e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
-                  }}
-                  onLoad={() => {
-                    // Imagen cargada correctamente
-                  }}
-                />
-
-                {/* Tag de estado - Por defecto "Publicada" */}
-                <div className="absolute top-3 left-3 z-20">
-                  <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                    Publicada
-                  </span>
+                    return (
+                      <button
+                        key={numero}
+                        onClick={() => irAPagina(numero)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                          }`}
+                      >
+                        {numero}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Banner rosa con nombre del autor - parte superior derecha */}
-                <div className="absolute top-0 right-0 bg-pink-500 text-white px-3 py-1.5 font-bold text-xs z-20">
-                  {receta.autor ? receta.autor.toUpperCase() : "AUTOR"}
-                </div>
-
-                {/* Información sobrepuesta en la imagen - parte inferior */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-white">
-                  <div className="text-[10px] mb-0.5 font-medium">
-                    {formatearFecha(receta.fecha_envio)}
-                  </div>
-                  <div className="text-[10px] opacity-90">
-                    Último autor: {receta.autor || "Desconocido"}
-                  </div>
-                </div>
+                {/* Botón siguiente */}
+                <button
+                  onClick={irAPaginaSiguiente}
+                  disabled={paginaActual === totalPaginas}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                    }`}
+                >
+                  Siguiente →
+                </button>
               </div>
-
-              {/* Contenido de la tarjeta */}
-              <div className="p-4">
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  <span className="font-semibold">
-                    {receta.autor || "Autor"}:
-                  </span>{" "}
-                  {receta.descripcion || receta.titulo || "Sin descripción"}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Cerrar menú al hacer clic fuera */}
