@@ -34,7 +34,7 @@ const B2BDashboard = () => {
   const [cupon, setCupon] = useState(null);
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
-  
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
@@ -75,15 +75,15 @@ const B2BDashboard = () => {
     const query = new URLSearchParams(window.location.search);
     const paymentSuccess = query.get("payment_success");
     const sessionId = query.get("session_id");
-    
+
     if (paymentSuccess === "true") {
       if (sessionId) {
         obtenerDetallesSesion(sessionId);
         enviarCorreoConfirmacion(sessionId);
       }
-      
+
       setPagoRealizado(true);
-      
+
       setTimeout(() => {
         setPagoRealizado(false);
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -156,7 +156,7 @@ const B2BDashboard = () => {
       const apiUrl = import.meta.env.DEV
         ? `${urlApi}api/tienda/session-details/${sessionId}`
         : `https://admin.residente.mx/api/tienda/session-details/${sessionId}`;
-      
+
       await fetch(apiUrl);
     } catch (error) {
       // Silenciar errores
@@ -175,7 +175,7 @@ const B2BDashboard = () => {
     try {
       const successUrl = `${window.location.origin}/dashboardb2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/dashboardb2b?payment_canceled=true`;
-      
+
       // Formato exacto que espera el backend: { productId: '1', quantity: 1 }
       const items = productosSeleccionados.map((p) => ({
         productId: p.id.toString(),
@@ -190,9 +190,9 @@ const B2BDashboard = () => {
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
-      
+
       console.log('📦 Enviando datos de pago:', paymentData);
-      
+
       const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
 
       if (resp.data.url) {
@@ -581,7 +581,7 @@ const B2BDashboard = () => {
           ) : restaurante ? (
             <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+            <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
               Aún no tienes un restaurante registrado.<br />
               Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
             </div>
@@ -745,7 +745,7 @@ const B2BDashboard = () => {
               >
                 Ir a pagar
               </button>
-              
+
               {/* 🆕 Mensaje de pago realizado */}
               {pagoRealizado && (
                 <div className="text-green-600 font-bold text-sm text-center animate-pulse">
