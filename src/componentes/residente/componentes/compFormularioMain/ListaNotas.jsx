@@ -34,6 +34,7 @@ import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
 import SearchNotasLocal from "./SearchNotasLocal";
+<<<<<<< Updated upstream
 import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
 import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
 import VideosDashboard from "./VideosDashboard.jsx";
@@ -47,6 +48,34 @@ import ListaRecetas from "./ListaRecetas";
 import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
 import NoticiasAdmin from "../NoticiasAdmin.jsx";
 import ClientesVetados from "../ClientesVetados.jsx";
+=======
+
+// 🚀 LAZY LOADING: Cargar componentes pesados solo cuando se necesitan
+import { lazy, Suspense } from "react";
+
+const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
+const FormularioRevistaBannerNueva = lazy(() => import("./FormularioRevistaBanner.jsx"));
+const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
+const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
+const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
+const ListaNotasUanl = lazy(() => import("./ListaNotasUanl.jsx"));
+const ListaNotasUsuarios = lazy(() => import("./ListaNotasUsuarios.jsx"));
+const ListaTickets = lazy(() => import("./ListaTickets"));
+const FormularioReceta = lazy(() => import("./FormularioReceta"));
+const ListaRecetas = lazy(() => import("./ListaRecetas"));
+const ListaBlogsColaborador = lazy(() => import("./ListaBlogsColaborador.jsx"));
+const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
+
+import useDebounce from "../../../../hooks/useDebounce";
+
+// Componente de fallback para lazy loading
+const LazyFallback = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    <span className="ml-3 text-gray-500">Cargando...</span>
+  </div>
+);
+>>>>>>> Stashed changes
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
