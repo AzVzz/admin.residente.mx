@@ -232,9 +232,7 @@ const ListaNotas = () => {
             permiso_recetas: data.permiso_recetas === 1,
             cargando: false,
           });
-          console.log("✅ Permisos de invitado cargados:", data);
         } else {
-          console.warn("⚠️ No se pudieron obtener permisos de invitado");
           setPermisosInvitado({
             permiso_notas: false,
             permiso_recetas: false,
@@ -242,8 +240,8 @@ const ListaNotas = () => {
           });
         }
       } catch (error) {
-        console.error("❌ Error al verificar permisos de invitado:", error);
         setPermisosInvitado({
+
           permiso_notas: false,
           permiso_recetas: false,
           cargando: false,
@@ -332,51 +330,33 @@ const ListaNotas = () => {
       // FILTRAR NOTAS POR USUARIO/CLIENTE
       let notasFiltradas = data.notas;
 
-      // Si el usuario NO es admin (todos), filtrar por sus notas
-      if (usuario?.permisos !== "todos") {
-        const tipoNotaUsuario =
-          usuario?.permisos &&
-            usuario.permisos !== "usuario" &&
-            usuario.permisos !== "todo"
-            ? usuario.permisos
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())
-            : "";
+      // Si el usuario NO es admin (todos), filtrar por tipo_nota
+      if (usuario?.permisos !== "todos" && usuario?.permisos !== "todo") {
+        // Normalizar el permiso del usuario para comparar con tipo_nota
+        const permisoUsuario = usuario.permisos || "";
+        const permisoNormalizado = permisoUsuario
+          .replace(/-/g, " ")
+          .toLowerCase();
+        const permisoSinEspacios = permisoUsuario
+          .replace(/-/g, "")
+          .toLowerCase();
 
-        if (tipoNotaUsuario) {
-          const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
+        notasFiltradas = data.notas.filter((nota) => {
+          const tipoNota = (nota.tipo_nota || "").toLowerCase();
+          const tipoNota2 = (nota.tipo_nota2 || "").toLowerCase();
 
-          notasFiltradas = data.notas.filter((nota) => {
-            const tipoNota = (nota.tipo_nota || "").toLowerCase();
-            const tipoNota2 = (nota.tipo_nota2 || "").toLowerCase();
-
-            // Buscar coincidencias más flexibles
-            const coincide =
-              tipoNota.includes(tipoNotaUsuarioLower) ||
-              tipoNota2.includes(tipoNotaUsuarioLower) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
-              // Para "mama de rocco" específicamente
-              (tipoNotaUsuarioLower.includes("mama") &&
-                tipoNota.includes("mama")) ||
-              (tipoNotaUsuarioLower.includes("mama") &&
-                tipoNota2.includes("mama")) ||
-              (tipoNotaUsuarioLower.includes("rocco") &&
-                tipoNota.includes("rocco")) ||
-              (tipoNotaUsuarioLower.includes("rocco") &&
-                tipoNota2.includes("rocco"));
-
-            // También mostrar notas creadas por el propio usuario (notas personales)
-            const esAutor =
-              (nota.autor || "").toLowerCase() ===
-              (usuario.nombre_usuario || "").toLowerCase();
-
-            return coincide || esAutor;
-          });
-        }
+          // Verificar si coincide con tipo_nota o tipo_nota2
+          return (
+            tipoNota.includes(permisoNormalizado) ||
+            tipoNota2.includes(permisoNormalizado) ||
+            tipoNota.includes(permisoSinEspacios) ||
+            tipoNota2.includes(permisoSinEspacios) ||
+            tipoNota.includes(permisoUsuario.toLowerCase()) ||
+            tipoNota2.includes(permisoUsuario.toLowerCase())
+          );
+        });
       }
+
 
       // Guardar en caché
       const resultadoCache = {
