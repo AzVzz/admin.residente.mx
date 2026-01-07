@@ -82,14 +82,12 @@ export default function FormularioReceta({
       fetch(`${urlApi}api/recetas/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log("Receta cargada desde API:", data);
           // Manejar si la respuesta viene con data wrapper o directamente
           const recetaData = data.receta || data.data || data;
           setReceta(recetaData);
           setCargandoReceta(false);
         })
         .catch((err) => {
-          console.error("Error al cargar receta:", err);
           setCargandoReceta(false);
         });
     }

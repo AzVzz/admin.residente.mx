@@ -6,6 +6,7 @@ import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "../componentesColumna1/Infografia";
 
+
 const RespuestasSemana = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -42,9 +43,9 @@ const RespuestasSemana = () => {
         } catch {
             usuarioData = null;
         }
-        
+
         console.log("Usuario encontrado:", usuarioData);
-        
+
         setUsuario(usuarioData);
         setIsLogged(!!usuarioData);
         setIsColaborador(usuarioData?.rol === "colaborador");
@@ -56,7 +57,7 @@ const RespuestasSemana = () => {
         getPreguntaActual()
             .then(data => setPregunta(data.pregunta || ""))
             .catch(() => setPregunta(""));
-        
+
         getColaboradores()
             .then(data => {
                 console.log("Consejeros cargados:", data);
@@ -70,7 +71,7 @@ const RespuestasSemana = () => {
         if (usuario && isColaborador && consejeros.length > 0 && usuario.id) {
             console.log("Buscando consejero para usuario ID:", usuario.id);
             console.log("Lista de consejeros:", consejeros);
-            
+
             const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
             if (consejero) {
                 setIdConsejero(consejero.id);
