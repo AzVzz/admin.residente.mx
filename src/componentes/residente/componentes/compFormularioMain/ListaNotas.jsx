@@ -7,7 +7,6 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import useDebounce from "../../../../hooks/useDebounce";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { FaUser, FaStore, FaStar } from "react-icons/fa6";
@@ -57,12 +56,6 @@ const LazyFallback = () => (
   <div className="flex justify-center items-center py-12">
     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
     <span className="ml-3 text-gray-500">Cargando...</span>
-  </div>
-);
-
-const LazyFallback = () => (
-  <div className="flex justify-center items-center py-12">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
   </div>
 );
 
@@ -739,8 +732,8 @@ const ListaNotas = () => {
             Dashboard de Administración
           </h1>
 
-          {/* Credenciales - se muestra si existen o si hay usuario */}
-          {(credencialesNuevas || usuario) && (
+          {/* Credenciales - solo para invitados y colaboradores */}
+          {(credencialesNuevas || (usuario && (usuario.rol?.toLowerCase() === "invitado" || usuario.rol?.toLowerCase() === "colaborador"))) && (
             <div className="flex items-center gap-2">
               <p className="text-sm text-black font-roman">
                 <span className="font-bold">Usuario:</span> {credencialesNuevas?.nombre_usuario || usuario?.nombre_usuario}

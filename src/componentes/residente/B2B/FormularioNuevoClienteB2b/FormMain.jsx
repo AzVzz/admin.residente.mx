@@ -17,6 +17,8 @@ import DirectorioVertical from "../../componentes/componentesColumna2/Directorio
 import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import { Dialog, Transition } from "@headlessui/react";
+import { loginPost } from "../../../api/loginPost";
+import { useAuth } from "../../../Context";
 
 const FormMain = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,6 +46,7 @@ const FormMain = () => {
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
+  const { saveToken, saveUsuario } = useAuth();
 
   // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
@@ -379,6 +382,21 @@ const FormMain = () => {
         // Si llegamos aquí, el usuario se creó exitosamente
         usuarioId = usuarioRes.usuario.id;
 
+        // Guardar credenciales para el modal del dashboard
+        sessionStorage.setItem(
+          "credencialesNuevas",
+          JSON.stringify({
+            nombre_usuario: formDataToUse.nombre_usuario,
+            password: formDataToUse.password,
+            correo: formDataToUse.correo,
+          })
+        );
+        console.log("📝 Guardando credenciales:", {
+          nombre_usuario: formDataToUse.nombre_usuario,
+          password: formDataToUse.password,
+          correo: formDataToUse.correo,
+        });
+
         // Obtener el b2b_id desde el session_id si existe
         let b2bId = null;
         if (savedSessionId) {
@@ -454,8 +472,26 @@ const FormMain = () => {
         localStorage.removeItem("b2b_stripe_session_id");
         localStorage.removeItem("b2b_form_data");
 
-        // Redirigir a registro
-        window.location.href = "/registro";
+        // Login automático
+        const loginResp = await loginPost(
+          formDataToUse.correo,
+          formDataToUse.password
+        );
+        saveToken(loginResp.token);
+        saveUsuario(loginResp.usuario);
+        sessionStorage.setItem(
+          "credencialesNuevas",
+          JSON.stringify({
+            nombre_usuario: formDataToUse.nombre_usuario,
+            password: formDataToUse.password,
+            correo: formDataToUse.correo,
+          })
+        );
+        navigate("/dashboardb2b");
+
+        return; // <-- Importante para que no siga ejecutando el resto
+
+        // window.location.href = "/registro"; // <-- Quita o comenta esta línea
       } catch (error) {
         console.error("Error en handleCreateAccountAfterPayment:", error);
 
@@ -466,15 +502,30 @@ const FormMain = () => {
             error.message.includes("ya existe"))
         ) {
           console.log(
-            "✅ Usuario ya tiene registro B2B, redirigiendo a /registro"
+            "✅ Usuario ya tiene registro B2B, intentando login automático"
           );
           // Limpiar localStorage
           localStorage.removeItem("b2b_payment_completed");
           localStorage.removeItem("b2b_stripe_session_id");
           localStorage.removeItem("b2b_form_data");
-          // Redirigir de todas formas
-          window.location.href = "/registro";
-          return;
+
+          // Intentar login automático
+          try {
+            const loginResp = await loginPost(
+              formDataToUse.correo,
+              formDataToUse.password
+            );
+            saveToken(loginResp.token);
+            saveUsuario(loginResp.usuario);
+            navigate("/dashboard", { replace: true });
+            return;
+          } catch (loginError) {
+            setPaymentError(
+              "El usuario ya existe, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión manualmente."
+            );
+            setTimeout(() => navigate("/login"), 2000);
+            return;
+          }
         }
 
         setPaymentError(
@@ -795,6 +846,21 @@ const FormMain = () => {
       // Si llegamos aquí, el usuario se creó exitosamente
       usuarioId = usuarioRes.usuario.id;
 
+      // Guardar credenciales para el modal del dashboard
+      sessionStorage.setItem(
+        "credencialesNuevas",
+        JSON.stringify({
+          nombre_usuario: formData.nombre_usuario,
+          password: formData.password,
+          correo: formData.correo,
+        })
+      );
+      console.log("📝 Guardando credenciales:", {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+        correo: formData.correo,
+      });
+
       // ⭐ CRÍTICO: Obtener el b2b_id desde el session_id si existe
       // El backend ya creó un registro cuando se pagó, necesitamos actualizarlo, no crear uno nuevo
       let b2bId = null;
@@ -875,7 +941,7 @@ const FormMain = () => {
         razon_social: "",
         nombre_usuario: "",
         password: "",
-        confirm_password: "", // <-- limpiar el nuevo campo
+        confirm_password: "",
       });
       // Limpiar el estado de pago después de crear la cuenta exitosamente
       setPaymentCompleted(false);
