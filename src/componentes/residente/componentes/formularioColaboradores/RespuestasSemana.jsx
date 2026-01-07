@@ -31,7 +31,25 @@ const RespuestasSemana = () => {
     const [nombreColaborador, setNombreColaborador] = useState("");
     const [imagenActual, setImagenActual] = useState(null);
     const [cargandoDatos, setCargandoDatos] = useState(editarId ? true : false);
-    const [cargandoConsejeros, setCargandoConsejeros] = useState(true);
+    const [usuario, setUsuario] = useState(null); // ← NUEVO: Guardamos el usuario completo
+
+    // Obtener usuario del localStorage
+    useEffect(() => {
+        const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
+        let usuarioData = null;
+        try {
+            usuarioData = usuarioStr ? JSON.parse(usuarioStr) : null;
+        } catch {
+            usuarioData = null;
+        }
+        
+        console.log("Usuario encontrado:", usuarioData);
+        
+        setUsuario(usuarioData);
+        setIsLogged(!!usuarioData);
+        setIsColaborador(usuarioData?.rol === "colaborador");
+        setNombreColaborador(usuarioData?.nombre_usuario || "");
+    }, []);
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
@@ -40,53 +58,30 @@ const RespuestasSemana = () => {
             .catch(() => setPregunta(""));
         
         getColaboradores()
-            .then(setConsejeros)
-            .catch(() => setConsejeros([]))
-            .finally(() => setCargandoConsejeros(false));
+            .then(data => {
+                console.log("Consejeros cargados:", data);
+                setConsejeros(data);
+            })
+            .catch(() => setConsejeros([]));
     }, []);
 
-    // Cargar datos del usuario logueado - CORREGIDO
+    // Asignar idConsejero cuando AMBOS consejeros y usuario estén disponibles
     useEffect(() => {
-        // Buscar en ambas ubicaciones: admin_usuario (admin panel) y usuario (web normal)
-        const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
-        let usuario = null;
-        try {
-            usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-        } catch {
-            usuario = null;
-        }
-        
-        console.log("Usuario encontrado:", usuario); // Para debug
-        
-        setIsLogged(!!usuario);
-        setIsColaborador(usuario?.rol === "colaborador");
-        setNombreColaborador(usuario?.nombre_usuario || "");
-    }, []);
-
-    // Asignar idConsejero cuando consejeros cargue
-    useEffect(() => {
-        if (!cargandoConsejeros && isLogged && isColaborador && consejeros.length > 0) {
-            // Buscar en ambas ubicaciones
-            const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
-            let usuario = null;
-            try {
-                usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-            } catch {
-                usuario = null;
-            }
-
-            if (usuario?.id) {
-                const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
-                if (consejero) {
-                    setIdConsejero(consejero.id);
-                    console.log("Consejero encontrado:", consejero); // Para debug
-                } else {
-                    setIdConsejero("");
-                    console.log("No se encontró consejero para usuario ID:", usuario.id); // Para debug
-                }
+        if (usuario && isColaborador && consejeros.length > 0 && usuario.id) {
+            console.log("Buscando consejero para usuario ID:", usuario.id);
+            console.log("Lista de consejeros:", consejeros);
+            
+            const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
+            if (consejero) {
+                setIdConsejero(consejero.id);
+                console.log("✅ Consejero encontrado:", consejero);
+            } else {
+                setIdConsejero("");
+                console.log("❌ No se encontró consejero para usuario ID:", usuario.id);
+                console.log("IDs disponibles:", consejeros.map(c => c.usuario_id));
             }
         }
-    }, [cargandoConsejeros, isLogged, isColaborador, consejeros]);
+    }, [usuario, isColaborador, consejeros]);
 
     // Cargar colaboración si viene en modo edición
     useEffect(() => {
@@ -210,28 +205,17 @@ const RespuestasSemana = () => {
         <div className="max-w-[1080px] mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                 <div>
-                    {/* Mostrar spinner mientras cargan los consejeros, luego validar acceso */}
-                    {(!isLogged || !isColaborador || cargandoConsejeros) ? (
-                        cargandoConsejeros ? (
-                            <div className="flex justify-center py-12">
-                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                                <span className="ml-3 text-gray-500">Cargando información...</span>
+                    {/* Validar acceso sin mostrar mensaje de carga */}
+                    {(!isLogged || !isColaborador) ? (
+                        <div className="p-6 bg-white border border-red-400 rounded text-center">
+                            <div className="text-2xl font-bold text-red-600 mb-2">
+                                Acceso restringido
                             </div>
-                        ) : (
-                            <div className="p-6 bg-white border border-red-400 rounded text-center">
-                                <div className="text-2xl font-bold text-red-600 mb-2">
-                                    Acceso restringido
-                                </div>
-                                <div className="text-lg text-red-500">
-                                    Este acceso solo está disponible para colaboradores registrados.<br />
-                                    Si eres colaborador y tienes problemas, contacta a soporte.
-                                    <br /><br />
-                                    <small className="text-gray-500">
-                                        Debug: Logueado={isLogged ? 'Sí' : 'No'}, Colaborador={isColaborador ? 'Sí' : 'No'}
-                                    </small>
-                                </div>
+                            <div className="text-lg text-red-500">
+                                Este acceso solo está disponible para colaboradores registrados.<br />
+                                Si eres colaborador y tienes problemas, contacta a soporte.
                             </div>
-                        )
+                        </div>
                     ) : (
                         <>
                             <div className="mb-3 p-4 bg-[#fff200] text-start rounded">
