@@ -471,10 +471,9 @@ const ListaNotas = () => {
           total: data.total || data.notas.length,
           totalPages: data.totalPages || Math.ceil((data.total || data.notas.length) / notasPorPagina)
         });
-        console.log(`[Prefetch] Página ${nextPage} de notas cargada en caché`);
       }
     } catch (err) {
-      console.log(`[Prefetch] Error cargando página ${nextPage}:`, err.message);
+      // Silently handle prefetch errors
     } finally {
       prefetchingRef.current = false;
     }
@@ -483,16 +482,8 @@ const ListaNotas = () => {
   // Recargar notas cuando cambien los filtros, búsqueda o página
   useEffect(() => {
     if (!token) return;
-
-    fetchTodasLasNotas().then((result) => {
-      // Después de cargar, prefetch la siguiente página
-      if (result && result.totalPages > paginaActual) {
-        const filtros = buildFiltros();
-        setTimeout(() => {
-          prefetchNextPage(paginaActual, filtros, result.totalPages);
-        }, 500); // Esperar 500ms antes de prefetch
-      }
-    });
+    // Solo cargar notas, sin prefetch automático para mejorar rendimiento inicial
+    fetchTodasLasNotas();
     // eslint-disable-next-line
   }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm]);
 

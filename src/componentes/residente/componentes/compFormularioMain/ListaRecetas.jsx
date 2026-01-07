@@ -18,13 +18,13 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   // Estados para paginación
   const recetasPorPagina = 15;
   const paginaInicial = parseInt(searchParams.get("pageRecetas")) || 1;
-  const [paginaActualInternal, setPaginaActualInternal] = useState(paginaInicial);
+  const [paginaActual, setPaginaActualInternal] = useState(paginaInicial);
   const [totalRecetas, setTotalRecetas] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(0);
 
   // Función para cambiar página y actualizar URL
   const setPaginaActual = useCallback((pagina) => {
-    const nuevaPagina = typeof pagina === 'function' ? pagina(paginaActualInternal) : pagina;
+    const nuevaPagina = typeof pagina === 'function' ? pagina(paginaActual) : pagina;
     setPaginaActualInternal(nuevaPagina);
 
     // Actualizar URL manteniendo otros params
@@ -35,24 +35,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
       newParams.set("pageRecetas", nuevaPagina.toString());
     }
     setSearchParams(newParams, { replace: true });
-  }, [paginaActualInternal, searchParams, setSearchParams]);
-
-  // Mapeo de permisos para filtrado
-  const mapeoPermisos = {
-    'mama-de-rocco': 'Mamá de Rocco',
-    'barrio-antiguo': 'Barrio Antiguo',
-  };
-
-  // Función para normalizar texto (quitar acentos y convertir a minúsculas)
-  const normalizarTexto = (texto) => {
-    if (!texto) return '';
-    return texto
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-      .replace(/-/g, ' ')
-      .trim();
-  };
+  }, [paginaActual, searchParams, setSearchParams]);
 
   const cargarRecetas = useCallback(async () => {
     setLoading(true);
@@ -74,7 +57,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
       }
 
       // Usar paginación del servidor CON filtro de autor
-      const response = await recetasGetTodas(paginaActualInternal, recetasPorPagina, filtros);
+      const response = await recetasGetTodas(paginaActual, recetasPorPagina, filtros);
       const recetasData = response?.recetas || [];
 
       setRecetas(recetasData);
@@ -85,13 +68,28 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     } finally {
       setLoading(false);
     }
-  }, [paginaActualInternal, usuario?.permisos, usuario?.rol, usuario?.nombre_usuario]);
-
-
+  }, [paginaActual, usuario?.permisos, usuario?.rol, usuario?.nombre_usuario]);
 
   useEffect(() => {
     cargarRecetas();
   }, [cargarRecetas]);
+
+  // Funciones de navegación de páginas
+  const irAPaginaAnterior = () => {
+    if (paginaActual > 1) {
+      setPaginaActual(paginaActual - 1);
+    }
+  };
+
+  const irAPaginaSiguiente = () => {
+    if (paginaActual < totalPaginas) {
+      setPaginaActual(paginaActual + 1);
+    }
+  };
+
+  const irAPagina = (pagina) => {
+    setPaginaActual(pagina);
+  };
 
   const handleEliminar = async (id) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta receta?")) return;
@@ -132,25 +130,6 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     }
   };
 
-  // Funciones de navegación de paginación
-  const irAPaginaAnterior = () => {
-    if (paginaActualInternal > 1) {
-      setPaginaActual(paginaActualInternal - 1);
-    }
-  };
-
-  const irAPaginaSiguiente = () => {
-    if (paginaActualInternal < totalPaginas) {
-      setPaginaActual(paginaActualInternal + 1);
-    }
-  };
-
-  const irAPagina = (pagina) => {
-    if (pagina >= 1 && pagina <= totalPaginas) {
-      setPaginaActual(pagina);
-    }
-  };
-
   const formatearFecha = (fecha) => {
     if (!fecha) return "Sin fecha";
     const date = new Date(fecha);
@@ -167,38 +146,29 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   // Función helper para construir la URL de la imagen
   const construirUrlImagen = (receta) => {
     try {
-      // Verificar si hay imagen
       if (!receta?.imagen) {
         return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
       }
 
       const imagenStr = String(receta.imagen).trim();
 
-      // Si está vacío después de trim
       if (!imagenStr) {
         return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
       }
 
-      // Si ya es una URL completa
       if (imagenStr.startsWith('http://') || imagenStr.startsWith('https://')) {
         try {
           const urlObj = new URL(imagenStr);
           const pathname = urlObj.pathname;
 
-          // IMPORTANTE: Si la URL apunta a admin.residente.mx, extraer el nombre del archivo
-          // y usar la API del backend para normalizar todas las URLs
           if (urlObj.hostname.includes('admin.residente.mx')) {
-            // Extraer el nombre del archivo de la ruta
             const filename = pathname.split('/').pop();
             if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-              // Usar la API del backend que sirve las imágenes correctamente
               return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
             }
           }
 
-          // Si es una URL de residente.mx (no admin), usar directamente
           if (urlObj.hostname.includes('residente.mx') && !urlObj.hostname.includes('admin')) {
-            // Codificar la URL normalmente
             const pathSegments = pathname.split('/').map(segment => {
               if (!segment) return '';
               return encodeURIComponent(segment);
@@ -207,34 +177,26 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
             return urlObj.toString();
           }
 
-          // Para otras URLs, intentar extraer el nombre del archivo y usar la API
           const filename = pathname.split('/').pop();
           if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
             return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
           }
 
-          // Si no se puede extraer el nombre, usar la URL original codificada
           return encodeURI(imagenStr);
         } catch (e) {
-          // Si falla el parsing, intentar extraer el nombre del archivo manualmente
           const match = imagenStr.match(/\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i);
           if (match && match[1]) {
             return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(match[1])}`;
           }
-          // Si falla el parsing, usar placeholder
           return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
         }
       }
 
-      // Si es una ruta relativa que empieza con /uploads/recetas/ (imágenes antiguas)
       if (imagenStr.startsWith('/uploads/recetas/')) {
         const filename = imagenStr.split('/').pop();
-        // Usar la API del backend que normaliza las URLs
         return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
       }
 
-      // Si es una ruta relativa que empieza con /fotos/ (nuevas imágenes WebP)
-      // Construir URL completa con imgApi (residente.mx)
       if (imagenStr.startsWith('/fotos/')) {
         const pathSegments = imagenStr.split('/').map(segment =>
           segment ? encodeURIComponent(segment) : ''
@@ -242,13 +204,11 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
         return `${imgApi.replace(/\/$/, '')}${pathSegments}`;
       }
 
-      // Si es otra ruta relativa, intentar extraer el nombre del archivo si es posible
       const filename = imagenStr.split('/').pop();
       if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
       }
 
-      // Si no se puede determinar, construir URL completa con imgApi
       const imagenPath = imagenStr.startsWith('/') ? imagenStr : `/${imagenStr}`;
       const pathSegments = imagenPath.split('/').map(segment =>
         segment ? encodeURIComponent(segment) : ''
@@ -259,9 +219,9 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     }
   };
 
-  // Calcular índices para mostrar información de paginación
-  const inicioIndice = (paginaActualInternal - 1) * recetasPorPagina;
-  const finIndice = Math.min(inicioIndice + recetas.length, totalRecetas);
+  // Calcular índices para mostrar
+  const inicioIndice = (paginaActual - 1) * recetasPorPagina;
+  const finIndice = Math.min(inicioIndice + recetasPorPagina, totalRecetas);
 
   if (loading) {
     return (
@@ -301,72 +261,53 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     alt={receta.titulo}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // Si ya estamos mostrando el placeholder, no hacer nada más
                       if (e.target.src.includes('SinFoto')) {
                         return;
                       }
-
-                      // Si ya intentamos usar la API del backend y falló, mostrar placeholder
                       if (e.target.src.includes('/api/recetas/imagen/')) {
                         e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                         return;
                       }
-
-                      // Intentar extraer el nombre del archivo y usar la API del backend
                       if (receta.imagen) {
                         let filename = null;
-
-                        // Si es una URL completa, extraer el nombre del archivo
                         if (receta.imagen.startsWith('http://') || receta.imagen.startsWith('https://')) {
                           try {
                             const urlObj = new URL(receta.imagen);
                             filename = urlObj.pathname.split('/').pop();
                           } catch (err) {
-                            // Intentar extraer manualmente
                             const match = receta.imagen.match(/\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i);
                             if (match && match[1]) {
                               filename = match[1];
                             }
                           }
-                        }
-                        // Si es una ruta relativa, extraer el nombre del archivo
-                        else if (receta.imagen.includes('/')) {
+                        } else if (receta.imagen.includes('/')) {
                           filename = receta.imagen.split('/').pop();
-                        }
-                        // Si es solo el nombre del archivo
-                        else {
+                        } else {
                           filename = receta.imagen;
                         }
-
-                        // Si encontramos un nombre de archivo válido, usar la API del backend
                         if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                           const urlApiBackend = `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
                           e.target.src = urlApiBackend;
                           return;
                         }
                       }
-
-                      // Si todas las alternativas fallan, usar placeholder
                       e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
-                    }}
-                    onLoad={() => {
-                      // Imagen cargada correctamente
                     }}
                   />
 
-                  {/* Tag de estado - Por defecto "Publicada" */}
+                  {/* Tag de estado */}
                   <div className="absolute top-3 left-3 z-20">
                     <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                       Publicada
                     </span>
                   </div>
 
-                  {/* Banner rosa con nombre del autor - parte superior derecha */}
+                  {/* Banner rosa con nombre del autor */}
                   <div className="absolute top-0 right-0 bg-pink-500 text-white px-3 py-1.5 font-bold text-xs z-20">
                     {receta.autor ? receta.autor.toUpperCase() : "AUTOR"}
                   </div>
 
-                  {/* Menú de acciones - debajo del banner rosa */}
+                  {/* Menú de acciones */}
                   <div className="absolute top-10 right-3 z-20">
                     <div className="relative">
                       <button
@@ -408,7 +349,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     </div>
                   </div>
 
-                  {/* Información sobrepuesta en la imagen - parte inferior */}
+                  {/* Información sobrepuesta en la imagen */}
                   <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-white">
                     <div className="text-[10px] mb-0.5 font-medium">
                       {formatearFecha(receta.fecha_envio)}
@@ -429,7 +370,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
             ))}
           </div>
 
-          {/* Información de resultados y paginación */}
+          {/* Información y controles de paginación */}
           <div className="flex flex-col items-center mt-8 space-y-4">
             {/* Información de paginación */}
             <div className="text-sm text-gray-600">
@@ -442,8 +383,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                 {/* Botón anterior */}
                 <button
                   onClick={irAPaginaAnterior}
-                  disabled={paginaActualInternal === 1}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActualInternal === 1
+                  disabled={paginaActual === 1}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                     }`}
@@ -457,10 +398,10 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     const mostrarPagina =
                       numero === 1 ||
                       numero === totalPaginas ||
-                      (numero >= paginaActualInternal - 2 && numero <= paginaActualInternal + 2);
+                      (numero >= paginaActual - 2 && numero <= paginaActual + 2);
 
                     if (!mostrarPagina) {
-                      if (numero === paginaActualInternal - 3 || numero === paginaActualInternal + 3) {
+                      if (numero === paginaActual - 3 || numero === paginaActual + 3) {
                         return (
                           <span key={numero} className="px-2 py-2 text-gray-400">
                             ...
@@ -474,7 +415,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                       <button
                         key={numero}
                         onClick={() => irAPagina(numero)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActualInternal
+                        className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
                           ? "bg-blue-600 text-white"
                           : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                           }`}
@@ -488,8 +429,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                 {/* Botón siguiente */}
                 <button
                   onClick={irAPaginaSiguiente}
-                  disabled={paginaActualInternal === totalPaginas}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActualInternal === totalPaginas
+                  disabled={paginaActual === totalPaginas}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                     }`}
