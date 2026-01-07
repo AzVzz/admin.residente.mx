@@ -602,7 +602,7 @@ const B2BDashboard = () => {
           ) : restaurante ? (
             <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+            <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
               Aún no tienes un restaurante registrado.<br />
               Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
             </div>
