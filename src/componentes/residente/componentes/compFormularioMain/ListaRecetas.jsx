@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
-import { FaTrash, FaEdit, FaCopy, FaEllipsisV } from "react-icons/fa";
+import { FaTrash, FaEdit, FaCopy, FaEllipsisV, FaSearch } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
 
 import { useAuth } from "../../../Context";
+import useDebounce from "../../../../hooks/useDebounce";
 
 const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const { usuario } = useAuth();
@@ -21,6 +22,10 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const [paginaActual, setPaginaActualInternal] = useState(paginaInicial);
   const [totalRecetas, setTotalRecetas] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(0);
+
+  // Estado para búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Función para cambiar página y actualizar URL
   const setPaginaActual = useCallback((pagina) => {
@@ -56,7 +61,12 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
           : usuario.permisos?.replace(/-/g, ' ');
       }
 
-      // Usar paginación del servidor CON filtro de autor
+      // Agregar término de búsqueda si existe
+      if (debouncedSearchTerm?.trim()) {
+        filtros.q = debouncedSearchTerm.trim();
+      }
+
+      // Usar paginación del servidor CON filtros
       const response = await recetasGetTodas(paginaActual, recetasPorPagina, filtros);
       const recetasData = response?.recetas || [];
 
@@ -68,11 +78,18 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     } finally {
       setLoading(false);
     }
-  }, [paginaActual, usuario?.permisos, usuario?.rol, usuario?.nombre_usuario]);
+  }, [paginaActual, usuario?.permisos, usuario?.rol, usuario?.nombre_usuario, debouncedSearchTerm]);
 
   useEffect(() => {
     cargarRecetas();
   }, [cargarRecetas]);
+
+  // Resetear a página 1 cuando cambie el término de búsqueda
+  useEffect(() => {
+    if (debouncedSearchTerm !== undefined) {
+      setPaginaActualInternal(1);
+    }
+  }, [debouncedSearchTerm]);
 
   // Funciones de navegación de páginas
   const irAPaginaAnterior = () => {
@@ -242,12 +259,37 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
 
   return (
     <div className="space-y-6">
+      {/* Buscador de recetas */}
+      <div className="relative">
+        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Buscar recetas por título, autor o descripción..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
       {recetas.length === 0 ? (
         <div className="px-6 py-8 text-center bg-white rounded-lg shadow">
-          <p className="text-gray-500">No hay recetas registradas</p>
+          <p className="text-gray-500">
+            {searchTerm
+              ? `No se encontraron recetas para "${searchTerm}"`
+              : "No hay recetas registradas"}
+          </p>
         </div>
       ) : (
         <>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recetas.map((receta) => (
               <div
