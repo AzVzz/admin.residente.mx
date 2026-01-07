@@ -29,41 +29,64 @@ const RespuestasSemana = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [isColaborador, setIsColaborador] = useState(false);
     const [nombreColaborador, setNombreColaborador] = useState("");
-    const [imagenActual, setImagenActual] = useState(null); // Para guardar la imagen actual en edición
+    const [imagenActual, setImagenActual] = useState(null);
     const [cargandoDatos, setCargandoDatos] = useState(editarId ? true : false);
+    const [cargandoConsejeros, setCargandoConsejeros] = useState(true);
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
         getPreguntaActual()
             .then(data => setPregunta(data.pregunta || ""))
             .catch(() => setPregunta(""));
+        
         getColaboradores()
             .then(setConsejeros)
-            .catch(() => setConsejeros([]));
+            .catch(() => setConsejeros([]))
+            .finally(() => setCargandoConsejeros(false));
     }, []);
 
-    // Cargar datos del usuario logueado
+    // Cargar datos del usuario logueado - CORREGIDO
     useEffect(() => {
-        const usuarioStr = localStorage.getItem("usuario");
+        // Buscar en ambas ubicaciones: admin_usuario (admin panel) y usuario (web normal)
+        const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
         let usuario = null;
         try {
             usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
         } catch {
             usuario = null;
         }
+        
+        console.log("Usuario encontrado:", usuario); // Para debug
+        
         setIsLogged(!!usuario);
         setIsColaborador(usuario?.rol === "colaborador");
         setNombreColaborador(usuario?.nombre_usuario || "");
+    }, []);
 
-        if (usuario?.rol === "colaborador" && consejeros.length > 0 && usuario?.id) {
-            const consejero = consejeros.find(c => c.usuario_id === usuario.id);
-            if (consejero) {
-                setIdConsejero(consejero.id);
-            } else {
-                setIdConsejero("");
+    // Asignar idConsejero cuando consejeros cargue
+    useEffect(() => {
+        if (!cargandoConsejeros && isLogged && isColaborador && consejeros.length > 0) {
+            // Buscar en ambas ubicaciones
+            const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
+            let usuario = null;
+            try {
+                usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
+            } catch {
+                usuario = null;
+            }
+
+            if (usuario?.id) {
+                const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
+                if (consejero) {
+                    setIdConsejero(consejero.id);
+                    console.log("Consejero encontrado:", consejero); // Para debug
+                } else {
+                    setIdConsejero("");
+                    console.log("No se encontró consejero para usuario ID:", usuario.id); // Para debug
+                }
             }
         }
-    }, [consejeros]);
+    }, [cargandoConsejeros, isLogged, isColaborador, consejeros]);
 
     // Cargar colaboración si viene en modo edición
     useEffect(() => {
@@ -76,7 +99,6 @@ const RespuestasSemana = () => {
                     setTextoConsejo(data.texto_consejo || "");
                     setRespuestaConsejo(data.respuesta_consejo === 1 || data.respuesta_consejo === true);
 
-                    // Guardar la imagen actual (URL del servidor)
                     if (data.imagen) {
                         setImagenActual(data.imagen);
                         setImagenPreview(data.imagen);
@@ -90,6 +112,8 @@ const RespuestasSemana = () => {
             };
 
             loadColaboracion();
+        } else {
+            setCargandoDatos(false);
         }
     }, [editarId, isLogged]);
 
@@ -140,7 +164,6 @@ const RespuestasSemana = () => {
 
         try {
             if (editarId) {
-                // Modo EDICIÓN - usar PUT
                 await putRespuestaSemana(editarId, {
                     pregunta,
                     respuesta_colaboracion: curriculumToSend,
@@ -151,7 +174,6 @@ const RespuestasSemana = () => {
                 });
                 setMensaje("¡Colaboración actualizada correctamente!");
             } else {
-                // Modo CREAR - usar POST
                 await postRespuestaSemana({
                     id_consejero: idConsejero,
                     pregunta,
@@ -187,19 +209,29 @@ const RespuestasSemana = () => {
     return (
         <div className="max-w-[1080px] mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
-                {/* Columna principal: formulario */}
                 <div>
-                    {/* Si NO es colaborador, solo muestra el mensaje */}
-                    {(!isLogged || !isColaborador) ? (
-                        <div className="p-6 bg-white border border-red-400 rounded text-center">
-                            <div className="text-2xl font-bold text-red-600 mb-2">
-                                Acceso restringido
+                    {/* Mostrar spinner mientras cargan los consejeros, luego validar acceso */}
+                    {(!isLogged || !isColaborador || cargandoConsejeros) ? (
+                        cargandoConsejeros ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                                <span className="ml-3 text-gray-500">Cargando información...</span>
                             </div>
-                            <div className="text-lg text-red-500">
-                                Este acceso solo está disponible para colaboradores registrados.<br />
-                                Si eres colaborador y tienes problemas, contacta a soporte.
+                        ) : (
+                            <div className="p-6 bg-white border border-red-400 rounded text-center">
+                                <div className="text-2xl font-bold text-red-600 mb-2">
+                                    Acceso restringido
+                                </div>
+                                <div className="text-lg text-red-500">
+                                    Este acceso solo está disponible para colaboradores registrados.<br />
+                                    Si eres colaborador y tienes problemas, contacta a soporte.
+                                    <br /><br />
+                                    <small className="text-gray-500">
+                                        Debug: Logueado={isLogged ? 'Sí' : 'No'}, Colaborador={isColaborador ? 'Sí' : 'No'}
+                                    </small>
+                                </div>
                             </div>
-                        </div>
+                        )
                     ) : (
                         <>
                             <div className="mb-3 p-4 bg-[#fff200] text-start rounded">
@@ -267,7 +299,6 @@ const RespuestasSemana = () => {
                                     </div>
                                 )}
 
-                                {/* Mensaje de éxito o error justo arriba del botón */}
                                 {mensaje && (
                                     <div className="text-center font-bold mt-4 text-black">
                                         {mensaje}
