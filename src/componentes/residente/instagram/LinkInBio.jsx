@@ -110,7 +110,18 @@ const LinkInBio = () => {
               />
             </div>
           ))
-          : notas.filter(nota => nota.insta_imagen).map((nota) => (
+          : notas.filter(nota => {
+              // Solo mostrar si tiene insta_imagen
+              if (!nota.insta_imagen) return false;
+              // Si tiene fecha programada, solo mostrar si ya pasó
+              if (nota.programar_insta_imagen) {
+                const fechaProgramada = new Date(nota.programar_insta_imagen);
+                const ahora = new Date();
+                return ahora >= fechaProgramada;
+              }
+              // Si no tiene fecha programada, mostrar siempre
+              return true;
+            }).map((nota) => (
             <Link
               key={nota.id}
               to={`/notas/${nota.id}`}

@@ -9,19 +9,14 @@ const B2BRoute = ({ children }) => {
 
   // Si no esta logeado mandar a /login
   if (!token || !usuario) {
-    return (
-      <Navigate
-        to={`/login?redirectTo=${encodeURIComponent(location.pathname)}`}
-        replace
-      />
-    );
+    return <Navigate to={`/registro`} replace />;
   }
 
   const rol = usuario.rol?.toLowerCase();
 
   // Está logueado pero no es B2B
   if (rol !== "b2b") {
-    const destino = rol === "residente" ? "/notas" : "/";
+    const destino = rol === "residente" ? "/dashboard" : "/";
 
     return (
       <div className="max-w-[1080px] mx-auto py-10">

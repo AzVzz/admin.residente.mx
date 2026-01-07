@@ -18,14 +18,25 @@ export default function LoginForm({
   onSuccess, // callback opcional
   showLoggedBadge = true, // si quieres mostrar el badge cuando ya está logeado
 }) {
-  const [nombre_usuario, setNombreUsuario] = useState("");
+  const [identificador, setIdentificador] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const { saveToken, saveUsuario, token, usuario } = useAuth();
+
+  // Leer correo/usuario de los parámetros de la URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const correoParam = params.get('correo') || params.get('usuario');
+    if (correoParam) {
+      setIdentificador(correoParam);
+      setShowWelcome(true);
+    }
+  }, []);
 
   // si token expiró, limpia
   useEffect(() => {
@@ -57,9 +68,9 @@ export default function LoginForm({
     setLoading(true);
 
     try {
-      const respuesta = await loginPost(nombre_usuario, password);
-      saveToken(respuesta.token);
-      saveUsuario(respuesta.usuario);
+      const respuesta = await loginPost(identificador, password);
+      saveUsuario(respuesta.usuario);   // primero usuario
+      saveToken(respuesta.token);       // luego token -> syncToCookies encontrará usuario
       setSuccess(true);
 
       onSuccess?.(respuesta);
@@ -73,20 +84,26 @@ export default function LoginForm({
   return (
     <div className="flex justify-center">
       <form onSubmit={handleSubmit} className="">
-        <h2 className="leading-tight text-2xl">Iniciar Sesión</h2>
+        <h2 className="leading-tight text-4xl text-center mb-4">Iniciar Sesión</h2>
+
+        {showWelcome && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded text-center max-w-[250px]">
+            ¡Cuenta creada! Ingresa tu contraseña para continuar.
+          </div>
+        )}
 
         <div className="mb-4 max-w-[250px]">
           <label className="space-y-2 font-roman font-bold" htmlFor="usuario">
-            Nombre de usuario
+            Correo o usuario
           </label>
 
           <input
             id="usuario"
             type="text"
             className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm max-w-[250px]"
-            placeholder="Usuario"
-            value={nombre_usuario}
-            onChange={(e) => setNombreUsuario(e.target.value)}
+            placeholder="Correo o nombre de usuario"
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
             autoComplete="username"
           />
         </div>
@@ -123,11 +140,10 @@ export default function LoginForm({
         <button
           type="submit"
           disabled={loading}
-          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${
-            loading
-              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-              : "bg-[#fff200] text-black"
-          }`}
+          className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading
+            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+            : "bg-[#fff200] text-black"
+            }`}
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}
         </button>
@@ -138,6 +154,12 @@ export default function LoginForm({
             ¡Sesión iniciada correctamente!
           </div>
         )}
+
+        <div className="mt-4 text-center">
+          <a href="/recuperar-password" className="text-sm font-bold text-black hover:underline cursor-pointer">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
       </form>
     </div>
   );

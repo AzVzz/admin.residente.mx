@@ -1,13 +1,18 @@
 // BannerRevista.jsx es un nombre equivocado es el main de tda la página de residente.
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { catalogoNotasGet, notasDestacadasTopGet, notasPublicadasPorId, notasResidenteGet } from '../../api/notasPublicadasGet';
-import { catalogoTipoNotaGet } from '../../../componentes/api/CatalogoSeccionesGet.js';
-import { cuponesGet } from '../../api/cuponesGet.js';
-import { useData } from '../../DataContext';
-import DetalleBannerRevista from './DetalleBannerRevista';
-import ListadoBannerRevista from './ListadoBannerRevista';
+import {
+  catalogoNotasGet,
+  notasDestacadasTopGet,
+  notasPublicadasPorId,
+  notasResidenteGet,
+} from "../../api/notasPublicadasGet";
+import { catalogoTipoNotaGet } from "../../../componentes/api/catalogoSeccionesGet.js";
+import { cuponesGet } from "../../api/cuponesGet.js";
+import { useData } from "../../DataContext";
+import DetalleBannerRevista from "./DetalleBannerRevista";
+import ListadoBannerRevista from "./ListadoBannerRevista";
 
 const BannerRevista = () => {
   const { id } = useParams();
@@ -69,8 +74,8 @@ const BannerRevista = () => {
       setErrorDetalle(null);
       setSelectedPost(null);
       notasPublicadasPorId(id)
-        .then(post => setSelectedPost(post))
-        .catch(err => setErrorDetalle(err))
+        .then((post) => setSelectedPost(post))
+        .catch((err) => setErrorDetalle(err))
         .finally(() => setDetalleCargando(false));
     }
   }, [id]);
@@ -98,7 +103,7 @@ const BannerRevista = () => {
   // Cargar cupones
   useEffect(() => {
     cuponesGet()
-      .then(data => setCupones(Array.isArray(data) ? data : []))
+      .then((data) => setCupones(Array.isArray(data) ? data : []))
       .catch(() => setCupones([]));
   }, []);
 
@@ -109,7 +114,7 @@ const BannerRevista = () => {
   };
 
   const handleVolver = () => {
-    navigate('/notas');
+    navigate("/notas");
     setSelectedPost(null);
     setErrorDetalle(null);
   };
@@ -127,8 +132,17 @@ const BannerRevista = () => {
       <div className="bg-red-50 border-l-4 border-red-500 p-4 my-6">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            <svg
+              className="h-5 w-5 text-red-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <div className="ml-3">
@@ -139,17 +153,18 @@ const BannerRevista = () => {
     );
   }
 
-  const normalizar = str => (str || '').toLowerCase().replace(/-/g, ' ').trim();
+  const normalizar = (str) =>
+    (str || "").toLowerCase().replace(/-/g, " ").trim();
 
   const filtrarPostsPorTipoNota = (tipo) =>
     posts.filter(
-      post =>
+      (post) =>
         normalizar(post.tipo_nota) === normalizar(tipo) ||
         normalizar(post.tipo_nota2) === normalizar(tipo)
     );
   const filtrarDestacadasPorTipoNota = (tipo) =>
     notasDestacadas.filter(
-      nota =>
+      (nota) =>
         normalizar(nota.tipo_nota) === normalizar(tipo) ||
         normalizar(nota.tipo_nota2) === normalizar(tipo)
     );

@@ -12,6 +12,7 @@ const Imagenes = ({ slug, existingImages }) => {
     const fileInputRef = useRef(null);
     const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [mostrarMensaje, setMostrarMensaje] = useState(false); // NUEVO: Estado para mostrar el mensaje
 
     useEffect(() => {
         register('imagenes', {
@@ -69,6 +70,8 @@ const Imagenes = ({ slug, existingImages }) => {
             if (combinedPreviews.length >= 3) {
                 setLimitReached(true);
             }
+            // NUEVO: Mostrar mensaje si hay archivos seleccionados
+            setMostrarMensaje(combinedPreviews.length > 0);
         }
     };
 
@@ -178,6 +181,13 @@ const Imagenes = ({ slug, existingImages }) => {
                     >
                         {limitReached ? 'Límite alcanzado' : 'Elegir archivos'}
                     </button>
+
+                    {/* Mensaje solo si hay imágenes seleccionadas */}
+                    {mostrarMensaje && (
+                        <p className="text-info-fotos" style={{ color: '#b91c1c', fontWeight: 'bold', marginTop: 4 }}>
+                            Las fotos deben ser horizontales. Si subes fotos verticales, no se verán bien en la galería.
+                        </p>
+                    )}
 
                     {/* Alerta de límite */}
                     {limitReached && (

@@ -32,12 +32,8 @@ const ResetPassword = () => {
                 token,
                 newPassword,
             });
-            // Mostrar el usuario que se actualizó para depuración
-            const usuarioActualizado = res.data.debug_info ? res.data.debug_info.usuario : 'Desconocido';
-            setMessage(`Contraseña actualizada para el usuario: ${usuarioActualizado}. Redirigiendo...`);
-
             setTimeout(() => {
-                navigate("/login");
+                navigate("/registro");
             }, 5000);
         } catch (err) {
             setError(

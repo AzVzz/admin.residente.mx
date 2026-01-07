@@ -5,7 +5,10 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
+import axios from 'axios';
 // import FormularioBanner from "./FormularioBanner";
+
+import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -32,6 +35,62 @@ const B2BDashboard = () => {
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
 
+  // 🆕 Estado para mostrar mensaje de pago exitoso
+  const [pagoRealizado, setPagoRealizado] = useState(false);
+
+  // 👇 AGREGADO: URL de la API de tienda
+  // En desarrollo usa el proxy de Vite, en producción usa la URL directa
+  const API_URL = import.meta.env.DEV
+    ? '/api/tienda'  // Usa el proxy configurado en vite.config.js
+    : `${urlApi}api/tienda`;  // URL directa en producción
+
+  // 🆕 Función para enviar correo de confirmación después del pago
+  const enviarCorreoConfirmacion = async (sessionId) => {
+    try {
+      const emailData = {
+        sessionId: sessionId,
+        customerEmail: usuario?.correo || b2bUser?.correo,
+        customerName: usuario?.nombre_usuario || b2bUser?.nombre_responsable,
+        b2bId: b2bId,
+      };
+
+      const apiUrl = import.meta.env.DEV
+        ? `${urlApi}api/tienda/send-confirmation-email`
+        : `https://admin.residente.mx/api/tienda/send-confirmation-email`;
+
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+    } catch (error) {
+      // Silenciar errores de envío de correo
+    }
+  };
+
+  // 🆕 Detectar si el usuario viene de un pago exitoso
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const paymentSuccess = query.get("payment_success");
+    const sessionId = query.get("session_id");
+
+    if (paymentSuccess === "true") {
+      if (sessionId) {
+        obtenerDetallesSesion(sessionId);
+        enviarCorreoConfirmacion(sessionId);
+      }
+
+      setPagoRealizado(true);
+
+      setTimeout(() => {
+        setPagoRealizado(false);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 5000);
+    }
+  }, [usuario, b2bId]);
+
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = "hidden";
@@ -52,14 +111,14 @@ const B2BDashboard = () => {
         const data = await res.json();
         setProductos(data);
       } catch (error) {
-        console.error("Error al cargar productos B2B:", error);
+        // Error al cargar productos
       }
     };
 
     fetchProductos();
   }, []);
 
-  // Actualizar fecha automáticamente cada minuto
+  // Actualizar fecha automáticamente cada mínuto
   useEffect(() => {
     const interval = setInterval(() => {
       setFechaActual(new Date());
@@ -76,22 +135,12 @@ const B2BDashboard = () => {
         [id]: !prev[id],
       };
 
-      // Recalcular total con base en los seleccionados
-      const nuevoTotal = productos.reduce((suma, producto, index) => {
+      // Recalcular total con base en los seleccionados usando precio_descuento de la API
+      const nuevoTotal = productos.reduce((suma, producto) => {
         if (nuevoSeleccionados[producto.id]) {
-          // El primer producto (index === 0) usa $9,900
-          if (index === 0) {
-            return suma + 9900;
-          }
-          // El segundo producto (index === 1) usa $1,900
-          if (index === 1) {
-            return suma + 1900;
-          }
-          // El tercer producto (index === 2) usa $1,000
-          if (index === 2) {
-            return suma + 1000;
-          }
-          return suma + Number(producto.monto);
+          // Usar precio_descuento si existe, si no usar monto
+          const precio = Number(producto.precio_descuento || producto.monto || 0);
+          return suma + precio;
         }
         return suma;
       }, 0);
@@ -99,6 +148,63 @@ const B2BDashboard = () => {
       setTotal(nuevoTotal);
       return nuevoSeleccionados;
     });
+  };
+
+  // 🆕 Función para obtener detalles de la sesión después del pago
+  const obtenerDetallesSesion = async (sessionId) => {
+    try {
+      const apiUrl = import.meta.env.DEV
+        ? `${urlApi}api/tienda/session-details/${sessionId}`
+        : `https://admin.residente.mx/api/tienda/session-details/${sessionId}`;
+
+      await fetch(apiUrl);
+    } catch (error) {
+      // Silenciar errores
+    }
+  };
+
+  // 👇 AGREGADO: Función para ir a pagar con Stripe
+  const handleIrAPagar = async () => {
+    const productosSeleccionados = productos.filter((p) => seleccionados[p.id]);
+
+    if (productosSeleccionados.length === 0) {
+      alert("Selecciona al menos un beneficio para pagar.");
+      return;
+    }
+
+    try {
+      const successUrl = `${window.location.origin}/dashboardb2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${window.location.origin}/dashboardb2b?payment_canceled=true`;
+
+      // Formato exacto que espera el backend: { productId: '1', quantity: 1 }
+      const items = productosSeleccionados.map((p) => ({
+        productId: p.id.toString(),
+        quantity: 1,
+      }));
+
+      const paymentData = {
+        items,
+        b2bId: b2bId,
+        customerEmail: usuario?.correo || b2bUser?.correo || null,
+        customerName: usuario?.nombre_usuario || b2bUser?.nombre_responsable || null,
+        successUrl: successUrl,
+        cancelUrl: cancelUrl,
+      };
+
+      console.log('📦 Enviando datos de pago:', paymentData);
+
+      const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
+
+      if (resp.data.url) {
+        window.location.href = resp.data.url;
+      } else {
+        alert("No se pudo obtener la URL de pago.");
+      }
+    } catch (err) {
+      console.error('❌ Error en pago:', err.response?.data || err);
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error desconocido';
+      alert(`Error al crear la sesión de pago: ${errorMsg}`);
+    }
   };
 
   // Obtener restaurante
@@ -126,7 +232,7 @@ const B2BDashboard = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching restaurante:", error);
+        // Error al obtener restaurante
       } finally {
         setLoadingRestaurante(false);
       }
@@ -151,7 +257,7 @@ const B2BDashboard = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching B2B user:", error);
+        // Error al obtener usuario B2B
       }
     };
 
@@ -164,24 +270,17 @@ const B2BDashboard = () => {
   useEffect(() => {
     const obtenerB2bId = async () => {
       if (!usuario) {
-        console.log("⚠️ No hay usuario disponible");
         setLoadingB2bId(false);
         return;
       }
 
-      console.log("🔍 Obteniendo b2b_id para usuario:", usuario);
-
-      // Primero verificar si el usuario ya tiene b2b_id directamente
       if (usuario.b2b_id) {
-        console.log("✅ b2b_id encontrado en usuario:", usuario.b2b_id);
         setB2bId(usuario.b2b_id);
         setLoadingB2bId(false);
         return;
       }
 
-      // Si el usuario tiene un id que podría ser el b2b_id
       if (usuario.id && usuario.rol === 'b2b') {
-        console.log("🔍 Intentando usar usuario.id como b2b_id:", usuario.id);
         try {
           const apiUrl = import.meta.env.DEV
             ? `${urlApi}api/usuariosb2b/${usuario.id}`
@@ -193,7 +292,6 @@ const B2BDashboard = () => {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
               const data = await response.json();
-              console.log("✅ Datos obtenidos:", data);
               if (data.id) {
                 setB2bId(data.id);
                 setLoadingB2bId(false);
@@ -204,16 +302,12 @@ const B2BDashboard = () => {
                 return;
               }
             }
-          } else if (response.status === 404) {
-            // Si es 404, continuar con otros métodos de búsqueda
-            console.log("⚠️ No se encontró usuario B2B con ese ID, intentando otros métodos");
           }
         } catch (error) {
-          console.log("⚠️ Error en primer intento:", error);
+          // Continuar con otros métodos
         }
       }
 
-      // Intentar buscar por usuario_id si existe
       if (usuario.id) {
         try {
           const apiUrl = import.meta.env.DEV
@@ -226,17 +320,12 @@ const B2BDashboard = () => {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
               const data = await response.json();
-              console.log("✅ Datos por usuario_id:", data);
               if (Array.isArray(data) && data.length > 0) {
-                // Si hay múltiples registros, buscar el que coincida con el usuario_id o usar el primero
                 const registroCorrecto = data.find(reg => reg.usuario_id === usuario.id) || data[0];
-                const idEncontrado = registroCorrecto.id;
-                console.log("✅ b2b_id encontrado:", idEncontrado, "de", data.length, "registros");
-                setB2bId(idEncontrado);
+                setB2bId(registroCorrecto.id);
                 setLoadingB2bId(false);
                 return;
               } else if (data.id) {
-                console.log("✅ b2b_id encontrado (objeto único):", data.id);
                 setB2bId(data.id);
                 setLoadingB2bId(false);
                 return;
@@ -244,11 +333,10 @@ const B2BDashboard = () => {
             }
           }
         } catch (error) {
-          console.log("⚠️ Error buscando por usuario_id:", error);
+          // Continuar con otros métodos
         }
       }
 
-      // Intentar buscar por correo
       if (usuario.correo) {
         try {
           const apiUrl = import.meta.env.DEV
@@ -260,7 +348,6 @@ const B2BDashboard = () => {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
               const data = await response.json();
-              console.log("✅ Datos por correo:", data);
               if (Array.isArray(data) && data.length > 0) {
                 setB2bId(data[0].id);
                 setLoadingB2bId(false);
@@ -273,13 +360,11 @@ const B2BDashboard = () => {
             }
           }
         } catch (error) {
-          console.log("⚠️ Error buscando por correo:", error);
+          // Continuar
         }
       }
 
-      // Si nada funciona, usar el id del usuario como último recurso (si es b2b)
       if (usuario.id && usuario.rol === 'b2b') {
-        console.log("⚠️ Usando usuario.id como b2b_id (último recurso):", usuario.id);
         setB2bId(usuario.id);
       }
 
@@ -292,12 +377,10 @@ const B2BDashboard = () => {
   // Función para obtener información de suscripción
   const obtenerSuscripcion = async () => {
     if (!b2bId) {
-      console.log("⚠️ No hay b2bId disponible para obtener suscripción");
       setLoadingSubscription(false);
       return;
     }
 
-    console.log("🔍 Obteniendo suscripción para b2bId:", b2bId);
     setLoadingSubscription(true);
     setSubscriptionError(null);
 
@@ -306,17 +389,12 @@ const B2BDashboard = () => {
         ? `${urlApi}api/stripe-suscripciones/user-subscription/${b2bId}`
         : `https://admin.residente.mx/api/stripe-suscripciones/user-subscription/${b2bId}`;
 
-      console.log("📡 Llamando a:", apiUrl);
       const response = await fetch(apiUrl);
 
-      // Verificar el tipo de contenido antes de parsear
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        // Si no es JSON, probablemente es un error 404 o HTML
         if (response.status === 404) {
-          // Antes de mostrar error, verificar si el usuario tiene suscripción activa
           if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-            console.log('✅ Usuario tiene suscripción activa según objeto usuario (404 en API)');
             setSubscriptionData({
               suscripcionDB: {
                 estado: 'active',
@@ -340,16 +418,11 @@ const B2BDashboard = () => {
         throw new Error(data.error || 'Error al obtener la suscripción');
       }
 
-      // Verificar si hay datos de suscripción (más flexible)
       if (data.success || data.subscription || data.suscripcionDB || data.subscription_id) {
         setSubscriptionData(data);
-        console.log('✅ Información de suscripción obtenida:', data);
-        // Limpiar error si se encontró información
         setSubscriptionError(null);
       } else {
-        // También verificar si el usuario tiene suscripción en su objeto
         if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-          console.log('✅ Usuario tiene suscripción activa según objeto usuario');
           setSubscriptionData({ suscripcionDB: { estado: 'active' }, sincronizado: false });
           setSubscriptionError(null);
         } else {
@@ -357,8 +430,6 @@ const B2BDashboard = () => {
         }
       }
     } catch (error) {
-      console.error('❌ Error obteniendo suscripción:', error);
-      // Manejar errores de parsing de manera más amigable
       if (error.message.includes('JSON') || error.message.includes('Unexpected token')) {
         setSubscriptionError('No se encontró una suscripción activa');
       } else {
@@ -372,8 +443,6 @@ const B2BDashboard = () => {
   // Verificar suscripción inicial desde el objeto usuario
   useEffect(() => {
     if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-      console.log('✅ Usuario tiene suscripción activa según objeto usuario:', usuario.suscripcion);
-      // Si el usuario tiene suscripción activa pero no hay datos de API aún, mostrar estado activo
       if (!subscriptionData && !loadingSubscription) {
         setSubscriptionData({
           suscripcionDB: {
@@ -415,20 +484,22 @@ const B2BDashboard = () => {
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
-    navigate("/login");
+    navigate("/registro");
   };
 
   const handleEditar = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
+    } else {
+      navigate('/formulario');
     }
   };
 
-  const handleVer = () => {
+  {/*const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };
+  };*/}
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -451,7 +522,7 @@ const B2BDashboard = () => {
       : `${imgApi}${restaurante.imagenes[0].src}`)
     : `${imgApi}/fotos/platillos/default.webp`;
 
-  // Calcular total de interacciones de los cupones del usuario
+  // Calcular total de interacciones de  cupones del usuario
   const totalInteraccionesCupones = cupones
     .filter(c => c.user_id === usuario.id)
     .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
@@ -459,12 +530,33 @@ const B2BDashboard = () => {
   const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
   const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
 
+  // Estado para credenciales nuevas (modal)
+  const [credencialesNuevas, setCredencialesNuevas] = useState(null);
+
+  useEffect(() => {
+    // Leer credenciales guardadas en sessionStorage
+    const credenciales = sessionStorage.getItem("credencialesNuevas");
+    if (credenciales) {
+      try {
+        setCredencialesNuevas(JSON.parse(credenciales));
+      } catch {
+        setCredencialesNuevas(null);
+      }
+    }
+  }, [usuario]);
+
+  // Función para cerrar el modal y limpiar credenciales
+  const cerrarBannerCredenciales = () => {
+    setCredencialesNuevas(null);
+    sessionStorage.removeItem("credencialesNuevas");
+  };
+
   return (
     <div>
       {/* Barra superior del usuario */}
       <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-2 pr-6">
         <span className="font-bold text-[14px] mr-3">
-          {usuario?.nombre_usuario || "Usuario B2B"}
+          Usuario: <span className="font-normal">{usuario?.nombre_usuario || "Usuario B2B"}</span>
         </span>
         <img
           src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
@@ -508,22 +600,21 @@ const B2BDashboard = () => {
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
           ) : restaurante ? (
-            <div className="flex items-center gap-3">
-
-
-            </div>
+            <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500">No tienes restaurantes registrados</div>
+            <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
+              Aún no tienes un restaurante registrado.<br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+            </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
-              onClick={handleEditar}
-              disabled={!restaurante}
-              className={`text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60 ${restaurante ? 'bg-black hover:bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+              onClick={restaurante ? handleVer : () => navigate('/formulario')}
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
-              MICROSITIO
+              {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
             </button>
             <button
               onClick={handleCupones}
@@ -549,6 +640,9 @@ const B2BDashboard = () => {
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
               {b2bUser?.telefono || "Teléfono no disponible"}
+            </strong>
+            <strong className="text-xs text-gray-900 font-roman">
+              Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
         </div>
@@ -613,85 +707,42 @@ const B2BDashboard = () => {
             <div>
               <p className="text-[35px] text-left mb-8 leading-none">Canjea tus<br />Beneficios</p>
               <ol>
-                {productos.slice(0, 3).map((producto, index) => (
+                {productos.map((producto) => (
                   <li
                     key={producto.id}
                     className="select-none flex flex-col gap-3"
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold">
-                        {index === 0
-                          ? "Revista Residente"
-                          : index === 1
-                            ? "Pagina web Residente"
-                            : index === 2
-                              ? "Pagina web Residente"
-                              : producto.titulo}
+                        {producto.titulo}
                       </p>
-                      {index === 0 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            ANUNCIO EN REVISTA 1 PAGINA DE
+                      <div>
+                        <p className="text-sm text-black mb-1 uppercase">
+                          {producto.descripcion}
+                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm text-black">
+                            {producto.precio_original ? (
+                              <>
+                                <span className="line-through text-gray-500">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
+                                {" "}
+                              </>
+                            ) : null}
+                            ${Number(producto.precio_descuento || producto.monto || 0).toLocaleString("es-MX")}
                           </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$24,000 A $9,900</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Anuncio
-                            </button>
-                          </div>
+                          <input
+                            type="checkbox"
+                            checked={!!seleccionados[producto.id]}
+                            onChange={() => handleToggleProducto(producto.id)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
                         </div>
-                      )}
-
-                      {index === 1 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            BANNER SEMANAL WEB DE
-                          </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$4,000 A $1,900</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Banner
-                            </button>
-                          </div>
+                        <div className="flex justify-left mb-3">
+                          <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+                            {producto.boton_texto || `Crea Tu ${producto.titulo?.split(' ')[0] || 'Contenido'}`}
+                          </button>
                         </div>
-                      )}
-                      {index === 2 && (
-                        <div>
-                          <p className="text-sm text-black mb-1">
-                            NOTA PRINCIPAL PAGINA WEB DE
-                          </p>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-black">$5,000 A $1,000</p>
-                            <input
-                              type="checkbox"
-                              checked={!!seleccionados[producto.id]}
-                              onChange={() => handleToggleProducto(producto.id)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </div>
-                          <div className="flex justify-left mb-3">
-                            <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                              Crea Tu Nota
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -710,9 +761,21 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <button className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer">
+              <p className="text-sm text-black">El total es el costo de los beneficios seleccionados.</p>
+              {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
+              <button
+                onClick={handleIrAPagar}
+                className="bg-[#fff200] hover:bg-[#fff200] text-black text-sm font-bold px-3 py-1 rounded transition-colors cursor-pointer"
+              >
                 Ir a pagar
               </button>
+
+              {/* 🆕 Mensaje de pago realizado */}
+              {pagoRealizado && (
+                <div className="text-green-600 font-bold text-sm text-center animate-pulse">
+                  ✓ Pago realizado
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -739,6 +802,58 @@ const B2BDashboard = () => {
             document.body
           )}
         </div>
+      )}
+      {credencialesNuevas && createPortal(
+        <div>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60"
+            style={{ zIndex: 9998 }}
+            onClick={cerrarBannerCredenciales}
+          />
+          {/* Modal */}
+          <div
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              <div className="bg-[#fff200] px-6 py-4">
+                <h2 className="text-xl font-bold text-black font-roman">
+                  Credenciales de Acceso
+                </h2>
+              </div>
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Nombre de usuario
+                    </label>
+                    <p className="text-2xl font-bold text-black font-roman">
+                      {credencialesNuevas.nombre_usuario}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Contraseña
+                    </label>
+                    <p className="text-sm text-black font-roman">
+                      Usa la misma contraseña que usaste para registrarte.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={cerrarBannerCredenciales}
+                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

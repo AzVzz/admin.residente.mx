@@ -3,15 +3,15 @@ import { useState, useEffect, useRef } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
 import { urlApi, imgApi } from '../../api/url'
 
-const FotosLugar = ({ existingFotos }) => {
+const FotosLugar = ({ existingFotos, restaurantId }) => {
     const { register, setValue, watch, formState: { errors } } = useFormContext();
     const [previews, setPreviews] = useState([]);
     const [limitReached, setLimitReached] = useState(false);
     const fotos = watch('fotos_lugar') || [];
     const fileInputRef = useRef(null);
     const [fotosEliminadas, setFotosEliminadas] = useState([]);
-    const [isDeleting, setIsDeleting] = useState(false);
     const existingFotosRef = useRef(null);
+    const [mostrarMensaje, setMostrarMensaje] = useState(false);
 
     useEffect(() => {
         register('fotos_lugar');
@@ -192,6 +192,7 @@ const FotosLugar = ({ existingFotos }) => {
             if (combinedPreviews.length >= 5) {
                 setLimitReached(true);
             }
+            setMostrarMensaje(true); // Mostrar mensaje si hay archivos seleccionados
         }
         
         // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
@@ -199,37 +200,27 @@ const FotosLugar = ({ existingFotos }) => {
     };
 
 
-    const removeFoto = async (indexToRemove) => {
+    const removeFoto = (indexToRemove) => {
         const foto = previews[indexToRemove];
 
-        // CORRECCIÓN: Usar foto.url para verificar si es una imagen existente
+        // Verificar si es una imagen existente (del servidor)
         const isExistingFoto = foto.url && !foto.url.startsWith('blob:');
 
+        // Si es una foto existente, agregarla a la lista de fotos eliminadas
+        // Las eliminaciones se procesarán cuando se envíe el formulario
         if (isExistingFoto && foto.id) {
-            try {
-                setIsDeleting(true);
-                const response = await fetch(`${urlApi}api/restaurante/fotos-lugar/${foto.id}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al eliminar la foto del lugar');
+            setFotosEliminadas(prev => {
+                // Evitar duplicados
+                if (prev.includes(foto.id)) {
+                    return prev;
                 }
-
-                setFotosEliminadas(prev => {
-                    const newList = [...prev, foto.id];
-                    setValue('fotos_eliminadas', newList);
-                    return newList;
-                });
-            } catch (error) {
-                console.error('Error al eliminar la foto:', error);
-                return;
-            } finally {
-                setIsDeleting(false);
-            }
+                const newList = [...prev, foto.id];
+                setValue('fotos_eliminadas', newList);
+                return newList;
+            });
         }
 
-        // Eliminar de las previsualizaciones
+        // Eliminar de las previsualizaciones (vista local)
         const newPreviews = previews.filter((_, index) => index !== indexToRemove);
         setPreviews(newPreviews);
         setValue('fotos_lugar', newPreviews, { shouldValidate: true });
@@ -257,7 +248,6 @@ const FotosLugar = ({ existingFotos }) => {
                 <legend className="text-black px-4 text-3xl uppercase font-bold">
                     Fotos del Lugar (Máximo 5)
                 </legend>
-
                 <div className="mb-4">
                     <input
                         type="file"
@@ -268,23 +258,26 @@ const FotosLugar = ({ existingFotos }) => {
                         className="hidden"
                         disabled={limitReached}
                     />
-
                     <input
                         type="hidden"
                         {...register('fotos_eliminadas')}
                         value={JSON.stringify(fotosEliminadas)}
                     />
-
                     <button
                         type="button"
                         onClick={() => !limitReached && fileInputRef.current.click()}
                         className={`text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300
                             ${limitReached ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 cursor-pointer'}`}
-                        disabled={limitReached || isDeleting}
+                        disabled={limitReached}
                     >
                         {limitReached ? 'Límite alcanzado' : 'Elegir archivos'}
                     </button>
-
+                    {/* Mensaje solo si hay fotos seleccionadas */}
+                    {mostrarMensaje && (
+                        <p className="text-info-fotos" style={{ color: '#b91c1c', fontWeight: 'bold', marginTop: 4 }}>
+                            Las fotos deben ser horizontales. Si subes fotos verticales, no se verán bien en la galería.
+                        </p>
+                    )}
                     {limitReached && (
                         <div className="mt-3 flex items-center bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
                             <FiAlertCircle className="text-yellow-500 text-xl mr-2" />
@@ -297,7 +290,7 @@ const FotosLugar = ({ existingFotos }) => {
 
                 <div className="flex flex-wrap gap-4 mt-4">
                     {previews.length === 0 && (
-                        <p className="text-gray-500 text-sm">No hay fotos cargadas. Haz clic en "Elegir archivos" para agregar fotos.</p>
+                        <p className="text-gray-500 text-sm">No hay fotos cargadas. Haz clic en "Elegir archivos" para agregar fotos. Máximo 15MB</p>
                     )}
                     {previews.map((foto, index) => {
                         const imageUrl = foto.url || foto.preview;
@@ -322,11 +315,9 @@ const FotosLugar = ({ existingFotos }) => {
                             <button
                                 type="button"
                                 onClick={() => removeFoto(index)}
-                                disabled={isDeleting}
-                                className={`absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center
-                                    ${isDeleting ? 'bg-gray-500' : 'bg-orange-500 hover:bg-red-500'}`}
+                                className="absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center bg-orange-500 hover:bg-red-500"
                             >
-                                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                                Eliminar
                             </button>
                             <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-0.5 rounded">
                                 {index + 1}/5

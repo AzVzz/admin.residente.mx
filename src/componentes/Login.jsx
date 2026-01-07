@@ -29,10 +29,8 @@ const Login = () => {
   const getFallbackByRole = (rol, permisos) => {
     const r = rol?.toLowerCase();
     if (r === "b2b") return "/dashboardb2b";
-    // Para usuarios "residente" o "invitado" con permisos, redirigir a /notas
-    // Esto permite que usuarios "invitado" puedan acceder al dashboard para crear notas
-    if (r === "residente" || r === "invitado") return "/notas";
-    if (r === "colaborador") return "/colaboradores";
+    // Para usuarios "residente", "invitado" o "colaborador", redirigir a /notas
+    if (r === "residente" || r === "invitado" || r === "colaborador") return "/notas";
     return "/"; // otros roles
   };
 
@@ -44,8 +42,8 @@ const Login = () => {
       return path.startsWith("/dashboardb2b");
     }
 
-    // residente e invitado pueden ir a /notas y lo que cuelgue de ahí
-    if (r === "residente" || r === "invitado") {
+    // residente, invitado y colaborador pueden ir a /notas y lo que cuelgue de ahí
+    if (r === "residente" || r === "invitado" || r === "colaborador") {
       return path.startsWith("/notas");
     }
 
@@ -128,16 +126,16 @@ const Login = () => {
     }
   };
 
-  
+
   // Formulario de login centrado solo en /login
   if (location.pathname === "/login") {
     return (
-      
+
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <div className="flex justify-center mb-4">
-          <img 
-            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp" 
-            alt="Logo Residente" 
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
+            alt="Logo Residente"
             className="h-16 w-auto"
           />
         </div>

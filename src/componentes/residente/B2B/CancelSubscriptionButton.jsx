@@ -13,7 +13,7 @@ const CancelSubscriptionButton = ({ b2bId, onCancelSuccess }) => {
   const handleCancelSubscription = async () => {
     if (!b2bId) {
       setError('No se encontró el ID del usuario B2B');
-      return;  
+      return;
     }
 
     setLoading(true);
@@ -40,16 +40,16 @@ const CancelSubscriptionButton = ({ b2bId, onCancelSuccess }) => {
       }
 
       setCancelInfo(data);
-      
+
       // Si la invoice requiere pago manual, redirigir al usuario
       if (data.invoiceStatus === 'open' && data.invoiceUrl) {
         window.location.href = data.invoiceUrl;
       } else if (data.subscriptionCanceled) {
         // Si ya se canceló automáticamente
         const mensaje = `Suscripción cancelada exitosamente. Se cobraron ${data.mesesRestantes} mes(es) restante(s) por un total de $${(data.montoCobrado / 100).toFixed(2)} ${data.moneda.toUpperCase()}.\n\nTu sesión será cerrada y no podrás acceder al dashboard B2B.`;
-        
+
         alert(mensaje);
-        
+
         // Actualizar el usuario en el contexto para reflejar que suscripcion es 0
         // Esto asegura que si intenta acceder de nuevo, será bloqueado
         const usuarioActualizado = {
@@ -57,17 +57,17 @@ const CancelSubscriptionButton = ({ b2bId, onCancelSuccess }) => {
           suscripcion: 0
         };
         saveUsuario(usuarioActualizado);
-        
+
         // Llamar al callback si existe
         if (onCancelSuccess) {
           onCancelSuccess(data);
         }
-        
+
         // Cerrar sesión y redirigir después de un breve delay
         setTimeout(() => {
           saveToken(null);
           saveUsuario(null);
-          navigate('/login?mensaje=Suscripción cancelada exitosamente');
+          navigate('/registro');
         }, 1500);
       }
 
