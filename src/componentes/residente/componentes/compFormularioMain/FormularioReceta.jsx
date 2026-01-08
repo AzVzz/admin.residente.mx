@@ -174,7 +174,11 @@ export default function FormularioReceta({
   };
 
   // --- AUTO-GENERACIÓN SEO (Recetas) ---
+  // NOTA: Solo ejecutar para recetas NUEVAS, no cuando se está editando
   useEffect(() => {
+    // Si estamos editando una receta existente, NO sobrescribir los campos SEO
+    if (receta) return;
+
     const { titulo, categoria, descripcion, autor } = formData;
 
     // Evitar actualizaciones innecesarias si no hay datos básicos
@@ -209,6 +213,7 @@ export default function FormularioReceta({
       };
     });
   }, [
+    receta,
     formData.titulo,
     formData.categoria,
     formData.descripcion,

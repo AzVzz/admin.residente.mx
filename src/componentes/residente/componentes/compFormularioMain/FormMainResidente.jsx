@@ -208,10 +208,14 @@ const FormMainResidente = () => {
   }, [faltanCamposObligatorios, setValue]);
 
   // --- AUTO-GENERACIÓN SEO (Notas) ---
+  // NOTA: Solo ejecutar para notas NUEVAS, no cuando se está editando
   const zonas = watch("zonas");
   const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
 
   useEffect(() => {
+    // Si estamos editando una nota existente, NO sobrescribir los campos SEO
+    if (notaId) return;
+
     // Evitar ejecutar si no hay datos mínimos
     if (!titulo) return;
 
@@ -253,6 +257,7 @@ const FormMainResidente = () => {
     setValue("seo_keyword", seoKeyword);
     setValue("seo_alt_text", altText);
   }, [
+    notaId,
     titulo,
     subtitulo,
     nombreRestaurante,
