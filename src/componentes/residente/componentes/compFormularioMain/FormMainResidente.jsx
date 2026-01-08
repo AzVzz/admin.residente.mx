@@ -31,6 +31,9 @@ import AlertaNota from "./componentes/AlertaNota.jsx";
 import FormularioPromoExt from "../../../promociones/componentes/FormularioPromoExt.jsx";
 import NombreRestaurante from "./componentes/NombreRestaurante.jsx";
 import DetallePost from "../DetallePost.jsx";
+import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
+import SEOComparison from "./SEOComparison.jsx";
+import { FaRobot } from "react-icons/fa";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -69,14 +72,14 @@ const FormMainResidente = () => {
   // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
   const tipoNotaUsuario = usuario
     ? tipoNotaPorPermiso[usuario.permisos] ||
-      (usuario.permisos &&
+    (usuario.permisos &&
       usuario.permisos !== "usuario" &&
       usuario.permisos !== "todo" &&
       usuario.permisos !== "todos"
-        ? usuario.permisos
-            .replace(/-/g, " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase())
-        : "")
+      ? usuario.permisos
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+      : "")
     : "";
 
   // Redirect B2B users to their dashboard
@@ -138,6 +141,11 @@ const FormMainResidente = () => {
   const [imagenPreview, setImagenPreview] = useState(null);
   const imagenPreviewUrlRef = useRef(null);
 
+  // Estados para Gemini AI
+  const { optimizarNota, loading: geminiLoading } = useGeminiSEO();
+  const [showSEOComparison, setShowSEOComparison] = useState(false);
+  const [seoOptimizado, setSeoOptimizado] = useState(null);
+
   // Watch para mostrar en tiempo real las notas editandose:
   const titulo = watch("titulo");
   const subtitulo = watch("subtitulo");
@@ -151,9 +159,9 @@ const FormMainResidente = () => {
     // Elimina etiquetas HTML y espacios
     const textoPlano = contenido
       ? contenido
-          .replace(/<[^>]*>/g, "")
-          .replace(/&nbsp;/g, "")
-          .trim()
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, "")
+        .trim()
       : "";
     return !textoPlano;
   }
@@ -181,8 +189,7 @@ const FormMainResidente = () => {
     : [];
   if (stickersSeleccionados.length < 2) {
     camposFaltantes.push(
-      `selecciona ${2 - stickersSeleccionados.length} sticker${
-        2 - stickersSeleccionados.length === 1 ? "" : "s"
+      `selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? "" : "s"
       }`
     );
   }
@@ -407,12 +414,12 @@ const FormMainResidente = () => {
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
               ? data.secciones_categorias.reduce(
-                  (acc, { seccion, categoria }) => {
-                    acc[seccion] = categoria;
-                    return acc;
-                  },
-                  {}
-                )
+                (acc, { seccion, categoria }) => {
+                  acc[seccion] = categoria;
+                  return acc;
+                },
+                {}
+              )
               : {},
             sticker: data.sticker || "",
             destacada: !!data.destacada,
@@ -473,15 +480,15 @@ const FormMainResidente = () => {
         data.opcionPublicacion === "programar"
           ? "programada"
           : data.opcionPublicacion === "borrador"
-          ? "borrador"
-          : "publicada";
+            ? "borrador"
+            : "publicada";
     } else {
       estadoFinal =
         data.opcionPublicacion === "programar"
           ? "programada"
           : data.opcionPublicacion === "borrador"
-          ? "borrador"
-          : "publicada";
+            ? "borrador"
+            : "publicada";
     }
 
     try {
@@ -717,29 +724,29 @@ const FormMainResidente = () => {
                   usuario?.rol?.toLowerCase() === "invitados" ||
                   usuario?.permisos?.toLowerCase() === "invitado" ||
                   usuario?.permisos?.toLowerCase() === "invitados") && (
-                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <label className="inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={watch("destacada_invitado") === 1}
-                        onChange={(e) => {
-                          setValue(
-                            "destacada_invitado",
-                            e.target.checked ? 1 : 0
-                          );
-                        }}
-                        className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                      />
-                      <span className="ml-2 font-roman font-bold text-gray-700">
-                        ⭐ Marcar como nota destacada para invitados
-                      </span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Las notas destacadas aparecen en secciones especiales del
-                      sitio
-                    </p>
-                  </div>
-                )}
+                    <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={watch("destacada_invitado") === 1}
+                          onChange={(e) => {
+                            setValue(
+                              "destacada_invitado",
+                              e.target.checked ? 1 : 0
+                            );
+                          }}
+                          className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+                        />
+                        <span className="ml-2 font-roman font-bold text-gray-700">
+                          ⭐ Marcar como nota destacada para invitados
+                        </span>
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Las notas destacadas aparecen en secciones especiales del
+                        sitio
+                      </p>
+                    </div>
+                  )}
 
                 <div>
                   <NombreRestaurante />
@@ -795,11 +802,10 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="publicar-ahora"
-                          className={`text-sm text-yellow-800 cursor-pointer ${
-                            faltanCamposObligatorios
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                            }`}
                         >
                           Publicar ahora
                         </label>
@@ -816,11 +822,10 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="programar"
-                          className={`text-sm text-yellow-800 cursor-pointer ${
-                            faltanCamposObligatorios
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                            }`}
                         >
                           Programar publicación
                         </label>
@@ -863,11 +868,48 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
-                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
-                <div
-                  className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg"
-                  style={{ display: "none" }}
-                >
+                {/* Botón para optimizar con IA */}
+                <div className="mb-6 pb-4">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!titulo || !contenido) {
+                        alert('Necesitas al menos un título y contenido para optimizar con IA');
+                        return;
+                      }
+
+                      try {
+                        const optimizado = await optimizarNota({
+                          titulo,
+                          subtitulo,
+                          descripcion: contenido,
+                          autor,
+                          tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario,
+                          nombre_restaurante: nombreRestaurante
+                        });
+
+                        setSeoOptimizado(optimizado);
+                        setShowSEOComparison(true);
+                      } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al optimizar con IA: ' + error.message);
+                      }
+                    }}
+                    disabled={geminiLoading || !titulo || !contenido}
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    <FaRobot className="text-2xl" />
+                    <span className="text-lg">
+                      {geminiLoading ? 'Optimizando con IA...' : 'Optimizar Contenido y SEO con IA'}
+                    </span>
+                  </button>
+                  <p className="text-sm text-gray-500 mt-2 text-center">
+                    La IA mejorará tu título, subtítulo, descripción y campos SEO automáticamente
+                  </p>
+                </div>
+
+                {/* Sección SEO Metadata */}
+                <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">
                     SEO Metadata (Opcional)
                   </h3>
@@ -927,11 +969,10 @@ const FormMainResidente = () => {
                       type="button"
                       onClick={eliminarNota}
                       disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                        eliminando
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-red-600 text-white hover:bg-red-700"
-                      }`}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${eliminando
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                        }`}
                     >
                       {eliminando ? "Eliminando..." : "Eliminar Nota"}
                     </button>
@@ -992,6 +1033,35 @@ const FormMainResidente = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de comparación SEO */}
+      {showSEOComparison && seoOptimizado && (
+        <SEOComparison
+          original={{
+            titulo,
+            subtitulo,
+            descripcion: contenido,
+            seo_title: watch('seo_title'),
+            seo_keyword: watch('seo_keyword'),
+            meta_description: watch('meta_description'),
+            seo_alt_text: watch('seo_alt_text')
+          }}
+          optimizado={seoOptimizado}
+          onSelect={(camposSeleccionados) => {
+            // Aplicar solo los campos que el usuario seleccionó
+            if (camposSeleccionados.titulo) setValue('titulo', seoOptimizado.titulo);
+            if (camposSeleccionados.subtitulo) setValue('subtitulo', seoOptimizado.subtitulo);
+            if (camposSeleccionados.descripcion) setValue('contenido', seoOptimizado.descripcion);
+            if (camposSeleccionados.seo_title) setValue('seo_title', seoOptimizado.seo_title);
+            if (camposSeleccionados.seo_keyword) setValue('seo_keyword', seoOptimizado.seo_keyword);
+            if (camposSeleccionados.meta_description) setValue('meta_description', seoOptimizado.meta_description);
+            if (camposSeleccionados.seo_alt_text) setValue('seo_alt_text', seoOptimizado.seo_alt_text);
+            setShowSEOComparison(false);
+          }}
+          onClose={() => setShowSEOComparison(false)}
+          tipo="nota"
+        />
+      )}
     </div>
   );
 };
