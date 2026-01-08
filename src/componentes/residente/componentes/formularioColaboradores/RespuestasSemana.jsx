@@ -56,9 +56,11 @@ const RespuestasSemana = () => {
         getPreguntaActual()
             .then(data => setPregunta(data.pregunta || ""))
             .catch(() => setPregunta(""));
-
         getColaboradores()
-            .then(setConsejeros)
+            .then(data => {
+                console.log("Consejeros cargados:", data);
+                setConsejeros(data);
+            })
             .catch(() => setConsejeros([]));
     }, []);
 
@@ -67,7 +69,6 @@ const RespuestasSemana = () => {
         if (usuario && isColaborador && consejeros.length > 0 && usuario.id) {
             console.log("Buscando consejero para usuario ID:", usuario.id);
             console.log("Lista de consejeros:", consejeros);
-
             const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
             if (consejero) {
                 setIdConsejero(consejero.id);
@@ -78,7 +79,36 @@ const RespuestasSemana = () => {
                 console.log("IDs disponibles:", consejeros.map(c => c.usuario_id));
             }
         }
-    }, [consejeros]);
+    }, [usuario, isColaborador, consejeros]);
+
+    // Cargar colaboración si viene en modo edición
+    useEffect(() => {
+        if (editarId && isLogged) {
+            const loadColaboracion = async () => {
+                try {
+                    const data = await getRespuestaPorId(editarId);
+                    setTitulo(data.titulo || "");
+                    setCurriculum(data.respuesta_colaboracion || "");
+                    setTextoConsejo(data.texto_consejo || "");
+                    setRespuestaConsejo(data.respuesta_consejo === 1 || data.respuesta_consejo === true);
+
+                    if (data.imagen) {
+                        setImagenActual(data.imagen);
+                        setImagenPreview(data.imagen);
+                    }
+                } catch (error) {
+                    console.error("Error cargando colaboración:", error);
+                    setMensaje("Error al cargar los datos de la colaboración");
+                } finally {
+                    setCargandoDatos(false);
+                }
+            };
+
+            loadColaboracion();
+        } else {
+            setCargandoDatos(false);
+        }
+    }, [editarId, isLogged]);
 
     const handleImageChange = (e) => {
         const file = e.target.files && e.target.files[0];
@@ -173,7 +203,7 @@ const RespuestasSemana = () => {
         <div className="max-w-[1080px] mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
                 <div>
-                    {/* Si NO es colaborador, solo muestra el mensaje */}
+                    {/* Validar acceso sin mostrar mensaje de carga */}
                     {(!isLogged || !isColaborador) ? (
                         <div className="p-6 bg-white border border-red-400 rounded text-center">
                             <div className="text-2xl font-bold text-red-600 mb-2">

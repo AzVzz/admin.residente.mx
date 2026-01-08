@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import TerminosyCondiciones from "./TerminosyCondiciones";
 import {
@@ -19,11 +20,330 @@ import { Dialog, Transition } from "@headlessui/react";
 import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
 
+// 👇 FORMULARIO EXTRAÍDO FUERA DEL COMPONENTE PRINCIPAL
+const FormularioB2B = ({
+  formData,
+  handleChange,
+  handlePaymentClick,
+  showPassword,
+  setShowPassword,
+  showConfirmPassword,
+  setShowConfirmPassword,
+  numeroSucursales,
+  setNumeroSucursales,
+  preciosDisponibles,
+  loadingPrecios,
+  setShowModal,
+  successMsg,
+  paymentCompleted,
+  creatingAccount,
+  paymentError,
+  paymentLoading,
+  clienteVetado,
+  checkingVetado,
+  usernameExists,
+  checkingUsername,
+  emailExists,
+  emailValid,
+  checkingEmail
+}) => (
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      handlePaymentClick();
+    }}
+    className="space-y-3 sm:space-y-0"
+  >
+    {/* Campo nombre del responsable */}
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Nombre del responsable*
+      </label>
+      <input
+        type="text"
+        name="nombre_responsable_restaurante"
+        value={formData.nombre_responsable_restaurante}
+        onChange={handleChange}
+        placeholder="Nombre del responsable"
+        className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+        required
+      />
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Nombre comercial del restaurante*
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          name="nombre_restaurante"
+          value={formData.nombre_restaurante}
+          onChange={handleChange}
+          placeholder="Nombre del restaurante"
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${clienteVetado
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+            }`}
+          required
+        />
+        {checkingVetado && (
+          <span className="absolute right-3 top-2 text-gray-400 text-sm">
+            Verificando...
+          </span>
+        )}
+      </div>
+      {clienteVetado && !checkingVetado && (
+        <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
+          <p className="mb-3">⚠️ Este restaurante no puede registrarse en este momento.</p>
+          <p className="text-red-500 text-sm sm:text-xs">Por favor, contacta a un administrador para más información.</p>
+        </div>
+      )}
+      {!clienteVetado && !checkingVetado && formData.nombre_restaurante.length >= 3 && (
+        <p className="text-green-500 text-xs mt-1">✓ Restaurante disponible para registro</p>
+      )}
+      {!clienteVetado && formData.nombre_restaurante && <div className="mb-4"></div>}
+      {!formData.nombre_restaurante && <div className="mb-4"></div>}
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Teléfono*
+      </label>
+      <input
+        type="text"
+        name="telefono"
+        value={formData.telefono}
+        onChange={handleChange}
+        placeholder="Teléfono del restaurante"
+        className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+        required
+      />
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Correo Electrónico*
+      </label>
+      <input
+        type="email"
+        name="correo"
+        value={formData.correo}
+        onChange={handleChange}
+        placeholder="Escribe tu correo electrónico"
+        className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${emailExists || !emailValid
+          ? "border-red-500 focus:ring-red-500"
+          : "border-gray-300 focus:ring-blue-500"
+          }`}
+        required
+      />
+      {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
+      {!emailValid && !checkingEmail && formData.correo && (
+        <p className="text-red-500 text-sm mt-1 font-bold">⚠️ El formato del correo no es válido</p>
+      )}
+      {emailExists && emailValid && !checkingEmail && (
+        <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este correo ya está registrado. Por favor, usa otro o inicia sesión.</p>
+      )}
+      {!emailExists && emailValid && !checkingEmail && formData.correo && formData.correo.includes("@") && (
+        <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+      )}
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        RFC*
+      </label>
+      <input
+        type="text"
+        name="rfc"
+        value={formData.rfc}
+        onChange={handleChange}
+        placeholder="Escribe tu RFC"
+        className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+        required
+      />
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Dirección completa del restaurante*
+      </label>
+      <input
+        type="text"
+        name="direccion_completa"
+        value={formData.direccion_completa}
+        onChange={handleChange}
+        placeholder="Calle, número, colonia, municipio, código postal"
+        className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+        required
+      />
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Razón Social*
+      </label>
+      <input
+        type="text"
+        name="razon_social"
+        value={formData.razon_social}
+        onChange={handleChange}
+        placeholder="Escribe la razón social"
+        className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+        required
+      />
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Nombre de usuario*
+      </label>
+      <input
+        type="text"
+        name="nombre_usuario"
+        value={formData.nombre_usuario}
+        onChange={handleChange}
+        placeholder="Tu nombre de usuario"
+        className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${usernameExists
+          ? "border-red-500 focus:ring-red-500"
+          : "border-gray-300 focus:ring-blue-500"
+          }`}
+        required
+      />
+      {checkingUsername && <p className="text-gray-500 text-xs mt-1">Verificando disponibilidad...</p>}
+      {usernameExists && !checkingUsername && (
+        <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este nombre de usuario ya existe. Por favor, elige otro.</p>
+      )}
+      {!usernameExists && !checkingUsername && formData.nombre_usuario.length >= 3 && (
+        <p className="text-green-500 text-xs mt-1">✓ Nombre de usuario disponible</p>
+      )}
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Contraseña*
+      </label>
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Escribe tu contraseña"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+        <button
+          type="button"
+          className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+          onClick={() => setShowPassword((v) => !v)}
+        >
+          {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Confirmar Contraseña*
+      </label>
+      <div className="relative">
+        <input
+          type={showConfirmPassword ? "text" : "password"}
+          name="confirm_password"
+          value={formData.confirm_password}
+          onChange={handleChange}
+          placeholder="Confirma tu contraseña"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+        <button
+          type="button"
+          className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+          onClick={() => setShowConfirmPassword((v) => !v)}
+          tabIndex={-1}
+        >
+          {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+        </button>
+      </div>
+    </div>
+
+    {/* Selector de número de sucursales */}
+    <div className="sm:mb-4">
+      <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+        Número de sucursales*
+      </label>
+      {loadingPrecios ? (
+        <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
+          Cargando precios...
+        </div>
+      ) : (
+        <select
+          value={numeroSucursales}
+          onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
+        >
+          {preciosDisponibles.map((precio) => (
+            <option
+              key={precio.priceId}
+              value={precio.sucursales === "5+" ? 5 : precio.sucursales}
+            >
+              {precio.sucursalesTexto}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
+
+    <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
+      <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
+      <span className="font-roman text-base sm:text-sm">
+        Acepto los{" "}
+        <button
+          type="button"
+          className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
+          onClick={() => setShowModal(true)}
+        >
+          Términos y Condiciones
+        </button>
+        *
+      </span>
+    </div>
+
+    {/* Mensajes */}
+    {successMsg && (
+      <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
+    )}
+
+    {paymentCompleted && creatingAccount && (
+      <div className="text-blue-600 font-bold text-center mt-4 mb-4">
+        <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
+      </div>
+    )}
+
+    {paymentError && (
+      <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+        {paymentError}
+      </div>
+    )}
+
+    {/* Botón de Pagar */}
+    <button
+      type="submit"
+      disabled={paymentLoading || creatingAccount || clienteVetado}
+      className={`font-bold py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || creatingAccount || clienteVetado) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
+        }`}
+    >
+      {clienteVetado ? "No disponible" : paymentLoading || creatingAccount ? "Procesando..." : "Ir a Pagar"}
+    </button>
+  </form>
+);
+
 const FormMain = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // <-- nuevo estado
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
@@ -41,13 +361,13 @@ const FormMain = () => {
     razon_social: "",
     nombre_usuario: "",
     password: "",
-    confirm_password: "", // <-- nuevo campo
+    confirm_password: "",
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
   const { saveToken, saveUsuario } = useAuth();
 
-  // Precios de fallback (se usan si el endpoint no está disponible)
+  // Precios de fallback
   const PRECIOS_FALLBACK = [
     { sucursales: 1, sucursalesTexto: "1 sucursal", precioMensual: 2199, precioMensualConIVA: 2550.84, nombre: "Plan 1 Sucursal", priceId: "fallback_1" },
     { sucursales: 2, sucursalesTexto: "2 sucursales", precioMensual: 2599, precioMensualConIVA: 3014.84, nombre: "Plan 2 Sucursales", priceId: "fallback_2" },
@@ -59,7 +379,7 @@ const FormMain = () => {
   // Estados para número de sucursales y precios
   const [numeroSucursales, setNumeroSucursales] = useState(1);
   const [preciosDisponibles, setPreciosDisponibles] = useState(PRECIOS_FALLBACK);
-  const [loadingPrecios, setLoadingPrecios] = useState(true);
+  const [loadingPrecios, setLoadingPrecios] = useState(false);
   const [precioSeleccionado, setPrecioSeleccionado] = useState(PRECIOS_FALLBACK[0]);
 
   // Estados para verificación de nombre de usuario
@@ -71,6 +391,12 @@ const FormMain = () => {
   const [clienteVetado, setClienteVetado] = useState(false);
   const [checkingVetado, setCheckingVetado] = useState(false);
   const vetadoDebounceRef = useRef(null);
+
+  // Estados para verificación de correo
+  const [emailExists, setEmailExists] = useState(false);
+  const [emailValid, setEmailValid] = useState(true);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const emailDebounceRef = useRef(null);
 
   // 🎯 LAZY LOAD: Función para obtener precios desde el backend solo cuando sea necesario
   const fetchPrecios = async () => {
@@ -114,8 +440,6 @@ const FormMain = () => {
   // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
     if (preciosDisponibles.length > 0) {
-      // Buscar el precio correspondiente al número de sucursales
-      // Si es 5 o más, usar el precio de "5+"
       const sucursalesKey = numeroSucursales >= 5 ? "5+" : numeroSucursales;
       const precio = preciosDisponibles.find(p => p.sucursales === sucursalesKey || p.sucursales === numeroSucursales);
       if (precio) {
@@ -126,14 +450,12 @@ const FormMain = () => {
 
   // Verificar si el nombre de usuario ya existe (con debounce)
   useEffect(() => {
-    // Limpiar timeout anterior
     if (usernameDebounceRef.current) {
       clearTimeout(usernameDebounceRef.current);
     }
 
     const nombreUsuario = formData.nombre_usuario.trim();
 
-    // Si no hay nombre de usuario, resetear estado
     if (!nombreUsuario || nombreUsuario.length < 3) {
       setUsernameExists(false);
       setCheckingUsername(false);
@@ -142,7 +464,6 @@ const FormMain = () => {
 
     setCheckingUsername(true);
 
-    // Debounce de 500ms para no hacer peticiones en cada tecla
     usernameDebounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
@@ -164,7 +485,6 @@ const FormMain = () => {
       }
     }, 500);
 
-    // Cleanup
     return () => {
       if (usernameDebounceRef.current) {
         clearTimeout(usernameDebounceRef.current);
@@ -180,7 +500,6 @@ const FormMain = () => {
 
     const nombreRestaurante = formData.nombre_restaurante.trim();
 
-    // Si no hay nombre de restaurante, resetear estado
     if (!nombreRestaurante || nombreRestaurante.length < 3) {
       setClienteVetado(false);
       setCheckingVetado(false);
@@ -189,7 +508,6 @@ const FormMain = () => {
 
     setCheckingVetado(true);
 
-    // Debounce de 500ms
     vetadoDebounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
@@ -218,12 +536,6 @@ const FormMain = () => {
     };
   }, [formData.nombre_restaurante]);
 
-  // Estados para verificación de correo
-  const [emailExists, setEmailExists] = useState(false);
-  const [emailValid, setEmailValid] = useState(true);
-  const [checkingEmail, setCheckingEmail] = useState(false);
-  const emailDebounceRef = useRef(null);
-
   // Verificar si el correo ya existe (con debounce)
   useEffect(() => {
     if (emailDebounceRef.current) {
@@ -232,7 +544,6 @@ const FormMain = () => {
 
     const correo = formData.correo.trim();
 
-    // Si no hay correo, resetear estado
     if (!correo) {
       setEmailExists(false);
       setEmailValid(true);
@@ -240,7 +551,6 @@ const FormMain = () => {
       return;
     }
 
-    // Validar formato básico antes de hacer petición
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
       setEmailExists(false);
@@ -283,7 +593,6 @@ const FormMain = () => {
 
   const handleCreateAccountAfterPayment = useCallback(
     async (formDataToUse, sessionId) => {
-      // Prevenir ejecuciones duplicadas
       if (accountCreationInProgress.current) {
         console.log(
           "⚠️ La creación de cuenta ya está en progreso, ignorando llamada duplicada"
@@ -296,7 +605,6 @@ const FormMain = () => {
       setPaymentError("");
 
       try {
-        // Obtener el session_id de Stripe
         const savedSessionId =
           sessionId ||
           localStorage.getItem("b2b_stripe_session_id") ||
@@ -305,7 +613,6 @@ const FormMain = () => {
         let usuarioRes;
         let usuarioId;
 
-        // Intentar crear el usuario
         try {
           const usuarioData = {
             nombre_usuario: formDataToUse.nombre_usuario,
@@ -315,7 +622,6 @@ const FormMain = () => {
           usuarioRes = await registrob2bPost(usuarioData);
           usuarioId = usuarioRes.usuario.id;
         } catch (error) {
-          // Si el usuario ya existe, intentar obtener el usuario B2B existente
           if (error.message && error.message.includes("ya existe")) {
             console.log(
               "⚠️ El usuario ya existe, buscando usuario B2B existente..."
@@ -355,13 +661,11 @@ const FormMain = () => {
 
                   await extensionB2bPost(b2bData);
 
-                  // Limpiar el estado de pago
                   setPaymentCompleted(false);
                   setStripeSessionId("");
                   localStorage.removeItem("b2b_payment_completed");
                   localStorage.removeItem("b2b_stripe_session_id");
 
-                  // Redirigir a registro
                   window.location.href = "/registro";
                 }
               } catch (sessionError) {
@@ -379,10 +683,8 @@ const FormMain = () => {
           }
         }
 
-        // Si llegamos aquí, el usuario se creó exitosamente
         usuarioId = usuarioRes.usuario.id;
 
-        // Guardar credenciales para el modal del dashboard
         sessionStorage.setItem(
           "credencialesNuevas",
           JSON.stringify({
@@ -397,7 +699,6 @@ const FormMain = () => {
           correo: formDataToUse.correo,
         });
 
-        // Obtener el b2b_id desde el session_id si existe
         let b2bId = null;
         if (savedSessionId) {
           try {
@@ -445,7 +746,6 @@ const FormMain = () => {
 
         console.log("✅ Respuesta del backend usuariosb2b:", b2bRes);
 
-        // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
         if (savedSessionId) {
           try {
             const apiUrl = import.meta.env.DEV
@@ -465,14 +765,12 @@ const FormMain = () => {
           }
         }
 
-        // Limpiar el estado de pago después de crear la cuenta exitosamente
         setPaymentCompleted(false);
         setStripeSessionId("");
         localStorage.removeItem("b2b_payment_completed");
         localStorage.removeItem("b2b_stripe_session_id");
         localStorage.removeItem("b2b_form_data");
 
-        // Login automático
         const loginResp = await loginPost(
           formDataToUse.correo,
           formDataToUse.password
@@ -489,13 +787,10 @@ const FormMain = () => {
         );
         navigate("/dashboardb2b");
 
-        return; // <-- Importante para que no siga ejecutando el resto
-
-        // window.location.href = "/registro"; // <-- Quita o comenta esta línea
+        return;
       } catch (error) {
         console.error("Error en handleCreateAccountAfterPayment:", error);
 
-        // Si el usuario ya tiene registro B2B, significa que ya está creado - redirigir de todas formas
         if (
           error.message &&
           (error.message.includes("ya tiene un registro B2B") ||
@@ -504,12 +799,10 @@ const FormMain = () => {
           console.log(
             "✅ Usuario ya tiene registro B2B, intentando login automático"
           );
-          // Limpiar localStorage
           localStorage.removeItem("b2b_payment_completed");
           localStorage.removeItem("b2b_stripe_session_id");
           localStorage.removeItem("b2b_form_data");
 
-          // Intentar login automático
           try {
             const loginResp = await loginPost(
               formDataToUse.correo,
@@ -542,7 +835,6 @@ const FormMain = () => {
 
   // Verificar si el pago fue completado al cargar el componente
   useEffect(() => {
-    // Verificar query params primero (si viene del checkout)
     const paymentSuccess = searchParams.get("payment_success");
     const paymentCanceled = searchParams.get("payment_canceled");
 
@@ -552,24 +844,19 @@ const FormMain = () => {
       setShowPaymentModal(false);
       setPaymentLoading(false);
       setStripeSessionId(sessionId || "");
-      // Limpiar el query param
       setSearchParams({});
-      // Guardar en localStorage para persistencia
       localStorage.setItem("b2b_payment_completed", "true");
       if (sessionId) {
         localStorage.setItem("b2b_stripe_session_id", sessionId);
       }
 
-      // Restaurar los datos del formulario si existen
       const savedFormData = localStorage.getItem("b2b_form_data");
       if (savedFormData && !accountCreationInProgress.current) {
         try {
           const parsedData = JSON.parse(savedFormData);
           setFormData(parsedData);
-          // Limpiar los datos guardados después de restaurarlos
           localStorage.removeItem("b2b_form_data");
 
-          // Crear la cuenta automáticamente después del pago
           handleCreateAccountAfterPayment(parsedData, sessionId);
         } catch (error) {
           console.error("Error al restaurar datos del formulario:", error);
@@ -580,15 +867,12 @@ const FormMain = () => {
       setPaymentLoading(false);
       setPaymentCompleted(false);
       setSearchParams({});
-      // Limpiar localStorage cuando se cancela el pago
       localStorage.removeItem("b2b_payment_completed");
       localStorage.removeItem("b2b_stripe_session_id");
     } else {
-      // Verificar localStorage como respaldo, pero solo si hay session_id válido
       const storedPayment = localStorage.getItem("b2b_payment_completed");
       const storedSessionId = localStorage.getItem("b2b_stripe_session_id");
 
-      // Solo marcar como completado si hay tanto el flag como un session_id válido
       if (
         storedPayment === "true" &&
         storedSessionId &&
@@ -597,7 +881,6 @@ const FormMain = () => {
         setPaymentCompleted(true);
         setStripeSessionId(storedSessionId);
       } else {
-        // Si no hay session_id válido, limpiar el estado completamente
         setPaymentCompleted(false);
         setStripeSessionId("");
         localStorage.removeItem("b2b_payment_completed");
@@ -605,7 +888,6 @@ const FormMain = () => {
       }
     }
 
-    // Escuchar mensajes de la ventana del checkout (si se abre en popup)
     const handleMessage = (event) => {
       if (event.data && event.data.type === "STRIPE_CHECKOUT_SUCCESS") {
         const sessionId = event.data.sessionId || "";
@@ -618,7 +900,6 @@ const FormMain = () => {
           localStorage.setItem("b2b_stripe_session_id", sessionId);
         }
 
-        // Crear la cuenta automáticamente después del pago
         const savedFormData = localStorage.getItem("b2b_form_data");
         if (savedFormData && !accountCreationInProgress.current) {
           try {
@@ -637,7 +918,6 @@ const FormMain = () => {
   }, [searchParams, setSearchParams]);
 
   const handlePaymentClick = async () => {
-    // Validar si el restaurante está vetado
     if (clienteVetado) {
       setPaymentError(
         "Este restaurante no puede registrarse. Contacta a un administrador."
@@ -645,7 +925,6 @@ const FormMain = () => {
       return;
     }
 
-    // Validar campos obligatorios antes de mostrar el modal
     if (
       !formData.nombre_responsable_restaurante ||
       !formData.correo ||
@@ -661,7 +940,6 @@ const FormMain = () => {
     // 🎯 LAZY LOAD: Cargar precios de Stripe solo cuando el usuario va a pagar
     await fetchPrecios();
 
-    // Mostrar el modal de checkout
     setShowPaymentModal(true);
     setPaymentError("");
   };
@@ -671,10 +949,8 @@ const FormMain = () => {
     setPaymentError("");
 
     try {
-      // Guardar el estado del formulario en localStorage antes de ir al checkout
       localStorage.setItem("b2b_form_data", JSON.stringify(formData));
 
-      // Crear sesión de suscripción
       const apiUrl = import.meta.env.DEV
         ? "/api/stripe/create-subscription-session"
         : "https://admin.residente.mx/api/stripe/create-subscription-session";
@@ -682,12 +958,10 @@ const FormMain = () => {
       const successUrl = `${window.location.origin}/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/registrob2b?payment_canceled=true`;
 
-      // Preparar los datos del usuario para enviar al backend
-      // Formato exacto requerido por el backend
       const userData = {
-        nombre_responsable_restaurante: formData.nombre_responsable_restaurante, // ✅ OBLIGATORIO
-        correo: formData.correo, // ✅ OBLIGATORIO
-        telefono: formData.telefono || null, // Opcional
+        nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
+        correo: formData.correo,
+        telefono: formData.telefono || null,
         nombre_responsable: formData.nombre_responsable_restaurante || null,
         razon_social: formData.razon_social || null,
         rfc: formData.rfc || null,
@@ -696,7 +970,6 @@ const FormMain = () => {
         fecha_aceptacion_terminos: new Date().toISOString(),
       };
 
-      // Validar campos obligatorios
       if (!userData.nombre_responsable_restaurante || !userData.correo) {
         setPaymentLoading(false);
         setPaymentError(
@@ -706,9 +979,9 @@ const FormMain = () => {
       }
 
       const requestBody = {
-        numeroSucursales: numeroSucursales, // ✅ OBLIGATORIO - El backend obtiene el priceId según el número de sucursales
-        userData: userData, // ✅ OBLIGATORIO (el backend lo usa para crear el usuario)
-        customerEmail: formData.correo || "", // Opcional pero recomendado
+        numeroSucursales: numeroSucursales,
+        userData: userData,
+        customerEmail: formData.correo || "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
@@ -727,9 +1000,6 @@ const FormMain = () => {
       const data = await res.json();
 
       if (data.url) {
-        // Redirigir directamente a Stripe Checkout
-        // Stripe manejará la redirección y cuando se complete el pago,
-        // redirigirá de vuelta a nuestra successUrl
         window.location.href = data.url;
       } else {
         setPaymentLoading(false);
@@ -750,7 +1020,6 @@ const FormMain = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar que las contraseñas coincidan
     if (formData.password !== formData.confirm_password) {
       setPaymentError("Las contraseñas no coinciden.");
       setTimeout(() => setPaymentError(""), 5000);
@@ -758,14 +1027,12 @@ const FormMain = () => {
     }
 
     try {
-      // Obtener el session_id de Stripe si existe
       const savedSessionId =
         localStorage.getItem("b2b_stripe_session_id") || stripeSessionId;
 
       let usuarioRes;
       let usuarioId;
 
-      // Intentar crear el usuario, pero si ya existe, intentar obtenerlo o actualizar
       try {
         const usuarioData = {
           nombre_usuario: formData.nombre_usuario,
@@ -775,16 +1042,12 @@ const FormMain = () => {
         usuarioRes = await registrob2bPost(usuarioData);
         usuarioId = usuarioRes.usuario.id;
       } catch (error) {
-        // Si el error es que el usuario ya existe, intentar obtener el usuario B2B existente
         if (error.message && error.message.includes("ya existe")) {
           console.log(
             "⚠️ El usuario ya existe, buscando usuario B2B existente..."
           );
 
-          // Si tenemos session_id, el backend debería poder encontrar el usuario B2B
-          // En este caso, solo necesitamos actualizar el usuario B2B con los datos del formulario
           if (savedSessionId) {
-            // Intentar obtener el usuario B2B desde el backend usando el session_id
             try {
               const apiUrl = import.meta.env.DEV
                 ? "/api/stripe/checkout-session/" + savedSessionId
@@ -800,16 +1063,11 @@ const FormMain = () => {
               ) {
                 const b2bId = parseInt(sessionData.session.metadata.b2b_id);
 
-                // ⭐ CRÍTICO: Necesitamos obtener el usuario_id del usuario existente
-                // Por ahora, intentar obtenerlo desde el backend o usar el correo para buscarlo
-                // Actualizar el usuario B2B existente con los datos del formulario
                 const b2bData = {
-                  b2b_id: b2bId, // Especificar que es una actualización
-                  // ⚠️ IMPORTANTE: El backend debe buscar el usuario_id por correo o nombre_usuario
-                  // Por ahora, el backend debería poder encontrarlo si busca por correo
+                  b2b_id: b2bId,
                   nombre_responsable_restaurante:
                     formData.nombre_responsable_restaurante,
-                  correo: formData.correo, // ⭐ CRÍTICO: Para que el backend pueda buscar el usuario_id
+                  correo: formData.correo,
                   nombre_responsable: formData.nombre_responsable_restaurante,
                   telefono: formData.telefono,
                   nombre_restaurante: formData.nombre_restaurante,
@@ -834,7 +1092,6 @@ const FormMain = () => {
             }
           }
 
-          // Si no podemos obtener el usuario B2B, mostrar error más específico
           setSuccessMsg("");
           setPaymentError(
             "El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario."
@@ -842,15 +1099,12 @@ const FormMain = () => {
           setTimeout(() => setPaymentError(""), 5000);
           return;
         } else {
-          // Si es otro error, lanzarlo
           throw error;
         }
       }
 
-      // Si llegamos aquí, el usuario se creó exitosamente
       usuarioId = usuarioRes.usuario.id;
 
-      // Guardar credenciales para el modal del dashboard
       sessionStorage.setItem(
         "credencialesNuevas",
         JSON.stringify({
@@ -865,8 +1119,6 @@ const FormMain = () => {
         correo: formData.correo,
       });
 
-      // ⭐ CRÍTICO: Obtener el b2b_id desde el session_id si existe
-      // El backend ya creó un registro cuando se pagó, necesitamos actualizarlo, no crear uno nuevo
       let b2bId = null;
       if (savedSessionId) {
         try {
@@ -888,10 +1140,10 @@ const FormMain = () => {
       }
 
       const b2bData = {
-        ...(b2bId && { b2b_id: b2bId }), // ⭐ CRÍTICO: Si hay b2b_id, enviarlo para actualizar el registro existente
-        usuario_id: usuarioId, // ⭐ CRÍTICO: El ID del usuario creado en tabla usuarios
+        ...(b2bId && { b2b_id: b2bId }),
+        usuario_id: usuarioId,
         nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
-        correo: formData.correo, // IMPORTANTE: Para que el backend pueda buscar el registro si no hay b2b_id
+        correo: formData.correo,
         nombre_responsable: formData.nombre_responsable_restaurante,
         telefono: formData.telefono,
         nombre_restaurante: formData.nombre_restaurante,
@@ -899,7 +1151,7 @@ const FormMain = () => {
         direccion_completa: formData.direccion_completa,
         razon_social: formData.razon_social,
         terminos_condiciones: true,
-        stripe_session_id: savedSessionId || undefined, // IMPORTANTE: Para que el backend pueda buscar el registro
+        stripe_session_id: savedSessionId || undefined,
       };
 
       console.log("📤 Enviando datos a /api/usuariosb2b:", {
@@ -913,7 +1165,6 @@ const FormMain = () => {
 
       console.log("✅ Respuesta del backend usuariosb2b:", b2bRes);
 
-      // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
       if (savedSessionId) {
         try {
           const apiUrl = import.meta.env.DEV
@@ -930,7 +1181,6 @@ const FormMain = () => {
           });
         } catch (error) {
           console.warn("No se pudo asociar la sesión de Stripe:", error);
-          // No fallar si no se puede asociar, el webhook lo hará eventualmente
         }
       }
 
@@ -947,7 +1197,6 @@ const FormMain = () => {
         password: "",
         confirm_password: "",
       });
-      // Limpiar el estado de pago después de crear la cuenta exitosamente
       setPaymentCompleted(false);
       setStripeSessionId("");
       localStorage.removeItem("b2b_payment_completed");
@@ -959,7 +1208,6 @@ const FormMain = () => {
       }, 3000);
     } catch (error) {
       console.error("Error en handleSubmit:", error);
-      // Mostrar error más amigable al usuario
       if (error.message && error.message.includes("ya existe")) {
         setPaymentError(
           "El usuario ya existe. Por favor, inicia sesión o elige otro nombre de usuario."
@@ -981,309 +1229,12 @@ const FormMain = () => {
     } else {
       document.body.classList.remove("overflow-hidden");
     }
-    // Limpieza por si el componente se desmonta con el modal abierto
     return () => document.body.classList.remove("overflow-hidden");
   }, [showModal]);
-
-  // Componente del formulario reutilizable con estilos responsive (mobile-first)
-  // Usa sm: como breakpoint para desktop (igual que Astro)
-  const FormularioB2B = () => (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handlePaymentClick();
-      }}
-      className="space-y-3 sm:space-y-0"
-    >
-      {/* Campo nombre del responsable */}
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre del responsable*
-        </label>
-        <input
-          type="text"
-          name="nombre_responsable_restaurante"
-          value={formData.nombre_responsable_restaurante}
-          onChange={handleChange}
-          placeholder="Nombre del responsable"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre comercial del restaurante*
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            name="nombre_restaurante"
-            value={formData.nombre_restaurante}
-            onChange={handleChange}
-            placeholder="Nombre del restaurante"
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${clienteVetado
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-              }`}
-            required
-          />
-          {checkingVetado && (
-            <span className="absolute right-3 top-2 text-gray-400 text-sm">
-              Verificando...
-            </span>
-          )}
-        </div>
-        {clienteVetado && !checkingVetado && (
-          <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
-            <p className="mb-3">⚠️ Este restaurante no puede registrarse en este momento.</p>
-            <p className="text-red-500 text-sm sm:text-xs">Por favor, contacta a un administrador para más información.</p>
-          </div>
-        )}
-        {!clienteVetado && !checkingVetado && formData.nombre_restaurante.length >= 3 && (
-          <p className="text-green-500 text-xs mt-1">✓ Restaurante disponible para registro</p>
-        )}
-        {!clienteVetado && formData.nombre_restaurante && <div className="mb-4"></div>}
-        {!formData.nombre_restaurante && <div className="mb-4"></div>}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Teléfono*
-        </label>
-        <input
-          type="text"
-          name="telefono"
-          value={formData.telefono}
-          onChange={handleChange}
-          placeholder="Teléfono del restaurante"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Correo Electrónico*
-        </label>
-        <input
-          type="email"
-          name="correo"
-          value={formData.correo}
-          onChange={handleChange}
-          placeholder="Escribe tu correo electrónico"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${emailExists || !emailValid
-            ? "border-red-500 focus:ring-red-500"
-            : "border-gray-300 focus:ring-blue-500"
-            }`}
-          required
-        />
-        {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
-        {!emailValid && !checkingEmail && formData.correo && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ El formato del correo no es válido</p>
-        )}
-        {emailExists && emailValid && !checkingEmail && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este correo ya está registrado. Por favor, usa otro o inicia sesión.</p>
-        )}
-        {!emailExists && emailValid && !checkingEmail && formData.correo && formData.correo.includes("@") && (
-          <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          RFC*
-        </label>
-        <input
-          type="text"
-          name="rfc"
-          value={formData.rfc}
-          onChange={handleChange}
-          placeholder="Escribe tu RFC"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Dirección completa del restaurante*
-        </label>
-        <input
-          type="text"
-          name="direccion_completa"
-          value={formData.direccion_completa}
-          onChange={handleChange}
-          placeholder="Calle, número, colonia, municipio, código postal"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Razón Social*
-        </label>
-        <input
-          type="text"
-          name="razon_social"
-          value={formData.razon_social}
-          onChange={handleChange}
-          placeholder="Escribe la razón social"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre de usuario*
-        </label>
-        <input
-          type="text"
-          name="nombre_usuario"
-          value={formData.nombre_usuario}
-          onChange={handleChange}
-          placeholder="Tu nombre de usuario"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${usernameExists
-            ? "border-red-500 focus:ring-red-500"
-            : "border-gray-300 focus:ring-blue-500"
-            }`}
-          required
-        />
-        {checkingUsername && <p className="text-gray-500 text-xs mt-1">Verificando disponibilidad...</p>}
-        {usernameExists && !checkingUsername && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este nombre de usuario ya existe. Por favor, elige otro.</p>
-        )}
-        {!usernameExists && !checkingUsername && formData.nombre_usuario.length >= 3 && (
-          <p className="text-green-500 text-xs mt-1">✓ Nombre de usuario disponible</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Contraseña*
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Escribe tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowPassword((v) => !v)}
-          >
-            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Confirmar Contraseña*
-        </label>
-        <div className="relative">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirm_password"
-            value={formData.confirm_password}
-            onChange={handleChange}
-            placeholder="Confirma tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowConfirmPassword((v) => !v)}
-            tabIndex={-1}
-          >
-            {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </button>
-        </div>
-      </div>
-
-      {/* Selector de número de sucursales */}
-      <div className="sm:mb-4">
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Número de sucursales*
-        </label>
-        {loadingPrecios ? (
-          <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
-            Cargando precios...
-          </div>
-        ) : (
-          <select
-            value={numeroSucursales}
-            onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
-          >
-            {preciosDisponibles.map((precio) => (
-              <option
-                key={precio.priceId}
-                value={precio.sucursales === "5+" ? 5 : precio.sucursales}
-              >
-                {precio.sucursalesTexto}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
-        <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
-        <span className="font-roman text-base sm:text-sm">
-          Acepto los{" "}
-          <button
-            type="button"
-            className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
-            onClick={() => setShowModal(true)}
-          >
-            Términos y Condiciones
-          </button>
-          *
-        </span>
-      </div>
-
-      {/* Mensajes */}
-      {successMsg && (
-        <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
-      )}
-
-      {paymentCompleted && creatingAccount && (
-        <div className="text-blue-600 font-bold text-center mt-4 mb-4">
-          <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
-        </div>
-      )}
-
-      {paymentError && (
-        <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          {paymentError}
-        </div>
-      )}
-
-      {/* Botón de Pagar - Igual que Astro */}
-      <button
-        type="submit"
-        disabled={paymentLoading || creatingAccount || clienteVetado}
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || creatingAccount || clienteVetado) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
-          }`}
-      >
-        {clienteVetado ? "No disponible" : paymentLoading || creatingAccount ? "Procesando..." : "Ir a Pagar"}
-      </button>
-    </form>
-  );
 
   return (
     <div className="w-full">
       <div className="flex flex-col">
-        {/* Logo - Alineado igual que en Astro */}
         <img
           className="w-32 sm:w-25 pt-3 pb-5 sm:pb-7 sm:mx-auto"
           src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
@@ -1292,7 +1243,33 @@ const FormMain = () => {
 
         <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">Suscripción B2B</h1>
 
-        <FormularioB2B />
+        {/* 👇 AHORA ESTÁ FUERA Y RECIBE PROPS */}
+        <FormularioB2B
+          formData={formData}
+          handleChange={handleChange}
+          handlePaymentClick={handlePaymentClick}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          showConfirmPassword={showConfirmPassword}
+          setShowConfirmPassword={setShowConfirmPassword}
+          numeroSucursales={numeroSucursales}
+          setNumeroSucursales={setNumeroSucursales}
+          preciosDisponibles={preciosDisponibles}
+          loadingPrecios={loadingPrecios}
+          setShowModal={setShowModal}
+          successMsg={successMsg}
+          paymentCompleted={paymentCompleted}
+          creatingAccount={creatingAccount}
+          paymentError={paymentError}
+          paymentLoading={paymentLoading}
+          clienteVetado={clienteVetado}
+          checkingVetado={checkingVetado}
+          usernameExists={usernameExists}
+          checkingUsername={checkingUsername}
+          emailExists={emailExists}
+          emailValid={emailValid}
+          checkingEmail={checkingEmail}
+        />
       </div>
 
       {/* Modal Terminos y Condiciones using Headless UI */}
@@ -1386,7 +1363,6 @@ const FormMain = () => {
                       Serás redirigido a Stripe para completar tu suscripción de manera segura.
                     </p>
 
-                    {/* Resumen del plan en el modal - igual que Stripe */}
                     <div className="bg-gray-50 rounded-lg p-4 mb-4">
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
