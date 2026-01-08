@@ -694,7 +694,7 @@ export default function FormularioReceta({
           >
             <FaRobot className="text-2xl" />
             <span className="text-lg">
-              {geminiLoading ? 'Optimizando con IA...' : 'Optimizar Receta y SEO con IA'}
+              {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Receta y SEO con Gemini'}
             </span>
           </button>
           <p className="text-sm text-gray-500 mt-2 text-center">
