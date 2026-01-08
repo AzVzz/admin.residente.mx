@@ -6,6 +6,7 @@ import PortadaRevista from "../componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "../componentesColumna1/Infografia";
 
+
 const RespuestasSemana = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -29,41 +30,59 @@ const RespuestasSemana = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [isColaborador, setIsColaborador] = useState(false);
     const [nombreColaborador, setNombreColaborador] = useState("");
-    const [imagenActual, setImagenActual] = useState(null); // Para guardar la imagen actual en edición
+    const [imagenActual, setImagenActual] = useState(null);
     const [cargandoDatos, setCargandoDatos] = useState(editarId ? true : false);
+    const [usuario, setUsuario] = useState(null); // ← NUEVO: Guardamos el usuario completo
+
+    // Obtener usuario del localStorage
+    useEffect(() => {
+        const usuarioStr = localStorage.getItem("admin_usuario") || localStorage.getItem("usuario");
+        let usuarioData = null;
+        try {
+            usuarioData = usuarioStr ? JSON.parse(usuarioStr) : null;
+        } catch {
+            usuarioData = null;
+        }
+
+        console.log("Usuario encontrado:", usuarioData);
+
+        setUsuario(usuarioData);
+        setIsLogged(!!usuarioData);
+        setIsColaborador(usuarioData?.rol === "colaborador");
+        setNombreColaborador(usuarioData?.nombre_usuario || "");
+    }, []);
 
     // Cargar pregunta y consejeros al montar
     useEffect(() => {
         getPreguntaActual()
             .then(data => setPregunta(data.pregunta || ""))
             .catch(() => setPregunta(""));
+
         getColaboradores()
-            .then(setConsejeros)
+            .then(data => {
+                console.log("Consejeros cargados:", data);
+                setConsejeros(data);
+            })
             .catch(() => setConsejeros([]));
     }, []);
 
-    // Cargar datos del usuario logueado
+    // Asignar idConsejero cuando AMBOS consejeros y usuario estén disponibles
     useEffect(() => {
-        const usuarioStr = localStorage.getItem("usuario");
-        let usuario = null;
-        try {
-            usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-        } catch {
-            usuario = null;
-        }
-        setIsLogged(!!usuario);
-        setIsColaborador(usuario?.rol === "colaborador");
-        setNombreColaborador(usuario?.nombre_usuario || "");
+        if (usuario && isColaborador && consejeros.length > 0 && usuario.id) {
+            console.log("Buscando consejero para usuario ID:", usuario.id);
+            console.log("Lista de consejeros:", consejeros);
 
-        if (usuario?.rol === "colaborador" && consejeros.length > 0 && usuario?.id) {
-            const consejero = consejeros.find(c => c.usuario_id === usuario.id);
+            const consejero = consejeros.find(c => c.usuario_id === parseInt(usuario.id));
             if (consejero) {
                 setIdConsejero(consejero.id);
+                console.log("✅ Consejero encontrado:", consejero);
             } else {
                 setIdConsejero("");
+                console.log("❌ No se encontró consejero para usuario ID:", usuario.id);
+                console.log("IDs disponibles:", consejeros.map(c => c.usuario_id));
             }
         }
-    }, [consejeros]);
+    }, [usuario, isColaborador, consejeros]);
 
     // Cargar colaboración si viene en modo edición
     useEffect(() => {
@@ -76,7 +95,6 @@ const RespuestasSemana = () => {
                     setTextoConsejo(data.texto_consejo || "");
                     setRespuestaConsejo(data.respuesta_consejo === 1 || data.respuesta_consejo === true);
 
-                    // Guardar la imagen actual (URL del servidor)
                     if (data.imagen) {
                         setImagenActual(data.imagen);
                         setImagenPreview(data.imagen);
@@ -90,6 +108,8 @@ const RespuestasSemana = () => {
             };
 
             loadColaboracion();
+        } else {
+            setCargandoDatos(false);
         }
     }, [editarId, isLogged]);
 
@@ -140,7 +160,6 @@ const RespuestasSemana = () => {
 
         try {
             if (editarId) {
-                // Modo EDICIÓN - usar PUT
                 await putRespuestaSemana(editarId, {
                     pregunta,
                     respuesta_colaboracion: curriculumToSend,
@@ -151,7 +170,6 @@ const RespuestasSemana = () => {
                 });
                 setMensaje("¡Colaboración actualizada correctamente!");
             } else {
-                // Modo CREAR - usar POST
                 await postRespuestaSemana({
                     id_consejero: idConsejero,
                     pregunta,
@@ -187,9 +205,8 @@ const RespuestasSemana = () => {
     return (
         <div className="max-w-[1080px] mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
-                {/* Columna principal: formulario */}
                 <div>
-                    {/* Si NO es colaborador, solo muestra el mensaje */}
+                    {/* Validar acceso sin mostrar mensaje de carga */}
                     {(!isLogged || !isColaborador) ? (
                         <div className="p-6 bg-white border border-red-400 rounded text-center">
                             <div className="text-2xl font-bold text-red-600 mb-2">
@@ -267,7 +284,6 @@ const RespuestasSemana = () => {
                                     </div>
                                 )}
 
-                                {/* Mensaje de éxito o error justo arriba del botón */}
                                 {mensaje && (
                                     <div className="text-center font-bold mt-4 text-black">
                                         {mensaje}

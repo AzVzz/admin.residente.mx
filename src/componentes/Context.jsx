@@ -8,11 +8,16 @@ const tipoNotaPorPermiso = {
     // agrega más si tienes
 };
 
-// Configuración de cookies compartidas entre subdominios
+// Configuración de cookies y localStorage SEPARADAS de astro.residente.mx
+// Usamos prefijo admin_ para evitar conflictos
 const COOKIE_DOMAIN = '.residente.mx';
-const AUTH_COOKIE_NAME = 'auth_token';
-const USER_COOKIE_NAME = 'auth_usuario';
+const AUTH_COOKIE_NAME = 'admin_auth_token';
+const USER_COOKIE_NAME = 'admin_auth_usuario';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
+
+// Keys de localStorage - También separadas
+const TOKEN_STORAGE_KEY = 'admin_token';
+const USER_STORAGE_KEY = 'admin_usuario';
 
 /**
  * Sincroniza el token y usuario a cookies con dominio compartido
@@ -68,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => {
         // En localhost, localStorage tiene prioridad (cookies pueden fallar sin dominio)
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const stored = localStorage.getItem('token');
+        const stored = localStorage.getItem(TOKEN_STORAGE_KEY);
 
         if (!isLocalhost) {
             const { token: cookieToken } = readFromCookies();
@@ -89,7 +94,7 @@ export const AuthProvider = ({ children }) => {
 
     const [usuario, setUsuario] = useState(() => {
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const stored = localStorage.getItem('usuario');
+        const stored = localStorage.getItem(USER_STORAGE_KEY);
 
         if (!isLocalhost) {
             const { usuario: cookieUsuario } = readFromCookies();
@@ -116,18 +121,18 @@ export const AuthProvider = ({ children }) => {
 
     // Sincronizar estado inicial con localStorage si cambió por cookies
     useEffect(() => {
-        const storedToken = localStorage.getItem('token');
+        const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
 
         // Si el estado actual (token) es diferente al stored, actualizar stored
         if (token && token !== storedToken) {
-            localStorage.setItem('token', token);
-            if (usuario) localStorage.setItem('usuario', JSON.stringify(usuario));
+            localStorage.setItem(TOKEN_STORAGE_KEY, token);
+            if (usuario) localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(usuario));
             // También asegurar cookie
             syncToCookies(token, usuario);
         } else if (!token && storedToken) {
             // Si estado es null pero stored tenía algo, limpiar stored
-            localStorage.removeItem('token');
-            localStorage.removeItem('usuario');
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(USER_STORAGE_KEY);
         } else if (token && usuario) {
             // Asegurar cookie en mount
             syncToCookies(token, usuario);
@@ -137,9 +142,9 @@ export const AuthProvider = ({ children }) => {
     const saveToken = (newToken) => {
         setToken(newToken);
         if (newToken) {
-            localStorage.setItem('token', newToken);
+            localStorage.setItem(TOKEN_STORAGE_KEY, newToken);
         } else {
-            localStorage.removeItem('token');
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
         }
         // Sincronizar a cookies
         syncToCookies(newToken, usuario);
@@ -149,10 +154,10 @@ export const AuthProvider = ({ children }) => {
     const saveUsuario = (datosUsuario) => {
         setUsuario(datosUsuario);
         if (datosUsuario) {
-            localStorage.setItem('usuario', JSON.stringify(datosUsuario));
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(datosUsuario));
             setTipoNotaUsuario(tipoNotaPorPermiso[datosUsuario.permisos] || null);
         } else {
-            localStorage.removeItem('usuario');
+            localStorage.removeItem(USER_STORAGE_KEY);
             setTipoNotaUsuario(null);
         }
         // Sincronizar a cookies
@@ -161,8 +166,8 @@ export const AuthProvider = ({ children }) => {
 
     // Función para hacer logout completo (localStorage + cookies)
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
         syncToCookies(null, null);
         setToken(null);
         setUsuario(null);

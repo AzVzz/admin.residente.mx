@@ -1,11 +1,37 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import Login from "../Login";
 import LoginForm from "../LoginForm";
 import BotonesAnunciateSuscribirme from "./componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "./componentes/componentesColumna1/Infografia";
-import DirectorioVertical from "./componentes/componentesColumna2/DirectorioVertical";
-import PortadaRevista from "./componentes/componentesColumna2/PortadaRevista";
+
+// =============================================================================
+// LAZY LOADING - Componentes de barra lateral (no críticos para primera pintura)
+// =============================================================================
+const DirectorioVertical = lazy(() => import("./componentes/componentesColumna2/DirectorioVertical"));
+const PortadaRevista = lazy(() => import("./componentes/componentesColumna2/PortadaRevista"));
+
+// Skeleton placeholder mientras cargan los componentes laterales
+const SidebarSkeleton = () => (
+  <div className="flex flex-col gap-10 w-full">
+    {/* Skeleton para DirectorioVertical */}
+    <div className="animate-pulse">
+      <div className="h-12 bg-gray-300 rounded w-3/4 mb-3"></div>
+      <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+      <div className="flex gap-2">
+        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+      </div>
+    </div>
+    {/* Skeleton para PortadaRevista */}
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-300 rounded w-1/2 mb-3"></div>
+      <div className="h-48 bg-gray-200 rounded w-full"></div>
+    </div>
+  </div>
+);
 
 const Registro = () => {
   const navigate = useNavigate();
@@ -87,10 +113,12 @@ const Registro = () => {
           </div>
         </div>
 
-        {/* Barra lateral */}
+        {/* Barra lateral con lazy loading */}
         <div className="flex flex-col items-end justify-start gap-10">
-          <DirectorioVertical />
-          <PortadaRevista />
+          <Suspense fallback={<SidebarSkeleton />}>
+            <DirectorioVertical />
+            <PortadaRevista />
+          </Suspense>
         </div>
       </div>
     </div>
@@ -98,3 +126,4 @@ const Registro = () => {
 };
 
 export default Registro;
+

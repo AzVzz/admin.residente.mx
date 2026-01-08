@@ -69,14 +69,14 @@ const FormMainResidente = () => {
   // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
   const tipoNotaUsuario = usuario
     ? tipoNotaPorPermiso[usuario.permisos] ||
-    (usuario.permisos &&
+      (usuario.permisos &&
       usuario.permisos !== "usuario" &&
       usuario.permisos !== "todo" &&
       usuario.permisos !== "todos"
-      ? usuario.permisos
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase())
-      : "")
+        ? usuario.permisos
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+        : "")
     : "";
 
   // Redirect B2B users to their dashboard
@@ -109,6 +109,8 @@ const FormMainResidente = () => {
       categoriasSeleccionadas: {},
       imagen: null,
       instafoto: null,
+      programarInstafoto: false,
+      fechaProgramadaInstafoto: "",
       destacada: false,
       tiposDeNotaSeleccionadas: "",
       zonas: [],
@@ -149,9 +151,9 @@ const FormMainResidente = () => {
     // Elimina etiquetas HTML y espacios
     const textoPlano = contenido
       ? contenido
-        .replace(/<[^>]*>/g, "")
-        .replace(/&nbsp;/g, "")
-        .trim()
+          .replace(/<[^>]*>/g, "")
+          .replace(/&nbsp;/g, "")
+          .trim()
       : "";
     return !textoPlano;
   }
@@ -179,7 +181,8 @@ const FormMainResidente = () => {
     : [];
   if (stickersSeleccionados.length < 2) {
     camposFaltantes.push(
-      `selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? "" : "s"
+      `selecciona ${2 - stickersSeleccionados.length} sticker${
+        2 - stickersSeleccionados.length === 1 ? "" : "s"
       }`
     );
   }
@@ -377,6 +380,23 @@ const FormMainResidente = () => {
             opcionPublicacion = "programar";
           }
 
+          // --- CONVERSIÓN DE FECHA INSTAFOTO ---
+          let fechaProgramadaInstafoto = "";
+          if (data.programar_insta_imagen) {
+            try {
+              const fechaInsta = new Date(data.programar_insta_imagen);
+              const anioInsta = fechaInsta.getFullYear();
+              const mesInsta = String(fechaInsta.getMonth() + 1).padStart(2, "0");
+              const diaInsta = String(fechaInsta.getDate()).padStart(2, "0");
+              const horasInsta = String(fechaInsta.getHours()).padStart(2, "0");
+              const minutosInsta = String(fechaInsta.getMinutes()).padStart(2, "0");
+              fechaProgramadaInstafoto = `${anioInsta}-${mesInsta}-${diaInsta}T${horasInsta}:${minutosInsta}`;
+            } catch (e) {
+              console.error("Error convirtiendo fecha instafoto:", e);
+              fechaProgramadaInstafoto = "";
+            }
+          }
+
           reset({
             titulo: data.titulo,
             subtitulo: data.subtitulo,
@@ -387,12 +407,12 @@ const FormMainResidente = () => {
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
               ? data.secciones_categorias.reduce(
-                (acc, { seccion, categoria }) => {
-                  acc[seccion] = categoria;
-                  return acc;
-                },
-                {}
-              )
+                  (acc, { seccion, categoria }) => {
+                    acc[seccion] = categoria;
+                    return acc;
+                  },
+                  {}
+                )
               : {},
             sticker: data.sticker || "",
             destacada: !!data.destacada,
@@ -409,6 +429,8 @@ const FormMainResidente = () => {
             seo_keyword: data.seo_keyword || "",
             meta_description: data.meta_description || "",
             destacada_invitado: data.destacada_invitado || 0,
+            programarInstafoto: !!data.programar_insta_imagen,
+            fechaProgramadaInstafoto: fechaProgramadaInstafoto,
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -451,15 +473,15 @@ const FormMainResidente = () => {
         data.opcionPublicacion === "programar"
           ? "programada"
           : data.opcionPublicacion === "borrador"
-            ? "borrador"
-            : "publicada";
+          ? "borrador"
+          : "publicada";
     } else {
       estadoFinal =
         data.opcionPublicacion === "programar"
           ? "programada"
           : data.opcionPublicacion === "borrador"
-            ? "borrador"
-            : "publicada";
+          ? "borrador"
+          : "publicada";
     }
 
     try {
@@ -500,6 +522,13 @@ const FormMainResidente = () => {
 
       // Guardar nombre_restaurante SIEMPRE
       datosNota.nombre_restaurante = data.nombre_restaurante || null;
+
+      // Programar instafoto
+      if (data.programarInstafoto && data.fechaProgramadaInstafoto) {
+        datosNota.programar_insta_imagen = data.fechaProgramadaInstafoto;
+      } else {
+        datosNota.programar_insta_imagen = null;
+      }
 
       let resultado;
       if (notaId) {
@@ -683,25 +712,34 @@ const FormMainResidente = () => {
                   return null;
                 })()}
 
-                {/* Checkbox para destacada_invitado - siempre visible */}
-                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={watch("destacada_invitado") === 1}
-                      onChange={(e) => {
-                        setValue("destacada_invitado", e.target.checked ? 1 : 0);
-                      }}
-                      className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                    />
-                    <span className="ml-2 font-roman font-bold text-gray-700">
-                      ⭐ Marcar como nota destacada para invitados
-                    </span>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Las notas destacadas aparecen en secciones especiales del sitio
-                  </p>
-                </div>
+                {/* Checkbox para destacada_invitado - solo visible para usuarios con rol invitado */}
+                {(usuario?.rol?.toLowerCase() === "invitado" ||
+                  usuario?.rol?.toLowerCase() === "invitados" ||
+                  usuario?.permisos?.toLowerCase() === "invitado" ||
+                  usuario?.permisos?.toLowerCase() === "invitados") && (
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={watch("destacada_invitado") === 1}
+                        onChange={(e) => {
+                          setValue(
+                            "destacada_invitado",
+                            e.target.checked ? 1 : 0
+                          );
+                        }}
+                        className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+                      />
+                      <span className="ml-2 font-roman font-bold text-gray-700">
+                        ⭐ Marcar como nota destacada para invitados
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Las notas destacadas aparecen en secciones especiales del
+                      sitio
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <NombreRestaurante />
@@ -757,10 +795,11 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="publicar-ahora"
-                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                            }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           Publicar ahora
                         </label>
@@ -777,10 +816,11 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="programar"
-                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                            }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           Programar publicación
                         </label>
@@ -887,10 +927,11 @@ const FormMainResidente = () => {
                       type="button"
                       onClick={eliminarNota}
                       disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${eliminando
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-red-600 text-white hover:bg-red-700"
-                        }`}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
                     >
                       {eliminando ? "Eliminando..." : "Eliminar Nota"}
                     </button>

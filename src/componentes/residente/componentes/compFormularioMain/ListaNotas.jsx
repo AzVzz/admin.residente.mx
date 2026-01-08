@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
   Link,
@@ -33,18 +34,35 @@ import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
 import SearchNotasLocal from "./SearchNotasLocal";
-import PreguntasSemanales from "./componentesPrincipales/PreguntasSemanales.jsx";
-import FormularioRevistaBannerNueva from "./FormularioRevistaBanner.jsx";
-import VideosDashboard from "./VideosDashboard.jsx";
-import FormNewsletter from "./FormNewsletter.jsx";
-import InfografiaForm from "../../infografia/InfografiaForm.jsx";
-import ListaNotasUanl from "./ListaNotasUanl.jsx";
-import ListaNotasUsuarios from "./ListaNotasUsuarios.jsx";
-import ListaTickets from "./ListaTickets";
-import FormularioReceta from "./FormularioReceta";
-import ListaRecetas from "./ListaRecetas";
-import ListaBlogsColaborador from "./ListaBlogsColaborador.jsx";
-import NoticiasAdmin from "../NoticiasAdmin.jsx";
+
+const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
+const FormularioRevistaBannerNueva = lazy(() => import("./FormularioRevistaBanner.jsx"));
+const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
+const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
+const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
+const ListaNotasUanl = lazy(() => import("./ListaNotasUanl.jsx"));
+const ListaNotasUsuarios = lazy(() => import("./ListaNotasUsuarios.jsx"));
+const ListaTickets = lazy(() => import("./ListaTickets"));
+const FormularioReceta = lazy(() => import("./FormularioReceta"));
+const ListaRecetas = lazy(() => import("./ListaRecetas"));
+const ListaBlogsColaborador = lazy(() => import("./ListaBlogsColaborador.jsx"));
+const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
+const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
+
+import useDebounce from "../../../../hooks/useDebounce";
+
+// Componente de fallback para lazy loading
+const LazyFallback = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    <span className="ml-3 text-gray-500">Cargando...</span>
+  </div>
+);
+
+const mapeoPermisosATipoNota = {
+  "mama-de-rocco": "Mamá de Rocco",
+  "barrio-antiguo": "Barrio Antiguo",
+};
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -63,12 +81,15 @@ const ListaNotas = () => {
   // Función para cambiar vistaActiva y actualizar URL
   const setVistaActiva = (vista) => {
     setVistaActivaInternal(vista);
-    setSearchParams({ vista });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("vista", vista);
+    setSearchParams(newParams);
   };
   const [estado, setEstado] = useState("");
   const [tipoCliente, setTipoCliente] = useState("");
   const [autor, setAutor] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [recetaKey, setRecetaKey] = useState(0);
@@ -76,9 +97,68 @@ const ListaNotas = () => {
   const [recetaEditando, setRecetaEditando] = useState(null);
   const [recargarListaRecetas, setRecargarListaRecetas] = useState(0);
 
-  // Estados para paginación local
-  const [paginaActual, setPaginaActual] = useState(1);
+  // Estados para permisos de invitado
+  const [permisosInvitado, setPermisosInvitado] = useState({
+    permiso_notas: true,
+    permiso_recetas: true,
+    cargando: true,
+  });
+
+  // Estado para mostrar credenciales de nuevo usuario
+  const [credencialesNuevas, setCredencialesNuevas] = useState(null);
+
+  // Verificar si hay credenciales nuevas en sessionStorage
+  useEffect(() => {
+    const credencialesGuardadas = sessionStorage.getItem("credenciales_nuevas");
+    if (credencialesGuardadas) {
+      try {
+        const datos = JSON.parse(credencialesGuardadas);
+        setCredencialesNuevas(datos);
+      } catch (e) {
+        console.error("Error parseando credenciales:", e);
+      }
+    }
+  }, []);
+
+  // Función para cerrar el banner de credenciales
+  const cerrarBannerCredenciales = () => {
+    sessionStorage.removeItem("credenciales_nuevas");
+    setCredencialesNuevas(null);
+  };
+
+  // Leer página inicial de URL
+  const paginaInicial = parseInt(searchParams.get("pageNotas")) || 1;
+
+  // Estados para paginación del servidor
+  const [paginaActual, setPaginaActualInternal] = useState(paginaInicial);
+  const [totalNotas, setTotalNotas] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(0);
   const notasPorPagina = 15;
+
+  // Función para cambiar página y actualizar URL
+  const setPaginaActual = useCallback((pagina) => {
+    const nuevaPagina = typeof pagina === 'function' ? pagina(paginaActual) : pagina;
+    setPaginaActualInternal(nuevaPagina);
+
+    // Actualizar URL manteniendo otros params
+    const newParams = new URLSearchParams(searchParams);
+    if (nuevaPagina === 1) {
+      newParams.delete("pageNotas");
+    } else {
+      newParams.set("pageNotas", nuevaPagina.toString());
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [paginaActual, searchParams, setSearchParams]);
+
+  // 🚀 CACHE: Almacena las páginas ya cargadas
+  const cacheRef = useRef(new Map());
+  const prefetchingRef = useRef(false);
+  const isFirstRun = useRef(true);
+
+  // Función para generar clave de caché
+  const getCacheKey = useCallback((page, filtros) => {
+    return `${page}-${JSON.stringify(filtros)}`;
+  }, []);
 
   //
   useEffect(() => {
@@ -112,7 +192,82 @@ const ListaNotas = () => {
     }
   }, [token, usuario, error, saveToken, saveUsuario, location, navigate]);
 
-  const fetchTodasLasNotas = async () => {
+  // Verificar permisos de invitado usando la API
+  useEffect(() => {
+    const verificarPermisosInvitado = async () => {
+      // Solo verificar si el rol es "invitado"
+      if (usuario?.rol?.toLowerCase() !== "invitado") {
+        setPermisosInvitado({
+          permiso_notas: true,
+          permiso_recetas: true,
+          cargando: false,
+        });
+        return;
+      }
+
+      // Obtener el permiso del usuario (puede estar en localStorage o en usuario.permisos)
+      const permisoUsuario =
+        usuario?.permisos || localStorage.getItem("permisos");
+
+      if (!permisoUsuario) {
+        setPermisosInvitado({
+          permiso_notas: false,
+          permiso_recetas: false,
+          cargando: false,
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://admin.residente.mx/api/invitados/permiso/${encodeURIComponent(
+            permisoUsuario
+          )}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setPermisosInvitado({
+            permiso_notas: data.permiso_notas === 1,
+            permiso_recetas: data.permiso_recetas === 1,
+            cargando: false,
+          });
+        } else {
+          setPermisosInvitado({
+            permiso_notas: false,
+            permiso_recetas: false,
+            cargando: false,
+          });
+        }
+      } catch (error) {
+        setPermisosInvitado({
+
+          permiso_notas: false,
+          permiso_recetas: false,
+          cargando: false,
+        });
+      }
+    };
+
+    verificarPermisosInvitado();
+  }, [usuario]);
+
+  // Construir filtros actuales
+  const buildFiltros = useCallback(() => {
+    const filtros = {};
+    if (estado) filtros.estatus = estado;
+    if (autor) filtros.autor = autor;
+    if (tipoCliente) {
+      const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente] || tipoCliente;
+      filtros.tipo_nota = tipoNotaEsperado;
+    }
+    if (debouncedSearchTerm?.trim()) {
+      filtros.q = debouncedSearchTerm.trim();
+    }
+    return filtros;
+  }, [estado, autor, tipoCliente, debouncedSearchTerm]);
+
+  const fetchTodasLasNotas = async (usarCache = true) => {
     setCargando(true);
     setError(null);
     try {
@@ -145,8 +300,23 @@ const ListaNotas = () => {
         return; // Salir sin hacer la llamada a la API
       }
 
-      // Cargar todas las notas sin paginación
-      const data = await notasTodasGet(token, 1, "all");
+      // Construir filtros para la API
+      const filtros = buildFiltros();
+      const cacheKey = getCacheKey(paginaActual, filtros);
+
+      // Si está en caché y podemos usarla, retornar inmediatamente
+      if (usarCache && cacheRef.current.has(cacheKey)) {
+        const cached = cacheRef.current.get(cacheKey);
+        setNotas(cached.notas);
+        setTodasLasNotas(cached.notas);
+        setTotalNotas(cached.total);
+        setTotalPaginas(cached.totalPages);
+        setCargando(false);
+        return cached;
+      }
+
+      // Cargar notas con paginación del servidor
+      const data = await notasTodasGet(token, paginaActual, notasPorPagina, "", filtros);
 
       // Validar respuesta del servidor
       if (!data) {
@@ -160,55 +330,48 @@ const ListaNotas = () => {
       // FILTRAR NOTAS POR USUARIO/CLIENTE
       let notasFiltradas = data.notas;
 
-      // Si el usuario NO es admin (todos), filtrar por sus notas
-      if (usuario?.permisos !== "todos") {
-        const tipoNotaUsuario =
-          usuario?.permisos &&
-            usuario.permisos !== "usuario" &&
-            usuario.permisos !== "todo"
-            ? usuario.permisos
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())
-            : "";
+      // Si el usuario NO es admin (todos), filtrar por tipo_nota
+      if (usuario?.permisos !== "todos" && usuario?.permisos !== "todo") {
+        // Normalizar el permiso del usuario para comparar con tipo_nota
+        const permisoUsuario = usuario.permisos || "";
+        const permisoNormalizado = permisoUsuario
+          .replace(/-/g, " ")
+          .toLowerCase();
+        const permisoSinEspacios = permisoUsuario
+          .replace(/-/g, "")
+          .toLowerCase();
 
-        if (tipoNotaUsuario) {
-          const tipoNotaUsuarioLower = tipoNotaUsuario.toLowerCase();
+        notasFiltradas = data.notas.filter((nota) => {
+          const tipoNota = (nota.tipo_nota || "").toLowerCase();
+          const tipoNota2 = (nota.tipo_nota2 || "").toLowerCase();
 
-          notasFiltradas = data.notas.filter((nota) => {
-            const tipoNota = (nota.tipo_nota || "").toLowerCase();
-            const tipoNota2 = (nota.tipo_nota2 || "").toLowerCase();
-
-            // Buscar coincidencias más flexibles
-            const coincide =
-              tipoNota.includes(tipoNotaUsuarioLower) ||
-              tipoNota2.includes(tipoNotaUsuarioLower) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "")) ||
-              tipoNota.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
-              tipoNota2.includes(tipoNotaUsuarioLower.replace(/\s/g, "-")) ||
-              // Para "mama de rocco" específicamente
-              (tipoNotaUsuarioLower.includes("mama") &&
-                tipoNota.includes("mama")) ||
-              (tipoNotaUsuarioLower.includes("mama") &&
-                tipoNota2.includes("mama")) ||
-              (tipoNotaUsuarioLower.includes("rocco") &&
-                tipoNota.includes("rocco")) ||
-              (tipoNotaUsuarioLower.includes("rocco") &&
-                tipoNota2.includes("rocco"));
-
-            // También mostrar notas creadas por el propio usuario (notas personales)
-            const esAutor =
-              (nota.autor || "").toLowerCase() ===
-              (usuario.nombre_usuario || "").toLowerCase();
-
-            return coincide || esAutor;
-          });
-        }
+          // Verificar si coincide con tipo_nota o tipo_nota2
+          return (
+            tipoNota.includes(permisoNormalizado) ||
+            tipoNota2.includes(permisoNormalizado) ||
+            tipoNota.includes(permisoSinEspacios) ||
+            tipoNota2.includes(permisoSinEspacios) ||
+            tipoNota.includes(permisoUsuario.toLowerCase()) ||
+            tipoNota2.includes(permisoUsuario.toLowerCase())
+          );
+        });
       }
+
+
+      // Guardar en caché
+      const resultadoCache = {
+        notas: notasFiltradas,
+        total: data.total || notasFiltradas.length,
+        totalPages: data.totalPages || Math.ceil((data.total || notasFiltradas.length) / notasPorPagina)
+      };
+      cacheRef.current.set(cacheKey, resultadoCache);
 
       setTodasLasNotas(notasFiltradas);
       setNotas(notasFiltradas);
-      setPaginaActual(1); // Resetear a página 1 al cargar
+      setTotalNotas(resultadoCache.total);
+      setTotalPaginas(resultadoCache.totalPages);
+
+      return resultadoCache;
     } catch (err) {
       console.error("Error detallado:", err);
       console.error("Mensaje del error:", err.message);
@@ -251,11 +414,7 @@ const ListaNotas = () => {
     }
   };
 
-  useEffect(() => {
-    if (!token) return;
-    fetchTodasLasNotas();
-    // eslint-disable-next-line
-  }, [token, usuario]);
+  // La carga inicial se maneja en el useEffect que depende de paginaActual y filtros
 
   const eliminarNota = async (id) => {
     setEliminando(id);
@@ -269,10 +428,7 @@ const ListaNotas = () => {
     }
   };
 
-  const mapeoPermisosATipoNota = {
-    "mama-de-rocco": "Mamá de Rocco",
-    "barrio-antiguo": "Barrio Antiguo",
-  };
+
 
   // Función para normalizar texto para búsqueda
   const normalizarTexto = (texto) => {
@@ -285,96 +441,77 @@ const ListaNotas = () => {
       .trim();
   };
 
-  const notasFiltradas = todasLasNotas.filter((nota) => {
-    const cumpleEstado =
-      !estado ||
-      (nota.estatus || "").toLowerCase().trim() === estado.toLowerCase().trim();
-    const cumpleAutor =
-      !autor ||
-      (nota.autor || "").toLowerCase().trim() === autor.toLowerCase().trim();
 
-    let cumpleTipoCliente = true;
-    if (tipoCliente) {
-      const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente];
-      if (tipoNotaEsperado) {
-        cumpleTipoCliente = (nota.tipo_nota || "") === tipoNotaEsperado;
-      } else {
-        const tipoClienteFormateado = tipoCliente
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
+  // Con paginación del servidor, las notas ya vienen paginadas
+  // notasFiltradas contiene las notas de la página actual
+  // Las notas ya vienen paginadas del servidor
+  const totalNotasFiltradas = totalNotas;
 
-        cumpleTipoCliente =
-          (nota.tipo_nota || "")
-            .toLowerCase()
-            .includes(tipoClienteFormateado.toLowerCase()) ||
-          (nota.tipo_nota || "")
-            .toLowerCase()
-            .includes(tipoCliente.toLowerCase());
-      }
-    }
-
-    // Filtro de búsqueda local
-    let cumpleBusqueda = true;
-    if (searchTerm.trim()) {
-      const queryNormalizado = normalizarTexto(searchTerm);
-      const tituloNormalizado = normalizarTexto(nota.titulo);
-      const subtituloNormalizado = normalizarTexto(nota.subtitulo);
-      const autorNormalizado = normalizarTexto(nota.autor);
-      const tipoNotaNormalizado = normalizarTexto(nota.tipo_nota);
-
-      // Búsqueda exacta
-      if (
-        tituloNormalizado.includes(queryNormalizado) ||
-        subtituloNormalizado.includes(queryNormalizado) ||
-        autorNormalizado.includes(queryNormalizado) ||
-        tipoNotaNormalizado.includes(queryNormalizado)
-      ) {
-        cumpleBusqueda = true;
-      } else {
-        // Búsqueda por palabras individuales
-        const palabrasQuery = queryNormalizado
-          .split(/\s+/)
-          .filter((p) => p.length > 2);
-        if (palabrasQuery.length > 0) {
-          let coincidencias = 0;
-          for (const palabraQuery of palabrasQuery) {
-            if (
-              tituloNormalizado.includes(palabraQuery) ||
-              subtituloNormalizado.includes(palabraQuery) ||
-              autorNormalizado.includes(palabraQuery) ||
-              tipoNotaNormalizado.includes(palabraQuery)
-            ) {
-              coincidencias++;
-            }
-          }
-          cumpleBusqueda =
-            coincidencias >= Math.ceil(palabrasQuery.length * 0.5); // Al menos 50% de coincidencia
-        } else {
-          cumpleBusqueda = false;
-        }
-      }
-    }
-
-    return cumpleEstado && cumpleTipoCliente && cumpleAutor && cumpleBusqueda;
-  });
-
-  // Calcular paginación local
-  const totalNotasFiltradas = notasFiltradas.length;
-  const totalPaginas = Math.ceil(totalNotasFiltradas / notasPorPagina);
+  // Variables para el cálculo de índices de paginación
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
-  const finIndice = Math.min(
-    inicioIndice + notasPorPagina,
-    totalNotasFiltradas
-  );
+  const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
 
-  // Obtener notas para la página actual
-  const notasPaginaActual = notasFiltradas.slice(inicioIndice, finIndice);
+  // 🚀 PREFETCH: Cargar la siguiente página en segundo plano
+  const prefetchNextPage = useCallback(async (currentPage, filtros, maxPages) => {
+    if (prefetchingRef.current) return;
+    if (currentPage >= maxPages) return;
 
-  // Resetear a página 1 cuando cambien los filtros o búsqueda
+    const nextPage = currentPage + 1;
+    const cacheKey = getCacheKey(nextPage, filtros);
+
+    // Si ya está en caché, no prefetch
+    if (cacheRef.current.has(cacheKey)) return;
+
+    prefetchingRef.current = true;
+    try {
+      const data = await notasTodasGet(token, nextPage, notasPorPagina, "", filtros);
+      if (data && Array.isArray(data.notas)) {
+        cacheRef.current.set(cacheKey, {
+          notas: data.notas,
+          total: data.total || data.notas.length,
+          totalPages: data.totalPages || Math.ceil((data.total || data.notas.length) / notasPorPagina)
+        });
+      }
+    } catch (err) {
+      // Silently handle prefetch errors
+    } finally {
+      prefetchingRef.current = false;
+    }
+  }, [token, notasPorPagina, getCacheKey]);
+
+  // Recargar notas cuando cambien los filtros, búsqueda o página
   useEffect(() => {
+    if (!token) return;
+    // Solo cargar notas, sin prefetch automático para mejorar rendimiento inicial
+    fetchTodasLasNotas();
+    // eslint-disable-next-line
+  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm]);
+
+  // Wrappers para setters que resetean la página y el caché al cambiar filtros
+  const handleSetEstado = useCallback((val) => {
+    setEstado(val);
+    cacheRef.current.clear();
     setPaginaActual(1);
-  }, [estado, tipoCliente, autor, searchTerm]);
+  }, []);
+
+  const handleSetTipoCliente = useCallback((val) => {
+    setTipoCliente(val);
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetAutor = useCallback((val) => {
+    setAutor(val);
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetSearchTerm = useCallback((val) => {
+    setSearchTerm(val);
+    // Solo si hay cambio real y no está vacío (opcional)
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
 
   // Ocultar el formulario de recetas cuando se cambia de vista
   useEffect(() => {
@@ -387,11 +524,43 @@ const ListaNotas = () => {
   useEffect(() => {
     const esAdmin =
       usuario?.permisos === "todos" || usuario?.permisos === "todo";
+    const esInvitadoLocal = usuario?.rol?.toLowerCase() === "invitado";
+
+    if (esAdmin) return; // Admin puede ver todo
+
+    // Para invitados, verificar permisos específicos
+    if (esInvitadoLocal && !permisosInvitado.cargando) {
+      // Si no tiene permiso para notas y está en notas, redirigir a recetas (si tiene permiso)
+      if (vistaActiva === "notas" && !permisosInvitado.permiso_notas) {
+        if (permisosInvitado.permiso_recetas) {
+          setVistaActiva("recetas");
+        }
+        return;
+      }
+      // Si no tiene permiso para recetas y está en recetas, redirigir a notas (si tiene permiso)
+      if (vistaActiva === "recetas" && !permisosInvitado.permiso_recetas) {
+        if (permisosInvitado.permiso_notas) {
+          setVistaActiva("notas");
+        }
+        return;
+      }
+      // Si está en una vista que no es notas ni recetas, redirigir a la primera permitida
+      if (vistaActiva !== "notas" && vistaActiva !== "recetas") {
+        if (permisosInvitado.permiso_notas) {
+          setVistaActiva("notas");
+        } else if (permisosInvitado.permiso_recetas) {
+          setVistaActiva("recetas");
+        }
+      }
+      return;
+    }
+
+    // Para otros usuarios no admin
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
       setVistaActiva("notas");
     }
-  }, [vistaActiva, usuario]);
+  }, [vistaActiva, usuario, permisosInvitado]);
 
   // Funciones de navegación local
   const irAPaginaAnterior = () => {
@@ -470,8 +639,8 @@ const ListaNotas = () => {
       icon: <MdAdminPanelSettings className="mr-2" />,
     },
     {
-      key: "noticias",
-      label: "Noticias",
+      key: "vetados",
+      label: "Restringidos",
       icon: <IoNewspaper className="mr-2" />,
     },
   ];
@@ -484,6 +653,7 @@ const ListaNotas = () => {
   const esB2B = usuario?.permisos === "b2b";
   const esInvitado = usuario?.rol === "invitado";
 
+  // Filtrar opciones del menú para invitados según sus permisos específicos
   const menuOptions = esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter(
@@ -522,12 +692,85 @@ const ListaNotas = () => {
 
   return (
     <div className="space-y-6 py-5">
+      {/* Popup de credenciales para nuevos usuarios - usando Portal */}
+      {credencialesNuevas && createPortal(
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60"
+            style={{ zIndex: 9998 }}
+            onClick={cerrarBannerCredenciales}
+          />
+
+          {/* Modal */}
+          <div
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              {/* Header */}
+              <div className="bg-[#fff200] px-6 py-4">
+                <h2 className="text-xl font-bold text-black font-roman">
+                  Credenciales de Acceso
+                </h2>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Nombre de usuario
+                    </label>
+                    <p className="text-2xl font-bold text-black font-roman">
+                      {credencialesNuevas.nombre_usuario}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Contraseña
+                    </label>
+                    <p className="text-sm text-black font-roman">
+                      Usa la misma contraseña que usaste para registrarte.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={cerrarBannerCredenciales}
+                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* Encabezado */}
       <div className="flex flex-col gap-5 justify-between">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-black rounded-2xl py-1">
             Dashboard de Administración
           </h1>
+
+          {/* Credenciales - solo para invitados y colaboradores */}
+          {(credencialesNuevas || (usuario && (usuario.rol?.toLowerCase() === "invitado" || usuario.rol?.toLowerCase() === "colaborador"))) && (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-black font-roman">
+                <span className="font-bold">Usuario:</span> {credencialesNuevas?.nombre_usuario || usuario?.nombre_usuario}
+              </p>
+              <p className="text-sm text-black font-roman">
+                <span className="font-bold">Contraseña:</span> La misma que usaste para el registro
+              </p>
+            </div>
+          )}
+
           {usuario && (
             <div className="flex items-center gap-5">
               <button
@@ -551,8 +794,8 @@ const ListaNotas = () => {
           )}
         </div>
 
-        {/* Menú de pestañas */}
-        {usuario?.rol !== "colaborador" && (
+        {/* Menú de pestañas - Solo mostrar si hay más de 1 opción */}
+        {usuario?.rol !== "colaborador" && menuOptions.length > 1 && (
           <div className="flex justify-start items-center gap-3 py-2 rounded-md">
             <Button
               aria-controls={open ? "fade-menu" : undefined}
@@ -601,7 +844,6 @@ const ListaNotas = () => {
           </div>
         )}
       </div>
-
       {/* Contenido de las pestañas */}
       <div>
         {vistaActiva === "notas" && (
@@ -613,7 +855,7 @@ const ListaNotas = () => {
                 <div className="flex-1 max-w-md">
                   <SearchNotasLocal
                     searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
+                    setSearchTerm={handleSetSearchTerm}
                   />
                 </div>
               )}
@@ -621,16 +863,16 @@ const ListaNotas = () => {
               {/* Filtros - SIEMPRE VISIBLE */}
               <div className="flex gap-2 items-center">
                 {usuario?.permisos === "todos" && (
-                  <FiltroEstadoNota estado={estado} setEstado={setEstado} />
+                  <FiltroEstadoNota estado={estado} setEstado={handleSetEstado} />
                 )}
                 {usuario?.permisos === "todos" && (
                   <FiltroTipoCliente
                     tipoCliente={tipoCliente}
-                    setTipoCliente={setTipoCliente}
+                    setTipoCliente={handleSetTipoCliente}
                   />
                 )}
                 {usuario?.permisos === "todos" && (
-                  <FiltroAutor autor={autor} setAutor={setAutor} />
+                  <FiltroAutor autor={autor} setAutor={handleSetAutor} />
                 )}
                 {usuario?.rol === "colaborador" ? (
                   <Link
@@ -674,27 +916,30 @@ const ListaNotas = () => {
               </div>
             </div>
 
-            {/* Contenido */}
             {usuario?.rol === "colaborador" ? (
               // Si es colaborador, mostrar sus blogs en lugar de notas
-              <ListaBlogsColaborador />
+              <Suspense fallback={<LazyFallback />}>
+                <ListaBlogsColaborador />
+              </Suspense>
             ) : (
               // Si NO es colaborador, mostrar la lista de notas normal
               <>
                 {!notas || notas.length === 0 ? (
-                  <SinNotas />
-                ) : notasFiltradas.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-gray-500 text-lg">
-                      {searchTerm
-                        ? `No se encontraron notas que coincidan con "${searchTerm}"`
-                        : "No hay notas que coincidan con los filtros seleccionados"}
+                  (searchTerm || estado || autor || tipoCliente) ? (
+                    <div className="text-center py-12">
+                      <div className="text-gray-500 text-lg">
+                        {searchTerm
+                          ? `No se encontraron notas que coincidan con "${searchTerm}"`
+                          : "No hay notas que coincidan con los filtros seleccionados"}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <SinNotas />
+                  )
                 ) : (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {notasPaginaActual.map((nota) => (
+                      {notas.map((nota) => (
                         <NotaCard
                           key={nota.id}
                           nota={nota}
@@ -721,8 +966,8 @@ const ListaNotas = () => {
                             onClick={irAPaginaAnterior}
                             disabled={paginaActual === 1}
                             className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                               }`}
                           >
                             ← Anterior
@@ -762,8 +1007,8 @@ const ListaNotas = () => {
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
                                   className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                                      ? "bg-blue-600 text-white"
-                                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                                     }`}
                                 >
                                   {numero}
@@ -777,8 +1022,8 @@ const ListaNotas = () => {
                             onClick={irAPaginaSiguiente}
                             disabled={paginaActual === totalPaginas}
                             className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                               }`}
                           >
                             Siguiente →
@@ -794,95 +1039,113 @@ const ListaNotas = () => {
         )}
 
         {vistaActiva === "preguntas" && (
-          <div className="text-center text-lg">
-            <PreguntasSemanales />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <PreguntasSemanales />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "revistas" && (
-          <div className="text-center text-lg">
-            <FormularioRevistaBannerNueva />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <FormularioRevistaBannerNueva />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "videos" && (
-          <div className="text-center text-lg">
-            <VideosDashboard />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <VideosDashboard />
+            </div>
+          </Suspense>
         )}
 
         {vistaActiva === "newsletter" && (
-          <div className="text-center text-lg">
-            <FormNewsletter />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <FormNewsletter />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "infografias" && (
-          <div className="text-center text-lg">
-            <InfografiaForm />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <InfografiaForm />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "uanl" && (
-          <div className="text-center text-lg">
-            <ListaNotasUanl />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaNotasUanl />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "usuarios" && (
-          <div className="text-center text-lg">
-            <ListaNotasUsuarios />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaNotasUsuarios />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "cupones" && (
-          <div className="text-center text-lg">
-            <ListaTickets />
-          </div>
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ListaTickets />
+            </div>
+          </Suspense>
         )}
         {vistaActiva === "recetas" && (
-          <div>
-            <div className="flex justify-end mb-5">
-              <button
-                onClick={() => navigate("/dashboard/receta/nueva")}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-              >
-                <svg
-                  className="-ml-1 mr-2 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+          <Suspense fallback={<LazyFallback />}>
+            <div>
+              <div className="flex justify-end mb-5">
+                <button
+                  onClick={() => navigate("/dashboard/receta/nueva")}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Nueva Receta
-              </button>
+                  <svg
+                    className="-ml-1 mr-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Nueva Receta
+                </button>
+              </div>
+              <ListaRecetas
+                key={recargarListaRecetas}
+                onEditar={(receta) => {
+                  navigate(`/dashboard/receta/editar/${receta.id}`);
+                }}
+                onCopiar={(receta) => {
+                  // Copiar datos de la receta
+                  const recetaParaCopiar = {
+                    ...receta,
+                    id: undefined,
+                  };
+                  navigator.clipboard.writeText(
+                    JSON.stringify(recetaParaCopiar, null, 2)
+                  );
+                  alert("Datos de la receta copiados al portapapeles");
+                }}
+                onRecetaEliminada={() => {
+                  setRecargarListaRecetas((prev) => prev + 1);
+                }}
+              />
             </div>
-            <ListaRecetas
-              key={recargarListaRecetas}
-              onEditar={(receta) => {
-                navigate(`/dashboard/receta/editar/${receta.id}`);
-              }}
-              onCopiar={(receta) => {
-                // Copiar datos de la receta
-                const recetaParaCopiar = {
-                  ...receta,
-                  id: undefined,
-                };
-                navigator.clipboard.writeText(
-                  JSON.stringify(recetaParaCopiar, null, 2)
-                );
-                alert("Datos de la receta copiados al portapapeles");
-              }}
-              onRecetaEliminada={() => {
-                setRecargarListaRecetas((prev) => prev + 1);
-              }}
-            />
-          </div>
+          </Suspense>
         )}
-        {vistaActiva === "noticias" && (
-          <div className="text-center text-lg">
-            <NoticiasAdmin />
+        {vistaActiva === "vetados" && (
+          <div className="w-full">
+            <ClientesVetados />
           </div>
         )}
       </div>

@@ -34,7 +34,7 @@ const B2BDashboard = () => {
   const [cupon, setCupon] = useState(null);
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
-  
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
@@ -75,15 +75,15 @@ const B2BDashboard = () => {
     const query = new URLSearchParams(window.location.search);
     const paymentSuccess = query.get("payment_success");
     const sessionId = query.get("session_id");
-    
+
     if (paymentSuccess === "true") {
       if (sessionId) {
         obtenerDetallesSesion(sessionId);
         enviarCorreoConfirmacion(sessionId);
       }
-      
+
       setPagoRealizado(true);
-      
+
       setTimeout(() => {
         setPagoRealizado(false);
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -118,7 +118,7 @@ const B2BDashboard = () => {
     fetchProductos();
   }, []);
 
-  // Actualizar fecha automáticamente cada minuto
+  // Actualizar fecha automáticamente cada mínuto
   useEffect(() => {
     const interval = setInterval(() => {
       setFechaActual(new Date());
@@ -156,7 +156,7 @@ const B2BDashboard = () => {
       const apiUrl = import.meta.env.DEV
         ? `${urlApi}api/tienda/session-details/${sessionId}`
         : `https://admin.residente.mx/api/tienda/session-details/${sessionId}`;
-      
+
       await fetch(apiUrl);
     } catch (error) {
       // Silenciar errores
@@ -175,7 +175,7 @@ const B2BDashboard = () => {
     try {
       const successUrl = `${window.location.origin}/dashboardb2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/dashboardb2b?payment_canceled=true`;
-      
+
       // Formato exacto que espera el backend: { productId: '1', quantity: 1 }
       const items = productosSeleccionados.map((p) => ({
         productId: p.id.toString(),
@@ -190,9 +190,9 @@ const B2BDashboard = () => {
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
-      
+
       console.log('📦 Enviando datos de pago:', paymentData);
-      
+
       const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
 
       if (resp.data.url) {
@@ -530,12 +530,33 @@ const B2BDashboard = () => {
   const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
   const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
 
+  // Estado para credenciales nuevas (modal)
+  const [credencialesNuevas, setCredencialesNuevas] = useState(null);
+
+  useEffect(() => {
+    // Leer credenciales guardadas en sessionStorage
+    const credenciales = sessionStorage.getItem("credencialesNuevas");
+    if (credenciales) {
+      try {
+        setCredencialesNuevas(JSON.parse(credenciales));
+      } catch {
+        setCredencialesNuevas(null);
+      }
+    }
+  }, [usuario]);
+
+  // Función para cerrar el modal y limpiar credenciales
+  const cerrarBannerCredenciales = () => {
+    setCredencialesNuevas(null);
+    sessionStorage.removeItem("credencialesNuevas");
+  };
+
   return (
     <div>
       {/* Barra superior del usuario */}
       <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-2 pr-6">
         <span className="font-bold text-[14px] mr-3">
-          {usuario?.nombre_usuario || "Usuario B2B"}
+          Usuario: <span className="font-normal">{usuario?.nombre_usuario || "Usuario B2B"}</span>
         </span>
         <img
           src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
@@ -581,7 +602,7 @@ const B2BDashboard = () => {
           ) : restaurante ? (
             <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+            <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
               Aún no tienes un restaurante registrado.<br />
               Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
             </div>
@@ -619,6 +640,9 @@ const B2BDashboard = () => {
             </strong>
             <strong className="text-xs text-gray-900 font-roman">
               {b2bUser?.telefono || "Teléfono no disponible"}
+            </strong>
+            <strong className="text-xs text-gray-900 font-roman">
+              Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
         </div>
@@ -737,6 +761,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
+              <p className="text-sm text-black">El total es el costo de los beneficios seleccionados.</p>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
               <button
                 onClick={handleIrAPagar}
@@ -744,7 +769,7 @@ const B2BDashboard = () => {
               >
                 Ir a pagar
               </button>
-              
+
               {/* 🆕 Mensaje de pago realizado */}
               {pagoRealizado && (
                 <div className="text-green-600 font-bold text-sm text-center animate-pulse">
@@ -777,6 +802,58 @@ const B2BDashboard = () => {
             document.body
           )}
         </div>
+      )}
+      {credencialesNuevas && createPortal(
+        <div>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60"
+            style={{ zIndex: 9998 }}
+            onClick={cerrarBannerCredenciales}
+          />
+          {/* Modal */}
+          <div
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              <div className="bg-[#fff200] px-6 py-4">
+                <h2 className="text-xl font-bold text-black font-roman">
+                  Credenciales de Acceso
+                </h2>
+              </div>
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Nombre de usuario
+                    </label>
+                    <p className="text-2xl font-bold text-black font-roman">
+                      {credencialesNuevas.nombre_usuario}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-black font-roman mb-1">
+                      Contraseña
+                    </label>
+                    <p className="text-sm text-black font-roman">
+                      Usa la misma contraseña que usaste para registrarte.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={cerrarBannerCredenciales}
+                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

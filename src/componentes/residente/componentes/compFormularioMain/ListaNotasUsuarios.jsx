@@ -47,7 +47,7 @@ const ListaNotasUsuarios = () => {
     password: '',
     confirmPassword: '',
     permisos: 'todos',
-    rol: '',
+    rol: 'residente',
     estado: 'activo',
     // Campos B2B (UI por ahora)
     nombre_responsable: '',

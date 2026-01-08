@@ -11,6 +11,7 @@ const CHAR_LIMITS = {
   tiempo: 300,
   creditos: 255,
   instagram: 80,
+  autor_receta: 255,
   seo_alt_text: 255,
   seo_title: 255,
   seo_keyword: 255,
@@ -50,6 +51,7 @@ export default function FormularioReceta({
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
+    autor_receta: "",
     descripcion: "",
     porciones: "",
     tiempo: "",
@@ -57,7 +59,6 @@ export default function FormularioReceta({
     preparacion: "",
     consejo: "",
     categoria: "",
-    tipo_receta: "",
     tipo_receta: "",
     imagen: null,
     creditos: "",
@@ -81,14 +82,12 @@ export default function FormularioReceta({
       fetch(`${urlApi}api/recetas/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log("Receta cargada desde API:", data);
           // Manejar si la respuesta viene con data wrapper o directamente
           const recetaData = data.receta || data.data || data;
           setReceta(recetaData);
           setCargandoReceta(false);
         })
         .catch((err) => {
-          console.error("Error al cargar receta:", err);
           setCargandoReceta(false);
         });
     }
@@ -100,6 +99,7 @@ export default function FormularioReceta({
       setFormData({
         titulo: receta.titulo || "",
         autor: receta.autor || usuario?.nombre_usuario || "",
+        autor_receta: receta.autor_receta || "",
         descripcion: receta.descripcion || "",
         porciones: receta.porciones || "",
         tiempo: receta.tiempo || "",
@@ -107,7 +107,6 @@ export default function FormularioReceta({
         preparacion: receta.preparacion || "",
         consejo: receta.consejo || "",
         categoria: receta.categoria || "",
-        tipo_receta: receta.tipo_receta || "",
         tipo_receta: receta.tipo_receta || "",
         imagen: null, // La imagen no se repobla en el input file
         creditos: receta.creditos || "",
@@ -123,6 +122,7 @@ export default function FormularioReceta({
       setFormData({
         titulo: "",
         autor: usuario?.nombre_usuario || "",
+        autor_receta: "",
         descripcion: "",
         porciones: "",
         tiempo: "",
@@ -130,7 +130,6 @@ export default function FormularioReceta({
         preparacion: "",
         consejo: "",
         categoria: "",
-        tipo_receta: "",
         tipo_receta: "",
         imagen: null,
         creditos: "",
@@ -255,6 +254,7 @@ export default function FormularioReceta({
         setFormData({
           titulo: "",
           autor: "",
+          autor_receta: "",
           descripcion: "",
           porciones: "",
           tiempo: "",
@@ -262,7 +262,6 @@ export default function FormularioReceta({
           preparacion: "",
           consejo: "",
           categoria: "",
-          tipo_receta: "",
           tipo_receta: "",
           imagen: null,
           creditos: "",
@@ -440,6 +439,26 @@ export default function FormularioReceta({
           </div>
         </div>
 
+        {/* Autor de la Receta (opcional) */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-roman font-bold">Autor de la Receta (opcional)</label>
+            <CharCounter value={formData.autor_receta} max={CHAR_LIMITS.autor_receta} />
+          </div>
+          <input
+            type="text"
+            name="autor_receta"
+            maxLength={CHAR_LIMITS.autor_receta}
+            value={formData.autor_receta}
+            onChange={handleChange}
+            placeholder="Ej. Chef Juan Pérez, Abuela María..."
+            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+          />
+          <p className="text-xs text-gray-400 font-roman mt-1">
+            Nombre del chef o persona que creó la receta (si aplica)
+          </p>
+        </div>
+
         {/* Descripción */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-1">
@@ -579,29 +598,34 @@ export default function FormularioReceta({
           />
         </div>
 
-        {/* Destacada Invitado */}
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              name="destacada_invitado"
-              checked={formData.destacada_invitado === 1}
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  destacada_invitado: e.target.checked ? 1 : 0,
-                });
-              }}
-              className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-            />
-            <span className="ml-2 font-roman font-bold text-gray-700">
-              ⭐ Marcar como receta destacada
-            </span>
-          </label>
-          <p className="text-xs text-gray-500 mt-1">
-            Las recetas destacadas aparecen en secciones especiales del sitio
-          </p>
-        </div>
+        {/* Destacada Invitado - Solo para invitados */}
+        {(usuario?.rol?.toLowerCase() === "invitado" ||
+          usuario?.rol?.toLowerCase() === "invitados" ||
+          usuario?.permisos?.toLowerCase() === "invitado" ||
+          usuario?.permisos?.toLowerCase() === "invitados") && (
+            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="destacada_invitado"
+                  checked={formData.destacada_invitado === 1}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      destacada_invitado: e.target.checked ? 1 : 0,
+                    });
+                  }}
+                  className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+                />
+                <span className="ml-2 font-roman font-bold text-gray-700">
+                  ⭐ Marcar como receta destacada
+                </span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1">
+                Las recetas destacadas aparecen en secciones especiales del sitio
+              </p>
+            </div>
+          )}
 
         {/* Créditos */}
         <div className="mb-4">

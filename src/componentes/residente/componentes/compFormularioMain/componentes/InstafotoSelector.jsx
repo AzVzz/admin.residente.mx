@@ -12,9 +12,10 @@ const InstafotoSelector = ({
   onInstafotoEliminada,
   token,
 }) => {
-  const { control, setValue, watch } = useFormContext();
+  const { control, setValue, watch, register } = useFormContext();
   const { usuario } = useAuth();
   const instafotoSeleccionada = watch("instafoto");
+  const programarInstafoto = watch("programarInstafoto");
   const [previewUrl, setPreviewUrl] = useState(null);
 
   // Ocultar si el usuario es invitado
@@ -138,6 +139,40 @@ const InstafotoSelector = ({
             >
               Eliminar instafoto
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Opción para programar instafoto */}
+      {(instafotoSeleccionada || instafotoActual) && (
+        <div className="mt-4 p-3  rounded-lg">
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              {...register("programarInstafoto")}
+              className="form-checkbox h-4 w-4 text-purple-600 rounded border-gray-300 "
+            />
+            <span className="ml-2 text-sm font-medium ">
+              Programar publicación de instafoto
+            </span>
+          </label>
+
+          {programarInstafoto && (
+            <div className="mt-3">
+              <label
+                htmlFor="fecha-programada-instafoto"
+                className="block text-xs  mb-1"
+              >
+                Fecha y hora de publicación de instafoto
+              </label>
+              <input
+                id="fecha-programada-instafoto"
+                type="datetime-local"
+                {...register("fechaProgramadaInstafoto")}
+                className="w-full px-3 py-2 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-1  text-sm"
+              />
+              
+            </div>
           )}
         </div>
       )}
