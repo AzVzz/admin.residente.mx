@@ -878,57 +878,78 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
-                {/* Botón para optimizar con IA */}
-                <div className="mb-6 pb-4">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!titulo || !contenido) {
-                        alert('Necesitas al menos un título y contenido para optimizar con IA');
-                        return;
-                      }
 
-                      try {
-                        const optimizado = await optimizarNota({
-                          titulo,
-                          subtitulo,
-                          descripcion: contenido,
-                          autor,
-                          tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario,
-                          nombre_restaurante: nombreRestaurante
-                        });
+                {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
+                {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
+                  <div className="mb-6 pb-4">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!titulo || !contenido) {
+                          alert('Necesitas al menos un título y contenido para optimizar con IA');
+                          return;
+                        }
 
-                        setSeoOptimizado(optimizado);
-                        setShowSEOComparison(true);
-                      } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error al optimizar con IA: ' + error.message);
-                      }
-                    }}
-                    disabled={geminiLoading || !titulo || !contenido}
-                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    <FaRobot className="text-2xl" />
-                    <span className="text-lg">
-                      {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Contenido y SEO con Gemini'}
-                    </span>
-                  </button>
-                  <p className="text-sm text-gray-500 mt-2 text-center">
-                    La IA mejorará tu título, subtítulo, descripción y campos SEO automáticamente
-                  </p>
-                </div>
+                        try {
+                          const optimizado = await optimizarNota({
+                            titulo,
+                            subtitulo,
+                            descripcion: contenido,
+                            autor,
+                            tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario,
+                            nombre_restaurante: nombreRestaurante
+                          });
+
+                          setSeoOptimizado(optimizado);
+                          setShowSEOComparison(true);
+                        } catch (error) {
+                          console.error('Error:', error);
+                          alert('Error al optimizar con IA: ' + error.message);
+                        }
+                      }}
+                      disabled={geminiLoading || !titulo || !contenido}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      <FaRobot className="text-2xl" />
+                      <span className="text-lg">
+                        {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Contenido y SEO con Gemini'}
+                      </span>
+                    </button>
+                    <p className="text-sm text-gray-500 mt-2 text-center">
+                      La IA mejorará tu título, subtítulo, descripción y campos SEO automáticamente
+                    </p>
+                  </div>
+                )}
+
 
                 {/* Sección SEO Metadata */}
                 <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">
-                    SEO Metadata (Opcional)
-                  </h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-bold text-gray-800">
+                      SEO Metadata (Opcional)
+                    </h3>
+                    <div className="group relative inline-block">
+                      <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">ⓘ</span>
+                      <div className="invisible group-hover:visible absolute z-10 w-72 p-3 mt-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg -left-32">
+                        <p className="font-bold mb-1">¿Qué es SEO?</p>
+                        <p>SEO son técnicas para que tu contenido aparezca en los primeros resultados de Google. Completa estos campos para mejorar tu visibilidad en buscadores.</p>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Texto Alt de Imagen
-                      </label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Texto Alt de Imagen
+                        </label>
+                        <div className="group relative inline-block">
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                            Descripción de la imagen para personas con discapacidad visual y buscadores. Mejora la accesibilidad y el SEO.
+                          </div>
+                        </div>
+                      </div>
                       <input
                         type="text"
                         {...methods.register("seo_alt_text")}
@@ -937,9 +958,17 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Título SEO
-                      </label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Título SEO
+                        </label>
+                        <div className="group relative inline-block">
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                            Título que aparece en la pestaña del navegador y en resultados de Google. Incluye palabras clave importantes (máx. 60 caracteres).
+                          </div>
+                        </div>
+                      </div>
                       <input
                         type="text"
                         {...methods.register("seo_title")}
@@ -948,9 +977,17 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Palabra Clave
-                      </label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Palabra Clave
+                        </label>
+                        <div className="group relative inline-block">
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                            La palabra o frase principal por la que quieres que encuentren tu contenido en Google. Ejemplo: "restaurante italiano monterrey".
+                          </div>
+                        </div>
+                      </div>
                       <input
                         type="text"
                         {...methods.register("seo_keyword")}
@@ -959,9 +996,17 @@ const FormMainResidente = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Meta Descripción
-                      </label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Meta Descripción
+                        </label>
+                        <div className="group relative inline-block">
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                            Resumen que aparece bajo el título en Google. Convence a las personas de hacer clic (máx. 155 caracteres).
+                          </div>
+                        </div>
+                      </div>
                       <textarea
                         {...methods.register("meta_description")}
                         rows={3}
