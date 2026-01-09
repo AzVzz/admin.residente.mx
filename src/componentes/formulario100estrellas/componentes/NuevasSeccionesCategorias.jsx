@@ -9,8 +9,12 @@ const NuevasSeccionesCategorias = () => {
   const tipoLugar = watch("tipo_lugar") || "";
   const esFoodDrink = tipoLugar === "Food & Drink";
 
-  // Secciones a ocultar cuando es Food & Drink
-  const seccionesOcultas = esFoodDrink ? ["Nivel de gasto", "Tipo de comida"] : [];
+  // Secciones a ocultar siempre (la sección Food & Drink se maneja en TipoLugar)
+  const seccionesOcultas = ["Food & Drink"];
+  // Si es Food & Drink, ocultar también Nivel de gasto y Tipo de comida
+  if (esFoodDrink) {
+    seccionesOcultas.push("Nivel de gasto", "Tipo de comida");
+  }
 
   if (loading) return <p>Cargando opciones...</p>;
   if (error) return <p>Error: {error}</p>;

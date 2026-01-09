@@ -1,14 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useAuth } from "../../../../Context";
 
-// Opciones especiales para Food & Drink (Tipo de comida)
-const opcionesFoodDrinkTipoComida = [
-  { nombre: "Postres" },
-  { nombre: "Cafés" },
-  { nombre: "Bares" },
-  { nombre: "Snacks" },
-];
-
 const CategoriasTipoNotaSelector = ({
   tipoDeNota,
   secciones,
@@ -38,13 +30,13 @@ const CategoriasTipoNotaSelector = ({
   }
 
   // Filtrar secciones según tipo de nota
-  // Si es Food & Drink: solo mostrar Zona y Tipo de comida
-  // Si es otro tipo: mostrar todas las secciones
+  // Si es Food & Drink: solo mostrar "Food & Drink" y "Zona"
+  // Si es otro tipo: mostrar todas las secciones EXCEPTO "Food & Drink"
   const seccionesFiltradas = esFoodDrink
     ? secciones.filter(
-      (s) => s.seccion === "Zona" || s.seccion === "Tipo de comida"
+      (s) => s.seccion === "Zona" || s.seccion === "Food & Drink"
     )
-    : secciones;
+    : secciones.filter((s) => s.seccion !== "Food & Drink");
 
   return (
     <div className="grid grid-cols-5 gap-2 justify-center mb-6 pb-4">
@@ -100,12 +92,6 @@ const CategoriasTipoNotaSelector = ({
       {seccionesFiltradas.map((seccion) => {
         const isZona = seccion.seccion === "Zona";
 
-        // Si es Food & Drink y es "Tipo de comida", usar opciones especiales
-        const categoriasAMostrar =
-          esFoodDrink && seccion.seccion === "Tipo de comida"
-            ? opcionesFoodDrinkTipoComida
-            : seccion.categorias;
-
         return (
           <div
             key={seccion.seccion}
@@ -113,14 +99,9 @@ const CategoriasTipoNotaSelector = ({
           >
             <h2 className="mb-2 text-lg font-bold bg-gray-100 p-1 text-center rounded text-gray-700">
               {seccion.seccion}
-              {esFoodDrink && seccion.seccion === "Tipo de comida" && (
-                <span className="text-xs font-normal text-blue-500 block">
-                  (Food & Drink)
-                </span>
-              )}
             </h2>
             <div className="flex-1 overflow-y-auto max-h-96 px-1">
-              {categoriasAMostrar.map((categoria) => (
+              {seccion.categorias.map((categoria) => (
                 <label
                   key={`${seccion.seccion}-${categoria.nombre}`}
                   className="block mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded text-sm"

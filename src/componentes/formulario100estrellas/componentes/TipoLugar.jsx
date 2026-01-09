@@ -2,10 +2,10 @@ import { useFormContext } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 
 const subOpcionesFoodDrink = [
-    { value: "Cafetería", label: "Cafetería" },
-    { value: "Bar", label: "Bar" },
-    { value: "Postrería", label: "Postrería" },
-    { value: "Snack", label: "Snack" },
+    { value: "Postres", label: "Postres" },
+    { value: "Cafés", label: "Cafés" },
+    { value: "Bares", label: "Bares" },
+    { value: "Snacks", label: "Snacks" },
 ];
 
 const TipoLugar = () => {
