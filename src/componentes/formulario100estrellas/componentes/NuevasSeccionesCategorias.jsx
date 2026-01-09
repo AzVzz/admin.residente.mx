@@ -5,6 +5,13 @@ const NuevasSeccionesCategorias = () => {
   const { data, loading, error } = useJsonData();
   const { register, formState: { errors }, watch, setValue } = useFormContext();
 
+  // Detectar si es Food & Drink para ocultar ciertas secciones
+  const tipoLugar = watch("tipo_lugar") || "";
+  const esFoodDrink = tipoLugar === "Food & Drink";
+
+  // Secciones a ocultar cuando es Food & Drink
+  const seccionesOcultas = esFoodDrink ? ["Nivel de gasto", "Tipo de comida"] : [];
+
   if (loading) return <p>Cargando opciones...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -13,7 +20,11 @@ const NuevasSeccionesCategorias = () => {
       <fieldset>
         <legend>Secciones y Categorías *</legend>
 
-        {data?.map((seccion) => {
+        {data?.filter((seccion) => {
+          const seccionName = (seccion.seccion || '').trim();
+          // Filtrar secciones ocultas
+          return !seccionesOcultas.includes(seccionName);
+        }).map((seccion) => {
           const seccionName = (seccion.seccion || '').trim();
           const isZona = seccionName === 'Zona';
           const isExperiencia = seccionName === 'Experiencia';
@@ -34,8 +45,8 @@ const NuevasSeccionesCategorias = () => {
 
                     const rules = esRequerida
                       ? {
-                          required: `Debes seleccionar una categoría para ${seccionName}`,
-                        }
+                        required: `Debes seleccionar una categoría para ${seccionName}`,
+                      }
                       : {}; // Experiencia = opcional
 
                     return (
