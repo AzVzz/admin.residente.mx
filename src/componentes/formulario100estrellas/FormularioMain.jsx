@@ -8,6 +8,7 @@ import { useFormStorage } from "../../hooks/useFormStorage";
 import { urlApi } from "../api/url.js";
 
 import "./FormularioMain.css";
+import TipoLugar from "./componentes/TipoLugar";
 import TipoRestaurante from "./componentes/TipoRestaurante";
 import Categorias from "./componentes/Categorias";
 import Informacion from "./componentes/Informacion";
@@ -78,6 +79,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Preparar baseDefaults
   const baseDefaults = useMemo(() => {
     const defaults = {
+      tipo_lugar: restaurante?.tipo_lugar || "Restaurante",
       sucursales: [],
       tipo_area: [],
       tipo_area_restaurante: [],
@@ -445,9 +447,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   fecha_inauguracion: data.fecha_inauguracion,
                   comida: data.comida
                     ? data.comida
-                        .split(",")
-                        .map((item) => item.trim())
-                        .filter(Boolean)
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean)
                     : [],
                   telefono: data.telefono,
                   ticket_promedio: data.ticket_promedio,
@@ -455,6 +457,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   numero_sucursales: data.numero_sucursales,
                   sucursales: data.sucursales,
                   imagenesEliminadas: data.imagenesEliminadas || [],
+                  tipo_lugar: data.tipo_lugar || "Restaurante",
                   tipo_restaurante: data.tipo_restaurante,
                   categoria: data.categoria,
                   sitio_web: data.sitio_web,
@@ -659,6 +662,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
             return (
               <form onSubmit={methods.handleSubmit(onSubmit)}>
+                <TipoLugar />
                 <NuevasSeccionesCategorias />
                 <Informacion />
                 {/* <Logo existingLogo={restaurante?.logo} /> */}
@@ -722,7 +726,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-                    
+
                 {/* Selector de Iconos/Stickers */}
                 <div className="form-iconos">
                   <fieldset>
@@ -730,7 +734,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     <FormularioPromoExt
                       onStickerSelect={(stickers) => methods.setValue('icon', stickers)}
                       stickerSeleccionado={methods.watch('icon') || []}
-                      maxStickers={1} 
+                      maxStickers={1}
                     />
                   </fieldset>
                 </div>
