@@ -21,6 +21,7 @@ import { notaGetById } from "../../../../componentes/api/notasCompletasGet.js";
 import {
   catalogoSeccionesGet,
   catalogoTipoNotaGet,
+  catalogoFoodDrinkGet,
 } from "../../../../componentes/api/catalogoSeccionesGet.js";
 import CategoriasTipoNotaSelector from "./componentes/CategoriasTipoNotaSelector.jsx";
 import ZonasSelector from "./componentes/ZonasSelector.jsx";
@@ -131,6 +132,7 @@ const FormMainResidente = () => {
   const [notaId, setNotaId] = useState(null);
   const [secciones, setSecciones] = useState([]);
   const [tipoDeNota, setTipoDeNota] = useState([]);
+  const [opcionesFoodDrink, setOpcionesFoodDrink] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
   const [postError, setPostError] = useState(null);
   const [postResponse, setPostResponse] = useState(null);
@@ -312,13 +314,15 @@ const FormMainResidente = () => {
   useEffect(() => {
     const obtenerCatalogos = async () => {
       try {
-        const [seccionesRes, tiposNotaRes] = await Promise.all([
+        const [seccionesRes, tiposNotaRes, foodDrinkRes] = await Promise.all([
           catalogoSeccionesGet(),
           catalogoTipoNotaGet(),
+          catalogoFoodDrinkGet(),
         ]);
 
         setSecciones(seccionesRes);
         setTipoDeNota(tiposNotaRes);
+        setOpcionesFoodDrink(foodDrinkRes);
         setCatalogosCargados(true);
 
         // Inicializar categorías para nuevas notas
@@ -665,6 +669,7 @@ const FormMainResidente = () => {
                       : []),
                     ...secciones.filter((s) => s.seccion === "Experiencia"),
                   ]}
+                  opcionesFoodDrink={opcionesFoodDrink}
                   ocultarTipoNota={false}
                 />
 
