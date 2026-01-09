@@ -35,6 +35,9 @@ const CategoriasTipoNotaSelector = ({
   // Si es otro tipo: mostrar todas las secciones EXCEPTO "Food & Drink"
   let seccionesFiltradas;
 
+  // Secciones que NO queremos mostrar en el formulario
+  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+
   if (esFoodDrink) {
     // Opciones Food & Drink hardcodeadas en el frontend
     const seccionFoodDrink = {
@@ -56,8 +59,8 @@ const CategoriasTipoNotaSelector = ({
       ? [seccionFoodDrink, seccionZona]
       : [seccionFoodDrink];
   } else {
-    // Mostrar todas las secciones excepto Food & Drink
-    seccionesFiltradas = secciones.filter((s) => s.seccion !== "Food & Drink");
+    // Mostrar todas las secciones excepto las ocultas
+    seccionesFiltradas = secciones.filter((s) => !seccionesOcultas.includes(s.seccion));
   }
 
   return (
