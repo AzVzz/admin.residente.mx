@@ -64,6 +64,13 @@ const mapeoPermisosATipoNota = {
   "barrio-antiguo": "Barrio Antiguo",
 };
 
+// Helper para verificar si una nota está destacada
+const esDestacada = (nota) => {
+  const destacada = nota.destacada === true || nota.destacada === 1 || nota.destacada === "1";
+  const destacadaInvitado = nota.destacada_invitado === true || nota.destacada_invitado === 1 || nota.destacada_invitado === "1";
+  return destacada || destacadaInvitado;
+};
+
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -73,6 +80,7 @@ const ListaNotas = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   // Leer vistaActiva de la URL o usar "notas" por defecto
   const [vistaActiva, setVistaActivaInternal] = useState(
     searchParams.get("vista") || "notas"
@@ -938,6 +946,108 @@ const ListaNotas = () => {
                   )
                 ) : (
                   <>
+                    {/* ===== CARRUSEL DE NOTAS DESTACADAS ===== */}
+                    {(() => {
+                      const notasDestacadas = notas.filter(n => esDestacada(n));
+                      const safeIndex = carouselIndex >= notasDestacadas.length ? 0 : carouselIndex;
+                      const notaActual = notasDestacadas[safeIndex];
+                      
+                      if (notasDestacadas.length === 0) return null;
+                      
+                      return (
+                        <div className="mb-8">
+                          <div className="flex items-center gap-2 mb-4">
+                            <FaStar className="text-amber-500 text-xl" />
+                            <h3 className="font-bold text-gray-800 text-lg">Carrusel Principal</h3>
+                            <span className="text-xs bg-amber-500 text-white px-3 py-1 rounded-full font-semibold">
+                              {notasDestacadas.length} destacadas
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {/* Carrusel estilo Residente.mx */}
+                            <div className="relative w-full aspect-[16/9] max-h-[400px] rounded-xl overflow-hidden shadow-xl group">
+                              {/* Imagen de fondo */}
+                              <Link to={`/dashboard/nota/editar/${notaActual?.id}`}>
+                                <img 
+                                  src={notaActual?.imagen} 
+                                  alt={notaActual?.titulo}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                
+                                {/* Overlay degradado */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                
+                                {/* Logo Residente */}
+                                <div className="absolute top-4 left-4 w-12 h-12 bg-[#FFE500] rounded-full flex items-center justify-center shadow-lg">
+                                  <span className="text-black font-black text-2xl">R</span>
+                                </div>
+                                
+                                {/* Título */}
+                                <div className="absolute bottom-0 left-0 right-0 p-6">
+                                  <h3 className="text-white text-2xl md:text-3xl font-black leading-tight drop-shadow-lg">
+                                    {notaActual?.titulo}
+                                  </h3>
+                                </div>
+                                
+                                {/* Badge de posición */}
+                                <div className="absolute top-4 right-4 bg-amber-500 text-white text-sm font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+                                  <FaStar className="text-xs" />
+                                  <span>#{safeIndex + 1} de {notasDestacadas.length}</span>
+                                </div>
+                              </Link>
+                              
+                              {/* Flechas de navegación */}
+                              {notasDestacadas.length > 1 && (
+                                <>
+                                  <button 
+                                    onClick={() => setCarouselIndex(prev => prev === 0 ? notasDestacadas.length - 1 : prev - 1)}
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-all backdrop-blur-sm z-10"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                  </button>
+                                  <button 
+                                    onClick={() => setCarouselIndex(prev => prev === notasDestacadas.length - 1 ? 0 : prev + 1)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-all backdrop-blur-sm z-10"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                            
+                            {/* Indicadores / Miniaturas */}
+                            {notasDestacadas.length > 1 && (
+                              <div className="flex gap-2 justify-center">
+                                {notasDestacadas.map((nota, index) => (
+                                  <button
+                                    key={nota.id}
+                                    onClick={() => setCarouselIndex(index)}
+                                    className={`w-16 h-10 rounded-lg overflow-hidden transition-all ${
+                                      index === safeIndex 
+                                        ? 'ring-2 ring-amber-500 scale-110' 
+                                        : 'opacity-60 hover:opacity-100'
+                                    }`}
+                                  >
+                                    <img 
+                                      src={nota.imagen} 
+                                      alt={nota.titulo}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    
+                    {/* ===== GRID DE TODAS LAS NOTAS ===== */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {notas.map((nota) => (
                         <NotaCard

@@ -6,59 +6,53 @@ import EditarNoticia from './EditarNoticia';
 const ITEMS_PER_PAGE = 9; // Noticias por página
 
 const NoticiasAdmin = () => {
-  const [todasLasNoticias, setTodasLasNoticias] = useState([]);
-  const [misNotas, setMisNotas] = useState([]);
+  const [noticias, setNoticias] = useState([]);
+  const [noticiasGuardadas, setNoticiasGuardadas] = useState([]); // Noticias ya guardadas
   const [loading, setLoading] = useState(true);
   const [loadingNotas, setLoadingNotas] = useState(false);
   const [guardando, setGuardando] = useState(null);
   const [mensaje, setMensaje] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageNotas, setCurrentPageNotas] = useState(1);
-  
-  // Tab activa: 'noticias' o 'guardadas'
-  const [tabActiva, setTabActiva] = useState('noticias');
-  
-  // Nota seleccionada para ver detalle
-  const [notaSeleccionada, setNotaSeleccionada] = useState(null);
-  
-  // Estados para filtros
-  const [filtroFuente, setFiltroFuente] = useState('todas');
-  
-  const { usuario } = useAuth();
+  const [filtroEstado, setFiltroEstado] = useState('pendientes'); // pendientes, guardadas, todas
+  const [filtroFuente, setFiltroFuente] = useState('todas'); // todas o nombre de fuente
+  const { usuario } = useAuth(); // Obtener usuario del contexto
 
   const API_URL = 'https://admin.residente.mx';
 
-  // Obtener lista única de fuentes para el filtro
-  const fuentesUnicas = [...new Set(todasLasNoticias.map(n => n.source).filter(Boolean))].sort();
+  // Obtener noticias ya guardadas de la base de datos
+  const fetchNoticiasGuardadas = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/noticias/guardadas`);
+      const data = await response.json();
+      
+      if (data.success && data.notas) {
+        setNoticiasGuardadas(data.notas);
+        return data.notas;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo noticias guardadas:', error);
+      return [];
+    }
+  };
 
-  // Aplicar filtros
-  const noticiasFiltradas = todasLasNoticias.filter(noticia => {
-    if (filtroFuente !== 'todas' && noticia.source !== filtroFuente) return false;
-    return true;
-  });
-
-  // Calcular paginación para noticias
-  const totalPages = Math.ceil(noticiasFiltradas.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const noticiasActuales = noticiasFiltradas.slice(startIndex, endIndex);
-
-  // Calcular paginación para mis notas
-  const totalPagesNotas = Math.ceil(misNotas.length / ITEMS_PER_PAGE);
-  const startIndexNotas = (currentPageNotas - 1) * ITEMS_PER_PAGE;
-  const endIndexNotas = startIndexNotas + ITEMS_PER_PAGE;
-  const notasActuales = misNotas.slice(startIndexNotas, endIndexNotas);
-
-  // Cargar noticias de la API
   const fetchNoticias = async () => {
     setLoading(true);
     try {
+      // Primero obtener las ya guardadas
+      const guardadas = await fetchNoticiasGuardadas();
+      const titulosGuardados = guardadas.map(n => n.titulo?.toLowerCase().trim());
+      
+      // Luego obtener las nuevas de la API
       const response = await fetch(`${API_URL}/api/noticias?pageSize=100`);
       const data = await response.json();
       
       if (data.success) {
-        setTodasLasNoticias(data.articles);
-        setCurrentPage(1);
+        // Filtrar las que ya están guardadas (por título)
+        const noticiasFiltradas = data.articles.filter(article => {
+          const tituloArticle = article.title?.toLowerCase().trim();
+          return !titulosGuardados.includes(tituloArticle);
+        });
+        setNoticias(noticiasFiltradas);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -139,8 +133,12 @@ const NoticiasAdmin = () => {
 
       if (data.success) {
         setMensaje({ tipo: 'exito', texto: `"${noticia.title.substring(0, 40)}..." guardada como nota` });
-        // Agregar a mis notas localmente con estatus por defecto
-        setMisNotas(prev => [{ ...noticia, id: data.id, estatus: 'borrador' }, ...prev]);
+        // Mover la noticia a la lista de guardadas
+        setNoticiasGuardadas(prev => [...prev, { ...noticia, guardadaEn: new Date() }]);
+        // Quitar de la lista de pendientes
+        setNoticias(prev => prev.filter((_, i) => i !== index));
+        
+        // Limpiar mensaje después de 3 segundos
         setTimeout(() => setMensaje(null), 3000);
       } else {
         setMensaje({ tipo: 'error', texto: `Error: ${data.error}` });
@@ -259,31 +257,80 @@ const NoticiasAdmin = () => {
         </div>
       )}
 
-    
-      {tabActiva === 'noticias' && (
-        <>
-          {/* Filtros */}
-          <div className="flex flex-wrap items-center gap-3 mb-6 py-3 px-1">
-            <div className="relative inline-block">
-              <select
-                value={filtroFuente}
-                onChange={(e) => setFiltroFuente(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-full px-4 py-2 pr-8 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-400 cursor-pointer"
-              >
-                <option value="todas">Todas las fuentes</option>
-                {fuentesUnicas.map(fuente => (
-                  <option key={fuente} value={fuente}>{fuente}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        {/* Filtro por estado */}
+        <select
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-full bg-white text-gray-700 font-roman cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          <option value="pendientes">Pendientes ({noticias.length})</option>
+          <option value="guardadas">Guardadas ({noticiasGuardadas.length})</option>
+          <option value="todas">Todas ({noticias.length + noticiasGuardadas.length})</option>
+        </select>
 
-            
-          </div>
+        {/* Filtro por fuente */}
+        <select
+          value={filtroFuente}
+          onChange={(e) => setFiltroFuente(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-full bg-white text-gray-700 font-roman cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          <option value="todas">Todas las fuentes</option>
+          {[...new Set([...noticias, ...noticiasGuardadas].map(n => n.source).filter(Boolean))].map(fuente => (
+            <option key={fuente} value={fuente}>{fuente}</option>
+          ))}
+        </select>
+
+        {/* Contador */}
+        <span className="px-4 py-2 bg-gray-100 rounded-full text-gray-600 font-roman">
+          {filtroEstado === 'guardadas' 
+            ? `${noticiasGuardadas.length} guardadas` 
+            : filtroEstado === 'pendientes'
+            ? `${noticias.length} pendientes`
+            : `${noticias.length + noticiasGuardadas.length} total`
+          }
+        </span>
+      </div>
+
+      {/* Grid de noticias estilo tarjetas como las notas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {/* Mostrar noticias pendientes */}
+        {(filtroEstado === 'pendientes' || filtroEstado === 'todas') && 
+          noticias
+            .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
+            .map((noticia, index) => (
+              <NoticiaCard 
+                key={`pendiente-${index}`}
+                index={index}
+                noticia={noticia} 
+                formatDate={formatDate}
+                getCategoryColor={getCategoryColor}
+                onGuardar={guardarComoNota}
+                guardando={guardando}
+                esGuardada={false}
+              />
+            ))
+        }
+        
+        {/* Mostrar noticias guardadas */}
+        {(filtroEstado === 'guardadas' || filtroEstado === 'todas') && 
+          noticiasGuardadas
+            .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
+            .map((noticia, index) => (
+              <NoticiaCard 
+                key={`guardada-${index}`}
+                index={index}
+                noticia={noticia} 
+                formatDate={formatDate}
+                getCategoryColor={getCategoryColor}
+                onGuardar={null}
+                guardando={null}
+                esGuardada={true}
+              />
+            ))
+        }
+      </div>
 
           {/* Grid de noticias */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -415,64 +462,8 @@ const NoticiasAdmin = () => {
   );
 };
 
-// Componente de Paginación reutilizable
-const Paginacion = ({ currentPage, totalPages, onPageChange }) => (
-  <div className="flex justify-center items-center gap-4 mb-8">
-    <button
-      onClick={() => onPageChange(prev => Math.max(prev - 1, 1))}
-      disabled={currentPage === 1}
-      className={`px-4 py-2 rounded font-bold transition-colors ${
-        currentPage === 1
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-black text-white hover:bg-gray-800'
-      }`}
-    >
-      ← Anterior
-    </button>
-    
-    <div className="flex items-center gap-2">
-      {Array.from({ length: totalPages }, (_, i) => i + 1)
-        .filter(page => {
-          return page === 1 || 
-                 page === totalPages || 
-                 Math.abs(page - currentPage) <= 2;
-        })
-        .map((page, idx, arr) => {
-          const showEllipsisBefore = idx > 0 && page - arr[idx - 1] > 1;
-          return (
-            <span key={page} className="flex items-center gap-2">
-              {showEllipsisBefore && <span className="text-gray-500">...</span>}
-              <button
-                onClick={() => onPageChange(page)}
-                className={`w-10 h-10 rounded font-bold transition-colors ${
-                  page === currentPage
-                    ? 'bg-black text-white'
-                    : 'bg-gray-200 text-black hover:bg-gray-300'
-                }`}
-              >
-                {page}
-              </button>
-            </span>
-          );
-        })}
-    </div>
-
-    <button
-      onClick={() => onPageChange(prev => Math.min(prev + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      className={`px-4 py-2 rounded font-bold transition-colors ${
-        currentPage === totalPages
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-black text-white hover:bg-gray-800'
-      }`}
-    >
-      Siguiente →
-    </button>
-  </div>
-);
-
-// Componente de tarjeta
-const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando, mostrarBotonGuardar = true, esGuardada = false, onCambiarEstatus, getEstatusColor, onVerNota }) => {
+// Componente de tarjeta con el diseño exacto de las notas
+const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando, esGuardada = false }) => {
   const categoryColor = getCategoryColor(noticia.source);
   const [imagenError, setImagenError] = useState(false);
   
@@ -519,7 +510,14 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
         {/* Parte superior */}
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
-          
+            {/* Etiqueta de estado */}
+            <span className={`px-2 py-1 text-xs rounded-full font-bold w-fit ${
+              esGuardada 
+                ? 'bg-green-500 text-white' 
+                : 'bg-yellow-500 text-white'
+            }`}>
+              {esGuardada ? 'Guardada' : 'Pendiente'}
+            </span>
             {/* Fecha */}
             <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-black/40 backdrop-blur-md text-white drop-shadow w-fit">
               {formatDate(noticia.publishedAt)}
@@ -543,11 +541,15 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
               {noticia.title}
             </h3>
             
-            {/* Botón de guardar */}
-            {mostrarBotonGuardar && (
-              <div className="flex gap-2 mt-2">
+            {/* Botones de acción */}
+            <div className="flex gap-2 mt-2">
+              {esGuardada ? (
+                <span className="flex-1 px-3 py-1.5 rounded font-bold text-xs bg-green-100 text-green-800 text-center">
+                  ✓ Ya guardada
+                </span>
+              ) : (
                 <button 
-                  onClick={(e) => onGuardar(noticia, index, e)}
+                  onClick={(e) => onGuardar && onGuardar(noticia, index, e)}
                   disabled={guardando === index}
                   className={`flex-1 px-3 py-1.5 rounded font-bold transition-colors text-xs ${
                     guardando === index
@@ -557,9 +559,18 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
                 >
                   {guardando === index ? 'Guardando...' : 'Guardar como Nota'}
                 </button>
-              </div>
-            )}
-
+              )}
+              
+              <a 
+                href={noticia.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors text-xs text-center"
+              >
+                Ver
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -70,6 +70,7 @@ const ListaTickets = lazy(() => import("./componentes/residente/componentes/comp
 const InstaHistoryPage = lazy(() => import("./componentes/residente/InstaHistory/InstaHistoryPage.jsx"));
 const StripeCheckout = lazy(() => import("./componentes/StripeCheckout.jsx"));
 const FormMain = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"));
+const RegistroB2BConPlanes = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroB2BConPlanes.jsx"));
 const TerminosyCondiciones = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"));
 const Registro = lazy(() => import("./componentes/residente/Registro.jsx"));
 const FormularioAnuncioRevista = lazy(() => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"));
@@ -472,11 +473,7 @@ function App() {
 
               <Route
                 path="/registrob2b"
-                element={
-                  <div className="max-w-[650px] mx-auto">
-                    <FormMain />
-                  </div>
-                }
+                element={<RegistroB2BConPlanes />}
               />
 
               <Route
