@@ -81,3 +81,21 @@ export const catalogoHeadersGet = async () => {
         throw error;
     }
 }
+
+export const catalogoFoodDrinkGet = async () => {
+    const cacheKey = 'food-drink';
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
+    try {
+        const response = await fetch(`${urlApi}api/catalogo/opciones-food-drink`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        const result = await response.json();
+        if (!result.success) throw new Error("La API no devolvió success:true");
+        setCache(cacheKey, result.data);
+        return result.data;
+    } catch (error) {
+        console.error("Error fetching food & drink options", error);
+        throw error;
+    }
+}

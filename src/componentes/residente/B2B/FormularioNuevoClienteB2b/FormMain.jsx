@@ -702,15 +702,10 @@ const FormMain = () => {
       }
 
       const requestBody = {
-<<<<<<< HEAD
-        // El priceId ahora se maneja en el backend (STRIPE_PRICE_ID_B2B en .env)
-        userData: userData, // el backend lo usa para crear el usuario
-        customerEmail: formData.correo || "", 
-=======
-        numeroSucursales: numeroSucursales, // ✅ OBLIGATORIO - El backend obtiene el priceId según el número de sucursales
-        userData: userData, // ✅ OBLIGATORIO (el backend lo usa para crear el usuario)
-        customerEmail: formData.correo || "", // Opcional pero recomendado
->>>>>>> 32190479e8f3ab48c184a620754d789d663d0ece
+        // El backend usa numeroSucursales para obtener el priceId correcto
+        numeroSucursales: numeroSucursales,
+        userData: userData,
+        customerEmail: formData.correo || "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
@@ -987,9 +982,8 @@ const FormMain = () => {
     return () => document.body.classList.remove("overflow-hidden");
   }, [showModal]);
 
-  // Componente del formulario reutilizable con estilos responsive (mobile-first)
-  // Usa sm: como breakpoint para desktop (igual que Astro)
-  const FormularioB2B = () => (
+  // JSX del formulario (inline para evitar re-renders que pierden el foco)
+  const formularioJSX = (
     <form
       onSubmit={(e) => {
         e.preventDefault();
@@ -1298,7 +1292,7 @@ const FormMain = () => {
 
         <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">Suscripción B2B</h1>
 
-        <FormularioB2B />
+        {formularioJSX}
       </div>
 
       {/* Modal Terminos y Condiciones using Headless UI */}

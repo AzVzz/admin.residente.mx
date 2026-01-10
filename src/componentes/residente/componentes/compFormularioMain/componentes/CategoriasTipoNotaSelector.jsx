@@ -4,10 +4,15 @@ import { useAuth } from "../../../../Context";
 const CategoriasTipoNotaSelector = ({
   tipoDeNota,
   secciones,
+  opcionesFoodDrink,
   ocultarTipoNota,
 }) => {
   const { control, watch } = useFormContext();
   const { usuario } = useAuth();
+
+  // Detectar tipo de nota seleccionada
+  const tipoNotaSeleccionada = watch("tiposDeNotaSeleccionadas");
+  const esFoodDrink = tipoNotaSeleccionada === "Food & Drink";
 
   // Mueve la definición de seleccionados y bloquearOtros aquí
   const seleccionados = watch("tiposDeNotaSeleccionadas");
@@ -23,6 +28,39 @@ const CategoriasTipoNotaSelector = ({
   // Si es invitado, no mostrar nada
   if (esInvitado) {
     return null;
+  }
+
+  // Filtrar secciones según tipo de nota
+  // Si es Food & Drink: solo mostrar "Zona" y crear sección Food & Drink de las opciones independientes
+  // Si es otro tipo: mostrar todas las secciones EXCEPTO "Food & Drink"
+  let seccionesFiltradas;
+
+  // Secciones que NO queremos mostrar en el formulario
+  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+
+  if (esFoodDrink) {
+    // Opciones Food & Drink hardcodeadas en el frontend
+    const seccionFoodDrink = {
+      seccion: "Food & Drink",
+      categorias: [
+        { nombre: "Postres", descripcion: "Pasteles, helados, dulces y más" },
+        { nombre: "Cafés", descripcion: "Cafeterías y bebidas de café" },
+        { nombre: "Bares", descripcion: "Bares, cocteles y bebidas" },
+        { nombre: "Snacks", descripcion: "Botanas y snacks" },
+        { nombre: "Bebidas", descripcion: "Bebidas y más" },
+      ],
+      cols: 2,
+      descripcion: "",
+    };
+
+    // Mostrar solo Zona y Food & Drink
+    const seccionZona = secciones.find((s) => s.seccion === "Zona");
+    seccionesFiltradas = seccionZona
+      ? [seccionFoodDrink, seccionZona]
+      : [seccionFoodDrink];
+  } else {
+    // Mostrar todas las secciones excepto las ocultas
+    seccionesFiltradas = secciones.filter((s) => !seccionesOcultas.includes(s.seccion));
   }
 
   return (
@@ -75,8 +113,8 @@ const CategoriasTipoNotaSelector = ({
         </div>
       )}
 
-      {/* Mostrar las categorías */}
-      {secciones.map((seccion) => {
+      {/* Mostrar las categorías filtradas según tipo de nota */}
+      {seccionesFiltradas.map((seccion) => {
         const isZona = seccion.seccion === "Zona";
 
         return (
@@ -163,3 +201,4 @@ const CategoriasTipoNotaSelector = ({
 };
 
 export default CategoriasTipoNotaSelector;
+

@@ -35,7 +35,12 @@ const DirectorioVertical = () => {
   useEffect(() => {
     catalogoSeccionesGet()
       .then((result) => {
-        setData(result);
+        // Filtrar secciones que NO queremos mostrar en la barra lateral
+        const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+        const seccionesFiltradas = result.filter(
+          (seccion) => !seccionesOcultas.includes(seccion.seccion)
+        );
+        setData(seccionesFiltradas);
         setLoading(false);
       })
       .catch((err) => {
@@ -97,9 +102,8 @@ const DirectorioVertical = () => {
 
               <span>
                 <svg
-                  className={`w-5 h-5 transition-transform duration-200 ${
-                    openIndex === i ? "rotate-0" : "rotate-90 text-black"
-                  }`}
+                  className={`w-5 h-5 transition-transform duration-200 ${openIndex === i ? "rotate-0" : "rotate-90 text-black"
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={4}
@@ -128,8 +132,8 @@ const DirectorioVertical = () => {
                         `/seccion/${seccion.seccion
                           .replace(/\s+/g, "")
                           .toLowerCase()}/categoria/${categoria.nombre
-                          .replace(/\s+/g, "")
-                          .toLowerCase()}`,
+                            .replace(/\s+/g, "")
+                            .toLowerCase()}`,
                         {
                           state: {
                             seccion: seccion.seccion,

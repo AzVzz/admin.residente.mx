@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { urlApi } from "../../../api/url";
 import { useAuth } from "../../../Context";
+import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
+import SEOComparison from "./SEOComparison.jsx";
+import { FaRobot } from "react-icons/fa";
 
 // Límites de caracteres según el modelo Recetas.js
 const CHAR_LIMITS = {
@@ -74,6 +77,11 @@ export default function FormularioReceta({
   const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [imagenPreview, setImagenPreview] = useState(null);
+
+  // Estados para Gemini AI
+  const { optimizarReceta, loading: geminiLoading } = useGeminiSEO();
+  const [showSEOComparison, setShowSEOComparison] = useState(false);
+  const [seoOptimizado, setSeoOptimizado] = useState(null);
 
   // Cargar receta desde URL si hay ID
   useEffect(() => {
@@ -166,7 +174,11 @@ export default function FormularioReceta({
   };
 
   // --- AUTO-GENERACIÓN SEO (Recetas) ---
+  // NOTA: Solo ejecutar para recetas NUEVAS, no cuando se está editando
   useEffect(() => {
+    // Si estamos editando una receta existente, NO sobrescribir los campos SEO
+    if (receta) return;
+
     const { titulo, categoria, descripcion, autor } = formData;
 
     // Evitar actualizaciones innecesarias si no hay datos básicos
@@ -201,6 +213,7 @@ export default function FormularioReceta({
       };
     });
   }, [
+    receta,
     formData.titulo,
     formData.categoria,
     formData.descripcion,
@@ -646,15 +659,79 @@ export default function FormularioReceta({
           />
         </div>
 
-        {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
-        <div className="border-t pt-4 mt-6" style={{ display: "none" }}>
-          <h2 className="text-xl font-bold mb-4">SEO Metadata (Opcional)</h2>
+
+        {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
+        {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={async () => {
+                if (!formData.titulo) {
+                  alert('Necesitas al menos un título para optimizar con IA');
+                  return;
+                }
+
+                try {
+                  const optimizado = await optimizarReceta({
+                    titulo: formData.titulo,
+                    tipo_receta: formData.tipo_receta,
+                    autor: formData.autor,
+                    descripcion: formData.descripcion,
+                    ingredientes: formData.ingredientes,
+                    preparacion: formData.preparacion,
+                    porciones: formData.porciones,
+                    tiempo: formData.tiempo,
+                    categoria: formData.categoria
+                  });
+
+                  setSeoOptimizado(optimizado);
+                  setShowSEOComparison(true);
+                } catch (error) {
+                  console.error('Error:', error);
+                  alert('Error al optimizar con IA: ' + error.message);
+                }
+              }}
+              disabled={geminiLoading || !formData.titulo}
+              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              <FaRobot className="text-2xl" />
+              <span className="text-lg">
+                {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Receta y SEO con Gemini'}
+              </span>
+            </button>
+            <p className="text-sm text-gray-500 mt-2 text-center">
+              La IA mejorará tu título, descripción y campos SEO automáticamente
+            </p>
+          </div>
+        )}
+
+
+        {/* Sección SEO Metadata */}
+        <div className="border-t pt-4 mt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold">SEO Metadata (Opcional)</h2>
+            <div className="group relative inline-block">
+              <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">ⓘ</span>
+              <div className="invisible group-hover:visible absolute z-10 w-72 p-3 mt-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg -left-32">
+                <p className="font-bold mb-1">¿Qué es SEO?</p>
+                <p>SEO son técnicas para que tu contenido aparezca en los primeros resultados de Google. Completa estos campos para mejorar tu visibilidad en buscadores.</p>
+              </div>
+            </div>
+          </div>
 
           {/* SEO Alt Text */}
           <div className="mb-4">
-            <label className="space-y-2 font-roman font-bold">
-              Texto Alt de Imagen
-            </label>
+            <div className="flex items-center gap-2 mb-1">
+              <label className="space-y-2 font-roman font-bold">
+                Texto Alt de Imagen
+              </label>
+              <div className="group relative inline-block">
+                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                  Descripción de la imagen para personas con discapacidad visual y buscadores. Mejora la accesibilidad y el SEO.
+                </div>
+              </div>
+            </div>
             <input
               type="text"
               name="seo_alt_text"
@@ -667,7 +744,15 @@ export default function FormularioReceta({
 
           {/* SEO Title */}
           <div className="mb-4">
-            <label className="space-y-2 font-roman font-bold">Título SEO</label>
+            <div className="flex items-center gap-2 mb-1">
+              <label className="space-y-2 font-roman font-bold">Título SEO</label>
+              <div className="group relative inline-block">
+                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                  Título que aparece en la pestaña del navegador y en resultados de Google. Incluye palabras clave importantes (máx. 60 caracteres).
+                </div>
+              </div>
+            </div>
             <input
               type="text"
               name="seo_title"
@@ -680,9 +765,17 @@ export default function FormularioReceta({
 
           {/* SEO Keyword */}
           <div className="mb-4">
-            <label className="space-y-2 font-roman font-bold">
-              Palabra Clave Objetivo
-            </label>
+            <div className="flex items-center gap-2 mb-1">
+              <label className="space-y-2 font-roman font-bold">
+                Palabras Clave
+              </label>
+              <div className="group relative inline-block">
+                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                  La palabra o frase principal por la que quieres que encuentren tu contenido en Google. Ejemplo: "receta tacos al pastor".
+                </div>
+              </div>
+            </div>
             <input
               type="text"
               name="seo_keyword"
@@ -695,9 +788,17 @@ export default function FormularioReceta({
 
           {/* Meta Description */}
           <div className="mb-4">
-            <label className="space-y-2 font-roman font-bold">
-              Meta Descripción
-            </label>
+            <div className="flex items-center gap-2 mb-1">
+              <label className="space-y-2 font-roman font-bold">
+                Meta Descripción
+              </label>
+              <div className="group relative inline-block">
+                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
+                  Resumen que aparece bajo el título en Google. Convence a las personas de hacer clic (máx. 155 caracteres).
+                </div>
+              </div>
+            </div>
             <textarea
               name="meta_description"
               rows="3"
@@ -769,6 +870,36 @@ export default function FormularioReceta({
           )}
         </div>
       </form>
+
+      {/* Modal de comparación SEO */}
+      {showSEOComparison && seoOptimizado && (
+        <SEOComparison
+          original={{
+            titulo: formData.titulo,
+            subtitulo: "", // Las recetas no tienen subtítulo
+            descripcion: formData.descripcion,
+            seo_title: formData.seo_title,
+            seo_keyword: formData.seo_keyword,
+            meta_description: formData.meta_description,
+            seo_alt_text: formData.seo_alt_text
+          }}
+          optimizado={seoOptimizado}
+          onSelect={(camposSeleccionados) => {
+            // Aplicar solo los campos seleccionados
+            const nuevoFormData = { ...formData };
+            if (camposSeleccionados.titulo) nuevoFormData.titulo = seoOptimizado.titulo;
+            if (camposSeleccionados.descripcion) nuevoFormData.descripcion = seoOptimizado.descripcion;
+            if (camposSeleccionados.seo_title) nuevoFormData.seo_title = seoOptimizado.seo_title;
+            if (camposSeleccionados.seo_keyword) nuevoFormData.seo_keyword = seoOptimizado.seo_keyword;
+            if (camposSeleccionados.meta_description) nuevoFormData.meta_description = seoOptimizado.meta_description;
+            if (camposSeleccionados.seo_alt_text) nuevoFormData.seo_alt_text = seoOptimizado.seo_alt_text;
+            setFormData(nuevoFormData);
+            setShowSEOComparison(false);
+          }}
+          onClose={() => setShowSEOComparison(false)}
+          tipo="receta"
+        />
+      )}
     </div>
   );
 }

@@ -129,6 +129,13 @@ export default defineConfig({
       clientPort: 5173
     },
     proxy: {
+      '/api/gemini': {
+        target: 'https://admin.residente.mx',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+        ws: true
+      },
       '/api/stripe': {
         target: 'https://admin.residente.mx',
         changeOrigin: true,
