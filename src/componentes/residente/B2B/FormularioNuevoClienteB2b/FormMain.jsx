@@ -738,15 +738,9 @@ const FormMain = ({ planInicial = null }) => {
 
       const requestBody = {
         // El backend usa numeroSucursales para obtener el priceId correcto
-<<<<<<< Updated upstream
-        numeroSucursales: numeroSucursales,
+        numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
         customerEmail: formData.correo || "",
-=======
-        numeroSucursales: numeroSucursalesParaBackend,
-        userData: userData, // el backend lo usa para crear el usuario
-        customerEmail: formData.correo || "", 
->>>>>>> Stashed changes
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
