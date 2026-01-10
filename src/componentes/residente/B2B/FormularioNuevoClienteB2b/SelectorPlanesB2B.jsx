@@ -276,10 +276,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           alt="B2B Logo"
         />
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-          Elige tu tipo de miembresia para el"Club Residente"
+          Elige tu tipo de miembresia para el "Club Residente"
         </h1>
         <button className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer">
-          Boton "5 razones para suscribirte"
+          5 RAZONES PARA SUSCRIBIRTE
         </button>
       </div>
 
