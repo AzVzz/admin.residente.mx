@@ -133,29 +133,29 @@ const NuevasSeccionesCategorias = () => {
         {/* Sección específica para Food & Drink */}
         {esFoodDrink && seccionFoodDrinkAMostrar && (
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="font-bold text-lg mb-3 text-blue-800">{seccionFoodDrinkAMostrar}</h3>
+            <h3 className="font-bold text-lg mb-3 text-blue-800">{subTipoLugar}</h3>
 
             <div className="flex flex-wrap gap-3">
               {/* Buscar la sección en los datos */}
               {data?.find(s => s.seccion === seccionFoodDrinkAMostrar)?.categorias.map((categoria) => {
-                const fieldName = `secciones_categorias.${seccionFoodDrinkAMostrar}`;
+                const fieldName = `secciones_categorias.${subTipoLugar}`;
 
                 return (
                   <div key={categoria.nombre} className="flex items-center">
                     <input
                       type="checkbox"
-                      id={`${seccionFoodDrinkAMostrar}-${categoria.nombre}`}
+                      id={`${subTipoLugar}-${categoria.nombre}`}
                       value={categoria.nombre}
                       {...register(fieldName, {
                         validate: (value) =>
                           Array.isArray(value) && value.length > 0
                             ? true
-                            : `Debes seleccionar al menos una zona para ${seccionFoodDrinkAMostrar}`,
+                            : `Debes seleccionar al menos una zona para ${subTipoLugar}`,
                       })}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                     />
                     <label
-                      htmlFor={`${seccionFoodDrinkAMostrar}-${categoria.nombre}`}
+                      htmlFor={`${subTipoLugar}-${categoria.nombre}`}
                       className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
                     >
                       {categoria.nombre}
@@ -166,9 +166,9 @@ const NuevasSeccionesCategorias = () => {
             </div>
 
             {/* Mensaje de error para la sección de Food & Drink */}
-            {errors.secciones_categorias?.[seccionFoodDrinkAMostrar] && (
+            {errors.secciones_categorias?.[subTipoLugar] && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.secciones_categorias[seccionFoodDrinkAMostrar].message}
+                {errors.secciones_categorias[subTipoLugar].message}
               </p>
             )}
           </div>
