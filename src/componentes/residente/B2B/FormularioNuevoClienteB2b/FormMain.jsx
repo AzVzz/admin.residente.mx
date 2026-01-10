@@ -20,7 +20,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
 
-const FormMain = () => {
+const FormMain = ({ planInicial = null }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -58,10 +58,21 @@ const FormMain = () => {
   ];
 
   // Estados para número de sucursales y precios
-  const [numeroSucursales, setNumeroSucursales] = useState(1);
+  // Si viene un planInicial, usarlo como valor inicial
+  const [numeroSucursales, setNumeroSucursales] = useState(() => {
+    if (planInicial?.sucursales) {
+      return planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+    }
+    return 1;
+  });
   const [preciosDisponibles, setPreciosDisponibles] = useState(PRECIOS_FALLBACK);
   const [loadingPrecios, setLoadingPrecios] = useState(true);
-  const [precioSeleccionado, setPrecioSeleccionado] = useState(PRECIOS_FALLBACK[0]);
+  const [precioSeleccionado, setPrecioSeleccionado] = useState(() => {
+    if (planInicial) {
+      return planInicial;
+    }
+    return PRECIOS_FALLBACK[0];
+  });
 
   // Estados para verificación de nombre de usuario
   const [usernameExists, setUsernameExists] = useState(false);
@@ -91,10 +102,20 @@ const FormMain = () => {
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          // Establecer el precio inicial (1 sucursal)
-          const precioInicial = data.precios.find(p => p.sucursales === 1);
-          if (precioInicial) {
-            setPrecioSeleccionado(precioInicial);
+          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
+          if (planInicial) {
+            const precioCoincidente = data.precios.find(p => 
+              p.sucursales === planInicial.sucursales || 
+              (planInicial.sucursales === "5+" && p.sucursales === "5+")
+            );
+            if (precioCoincidente) {
+              setPrecioSeleccionado(precioCoincidente);
+            }
+          } else {
+            const precioInicial = data.precios.find(p => p.sucursales === 1);
+            if (precioInicial) {
+              setPrecioSeleccionado(precioInicial);
+            }
           }
         } else {
           // Si no hay precios del servidor, usar fallback
@@ -109,7 +130,16 @@ const FormMain = () => {
     };
 
     fetchPrecios();
-  }, []);
+  }, [planInicial]);
+
+  // Actualizar cuando cambia el planInicial desde el selector de planes
+  useEffect(() => {
+    if (planInicial) {
+      const sucursales = planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+      setNumeroSucursales(sucursales);
+      setPrecioSeleccionado(planInicial);
+    }
+  }, [planInicial]);
 
   // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
@@ -701,11 +731,22 @@ const FormMain = () => {
         return;
       }
 
+      // Obtener el número de sucursales del plan seleccionado
+      const sucursalesPlan = precioSeleccionado?.sucursales;
+      // Convertir "5+" a 5 para el backend
+      const numeroSucursalesParaBackend = sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
+
       const requestBody = {
         // El backend usa numeroSucursales para obtener el priceId correcto
+<<<<<<< Updated upstream
         numeroSucursales: numeroSucursales,
         userData: userData,
         customerEmail: formData.correo || "",
+=======
+        numeroSucursales: numeroSucursalesParaBackend,
+        userData: userData, // el backend lo usa para crear el usuario
+        customerEmail: formData.correo || "", 
+>>>>>>> Stashed changes
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
@@ -1208,32 +1249,34 @@ const FormMain = () => {
         </div>
       </div>
 
-      {/* Selector de número de sucursales */}
-      <div className="sm:mb-4">
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Número de sucursales*
-        </label>
-        {loadingPrecios ? (
-          <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
-            Cargando precios...
-          </div>
-        ) : (
-          <select
-            value={numeroSucursales}
-            onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
-          >
-            {preciosDisponibles.map((precio) => (
-              <option 
-                key={precio.priceId} 
-                value={precio.sucursales === "5+" ? 5 : precio.sucursales}
-              >
-                {precio.sucursalesTexto} 
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+      {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
+      {!planInicial && (
+        <div className="sm:mb-4">
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+            Número de sucursales*
+          </label>
+          {loadingPrecios ? (
+            <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
+              Cargando precios...
+            </div>
+          ) : (
+            <select
+              value={numeroSucursales}
+              onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
+            >
+              {preciosDisponibles.map((precio) => (
+                <option 
+                  key={precio.priceId} 
+                  value={precio.sucursales === "5+" ? 5 : precio.sucursales}
+                >
+                  {precio.sucursalesTexto} 
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
 
       <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
         <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
