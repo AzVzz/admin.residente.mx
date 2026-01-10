@@ -469,7 +469,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   // Si hay sub_tipo_lugar (Postres, Cafés, Bares, etc.), usarlo como tipo_lugar
                   // Si no, usar el tipo_lugar principal (Restaurante o Food & Drink)
                   tipo_lugar: data.sub_tipo_lugar || data.tipo_lugar || "Restaurante",
-                  tipo_restaurante: data.tipo_restaurante,
+                  // Si hay sub_tipo_lugar, también enviarlo a tipo_restaurante
+                  // Si no, usar el tipo_restaurante que viene del campo "Tipo de comida"
+                  tipo_restaurante: data.sub_tipo_lugar || data.tipo_restaurante,
                   categoria: data.categoria,
                   sitio_web: data.sitio_web,
                   rappi_link: data.rappi_link,
