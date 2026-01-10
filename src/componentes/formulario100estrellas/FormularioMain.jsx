@@ -588,9 +588,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   // Procesar imágenes
                   const imagenes = data.imagenes || [];
                   const imagenesEliminadas = data.imagenesEliminadas || [];
+
+                  // Separar imágenes nuevas (Files) de las existentes (con id)
                   const newImages = imagenes.filter(
                     (img) => img instanceof File
                   );
+
+                  // Obtener IDs de imágenes existentes que se conservan
+                  const imagenesConservadasIds = imagenes
+                    .filter((img) => img?.id && !imagenesEliminadas.includes(img.id))
+                    .map((img) => img.id);
 
                   // Procesar FOTOS DEL LUGAR
                   const fotosLugar = data.fotos_lugar || [];
@@ -622,14 +629,21 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     await postFotosLugar(restaurantId, formDataFotos);
                   }
 
+                  // Enviar imágenes si hay nuevas O si hay que eliminar alguna
                   if (newImages.length > 0 || imagenesEliminadas.length > 0) {
                     const formData = new FormData();
                     newImages.forEach((img) => {
                       formData.append("fotos", img);
                     });
+                    // IMPORTANTE: El backend espera 'eliminadas' no 'imagenesEliminadas'
                     formData.append(
-                      "imagenesEliminadas",
+                      "eliminadas",
                       JSON.stringify(imagenesEliminadas)
+                    );
+                    // También enviar las conservadas
+                    formData.append(
+                      "conservadas",
+                      JSON.stringify(imagenesConservadasIds)
                     );
                     await postImages(restaurantId, formData);
                   }

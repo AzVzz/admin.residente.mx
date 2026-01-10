@@ -11,8 +11,7 @@ const Imagenes = ({ slug, existingImages }) => {
     const imagenes = watch('imagenes') || [];
     const fileInputRef = useRef(null);
     const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [mostrarMensaje, setMostrarMensaje] = useState(false); // NUEVO: Estado para mostrar el mensaje
+    const [mostrarMensaje, setMostrarMensaje] = useState(false);
 
     useEffect(() => {
         register('imagenes', {
@@ -70,44 +69,19 @@ const Imagenes = ({ slug, existingImages }) => {
             if (combinedPreviews.length >= 3) {
                 setLimitReached(true);
             }
-            // NUEVO: Mostrar mensaje si hay archivos seleccionados
             setMostrarMensaje(combinedPreviews.length > 0);
         }
     };
 
-    const removeImage = async (indexToRemove) => {
-        const imageToRemove = previews[indexToRemove];
-        const isExistingImage = typeof imageToRemove !== 'string' ||
-            !imageToRemove.startsWith('blob:');
+    const removeImage = (indexToRemove) => {
+        const currentImages = watch('imagenes') || [];
+        const imageToRemove = currentImages[indexToRemove];
 
-        // Si es una imagen existente (no nueva), agregar a lista de eliminadas
-        if (isExistingImage && existingImages && existingImages[indexToRemove]?.id) {
-            const imageId = existingImages[indexToRemove].id;
-
-            try {
-                setIsDeleting(true);
-                // Llamar a la API para eliminar la imagen del servidor
-                const response = await fetch(`${urlApi}api/restaurante/imagenes/${imageId}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al eliminar la imagen del servidor');
-                }
-
-                // Si la eliminación fue exitosa, agregar a la lista de eliminadas
-                setImagenesEliminadas(prev => {
-                    const newList = [...prev, imageId];
-                    setValue('imagenesEliminadas', newList); // Actualizar formulario
-                    return newList;
-                });
-            } catch (error) {
-                console.error('Error al eliminar la imagen:', error);
-                // Mostrar mensaje de error al usuario si es necesario
-                return; // No continuar con la eliminación si falla la API
-            } finally {
-                setIsDeleting(false);
-            }
+        // Si es una imagen existente (tiene ID), agregarla a la lista de eliminadas
+        if (imageToRemove?.id) {
+            const newEliminadas = [...imagenesEliminadas, imageToRemove.id];
+            setImagenesEliminadas(newEliminadas);
+            setValue('imagenesEliminadas', newEliminadas);
         }
 
         // Eliminar de las previsualizaciones
@@ -116,9 +90,9 @@ const Imagenes = ({ slug, existingImages }) => {
         setPreviews(newPreviews);
 
         // Eliminar de los valores del formulario
-        const currentImages = [...(watch('imagenes') || [])];
-        currentImages.splice(indexToRemove, 1);
-        setValue('imagenes', currentImages, { shouldValidate: true });
+        const newImages = [...currentImages];
+        newImages.splice(indexToRemove, 1);
+        setValue('imagenes', newImages, { shouldValidate: true });
 
         // Si se eliminó una imagen, permitir agregar nuevas
         if (newPreviews.length < 3) {
@@ -130,7 +104,7 @@ const Imagenes = ({ slug, existingImages }) => {
     useEffect(() => {
         return () => {
             previews.forEach(url => {
-                if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+                if (typeof url === 'string' && url.startsWith('blob:')) URL.revokeObjectURL(url);
             });
         };
     }, [previews]);
@@ -177,7 +151,7 @@ const Imagenes = ({ slug, existingImages }) => {
                             }
                             ${errors.imagenes ? 'border-2 border-red-500' : ''}
                         `}
-                        disabled={limitReached || isDeleting}
+                        disabled={limitReached}
                     >
                         {limitReached ? 'Límite alcanzado' : 'Elegir archivos'}
                     </button>
@@ -215,11 +189,9 @@ const Imagenes = ({ slug, existingImages }) => {
                             <button
                                 type="button"
                                 onClick={() => removeImage(index)}
-                                disabled={isDeleting}
-                                className={`absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center transition-colors duration-300 ease-in-out cursor-pointer shadow-md ${isDeleting ? 'bg-gray-500' : 'bg-orange-500 hover:bg-red-500'
-                                    }`}
+                                className="absolute top-1 right-1 text-white text-[10px] font-bold rounded-full w-[65px] h-[15px] flex items-center justify-center transition-colors duration-300 ease-in-out cursor-pointer shadow-md bg-orange-500 hover:bg-red-500"
                             >
-                                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                                Eliminar
                             </button>
 
                             {/* Contador de imágenes */}
