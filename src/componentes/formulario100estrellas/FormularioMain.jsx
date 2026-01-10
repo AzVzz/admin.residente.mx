@@ -78,8 +78,17 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
   // Preparar baseDefaults
   const baseDefaults = useMemo(() => {
+    // Lista de subcategorías de Food & Drink
+    const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
+
+    // Determinar si el tipo_lugar es una subcategoría de Food & Drink
+    const tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+    const esSubcategoria = subcategoriasFoodDrink.includes(tipoLugarActual);
+
     const defaults = {
-      tipo_lugar: restaurante?.tipo_lugar || "Restaurante",
+      // Si es una subcategoría, tipo_lugar será "Food & Drink" y sub_tipo_lugar tendrá el valor específico
+      tipo_lugar: esSubcategoria ? "Food & Drink" : tipoLugarActual,
+      sub_tipo_lugar: esSubcategoria ? tipoLugarActual : "",
       sucursales: [],
       tipo_area: [],
       tipo_area_restaurante: [],
@@ -457,7 +466,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   numero_sucursales: data.numero_sucursales,
                   sucursales: data.sucursales,
                   imagenesEliminadas: data.imagenesEliminadas || [],
-                  tipo_lugar: data.tipo_lugar || "Restaurante",
+                  // Si hay sub_tipo_lugar (Postres, Cafés, Bares, etc.), usarlo como tipo_lugar
+                  // Si no, usar el tipo_lugar principal (Restaurante o Food & Drink)
+                  tipo_lugar: data.sub_tipo_lugar || data.tipo_lugar || "Restaurante",
                   tipo_restaurante: data.tipo_restaurante,
                   categoria: data.categoria,
                   sitio_web: data.sitio_web,
