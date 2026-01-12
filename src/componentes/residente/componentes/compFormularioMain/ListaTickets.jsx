@@ -33,12 +33,24 @@ const ListaTickets = () => {
         setCupones(data);
 
         // --- LAZY DEACTIVATION LOGIC ---
-        // Check for coupons that are active but expired
+        // Check for coupons that are active but expired (by fecha_fin or fecha_validez)
         const now = new Date();
         const expiredCoupons = data.filter(c => {
-          if (!c.activo_manual || !c.fecha_fin) return false;
-          const endDate = new Date(c.fecha_fin);
-          return now > endDate;
+          if (!c.activo_manual) return false;
+
+          // Check fecha_fin expiration
+          if (c.fecha_fin) {
+            const endDate = new Date(c.fecha_fin);
+            if (now > endDate) return true;
+          }
+
+          // Check fecha_validez expiration (caducidad automática)
+          if (c.tiene_caducidad && c.fecha_validez) {
+            const validezDate = new Date(c.fecha_validez);
+            if (now > validezDate) return true;
+          }
+
+          return false;
         });
 
         if (expiredCoupons.length > 0) {
@@ -129,16 +141,28 @@ const ListaTickets = () => {
     }
   };
 
-  const getEstado = (inicio, fin, activoManual) => {
-    if (!activoManual) return { label: "Inactivo", color: "text-gray-600 bg-gray-200" };
-    if (!inicio && !fin) return { label: "Activo", color: "text-green-600 bg-green-100" };
+  // Actualizada para considerar tiene_caducidad y fecha_validez
+  const getEstado = (cupon) => {
+    const { fecha_inicio, fecha_fin, activo_manual, tiene_caducidad, fecha_validez } = cupon;
+
+    if (!activo_manual) return { label: "Inactivo", color: "text-gray-600 bg-gray-200" };
 
     const now = new Date();
-    const startDate = new Date(inicio);
-    const endDate = new Date(fin);
 
-    if (now < startDate) return { label: "Programado", color: "text-yellow-600 bg-yellow-100" };
-    if (now > endDate) return { label: "Vencido", color: "text-red-600 bg-red-100" };
+    // Verificar caducidad automática
+    if (tiene_caducidad && fecha_validez) {
+      const validezDate = new Date(fecha_validez);
+      if (now > validezDate) return { label: "Expirado", color: "text-red-600 bg-red-100" };
+    }
+
+    // Verificar rango de fechas de promoción
+    if (fecha_inicio && fecha_fin) {
+      const startDate = new Date(fecha_inicio);
+      const endDate = new Date(fecha_fin);
+      if (now < startDate) return { label: "Programado", color: "text-yellow-600 bg-yellow-100" };
+      if (now > endDate) return { label: "Vencido", color: "text-red-600 bg-red-100" };
+    }
+
     return { label: "Activo", color: "text-green-600 bg-green-100" };
   };
 
@@ -201,7 +225,7 @@ const ListaTickets = () => {
             </div>
           ) : (
             cupones.map((cupon) => {
-              const estado = getEstado(cupon.fecha_inicio, cupon.fecha_fin, cupon.activo_manual);
+              const estado = getEstado(cupon);
 
               return (
                 <div key={cupon.id} className="flex flex-col items-center  p-4 relative">
@@ -245,6 +269,13 @@ const ListaTickets = () => {
                       </>
                     ) : (
                       <p className="font-bold text-blue-600 text-sm font-roman">Cupón Permanente</p>
+                    )}
+
+                    {/* Indicador de Caducidad Automática */}
+                    {cupon.tiene_caducidad && cupon.fecha_validez && (
+                      <p className="mt-1 text-orange-600 font-semibold">
+                        ⏰ Expira: {new Date(cupon.fecha_validez).toLocaleString()}
+                      </p>
                     )}
                   </div>
 

@@ -117,6 +117,39 @@ const FormularioPromo = ({
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
                 />
             </div>
+
+            {/* Sección de Caducidad Automática */}
+            <div className="flex flex-col pb-0 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-3">
+                    <input
+                        type="checkbox"
+                        id="tiene_caducidad"
+                        checked={formData.tiene_caducidad || false}
+                        onChange={(e) => onFieldChange("tiene_caducidad", e.target.checked)}
+                        className="w-5 h-5 text-yellow-500 bg-white border-gray-300 rounded focus:ring-yellow-500 cursor-pointer"
+                    />
+                    <label htmlFor="tiene_caducidad" className="text-lg font-medium text-gray-950 cursor-pointer">
+                        Activar caducidad automática
+                    </label>
+                </div>
+
+                {formData.tiene_caducidad && (
+                    <div className="flex flex-col">
+                        <label className="block text-base font-medium text-gray-700 mb-1">
+                            Fecha de expiración del cupón
+                        </label>
+                        <input
+                            type="datetime-local"
+                            value={formData.fecha_caducidad || ""}
+                            onChange={(e) => onFieldChange("fecha_caducidad", e.target.value)}
+                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                            El cupón se desactivará automáticamente cuando llegue esta fecha.
+                        </p>
+                    </div>
+                )}
+            </div>
             {/* Campo URL de promoción */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Url de promoción (si aplica)</label>

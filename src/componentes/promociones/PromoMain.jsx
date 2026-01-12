@@ -21,6 +21,8 @@ const PromoMain = () => {
         fechaFin: "",
         esPermanente: true, // NUEVO - Default a true por ahora
         zonaHoraria: "America/Monterrey", // Default
+        tiene_caducidad: false, // Para auto-expiración
+        fecha_caducidad: "", // Fecha en que expira automáticamente
         seo_alt_text: "",
         seo_title: "",
         seo_keyword: "",
@@ -236,11 +238,12 @@ const PromoMain = () => {
             email: formData.emailPromo || "",
             tipo: 'promo',
             link: formData.urlPromo || "",
-            fecha_validez: formData.fechaValidez,
+            fecha_validez: formData.tiene_caducidad ? formatWithTimezone(formData.fecha_caducidad, zonaHoraria) : null,
             fecha_inicio: formData.esPermanente ? null : formatWithTimezone(formData.fechaInicio, zonaHoraria),
             fecha_fin: formData.esPermanente ? null : formatWithTimezone(formData.fechaFin, zonaHoraria),
             es_permanente: formData.esPermanente,
             zona_horaria: zonaHoraria, // Guardamos la zona horaria también por si acaso
+            tiene_caducidad: formData.tiene_caducidad || false,
             metadata: JSON.stringify({
                 sticker_url: stickerClave,
                 zona_horaria: zonaHoraria
