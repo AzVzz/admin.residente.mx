@@ -422,13 +422,15 @@ const FormMainResidente = () => {
             fechaProgramada: fechaProgramada || "",
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
-              ? data.secciones_categorias.reduce(
-                (acc, { seccion, categoria }) => {
+              ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
+                // ✅ Priorizar "Food & Drink" si existe
+                if (seccion === "Food & Drink") {
                   acc[seccion] = categoria;
-                  return acc;
-                },
-                {}
-              )
+                } else if (!acc[seccion]) {
+                  acc[seccion] = categoria;
+                }
+                return acc;
+              }, {})
               : {},
             sticker: data.sticker || "",
             destacada: !!data.destacada,
@@ -503,7 +505,7 @@ const FormMainResidente = () => {
     try {
       // ✅ DECLARAR PRIMERO tipoNotaFinal
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
-      
+
       let seccionesCategorias = [];
 
       if (tipoNotaFinal === "Food & Drink") {
@@ -520,10 +522,19 @@ const FormMainResidente = () => {
 
           const seccionFinal = mapeoCategoria[categoriaFoodDrink] || "Cafetería";
 
-          seccionesCategorias = zonasSeleccionadas.map(zona => ({
-            seccion: seccionFinal,
-            categoria: zona
-          }));
+          // ✅ AGREGAR ENTRADA ORIGINAL (para el formulario)
+          seccionesCategorias.push({
+            seccion: "Food & Drink",
+            categoria: categoriaFoodDrink
+          });
+
+          // ✅ AGREGAR ENTRADAS TRANSFORMADAS (para el directorio)
+          zonasSeleccionadas.forEach(zona => {
+            seccionesCategorias.push({
+              seccion: seccionFinal,
+              categoria: zona
+            });
+          });
         }
       } else {
         seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
