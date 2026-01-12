@@ -501,12 +501,36 @@ const FormMainResidente = () => {
     }
 
     try {
-      const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
-        .filter(([_, categoria]) => categoria)
-        .map(([seccion, categoria]) => ({ seccion, categoria }));
+      // ✅ DECLARAR PRIMERO tipoNotaFinal
+      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      
+      let seccionesCategorias = [];
 
-      const tipoNotaFinal =
-        tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      if (tipoNotaFinal === "Food & Drink") {
+        const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
+        const zonasSeleccionadas = data.zonas || [];
+
+        if (categoriaFoodDrink && zonasSeleccionadas.length > 0) {
+          const mapeoCategoria = {
+            "Cafés": "Cafetería",
+            "Bares y antros": "Bar",
+            "Postres y pan": "Postrería",
+            "Snacks y nieves": "Snack"
+          };
+
+          const seccionFinal = mapeoCategoria[categoriaFoodDrink] || "Cafetería";
+
+          seccionesCategorias = zonasSeleccionadas.map(zona => ({
+            seccion: seccionFinal,
+            categoria: zona
+          }));
+        }
+      } else {
+        seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
+          .filter(([_, categoria]) => categoria)
+          .map(([seccion, categoria]) => ({ seccion, categoria }));
+      }
+
       const tipoNotaSecundaria = null;
       const datosNota = {
         tipo_nota: tipoNotaFinal,
