@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { cuponesGetTodas, cuponBorrar, cuponEditar } from "../../../api/cuponesGet";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaEdit, FaClock } from "react-icons/fa";
 import { useAuth } from "../../../Context";
 
 const ListaTickets = () => {
@@ -11,6 +11,11 @@ const ListaTickets = () => {
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [toggling, setToggling] = useState(null);
+
+  // Estado para modal de edición de caducidad
+  const [editingCupon, setEditingCupon] = useState(null);
+  const [nuevaFechaCaducidad, setNuevaFechaCaducidad] = useState("");
+  const [savingCaducidad, setSavingCaducidad] = useState(false);
 
   // Verificar permisos al inicio
   if (!usuario || (usuario.rol !== 'residente' && usuario.rol !== 'b2b' && usuario.permisos !== 'residente' && usuario.permisos !== 'b2b' && usuario.permisos !== 'todos')) {
@@ -166,6 +171,56 @@ const ListaTickets = () => {
     return { label: "Activo", color: "text-green-600 bg-green-100" };
   };
 
+  // Abrir modal de edición de caducidad
+  const handleEditCaducidad = (cupon) => {
+    setEditingCupon(cupon);
+    // Formatear fecha existente para el input datetime-local
+    if (cupon.fecha_validez) {
+      const fecha = new Date(cupon.fecha_validez);
+      const formatted = fecha.toISOString().slice(0, 16);
+      setNuevaFechaCaducidad(formatted);
+    } else {
+      setNuevaFechaCaducidad("");
+    }
+  };
+
+  // Guardar nueva fecha de caducidad
+  const handleSaveCaducidad = async (reactivar = false) => {
+    if (!editingCupon || !nuevaFechaCaducidad) {
+      alert("Por favor selecciona una fecha de caducidad");
+      return;
+    }
+
+    setSavingCaducidad(true);
+    try {
+      const updateData = {
+        tiene_caducidad: true,
+        fecha_validez: new Date(nuevaFechaCaducidad).toISOString()
+      };
+
+      // Si el usuario quiere reactivar, también activamos el cupón
+      if (reactivar) {
+        updateData.activo_manual = true;
+      }
+
+      await cuponEditar(editingCupon.id, updateData, token);
+
+      // Actualizar estado local
+      setCupones(cupones.map(c =>
+        c.id === editingCupon.id
+          ? { ...c, ...updateData }
+          : c
+      ));
+
+      setEditingCupon(null);
+      setNuevaFechaCaducidad("");
+    } catch (err) {
+      alert("Error al actualizar la caducidad: " + err.message);
+    } finally {
+      setSavingCaducidad(false);
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -292,6 +347,15 @@ const ListaTickets = () => {
                       {toggling === cupon.id ? "Procesando..." : (cupon.activo_manual ? "Desactivar Cupón" : "Activar Cupón")}
                     </button>
 
+                    {/* Botón Editar Caducidad */}
+                    <button
+                      onClick={() => handleEditCaducidad(cupon)}
+                      className="w-full py-1 bg-orange-500 border-0 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm text-sm font-roman cursor-pointer"
+                    >
+                      <FaClock />
+                      Editar Caducidad
+                    </button>
+
                     {/* Acciones */}
                     <button
                       onClick={() => handleEliminar(cupon.id)}
@@ -306,6 +370,63 @@ const ListaTickets = () => {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Modal de Edición de Caducidad */}
+      {editingCupon && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Editar Caducidad
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Cupón: <strong>{editingCupon.titulo}</strong>
+            </p>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nueva fecha de caducidad
+              </label>
+              <input
+                type="datetime-local"
+                value={nuevaFechaCaducidad}
+                onChange={(e) => setNuevaFechaCaducidad(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {/* Si el cupón está inactivo/expirado, mostrar opción de reactivar */}
+              {!editingCupon.activo_manual && (
+                <button
+                  onClick={() => handleSaveCaducidad(true)}
+                  disabled={savingCaducidad}
+                  className="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium cursor-pointer"
+                >
+                  {savingCaducidad ? "Guardando..." : "Guardar y Reactivar Cupón"}
+                </button>
+              )}
+
+              <button
+                onClick={() => handleSaveCaducidad(false)}
+                disabled={savingCaducidad}
+                className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium cursor-pointer"
+              >
+                {savingCaducidad ? "Guardando..." : "Solo Guardar Fecha"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingCupon(null);
+                  setNuevaFechaCaducidad("");
+                }}
+                className="w-full py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
