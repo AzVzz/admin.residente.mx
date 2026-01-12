@@ -8,6 +8,57 @@ export const consejerosGet = async () => {
   return await res.json();
 };
 
+// Obtener un consejero por ID
+export const consejerosGetById = async (id) => {
+  const res = await fetch(`${urlApi}api/consejeros/${id}`);
+  if (!res.ok) throw new Error("Error al obtener el consejero");
+  return await res.json();
+};
+
+// Obtener consejero por usuario_id
+export const consejerosGetByUsuarioId = async (usuarioId) => {
+  const res = await fetch(`${urlApi}api/consejeros?usuario_id=${usuarioId}`);
+  if (!res.ok) throw new Error("Error al obtener el consejero");
+  const data = await res.json();
+  // Buscar el consejero que coincida con el usuario_id
+  const consejero = Array.isArray(data) 
+    ? data.find(c => c.usuario_id === parseInt(usuarioId))
+    : data;
+  return consejero;
+};
+
+// Actualizar consejero (con foto opcional)
+export const consejerosPut = async (id, formData) => {
+  try {
+    const form = new FormData();
+    
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        if (key === 'fotografia') {
+          form.append('fotografia', value);
+        } else {
+          form.append(key, value);
+        }
+      }
+    });
+
+    const res = await fetch(`${urlApi}api/consejeros/${id}`, {
+      method: "PUT",
+      body: form,
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error del servidor:', errorText);
+      throw new Error(`Error del servidor: ${res.status} ${res.statusText} - ${errorText}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Crear nuevo registro (con foto) - CORREGIDO
 export const consejerosPost = async (formData) => {
   try {
