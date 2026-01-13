@@ -13,7 +13,7 @@ const EditarPerfilColaborador = () => {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
   const [colaboradorId, setColaboradorId] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     nombre: "",
     anio_nacimiento: "",
@@ -23,7 +23,7 @@ const EditarPerfilColaborador = () => {
     facebook: "",
     otras_redes: "",
   });
-  
+
   const [fotografia, setFotografia] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
   const [fotoActual, setFotoActual] = useState(null);
@@ -45,16 +45,16 @@ const EditarPerfilColaborador = () => {
 
       try {
         const colaboradores = await getColaboradores();
-        
+
         // Convertir ambos a número para asegurar comparación correcta
         const usuarioIdNum = parseInt(usuario.id);
         const colaborador = colaboradores.find(c => parseInt(c.usuario_id) === usuarioIdNum);
-        
+
         console.log("Usuario ID:", usuario.id, "Tipo:", typeof usuario.id);
         console.log("Colaboradores encontrados:", colaboradores.length);
         console.log("Buscando colaborador con usuario_id:", usuarioIdNum);
         console.log("Colaborador encontrado:", colaborador);
-        
+
         if (!colaborador) {
           setMensaje({ tipo: "error", texto: "No se encontró tu perfil de colaborador. Contacta al administrador." });
           setCargando(false);
@@ -71,7 +71,7 @@ const EditarPerfilColaborador = () => {
           facebook: colaborador.facebook || "",
           otras_redes: colaborador.otras_redes || "",
         });
-        
+
         if (colaborador.fotografia) {
           setFotoActual(colaborador.fotografia);
           setFotoPreview(colaborador.fotografia);
@@ -183,7 +183,7 @@ const EditarPerfilColaborador = () => {
         // Si falla por canvas tainted, usar dataURL directamente
         console.warn("No se pudo exportar como blob (canvas tainted), usando dataURL:", blobError);
         const dataUrl = canvas.toDataURL('image/webp', 0.9);
-        
+
         // Convertir dataURL a blob manualmente
         fetch(dataUrl)
           .then(res => res.blob())
@@ -236,15 +236,15 @@ const EditarPerfilColaborador = () => {
   // Función para abrir el editor con la imagen actual
   const abrirEditorConImagenActual = async () => {
     console.log("abrirEditorConImagenActual llamado, fotoPreview:", fotoPreview);
-    
+
     if (!fotoPreview) {
       setMensaje({ tipo: "error", texto: "No hay foto para editar" });
       return;
     }
-    
+
     try {
       let imageUrl = fotoPreview;
-      
+
       // Si es una data URL, usarla directamente
       if (fotoPreview.startsWith('data:image/')) {
         console.log("Es una data URL, cargando directamente");
@@ -253,7 +253,7 @@ const EditarPerfilColaborador = () => {
       // Si es una URL remota (http/https), intentar usar proxy del backend
       else if (fotoPreview.startsWith('http://') || fotoPreview.startsWith('https://')) {
         console.log("Es una URL remota, intentando usar proxy del backend...");
-        
+
         try {
           const proxyUrl = `${urlApi}api/img?url=${encodeURIComponent(fotoPreview)}`;
           const response = await fetch(proxyUrl, {
@@ -262,7 +262,7 @@ const EditarPerfilColaborador = () => {
               'Accept': 'image/*'
             }
           });
-          
+
           if (response.ok) {
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.startsWith('image/')) {
@@ -282,9 +282,9 @@ const EditarPerfilColaborador = () => {
           imageUrl = fotoPreview;
         }
       }
-      
+
       const img = new Image();
-      
+
       img.onload = () => {
         console.log("Imagen cargada exitosamente, dimensiones:", img.width, "x", img.height);
         setImagenOriginal(img);
@@ -293,15 +293,15 @@ const EditarPerfilColaborador = () => {
         setMostrarEditor(true);
         setMensaje({ tipo: "", texto: "" });
       };
-      
+
       img.onerror = (error) => {
         console.error("Error cargando imagen:", error, "URL intentada:", imageUrl);
         setMensaje({ tipo: "error", texto: "No se pudo cargar la imagen. Intenta seleccionar una nueva imagen." });
       };
-      
+
       // Cargar la imagen
       img.src = imageUrl;
-      
+
     } catch (error) {
       console.error("Error en abrirEditorConImagenActual:", error);
       setMensaje({ tipo: "error", texto: "Error al abrir el editor. Intenta seleccionar una nueva imagen." });
@@ -310,7 +310,7 @@ const EditarPerfilColaborador = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!colaboradorId) {
       setMensaje({ tipo: "error", texto: "No se encontró tu perfil de colaborador" });
       return;
@@ -326,15 +326,15 @@ const EditarPerfilColaborador = () => {
 
     try {
       const dataToSend = { ...formData };
-      
+
       if (fotografia) {
         dataToSend.fotografia = fotografia;
       }
 
       await consejerosPut(colaboradorId, dataToSend);
-      
+
       setMensaje({ tipo: "success", texto: "¡Perfil actualizado correctamente!" });
-      
+
       // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate("/dashboard");
@@ -415,7 +415,7 @@ const EditarPerfilColaborador = () => {
                 <p className="text-sm text-gray-600 mb-4 text-center">
                   Arrastra la imagen para moverla • Usa la rueda del mouse para hacer zoom
                 </p>
-                
+
                 {/* Contenedor de la imagen con máscara circular */}
                 <div className="relative mx-auto mb-4"
                   style={{ width: '400px', height: '400px' }}
@@ -548,9 +548,21 @@ const EditarPerfilColaborador = () => {
 
           {/* Curriculum */}
           <div>
-            <label className="block mb-1 font-roman font-bold text-sm">
-              Curriculum / Biografía
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block font-roman font-bold text-sm">
+                Curriculum / Biografía
+              </label>
+              <span
+                className={`text-xs ${formData.curriculum.length >= 300
+                    ? "text-red-500 font-bold"
+                    : formData.curriculum.length >= 270
+                      ? "text-amber-500"
+                      : "text-gray-400"
+                  }`}
+              >
+                {formData.curriculum.length}/300
+              </span>
+            </div>
             <textarea
               name="curriculum"
               value={formData.curriculum}
@@ -558,6 +570,7 @@ const EditarPerfilColaborador = () => {
               placeholder="Describe tu experiencia y trayectoria"
               className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               rows={4}
+              maxLength={300}
             />
           </div>
 
@@ -608,11 +621,10 @@ const EditarPerfilColaborador = () => {
           {/* Mensaje de éxito/error */}
           {mensaje.texto && (
             <div
-              className={`text-center font-bold p-3 rounded-lg ${
-                mensaje.tipo === "success"
+              className={`text-center font-bold p-3 rounded-lg ${mensaje.tipo === "success"
                   ? "text-green-600 bg-green-50 border border-green-200"
                   : "text-red-600 bg-red-50 border border-red-200"
-              }`}
+                }`}
             >
               {mensaje.texto}
             </div>
@@ -630,11 +642,10 @@ const EditarPerfilColaborador = () => {
             <button
               type="submit"
               disabled={guardando}
-              className={`flex-1 py-3 px-4 rounded-xl font-bold transition cursor-pointer ${
-                guardando
+              className={`flex-1 py-3 px-4 rounded-xl font-bold transition cursor-pointer ${guardando
                   ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                   : "bg-[#fff200] hover:bg-[#e6d900] text-black"
-              }`}
+                }`}
             >
               {guardando ? "Guardando..." : "Guardar Cambios"}
             </button>
