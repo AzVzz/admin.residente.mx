@@ -505,7 +505,7 @@ const FormMainResidente = () => {
     try {
       // ✅ DECLARAR PRIMERO tipoNotaFinal
       const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
-      
+
       let seccionesCategorias = [];
 
       if (tipoNotaFinal === "Food & Drink") {
@@ -514,10 +514,10 @@ const FormMainResidente = () => {
 
         if (categoriaFoodDrink && zonasSeleccionadas.length > 0) {
           const mapeoCategoria = {
-            "Cafés": "Cafetería",
-            "Bares y antros": "Bar",
-            "Postres y pan": "Postrería",
-            "Snacks y nieves": "Snack"
+            "Cafés": "Cafés",        // ← Era "Cafetería"
+            "Bares y antros": "Bares",  // ← Era "Bar"
+            "Postres y pan": "Postres",  // ← Era "Postrería"
+            "Snacks y nieves": "Snacks"  // ← Ya estaba bien
           };
 
           const seccionFinal = mapeoCategoria[categoriaFoodDrink] || "Cafetería";
