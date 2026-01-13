@@ -512,15 +512,19 @@ const FormMainResidente = () => {
         const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
         const zonasSeleccionadas = data.zonas || [];
 
-        if (categoriaFoodDrink && zonasSeleccionadas.length > 0) {
+
+
+        if (categoriaFoodDrink) {
+          // Mapeo de opciones del formulario Food & Drink a nombres de sección en BD
           const mapeoCategoria = {
-            "Cafés": "Cafetería",
-            "Bares y antros": "Bar",
-            "Postres y pan": "Postrería",
-            "Snacks y nieves": "Snack"
+            "Cafés": "Cafés",
+            "Bares": "Bar",
+            "Postres": "Postres",
+            "Snacks": "Snacks",
+            "Bebidas": "Bebidas"
           };
 
-          const seccionFinal = mapeoCategoria[categoriaFoodDrink] || "Cafetería";
+          const seccionFinal = mapeoCategoria[categoriaFoodDrink] || categoriaFoodDrink;
 
           // ✅ AGREGAR ENTRADA ORIGINAL (para el formulario)
           seccionesCategorias.push({
@@ -529,12 +533,16 @@ const FormMainResidente = () => {
           });
 
           // ✅ AGREGAR ENTRADAS TRANSFORMADAS (para el directorio)
-          zonasSeleccionadas.forEach(zona => {
-            seccionesCategorias.push({
-              seccion: seccionFinal,
-              categoria: zona
+          if (zonasSeleccionadas.length > 0) {
+            zonasSeleccionadas.forEach(zona => {
+              seccionesCategorias.push({
+                seccion: seccionFinal,
+                categoria: zona
+              });
             });
-          });
+          }
+
+
         }
       } else {
         seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
