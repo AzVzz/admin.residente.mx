@@ -114,9 +114,10 @@ const ListaBlogsColaborador = () => {
       {/* Lista de colaboraciones como en NotaCard */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {blogsPaginaActual.map((pub) => (
-          <div
+          <Link
             key={pub.id}
-            className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col group relative"
+            to={`/colaboradores?editar=${pub.id}`}
+            className="bg-white rounded-lg shadow overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-blue-500 transition-all duration-300 h-full flex flex-col group relative cursor-pointer block"
             style={{
               minHeight: '300px',
               position: 'relative'
@@ -125,7 +126,7 @@ const ListaBlogsColaborador = () => {
             {/* Imagen de fondo */}
             {pub.imagen ? (
               <div
-                className="absolute inset-0 w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
+                className="absolute inset-0 w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-110"
                 style={{
                   backgroundImage: `url(${pub.imagen})`,
                   backgroundSize: 'cover',
@@ -137,36 +138,28 @@ const ListaBlogsColaborador = () => {
               <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 z-0" />
             )}
 
+            {/* Overlay oscuro en hover para mejor visibilidad de botones */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 z-10" />
+
             {/* Contenido encima de la imagen */}
-            <div className="flex flex-col justify-between items-end h-full relative z-10">
+            <div className="flex flex-col justify-between items-end h-full relative z-20">
               {/* Badge de tipo en esquina superior derecha */}
-              <div className="absolute top-0 right-0 z-20">
+              <div className="absolute top-0 right-0 z-30">
                 <div className="bg-blue-600 text-white font-bold text-lg px-2 py-1 rounded-bl-lg shadow-lg">
                   COLABORACIÓN
                 </div>
               </div>
 
-              { /* Botones de acción (editar/eliminar) */}
-              <div className="absolute top-0 left-0 z-20 flex gap-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              { /* Botón de editar en esquina superior izquierda */}
+              <div className="absolute top-0 left-0 z-30 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-[-5px] group-hover:translate-y-0">
                 <Link
                   to={`/colaboradores?editar=${pub.id}`}
-                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
+                  className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 inline-block"
                   title="Editar colaboración"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <FaEdit size={16} />
+                  <FaEdit size={18} />
                 </Link>
-                <button
-                  onClick={() => eliminarColaboracion(pub.id)}
-                  disabled={eliminando === pub.id}
-                  className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors disabled:opacity-50"
-                  title="Eliminar colaboración"
-                >
-                  {eliminando === pub.id ? (
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                  ) : (
-                    <FaTrash size={16} />
-                  )}
-                </button>
               </div>
 
               {/* Datos arriba */}
@@ -187,10 +180,33 @@ const ListaBlogsColaborador = () => {
                   <h2 className="text-base font-bold text-gray-900 mb-1 leading-4.5">
                     {pub.titulo}
                   </h2>
+                  {/* Botón de eliminar dentro de la tarjeta */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      eliminarColaboracion(pub.id);
+                    }}
+                    disabled={eliminando === pub.id}
+                    className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg transition-all duration-200 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    title="Eliminar colaboración"
+                  >
+                    {eliminando === pub.id ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        <span>Eliminando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaTrash size={14} />
+                        <span>Eliminar</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
