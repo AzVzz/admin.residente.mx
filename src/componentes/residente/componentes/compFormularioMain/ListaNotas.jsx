@@ -781,10 +781,21 @@ const ListaNotas = () => {
 
           {usuario && (
             <div className="flex items-center gap-5">
-              {/* Botón Editar Perfil - solo para colaboradores */}
+              {/* Botón Editar Perfil - para colaboradores */}
               {usuario.rol?.toLowerCase() === "colaborador" && (
                 <button
                   onClick={() => navigate("/editar-perfil-colaborador")}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white shadow hover:bg-blue-700 transition text-sm font-bold cursor-pointer rounded-xl"
+                  title="Editar mi perfil"
+                >
+                  <FaUser className="text-sm -mt-0.5 mr-2" />
+                  Editar mi perfil
+                </button>
+              )}
+              {/* Botón Editar Perfil - para invitados */}
+              {usuario.rol?.toLowerCase() === "invitado" && (
+                <button
+                  onClick={() => navigate("/editar-perfil-invitado")}
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white shadow hover:bg-blue-700 transition text-sm font-bold cursor-pointer rounded-xl"
                   title="Editar mi perfil"
                 >

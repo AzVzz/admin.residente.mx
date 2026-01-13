@@ -97,3 +97,63 @@ export const obtenerTodosInvitados = async (token) => {
     if (!response.ok) throw new Error(data.error || 'Error al obtener invitados');
     return data;
 };
+
+/**
+ * Subir logo y obtener URL (usa el mismo método que el registro)
+ * Nota: Esto es temporal hasta tener un endpoint específico para subir logos
+ */
+const subirLogo = async (logoBase64) => {
+    // Por ahora, convertimos el base64 a una URL de datos
+    // En producción, esto debería subirse al servidor y obtener una URL real
+    // Por simplicidad, usaremos data URL temporalmente
+    return `data:image/webp;base64,${logoBase64}`;
+};
+
+/**
+ * Actualizar perfil de invitado (usuario + permisos)
+ */
+export const actualizarPerfilInvitado = async (usuario_id, datos, token) => {
+    let logoUrl = datos.logo_url;
+
+    // Si se envía logo_base64, subirlo primero para obtener la URL
+    if (datos.logo_base64) {
+        try {
+            logoUrl = await subirLogo(datos.logo_base64);
+            if (!logoUrl) {
+                throw new Error('No se pudo obtener la URL del logo');
+            }
+        } catch (error) {
+            console.error('Error subiendo logo:', error);
+            throw new Error('Error al procesar el logo. Intenta de nuevo.');
+        }
+    }
+
+    // 1. Actualizar usuario
+    const usuarioResponse = await fetch(`${urlApi}api/usuarios/${usuario_id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            nombre_usuario: datos.nombre_institucion,
+            correo: datos.correo,
+            logo_url: logoUrl
+        })
+    });
+
+    if (!usuarioResponse.ok) {
+        const error = await usuarioResponse.json();
+        throw new Error(error.error || 'Error al actualizar usuario');
+    }
+
+    // 2. Actualizar permisos
+    if (datos.permiso_notas !== undefined || datos.permiso_recetas !== undefined) {
+        await actualizarPermisosInvitado(usuario_id, {
+            permiso_notas: datos.permiso_notas,
+            permiso_recetas: datos.permiso_recetas
+        }, token);
+    }
+
+    return await usuarioResponse.json();
+};

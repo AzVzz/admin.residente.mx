@@ -65,6 +65,7 @@ const DetalleUanl = lazy(() => import("./componentes/residente/Uanl/DetalleUanl.
 const ListaNotasUanl = lazy(() => import("./componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx"));
 const DetalleColaborador = lazy(() => import("./componentes/residente/Colaboradores/DetalleColaborador.jsx"));
 const EditarPerfilColaborador = lazy(() => import("./componentes/residente/Colaboradores/EditarPerfilColaborador.jsx"));
+const EditarPerfilInvitado = lazy(() => import("./componentes/residente/Invitados/EditarPerfilInvitado.jsx"));
 const NewsletterPage = lazy(() => import("./componentes/residente/Newsletter/NewsletterPage.jsx"));
 const PlantillaNotas = lazy(() => import("./componentes/residente/PlantillasRehusables/PlantillaNotas"));
 const ListaTickets = lazy(() => import("./componentes/residente/componentes/compFormularioMain/ListaTickets"));
@@ -420,6 +421,16 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <EditarPerfilColaborador />
+                  </div>
+                }
+              />
+
+              {/* Editar perfil de invitado */}
+              <Route
+                path="/editar-perfil-invitado"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <EditarPerfilInvitado />
                   </div>
                 }
               />
