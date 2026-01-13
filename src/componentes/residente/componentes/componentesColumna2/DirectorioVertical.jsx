@@ -36,7 +36,7 @@ const DirectorioVertical = () => {
     catalogoSeccionesGet()
       .then((result) => {
         // Filtrar secciones que NO queremos mostrar en la barra lateral
-        const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+        const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack", "Cafés", "cafés", "Bares", "bares", "Postres", "postres", "Snacks", "snacks", "Bebidas", "bebidas"];
         const seccionesFiltradas = result.filter(
           (seccion) => !seccionesOcultas.includes(seccion.seccion)
         );
