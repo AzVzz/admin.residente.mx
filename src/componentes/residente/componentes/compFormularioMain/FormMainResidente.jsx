@@ -422,13 +422,15 @@ const FormMainResidente = () => {
             fechaProgramada: fechaProgramada || "",
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
-              ? data.secciones_categorias.reduce(
-                (acc, { seccion, categoria }) => {
+              ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
+                // ✅ Priorizar "Food & Drink" si existe
+                if (seccion === "Food & Drink") {
                   acc[seccion] = categoria;
-                  return acc;
-                },
-                {}
-              )
+                } else if (!acc[seccion]) {
+                  acc[seccion] = categoria;
+                }
+                return acc;
+              }, {})
               : {},
             sticker: data.sticker || "",
             destacada: !!data.destacada,
@@ -501,12 +503,53 @@ const FormMainResidente = () => {
     }
 
     try {
-      const seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
-        .filter(([_, categoria]) => categoria)
-        .map(([seccion, categoria]) => ({ seccion, categoria }));
+      // ✅ DECLARAR PRIMERO tipoNotaFinal
+      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
 
-      const tipoNotaFinal =
-        tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      let seccionesCategorias = [];
+
+      if (tipoNotaFinal === "Food & Drink") {
+        const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
+        const zonasSeleccionadas = data.zonas || [];
+
+
+
+        if (categoriaFoodDrink) {
+          // Mapeo de opciones del formulario Food & Drink a nombres de sección en BD
+          const mapeoCategoria = {
+            "Cafés": "Cafés",
+            "Bares": "Bar",
+            "Postres": "Postres",
+            "Snacks": "Snacks",
+            "Bebidas": "Bebidas"
+          };
+
+          const seccionFinal = mapeoCategoria[categoriaFoodDrink] || categoriaFoodDrink;
+
+          // ✅ AGREGAR ENTRADA ORIGINAL (para el formulario)
+          seccionesCategorias.push({
+            seccion: "Food & Drink",
+            categoria: categoriaFoodDrink
+          });
+
+          // ✅ AGREGAR ENTRADAS TRANSFORMADAS (para el directorio)
+          if (zonasSeleccionadas.length > 0) {
+            zonasSeleccionadas.forEach(zona => {
+              seccionesCategorias.push({
+                seccion: seccionFinal,
+                categoria: zona
+              });
+            });
+          }
+
+
+        }
+      } else {
+        seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
+          .filter(([_, categoria]) => categoria)
+          .map(([seccion, categoria]) => ({ seccion, categoria }));
+      }
+
       const tipoNotaSecundaria = null;
       const datosNota = {
         tipo_nota: tipoNotaFinal,

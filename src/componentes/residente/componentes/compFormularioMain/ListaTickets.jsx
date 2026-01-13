@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { cuponesGetTodas, cuponBorrar, cuponEditar } from "../../../api/cuponesGet";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaEdit, FaClock } from "react-icons/fa";
 import { useAuth } from "../../../Context";
 
 const ListaTickets = () => {
@@ -11,6 +11,11 @@ const ListaTickets = () => {
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [toggling, setToggling] = useState(null);
+
+  // Estado para modal de edición de caducidad
+  const [editingCupon, setEditingCupon] = useState(null);
+  const [nuevaFechaCaducidad, setNuevaFechaCaducidad] = useState("");
+  const [savingCaducidad, setSavingCaducidad] = useState(false);
 
   // Verificar permisos al inicio
   if (!usuario || (usuario.rol !== 'residente' && usuario.rol !== 'b2b' && usuario.permisos !== 'residente' && usuario.permisos !== 'b2b' && usuario.permisos !== 'todos')) {
@@ -33,12 +38,24 @@ const ListaTickets = () => {
         setCupones(data);
 
         // --- LAZY DEACTIVATION LOGIC ---
-        // Check for coupons that are active but expired
+        // Check for coupons that are active but expired (by fecha_fin or fecha_validez)
         const now = new Date();
         const expiredCoupons = data.filter(c => {
-          if (!c.activo_manual || !c.fecha_fin) return false;
-          const endDate = new Date(c.fecha_fin);
-          return now > endDate;
+          if (!c.activo_manual) return false;
+
+          // Check fecha_fin expiration
+          if (c.fecha_fin) {
+            const endDate = new Date(c.fecha_fin);
+            if (now > endDate) return true;
+          }
+
+          // Check fecha_validez expiration (caducidad automática)
+          if (c.tiene_caducidad && c.fecha_validez) {
+            const validezDate = new Date(c.fecha_validez);
+            if (now > validezDate) return true;
+          }
+
+          return false;
         });
 
         if (expiredCoupons.length > 0) {
@@ -129,17 +146,79 @@ const ListaTickets = () => {
     }
   };
 
-  const getEstado = (inicio, fin, activoManual) => {
-    if (!activoManual) return { label: "Inactivo", color: "text-gray-600 bg-gray-200" };
-    if (!inicio && !fin) return { label: "Activo", color: "text-green-600 bg-green-100" };
+  // Actualizada para considerar tiene_caducidad y fecha_validez
+  const getEstado = (cupon) => {
+    const { fecha_inicio, fecha_fin, activo_manual, tiene_caducidad, fecha_validez } = cupon;
+
+    if (!activo_manual) return { label: "Inactivo", color: "text-gray-600 bg-gray-200" };
 
     const now = new Date();
-    const startDate = new Date(inicio);
-    const endDate = new Date(fin);
 
-    if (now < startDate) return { label: "Programado", color: "text-yellow-600 bg-yellow-100" };
-    if (now > endDate) return { label: "Vencido", color: "text-red-600 bg-red-100" };
+    // Verificar caducidad automática
+    if (tiene_caducidad && fecha_validez) {
+      const validezDate = new Date(fecha_validez);
+      if (now > validezDate) return { label: "Expirado", color: "text-red-600 bg-red-100" };
+    }
+
+    // Verificar rango de fechas de promoción
+    if (fecha_inicio && fecha_fin) {
+      const startDate = new Date(fecha_inicio);
+      const endDate = new Date(fecha_fin);
+      if (now < startDate) return { label: "Programado", color: "text-yellow-600 bg-yellow-100" };
+      if (now > endDate) return { label: "Vencido", color: "text-red-600 bg-red-100" };
+    }
+
     return { label: "Activo", color: "text-green-600 bg-green-100" };
+  };
+
+  // Abrir modal de edición de caducidad
+  const handleEditCaducidad = (cupon) => {
+    setEditingCupon(cupon);
+    // Formatear fecha existente para el input datetime-local
+    if (cupon.fecha_validez) {
+      const fecha = new Date(cupon.fecha_validez);
+      const formatted = fecha.toISOString().slice(0, 16);
+      setNuevaFechaCaducidad(formatted);
+    } else {
+      setNuevaFechaCaducidad("");
+    }
+  };
+
+  // Guardar nueva fecha de caducidad
+  const handleSaveCaducidad = async (reactivar = false) => {
+    if (!editingCupon || !nuevaFechaCaducidad) {
+      alert("Por favor selecciona una fecha de caducidad");
+      return;
+    }
+
+    setSavingCaducidad(true);
+    try {
+      const updateData = {
+        tiene_caducidad: true,
+        fecha_validez: new Date(nuevaFechaCaducidad).toISOString()
+      };
+
+      // Si el usuario quiere reactivar, también activamos el cupón
+      if (reactivar) {
+        updateData.activo_manual = true;
+      }
+
+      await cuponEditar(editingCupon.id, updateData, token);
+
+      // Actualizar estado local
+      setCupones(cupones.map(c =>
+        c.id === editingCupon.id
+          ? { ...c, ...updateData }
+          : c
+      ));
+
+      setEditingCupon(null);
+      setNuevaFechaCaducidad("");
+    } catch (err) {
+      alert("Error al actualizar la caducidad: " + err.message);
+    } finally {
+      setSavingCaducidad(false);
+    }
   };
 
   return (
@@ -201,7 +280,7 @@ const ListaTickets = () => {
             </div>
           ) : (
             cupones.map((cupon) => {
-              const estado = getEstado(cupon.fecha_inicio, cupon.fecha_fin, cupon.activo_manual);
+              const estado = getEstado(cupon);
 
               return (
                 <div key={cupon.id} className="flex flex-col items-center  p-4 relative">
@@ -246,6 +325,13 @@ const ListaTickets = () => {
                     ) : (
                       <p className="font-bold text-blue-600 text-sm font-roman">Cupón Permanente</p>
                     )}
+
+                    {/* Indicador de Caducidad Automática */}
+                    {cupon.tiene_caducidad && cupon.fecha_validez && (
+                      <p className="mt-1 text-orange-600 font-semibold">
+                        ⏰ Expira: {new Date(cupon.fecha_validez).toLocaleString()}
+                      </p>
+                    )}
                   </div>
 
                   <div className="w-full max-w-md flex flex-col gap-2">
@@ -259,6 +345,15 @@ const ListaTickets = () => {
                         }`}
                     >
                       {toggling === cupon.id ? "Procesando..." : (cupon.activo_manual ? "Desactivar Cupón" : "Activar Cupón")}
+                    </button>
+
+                    {/* Botón Editar Caducidad */}
+                    <button
+                      onClick={() => handleEditCaducidad(cupon)}
+                      className="w-full py-1 bg-orange-500 border-0 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm text-sm font-roman cursor-pointer"
+                    >
+                      <FaClock />
+                      Editar Caducidad
                     </button>
 
                     {/* Acciones */}
@@ -275,6 +370,63 @@ const ListaTickets = () => {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Modal de Edición de Caducidad */}
+      {editingCupon && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Editar Caducidad
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Cupón: <strong>{editingCupon.titulo}</strong>
+            </p>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nueva fecha de caducidad
+              </label>
+              <input
+                type="datetime-local"
+                value={nuevaFechaCaducidad}
+                onChange={(e) => setNuevaFechaCaducidad(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {/* Si el cupón está inactivo/expirado, mostrar opción de reactivar */}
+              {!editingCupon.activo_manual && (
+                <button
+                  onClick={() => handleSaveCaducidad(true)}
+                  disabled={savingCaducidad}
+                  className="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium cursor-pointer"
+                >
+                  {savingCaducidad ? "Guardando..." : "Guardar y Reactivar Cupón"}
+                </button>
+              )}
+
+              <button
+                onClick={() => handleSaveCaducidad(false)}
+                disabled={savingCaducidad}
+                className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium cursor-pointer"
+              >
+                {savingCaducidad ? "Guardando..." : "Solo Guardar Fecha"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingCupon(null);
+                  setNuevaFechaCaducidad("");
+                }}
+                className="w-full py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -7,17 +7,7 @@ const NuevasSeccionesCategorias = () => {
 
   // Detectar si es Food & Drink para ocultar ciertas secciones
   const tipoLugar = watch("tipo_lugar") || "";
-  const subTipoLugar = watch("sub_tipo_lugar") || "";
   const esFoodDrink = tipoLugar === "Food & Drink";
-
-  // Mapeo de subcategorías de Food & Drink a sus secciones correspondientes
-  const mapSubcategoriaASeccion = {
-    "Postres": "Postrería",
-    "Cafés": "Cafetería",
-    "Bares": "Bar",
-    "Snacks": "Snack",
-    // Bebidas no tiene sección específica en el backend
-  };
 
   // Secciones a ocultar SIEMPRE de la lista principal
   const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
@@ -26,9 +16,6 @@ const NuevasSeccionesCategorias = () => {
   if (esFoodDrink) {
     seccionesOcultas.push("Nivel de gasto", "Tipo de comida");
   }
-
-  // Determinar qué sección específica mostrar para Food & Drink
-  const seccionFoodDrinkAMostrar = subTipoLugar ? mapSubcategoriaASeccion[subTipoLugar] : null;
 
   if (loading) return <p>Cargando opciones...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -129,50 +116,6 @@ const NuevasSeccionesCategorias = () => {
             </div>
           );
         })}
-
-        {/* Sección específica para Food & Drink */}
-        {esFoodDrink && seccionFoodDrinkAMostrar && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="font-bold text-lg mb-3 text-blue-800">{subTipoLugar}</h3>
-
-            <div className="flex flex-wrap gap-3">
-              {/* Buscar la sección en los datos */}
-              {data?.find(s => s.seccion === seccionFoodDrinkAMostrar)?.categorias.map((categoria) => {
-                const fieldName = `secciones_categorias.${subTipoLugar}`;
-
-                return (
-                  <div key={categoria.nombre} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`${subTipoLugar}-${categoria.nombre}`}
-                      value={categoria.nombre}
-                      {...register(fieldName, {
-                        validate: (value) =>
-                          Array.isArray(value) && value.length > 0
-                            ? true
-                            : `Debes seleccionar al menos una zona para ${subTipoLugar}`,
-                      })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label
-                      htmlFor={`${subTipoLugar}-${categoria.nombre}`}
-                      className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
-                    >
-                      {categoria.nombre}
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Mensaje de error para la sección de Food & Drink */}
-            {errors.secciones_categorias?.[subTipoLugar] && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.secciones_categorias[subTipoLugar].message}
-              </p>
-            )}
-          </div>
-        )}
       </fieldset>
     </div>
   );

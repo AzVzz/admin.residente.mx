@@ -440,6 +440,51 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   );
                 }
 
+                // ✅ Si es Food & Drink con subcategoría, limpiar entradas antiguas y agregar las correctas
+                const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
+                // Secciones que deben ser limpiadas cuando se usa Food & Drink
+                const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bar", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
+
+                const subTipoLugar = data.sub_tipo_lugar;
+                const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
+
+                if (subTipoLugar && subcategoriasFoodDrink.includes(subTipoLugar)) {
+                  // Mapeo de opciones del formulario a nombres de sección en BD
+                  const mapeoSeccion = {
+                    "Cafés": "Cafés",
+                    "Bares": "Bar",
+                    "Postres": "Postres",
+                    "Snacks": "Snacks",
+                    "Bebidas": "Bebidas"
+                  };
+                  const seccionFinal = mapeoSeccion[subTipoLugar] || subTipoLugar;
+
+                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink y secciones relacionadas
+                  const seccionesCategoriasLimpias = seccionesCategorias.filter(
+                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion)
+                  );
+
+                  // Limpiar el array original y copiar las entradas limpias
+                  seccionesCategorias.length = 0;
+                  seccionesCategoriasLimpias.forEach(item => seccionesCategorias.push(item));
+
+                  // Agregar entrada original Food & Drink
+                  seccionesCategorias.push({
+                    seccion: "Food & Drink",
+                    categoria: subTipoLugar
+                  });
+
+                  // Agregar entradas con las zonas como categorías
+                  if (Array.isArray(zonasSeleccionadas) && zonasSeleccionadas.length > 0) {
+                    zonasSeleccionadas.forEach(zona => {
+                      seccionesCategorias.push({
+                        seccion: seccionFinal,
+                        categoria: zona
+                      });
+                    });
+                  }
+                }
+
                 // Helper cleaning function
                 const cleanText = (text) => {
                   if (typeof text !== "string") return text;

@@ -6,7 +6,6 @@ const subOpcionesFoodDrink = [
     { value: "Cafés", label: "Cafés" },
     { value: "Bares", label: "Bares" },
     { value: "Snacks", label: "Snacks" },
-    { value: "Bebidas", label: "Bebidas" },
 ];
 
 const TipoLugar = () => {

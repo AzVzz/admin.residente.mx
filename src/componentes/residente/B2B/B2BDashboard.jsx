@@ -495,11 +495,11 @@ const B2BDashboard = () => {
     }
   };
 
-  {/*const handleVer = () => {
+  const handleVer = () => {
     if (restaurante) {
       navigate(`/restaurante/${restaurante.slug}`);
     }
-  };*/}
+  };
 
   const handleCupones = () => {
     navigate("/dashboardtickets");

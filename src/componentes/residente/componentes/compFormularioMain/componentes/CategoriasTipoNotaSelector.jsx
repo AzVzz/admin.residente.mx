@@ -36,7 +36,7 @@ const CategoriasTipoNotaSelector = ({
   let seccionesFiltradas;
 
   // Secciones que NO queremos mostrar en el formulario
-  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack", "Cafés", "Bares", "Postres", "Snacks", "Bebidas"];
 
   if (esFoodDrink) {
     // Opciones Food & Drink hardcodeadas en el frontend
@@ -47,7 +47,6 @@ const CategoriasTipoNotaSelector = ({
         { nombre: "Cafés", descripcion: "Cafeterías y bebidas de café" },
         { nombre: "Bares", descripcion: "Bares, cocteles y bebidas" },
         { nombre: "Snacks", descripcion: "Botanas y snacks" },
-        { nombre: "Bebidas", descripcion: "Bebidas y más" },
       ],
       cols: 2,
       descripcion: "",

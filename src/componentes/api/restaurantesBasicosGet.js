@@ -2,7 +2,15 @@ import { urlApi, imgApi } from './url.js';
 
 export const restaurantesBasicosGet = async () => {
     try {
-        const token = localStorage.getItem('token');
+        // Intentar obtener token de cookie primero, luego de localStorage
+        const getCookie = (name) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        };
+
+        const token = getCookie('admin_auth_token') || localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json'
         };
