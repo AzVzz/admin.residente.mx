@@ -22,6 +22,7 @@ export const Iconografia = {
         { nombre: "Antojo", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/yum.webp`, clave: "yum" },
         { nombre: "En pareja", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/en-pareja.webp`, clave: "enPareja" },
         { nombre: "Munch", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/munch.webp`, clave: "munch" },
+        { nombre: "Saludable", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/saludable.png`, clave: "saludable" },
     ],
     zonas: [
         { nombre: "Monterrey", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/mty.webp`, clave: "mty" },
