@@ -339,7 +339,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // URL del PDF - ruta completa desde la raíz del servidor
-  const pdfUrl = "/fotos/fotos-estaticas/5 Razones para suscribirte.pdf";
+  const pdfUrl = "/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
   
   // Filtrar solo los planes de 1, 3 y 5+ sucursales
   const planesPermitidos = [1, 3, "5+"];
