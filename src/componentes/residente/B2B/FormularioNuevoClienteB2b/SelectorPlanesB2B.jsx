@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 
 const NOMBRES_MEMBRESIAS = {
   1: "Miembresía Básica",
-  3: "Miembresía Oro", 
+  3: "Miembresía Oro",
   "5+": "Miembresía Platino",
 };
 
@@ -123,7 +123,7 @@ const getCaracteristicasPorSucursales = (sucursales) => {
 // Componente de Card individual para cada plan
 const PlanCard = ({ plan, onSelectPlan }) => {
   const IconoComponent = plan.icono;
-  
+
   return (
     <div
       className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out
@@ -151,14 +151,12 @@ const PlanCard = ({ plan, onSelectPlan }) => {
           </div>
           <h2 className="text-xl font-bold">{plan.nombreMembresia || "B2B"}</h2>
         </div>
-        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${
-          plan.destacado ? "border-black" : "border-gray-300"
-        }`}>
-          <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
-            plan.destacado 
-              ? "bg-black scale-100" 
-              : "bg-black scale-0 group-hover:scale-100"
-          }`}></div>
+        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${plan.destacado ? "border-black" : "border-gray-300"
+          }`}>
+          <div className={`w-3 h-3 rounded-full transition-all duration-300 ${plan.destacado
+            ? "bg-black scale-100"
+            : "bg-black scale-0 group-hover:scale-100"
+            }`}></div>
         </div>
       </div>
 
@@ -175,9 +173,8 @@ const PlanCard = ({ plan, onSelectPlan }) => {
       </div>
 
       {/* Sucursales destacadas */}
-      <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${
-        plan.destacado ? "bg-yellow-400/20 text-yellow-400" : "bg-gray-100 text-gray-700"
-      }`}>
+      <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${plan.destacado ? "bg-yellow-400/20 text-yellow-400" : "bg-gray-100 text-gray-700"
+        }`}>
         {plan.textoSucursales}
       </div>
 
@@ -190,9 +187,8 @@ const PlanCard = ({ plan, onSelectPlan }) => {
             </li>
           ) : (
             <li key={idx} className="flex items-start gap-2">
-              <HiOutlineCheckCircle className={`text-lg mt-0.5 flex-shrink-0 ${
-                plan.destacado ? "text-black" : "text-black"
-              }`} />
+              <HiOutlineCheckCircle className={`text-lg mt-0.5 flex-shrink-0 ${plan.destacado ? "text-black" : "text-black"
+                }`} />
               <span className={`text-sm ${plan.destacado ? "text-gray-200" : "text-gray-700"}`}>
                 {caracteristica}
               </span>
@@ -207,8 +203,7 @@ const PlanCard = ({ plan, onSelectPlan }) => {
           e.stopPropagation();
           onSelectPlan(plan);
         }}
-        className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-          plan.destacado
+        className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${plan.destacado
           ? " cursor-pointer"
           : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
           }
@@ -232,7 +227,7 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
     if (isOpen) {
       setPdfError(false);
       setIsLoading(true);
-      
+
       // Verificar si el PDF existe antes de cargarlo
       fetch(encodeURI(pdfUrl), { method: 'HEAD' })
         .then(response => {
@@ -269,11 +264,11 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 transition-opacity duration-300"
       onClick={onClose}
     >
-      <div 
+      <div
         className="relative bg-white rounded-lg shadow-2xl w-full max-w-4xl h-[90vh] m-4 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -337,26 +332,26 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
 const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // URL del PDF - ruta completa desde la raíz del servidor
   const pdfUrl = "/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
-  
+
   // Filtrar solo los planes de 1, 3 y 5+ sucursales
   const planesPermitidos = [1, 3, "5+"];
-  
-  const planes = planesData && planesData.length > 0 
+
+  const planes = planesData && planesData.length > 0
     ? planesData
-        .filter((plan) => planesPermitidos.includes(plan.sucursales))
-        .map((plan, index) => ({
-          ...plan,
-          id: plan.priceId || index,
-          icono: getIconoPorSucursales(plan.sucursales),
-          caracteristicas: getCaracteristicasPorSucursales(plan.sucursales),
-          nombreMembresia: getNombreMembresia(plan.sucursales),
-          textoSucursales: getTextoSucursales(plan.sucursales),
-          // Sin plan destacado - todas las tarjetas iguales en blanco
-          destacado: false,
-        }))
+      .filter((plan) => planesPermitidos.includes(plan.sucursales))
+      .map((plan, index) => ({
+        ...plan,
+        id: plan.priceId || index,
+        icono: getIconoPorSucursales(plan.sucursales),
+        caracteristicas: getCaracteristicasPorSucursales(plan.sucursales),
+        nombreMembresia: getNombreMembresia(plan.sucursales),
+        textoSucursales: getTextoSucursales(plan.sucursales),
+        // Sin plan destacado - todas las tarjetas iguales en blanco
+        destacado: false,
+      }))
     : [];
 
   if (loadingPrecios) {
@@ -376,7 +371,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
           <p className="text-gray-600 mb-4">No se pudieron cargar los planes disponibles.</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-bold hover:bg-yellow-300"
           >
@@ -399,7 +394,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de miembresia para el "Club Residente"
         </h1>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105"
         >
@@ -410,18 +405,18 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {planes.map((plan, index) => (
-          <PlanCard 
-            key={plan.id || plan.priceId || index} 
-            plan={plan} 
-            onSelectPlan={onSelectPlan} 
+          <PlanCard
+            key={plan.id || plan.priceId || index}
+            plan={plan}
+            onSelectPlan={onSelectPlan}
           />
         ))}
       </div>
 
       {/* Modal del PDF */}
-      <ModalPDF 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <ModalPDF
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         pdfUrl={pdfUrl}
       />
     </div>
