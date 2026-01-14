@@ -228,23 +228,10 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
       setPdfError(false);
       setIsLoading(true);
 
-      // Verificar si el PDF existe antes de cargarlo
-      fetch(encodeURI(pdfUrl), { method: 'HEAD' })
-        .then(response => {
-          if (!response.ok || !response.headers.get('content-type')?.includes('pdf')) {
-            setPdfError(true);
-            setIsLoading(false);
-          } else {
-            // Si el PDF existe, dar tiempo para que cargue
-            timeoutRef.current = setTimeout(() => {
-              setIsLoading(false);
-            }, 2000);
-          }
-        })
-        .catch(() => {
-          setPdfError(true);
-          setIsLoading(false);
-        });
+      // Dar tiempo para que cargue el PDF (el iframe manejará su propio estado)
+      timeoutRef.current = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     }
 
     return () => {
@@ -334,8 +321,8 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // URL del PDF - ruta completa desde la raíz del servidor
-  const pdfUrl = "/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
 
+  const pdfUrl = "https://residente.mx/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
   // Filtrar solo los planes de 1, 3 y 5+ sucursales
   const planesPermitidos = [1, 3, "5+"];
 
