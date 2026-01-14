@@ -246,7 +246,7 @@ const Header = () => {
       {/* ========== HEADER DESKTOP (>= 640px) ========== */}
       <div className="hidden sm:block">
         <div className="max-w-[1080px] mx-auto w-full">
-          <div className="pt-8">
+          <div className="pt-8 relative z-30">
             {location.pathname === "/heybanco" ? (
               <a>
                 <img
@@ -269,7 +269,7 @@ const Header = () => {
             )}
           </div>
 
-          <div className="flex pb-0 pt-5">
+          <div className="flex pb-0 pt-5 relative z-10">
             <div className="flex pr-3">
               <Link
                 to="https://residente.mx"
@@ -298,8 +298,8 @@ const Header = () => {
               </div>
 
               {/* Menú Amarillo */}
-              <div className="flex flex-col flex-1">
-                <div className="flex justify-between items-center px-5 py-0.5 bg-[#fff200]">
+              <div className="flex flex-col flex-1 relative z-10">
+                <div className="flex justify-between items-center px-5 py-0.5 bg-[#fff200] relative z-10">
                   <div className="flex gap-6 items-center text-sm font-semibold">
                     {menuHeader.map((section, idx) =>
                       section.url ? (
