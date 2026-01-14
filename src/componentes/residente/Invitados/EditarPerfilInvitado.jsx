@@ -456,22 +456,22 @@ const EditarPerfilInvitado = () => {
         {/* Nombre de Institución */}
         <div>
           <label className="block mb-2 font-bold">
-            Nombre de Institución *
+            Nombre de Invitado
           </label>
           <input
             type="text"
             name="nombre_institucion"
             value={formData.nombre_institucion}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border-white bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
         {/* Correo Electrónico */}
         <div>
-          <label className="block mb-2 font-bold">
-            Correo electrónico *
+          <label className="block mb-2 font-bold ">
+            Correo electrónico 
           </label>
           <input
             type="email"
@@ -479,10 +479,10 @@ const EditarPerfilInvitado = () => {
             value={formData.correo}
             onChange={handleInputChange}
             placeholder="correo@ejemplo.com"
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 ${
               emailExists || !emailValid
                 ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-blue-500"
+                : "border-white focus:ring-blue-500"
             }`}
             required
           />
@@ -521,7 +521,7 @@ const EditarPerfilInvitado = () => {
                 console.log("Botón editar logo clickeado"); 
                 abrirEditorConImagenActual(); 
               }}
-              className="mt-2 px-4 py-2 bg-[#fff200] text-black text-sm font-bold rounded-lg hover:bg-[#e6d900] shadow-md transition cursor-pointer"
+              className="mt-2 px-4 py-2 bg-[#fff200] text-black text-sm font-bold rounded-lg hover:bg-[#fff200] shadow-md transition cursor-pointer"
               title="Ajustar posición y zoom del logo actual"
             >
               ✏️ Editar logo
@@ -577,7 +577,7 @@ const EditarPerfilInvitado = () => {
           <button
             type="submit"
             disabled={guardando}
-            className="px-6 py-3 bg-[#fff200] text-black font-bold rounded-lg hover:bg-[#e6d900] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-[#fff200] text-black font-bold rounded-lg hover:bg-[#fff200] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {guardando ? "Guardando..." : "Guardar Cambios"}
           </button>
