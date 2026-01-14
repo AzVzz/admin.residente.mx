@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaStore, FaBuilding, FaCity, FaWarehouse, FaStoreAlt } from "react-icons/fa";
 import { HiOutlineCheckCircle } from "react-icons/hi";
+import { IoClose } from "react-icons/io5";
 
 const NOMBRES_MEMBRESIAS = {
   1: "Miembresía Básica",
@@ -219,7 +220,127 @@ const PlanCard = ({ plan, onSelectPlan }) => {
   );
 };
 
+// Componente Modal para mostrar el PDF
+const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
+  const [pdfError, setPdfError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const iframeRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  // Resetear estados cuando se abre/cierra el modal
+  useEffect(() => {
+    if (isOpen) {
+      setPdfError(false);
+      setIsLoading(true);
+      
+      // Verificar si el PDF existe antes de cargarlo
+      fetch(encodeURI(pdfUrl), { method: 'HEAD' })
+        .then(response => {
+          if (!response.ok || !response.headers.get('content-type')?.includes('pdf')) {
+            setPdfError(true);
+            setIsLoading(false);
+          } else {
+            // Si el PDF existe, dar tiempo para que cargue
+            timeoutRef.current = setTimeout(() => {
+              setIsLoading(false);
+            }, 2000);
+          }
+        })
+        .catch(() => {
+          setPdfError(true);
+          setIsLoading(false);
+        });
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isOpen, pdfUrl]);
+
+  const handleIframeLoad = () => {
+    setIsLoading(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 transition-opacity duration-300"
+      onClick={onClose}
+    >
+      <div 
+        className="relative bg-white rounded-lg shadow-2xl w-full max-w-4xl h-[90vh] m-4 flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header del modal */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">5 Razones para Suscribirte</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            aria-label="Cerrar"
+          >
+            <IoClose className="text-2xl text-gray-600 hover:text-gray-900" />
+          </button>
+        </div>
+
+        {/* Contenedor del PDF */}
+        <div className="flex-1 overflow-hidden relative bg-gray-100">
+          {isLoading && !pdfError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+                <p className="text-gray-600">Cargando PDF...</p>
+              </div>
+            </div>
+          )}
+
+          {pdfError ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="text-center p-8 max-w-md">
+                <div className="text-6xl mb-4">📄</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">PDF no encontrado</h3>
+                <p className="text-gray-600 mb-4">
+                  El archivo PDF aún no está disponible. Por favor, sube el archivo a la carpeta <code className="bg-gray-200 px-2 py-1 rounded text-sm">public</code> con el nombre:
+                </p>
+                <p className="text-sm text-gray-500 mb-6 font-mono bg-gray-200 px-3 py-2 rounded">
+                  {pdfUrl.replace('/', '')}
+                </p>
+                <button
+                  onClick={onClose}
+                  className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <iframe
+              ref={iframeRef}
+              src={`${encodeURI(pdfUrl)}#toolbar=0`}
+              className="w-full h-full border-0"
+              title="5 Razones para Suscribirte PDF"
+              onLoad={handleIframeLoad}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
+  // Estado para controlar el modal del PDF
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // URL del PDF - ruta completa desde la raíz del servidor
+  const pdfUrl = "/fotos/fotos-estaticas/5 Razones para suscribirte.pdf";
+  
   // Filtrar solo los planes de 1, 3 y 5+ sucursales
   const planesPermitidos = [1, 3, "5+"];
   
@@ -278,7 +399,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de miembresia para el "Club Residente"
         </h1>
-        <button className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105"
+        >
           5 RAZONES PARA SUSCRIBIRTE
         </button>
       </div>
@@ -294,7 +418,12 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
         ))}
       </div>
 
-      
+      {/* Modal del PDF */}
+      <ModalPDF 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        pdfUrl={pdfUrl}
+      />
     </div>
   );
 };
