@@ -25,6 +25,7 @@ const EditarPerfilInvitado = () => {
   const [checkingEmail, setCheckingEmail] = useState(false);
   const emailDebounceRef = useRef(null);
   const correoOriginal = useRef(null);
+  const fileInputRef = useRef(null);
   
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -463,7 +464,7 @@ const EditarPerfilInvitado = () => {
             name="nombre_institucion"
             value={formData.nombre_institucion}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border-white bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border-white   bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -506,11 +507,13 @@ const EditarPerfilInvitado = () => {
             </div>
           )}
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="mb-2"
+            className="hidden"
           />
+          
           <p className="text-xs text-blue-600 mt-1">💡 Puedes ajustar la posición y zoom después de seleccionar o editar el logo actual</p>
           {logoPreview && (
             <button 
@@ -521,7 +524,7 @@ const EditarPerfilInvitado = () => {
                 console.log("Botón editar logo clickeado"); 
                 abrirEditorConImagenActual(); 
               }}
-              className="mt-2 px-4 py-2 bg-[#fff200] text-black text-sm font-bold rounded-lg hover:bg-[#fff200] shadow-md transition cursor-pointer"
+              className="mt-2 px-4 py-2 bg-[#fff200] text-black text-sm font-bold rounded-lg hover:bg-[#e6d900] shadow-md transition cursor-pointer"
               title="Ajustar posición y zoom del logo actual"
             >
               ✏️ Editar logo
@@ -609,7 +612,7 @@ const EditarPerfilInvitado = () => {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onWheel={handleWheel}>
-                <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#fff300] bg-gray-200">
+                <div className="absolute inset-0  overflow-hidden border-4 border-[#fff300] bg-gray-200">
                   <div
                     className="absolute"
                     style={{
@@ -670,6 +673,14 @@ const EditarPerfilInvitado = () => {
                 className="px-4 py-2 bg-[#fff200] text-black font-bold rounded-lg hover:bg-[#e6d900]"
               >
                 Aplicar Ajustes
+              </button>
+
+                  <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 bg-[#fff200] text-black font-bold rounded-lg hover:bg-[#e6d900]"
+              >
+                Cambiar logo
               </button>
             </div>
           </div>
