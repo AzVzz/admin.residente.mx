@@ -11,6 +11,7 @@ const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
   const { recargarClientes } = useClientesValidos();
   const [usuarios, setUsuarios] = useState([]);
+  const [restaurantes, setRestaurantes] = useState([]);
 
   // Obtener permisos únicos de los usuarios existentes
   const obtenerPermisosUnicos = () => {
@@ -113,21 +114,33 @@ const ListaNotasUsuarios = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${urlApi}api/usuarios`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const [usuariosRes, restaurantesRes] = await Promise.all([
+        fetch(`${urlApi}api/usuarios`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(`${urlApi}api/restaurante/basicos`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error('Error al cargar usuarios');
+      if (!usuariosRes.ok) throw new Error('Error al cargar usuarios');
+
+      const usuariosData = await usuariosRes.json();
+      setUsuarios(usuariosData);
+
+      if (restaurantesRes.ok) {
+        const restaurantesData = await restaurantesRes.json();
+        setRestaurantes(restaurantesData);
       }
 
-      const data = await response.json();
-      setUsuarios(data);
     } catch (err) {
-      setError('Error al cargar usuarios: ' + err.message);
+      setError('Error al cargar datos: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -1091,17 +1104,43 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (
-                          <a
-                            href={`https://residente.mx/${user.permisos}`}
-                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaExternalLinkAlt className="mr-1" />
-                            Ver Página
-                          </a>
-                        ) : (
+                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (() => {
+                          // Lógica para determinar el enlace
+                          let href = `https://residente.mx/${user.permisos}`;
+                          let disabled = false;
+
+                          if (user.rol === 'b2b') {
+                            // Buscar el restaurante asignado a este usuario
+                            const restauranteAsignado = restaurantes.find(r => r.usuario_id === user.id);
+                            if (restauranteAsignado && restauranteAsignado.slug) {
+                              href = `https://residente.mx/restaurantes/${restauranteAsignado.slug}`;
+                            } else {
+                              // Si es B2B pero no tiene restaurante asignado
+                              disabled = true;
+                            }
+                          }
+
+                          if (disabled) {
+                            return (
+                              <span className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed" title="Sin restaurante asignado">
+                                <FaExternalLinkAlt className="mr-1" />
+                                Ver Página
+                              </span>
+                            );
+                          }
+
+                          return (
+                            <a
+                              href={href}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaExternalLinkAlt className="mr-1" />
+                              Ver Página
+                            </a>
+                          );
+                        })() : (
                           <span className="text-gray-400 text-xs">N/A</span>
                         )}
                       </td>
