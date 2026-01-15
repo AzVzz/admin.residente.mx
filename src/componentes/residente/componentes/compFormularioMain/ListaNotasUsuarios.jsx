@@ -3,7 +3,7 @@ import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
-import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 
 const ListaNotasUsuarios = () => {
@@ -275,7 +275,7 @@ const ListaNotasUsuarios = () => {
       // Usar formato válido de email estándar para evitar problemas con validaciones del backend
       // Asegurar que siempre sea un string válido, nunca null o undefined
       let correoFinal = '';
-      
+
       // Limpiar y validar el correo ingresado
       if (formData.correo && typeof formData.correo === 'string') {
         const correoLimpio = formData.correo.trim();
@@ -283,7 +283,7 @@ const ListaNotasUsuarios = () => {
           correoFinal = correoLimpio;
         }
       }
-      
+
       // Si no hay correo válido, generar uno automático
       if (!correoFinal || correoFinal === '' || correoFinal === null || correoFinal === undefined) {
         // Limpiar el nombre de usuario para usarlo en el correo
@@ -292,11 +292,11 @@ const ListaNotasUsuarios = () => {
           .replace(/[^a-zA-Z0-9]/g, '')
           .toLowerCase()
           .substring(0, 50); // Limitar longitud
-        
+
         // Usar un formato de email estándar que pase validaciones
         correoFinal = `${nombreLimpio || 'usuario'}@no-reply.local`;
       }
-      
+
       // Validación final: asegurar que el correo nunca sea null, undefined o string vacío
       if (!correoFinal || correoFinal.trim() === '' || correoFinal === null || correoFinal === undefined) {
         correoFinal = `usuario${Date.now()}@no-reply.local`;
@@ -324,7 +324,7 @@ const ListaNotasUsuarios = () => {
           .substring(0, 50);
         datosEnvio.correo = `${nombreLimpio || 'usuario'}@no-reply.local`;
       }
-      
+
       // Convertir a string explícitamente para evitar cualquier problema de tipo
       datosEnvio.correo = String(datosEnvio.correo).trim();
 
@@ -450,6 +450,98 @@ const ListaNotasUsuarios = () => {
     }
   };
 
+  // 🆕 Función para desactivar completamente un usuario B2B
+  // Desactiva: suscripción B2B, cupones/tickets, restaurantes y la cuenta de usuario
+  const desactivarUsuarioB2B = async (user) => {
+    const mensaje = `¿Estás seguro de que quieres DESACTIVAR COMPLETAMENTE a este usuario B2B?
+
+Esto desactivará:
+• Su suscripción B2B
+• Todos sus cupones/tickets
+• Su restaurante
+• Su cuenta de usuario
+
+Usuario: ${user.nombre_usuario}
+Correo: ${user.correo || 'N/A'}
+
+Esta acción puede ser revertida activando manualmente cada elemento.`;
+
+    if (!window.confirm(mensaje)) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // 1. Desactivar la suscripción B2B (usuarios_b2b.suscripcion = false)
+      const b2bResponse = await fetch(`${urlApi}api/usuariosb2b/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ suscripcion: false })
+      });
+
+      if (!b2bResponse.ok) {
+        console.warn('No se encontró registro B2B o no se pudo actualizar');
+      }
+
+      // 2. Desactivar todos los cupones/tickets del usuario (activo_manual = false)
+      const ticketsResponse = await fetch(`${urlApi}api/tickets/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ activo_manual: false })
+      });
+
+      if (!ticketsResponse.ok) {
+        console.warn('No se encontraron tickets o no se pudieron desactivar');
+      }
+
+      // 3. Desactivar el restaurante del usuario (status = 0)
+      const restauranteResponse = await fetch(`${urlApi}api/restaurante/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 0 })
+      });
+
+      if (!restauranteResponse.ok) {
+        console.warn('No se encontró restaurante o no se pudo desactivar');
+      }
+
+      // 4. Desactivar la cuenta del usuario (estado = 'inactivo')
+      const usuarioResponse = await fetch(`${urlApi}api/usuarios/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estado: 'inactivo' })
+      });
+
+      if (!usuarioResponse.ok) {
+        const errorData = await usuarioResponse.json();
+        throw new Error(errorData.error || 'Error al desactivar la cuenta del usuario');
+      }
+
+      // Recargar la lista de usuarios
+      await cargarUsuarios();
+      alert('✅ Usuario B2B desactivado completamente');
+
+    } catch (err) {
+      setError('Error al desactivar usuario B2B: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   //const encabezadoTablaUsuarios = {
   //  "Usuario", 
   //  "Cliente",
@@ -465,7 +557,7 @@ const ListaNotasUsuarios = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center">
           <FaUser className="mr-2" />
-          Gestión de Clientes
+          Gestión de Usuarios
         </h2>
         <button
           onClick={() => setShowRegistro(true)}
@@ -924,6 +1016,16 @@ const ListaNotasUsuarios = () => {
                           >
                             {user.estado === 'activo' ? <FaTimes /> : <FaCheck />}
                           </button>
+                          {/* Botón especial para desactivar usuarios B2B completamente */}
+                          {user.rol === 'b2b' && user.estado === 'activo' && (
+                            <button
+                              onClick={() => desactivarUsuarioB2B(user)}
+                              className="text-orange-600 hover:text-orange-900 cursor-pointer"
+                              title="Desactivar B2B Completo (suscripción, cupones, restaurante y cuenta)"
+                            >
+                              <FaBan />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="text-red-600 hover:text-red-900 cursor-pointer"
