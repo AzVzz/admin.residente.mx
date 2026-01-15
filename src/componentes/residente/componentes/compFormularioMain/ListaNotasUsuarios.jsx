@@ -3,8 +3,9 @@ import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
-import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff, FaLink } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
+import ModalAsignarRecursos from './ModalAsignarRecursos';
 
 const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
@@ -39,6 +40,13 @@ const ListaNotasUsuarios = () => {
   const [permisoPersonalizado, setPermisoPersonalizado] = useState('');
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
+
+  // Estados para el modal de asignación de recursos
+  const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [usuarioParaAsignar, setUsuarioParaAsignar] = useState(null);
+
+  // Verificar si el usuario actual es admin/residente
+  const esAdmin = usuario?.rol === 'residente' || usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
 
   // Estados para el formulario de registro/edición
   const [formData, setFormData] = useState({
@@ -984,15 +992,15 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (
-                          <Link
-                            to={`/${user.permisos}`}
+                          <a
+                            href={`https://residente.mx/${user.permisos}`}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             <FaExternalLinkAlt className="mr-1" />
                             Ver Página
-                          </Link>
+                          </a>
                         ) : (
                           <span className="text-gray-400 text-xs">N/A</span>
                         )}
@@ -1033,6 +1041,19 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                           >
                             <FaTrash />
                           </button>
+                          {/* Botón para asignar recursos (solo admin/residente) */}
+                          {esAdmin && (
+                            <button
+                              onClick={() => {
+                                setUsuarioParaAsignar(user);
+                                setShowAsignarModal(true);
+                              }}
+                              className="text-purple-600 hover:text-purple-900 cursor-pointer"
+                              title="Asignar Recursos (Restaurante, Cupones)"
+                            >
+                              <FaLink />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1043,6 +1064,20 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
           </div>
         )}
       </div>
+
+      {/* Modal para asignar recursos */}
+      <ModalAsignarRecursos
+        isOpen={showAsignarModal}
+        onClose={() => {
+          setShowAsignarModal(false);
+          setUsuarioParaAsignar(null);
+        }}
+        usuario={usuarioParaAsignar}
+        token={token}
+        onAsignacionExitosa={() => {
+          cargarUsuarios();
+        }}
+      />
     </div>
   );
 };
