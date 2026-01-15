@@ -36,7 +36,14 @@ const CategoriasTipoNotaSelector = ({
   let seccionesFiltradas;
 
   // Secciones que NO queremos mostrar en el formulario
-  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack", "Cafés", "Bares", "Postres", "Snacks", "Bebidas"];
+  const seccionesOcultas = [
+    "Food & Drink",
+    "Cafetería", "Cafeteria", "Cafés", "Cafe", "Café", "Cafes",
+    "Bar", "Bares",
+    "Postrería", "Postreria", "Postres", "Postre",
+    "Snack", "Snacks",
+    "Bebidas", "Bebida"
+  ];
 
   if (esFoodDrink) {
     // Opciones Food & Drink hardcodeadas en el frontend
@@ -58,8 +65,14 @@ const CategoriasTipoNotaSelector = ({
       ? [seccionFoodDrink, seccionZona]
       : [seccionFoodDrink];
   } else {
-    // Mostrar todas las secciones excepto las ocultas
-    seccionesFiltradas = secciones.filter((s) => !seccionesOcultas.includes(s.seccion));
+    // Debug: ver qué está llegando
+    console.log("Secciones disponibles (API):", secciones.map(s => s.seccion));
+    console.log("Secciones ocultas:", seccionesOcultas);
+
+    // Mostrar todas las secciones excepto las ocultas (con trim para evitar errores de espacios)
+    seccionesFiltradas = secciones.filter((s) => !seccionesOcultas.includes(s.seccion.trim()));
+
+    console.log("Secciones filtradas finales:", seccionesFiltradas.map(s => s.seccion));
   }
 
   return (

@@ -10,7 +10,14 @@ const NuevasSeccionesCategorias = () => {
   const esFoodDrink = tipoLugar === "Food & Drink";
 
   // Secciones a ocultar SIEMPRE de la lista principal
-  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+  const seccionesOcultas = [
+    "Food & Drink",
+    "Cafetería", "Cafeteria", "Cafés", "Cafe", "Café", "Cafes",
+    "Bar", "Bares",
+    "Postrería", "Postreria", "Postres", "Postre",
+    "Snack", "Snacks",
+    "Bebidas", "Bebida"
+  ];
 
   // Si es Food & Drink, ocultar también Nivel de gasto y Tipo de comida
   if (esFoodDrink) {
