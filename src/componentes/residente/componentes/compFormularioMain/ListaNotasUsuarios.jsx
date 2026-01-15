@@ -69,6 +69,41 @@ const ListaNotasUsuarios = () => {
     logo_url: null
   });
 
+  // Estados para filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRol, setFilterRol] = useState('');
+  const [sortOrder, setSortOrder] = useState('fecha_desc');
+
+  // Filtrado y Ordenamiento de usuarios
+  const usuariosFiltrados = usuarios.filter(user => {
+    // 1. Filtro por búsqueda (nombre o correo)
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchSearch =
+      (user.nombre_usuario && user.nombre_usuario.toLowerCase().includes(normalizedSearch)) ||
+      (user.correo && user.correo.toLowerCase().includes(normalizedSearch));
+
+    if (!matchSearch) return false;
+
+    // 2. Filtro por Rol
+    if (filterRol && user.rol !== filterRol) return false;
+
+    return true;
+  }).sort((a, b) => {
+    // 3. Ordenamiento
+    switch (sortOrder) {
+      case 'fecha_asc':
+        return new Date(a.created_at) - new Date(b.created_at);
+      case 'fecha_desc':
+        return new Date(b.created_at) - new Date(a.created_at);
+      case 'nombre_asc':
+        return a.nombre_usuario.localeCompare(b.nombre_usuario);
+      case 'nombre_desc':
+        return b.nombre_usuario.localeCompare(a.nombre_usuario);
+      default:
+        return 0;
+    }
+  });
+
   // Cargar usuarios al montar el componente
   useEffect(() => {
     cargarUsuarios();
@@ -583,6 +618,71 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
         </div>
       )}
 
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 border border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Filtrar Usuarios</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Búsqueda por nombre/correo */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Buscar por nombre o correo</label>
+            <input
+              type="text"
+              placeholder="Ej: Rocco, usuario@email.com..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          {/* Filtro por Rol */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Filtrar por Rol</label>
+            <select
+              value={filterRol}
+              onChange={(e) => setFilterRol(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="">Todos los roles</option>
+              <option value="residente">Residente</option>
+              <option value="colaborador">Colaborador</option>
+              <option value="invitado">Invitado</option>
+              <option value="b2b">B2B</option>
+            </select>
+          </div>
+
+          {/* Ordenar por */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Ordenar por</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="fecha_desc">Fecha: Más recientes primero</option>
+              <option value="fecha_asc">Fecha: Más antiguos primero</option>
+              <option value="nombre_asc">Nombre: A - Z</option>
+              <option value="nombre_desc">Nombre: Z - A</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Botón limpiar filtros */}
+        {(searchTerm || filterRol || sortOrder !== 'fecha_desc') && (
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterRol('');
+                setSortOrder('fecha_desc');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
+            >
+              Restablecer filtros
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Formulario de registro/edición */}
       {showRegistro && (
         <div className="bg-white border rounded-lg p-6 mb-6 shadow-md">
@@ -936,14 +1036,14 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {usuarios.length === 0 ? (
+                {usuariosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                      No hay usuarios registrados
+                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                      No hay usuarios que coincidan con los filtros
                     </td>
                   </tr>
                 ) : (
-                  usuarios.map((user) => (
+                  usuariosFiltrados.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

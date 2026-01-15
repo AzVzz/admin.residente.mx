@@ -386,8 +386,8 @@ const B2BDashboard = () => {
 
     try {
       const apiUrl = import.meta.env.DEV
-        ? `${urlApi}api/stripe-suscripciones/user-subscription/${b2bId}`
-        : `https://admin.residente.mx/api/stripe-suscripciones/user-subscription/${b2bId}`;
+        ? `${urlApi}api/stripe/user-subscription/${b2bId}`
+        : `https://admin.residente.mx/api/stripe/user-subscription/${b2bId}`;
 
       const response = await fetch(apiUrl);
 
