@@ -113,33 +113,25 @@ const subirLogo = async (logoBase64) => {
  * Actualizar perfil de invitado (usuario + permisos)
  */
 export const actualizarPerfilInvitado = async (usuario_id, datos, token) => {
-    let logoUrl = datos.logo_url;
+    // 1. Actualizar usuario
+    const body = {
+        nombre_usuario: datos.nombre_institucion,
+        correo: datos.correo,
+        logo_url: datos.logo_url // URL actual (si existe)
+    };
 
-    // Si se envía logo_base64, subirlo primero para obtener la URL
+    // Si hay nuevo logo en base64, enviarlo
     if (datos.logo_base64) {
-        try {
-            logoUrl = await subirLogo(datos.logo_base64);
-            if (!logoUrl) {
-                throw new Error('No se pudo obtener la URL del logo');
-            }
-        } catch (error) {
-            console.error('Error subiendo logo:', error);
-            throw new Error('Error al procesar el logo. Intenta de nuevo.');
-        }
+        body.logo_base64 = datos.logo_base64;
     }
 
-    // 1. Actualizar usuario
     const usuarioResponse = await fetch(`${urlApi}api/usuarios/${usuario_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-            nombre_usuario: datos.nombre_institucion,
-            correo: datos.correo,
-            logo_url: logoUrl
-        })
+        body: JSON.stringify(body)
     });
 
     if (!usuarioResponse.ok) {

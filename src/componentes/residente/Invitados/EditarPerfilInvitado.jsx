@@ -11,14 +11,14 @@ const EditarPerfilInvitado = () => {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
-  
+
   const [formData, setFormData] = useState({
     nombre_institucion: "",
     correo: "",
     permiso_notas: false,
     permiso_recetas: false,
   });
-  
+
   // Estados para verificación de correo
   const [emailExists, setEmailExists] = useState(false);
   const [emailValid, setEmailValid] = useState(true);
@@ -26,7 +26,7 @@ const EditarPerfilInvitado = () => {
   const emailDebounceRef = useRef(null);
   const correoOriginal = useRef(null);
   const fileInputRef = useRef(null);
-  
+
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [logoActual, setLogoActual] = useState(null);
@@ -48,9 +48,9 @@ const EditarPerfilInvitado = () => {
 
       try {
         const datos = await obtenerPermisosInvitado(usuario.id, token);
-        
+
         console.log("Datos del invitado:", datos);
-        
+
         if (!datos || !datos.usuario) {
           setMensaje({ tipo: "error", texto: "No se encontró tu perfil de invitado. Contacta al administrador." });
           setCargando(false);
@@ -63,10 +63,10 @@ const EditarPerfilInvitado = () => {
           permiso_notas: datos.permiso_notas === 1 || datos.permiso_notas === true,
           permiso_recetas: datos.permiso_recetas === 1 || datos.permiso_recetas === true,
         });
-        
+
         // Guardar correo original para comparar después
         correoOriginal.current = datos.usuario.correo || "";
-        
+
         if (datos.usuario.logo_url) {
           setLogoActual(datos.usuario.logo_url);
           setLogoPreview(datos.usuario.logo_url);
@@ -233,7 +233,7 @@ const EditarPerfilInvitado = () => {
       } catch (blobError) {
         console.warn("No se pudo exportar como blob (canvas tainted), usando dataURL:", blobError);
         const dataUrl = canvas.toDataURL('image/webp', 0.9);
-        
+
         fetch(dataUrl)
           .then(res => res.blob())
           .then(blob => {
@@ -284,25 +284,42 @@ const EditarPerfilInvitado = () => {
 
   // Función para abrir el editor con la imagen actual
   const abrirEditorConImagenActual = async () => {
-    console.log("abrirEditorConImagenActual llamado, logoPreview:", logoPreview);
-    
+    console.log("abrirEditorConImagenActual llamado, logoPreview:", logoPreview?.substring(0, 100));
+
     if (!logoPreview) {
       setMensaje({ tipo: "error", texto: "No hay logo para editar" });
       return;
     }
-    
+
     try {
       let imageUrl = logoPreview;
-      
-      // Si es una data URL, usarla directamente
+
+      // Si es una data URL, verificar que esté completa
       if (logoPreview.startsWith('data:image/')) {
-        console.log("Es una data URL, cargando directamente");
+        console.log("Es una data URL, verificando integridad...");
+
+        // Verificar que la data URL tenga el formato correcto y no esté truncada
+        const base64Match = logoPreview.match(/^data:image\/[a-zA-Z]+;base64,(.+)$/);
+        if (!base64Match || !base64Match[1]) {
+          console.error("Data URL malformada");
+          setMensaje({ tipo: "error", texto: "La imagen guardada está corrupta. Por favor, sube una nueva imagen." });
+          return;
+        }
+
+        // Verificar que el base64 sea válido (longitud mínima y caracteres válidos)
+        const base64Data = base64Match[1];
+        if (base64Data.length < 100 || !/^[A-Za-z0-9+/=]+$/.test(base64Data.substring(0, 50))) {
+          console.error("Data URL truncada o inválida, longitud:", base64Data.length);
+          setMensaje({ tipo: "error", texto: "La imagen guardada está incompleta. Por favor, sube una nueva imagen." });
+          return;
+        }
+
         imageUrl = logoPreview;
       }
       // Si es una URL remota (http/https), intentar usar proxy del backend
       else if (logoPreview.startsWith('http://') || logoPreview.startsWith('https://')) {
         console.log("Es una URL remota, intentando usar proxy del backend...");
-        
+
         try {
           const proxyUrl = `${urlApi}api/img?url=${encodeURIComponent(logoPreview)}`;
           const response = await fetch(proxyUrl, {
@@ -311,7 +328,7 @@ const EditarPerfilInvitado = () => {
               'Accept': 'image/*'
             }
           });
-          
+
           if (response.ok) {
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.startsWith('image/')) {
@@ -331,9 +348,9 @@ const EditarPerfilInvitado = () => {
           imageUrl = logoPreview;
         }
       }
-      
+
       const img = new Image();
-      
+
       img.onload = () => {
         console.log("Imagen cargada exitosamente, dimensiones:", img.width, "x", img.height);
         setImagenOriginal(img);
@@ -342,15 +359,15 @@ const EditarPerfilInvitado = () => {
         setMostrarEditor(true);
         setMensaje({ tipo: "", texto: "" });
       };
-      
+
       img.onerror = (error) => {
-        console.error("Error cargando imagen:", error, "URL intentada:", imageUrl);
-        setMensaje({ tipo: "error", texto: "No se pudo cargar la imagen. Intenta seleccionar una nueva imagen." });
+        console.error("Error cargando imagen:", error);
+        setMensaje({ tipo: "error", texto: "No se pudo cargar la imagen. Por favor, selecciona una nueva imagen." });
       };
-      
+
       // Cargar la imagen
       img.src = imageUrl;
-      
+
     } catch (error) {
       console.error("Error en abrirEditorConImagenActual:", error);
       setMensaje({ tipo: "error", texto: "Error al abrir el editor. Intenta seleccionar una nueva imagen." });
@@ -359,7 +376,7 @@ const EditarPerfilInvitado = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!usuario?.id) {
       setMensaje({ tipo: "error", texto: "No se encontró tu perfil de invitado" });
       return;
@@ -426,9 +443,9 @@ const EditarPerfilInvitado = () => {
         permiso_notas: formData.permiso_notas,
         permiso_recetas: formData.permiso_recetas
       }, token);
-      
+
       setMensaje({ tipo: "success", texto: "¡Perfil actualizado correctamente!" });
-      
+
       // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate("/dashboard");
@@ -472,7 +489,7 @@ const EditarPerfilInvitado = () => {
         {/* Correo Electrónico */}
         <div>
           <label className="block mb-2 font-bold ">
-            Correo electrónico 
+            Correo electrónico
           </label>
           <input
             type="email"
@@ -480,11 +497,10 @@ const EditarPerfilInvitado = () => {
             value={formData.correo}
             onChange={handleInputChange}
             placeholder="correo@ejemplo.com"
-            className={`w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 ${
-              emailExists || !emailValid
-                ? "border-red-500 focus:ring-red-500"
-                : "border-white focus:ring-blue-500"
-            }`}
+            className={`w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 ${emailExists || !emailValid
+              ? "border-red-500 focus:ring-red-500"
+              : "border-white focus:ring-blue-500"
+              }`}
             required
           />
           {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
@@ -503,7 +519,7 @@ const EditarPerfilInvitado = () => {
         <div className="flex flex-col items-center mb-6">
           {logoPreview && (
             <div className="w-32 h-32  overflow-hidden mb-4 border-4 border-gray-300">
-              <img src={logoPreview} alt="Logo de institución" className="w-full h-full object-cover" style={{ display: 'block' }}/>
+              <img src={logoPreview} alt="Logo de institución" className="w-full h-full object-cover" style={{ display: 'block' }} />
             </div>
           )}
           <input
@@ -513,21 +529,30 @@ const EditarPerfilInvitado = () => {
             onChange={handleFileChange}
             className="hidden"
           />
-          
+
           <p className="text-xs text-blue-600 mt-1">💡 Puedes ajustar la posición y zoom después de seleccionar o editar el logo actual</p>
-          {logoPreview && (
-            <button 
-              type="button" 
-              onClick={(e) => { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-                console.log("Botón editar logo clickeado"); 
-                abrirEditorConImagenActual(); 
+
+          {logoPreview ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Botón editar logo clickeado");
+                abrirEditorConImagenActual();
               }}
               className="mt-2 px-4 py-2 bg-[#fff200] text-black text-sm font-bold rounded-lg hover:bg-[#e6d900] shadow-md transition cursor-pointer"
               title="Ajustar posición y zoom del logo actual"
             >
               ✏️ Editar logo
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-md transition cursor-pointer flex items-center gap-2"
+            >
+              ➕ Agregar logo
             </button>
           )}
         </div>
@@ -566,11 +591,10 @@ const EditarPerfilInvitado = () => {
 
         {/* Mensajes */}
         {mensaje.texto && (
-          <div className={`p-4 rounded-lg ${
-            mensaje.tipo === "error" 
-              ? "bg-red-50 text-red-600 border border-red-200" 
-              : "bg-green-50 text-green-600 border border-green-200"
-          }`}>
+          <div className={`p-4 rounded-lg ${mensaje.tipo === "error"
+            ? "bg-red-50 text-red-600 border border-red-200"
+            : "bg-green-50 text-green-600 border border-green-200"
+            }`}>
             {mensaje.texto}
           </div>
         )}
@@ -596,7 +620,7 @@ const EditarPerfilInvitado = () => {
 
       {/* Modal Editor de Imagen - Renderizado con Portal para estar sobre todo */}
       {mostrarEditor && imagenOriginal && typeof document !== 'undefined' && createPortal(
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[99999] p-4"
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -604,7 +628,7 @@ const EditarPerfilInvitado = () => {
         >
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
             <h2 className="text-xl font-bold mb-4">Ajustar Logo</h2>
-            
+
             {/* Área de visualización */}
             <div className="relative w-full h-96 mb-4 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
               <div
@@ -675,7 +699,7 @@ const EditarPerfilInvitado = () => {
                 Aplicar Ajustes
               </button>
 
-                  <button
+              <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2 bg-[#fff200] text-black font-bold rounded-lg hover:bg-[#e6d900]"
