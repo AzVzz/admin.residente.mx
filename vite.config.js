@@ -102,18 +102,7 @@ export default defineConfig({
               networkTimeoutSeconds: 5
             }
           },
-          // Imágenes externas (residente.mx) - StaleWhileRevalidate
-          {
-            urlPattern: /^https:\/\/residente\.mx\/fotos\//i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'external-images',
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 días
-              }
-            }
-          }
+
         ]
       }
     })
