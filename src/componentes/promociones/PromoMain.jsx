@@ -43,7 +43,18 @@ const PromoMain = () => {
 
     useEffect(() => {
         restaurantesBasicosGet()
-            .then(data => setRestaurantes(data))
+            .then(data => {
+                setRestaurantes(data);
+                if (data && data.length === 1) {
+                    const r = data[0];
+                    setSelectedRestauranteId(r.id);
+                    setRestauranteInfo(r);
+                    setFormData(prev => ({
+                        ...prev,
+                        restaurantName: r.nombre_restaurante
+                    }));
+                }
+            })
             .catch(err => console.error("Error cargando restaurantes:", err));
     }, []);
 
@@ -232,6 +243,7 @@ const PromoMain = () => {
         const zonaHoraria = formData.zonaHoraria || "America/Monterrey";
 
         return {
+            restaurante_id: selectedRestauranteId || null,
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
             subtitulo: formData.promoSubtitle,

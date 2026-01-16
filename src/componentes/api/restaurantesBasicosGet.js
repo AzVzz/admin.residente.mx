@@ -10,7 +10,7 @@ export const restaurantesBasicosGet = async () => {
             return null;
         };
 
-        const token = getCookie('admin_auth_token') || localStorage.getItem('token');
+        const token = getCookie('admin_auth_token') || localStorage.getItem('admin_token');
         const headers = {
             'Content-Type': 'application/json'
         };
