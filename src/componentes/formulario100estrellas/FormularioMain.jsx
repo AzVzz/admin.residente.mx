@@ -719,7 +719,15 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   const finalSlug =
                     result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
-                    navigate(`/restaurante/${finalSlug}`);
+                    // Abrir el restaurante en una nueva pestaña en residente.mx
+                    window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
+                    // Si es usuario B2B, redirigir a su dashboard
+                    // Si no, quedarse en la página del restaurante en admin
+                    if (usuario?.rol === 'b2b') {
+                      navigate('/dashboardb2b');
+                    } else {
+                      navigate(`/restaurante/${finalSlug}`);
+                    }
                   }
                 }
               } catch (error) {

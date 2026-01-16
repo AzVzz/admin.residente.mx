@@ -35,6 +35,10 @@ const B2BDashboard = () => {
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
 
+  // 🆕 Estado para datos de Google Analytics
+  const [analytics, setAnalytics] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
@@ -481,6 +485,27 @@ const B2BDashboard = () => {
     if (usuario) fetchCupones();
   }, [usuario]);
 
+  // 🆕 Obtener datos de Google Analytics
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch(`${urlApi}api/google-analytics/ultimo`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.id) {
+            setAnalytics(data);
+          }
+        }
+      } catch (error) {
+        console.error('Error al obtener analytics:', error);
+      } finally {
+        setLoadingAnalytics(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
+
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
@@ -497,7 +522,8 @@ const B2BDashboard = () => {
 
   const handleVer = () => {
     if (restaurante) {
-      navigate(`/restaurante/${restaurante.slug}`);
+      // Abrir el micrositio en residente.mx en una nueva pestaña
+      window.open(`https://residente.mx/restaurantes/${restaurante.slug}`, '_blank');
     }
   };
 
@@ -651,6 +677,44 @@ const B2BDashboard = () => {
         <div className="flex flex-col p-5">
           <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
+            {/* 🆕 Datos de Google Analytics */}
+            {!loadingAnalytics && analytics && (
+              <>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {analytics.club_residente_trafico?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">
+                    Tráfico total del “Club Residente” en el mes de {analytics.mes} {analytics.anio}
+                  </p>
+                  {analytics.pdf_url ? (
+                    <a
+                      href={analytics.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-black cursor-pointer hover:text-gray-700 block"
+                    >
+                      liga a descarga pdf y numero ingresado manual.
+                      <br />
+                      Se actualiza cada dia 1 del mes
+                    </a>
+                  ) : (
+                    <p className="text-xs text-black">
+                      liga a descarga pdf y numero ingresado manual.
+                      <br />
+                      Se actualiza cada dia 1 del mes
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {analytics.residente_mx_trafico?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Tráfico Residente.mx en el mes de {analytics.mes} {analytics.anio}</p>
+                </div>
+
+              </>
+            )}
             <div>
               <p className="text-[40px] font-bold text-black leading-tight">
                 {restaurante?.views?.toLocaleString("es-MX") || 0}
@@ -663,14 +727,6 @@ const B2BDashboard = () => {
               </p>
               <p className="text-sm text-black">Clicks totales en tu restaurante</p>
             </div>
-            {restaurante && (
-              <div>
-                <p className="text-[40px] font-bold text-black leading-tight">
-                  {restaurante.total_interacciones?.toLocaleString("es-MX") || 0}
-                </p>
-                <p className="text-sm text-black">Total de interacciones (vistas y clicks) en tu restaurante</p>
-              </div>
-            )}
             {/* Mostrar cupón del usuario */}
             {/* Mostrar views y clicks del cupón del usuario */}
             {loadingCupon ? (

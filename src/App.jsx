@@ -217,6 +217,7 @@ function App() {
   const isSeccionRoute = location.pathname.startsWith("/seccion/");
   const isCulturalAccess = location.pathname === "/culturallaccess";
   const isLinkInBio = location.pathname === "/linkinbio";
+  const isB2BDashboard = location.pathname === "/dashboardb2b";
 
   return (
     <DataProvider>
@@ -247,8 +248,10 @@ function App() {
             </div>
           )}
         <main
-          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"
-            }`}
+          className={
+            `flex-grow w-full relative z-10 
+            ${!isB2BDashboard ? "overflow-x-hidden" : ""} 
+            ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
           <Suspense
             fallback={
