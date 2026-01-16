@@ -447,17 +447,37 @@ const OpinionEditorial = () => {
                 required
               />
             </div>
-            <div>
-              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-                Curriculum
-              </label>
+            <div className="sm:mb-4">
+              <div className="flex justify-between items-center mb-1 sm:mb-0">
+                <label className="block font-roman font-bold text-base sm:text-sm">
+                  Curriculum
+                </label>
+                <span
+                  className={`text-xs ${
+                    formData.curriculum.length >= 300
+                      ? "text-red-500 font-bold"
+                      : formData.curriculum.length >= 270
+                      ? "text-amber-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {formData.curriculum.length}/300
+                </span>
+              </div>
               <textarea
                 name="curriculum"
                 value={formData.curriculum}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  const value = e.target.value.slice(0, 300);
+                  setFormData(prev => ({
+                    ...prev,
+                    curriculum: value
+                  }));
+                }}
                 placeholder="Describe tu experiencia"
-                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
                 rows={4}
+                maxLength={300}
               />
             </div>
             <div>

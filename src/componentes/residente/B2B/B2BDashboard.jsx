@@ -386,8 +386,8 @@ const B2BDashboard = () => {
 
     try {
       const apiUrl = import.meta.env.DEV
-        ? `${urlApi}api/stripe-suscripciones/user-subscription/${b2bId}`
-        : `https://admin.residente.mx/api/stripe-suscripciones/user-subscription/${b2bId}`;
+        ? `${urlApi}api/stripe/user-subscription/${b2bId}`
+        : `https://admin.residente.mx/api/stripe/user-subscription/${b2bId}`;
 
       const response = await fetch(apiUrl);
 
@@ -630,18 +630,19 @@ const B2BDashboard = () => {
             </button>
           </div>
           <address className="flex flex-col mt-auto">
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.nombre_responsable ||
+            <p className="text-xl">Credenciales de Acceso</p>
+            <strong className="text-lg text-gray-900 font-roman">
+              Nombre: {b2bUser?.nombre_responsable ||
                 b2bUser?.nombre_responsable_restaurante ||
                 "Nombre no disponible"}
             </strong>
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.correo || "Correo no disponible"}
+            <strong className="text-lg text-gray-900 font-roman">
+              Correo: {b2bUser?.correo || "Correo no disponible"}
             </strong>
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.telefono || "Teléfono no disponible"}
+            <strong className="text-lg text-gray-900 font-roman">
+              Teléfono: {b2bUser?.telefono || "Teléfono no disponible"}
             </strong>
-            <strong className="text-xs text-gray-900 font-roman">
+            <strong className="text-lg text-gray-900 font-roman">
               Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
@@ -816,7 +817,7 @@ const B2BDashboard = () => {
             className="fixed inset-0 flex items-center justify-center pointer-events-none"
             style={{ zIndex: 9999 }}
           >
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+            <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
               <div className="bg-[#fff200] px-6 py-4">
                 <h2 className="text-xl font-bold text-black font-roman">
                   Credenciales de Acceso
@@ -825,18 +826,18 @@ const B2BDashboard = () => {
               <div className="px-6 py-5">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-bold text-black font-roman mb-1">
-                      Nombre de usuario
+                    <label className="block text-xl text-black font-roman leading-[1.3] pr-10">
+                      Tu <span className="font-bold underline">Nombre de Usuario</span> para acceder al dashboard de B2B es:
                     </label>
-                    <p className="text-2xl font-bold text-black font-roman">
+                    <p className="text-2xl font-bold text-black font-roman mt-2">
                       {credencialesNuevas.nombre_usuario}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-black font-roman mb-1">
-                      Contraseña
+                    <label className="block text-xl text-black font-roman leading-[1.3]">
+                      Tu <span className="font-bold underline">Contraseña</span> es:
                     </label>
-                    <p className="text-sm text-black font-roman">
+                    <p className="text-sm text-black font-roman mt-1">
                       Usa la misma contraseña que usaste para registrarte.
                     </p>
                   </div>

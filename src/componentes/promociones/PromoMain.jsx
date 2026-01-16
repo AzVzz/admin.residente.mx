@@ -1,5 +1,6 @@
 //src/componentes/promociones/PromoMainTest.jsx
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context';
 import { toPng } from 'html-to-image';
 import FormularioPromo from "./componentes/FormularioPromo";
@@ -11,6 +12,7 @@ import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
 
 const PromoMain = () => {
     const { usuario, token } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
@@ -288,6 +290,9 @@ const PromoMain = () => {
             console.log("✅ Promoción creada:", response);
 
             setSaveSuccess(true);
+            setTimeout(() => {
+                navigate('/dashboardtickets');
+            }, 1000);
         } catch (error) {
             console.error("Error al guardar promoción:", error);
             setSaveError(error.message || 'Error al guardar la promoción');

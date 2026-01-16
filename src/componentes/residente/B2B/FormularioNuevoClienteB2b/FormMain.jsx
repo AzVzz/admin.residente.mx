@@ -104,19 +104,19 @@ const FormMain = ({ planInicial = null }) => {
         const apiUrl = "https://admin.residente.mx/api/stripe/precios";
 
         const response = await fetch(apiUrl);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
           // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
           if (planInicial) {
-            const precioCoincidente = data.precios.find(p => 
-              p.sucursales === planInicial.sucursales || 
+            const precioCoincidente = data.precios.find(p =>
+              p.sucursales === planInicial.sucursales ||
               (planInicial.sucursales === "5+" && p.sucursales === "5+")
             );
             if (precioCoincidente) {
@@ -409,7 +409,7 @@ const FormMain = ({ planInicial = null }) => {
                 const apiUrl = import.meta.env.DEV
                   ? "/api/stripe/checkout-session/" + savedSessionId
                   : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                    savedSessionId;
+                  savedSessionId;
 
                 const sessionRes = await fetch(apiUrl);
                 const sessionData = await sessionRes.json();
@@ -487,7 +487,7 @@ const FormMain = ({ planInicial = null }) => {
             const apiUrl = import.meta.env.DEV
               ? "/api/stripe/checkout-session/" + savedSessionId
               : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                savedSessionId;
+              savedSessionId;
 
             const sessionRes = await fetch(apiUrl);
             const sessionData = await sessionRes.json();
@@ -554,6 +554,7 @@ const FormMain = ({ planInicial = null }) => {
         localStorage.removeItem("b2b_payment_completed");
         localStorage.removeItem("b2b_stripe_session_id");
         localStorage.removeItem("b2b_form_data");
+        localStorage.removeItem("b2b_plan_seleccionado");
 
         // Login automático
         const loginResp = await loginPost(
@@ -591,6 +592,7 @@ const FormMain = ({ planInicial = null }) => {
           localStorage.removeItem("b2b_payment_completed");
           localStorage.removeItem("b2b_stripe_session_id");
           localStorage.removeItem("b2b_form_data");
+          localStorage.removeItem("b2b_plan_seleccionado");
 
           // Intentar login automático
           try {
@@ -613,7 +615,7 @@ const FormMain = ({ planInicial = null }) => {
 
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente."
+          "Error al crear la cuenta. Por favor, intenta nuevamente."
         );
         setTimeout(() => setPaymentError(""), 5000);
       } finally {
@@ -929,7 +931,7 @@ const FormMain = ({ planInicial = null }) => {
               const apiUrl = import.meta.env.DEV
                 ? "/api/stripe/checkout-session/" + savedSessionId
                 : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                  savedSessionId;
+                savedSessionId;
 
               const sessionRes = await fetch(apiUrl);
               const sessionData = await sessionRes.json();
@@ -1013,7 +1015,7 @@ const FormMain = ({ planInicial = null }) => {
           const apiUrl = import.meta.env.DEV
             ? "/api/stripe/checkout-session/" + savedSessionId
             : "https://admin.residente.mx/api/stripe/checkout-session/" +
-              savedSessionId;
+            savedSessionId;
 
           const sessionRes = await fetch(apiUrl);
           const sessionData = await sessionRes.json();
@@ -1092,7 +1094,7 @@ const FormMain = ({ planInicial = null }) => {
       setStripeSessionId("");
       localStorage.removeItem("b2b_payment_completed");
       localStorage.removeItem("b2b_stripe_session_id");
-      localStorage.removeItem("b2b_stripe_session_id");
+      localStorage.removeItem("b2b_plan_seleccionado");
       setTimeout(() => {
         setSuccessMsg("");
         window.location.href = "/login";
@@ -1107,7 +1109,7 @@ const FormMain = ({ planInicial = null }) => {
       } else {
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente."
+          "Error al crear la cuenta. Por favor, intenta nuevamente."
         );
       }
       setTimeout(() => setPaymentError(""), 5000);
@@ -1161,11 +1163,18 @@ const FormMain = ({ planInicial = null }) => {
             value={formData.nombre_restaurante}
             onChange={handleChange}
             placeholder="Nombre del restaurante"
+<<<<<<< HEAD
             className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
               restauranteVetado 
                 ? "border-red-500 focus:ring-red-500" 
                 : "border-gray-300 focus:ring-blue-500"
             }`}
+=======
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${clienteVetado
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+              }`}
+>>>>>>> 85e3649009196d14513a0ff5fa3192710c431cd0
             required
           />
           {verificandoRestaurante && (
@@ -1249,11 +1258,10 @@ const FormMain = ({ planInicial = null }) => {
           value={formData.correo}
           onChange={handleChange}
           placeholder="Escribe tu correo electrónico"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            emailExists || !emailValid
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${emailExists || !emailValid
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+            }`}
           required
         />
         {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
@@ -1323,11 +1331,10 @@ const FormMain = ({ planInicial = null }) => {
           value={formData.nombre_usuario}
           onChange={handleChange}
           placeholder="Tu nombre de usuario"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            usernameExists
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${usernameExists
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+            }`}
           required
         />
         {checkingUsername && <p className="text-gray-500 text-xs mt-1">Verificando disponibilidad...</p>}
@@ -1405,11 +1412,11 @@ const FormMain = ({ planInicial = null }) => {
               className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
             >
               {preciosDisponibles.map((precio) => (
-                <option 
-                  key={precio.priceId} 
+                <option
+                  key={precio.priceId}
                   value={precio.sucursales === "5+" ? 5 : precio.sucursales}
                 >
-                  {precio.sucursalesTexto} 
+                  {precio.sucursalesTexto}
                 </option>
               ))}
             </select>
@@ -1452,10 +1459,16 @@ const FormMain = ({ planInicial = null }) => {
       {/* Botón de Pagar - Igual que Astro */}
       <button
         type="submit"
+<<<<<<< HEAD
         disabled={paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount}
         className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
           (paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
         }`}
+=======
+        disabled={paymentLoading || creatingAccount || clienteVetado}
+        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || creatingAccount || clienteVetado) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
+          }`}
+>>>>>>> 85e3649009196d14513a0ff5fa3192710c431cd0
       >
         {verificandoRestaurante ? "Verificando..." : paymentLoading || creatingAccount ? "Procesando..." : (restauranteVetado && !codigoValido) ? "Ingresa código de acceso" : "Ir a Pagar"}
       </button>
@@ -1567,7 +1580,7 @@ const FormMain = ({ planInicial = null }) => {
                     <p className="text-sm text-gray-500 mb-4">
                       Serás redirigido a Stripe para completar tu suscripción de manera segura.
                     </p>
-                    
+
                     {/* Resumen del plan en el modal - igual que Stripe */}
                     <div className="bg-gray-50 rounded-lg p-4 mb-4">
                       <div className="space-y-2 text-sm">
@@ -1599,7 +1612,7 @@ const FormMain = ({ planInicial = null }) => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {paymentError && (
                       <p className="text-red-500 text-sm mb-4">{paymentError}</p>
                     )}

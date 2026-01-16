@@ -156,6 +156,20 @@ const TicketPromo = forwardRef((props, ref) => {
         return text.substring(0, limit) + '...';
     };
 
+    // Helper para usar el proxy de imágenes y evitar problemas CORS
+    const getProxyUrl = (url) => {
+        if (!url) return '';
+        // Solo ignorar data URLs
+        if (url.startsWith('data:')) return url;
+
+        // Log para depuración
+        // console.log("Transforming URL:", url);
+
+        // Forzar proxy para todas las imágenes remotas (residente.mx)
+        // Usamos urlApi que apunta a admin.residente.mx donde vive el proxy
+        return `${urlApi}api/img?url=${encodeURIComponent(url)}&w=1200&q=100&f=png`;
+    };
+
     return (
         <div
             ref={ref}

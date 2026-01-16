@@ -25,7 +25,7 @@ const ListaBlogsColaborador = () => {
     const loadBlogsColaborador = async () => {
       try {
         const colaboradores = await getColaboradores();
-        
+
         const colaboradorActual = colaboradores.find(
           (c) => c.usuario_id === usuario?.id
         );
@@ -118,7 +118,7 @@ const ListaBlogsColaborador = () => {
           <Link
             key={pub.id}
             to={`/colaboradores?editar=${pub.id}`}
-            className="bg-white rounded-lg shadow overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-blue-500 transition-all duration-300 h-full flex flex-col group relative cursor-pointer block"
+            className="bg-white rounded-lg shadow overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-blue-500 transition-all duration-300 h-full flex-col group relative cursor-pointer block"
             style={{
               minHeight: '300px',
               position: 'relative'
@@ -228,11 +228,10 @@ const ListaBlogsColaborador = () => {
             <button
               onClick={irAPaginaAnterior}
               disabled={paginaActual === 1}
-              className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                paginaActual === 1
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-              }`}
+                }`}
             >
               ← Anterior
             </button>
@@ -256,11 +255,10 @@ const ListaBlogsColaborador = () => {
                   <button
                     key={numero}
                     onClick={() => irAPagina(numero)}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                      numero === paginaActual
+                    className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                    }`}
+                      }`}
                   >
                     {numero}
                   </button>
@@ -272,11 +270,10 @@ const ListaBlogsColaborador = () => {
             <button
               onClick={irAPaginaSiguiente}
               disabled={paginaActual === totalPaginas}
-              className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                paginaActual === totalPaginas
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-              }`}
+                }`}
             >
               Siguiente →
             </button>
