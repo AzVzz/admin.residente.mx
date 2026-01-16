@@ -247,9 +247,25 @@ const ModalAsignarRecursos = ({
         }
     };
 
-    // Filtrar restaurantes para el dropdown (excluir los ya asignados a este usuario)
-    const restaurantesParaDropdown = usuario ? todosRestaurantes.filter(r => r.usuario_id !== usuario.id) : [];
-    const ticketsParaDropdown = usuario ? todosCupones.filter(t => t.user_id !== usuario.id) : [];
+    // Estado para búsqueda
+    const [busquedaRecurso, setBusquedaRecurso] = useState('');
+
+    // Filtrar restaurantes para el dropdown (excluir los ya asignados a este usuario y aplicar búsqueda)
+    const restaurantesParaDropdown = usuario ? todosRestaurantes.filter(r => {
+        const noAsignado = r.usuario_id !== usuario.id;
+        const coincideBusqueda = busquedaRecurso === '' ||
+            r.nombre_restaurante.toLowerCase().includes(busquedaRecurso.toLowerCase());
+        return noAsignado && coincideBusqueda;
+    }) : [];
+
+    // Filtrar cupones para el dropdown
+    const ticketsParaDropdown = usuario ? todosCupones.filter(t => {
+        const noAsignado = t.user_id !== usuario.id;
+        const coincideBusqueda = busquedaRecurso === '' ||
+            t.titulo.toLowerCase().includes(busquedaRecurso.toLowerCase()) ||
+            (t.nombre_restaurante && t.nombre_restaurante.toLowerCase().includes(busquedaRecurso.toLowerCase()));
+        return noAsignado && coincideBusqueda;
+    }) : [];
 
     if (!isOpen || !usuario) return null;
 
@@ -272,7 +288,7 @@ const ModalAsignarRecursos = ({
                 {/* Tabs */}
                 <div className="flex border-b">
                     <button
-                        onClick={() => setActiveTab('restaurantes')}
+                        onClick={() => { setActiveTab('restaurantes'); setBusquedaRecurso(''); }}
                         className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 font-medium transition-colors ${activeTab === 'restaurantes'
                             ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                             : 'text-gray-500 hover:text-gray-700'
@@ -282,7 +298,7 @@ const ModalAsignarRecursos = ({
                         Restaurantes ({restaurantesAsignados.length})
                     </button>
                     <button
-                        onClick={() => setActiveTab('cupones')}
+                        onClick={() => { setActiveTab('cupones'); setBusquedaRecurso(''); }}
                         className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 font-medium transition-colors ${activeTab === 'cupones'
                             ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                             : 'text-gray-500 hover:text-gray-700'
@@ -323,6 +339,18 @@ const ModalAsignarRecursos = ({
                                             <FaExchangeAlt className="text-blue-500" />
                                             Asignar / Reasignar Restaurante
                                         </h3>
+
+                                        {/* Buscador */}
+                                        <div className="mb-2">
+                                            <input
+                                                type="text"
+                                                placeholder="🔍 Buscar restaurante..."
+                                                value={busquedaRecurso}
+                                                onChange={(e) => setBusquedaRecurso(e.target.value)}
+                                                className="w-full border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
                                         <div className="flex gap-2">
                                             <select
                                                 value={restauranteSeleccionado}
@@ -345,7 +373,9 @@ const ModalAsignarRecursos = ({
                                             </button>
                                         </div>
                                         {restaurantesParaDropdown.length === 0 && (
-                                            <p className="text-gray-500 text-sm mt-2">Todos los restaurantes ya están asignados a este usuario</p>
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                {busquedaRecurso ? 'No se encontraron restaurantes con esa búsqueda' : 'Todos los restaurantes disponible ya están asignados'}
+                                            </p>
                                         )}
                                         <p className="text-gray-400 text-xs mt-2">
                                             💡 Los restaurantes asignados a otros usuarios se reasignarán automáticamente
@@ -407,6 +437,18 @@ const ModalAsignarRecursos = ({
                                             <FaExchangeAlt className="text-blue-500" />
                                             Asignar / Reasignar Cupón
                                         </h3>
+
+                                        {/* Buscador */}
+                                        <div className="mb-2">
+                                            <input
+                                                type="text"
+                                                placeholder="🔍 Buscar cupón por título o restaurante..."
+                                                value={busquedaRecurso}
+                                                onChange={(e) => setBusquedaRecurso(e.target.value)}
+                                                className="w-full border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
                                         <div className="flex gap-2">
                                             <select
                                                 value={ticketSeleccionado}
@@ -416,7 +458,7 @@ const ModalAsignarRecursos = ({
                                                 <option value="">Seleccionar cupón...</option>
                                                 {ticketsParaDropdown.map((t) => (
                                                     <option key={t.id} value={t.id}>
-                                                        {t.titulo} {t.nombre_restaurante ? `- ${t.nombre_restaurante}` : ''} {getOwnerLabel(t.user_id)}
+                                                        {t.titulo} {t.nombre_restaurante ? `[Restaurante: ${t.nombre_restaurante}]` : ''} {getOwnerLabel(t.user_id)}
                                                     </option>
                                                 ))}
                                             </select>

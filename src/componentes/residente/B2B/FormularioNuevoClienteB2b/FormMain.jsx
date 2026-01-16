@@ -84,14 +84,14 @@ const FormMain = ({ planInicial = null }) => {
   const [verificandoRestaurante, setVerificandoRestaurante] = useState(false);
   const [mensajeVetado, setMensajeVetado] = useState("");
   const vetadoDebounceRef = useRef(null);
-  
+
   // Estado para código de acceso (desbloqueo de restringidos)
   const [codigoAcceso, setCodigoAcceso] = useState("");
   const [codigoValido, setCodigoValido] = useState(false);
   const [verificandoCodigo, setVerificandoCodigo] = useState(false);
   const [errorCodigo, setErrorCodigo] = useState("");
   const [restauranteRestringidoId, setRestauranteRestringidoId] = useState(null);
-  
+
   // Código maestro para desbloquear restaurantes vetados
   const CODIGO_MAESTRO = "RESIDENTE";
 
@@ -218,18 +218,18 @@ const FormMain = ({ planInicial = null }) => {
     try {
       const apiUrl = "https://admin.residente.mx/api/clientes-editorial/verificar-restringido";
       console.log("🔍 Verificando restaurante restringido:", nombreRestaurante);
-      
+
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre_restaurante: nombreRestaurante })
       });
-      
+
       if (!res.ok) {
         console.error("❌ Error verificando restringido:", res.status);
         return { restringido: false, encontrado: false };
       }
-      
+
       const data = await res.json();
       console.log("📦 Respuesta del servidor:", data);
       return data;
@@ -272,7 +272,7 @@ const FormMain = ({ planInicial = null }) => {
         console.log("⏰ Ejecutando verificación para:", nombreRestaurante);
         const resultado = await verificarRestauranteRestringido(nombreRestaurante);
         console.log("📋 Resultado de verificación:", resultado);
-        
+
         if (resultado.restringido) {
           console.log("🚫 Restaurante RESTRINGIDO - Mostrando mensaje");
           console.log("📝 ID del restaurante:", resultado.id);
@@ -838,7 +838,7 @@ const FormMain = ({ planInicial = null }) => {
   const handleVerificarCodigo = async () => {
     setVerificandoCodigo(true);
     setErrorCodigo("");
-    
+
     // Verificar si el código es correcto
     if (codigoAcceso.trim().toUpperCase() !== CODIGO_MAESTRO) {
       setCodigoValido(false);
@@ -849,34 +849,34 @@ const FormMain = ({ planInicial = null }) => {
 
     // Si el código es válido, actualizar el estado en el backend
     console.log("🔑 Código correcto! restauranteRestringidoId:", restauranteRestringidoId);
-    
+
     try {
       if (restauranteRestringidoId) {
         console.log("✅ Código válido - Habilitando restaurante ID:", restauranteRestringidoId);
-        
+
         const apiUrl = `https://admin.residente.mx/api/clientes-editorial/${restauranteRestringidoId}`;
         const res = await fetch(apiUrl, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ estado_cliente: 'HA SIDO CLIENTE' })
         });
-        
+
         if (!res.ok) {
           console.error("❌ Error al habilitar restaurante:", res.status);
           setErrorCodigo("Error al habilitar el restaurante. Intenta de nuevo.");
           setVerificandoCodigo(false);
           return;
         }
-        
+
         const data = await res.json();
         console.log("✅ Restaurante habilitado:", data);
       }
-      
+
       if (!restauranteRestringidoId) {
         console.log("⚠️ No hay ID del restaurante - El backend no devolvió el ID");
         console.log("⚠️ Permitiendo continuar de todos modos...");
       }
-      
+
       setCodigoValido(true);
       setErrorCodigo("");
       setRestauranteVetado(false); // Ya no está restringido
@@ -1163,18 +1163,10 @@ const FormMain = ({ planInicial = null }) => {
             value={formData.nombre_restaurante}
             onChange={handleChange}
             placeholder="Nombre del restaurante"
-<<<<<<< HEAD
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
-              restauranteVetado 
-                ? "border-red-500 focus:ring-red-500" 
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${restauranteVetado
+                ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-            }`}
-=======
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${clienteVetado
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
               }`}
->>>>>>> 85e3649009196d14513a0ff5fa3192710c431cd0
             required
           />
           {verificandoRestaurante && (
@@ -1186,7 +1178,7 @@ const FormMain = ({ planInicial = null }) => {
         {restauranteVetado && mensajeVetado && !codigoValido && (
           <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
             <p className="mb-3">⚠️ {mensajeVetado}</p>
-            
+
             <div className="mt-3 pt-3 border-t border-red-200">
               <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
                 ¿Tienes un código de acceso? Ingrésalo aquí:
@@ -1206,11 +1198,10 @@ const FormMain = ({ planInicial = null }) => {
                   type="button"
                   onClick={handleVerificarCodigo}
                   disabled={!codigoAcceso.trim() || verificandoCodigo}
-                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
-                    !codigoAcceso.trim() || verificandoCodigo
+                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${!codigoAcceso.trim() || verificandoCodigo
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                  }`}
+                    }`}
                 >
                   {verificandoCodigo ? "Verificando..." : "Verificar"}
                 </button>
@@ -1459,16 +1450,9 @@ const FormMain = ({ planInicial = null }) => {
       {/* Botón de Pagar - Igual que Astro */}
       <button
         type="submit"
-<<<<<<< HEAD
         disabled={paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount}
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
-          (paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
-        }`}
-=======
-        disabled={paymentLoading || creatingAccount || clienteVetado}
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || creatingAccount || clienteVetado) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
+        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
           }`}
->>>>>>> 85e3649009196d14513a0ff5fa3192710c431cd0
       >
         {verificandoRestaurante ? "Verificando..." : paymentLoading || creatingAccount ? "Procesando..." : (restauranteVetado && !codigoValido) ? "Ingresa código de acceso" : "Ir a Pagar"}
       </button>
