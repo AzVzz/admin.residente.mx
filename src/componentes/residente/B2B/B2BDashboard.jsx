@@ -648,22 +648,22 @@ const B2BDashboard = () => {
             </button>
           </div>
           <address className="flex flex-col mt-auto">
-            <p className="text-xl">Credenciales de Acceso</p>
-            <strong className="text-gray-900 font-roman">
+            <p>Credenciales de Acceso</p>
+            <strong className="text-xs text-gray-900 font-roman">
               Nombre: {b2bUser?.nombre_responsable ||
                 b2bUser?.nombre_responsable_restaurante ||
                 "Nombre no disponible"}
             </strong>
-            <strong className="text-gray-900 font-roman">
+            <strong className="text-xs text-gray-900 font-roman">
               Nombre de usuario: {usuario?.nombre_usuario || "Usuario B2B"}
             </strong>
-            <strong className="text-gray-900 font-roman">
+            <strong className="text-xs text-gray-900 font-roman">
               Correo: {b2bUser?.correo || "Correo no disponible"}
             </strong>
-            <strong className="text-gray-900 font-roman">
+            <strong className="text-xs text-gray-900 font-roman">
               Teléfono: {b2bUser?.telefono || "Teléfono no disponible"}
             </strong>
-            <strong className="text-gray-900 font-roman">
+            <strong className="text-xs text-gray-900 font-roman">
               Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
@@ -858,7 +858,7 @@ const B2BDashboard = () => {
           >
             <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
               <div className="bg-[#fff200] px-6 py-4">
-                <h2 className="text-xl font-bold text-black font-roman">
+                <h2 className="text-xs font-bold text-black font-roman">
                   Credenciales de Acceso
                 </h2>
               </div>
