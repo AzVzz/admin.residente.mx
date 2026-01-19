@@ -373,11 +373,37 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-10">
+        
         <img
           className="w-40 mx-auto mb-6"
           src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
           alt="B2B Logo"
         />
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
+          {[
+            {
+              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/1.png",
+              alt: "Banner Registro B2B 1",
+            },
+            {
+              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/2.png",
+              alt: "Banner Registro B2B 2",
+            },
+            {
+              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/3.png",
+              alt: "Banner Registro B2B 3",
+            },
+          ].map((banner) => (
+            <img
+              key={banner.src}
+              className="w-155 mx-auto h-auto rounded-xl shadow-sm border border-gray-100 object-cover"
+              src={banner.src}
+              alt={banner.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          ))}
+        </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de miembresia para el "Club Residente"
         </h1>

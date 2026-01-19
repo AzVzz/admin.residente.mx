@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
+import { recetasGetTodas, recetasGetMisRecetas, recetaBorrar } from "../../../api/recetasApi";
 import { FaTrash, FaEdit, FaCopy, FaEllipsisV, FaSearch } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
 
@@ -65,26 +65,53 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     try {
       // Determinar si es admin o invitado
       const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-      const esInvitado = usuario?.rol?.toLowerCase() === 'invitado';
+      const rolLower = usuario?.rol?.toLowerCase() || '';
+      
+      // FORZAR uso de /mis-recetas si:
+      // 1. El rol es 'invitado' o 'invitados'
+      // 2. O tiene nombre_usuario y NO es admin (esto cubre casos donde el rol no está bien definido)
+      const tieneNombreUsuario = usuario?.nombre_usuario && usuario.nombre_usuario.trim() !== '';
+      const esInvitado = rolLower === 'invitado' || 
+                        rolLower === 'invitados' ||
+                        (tieneNombreUsuario && !esAdmin);
+
+      // DEBUG: Log para ver qué está pasando en producción
+      console.log('[ListaRecetas] 🔍 Debug usuario:', {
+        usuario_completo: usuario,
+        rol: usuario?.rol,
+        rol_lower: rolLower,
+        esInvitado,
+        esAdmin,
+        nombre_usuario: usuario?.nombre_usuario,
+        tieneNombreUsuario,
+        permisos: usuario?.permisos,
+        decision: esInvitado ? 'USAR /mis-recetas' : 'USAR /recetas',
+      });
 
       // Construir filtros para la API
       const filtros = {};
-
-      if (!esAdmin) {
-        // Para invitados, filtrar por nombre_usuario como autor
-        // Para otros usuarios, filtrar por permisos como autor
-        filtros.autor = esInvitado
-          ? usuario.nombre_usuario
-          : usuario.permisos?.replace(/-/g, ' ');
-      }
 
       // Agregar término de búsqueda si existe
       if (debouncedSearchTerm?.trim()) {
         filtros.q = debouncedSearchTerm.trim();
       }
 
-      // Usar paginación del servidor CON filtros
-      const response = await recetasGetTodas(paginaActualInternal, recetasPorPagina, filtros);
+      let response;
+      
+      if (esInvitado) {
+        // Para invitados, SIEMPRE usar el endpoint autenticado que filtra por su nombre_usuario
+        console.log('[ListaRecetas] ✅ Usando endpoint /mis-recetas para invitado');
+        response = await recetasGetMisRecetas(paginaActualInternal, recetasPorPagina, filtros);
+      } else {
+        console.log('[ListaRecetas] ⚠️ Usando endpoint /recetas (admin o usuario sin nombre_usuario)');
+        // Para admins y otros usuarios, usar el endpoint normal con filtros
+        if (!esAdmin) {
+          // Para otros usuarios (no admin, no invitado), filtrar por permisos como autor
+          filtros.autor = usuario.permisos?.replace(/-/g, ' ');
+        }
+        response = await recetasGetTodas(paginaActualInternal, recetasPorPagina, filtros);
+      }
+      
       const recetasData = response?.recetas || [];
 
       setRecetas(recetasData);
@@ -109,17 +136,19 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   }, [debouncedSearchTerm]);
 
   const handleEliminar = async (id) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta receta?")) return;
+    if (!window.confirm("¿Seguro que quieres eliminar esta receta? La receta será desactivada y ya no aparecerá en las publicadas.")) return;
     setEliminando(id);
     setMenuAbierto(null);
     try {
       await recetaBorrar(id);
-      setRecetas(recetas.filter(r => r.id !== id));
+      // Recargar la lista de recetas para reflejar los cambios
+      await cargarRecetas();
       if (onRecetaEliminada) {
         onRecetaEliminada();
       }
       alert("Receta eliminada correctamente");
     } catch (err) {
+      console.error("Error al borrar la receta:", err);
       alert("Error al borrar la receta: " + (err.message || "Error desconocido"));
     } finally {
       setEliminando(null);
