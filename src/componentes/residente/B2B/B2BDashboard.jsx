@@ -536,7 +536,7 @@ const B2BDashboard = () => {
   };
 
   const handleClasificado = () => {
-    navigate('');
+    alert('Próximamente');
   };
 
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
@@ -580,15 +580,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-2 pr-6">
-        <span className="font-bold text-[14px] mr-3">
-          Usuario: <span className="font-normal">{usuario?.nombre_usuario || "Usuario B2B"}</span>
-        </span>
-        <img
-          src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
-          alt="Foto usuario"
-          className="w-8 h-8 rounded-full object-cover border border-gray-300 mr-4"
-        />
+      <div className="w-full h-10 flex items-center justify-end mt-2 pr-6">
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
@@ -599,10 +591,10 @@ const B2BDashboard = () => {
       {/* Nombre del restaurante centrado */}
       {restaurante?.nombre_restaurante && (
         <div className="w-full flex flex-col justify-center items-center py-2">
-          <h1 className="text-[80px] font-bold text-black">
+          <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
             {restaurante.nombre_restaurante}
           </h1>
-          <p className="text-lg text-black mt-2">
+          <p className="text-lg text-black">
             {fechaActual.toLocaleDateString('es-MX', {
               weekday: 'long',
               year: 'numeric',
@@ -613,7 +605,7 @@ const B2BDashboard = () => {
         </div>
       )}
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3 my-0 relative">
+      <div className="w-full grid grid-cols-3 mb-10  relative">
         {/* Línea divisoria izquierda */}
         <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
@@ -621,7 +613,7 @@ const B2BDashboard = () => {
 
         {/* Columna azul */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-8 leading-none">Crea tus<br />Contenidos</p>
+          <p className="text-[35px] text-left mb-2 leading-none">Crea tus<br />Contenidos</p>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -635,7 +627,7 @@ const B2BDashboard = () => {
           )}
 
           {/* Botones alineados a la izquierda en columna */}
-          <div className="flex flex-col gap-3 mt-4 items-start">
+          <div className="flex flex-col gap-3 mt-3 items-start">
             <button
               onClick={restaurante ? handleVer : () => navigate('/formulario')}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
@@ -657,25 +649,28 @@ const B2BDashboard = () => {
           </div>
           <address className="flex flex-col mt-auto">
             <p className="text-xl">Credenciales de Acceso</p>
-            <strong className="text-lg text-gray-900 font-roman">
+            <strong className="text-gray-900 font-roman">
               Nombre: {b2bUser?.nombre_responsable ||
                 b2bUser?.nombre_responsable_restaurante ||
                 "Nombre no disponible"}
             </strong>
-            <strong className="text-lg text-gray-900 font-roman">
+            <strong className="text-gray-900 font-roman">
+              Nombre de usuario: {usuario?.nombre_usuario || "Usuario B2B"}
+            </strong>
+            <strong className="text-gray-900 font-roman">
               Correo: {b2bUser?.correo || "Correo no disponible"}
             </strong>
-            <strong className="text-lg text-gray-900 font-roman">
+            <strong className="text-gray-900 font-roman">
               Teléfono: {b2bUser?.telefono || "Teléfono no disponible"}
             </strong>
-            <strong className="text-lg text-gray-900 font-roman">
+            <strong className="text-gray-900 font-roman">
               Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
         </div>
         {/* Columna verde - Estadísticas */}
-        <div className="flex flex-col p-5">
-          <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
+        <div className="flex flex-col p-3">
+          <p className="text-[35px] text-left mb-2 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
             {/* 🆕 Datos de Google Analytics */}
             {!loadingAnalytics && analytics && (
@@ -717,7 +712,7 @@ const B2BDashboard = () => {
             )}
             <div>
               <p className="text-[40px] font-bold text-black leading-tight">
-                {restaurante?.views?.toLocaleString("es-MX") || 0}
+                {((restaurante?.views || 0) + (cupon?.views || 0)).toLocaleString("es-MX")}
               </p>
               <p className="text-sm text-black">Vistas totales en tu restaurante</p>
             </div>
@@ -735,21 +730,9 @@ const B2BDashboard = () => {
               <>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-tight">
-                    {cupon.views?.toLocaleString("es-MX") || 0}
-                  </p>
-                  <p className="text-sm text-black">Vistas totales de tu cupón</p>
-                </div>
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
                     {cupon.clicks?.toLocaleString("es-MX") || 0}
                   </p>
                   <p className="text-sm text-black">Clicks totales de tu cupón</p>
-                </div>
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
-                    {cupon.total_interacciones?.toLocaleString("es-MX") || 0}
-                  </p>
-                  <p className="text-sm text-black">Total de interacciones (vistas y clicks) de tu cupón</p>
                 </div>
               </>
             ) : (
@@ -762,7 +745,7 @@ const B2BDashboard = () => {
           <div className="flex flex-col h-full">
             {/* Parte de arriba: título + lista */}
             <div>
-              <p className="text-[35px] text-left mb-8 leading-none">Canjea tus<br />Beneficios</p>
+              <p className="text-[35px] text-left mb-2 leading-none">Canjea tus<br />Beneficios</p>
               <ol>
                 {productos.map((producto) => (
                   <li
