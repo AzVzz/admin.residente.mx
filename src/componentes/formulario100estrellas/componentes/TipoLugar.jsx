@@ -39,7 +39,6 @@ const TipoLugar = () => {
                                 type="radio"
                                 id="tipo_lugar-Restaurante"
                                 value="Restaurante"
-                                checked={tipoLugar === "Restaurante"}
                                 {...register("tipo_lugar", {
                                     required: "Debes seleccionar un tipo de lugar"
                                 })}
@@ -64,7 +63,6 @@ const TipoLugar = () => {
                                 type="radio"
                                 id="tipo_lugar-FoodDrink"
                                 value="Food & Drink"
-                                checked={tipoLugar === "Food & Drink"}
                                 {...register("tipo_lugar", {
                                     required: "Debes seleccionar un tipo de lugar"
                                 })}
@@ -106,7 +104,6 @@ const TipoLugar = () => {
                                         type="radio"
                                         id={`sub_tipo_lugar-${tipo.value}`}
                                         value={tipo.value}
-                                        checked={subTipoLugar === tipo.value}
                                         {...register("sub_tipo_lugar", {
                                             required: esFoodDrink ? "Debes seleccionar un subtipo" : false
                                         })}

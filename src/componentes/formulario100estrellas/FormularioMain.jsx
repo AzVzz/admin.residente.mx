@@ -82,7 +82,13 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
 
     // Determinar si el tipo_lugar es una subcategoría de Food & Drink
-    const tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+    let tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+
+    // Normalizar capitalización de Tipo de Lugar
+    if (tipoLugarActual.toLowerCase() === 'restaurante') tipoLugarActual = "Restaurante";
+    if (tipoLugarActual.toLowerCase() === 'food & drink') tipoLugarActual = "Food & Drink";
+
+    // const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"]; // Eliminado por duplicado
     const esSubcategoria = subcategoriasFoodDrink.includes(tipoLugarActual);
 
     const defaults = {
@@ -109,25 +115,47 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
     defaults.secciones_categorias = {};
 
+    // Helper para normalizar nombres de secciones (Mapear BD -> Frontend JSON)
+    const normalizeSeccionName = (name) => {
+      const map = {
+        "nivel de gasto": "Nivel de gasto",
+        "nivel de precio": "Nivel de gasto",
+        "precio": "Nivel de gasto",
+        "gasto": "Nivel de gasto",
+        "tipo de comida": "Tipo de comida",
+        "tipo": "Tipo de comida",
+        "zona": "Zona",
+        "experiencia": "Experiencia",
+        "food & drink": "Food & Drink",
+        "ocasión": "Ocasión"
+      };
+      // Normalización básica: Capitalizar primera letra si no está en el mapa
+      const normalized = map[name.toLowerCase()];
+      if (normalized) return normalized;
+
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    };
+
     if (restaurante?.secciones_categorias) {
       restaurante.secciones_categorias.forEach((item) => {
         const { seccion, categoria } = item;
+        const seccionKey = normalizeSeccionName(seccion);
 
         // Si la sección aún no existe, inicialízala
-        if (defaults.secciones_categorias[seccion] === undefined) {
-          defaults.secciones_categorias[seccion] = categoria;
+        if (defaults.secciones_categorias[seccionKey] === undefined) {
+          defaults.secciones_categorias[seccionKey] = categoria;
           return;
         }
 
         // Si ya había algo y no es array, conviértelo a array
-        if (!Array.isArray(defaults.secciones_categorias[seccion])) {
-          defaults.secciones_categorias[seccion] = [
-            defaults.secciones_categorias[seccion],
+        if (!Array.isArray(defaults.secciones_categorias[seccionKey])) {
+          defaults.secciones_categorias[seccionKey] = [
+            defaults.secciones_categorias[seccionKey],
           ];
         }
 
         // Ahora sí, empuja la nueva categoría
-        defaults.secciones_categorias[seccion].push(categoria);
+        defaults.secciones_categorias[seccionKey].push(categoria);
       });
     }
 
@@ -720,13 +748,13 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
                     // Abrir el restaurante en una nueva pestaña en residente.mx
-                    window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
+                    // window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
                     // Si es usuario B2B, redirigir a su dashboard
-                    // Si no, quedarse en la página del restaurante en admin
+                    // Si no, redirigir al dashboard general (admin)
                     if (usuario?.rol === 'b2b') {
                       navigate('/dashboardb2b');
                     } else {
-                      navigate(`/restaurante/${finalSlug}`);
+                      navigate('/dashboard');
                     }
                   }
                 }
