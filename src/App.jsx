@@ -226,7 +226,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative z-10 ${showMegaMenu
+            className={`transition-all duration-300 relative z-20 ${showMegaMenu
               ? "-translate-y-full opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
               }`}
@@ -249,10 +249,7 @@ function App() {
             </div>
           )}
         <main
-          className={
-            `flex-grow w-full relative z-10 
-            ${!isB2BDashboard ? "overflow-x-hidden" : ""} 
-            ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
           <Suspense
             fallback={

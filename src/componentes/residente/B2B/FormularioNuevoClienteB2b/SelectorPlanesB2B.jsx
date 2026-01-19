@@ -4,9 +4,9 @@ import { HiOutlineCheckCircle } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 
 const NOMBRES_MEMBRESIAS = {
-  1: "Miembresía Básica",
-  3: "Miembresía Oro",
-  "5+": "Miembresía Platino",
+  1: "Membresía Básica",
+  3: "Membresía Oro",
+  "5+": "Membresía Platino",
 };
 
 // Texto personalizado para el badge de sucursales
@@ -405,7 +405,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           ))}
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-          Elige tu tipo de miembresia para el "Club Residente"
+          Elige tu tipo de membresia para el "Club Residente"
         </h1>
         <button
           onClick={() => setIsModalOpen(true)}
