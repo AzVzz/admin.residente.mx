@@ -94,6 +94,41 @@ const Header = () => {
     setActiveDropdown(null);
   };
 
+  // Supón que menuHeader es el array original de secciones
+  const filteredMenu = menuHeader
+    .filter((section) => section.seccion !== "Guías zonales")
+    .map((section) => {
+      if (section.submenu) {
+        if (section.seccion === "Residente") {
+          return {
+            ...section,
+            submenu: section.submenu.filter(
+              (item) => item.nombre !== "Input OpEd"
+            ),
+          };
+        }
+        if (section.seccion === "Noticias") {
+          return {
+            ...section,
+            submenu: section.submenu.filter(
+              (item) => item.nombre !== "Gastro-Destinos" && item.nombre !== "Gastro-destinos"
+            ),
+          };
+        }
+      }
+      return section;
+    });
+
+  const abrirEnNuevaPestana = [
+    "Nuestros medios",
+    "Historia",
+    "Misión",
+    "Rostros detrás del sabor",
+    "Platillos icónicos de Nuevo León",
+    "Anúnciate", // submenú
+    "Anunciate", // sección principal
+  ];
+
   return (
     <header className="w-full">
       {/* ========== HEADER MÓVIL (< 640px) ========== */}
@@ -107,7 +142,7 @@ const Header = () => {
           >
             <FaBars className="w-6 h-6" />
           </button>
-          
+
           {/* Logo centrado */}
           <Link to="https://residente.mx" className="flex items-center gap-2">
             <img
@@ -117,7 +152,7 @@ const Header = () => {
             />
             <span className="text-black font-bold text-sm">Residente. Food&Drink Media</span>
           </Link>
-          
+
           {/* Espacio vacío para balancear */}
           <div className="w-6"></div>
         </div>
@@ -125,7 +160,7 @@ const Header = () => {
         {/* Menú móvil desplegable */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setMobileMenuOpen(false)}>
-            <div 
+            <div
               className="absolute left-0 top-0 h-full w-[280px] bg-white shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
@@ -140,11 +175,11 @@ const Header = () => {
                   <FaTimes className="w-5 h-5" />
                 </button>
               </div>
-              
+
               {/* Items del menú */}
               <nav className="p-4">
                 <ul className="space-y-4">
-                  {menuHeader.map((section, idx) => (
+                  {filteredMenu.map((section, idx) => (
                     <li key={idx}>
                       {section.url ? (
                         <a
@@ -185,7 +220,7 @@ const Header = () => {
                       )}
                     </li>
                   ))}
-                  
+
                   {/* Link de sesión */}
                   <li className="border-t pt-4">
                     {!usuario ? (
@@ -206,7 +241,7 @@ const Header = () => {
                       </Link>
                     )}
                   </li>
-                  
+
                   {/* B2B Link */}
                   <li>
                     <a
@@ -218,7 +253,7 @@ const Header = () => {
                     </a>
                   </li>
                 </ul>
-                
+
                 {/* Redes sociales */}
                 <div className="mt-8 pt-4 border-t">
                   <p className="text-gray-500 text-sm mb-3">Síguenos</p>
@@ -301,16 +336,13 @@ const Header = () => {
               <div className="flex flex-col flex-1 relative z-10">
                 <div className="flex justify-between items-center px-5 py-0.5 bg-[#fff200] relative z-10">
                   <div className="flex gap-6 items-center text-sm font-semibold">
-                    {menuHeader.map((section, idx) =>
+                    {filteredMenu.map((section, idx) =>
                       section.url ? (
                         <a
-                          key={idx}
                           href={section.url}
                           className="hover:underline text-black font-roman"
-                          rel="noopener noreferrer"
-                          target={
-                            section.url.startsWith("http") ? "_blank" : undefined
-                          }
+                          rel={abrirEnNuevaPestana.includes(section.seccion) ? "noopener noreferrer" : undefined}
+                          target={abrirEnNuevaPestana.includes(section.seccion) ? "_blank" : undefined}
                         >
                           {section.seccion}
                         </a>
@@ -327,29 +359,22 @@ const Header = () => {
                           </button>
                           {section.submenu && (
                             <div
-                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
-                                activeDropdown === idx
-                                  ? "opacity-100 visible"
-                                  : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                              }`}
+                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
+                                ? "opacity-100 visible"
+                                : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                                }`}
                             >
                               <ul>
                                 {section.submenu.map((item, subIdx) => (
                                   <li key={subIdx}>
                                     <a
                                       href={item.url}
-                                      rel="noopener noreferrer"
+                                      rel={abrirEnNuevaPestana.includes(item.nombre) ? "noopener noreferrer" : undefined}
+                                      target={abrirEnNuevaPestana.includes(item.nombre) ? "_blank" : undefined}
                                       className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
-                                      target={
-                                        item.url.startsWith("http")
-                                          ? "_blank"
-                                          : undefined
-                                      }
                                       onClick={handleDropdownClose}
                                     >
-                                      {item.nombre === "Antojos"
-                                        ? "Antojeria"
-                                        : item.nombre}
+                                      {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
                                     </a>
                                   </li>
                                 ))}
@@ -385,7 +410,7 @@ const Header = () => {
                   <div className="flex gap-1.5 items-center">
                     {!isSearchOpen ? (
                       <>
-                        <a href="/B2b">
+                        <a href="https://residente.mx/b2b">
                           <img
                             src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
                             className="object-contain h-4 w-12 b2b"
