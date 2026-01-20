@@ -6,8 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 
 export default defineConfig({
-  // NO usar base: '/admin/' porque el admin está en la raíz de admin.residente.mx
-  // El proxy de Nginx reescribe las URLs automáticamente
+  // Base path /admin/ necesario para proxy inverso
+  base: '/admin/',
   plugins: [
     react(),
     tailwindcss({
