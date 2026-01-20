@@ -459,9 +459,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   };
                   const seccionFinal = mapeoSeccion[subTipoLugar] || subTipoLugar;
 
-                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink y secciones relacionadas
+                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink, secciones relacionadas Y ZONA
                   const seccionesCategoriasLimpias = seccionesCategorias.filter(
-                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion)
+                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion) && item.seccion !== "Zona"
                   );
 
                   // Limpiar el array original y copiar las entradas limpias
@@ -474,7 +474,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     categoria: subTipoLugar
                   });
 
-                  // Agregar entradas con las zonas como categorías
+                  // Agregar entradas con las zonas como categorías bajo la subcategoría
                   if (Array.isArray(zonasSeleccionadas) && zonasSeleccionadas.length > 0) {
                     zonasSeleccionadas.forEach(zona => {
                       seccionesCategorias.push({
