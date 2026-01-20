@@ -70,7 +70,7 @@ const Registro = () => {
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center">
                 <a
-                  href="/registrob2b"
+                  href="/admin/registrob2b"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
@@ -84,7 +84,7 @@ const Registro = () => {
 
               <div className="flex flex-col items-center">
                 <a
-                  href="/registroinvitados"
+                  href="/admin/registroinvitados"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
@@ -98,7 +98,7 @@ const Registro = () => {
 
               <div className="flex flex-col items-center">
                 <a
-                  href="/registrocolaboradores"
+                  href="/admin/registrocolaboradores"
                   className="group w-full flex flex-col items-center"
                 >
                   <button

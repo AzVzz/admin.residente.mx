@@ -35,26 +35,11 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
+    window.location.href = "https://residente.mx";
   };
 
-  // No autenticado - link simple estilo header
-  if (!usuario) {
-    return (
-      <Link
-        to="/registro"
-        className={`${fondoOscuro ? "text-white hover:text-gray-300" : "text-black hover:text-gray-600"
-          } text-sm font-medium`}
-        style={{ fontSize: "14px" }}
-      >
-        Login
-      </Link>
-    );
-  }
+  const isB2B = usuario?.rol?.toLowerCase() === "b2b";
 
-  const isB2B = usuario.rol?.toLowerCase() === "b2b";
-
-  // Autenticado - menú desplegable
   return (
     <div ref={menuRef} className="relative">
       <button
@@ -64,7 +49,7 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
         style={{ fontSize: "14px" }}
         aria-label="Menú de perfil"
       >
-        {usuario.nombre_usuario?.toUpperCase()}
+        {usuario ? usuario.nombre_usuario?.toUpperCase() : "LOGIN / REGISTRO"}
         <svg
           className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
@@ -83,40 +68,75 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
       {/* Menú desplegable */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg border border-gray-200 py-1 z-50">
-          {/* Info del usuario */}
-          <div className="px-3 py-2 border-b border-gray-100">
-            <p className="font-bold text-sm truncate">
-              {usuario.nombre_usuario?.toUpperCase()}
-            </p>
-            <p className="text-xs text-gray-500 capitalize">{usuario.rol}</p>
-          </div>
+          {usuario ? (
+            <>
+              {/* Info del usuario */}
+              <div className="px-3 py-2 border-b border-gray-100">
+                <p className="font-bold text-sm truncate">
+                  {usuario.nombre_usuario?.toUpperCase()}
+                </p>
+                <p className="text-xs text-gray-500 capitalize">{usuario.rol}</p>
+              </div>
 
-          {/* Opción: Dashboard según el rol */}
-          {isB2B ? (
-            <Link
-              to="/dashboardb2b"
-              className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={() => setIsOpen(false)}
-            >
-              Dashboard B2B
-            </Link>
+              {/* Opción: Dashboard según el rol */}
+              {isB2B ? (
+                <Link
+                  to="/dashboardb2b"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard B2B
+                </Link>
+              ) : (
+                <Link
+                  to="/dashboard"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Mi Dashboard
+                </Link>
+              )}
+
+              {/* Opción: Cerrar sesión */}
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+              >
+                Cerrar Sesión
+              </button>
+            </>
           ) : (
-            <Link
-              to="/dashboard"
-              className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={() => setIsOpen(false)}
-            >
-              Mi Dashboard
-            </Link>
+            <>
+              <a
+                href="/admin/registro"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Inicia sesión
+              </a>
+              <a
+                href="/admin/registrob2b"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro B2B
+              </a>
+              <a
+                href="/admin/registroinvitados"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro Invitados
+              </a>
+              <a
+                href="/admin/registrocolaboradores"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro Colaboradores
+              </a>
+            </>
           )}
-
-          {/* Opción: Cerrar sesión */}
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-          >
-            Cerrar Sesión
-          </button>
         </div>
       )}
     </div>
@@ -252,7 +272,7 @@ const Header = () => {
           </button>
 
           {/* Logo centrado */}
-          <Link to="/" className="flex items-center gap-2">
+          <a href="https://residente.mx" className="flex items-center gap-2">
             <img
               src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
               alt="Logo Residente"
@@ -261,7 +281,7 @@ const Header = () => {
             <span className="text-black font-bold text-sm">
               Residente. Food&Drink Media
             </span>
-          </Link>
+          </a>
 
           <div className="w-6"></div>
         </div>
@@ -419,187 +439,193 @@ const Header = () => {
           </div>
           <div className="flex pb-0 pt-8">
             <div className="flex pr-3">
-              <Link
-                to="/"
-                className="h-16 w-16 self-end object-contain bg-white rounded-full"
+              <a
+                href="https://residente.mx"
+                className="h-16 w-16 self-end object-contain bg-white rounded-full flex items-center justify-center overflow-hidden"
                 aria-label="Ir a inicio (Logo R)"
                 title="Ir a inicio"
-  </a>
-          </div >
-          <div className="w-full relative">
-            {/* ProfileMenu arriba a la derecha */}
-            <div className="absolute top-3 right-0 z-50">
-              <ProfileMenu fondoOscuro={false} />
-            </div>
-
-            <div className="grid grid-cols-[87%_13%] pb-[9px]">
-              <div className="flex sm:flex-col gap-2">
-                <div className="flex flex-1 w-full justify-end items-start">
-                  <div className="flex flex-col pr-2"></div>
-                </div>
-                <a
-                  href="/"
-                  className="flex"
-                  aria-label="Ir a inicio (Texto)"
-                  title="Ir a inicio"
-                >
-                  <img
-                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
-                    alt="ResidenteNegro"
-                    className="h-6 object-contain"
-                  />
-                </a>
+              >
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
+                  alt="Logo R"
+                  className="h-full w-full object-contain"
+                />
+              </a>
+            </div >
+            <div className="w-full relative">
+              {/* ProfileMenu arriba a la derecha */}
+              <div className="absolute top-3 right-0 z-50">
+                <ProfileMenu fondoOscuro={false} />
               </div>
-            </div>
 
-            {/* Menú Amarillo */}
-            <div className="flex flex-col flex-1.1">
-              <div className="flex justify-between items-center px-2 -ml-[6px] w-[calc(100%+6px)] py-0 bg-[#fff200] h-[24px]">
-                <div className="flex gap-1 sm:gap-4 items-center sm:text-[13px] text-[10px] font-semibold">
-                  {filteredMenu.map((section, idx) =>
-                    section.url ? (
-                      <a
-                        key={idx}
-                        href={section.url}
-                        className="hover:underline text-black font-roman"
-                        rel={
-                          abrirEnNuevaPestana.includes(section.seccion)
-                            ? "noopener noreferrer"
-                            : undefined
-                        }
-                        target={
-                          abrirEnNuevaPestana.includes(section.seccion)
-                            ? "_blank"
-                            : undefined
-                        }
-                      >
-                        {section.seccion}
-                      </a>
-                    ) : (
-                      <div
-                        key={idx}
-                        className="relative group dropdown-container"
-                      >
-                        <button
-                          onClick={() => handleDropdownToggle(idx)}
-                          className="hover:underline text-black font-roman bg-transparent border-none cursor-pointer"
+              <div className="grid grid-cols-[87%_13%] pb-[9px]">
+                <div className="flex sm:flex-col gap-2">
+                  <div className="flex flex-1 w-full justify-end items-start">
+                    <div className="flex flex-col pr-2"></div>
+                  </div>
+                  <a
+                    href="/"
+                    className="flex"
+                    aria-label="Ir a inicio (Texto)"
+                    title="Ir a inicio"
+                  >
+                    <img
+                      src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
+                      alt="ResidenteNegro"
+                      className="h-6 object-contain"
+                    />
+                  </a>
+                </div>
+              </div>
+
+              {/* Menú Amarillo */}
+              <div className="flex flex-col flex-1.1">
+                <div className="flex justify-between items-center px-2 -ml-[6px] w-[calc(100%+6px)] py-0 bg-[#fff200] h-[24px]">
+                  <div className="flex gap-1 sm:gap-4 items-center sm:text-[13px] text-[10px] font-semibold">
+                    {filteredMenu.map((section, idx) =>
+                      section.url ? (
+                        <a
+                          key={idx}
+                          href={section.url}
+                          className="hover:underline text-black font-roman"
+                          rel={
+                            abrirEnNuevaPestana.includes(section.seccion)
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
+                          target={
+                            abrirEnNuevaPestana.includes(section.seccion)
+                              ? "_blank"
+                              : undefined
+                          }
                         >
                           {section.seccion}
-                        </button>
-                        {section.submenu && (
-                          <div
-                            className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
-                              ? "opacity-100 visible"
-                              : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                              }`}
-                          >
-                            <ul>
-                              {section.submenu.map((item, subIdx) => (
-                                <li key={subIdx}>
-                                  <a
-                                    href={item.url}
-                                    rel={abrirEnNuevaPestana.includes(item.nombre) ? "noopener noreferrer" : undefined}
-                                    target={abrirEnNuevaPestana.includes(item.nombre) ? "_blank" : undefined}
-                                    className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
-                                    onClick={handleDropdownClose}
-                                  >
-                                    {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  )}
-                </div>
-                <div className="flex gap-1.5 items-center">
-                  {!isSearchOpen ? (
-                    <>
-                      <a href="/b2b">
-                        <img
-                          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
-                          className="object-contain h-4 w-12 b2b"
-                          alt="B2B"
-                        />
-                      </a>
-                      <a
-                        href="http://instagram.com/residentemty"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaInstagram className="w-4 h-4 text-black hover:text-gray-400" />
-                      </a>
-                      <a
-                        href="http://facebook.com/residentemx"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" />
-                      </a>
-                      <a
-                        href="http://youtube.com/@revistaresidente5460"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
-                      </a>
-                      <a
-                        href="tel:+528114186985"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" />
-                      </a>
-                      <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!">
-                        <FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" />
-                      </a>
-                      <button
-                        onClick={handleSearchToggle}
-                        className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
-                        title="Buscar"
-                      >
-                        <FaSearch className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="relative w-full max-w-md bg-white shadow-sm">
-                      <form
-                        onSubmit={handleSearchSubmit}
-                        className="flex items-center"
-                      >
-                        <input
-                          type="text"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Buscar notas..."
-                          className="flex-1 px-2 text-sm focus:outline-none focus:ring-0 bg-transparent"
-                          autoFocus
-                        />
-                        <button
-                          type="button"
-                          onClick={handleSearchClose}
-                          className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
-                          title="Cerrar búsqueda"
+                        </a>
+                      ) : (
+                        <div
+                          key={idx}
+                          className="relative group dropdown-container"
                         >
-                          <FaTimes className="w-4 h-4" />
+                          <button
+                            onClick={() => handleDropdownToggle(idx)}
+                            className="hover:underline text-black font-roman bg-transparent border-none cursor-pointer"
+                          >
+                            {section.seccion}
+                          </button>
+                          {section.submenu && (
+                            <div
+                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
+                                ? "opacity-100 visible"
+                                : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                                }`}
+                            >
+                              <ul>
+                                {section.submenu.map((item, subIdx) => (
+                                  <li key={subIdx}>
+                                    <a
+                                      href={item.url}
+                                      rel={abrirEnNuevaPestana.includes(item.nombre) ? "noopener noreferrer" : undefined}
+                                      target={abrirEnNuevaPestana.includes(item.nombre) ? "_blank" : undefined}
+                                      className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
+                                      onClick={handleDropdownClose}
+                                    >
+                                      {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 items-center">
+                    {!isSearchOpen ? (
+                      <>
+                        <a href="/b2b">
+                          <img
+                            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
+                            className="object-contain h-4 w-12 b2b"
+                            alt="B2B"
+                          />
+                        </a>
+                        <a
+                          href="http://instagram.com/residentemty"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaInstagram className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <a
+                          href="http://facebook.com/residentemx"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaFacebookF className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <a
+                          href="http://youtube.com/@revistaresidente5460"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <a
+                          href="tel:+528114186985"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!">
+                          <FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <button
+                          onClick={handleSearchToggle}
+                          className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
+                          title="Buscar"
+                        >
+                          <FaSearch className="w-4 h-4" />
                         </button>
-                      </form>
-                      <SearchResults
-                        searchTerm={searchTerm}
-                        onClose={handleSearchClose}
-                      />
-                    </div>
-                  )}
+                      </>
+                    ) : (
+                      <div className="relative w-full max-w-md bg-white shadow-sm">
+                        <form
+                          onSubmit={handleSearchSubmit}
+                          className="flex items-center"
+                        >
+                          <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar notas..."
+                            className="flex-1 px-2 text-sm focus:outline-none focus:ring-0 bg-transparent"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={handleSearchClose}
+                            className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
+                            title="Cerrar búsqueda"
+                          >
+                            <FaTimes className="w-4 h-4" />
+                          </button>
+                        </form>
+                        <SearchResults
+                          searchTerm={searchTerm}
+                          onClose={handleSearchClose}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </div >
         </div >
       </div >
-    </div >
-  {/* HEADER MOBILE ...igual que ya tienes, solo cuida los tamaños y separaciones */ }
+      {/* HEADER MOBILE ...igual que ya tienes, solo cuida los tamaños y separaciones */}
     </header >
   );
 };
