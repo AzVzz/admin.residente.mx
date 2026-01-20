@@ -6,6 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 
 export default defineConfig({
+  // Base path para cuando se accede via residente.mx/admin
+  base: '/admin/',
   plugins: [
     react(),
     tailwindcss({
