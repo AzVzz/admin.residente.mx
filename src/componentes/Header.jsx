@@ -144,7 +144,7 @@ const Header = () => {
           </button>
 
           {/* Logo centrado */}
-          <Link to="https://residente.mx" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <img
               src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
               alt="Logo Residente"
@@ -307,7 +307,7 @@ const Header = () => {
           <div className="flex pb-0 pt-5 relative z-10">
             <div className="flex pr-3">
               <Link
-                to="https://residente.mx"
+                to="/"
                 className="h-16 w-16 self-end object-contain bg-white rounded-full"
               >
                 <img
@@ -410,7 +410,7 @@ const Header = () => {
                   <div className="flex gap-1.5 items-center">
                     {!isSearchOpen ? (
                       <>
-                        <a href="https://residente.mx/b2b">
+                        <a href="/b2b">
                           <img
                             src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
                             className="object-contain h-4 w-12 b2b"
