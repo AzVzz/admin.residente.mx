@@ -364,7 +364,7 @@ const Header = () => {
 
                   <li>
                     <a
-                      href="/B2b"
+                      href="https://residente.mx/b2b"
                       className="block text-black font-semibold py-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -464,7 +464,7 @@ const Header = () => {
                     <div className="flex flex-col pr-2"></div>
                   </div>
                   <a
-                    href="/"
+                    href="https://residente.mx"
                     className="flex"
                     aria-label="Ir a inicio (Texto)"
                     title="Ir a inicio"
@@ -543,7 +543,7 @@ const Header = () => {
                   <div className="flex gap-1.5 items-center">
                     {!isSearchOpen ? (
                       <>
-                        <a href="/b2b">
+                        <a href="https://residente.mx/b2b">
                           <img
                             src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
                             className="object-contain h-4 w-12 b2b"
