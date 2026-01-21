@@ -470,7 +470,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
                 // ✅ Definir constantes
                 const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
-                const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bar", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
+                const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bares", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
                 
                 const subTipoLugar = data.sub_tipo_lugar;
                 const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
@@ -480,7 +480,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 if (subTipoLugar && subcategoriasFoodDrink.includes(subTipoLugar)) {
                   const mapeoSeccion = {
                     "Cafés": "Cafés",
-                    "Bares": "Bar",
+                    "Bares": "Bares",  // ✅ Corregido: era "Bar", ahora es "Bares"
                     "Postres": "Postres",
                     "Snacks": "Snacks",
                     "Bebidas": "Bebidas"
