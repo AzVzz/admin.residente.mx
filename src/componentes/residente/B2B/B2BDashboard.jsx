@@ -683,16 +683,14 @@ const B2BDashboard = () => {
                     Tráfico total del “Club Residente” en el mes de {analytics.mes} {analytics.anio}
                   </p>
                   {analytics.pdf_url ? (
-                    <a
+                    <button
                       href={analytics.pdf_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-black cursor-pointer hover:text-gray-700 block"
+                      className="text-[8px] text-black cursor-pointer bg-[#ED2224] text-white block px-2 py-0.5 rounded"
                     >
-                      liga a descarga pdf y numero ingresado manual.
-                      <br />
-                      Se actualiza cada dia 1 del mes
-                    </a>
+                      PDF Analytics
+                    </button>
                   ) : (
                     <p className="text-xs text-black">
                       liga a descarga pdf y numero ingresado manual.
