@@ -440,16 +440,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   );
                 }
 
-                // ✅ Si es Food & Drink con subcategoría, limpiar entradas antiguas y agregar las correctas
+                // ✅ Definir constantes
                 const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
-                // Secciones que deben ser limpiadas cuando se usa Food & Drink
                 const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bar", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
-
+                
                 const subTipoLugar = data.sub_tipo_lugar;
                 const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
+                const tipoLugar = data.tipo_lugar;
 
+                // ✅ CASO 1: Si es Food & Drink con subcategoría
                 if (subTipoLugar && subcategoriasFoodDrink.includes(subTipoLugar)) {
-                  // Mapeo de opciones del formulario a nombres de sección en BD
                   const mapeoSeccion = {
                     "Cafés": "Cafés",
                     "Bares": "Bar",
@@ -459,22 +459,21 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   };
                   const seccionFinal = mapeoSeccion[subTipoLugar] || subTipoLugar;
 
-                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink, secciones relacionadas Y ZONA
+                  // Eliminar entradas antiguas de Food & Drink, secciones relacionadas Y ZONA
                   const seccionesCategoriasLimpias = seccionesCategorias.filter(
                     item => !seccionesRelacionadasFoodDrink.includes(item.seccion) && item.seccion !== "Zona"
                   );
 
-                  // Limpiar el array original y copiar las entradas limpias
                   seccionesCategorias.length = 0;
                   seccionesCategoriasLimpias.forEach(item => seccionesCategorias.push(item));
 
-                  // Agregar entrada original Food & Drink
+                  // Agregar Food & Drink
                   seccionesCategorias.push({
                     seccion: "Food & Drink",
                     categoria: subTipoLugar
                   });
 
-                  // Agregar entradas con las zonas como categorías bajo la subcategoría
+                  // Agregar zonas bajo la subcategoría
                   if (Array.isArray(zonasSeleccionadas) && zonasSeleccionadas.length > 0) {
                     zonasSeleccionadas.forEach(zona => {
                       seccionesCategorias.push({
@@ -483,6 +482,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                       });
                     });
                   }
+                } 
+                // ✅ CASO 2: Si NO es Food & Drink (es Restaurante u otro), limpiar residuos de Food & Drink
+                else {
+                  // Eliminar cualquier entrada relacionada con Food & Drink que pudiera quedar de una edición anterior
+                  const seccionesCategoriasLimpias = seccionesCategorias.filter(
+                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion)
+                  );
+
+                  seccionesCategorias.length = 0;
+                  seccionesCategoriasLimpias.forEach(item => seccionesCategorias.push(item));
                 }
 
                 // Helper cleaning function
