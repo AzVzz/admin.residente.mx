@@ -518,7 +518,7 @@ const FormMainResidente = () => {
           // Mapeo de opciones del formulario Food & Drink a nombres de sección en BD
           const mapeoCategoria = {
             "Cafés": "Cafés",
-            "Bares": "Bar",
+            "Bares": "Bares",
             "Postres": "Postres",
             "Snacks": "Snacks",
             "Bebidas": "Bebidas"
