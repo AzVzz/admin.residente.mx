@@ -11,7 +11,10 @@ import {
   FaSearch,
   FaTimes,
   FaBars,
+  FaLinkedin
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { MdMailOutline } from "react-icons/md";
 import SearchResults from "./SearchResults";
 import { useAuth } from "./Context";
 
@@ -571,6 +574,12 @@ const Header = () => {
                         >
                           <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
+                        <a href="https://x.com/Residente_mty" target="_blank" rel="noopener noreferrer">
+                          <FaXTwitter className="w-4 h-4 text-black" />
+                        </a>
+                        <a href="https://www.linkedin.com/company/residente/" target="_blank" rel="noopener noreferrer">
+                          <FaLinkedin className="w-4 h-4 text-black" />
+                        </a>
                         <a
                           href="tel:+528114186985"
                           target="_blank"
@@ -579,15 +588,8 @@ const Header = () => {
                           <FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!">
-                          <FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" />
+                          <MdMailOutline className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
-                        <button
-                          onClick={handleSearchToggle}
-                          className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
-                          title="Buscar"
-                        >
-                          <FaSearch className="w-4 h-4" />
-                        </button>
                       </>
                     ) : (
                       <div className="relative w-full max-w-md bg-white shadow-sm">
