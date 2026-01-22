@@ -163,13 +163,15 @@ const ListaRestaurantes = () => {
               {categoria.restaurantes.length > 0 ? (
                 <ul>
                   {categoria.restaurantes.map((restaurante, i) => {
-                    const slug = restaurante.nombre_restaurante
+                    const slug = restaurante.slug || restaurante.nombre_restaurante
                       .toLowerCase()
                       .normalize('NFD')
                       .replace(/[\u0300-\u036f]/g, '')
                       .replace(/ñ/g, 'n')
                       .replace(/\s+/g, '-')
-                      .replace(/[^a-z0-9-]/g, '');
+                      .replace(/[^a-z0-9-]/g, '')
+                      .replace(/-+/g, '-')        // colapsa multiples guiones
+                      .replace(/^-+|-+$/g, '');   // quita guiones al inicio/fin
 
                     return (
                       <li key={i} className={`flex items-center justify-end gap-2 ${restaurante.status === 0 ? 'opacity-75' : ''}`}>
