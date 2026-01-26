@@ -129,6 +129,7 @@ const BuscadorDashboard = () => {
                                             <th className="pb-4 font-medium text-center">Frecuencia</th>
                                             <th className="pb-4 font-medium text-center">Boost</th>
                                             <th className="pb-4 font-medium text-right">Total</th>
+                                            <th className="pb-4 font-medium text-right">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
@@ -141,6 +142,25 @@ const BuscadorDashboard = () => {
                                                 <td className="py-4 text-center text-gray-600">{q.search_count}</td>
                                                 <td className="py-4 text-center text-gray-400 italic">+{q.manual_count_boost}</td>
                                                 <td className="py-4 text-right font-black">{q.search_count + q.manual_count_boost}</td>
+                                                <td className="py-4 text-right">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditItem(q);
+                                                            setFormData({
+                                                                query: q.query,
+                                                                is_recommended: q.is_recommended,
+                                                                recommendation_order: q.recommendation_order,
+                                                                is_manual: q.is_manual,
+                                                                manual_count_boost: q.manual_count_boost,
+                                                                is_hidden: q.is_hidden || false
+                                                            });
+                                                            setShowModal(true);
+                                                        }}
+                                                        className="text-xs font-bold bg-gray-100 hover:bg-black hover:text-white px-3 py-1 rounded-full transition-colors"
+                                                    >
+                                                        Gestionar
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -317,7 +337,10 @@ const BuscadorDashboard = () => {
                                         type="number"
                                         className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold"
                                         value={formData.recommendation_order}
-                                        onChange={(e) => setFormData({ ...formData, recommendation_order: parseInt(e.target.value) })}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setFormData({ ...formData, recommendation_order: val === '' ? '' : parseInt(val) || 0 });
+                                        }}
                                     />
                                 </div>
                             )}
@@ -327,7 +350,10 @@ const BuscadorDashboard = () => {
                                     type="number"
                                     className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold"
                                     value={formData.manual_count_boost}
-                                    onChange={(e) => setFormData({ ...formData, manual_count_boost: parseInt(e.target.value) })}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFormData({ ...formData, manual_count_boost: val === '' ? '' : parseInt(val) || 0 });
+                                    }}
                                 />
                             </div>
                             <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
