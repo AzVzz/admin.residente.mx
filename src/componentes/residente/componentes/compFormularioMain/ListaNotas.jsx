@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
-import { FaUser, FaStore, FaStar } from "react-icons/fa6";
+import { FaUser, FaStore, FaStar, FaMagnifyingGlass } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -50,6 +50,7 @@ const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
 const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboard.jsx"));
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
+const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -657,6 +658,11 @@ const ListaNotas = () => {
       key: "todob2b",
       label: "B2B",
       icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "buscador",
+      label: "Buscador",
+      icon: <FaMagnifyingGlass className="mr-2" />,
     }
   ];
 
@@ -681,7 +687,8 @@ const ListaNotas = () => {
             usuario?.rol !== "colaborador") ||
           (esResidente && option.key === "restaurante_link") ||
           (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-          (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
+          (usuario?.rol === "residente" && option.key === "codigos_admin") || // Only for residente role
+          (usuario?.rol === "residente" && option.key === "buscador")) // Only for residente role
     );
 
   if (cargando) {
@@ -1280,6 +1287,13 @@ const ListaNotas = () => {
           <Suspense fallback={<LazyFallback />}>
             <div className="w-full">
               <TodoB2b />
+            </div>
+          </Suspense>
+        )}
+        {vistaActiva === "buscador" && (
+          <Suspense fallback={<LazyFallback />}>
+            <div className="w-full">
+              <BuscadorDashboard />
             </div>
           </Suspense>
         )}

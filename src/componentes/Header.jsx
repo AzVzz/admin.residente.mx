@@ -100,6 +100,17 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
                 </Link>
               )}
 
+              {/* Opción: Buscador Dashboard (solo Residente) */}
+              {usuario?.rol === "residente" && (
+                <Link
+                  to="/dashboard?vista=buscador"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Admin Buscador
+                </Link>
+              )}
+
               {/* Opción: Cerrar sesión */}
               <button
                 onClick={handleLogout}

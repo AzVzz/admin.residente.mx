@@ -5,6 +5,8 @@ import FormMain from "./FormMain";
 import { Dialog, Transition } from "@headlessui/react";
 import { FaArrowLeft } from "react-icons/fa";
 
+import { urlApi } from "../../../api/url";
+
 const RegistroB2BConPlanes = () => {
   const [searchParams] = useSearchParams();
   const [planSeleccionado, setPlanSeleccionado] = useState(null);
@@ -29,7 +31,7 @@ const RegistroB2BConPlanes = () => {
     const fetchPrecios = async () => {
       setLoadingPrecios(true);
       try {
-        const apiUrl = "https://admin.residente.mx/api/stripe/precios";
+        const apiUrl = `${urlApi}api/stripe/precios`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -42,7 +44,7 @@ const RegistroB2BConPlanes = () => {
           setPreciosDisponibles(data.precios);
         }
       } catch (error) {
-        console.warn("Error obteniendo precios del servidor:", error.message);
+        console.error("Error obteniendo precios del servidor:", error);
       } finally {
         setLoadingPrecios(false);
       }
