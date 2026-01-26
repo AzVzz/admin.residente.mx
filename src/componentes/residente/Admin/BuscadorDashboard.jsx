@@ -11,6 +11,8 @@ const BuscadorDashboard = () => {
     const [activeTab, setActiveTab] = useState('stats');
     const [showModal, setShowModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
 
     // Form state
     const [formData, setFormData] = useState({
@@ -133,10 +135,11 @@ const BuscadorDashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {stats?.topQueries?.map((q, idx) => (
+
+                                        {stats?.topQueries?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((q, idx) => (
                                             <tr key={q.id} className="group hover:bg-gray-50 transition-colors">
                                                 <td className="py-4 font-semibold text-gray-800">
-                                                    {idx + 1}. {q.query}
+                                                    {(currentPage - 1) * itemsPerPage + idx + 1}. {q.query}
                                                     {q.is_recommended && <span className="ml-2 bg-yellow-400 text-[10px] px-2 py-0.5 rounded-full">REC</span>}
                                                 </td>
                                                 <td className="py-4 text-center text-gray-600">{q.search_count}</td>
@@ -166,6 +169,28 @@ const BuscadorDashboard = () => {
                                     </tbody>
                                 </table>
                             </div>
+                            {/* Pagination Controls */}
+                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                                <span className="text-xs text-gray-400 uppercase font-bold">
+                                    Página {currentPage} de {Math.ceil((stats?.topQueries?.length || 0) / itemsPerPage)}
+                                </span>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 text-xs font-bold uppercase rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                                    >
+                                        Anterior
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil((stats?.topQueries?.length || 0) / itemsPerPage)))}
+                                        disabled={currentPage >= Math.ceil((stats?.topQueries?.length || 0) / itemsPerPage)}
+                                        className="px-3 py-1 text-xs font-bold uppercase rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                                    >
+                                        Siguiente
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Engagement Stats */}
@@ -188,16 +213,7 @@ const BuscadorDashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-zinc-900 text-white p-6 rounded-2xl shadow-xl">
-                                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 italic">
-                                    <span className="text-2xl text-yellow-400">💡</span> Tip Residente
-                                </h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">
-                                    Si notas muchas búsquedas de un término que <span className="text-white font-bold">no arroja resultados</span>,
-                                    considera crear una nota o receta sobre ello para capturar ese tráfico.
-                                    O usa el boost para posicionar tus recomendaciones preferidas.
-                                </p>
-                            </div>
+
                         </div>
                     </div>
                 )}
