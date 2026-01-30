@@ -31,6 +31,8 @@ import FotosLugar from "./componentes/FotosLugar";
 import Colaboraciones from "./componentes/Colaboraciones";
 import NuevasSeccionesCategorias from "./componentes/NuevasSeccionesCategorias";
 import FormularioPromoExt from "../promociones/componentes/FormularioPromoExt.jsx";
+import { useGeminiSEO } from "../../hooks/useGeminiSEO.js";
+import SmartTagsInput from "../residente/componentes/SmartTagsInput.jsx";
 
 // Helper to get a stable ID for new forms across page reloads
 const getNewFormId = () => {
@@ -62,6 +64,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }, [idNegocio]);
 
   const { usuario, token } = useAuth();
+  const { optimizarRestaurante, loading: geminiLoading } = useGeminiSEO();
   const { loadedData, saveFormData, removeFormData } = useFormStorage(
     formId,
     { disabled: true } // Deshabilitado para evitar persistencia no deseada
@@ -71,7 +74,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Estado para verificar si el usuario B2B ya tiene un restaurante
   // Inicializar en true si es B2B en modo creación para que verifique primero
   const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
-    usuario?.rol === "b2b" && !esEdicion
+    (usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion
   );
   const [tieneRestaurante, setTieneRestaurante] = useState(false);
   const [error403, setError403] = useState(false);
@@ -110,6 +113,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       seo_title: "",
       seo_keyword: "",
       meta_description: "",
+      meta_description: "",
+      smart_tags: [],
       ...restaurante,
     };
 
@@ -248,6 +253,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
   const { watch, reset, setValue } = methods;
 
+  // Estados para Gemini AI
+
+
   // Efecto para resetear el formulario cuando los datos del restaurante (props) cambian.
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
@@ -262,7 +270,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     }
   }, [loadedData, reset]);
 
-  // --- AUTO-GENERACIÓN SEO ---
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  /*
   const nombreRestaurante = watch("nombre_restaurante");
   const tipoRestaurante = watch("tipo_restaurante");
   const comida = watch("comida");
@@ -309,6 +318,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     setValue("seo_keyword", generatedKeyword);
     setValue("seo_alt_text", generatedAltText);
   }, [nombreRestaurante, tipoRestaurante, comida, sucursales, setValue]);
+  */
   // ---------------------------
 
   // Auto-guardado: Suscribirse a cambios en el formulario
@@ -321,8 +331,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
   // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
   useEffect(() => {
-    // Solo verificar si es usuario B2B y NO está en modo edición
-    if (usuario?.rol === "b2b" && !esEdicion && token) {
+    // Solo verificar si es usuario B2B o Vendedor y NO está en modo edición
+    if ((usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion && token) {
       const verificarRestaurante = async () => {
         setLoadingRestauranteCheck(true);
         try {
@@ -378,7 +388,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }
 
   // Verificar roles permitidos
-  if (usuario && usuario.rol !== "residente" && usuario.rol !== "b2b") {
+  if (usuario && usuario.rol !== "residente" && usuario.rol !== "b2b" && usuario.rol !== "vendedor") {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
@@ -387,15 +397,15 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
           </h2>
           <p className="text-gray-600">
             No tienes permisos para crear restaurantes. <br />
-            Solo usuarios Residentes y B2B pueden acceder a esta sección.
+            Solo usuarios Residentes, B2B y Vendedores pueden acceder a esta sección.
           </p>
         </div>
       </div>
     );
   }
 
-  // Si es usuario B2B y ya tiene un restaurante, mostrar mensaje
-  if ((usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) || error403) {
+  // Si es usuario B2B o Vendedor y ya tiene un restaurante, mostrar mensaje
+  if (((usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion && tieneRestaurante) || error403) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
@@ -471,7 +481,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 // ✅ Definir constantes
                 const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
                 const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bares", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
-                
+
                 const subTipoLugar = data.sub_tipo_lugar;
                 const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
                 const tipoLugar = data.tipo_lugar;
@@ -510,7 +520,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                       });
                     });
                   }
-                } 
+                }
                 // ✅ CASO 2: Si NO es Food & Drink (es Restaurante u otro), limpiar residuos de Food & Drink
                 else {
                   // Eliminar cualquier entrada relacionada con Food & Drink que pudiera quedar de una edición anterior
@@ -589,7 +599,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   seo_alt_text: data.seo_alt_text,
                   seo_title: data.seo_title,
                   seo_keyword: data.seo_keyword,
+                  seo_keyword: data.seo_keyword,
                   meta_description: data.meta_description,
+                  smart_tags: data.smart_tags,
                 };
 
                 // Construir arrays estructurados
@@ -793,6 +805,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 />
                 {/* <TipoRestaurante /> */}
                 <Categorias />
+
+
+
                 <RedesSociales />
                 <OcasionIdeal />
                 <Sucursales />
@@ -856,8 +871,45 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
 
+                {/* Sección Smart Tags (AI) */}
+                <div className="form-smart-tags" style={{ marginTop: '20px' }}>
+                  <SmartTagsInput
+                    value={methods.watch("smart_tags")}
+                    onChange={(tags) => methods.setValue("smart_tags", tags)}
+                    isGenerating={geminiLoading}
+                    onGenerateAI={async () => {
+                      const datosRestaurante = methods.getValues();
 
-                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+                      // Validaciones minimas
+                      if (!datosRestaurante.nombre_restaurante) {
+                        alert("Por favor ingresa al menos el nombre del restaurante.");
+                        return;
+                      }
+
+                      try {
+                        const seo = await optimizarRestaurante({
+                          nombre_restaurante: datosRestaurante.nombre_restaurante,
+                          tipo_comida: datosRestaurante.tipo_restaurante || datosRestaurante.comida || "",
+                          historia: datosRestaurante.historia || "",
+                          ubicacion: datosRestaurante.ubicacion || "",
+                          especialidades: datosRestaurante.platillo_mas_vendido || ""
+                        });
+
+                        if (seo) {
+                          // Actualizar estado del formulario
+                          methods.setValue("smart_tags", seo.smart_tags || methods.getValues("smart_tags"));
+                          methods.setValue("seo_title", seo.seo_title || methods.getValues("seo_title"));
+                          methods.setValue("seo_keyword", seo.seo_keyword || methods.getValues("seo_keyword"));
+                          methods.setValue("meta_description", seo.meta_description || methods.getValues("meta_description"));
+                          methods.setValue("seo_alt_text", seo.seo_alt_text || methods.getValues("seo_alt_text"));
+                        }
+                      } catch (e) {
+                        console.error("Error generando tags:", e);
+                        alert("Error al generar con IA");
+                      }
+                    }}
+                  />
+                </div>
                 <div className="form-seo" style={{ display: "none" }}>
                   <fieldset>
                     <legend>SEO Metadata (Opcional)</legend>

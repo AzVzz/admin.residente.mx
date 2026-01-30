@@ -9,10 +9,32 @@ import FormularioPromoExt from './componentes/FormularioPromoExt';
 import { cuponCrear } from '../../componentes/api/cuponesGet';
 import { restaurantesBasicosGet } from '../../componentes/api/restaurantesBasicosGet.js';
 import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
+import SmartTagsInput from '../residente/componentes/SmartTagsInput.jsx';
+import { useGeminiSEO } from '../../hooks/useGeminiSEO.js';
 
 const PromoMain = () => {
     const { usuario, token } = useAuth();
     const navigate = useNavigate();
+
+    // Verificar roles permitidos (Admin, B2B y Vendedor)
+    const rolActual = usuario?.rol?.toLowerCase();
+    const esAutorizado = rolActual === "residente" || rolActual === "b2b" || rolActual === "vendedor";
+
+    if (usuario && !esAutorizado) {
+        return (
+            <div className="flex items-center justify-center h-[50vh]">
+                <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                        Acceso Restringido
+                    </h2>
+                    <p className="text-gray-600">
+                        No tienes permisos para crear cupones. <br />
+                        Solo usuarios Residentes, B2B y Vendedores pueden acceder a esta sección.
+                    </p>
+                </div>
+            </div>
+        );
+    }
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
@@ -28,7 +50,10 @@ const PromoMain = () => {
         seo_alt_text: "",
         seo_title: "",
         seo_keyword: "",
-        meta_description: ""
+        seo_title: "",
+        seo_keyword: "",
+        meta_description: "",
+        smart_tags: []
     });
 
     const [selectedStickers, setSelectedStickers] = useState([]);
@@ -40,6 +65,9 @@ const PromoMain = () => {
     const [selectedRestauranteId, setSelectedRestauranteId] = useState("");
     const [restauranteInfo, setRestauranteInfo] = useState(null);
     const ticketRef = useRef(null);
+
+    // AI Hook
+    const { optimizarCupon, loading: geminiLoading } = useGeminiSEO();
 
     useEffect(() => {
         restaurantesBasicosGet()
@@ -58,7 +86,8 @@ const PromoMain = () => {
             .catch(err => console.error("Error cargando restaurantes:", err));
     }, []);
 
-    // --- AUTO-GENERACIÓN SEO (Cupones) ---
+    // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+    /*
     useEffect(() => {
         const { promoName, restaurantName, promoSubtitle, descPromo, fechaValidez } = formData;
 
@@ -94,6 +123,7 @@ const PromoMain = () => {
         });
 
     }, [formData.promoName, formData.restaurantName, formData.promoSubtitle, formData.descPromo, formData.fechaValidez]);
+    */
     // -------------------------------------
 
     const handleRestauranteChange = (e) => {
@@ -267,7 +297,9 @@ const PromoMain = () => {
             seo_alt_text: formData.seo_alt_text,
             seo_title: formData.seo_title,
             seo_keyword: formData.seo_keyword,
-            meta_description: formData.meta_description
+            seo_keyword: formData.seo_keyword,
+            meta_description: formData.meta_description,
+            smart_tags: formData.smart_tags || []
         };
     };
 
@@ -339,6 +371,9 @@ const PromoMain = () => {
                     selectedRestauranteId={selectedRestauranteId}
                     onRestauranteChange={handleRestauranteChange}
                 />
+
+
+
                 <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col">
                     {/* Mensajes de éxito/error flotantes con transición */}
                     {(saveSuccess || saveError) && (
@@ -386,13 +421,54 @@ const PromoMain = () => {
                     </div>
                 </div>
             </div>
+
             <div className="pt-4">
                 <FormularioPromoExt
                     stickerSeleccionado={selectedStickers}
                     onStickerSelect={handleStickerSelect}
                 />
             </div>
-        </div>
+
+            {/* Smart Tags Section */}
+            <div className="pt-4">
+                <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-300">
+                    <SmartTagsInput
+                        value={formData.smart_tags}
+                        onChange={(tags) => setFormData(prev => ({ ...prev, smart_tags: tags }))}
+                        isGenerating={geminiLoading}
+                        onGenerateAI={async () => {
+                            if (!formData.restaurantName || !formData.promoName) {
+                                alert("Ingresa el nombre del restaurante y de la promo para generar tags.");
+                                return;
+                            }
+                            try {
+                                const seo = await optimizarCupon({
+                                    nombre_restaurante: formData.restaurantName,
+                                    titulo: formData.promoName,
+                                    subtitulo: formData.promoSubtitle,
+                                    descripcion: formData.descPromo,
+                                    fecha_validez: formData.fechaValidez
+                                });
+
+                                if (seo) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        smart_tags: seo.smart_tags || prev.smart_tags,
+                                        seo_title: seo.seo_title || prev.seo_title,
+                                        seo_keyword: seo.seo_keyword || prev.seo_keyword,
+                                        meta_description: seo.meta_description || prev.meta_description,
+                                        seo_alt_text: seo.seo_alt_text || prev.seo_alt_text
+                                    }));
+                                }
+                            } catch (e) {
+                                console.error("Error optimizando cupón:", e);
+                                alert("Error generando tags IA");
+                            }
+                        }}
+                    />
+                </div>
+            </div>
+        </div >
     )
 }
 

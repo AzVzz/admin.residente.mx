@@ -5,6 +5,7 @@ import { useAuth } from "../../../Context";
 import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
+import SmartTagsInput from "../SmartTagsInput.jsx";
 
 // Límites de caracteres según el modelo Recetas.js
 const CHAR_LIMITS = {
@@ -70,7 +71,9 @@ export default function FormularioReceta({
     seo_title: "",
     seo_keyword: "",
     meta_description: "",
+    meta_description: "",
     destacada_invitado: 0,
+    smart_tags: [],
   });
 
   const [cargando, setCargando] = useState(false);
@@ -123,7 +126,9 @@ export default function FormularioReceta({
         seo_title: receta.seo_title || "",
         seo_keyword: receta.seo_keyword || "",
         meta_description: receta.meta_description || "",
+        meta_description: receta.meta_description || "",
         destacada_invitado: receta.destacada_invitado || 0,
+        smart_tags: receta.smart_tags || [],
       });
     } else {
       // Resetear si no hay receta (modo crear)
@@ -146,7 +151,9 @@ export default function FormularioReceta({
         seo_title: "",
         seo_keyword: "",
         meta_description: "",
+        meta_description: "",
         destacada_invitado: 0,
+        smart_tags: [],
       });
     }
   }, [receta]);
@@ -173,7 +180,8 @@ export default function FormularioReceta({
     }
   };
 
-  // --- AUTO-GENERACIÓN SEO (Recetas) ---
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  /*
   // NOTA: Solo ejecutar para recetas NUEVAS, no cuando se está editando
   useEffect(() => {
     // Si estamos editando una receta existente, NO sobrescribir los campos SEO
@@ -203,7 +211,6 @@ export default function FormularioReceta({
       ) {
         return prev;
       }
-
       return {
         ...prev,
         seo_title: newSeoTitle,
@@ -212,13 +219,9 @@ export default function FormularioReceta({
         meta_description: newMetaDesc,
       };
     });
-  }, [
-    receta,
-    formData.titulo,
-    formData.categoria,
-    formData.descripcion,
-    formData.autor,
-  ]);
+  }, [formData.titulo, formData.categoria, formData.descripcion, formData.autor, receta]);
+  */
+
   // -------------------------------------
 
   // Enviar datos
@@ -232,6 +235,11 @@ export default function FormularioReceta({
       // Primero agregar todos los campos de texto
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "imagen") return; // Saltar imagen por ahora
+        // Especial handling for smart_tags (array to JSON string)
+        if (key === "smart_tags") {
+          data.append(key, JSON.stringify(value));
+          return;
+        }
         // Enviar todos los campos, incluyendo vacíos (para poder borrar valores)
         data.append(key, value !== null ? value : "");
       });
@@ -660,53 +668,59 @@ export default function FormularioReceta({
         </div>
 
 
-        {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
-        {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={async () => {
-                if (!formData.titulo) {
-                  alert('Necesitas al menos un título para optimizar con IA');
-                  return;
-                }
 
-                try {
-                  const optimizado = await optimizarReceta({
-                    titulo: formData.titulo,
-                    tipo_receta: formData.tipo_receta,
-                    autor: formData.autor,
-                    descripcion: formData.descripcion,
-                    ingredientes: formData.ingredientes,
-                    preparacion: formData.preparacion,
-                    porciones: formData.porciones,
-                    tiempo: formData.tiempo,
-                    categoria: formData.categoria
-                  });
+        {/* Botón para optimizar con IA */}
+        <div className="mb-6 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!formData.titulo) {
+                alert('Necesitas al menos un título para optimizar con IA');
+                return;
+              }
 
-                  setSeoOptimizado(optimizado);
-                  setShowSEOComparison(true);
-                } catch (error) {
-                  console.error('Error:', error);
-                  alert('Error al optimizar con IA: ' + error.message);
-                }
-              }}
-              disabled={geminiLoading || !formData.titulo}
-              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              <FaRobot className="text-2xl" />
-              <span className="text-lg">
-                {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Receta y SEO con Gemini'}
-              </span>
-            </button>
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              La IA mejorará tu título, descripción y campos SEO automáticamente
-            </p>
-          </div>
-        )}
+              try {
+                const optimizado = await optimizarReceta({
+                  titulo: formData.titulo,
+                  tipo_receta: formData.tipo_receta,
+                  autor: formData.autor,
+                  descripcion: formData.descripcion,
+                  ingredientes: formData.ingredientes,
+                  preparacion: formData.preparacion,
+                  porciones: formData.porciones,
+                  tiempo: formData.tiempo,
+                  categoria: formData.categoria
+                });
 
+                setSeoOptimizado(optimizado);
+                setShowSEOComparison(true);
+              } catch (error) {
+                console.error('Error:', error);
+                alert('Error al optimizar con IA: ' + error.message);
+              }
+            }}
+            disabled={geminiLoading || !formData.titulo}
+            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <FaRobot className="text-2xl" />
+            <span className="text-lg">
+              {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Contenido y SEO con Gemini'}
+            </span>
+          </button>
+          <p className="text-sm text-gray-500 mt-2 text-center">
+            La IA mejorará tu contenido, campos SEO y generará Smart Tags automáticamente
+          </p>
+        </div>
 
-        {/* Sección SEO Metadata */}
+        {/* Smart Tags Input (Debajo del botón) */}
+        <div className="mb-4">
+          <SmartTagsInput
+            value={formData.smart_tags}
+            onChange={(tags) => setFormData({ ...formData, smart_tags: tags })}
+            isGenerating={geminiLoading}
+            hideGenerationButton={true}
+          />
+        </div>
         <div className="border-t pt-4 mt-6">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-xl font-bold">SEO Metadata (Opcional)</h2>
@@ -881,7 +895,9 @@ export default function FormularioReceta({
             seo_title: formData.seo_title,
             seo_keyword: formData.seo_keyword,
             meta_description: formData.meta_description,
-            seo_alt_text: formData.seo_alt_text
+            meta_description: formData.meta_description,
+            seo_alt_text: formData.seo_alt_text,
+            smart_tags: formData.smart_tags
           }}
           optimizado={seoOptimizado}
           onSelect={(camposSeleccionados) => {
@@ -893,6 +909,7 @@ export default function FormularioReceta({
             if (camposSeleccionados.seo_keyword) nuevoFormData.seo_keyword = seoOptimizado.seo_keyword;
             if (camposSeleccionados.meta_description) nuevoFormData.meta_description = seoOptimizado.meta_description;
             if (camposSeleccionados.seo_alt_text) nuevoFormData.seo_alt_text = seoOptimizado.seo_alt_text;
+            if (camposSeleccionados.smart_tags) nuevoFormData.smart_tags = seoOptimizado.smart_tags;
             setFormData(nuevoFormData);
             setShowSEOComparison(false);
           }}

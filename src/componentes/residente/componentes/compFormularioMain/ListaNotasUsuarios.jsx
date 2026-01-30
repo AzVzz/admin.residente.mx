@@ -62,6 +62,9 @@ const ListaNotasUsuarios = () => {
     nombre_responsable: '',
     email_responsable: '',
     telefono_responsable: '',
+    // Campos Vendedor
+    nombre_completo: '',
+    telefono: '',
     nombre_comercial: '',
     razon_social: '',
     rfc: '',
@@ -154,6 +157,7 @@ const ListaNotasUsuarios = () => {
 
       if (value === 'todos') nuevoRol = 'residente';
       else if (value === 'b2b') nuevoRol = 'b2b';
+      else if (value === 'vendedor') nuevoRol = 'vendedor';
       else if (value === 'mama-de-rocco') nuevoRol = 'colaborador';
       else nuevoRol = 'invitado'; // Por defecto para nuevo cliente y otros clientes existentes
 
@@ -368,7 +372,9 @@ const ListaNotasUsuarios = () => {
         estado: formData.estado,
         restaurante_id: null,
         enviar_correo: false,  // No enviar correo al crear usuario desde admin
-        logo_url: formData.logo_url || null  // Incluir logo_url si existe
+        logo_url: formData.logo_url || null,  // Incluir logo_url si existe
+        nombre_completo: formData.nombre_completo, // Para Vendedor
+        telefono: formData.telefono // Para Vendedor
       };
 
       // Validación final antes de enviar: asegurar que correo nunca sea null o undefined
@@ -747,10 +753,11 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                     <option value="todos">Administrador</option>
                     <option value="mama-de-rocco">Mamá de Rocco</option>
                     <option value="b2b">Usuario B2B</option>
+                    <option value="vendedor">Vendedor</option>
 
                     {/* Mostrar permisos existentes que no están en las opciones predefinidas */}
                     {permisosExistentes
-                      .filter(permiso => !['todos', 'mama-de-rocco', 'b2b'].includes(permiso))
+                      .filter(permiso => !['todos', 'mama-de-rocco', 'b2b', 'vendedor'].includes(permiso))
                       .map(permiso => (
                         <option key={permiso} value={permiso}>
                           {formatearPermiso(permiso)}
@@ -774,6 +781,35 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
                 </p>
               </div>
+
+              {formData.permisos === 'vendedor' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre Completo (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="nombre_completo"
+                      value={formData.nombre_completo}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Teléfono (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              )}
 
               {formData.permisos === 'nuevo-cliente' && (
                 <div className="md:col-span-2">
@@ -858,6 +894,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                   <option value="colaborador">Colaborador</option>
                   <option value="invitado">Invitado</option>
                   <option value="b2b">B2B</option>
+                  <option value="vendedor">Vendedor</option>
                 </select>
               </div>
 

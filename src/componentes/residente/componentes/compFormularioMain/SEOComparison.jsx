@@ -10,7 +10,8 @@ const SEOComparison = ({ original, optimizado, onSelect, onClose, tipo = 'nota' 
         seo_title: false,
         seo_keyword: false,
         meta_description: false,
-        seo_alt_text: false
+        seo_alt_text: false,
+        smart_tags: false
     });
 
     const toggleCampo = (campo) => {
@@ -142,6 +143,21 @@ const SEOComparison = ({ original, optimizado, onSelect, onClose, tipo = 'nota' 
                                 </p>
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Smart Tags</label>
+                                <div className="text-sm text-gray-800 bg-white p-3 rounded border border-gray-300 flex flex-wrap gap-1">
+                                    {original.smart_tags && original.smart_tags.length > 0 ? (
+                                        original.smart_tags.map((tag, i) => (
+                                            <span key={i} className="bg-gray-200 px-2 py-1 rounded-full text-xs">
+                                                {tag}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <em className="text-gray-400">Sin tags</em>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="border-t pt-4 mt-4">
                                 <h4 className="text-sm font-bold text-gray-700 mb-3">Campos SEO</h4>
                                 <div className="space-y-3">
@@ -202,6 +218,20 @@ const SEOComparison = ({ original, optimizado, onSelect, onClose, tipo = 'nota' 
                                 <p className="text-sm text-gray-900 bg-white p-3 rounded border-2 border-purple-300 font-medium max-h-32 overflow-y-auto">
                                     {optimizado.descripcion}
                                 </p>
+                            </CheckboxField>
+
+                            <CheckboxField campo="smart_tags" label="Smart Tags">
+                                <div className="text-sm text-gray-900 bg-white p-3 rounded border-2 border-purple-300 font-medium flex flex-wrap gap-1">
+                                    {optimizado.smart_tags && optimizado.smart_tags.length > 0 ? (
+                                        optimizado.smart_tags.map((tag, i) => (
+                                            <span key={i} className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-bold">
+                                                {tag}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <em className="text-gray-400">No se generaron tags</em>
+                                    )}
+                                </div>
                             </CheckboxField>
 
                             <div className="border-t border-purple-300 pt-4 mt-4">

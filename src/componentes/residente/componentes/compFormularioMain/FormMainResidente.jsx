@@ -35,6 +35,7 @@ import DetallePost from "../DetallePost.jsx";
 import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
+import SmartTagsInput from "../SmartTagsInput.jsx";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -122,6 +123,8 @@ const FormMainResidente = () => {
       seo_title: "",
       seo_keyword: "",
       meta_description: "",
+      meta_description: "",
+      smart_tags: [],
       destacada_invitado: 0,
     },
   });
@@ -147,6 +150,55 @@ const FormMainResidente = () => {
   const { optimizarNota, loading: geminiLoading } = useGeminiSEO();
   const [showSEOComparison, setShowSEOComparison] = useState(false);
   const [seoOptimizado, setSeoOptimizado] = useState(null);
+
+  // Handler para generar tags/SEO con AI MANUALMENTE (botón en SmartTagsInput)
+  const handleGenerateAI = async () => {
+    // Validar que haya contenido mínimo
+    const titulo = watch("titulo");
+    const contenido = watch("contenido");
+
+    if (!titulo || isContenidoVacio(contenido)) {
+      alert("Por favor agrega un título y contenido antes de generar con IA.");
+      return;
+    }
+
+    try {
+      const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
+      const nombreRestaurante = watch("nombre_restaurante");
+      const subtitulo = watch("subtitulo");
+
+      const notaData = {
+        titulo,
+        subtitulo,
+        descripcion: contenido, // El backend espera 'descripcion'
+        autor: watch("autor"),
+        tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario || "Nota",
+        nombre_restaurante
+      };
+
+      const seoData = await optimizarNota(notaData);
+
+      if (seoData) {
+        // Actualizar Smart Tags
+        if (seoData.smart_tags && Array.isArray(seoData.smart_tags)) {
+          setValue("smart_tags", seoData.smart_tags);
+        }
+
+        // Actualizar campos SEO si están vacíos o si el usuario confirma (podríamos agregar lógica acá)
+        // Por ahora, actualizamos los campos SEO para mantener consistencia con la funcionalidad existente
+        setValue("seo_title", seoData.seo_title);
+        setValue("meta_description", seoData.meta_description);
+        setValue("seo_keyword", seoData.seo_keyword);
+        setValue("seo_alt_text", seoData.seo_alt_text);
+
+        // Opcional: Mostrar feedback
+        setShowSEOComparison(true); // Reutilizamos el modal de comparación si existe o creamos uno simple
+      }
+    } catch (error) {
+      console.error("Error generando IA:", error);
+      alert("Error generando etiquetas inteligente: " + error.message);
+    }
+  };
 
   // Watch para mostrar en tiempo real las notas editandose:
   const titulo = watch("titulo");
@@ -210,7 +262,10 @@ const FormMainResidente = () => {
   }, [faltanCamposObligatorios, setValue]);
 
   // --- AUTO-GENERACIÓN SEO (Notas) ---
-  // NOTA: Solo ejecutar para notas NUEVAS, no cuando se está editando
+  /* 
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  // Se comenta para dejar que el Backend (Gemini) se encargue de esto.
+  
   const zonas = watch("zonas");
   const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
 
@@ -268,6 +323,7 @@ const FormMainResidente = () => {
     tipoNotaUsuario,
     setValue,
   ]);
+  */
   // -----------------------------------
 
   useEffect(() => {
@@ -448,7 +504,9 @@ const FormMainResidente = () => {
             meta_description: data.meta_description || "",
             destacada_invitado: data.destacada_invitado || 0,
             programarInstafoto: !!data.programar_insta_imagen,
+            programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
+            smart_tags: data.smart_tags || [],
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -570,7 +628,9 @@ const FormMainResidente = () => {
         seo_alt_text: data.seo_alt_text,
         seo_title: data.seo_title,
         seo_keyword: data.seo_keyword,
+        seo_keyword: data.seo_keyword,
         meta_description: data.meta_description,
+        smart_tags: data.smart_tags,
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"
@@ -700,6 +760,8 @@ const FormMainResidente = () => {
                     onInstafotoEliminada={() => setInstafotoActual(null)}
                   />
                 </div>
+
+
 
                 <CategoriasTipoNotaSelector
                   tipoDeNota={tipoDeNota}
@@ -924,7 +986,7 @@ const FormMainResidente = () => {
 
                 {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
                 {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
-                  <div className="mb-6 pb-4">
+                  <><div className="mb-6 pb-4">
                     <button
                       type="button"
                       onClick={async () => {
@@ -959,10 +1021,22 @@ const FormMainResidente = () => {
                       </span>
                     </button>
                     <p className="text-sm text-gray-500 mt-2 text-center">
-                      La IA mejorará tu título, subtítulo, descripción y campos SEO automáticamente
+                      La IA mejorará tu título, subtítulo, descripción, campos SEO y generará Smart Tags automáticamente
                     </p>
                   </div>
-                )}
+
+                    {/* Smart Tags Input (Debajo del botón) */}
+                    <div className="mb-6 pb-4">
+                      <SmartTagsInput
+                        value={watch("smart_tags")}
+                        onChange={(tags) => setValue("smart_tags", tags)}
+                        onGenerateAI={handleGenerateAI} // Fallback, but hidden
+                        isGenerating={geminiLoading}
+                        hideGenerationButton={true}
+                      />
+                    </div>
+
+                  </>)}
 
 
                 {/* Sección SEO Metadata */}
@@ -1142,7 +1216,10 @@ const FormMainResidente = () => {
             seo_title: watch('seo_title'),
             seo_keyword: watch('seo_keyword'),
             meta_description: watch('meta_description'),
-            seo_alt_text: watch('seo_alt_text')
+            seo_keyword: watch('seo_keyword'),
+            meta_description: watch('meta_description'),
+            seo_alt_text: watch('seo_alt_text'),
+            smart_tags: watch('smart_tags')
           }}
           optimizado={seoOptimizado}
           onSelect={(camposSeleccionados) => {
@@ -1154,6 +1231,7 @@ const FormMainResidente = () => {
             if (camposSeleccionados.seo_keyword) setValue('seo_keyword', seoOptimizado.seo_keyword);
             if (camposSeleccionados.meta_description) setValue('meta_description', seoOptimizado.meta_description);
             if (camposSeleccionados.seo_alt_text) setValue('seo_alt_text', seoOptimizado.seo_alt_text);
+            if (camposSeleccionados.smart_tags) setValue('smart_tags', seoOptimizado.smart_tags);
             setShowSEOComparison(false);
           }}
           onClose={() => setShowSEOComparison(false)}

@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
+import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet";
 import { FaUser, FaStore, FaStar, FaMagnifyingGlass } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
@@ -107,6 +108,22 @@ const ListaNotas = () => {
   const [mostrarFormularioReceta, setMostrarFormularioReceta] = useState(false);
   const [recetaEditando, setRecetaEditando] = useState(null);
   const [recargarListaRecetas, setRecargarListaRecetas] = useState(0);
+
+  // Estado para el restaurante del vendedor
+  const [restauranteVendedor, setRestauranteVendedor] = useState(null);
+
+  // Efecto para obtener el restaurante del vendedor
+  useEffect(() => {
+    if (usuario?.rol?.toLowerCase() === "vendedor" && token) {
+      restaurantesBasicosGet()
+        .then(data => {
+          if (data && data.length > 0) {
+            setRestauranteVendedor(data[0]);
+          }
+        })
+        .catch(err => console.error("Error fetching vendor restaurant:", err));
+    }
+  }, [usuario, token]);
 
   // Estados para permisos de invitado
   const [permisosInvitado, setPermisosInvitado] = useState({
@@ -677,19 +694,34 @@ const ListaNotas = () => {
   // Filtrar opciones del menú para invitados según sus permisos específicos
   const menuOptions = esAdmin
     ? todasLasOpciones
-    : todasLasOpciones.filter(
-      (option) =>
-        usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
-        (option.key === "notas" ||
-          option.key === "recetas" ||
-          (option.key === "cupones" &&
-            !esInvitado &&
-            usuario?.rol !== "colaborador") ||
-          (esResidente && option.key === "restaurante_link") ||
-          (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-          (usuario?.rol === "residente" && option.key === "codigos_admin") || // Only for residente role
-          (usuario?.rol === "residente" && option.key === "buscador")) // Only for residente role
-    );
+    : todasLasOpciones.filter((option) => {
+      if (usuario?.rol === "b2b") return false;
+
+      // Lógica para Vendedor
+      if (usuario?.rol === "vendedor") {
+        return option.key === "restaurante_link" || option.key === "cupones";
+      }
+
+      // Lógica original para otros roles
+      return (
+        option.key === "notas" ||
+        option.key === "recetas" ||
+        (option.key === "cupones" &&
+          !esInvitado &&
+          usuario?.rol !== "colaborador") ||
+        (esResidente && option.key === "restaurante_link") ||
+        (usuario?.rol === "residente" && option.key === "ednl") ||
+        (usuario?.rol === "residente" && option.key === "codigos_admin") ||
+        (usuario?.rol === "residente" && option.key === "buscador")
+      );
+    })
+      .map(option => {
+        // Mejorar label para Vendedores
+        if (usuario?.rol === "vendedor" && option.key === "restaurante_link" && restauranteVendedor) {
+          return { ...option, label: "Mi Restaurante" };
+        }
+        return option;
+      });
 
   if (cargando) {
     return (
@@ -866,7 +898,11 @@ const ListaNotas = () => {
                   key={option.key}
                   onClick={() => {
                     if (option.key === "restaurante_link") {
-                      navigate("/formulario");
+                      if (usuario?.rol?.toLowerCase() === "vendedor" && restauranteVendedor) {
+                        navigate(`/formulario/${restauranteVendedor.slug}`);
+                      } else {
+                        navigate("/formulario");
+                      }
                     } else if (option.key === "cupones") {
                       navigate("/dashboardtickets");
                     } else if (option.key === "codigos_admin") {
