@@ -666,6 +666,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
               <option value="colaborador">Colaborador</option>
               <option value="invitado">Invitado</option>
               <option value="b2b">B2B</option>
+              <option value="vendedor">Vendedor</option>
             </select>
           </div>
 
@@ -706,7 +707,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
       {showRegistro && (
         <div className="bg-white border rounded-lg p-6 mb-6 shadow-md">
           <h3 className="text-lg font-semibold mb-4">
-            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Cliente'}
+            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -740,7 +741,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cliente/Permiso
+                  Usuario/Permiso
                 </label>
                 <div className="flex space-x-2">
                   <select
@@ -749,33 +750,12 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                     onChange={handleInputChange}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="usuario">Usuario General</option>
+                    <option value="usuario">Invitado</option>
                     <option value="todos">Administrador</option>
-                    <option value="mama-de-rocco">Mamá de Rocco</option>
+                    <option value="mama-de-rocco">Colaborador</option>
                     <option value="b2b">Usuario B2B</option>
                     <option value="vendedor">Vendedor</option>
-
-                    {/* Mostrar permisos existentes que no están en las opciones predefinidas */}
-                    {permisosExistentes
-                      .filter(permiso => !['todos', 'mama-de-rocco', 'b2b', 'vendedor'].includes(permiso))
-                      .map(permiso => (
-                        <option key={permiso} value={permiso}>
-                          {formatearPermiso(permiso)}
-                        </option>
-                      ))
-                    }
-
-                    <option value="nuevo-cliente">+ Nuevo Cliente</option>
                   </select>
-                  {formData.permisos === 'nuevo-cliente' && (
-                    <input
-                      type="text"
-                      value={permisoPersonalizado}
-                      onChange={(e) => setPermisoPersonalizado(e.target.value)}
-                      placeholder="Nombre del cliente (ej: restaurante-nuevo)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
