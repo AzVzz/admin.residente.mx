@@ -36,7 +36,7 @@ import Footer from './componentes/Footer';
 import PromocionesMain from '../promociones/componentes/TicketPromo';
 
 const ListaRestaurantes = () => {
-  const { usuario } = useAuth();
+  const { usuario, token } = useAuth(); // Retrieve token from Auth context
   const [categoriasAgrupadas, setCategoriasAgrupadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -83,7 +83,8 @@ const ListaRestaurantes = () => {
       const response = await fetch(`${urlApi}api/restaurante/${restaurante.id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add Authorization header
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -175,7 +176,7 @@ const ListaRestaurantes = () => {
 
                     return (
                       <li key={i} className={`flex items-center justify-end gap-2 ${restaurante.status === 0 ? 'opacity-75' : ''}`}>
-                        {usuario?.rol === 'residente' && (
+                        {(usuario?.rol === 'residente' || usuario?.permisos === 'todos') && (
                           <>
                             <button
                               onClick={() => handleToggleStatus(restaurante)}
@@ -198,7 +199,7 @@ const ListaRestaurantes = () => {
                           </>
                         )}
                         <Link
-                          to={`/restaurante/${slug}`}
+                          to={`/restaurantes/${slug}`}
                           className={`enlace-restaurante ${restaurante.status === 0 ? 'text-red-800 line-through decoration-red-500' : ''}`}
                           title={restaurante.status === 0 ? "Restaurante Inactivo" : ""}
                         >

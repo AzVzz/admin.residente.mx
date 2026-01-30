@@ -73,8 +73,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // ⚠️ TODOS LOS HOOKS DEBEN ESTAR AL PRINCIPIO ANTES DE CUALQUIER RETURN
   // Estado para verificar si el usuario B2B ya tiene un restaurante
   // Inicializar en true si es B2B en modo creación para que verifique primero
+  // VENDEDORES YA NO TIENEN LÍMITE
   const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
-    (usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion
+    usuario?.rol === "b2b" && !esEdicion
   );
   const [tieneRestaurante, setTieneRestaurante] = useState(false);
   const [error403, setError403] = useState(false);
@@ -331,8 +332,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
   // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
   useEffect(() => {
-    // Solo verificar si es usuario B2B o Vendedor y NO está en modo edición
-    if ((usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion && token) {
+    // Solo verificar si es usuario B2B y NO está en modo edición
+    if (usuario?.rol === "b2b" && !esEdicion && token) {
       const verificarRestaurante = async () => {
         setLoadingRestauranteCheck(true);
         try {
@@ -404,8 +405,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     );
   }
 
-  // Si es usuario B2B o Vendedor y ya tiene un restaurante, mostrar mensaje
-  if (((usuario?.rol === "b2b" || usuario?.rol === "vendedor") && !esEdicion && tieneRestaurante) || error403) {
+  // Si es usuario B2B y ya tiene un restaurante, mostrar mensaje
+  if ((usuario?.rol === "b2b" && !esEdicion && tieneRestaurante) || error403) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
@@ -413,7 +414,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
             Límite de Restaurantes Alcanzado
           </h2>
           <p className="text-gray-600 mb-4">
-            Solo puedes tener un restaurante registrado. <br />
+            Solo puedes tener un restaurante registrado co tu plan actual. <br />
             Para editar tu restaurante existente, ve a tu dashboard.
           </p>
           <button

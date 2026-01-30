@@ -334,7 +334,7 @@ function App() {
               {/* HeyBanco - ahora manejado por la ruta general de clientes */}
 
               <Route
-                path="/restaurante/:slug"
+                path="/restaurantes/:slug"
                 element={
                   <div className="max-w-[680px] mx-auto py-10 sm:px-0">
                     <RestaurantePage />
@@ -354,7 +354,7 @@ function App() {
               <Route
                 path="/registrocolaboradores"
                 element={
-                  <div className="max-w-[1080px] mx-auto py-10">
+                  <div className="max-w-[1080px] mx-auto">
                     <OpinionEditorial />
                   </div>
                 }
