@@ -22,9 +22,9 @@ const AUTH_COOKIE_NAME = "residente_auth_token";
 const USER_COOKIE_NAME = "residente_auth_usuario";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 
-// Keys de localStorage - per-origin (no se comparten entre subdominios)
-const TOKEN_STORAGE_KEY = "admin_token";
-const USER_STORAGE_KEY = "admin_usuario";
+// Keys de localStorage - compartidas (ambas apps corren en residente.mx)
+const TOKEN_STORAGE_KEY = "residente_token";
+const USER_STORAGE_KEY = "residente_usuario";
 
 /**
  * Detecta si estamos en localhost o red local
@@ -162,6 +162,41 @@ const migrateOldCookies = () => {
 };
 
 /**
+ * Migra keys viejas de localStorage (admin_token, astro_token, etc.)
+ * a las nuevas keys unificadas. Ambas apps corren en residente.mx. Idempotente.
+ */
+const migrateOldLocalStorage = () => {
+  if (typeof window === "undefined") return;
+
+  const oldTokenKeys = ["admin_token", "astro_token"];
+  const oldUserKeys = ["admin_usuario", "astro_usuario"];
+
+  if (!localStorage.getItem(TOKEN_STORAGE_KEY)) {
+    for (const oldKey of oldTokenKeys) {
+      const value = localStorage.getItem(oldKey);
+      if (value) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, value);
+        break;
+      }
+    }
+  }
+
+  if (!localStorage.getItem(USER_STORAGE_KEY)) {
+    for (const oldKey of oldUserKeys) {
+      const value = localStorage.getItem(oldKey);
+      if (value) {
+        localStorage.setItem(USER_STORAGE_KEY, value);
+        break;
+      }
+    }
+  }
+
+  for (const oldKey of [...oldTokenKeys, ...oldUserKeys]) {
+    localStorage.removeItem(oldKey);
+  }
+};
+
+/**
  * Lee el token inicial: cookie tiene prioridad en produccion,
  * localStorage como fallback. NO fuerza logout si cookie esta ausente
  * (puede ser un problema de parsing o timing).
@@ -208,9 +243,10 @@ const getInitialUsuario = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  // Migrar cookies viejas antes de leer estado
+  // Migrar datos viejos antes de leer estado
   if (typeof document !== "undefined") {
     migrateOldCookies();
+    migrateOldLocalStorage();
   }
 
   const [token, setToken] = useState(getInitialToken);

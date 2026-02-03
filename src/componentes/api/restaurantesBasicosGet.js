@@ -11,7 +11,8 @@ export const restaurantesBasicosGet = async () => {
     };
 
     const token =
-      getCookie("residente_auth_token") || localStorage.getItem("admin_token");
+      getCookie("residente_auth_token") ||
+      localStorage.getItem("residente_token");
     const headers = {
       "Content-Type": "application/json",
     };
