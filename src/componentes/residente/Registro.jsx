@@ -109,6 +109,20 @@ const Registro = () => {
                   </button>
                 </a>
               </div>
+
+              <div className="flex flex-col items-center">
+                <a
+                  href="/admin/cuestionarioB2C"
+                  className="group w-full flex flex-col items-center"
+                >
+                  <button
+                    type="submit"
+                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  >
+                    RECURSOS HUMANOS
+                  </button>
+                </a>
+              </div>
             </div>
           </div>
         </div>

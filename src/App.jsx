@@ -78,6 +78,7 @@ const Registro = lazy(() => import("./componentes/residente/Registro.jsx"));
 const FormularioAnuncioRevista = lazy(() => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"));
 const SuccessTienda = lazy(() => import("./componentes/residente/B2B/SuccessTienda.jsx"));
 const InstaRecomendacionesPage = lazy(() => import("./componentes/residente/InstaHistory/InstaHistoryRecomendaciones/InstaRecomendacionesPage.jsx"));
+const CuestionarioB2C = lazy(() => import("./componentes/residente/componentes/cuestionarioB2C/cuestionarioB2C.jsx"));  
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -359,6 +360,15 @@ function App() {
                   </div>
                 }
               />
+
+              <Route
+                path="/cuestionarioB2C"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <CuestionarioB2C />
+                  </div>
+                }
+              />  
 
               {/* Mama de Rocco / Barrio Antiguo etc. - DEBE ir al final antes de * */}
               <Route

@@ -575,10 +575,10 @@ const Header = () => {
                           <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a href="https://x.com/Residente_mty" target="_blank" rel="noopener noreferrer">
-                          <FaXTwitter className="w-4 h-4 text-black" />
+                          <FaXTwitter className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a href="https://www.linkedin.com/company/residente/" target="_blank" rel="noopener noreferrer">
-                          <FaLinkedin className="w-4 h-4 text-black" />
+                          <FaLinkedin className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a
                           href="tel:+528114186985"
