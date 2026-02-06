@@ -47,6 +47,14 @@ const PromoMain = () => {
         zonaHoraria: "America/Monterrey", // Default
         tiene_caducidad: false, // Para auto-expiración
         fecha_caducidad: "", // Fecha en que expira automáticamente
+        tipografia: "default", // Tipografía seleccionada
+        tipografia_bold: true, // Si usar negritas
+        colorFondo: "#FFFFFF", // Color de fondo del ticket
+        espaciadoLetras: 0, // Letter spacing en px (-5 a 10)
+        espaciadoLineas: 1, // Line height (0.8 a 2)
+        logoPersonalizado: null, // Logo personalizado (base64) o null para usar el default
+        logoEscala: 100,
+        colorTexto: "#000000",
         seo_alt_text: "",
         seo_title: "",
         seo_keyword: "",
@@ -294,6 +302,8 @@ const PromoMain = () => {
             }),
             secciones_categorias: restauranteSeleccionado?.secciones_categorias || undefined,
             estilos_campos: getTicketEstilosCampos(),
+            tipografia: formData.tipografia || 'default',
+            tipografia_bold: formData.tipografia_bold !== false,
             seo_alt_text: formData.seo_alt_text,
             seo_title: formData.seo_title,
             seo_keyword: formData.seo_keyword,
@@ -402,6 +412,14 @@ const PromoMain = () => {
                         descripcionPromo={formData.descPromo}
                         validezPromo={formData.fechaValidez}
                         stickerUrl={getStickerUrls()[0]}
+                        tipografia={formData.tipografia}
+                        tipografiaBold={formData.tipografia_bold}
+                        colorFondo={formData.colorFondo}
+                        espaciadoLetras={formData.espaciadoLetras}
+                        espaciadoLineas={formData.espaciadoLineas}
+                        logoPersonalizado={formData.logoPersonalizado}
+                        logoEscala={formData.logoEscala}
+                        colorTexto={formData.colorTexto}
                     />
                     <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">
                         <button
