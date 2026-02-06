@@ -412,128 +412,17 @@ const PromoMain = () => {
           selectedRestauranteId={selectedRestauranteId}
           onRestauranteChange={handleRestauranteChange}
         />
-
-            if (!formData.esPermanente) {
-                if (!formData.fechaInicio || !formData.fechaFin) throw new Error("Debes seleccionar fecha de inicio y fin, o marcar como Permanente");
-            }
-
-            // Esperar a que las fuentes estén cargadas
-            if (document.fonts && document.fonts.ready) {
-                await document.fonts.ready;
-            }
-            
-            // Dar tiempo extra para que el layout se estabilice
-            await new Promise(resolve => setTimeout(resolve, 200));
-
-            // 1. Generar la imagen
-            const dataUrl = await toPng(ticketRef.current, {
-                quality: 0.95,
-                pixelRatio: 5,
-                backgroundColor: 'transparent'
-            });
-
-            // 2. Convertir base64 limpio
-            const base64Image = dataUrl.split(',')[1];
-
-            // 3. Preparar datos del formulario
-            const apiData = prepareApiData();
-            apiData.imagen_base64 = base64Image; // agregar imagen al payload
-
-            // 4. Llamar a tu endpoint con el TOKEN
-            const response = await cuponCrear(apiData, token);
-            console.log("✅ Promoción creada:", response);
-
-            setSaveSuccess(true);
-            setTimeout(() => {
-                navigate('/dashboardtickets');
-            }, 1000);
-        } catch (error) {
-            console.error("Error al guardar promoción:", error);
-            setSaveError(error.message || 'Error al guardar la promoción');
-        } finally {
-            setIsPosting(false);
-        }
-    };
-
-    // Mostrar mensaje cuando hay éxito o error
-    useEffect(() => {
-        if (saveSuccess || saveError) {
-            setShowMessage(true);
-            const hideTimer = setTimeout(() => setShowMessage(false), 2700); // inicia transición antes de quitar el mensaje
-            const clearTimer = setTimeout(() => {
-                setSaveSuccess(false);
-                setSaveError(null);
-            }, 3000);
-            return () => {
-                clearTimeout(hideTimer);
-                clearTimeout(clearTimer);
-            };
-        }
-    }, [saveSuccess, saveError]);
-
-    return (
-        <div>
-            <div className="grid grid-cols-2 gap-5">
-                <FormularioPromo
-                    formData={formData}
-                    onFieldChange={handleFieldChange}
-                    restaurantes={restaurantes}
-                    selectedRestauranteId={selectedRestauranteId}
-                    onRestauranteChange={handleRestauranteChange}
-                />
-                <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col">
-                    {/* Mensajes de éxito/error flotantes con transición */}
-                    {(saveSuccess || saveError) && (
-                        <div
-                            className={`absolute top-3 left-1/2 transform -translate-x-1/2 z-20 w-[90%] transition-opacity duration-300 ${showMessage ? 'opacity-100' : 'opacity-0'
-                                }`}
-                        >
-                            {saveSuccess && (
-                                <div className="p-3 bg-green-100 text-green-700 rounded-md text-center shadow-lg">
-                                    ¡Promoción guardada exitosamente!
-                                </div>
-                            )}
-                            {saveError && (
-                                <div className="p-3 bg-red-100 text-red-700 rounded-md text-center shadow-lg">
-                                    Error: {saveError}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    <TicketPromo
-                        ref={ticketRef}
-                        nombreRestaurante={formData.restaurantName}
-                        nombrePromo={formData.promoName}
-                        subPromo={formData.promoSubtitle}
-                        descripcionPromo={formData.descPromo}
-                        validezPromo={formData.fechaValidez}
-                        stickerUrl={getStickerUrls()[0]}
-                        tipografia={formData.tipografia}
-                        tipografiaBold={formData.tipografia_bold}
-                        colorFondo={formData.colorFondo}
-                        espaciadoLetras={formData.espaciadoLetras}
-                        espaciadoLineas={formData.espaciadoLineas}
-                        logoPersonalizado={formData.logoPersonalizado}
-                        logoEscala={formData.logoEscala}
-                        colorTexto={formData.colorTexto}
-                    />
-                    <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">
-                        <button
-                            onClick={handleDownload}
-                            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-pointer"
-                        >
-                            Descargar (PNG)
-                        </button>
-                        <button
-                            onClick={handleGuardar}
-                            disabled={isPosting}
-                            className={`flex-1 bg-white hover:bg-yellow-300 text-gray-800 font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-pointer ${isPosting ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                        >
-                            {isPosting ? 'Guardando...' : 'Guardar'}
-                        </button>
-                    </div>
+        <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col">
+          {/* Mensajes de éxito/error flotantes con transición */}
+          {(saveSuccess || saveError) && (
+            <div
+              className={`absolute top-3 left-1/2 transform -translate-x-1/2 z-20 w-[90%] transition-opacity duration-300 ${
+                showMessage ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {saveSuccess && (
+                <div className="p-3 bg-green-100 text-green-700 rounded-md text-center shadow-lg">
+                  ¡Promoción guardada exitosamente!
                 </div>
               )}
               {saveError && (
