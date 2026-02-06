@@ -293,6 +293,14 @@ const PromoMain = () => {
                 if (!formData.fechaInicio || !formData.fechaFin) throw new Error("Debes seleccionar fecha de inicio y fin, o marcar como Permanente");
             }
 
+            // Esperar a que las fuentes estén cargadas
+            if (document.fonts && document.fonts.ready) {
+                await document.fonts.ready;
+            }
+            
+            // Dar tiempo extra para que el layout se estabilice
+            await new Promise(resolve => setTimeout(resolve, 200));
+
             // 1. Generar la imagen
             const dataUrl = await toPng(ticketRef.current, {
                 quality: 0.95,
