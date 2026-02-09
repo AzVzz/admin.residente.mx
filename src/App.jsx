@@ -46,102 +46,171 @@ import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 // import InstaRecomendacionesPage from "./componentes/residente/InstaHistory/InstaHistoryRecomendaciones/InstaRecomendacionesPage.jsx"; // Converted to lazy
 
 // --- LAZY LOADS (Public & Admin) ---
-const ListaRestaurantes = lazy(() => import("./componentes/ednl/ListaRestaurantes"));
-const CulturalAcessForm = lazy(() => import("./componentes/culturallAccess/CulturalAcessForm"));
-const RestaurantePage = lazy(() => import("./componentes/ednl/RestaurantePage"));
-const ResidenteMain = lazy(() => import("./componentes/residente/ResidenteMain"));
-const MainSeccionesCategorias = lazy(() => import("./componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias"));
-const InfografiaMain = lazy(() => import("./componentes/residente/infografia/InfografiaMain"));
-const PaginaCliente = lazy(() => import("./componentes/residente/paginaCliente/PaginaCliente"));
-const DetallePost = lazy(() => import("./componentes/residente/componentes/DetallePost"));
-const BannerRevista = lazy(() => import("./componentes/residente/componentes/BannerRevista"));
-const OpinionEditorial = lazy(() => import("./componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx"));
-const RespuestasSemana = lazy(() => import("./componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx"));
-const VideoResidente = lazy(() => import("./componentes/residente/componentes/extras/VideoResidente.jsx"));
-const LinkInBio = lazy(() => import("./componentes/residente/instagram/LinkInBio.jsx"));
-const InfografiaForm = lazy(() => import("./componentes/residente/infografia/InfografiaForm.jsx"));
-const UanlPage = lazy(() => import("./componentes/residente/Uanl/UanlPage.jsx"));
-const DetalleUanl = lazy(() => import("./componentes/residente/Uanl/DetalleUanl.jsx"));
-const ListaNotasUanl = lazy(() => import("./componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx"));
-const DetalleColaborador = lazy(() => import("./componentes/residente/Colaboradores/DetalleColaborador.jsx"));
-const EditarPerfilColaborador = lazy(() => import("./componentes/residente/Colaboradores/EditarPerfilColaborador.jsx"));
-const EditarPerfilInvitado = lazy(() => import("./componentes/residente/Invitados/EditarPerfilInvitado.jsx"));
-const NewsletterPage = lazy(() => import("./componentes/residente/Newsletter/NewsletterPage.jsx"));
-const PlantillaNotas = lazy(() => import("./componentes/residente/PlantillasRehusables/PlantillaNotas"));
-const ListaTickets = lazy(() => import("./componentes/residente/componentes/compFormularioMain/ListaTickets"));
-const InstaHistoryPage = lazy(() => import("./componentes/residente/InstaHistory/InstaHistoryPage.jsx"));
+const ListaRestaurantes = lazy(
+  () => import("./componentes/ednl/ListaRestaurantes"),
+);
+const CulturalAcessForm = lazy(
+  () => import("./componentes/culturallAccess/CulturalAcessForm"),
+);
+const RestaurantePage = lazy(
+  () => import("./componentes/ednl/RestaurantePage"),
+);
+const ResidenteMain = lazy(
+  () => import("./componentes/residente/ResidenteMain"),
+);
+const MainSeccionesCategorias = lazy(
+  () =>
+    import("./componentes/residente/componentes/seccionesCategorias/MainSeccionesCategorias"),
+);
+const InfografiaMain = lazy(
+  () => import("./componentes/residente/infografia/InfografiaMain"),
+);
+const PaginaCliente = lazy(
+  () => import("./componentes/residente/paginaCliente/PaginaCliente"),
+);
+const DetallePost = lazy(
+  () => import("./componentes/residente/componentes/DetallePost"),
+);
+const BannerRevista = lazy(
+  () => import("./componentes/residente/componentes/BannerRevista"),
+);
+const OpinionEditorial = lazy(
+  () =>
+    import("./componentes/residente/componentes/formularioColaboradores/OpinionEditorial.jsx"),
+);
+const RespuestasSemana = lazy(
+  () =>
+    import("./componentes/residente/componentes/formularioColaboradores/RespuestasSemana.jsx"),
+);
+const VideoResidente = lazy(
+  () => import("./componentes/residente/componentes/extras/VideoResidente.jsx"),
+);
+const LinkInBio = lazy(
+  () => import("./componentes/residente/instagram/LinkInBio.jsx"),
+);
+const InfografiaForm = lazy(
+  () => import("./componentes/residente/infografia/InfografiaForm.jsx"),
+);
+const UanlPage = lazy(
+  () => import("./componentes/residente/Uanl/UanlPage.jsx"),
+);
+const DetalleUanl = lazy(
+  () => import("./componentes/residente/Uanl/DetalleUanl.jsx"),
+);
+const ListaNotasUanl = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/ListaNotasUanl.jsx"),
+);
+const DetalleColaborador = lazy(
+  () => import("./componentes/residente/Colaboradores/DetalleColaborador.jsx"),
+);
+const EditarPerfilColaborador = lazy(
+  () =>
+    import("./componentes/residente/Colaboradores/EditarPerfilColaborador.jsx"),
+);
+const EditarPerfilInvitado = lazy(
+  () => import("./componentes/residente/Invitados/EditarPerfilInvitado.jsx"),
+);
+const NewsletterPage = lazy(
+  () => import("./componentes/residente/Newsletter/NewsletterPage.jsx"),
+);
+const PlantillaNotas = lazy(
+  () => import("./componentes/residente/PlantillasRehusables/PlantillaNotas"),
+);
+const ListaTickets = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/ListaTickets"),
+);
+const InstaHistoryPage = lazy(
+  () => import("./componentes/residente/InstaHistory/InstaHistoryPage.jsx"),
+);
 const StripeCheckout = lazy(() => import("./componentes/StripeCheckout.jsx"));
-const FormMain = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"));
-const RegistroB2BConPlanes = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroB2BConPlanes.jsx"));
-const TerminosyCondiciones = lazy(() => import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"));
+const FormMain = lazy(
+  () =>
+    import("./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"),
+);
+const RegistroB2BConPlanes = lazy(
+  () =>
+    import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroB2BConPlanes.jsx"),
+);
+const TerminosyCondiciones = lazy(
+  () =>
+    import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"),
+);
 const Registro = lazy(() => import("./componentes/residente/Registro.jsx"));
-const FormularioAnuncioRevista = lazy(() => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"));
-const SuccessTienda = lazy(() => import("./componentes/residente/B2B/SuccessTienda.jsx"));
-const InstaRecomendacionesPage = lazy(() => import("./componentes/residente/InstaHistory/InstaHistoryRecomendaciones/InstaRecomendacionesPage.jsx"));
+const FormularioAnuncioRevista = lazy(
+  () => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"),
+);
+const SuccessTienda = lazy(
+  () => import("./componentes/residente/B2B/SuccessTienda.jsx"),
+);
+const InstaRecomendacionesPage = lazy(
+  () =>
+    import("./componentes/residente/InstaHistory/InstaHistoryRecomendaciones/InstaRecomendacionesPage.jsx"),
+);
+const CuestionarioB2C = lazy(
+  () =>
+    import("./componentes/residente/componentes/cuestionarioB2C/cuestionarioB2C.jsx"),
+);
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
-const FormMainResidente = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/FormMainResidente"
-  )
+const FormMainResidente = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/FormMainResidente"),
 );
-const ListaNotas = lazy(() =>
-  import("./componentes/residente/componentes/compFormularioMain/ListaNotas")
+const ListaNotas = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/ListaNotas"),
 );
-const PreguntasSemanales = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales"
-  )
+const PreguntasSemanales = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales"),
 );
-const FormNewsletter = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/FormNewsletter"
-  )
+const FormNewsletter = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/FormNewsletter"),
 );
-const VideosDashboard = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/VideosDashboard"
-  )
+const VideosDashboard = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/VideosDashboard"),
 );
-const Videos = lazy(() =>
-  import("./componentes/residente/componentes/compFormularioMain/Videos")
+const Videos = lazy(
+  () => import("./componentes/residente/componentes/compFormularioMain/Videos"),
 );
 const Login = lazy(() => import("./componentes/Login"));
-const FormularioMain = lazy(() =>
-  import("./componentes/formulario100estrellas/FormularioMain")
+const FormularioMain = lazy(
+  () => import("./componentes/formulario100estrellas/FormularioMain"),
 );
-const FormularioMainPage = lazy(() =>
-  import("./componentes/formulario100estrellas/FormularioMainPage")
+const FormularioMainPage = lazy(
+  () => import("./componentes/formulario100estrellas/FormularioMainPage"),
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
 
-const FormularioRevistaBannerNueva = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"
-  )
+const FormularioRevistaBannerNueva = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/FormularioRevistaBanner"),
 );
-const B2BDashboard = lazy(() =>
-  import("./componentes/residente/B2B/B2BDashboard")
+const B2BDashboard = lazy(
+  () => import("./componentes/residente/B2B/B2BDashboard"),
 );
 
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
-const RegistroInvitados = lazy(() =>
-  import(
-    "./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados"
-  )
+const RegistroInvitados = lazy(
+  () =>
+    import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroInvitados"),
 );
-const GestionCodigos = lazy(() =>
-  import("./componentes/residente/Admin/GestionCodigos")
+const GestionCodigos = lazy(
+  () => import("./componentes/residente/Admin/GestionCodigos"),
 );
-const FormularioReceta = lazy(() =>
-  import(
-    "./componentes/residente/componentes/compFormularioMain/FormularioReceta"
-  )
+const FormularioReceta = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/FormularioReceta"),
 );
-const ListaRecetas = lazy(() =>
-  import("./componentes/residente/componentes/compFormularioMain/ListaRecetas")
+const ListaRecetas = lazy(
+  () =>
+    import("./componentes/residente/componentes/compFormularioMain/ListaRecetas"),
 );
 
 const notasPrueba = [
@@ -226,10 +295,11 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
           <div
-            className={`transition-all duration-300 relative z-10 ${showMegaMenu
-              ? "-translate-y-full opacity-0 pointer-events-none"
-              : "translate-y-0 opacity-100"
-              }`}
+            className={`transition-all duration-300 relative z-20 ${
+              showMegaMenu
+                ? "-translate-y-full opacity-0 pointer-events-none"
+                : "translate-y-0 opacity-100"
+            }`}
           >
             <div />
             <Header />
@@ -239,20 +309,18 @@ function App() {
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" && (
             <div
-              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showMegaMenu
-                ? "translate-y-0 opacity-100"
-                : "-translate-y-full opacity-0 pointer-events-none"
-                }`}
+              className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+                showMegaMenu
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-full opacity-0 pointer-events-none"
+              }`}
             >
               <div />
               <MegaMenu />
             </div>
           )}
         <main
-          className={
-            `flex-grow w-full relative z-10 
-            ${!isB2BDashboard ? "overflow-x-hidden" : ""} 
-            ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
           <Suspense
             fallback={
@@ -337,7 +405,7 @@ function App() {
               {/* HeyBanco - ahora manejado por la ruta general de clientes */}
 
               <Route
-                path="/restaurante/:slug"
+                path="/restaurantes/:slug"
                 element={
                   <div className="max-w-[680px] mx-auto py-10 sm:px-0">
                     <RestaurantePage />
@@ -357,8 +425,17 @@ function App() {
               <Route
                 path="/registrocolaboradores"
                 element={
-                  <div className="max-w-[1080px] mx-auto py-10">
+                  <div className="max-w-[1080px] mx-auto">
                     <OpinionEditorial />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/cuestionarioB2C"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <CuestionarioB2C />
                   </div>
                 }
               />
@@ -463,7 +540,7 @@ function App() {
                     <PlantillaNotas
                       posts={[...notasPrueba]}
                       notasDestacadas={[...notasPrueba]}
-                      handleCardClick={() => { }}
+                      handleCardClick={() => {}}
                     />
                   </div>
                 }
@@ -497,9 +574,10 @@ function App() {
               />
 
               <Route
-                path="/registrob2b"
-                element={<RegistroB2BConPlanes />}
+                path="/registrob2b/prueba"
+                element={<RegistroB2BConPlanes modoPrueba />}
               />
+              <Route path="/registrob2b" element={<RegistroB2BConPlanes />} />
 
               <Route
                 path="/registro"
@@ -706,10 +784,7 @@ function App() {
               />
 
               {/* Ruta de éxito después de pago en tienda B2B */}
-              <Route
-                path="/success-tienda"
-                element={<SuccessTienda />}
-              />
+              <Route path="/success-tienda" element={<SuccessTienda />} />
 
               <Route
                 path="/admin/codigos"
@@ -736,11 +811,15 @@ function App() {
         <BotonScroll />
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" && (
-            <footer className={
-              location.pathname === "/registrob2b" || location.pathname === "/registroinvitados" || location.pathname === "/registrocolaboradores"
-                ? "hidden sm:block"
-                : ""
-            }>
+            <footer
+              className={
+                location.pathname === "/registrob2b" ||
+                location.pathname === "/registroinvitados" ||
+                location.pathname === "/registrocolaboradores"
+                  ? "hidden sm:block"
+                  : ""
+              }
+            >
               <FooterPrincipal />
             </footer>
           )}

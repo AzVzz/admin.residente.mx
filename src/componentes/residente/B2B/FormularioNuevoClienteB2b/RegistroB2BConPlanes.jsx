@@ -5,11 +5,28 @@ import FormMain from "./FormMain";
 import { Dialog, Transition } from "@headlessui/react";
 import { FaArrowLeft } from "react-icons/fa";
 
-const RegistroB2BConPlanes = () => {
+import { urlApi } from "../../../api/url";
+
+const PLAN_PRUEBA_6_SUCURSALES = {
+  sucursales: "6+",
+  sucursalesTexto: "6 o mas sucursales",
+  priceId: "price_1SyxQc2NQ01PW0zjiBPA54XR",
+  precioMensual: 0.2,
+  precioMensualConIVA: 0.23,
+  precioMensualCentavos: 20,
+  nombre: "B2B",
+  descripcion: "! Bienvenido",
+  moneda: "MXN",
+  intervalo: "month",
+};
+
+const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [searchParams] = useSearchParams();
-  const [planSeleccionado, setPlanSeleccionado] = useState(null);
+  const [planSeleccionado, setPlanSeleccionado] = useState(
+    modoPrueba ? PLAN_PRUEBA_6_SUCURSALES : null,
+  );
   const [preciosDisponibles, setPreciosDisponibles] = useState([]);
-  const [loadingPrecios, setLoadingPrecios] = useState(true);
+  const [loadingPrecios, setLoadingPrecios] = useState(!modoPrueba);
 
   // 🔑 Detectar si viene de Stripe con pago exitoso para mostrar formulario directamente
   const paymentSuccess = searchParams.get("payment_success") === "true";
@@ -17,19 +34,28 @@ const RegistroB2BConPlanes = () => {
 
   // 🔍 DEBUG: Log para entender qué está pasando
   console.log("🔍 RegistroB2BConPlanes - Diagnóstico:");
-  console.log("   📍 URL params - payment_success:", searchParams.get("payment_success"));
-  console.log("   💾 localStorage - b2b_plan_seleccionado:", savedPlan ? "EXISTE" : "NO EXISTE");
+  console.log(
+    "   📍 URL params - payment_success:",
+    searchParams.get("payment_success"),
+  );
+  console.log(
+    "   💾 localStorage - b2b_plan_seleccionado:",
+    savedPlan ? "EXISTE" : "NO EXISTE",
+  );
   console.log("   ✅ paymentSuccess:", paymentSuccess);
   console.log("   📋 Debería mostrar formulario:", paymentSuccess && savedPlan);
+  console.log("   🧪 modoPrueba:", modoPrueba);
 
-  const [mostrarFormulario, setMostrarFormulario] = useState(paymentSuccess && savedPlan);
+  const [mostrarFormulario, setMostrarFormulario] = useState(
+    modoPrueba || (paymentSuccess && savedPlan),
+  );
 
   // Obtener precios desde el backend
   useEffect(() => {
     const fetchPrecios = async () => {
       setLoadingPrecios(true);
       try {
-        const apiUrl = "https://admin.residente.mx/api/stripe/precios";
+        const apiUrl = `${urlApi}api/stripe/precios`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -42,14 +68,16 @@ const RegistroB2BConPlanes = () => {
           setPreciosDisponibles(data.precios);
         }
       } catch (error) {
-        console.warn("Error obteniendo precios del servidor:", error.message);
+        console.error("Error obteniendo precios del servidor:", error);
       } finally {
         setLoadingPrecios(false);
       }
     };
 
-    fetchPrecios();
-  }, []);
+    if (!modoPrueba) {
+      fetchPrecios();
+    }
+  }, [modoPrueba]);
 
   // 🔑 Si viene de Stripe, restaurar el plan seleccionado del localStorage
   useEffect(() => {
@@ -91,7 +119,7 @@ const RegistroB2BConPlanes = () => {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className={`${mostrarFormulario ? 'hidden' : ''}`}>
+        <div className={`${mostrarFormulario ? "hidden" : ""}`}>
           <SelectorPlanesB2B
             onSelectPlan={handleSelectPlan}
             planesData={preciosDisponibles}
@@ -110,25 +138,31 @@ const RegistroB2BConPlanes = () => {
         leaveFrom="opacity-100 translate-x-0"
         leaveTo="opacity-0 -translate-x-10"
       >
-        <div className={`${!mostrarFormulario ? 'hidden' : ''}`}>
+        <div className={`${!mostrarFormulario ? "hidden" : ""}`}>
           {/* Header con botón de regreso y plan seleccionado */}
           <div className="">
             <div className="max-w-[650px] mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
-                <button
-                  onClick={handleVolverAPlanes}
-                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <FaArrowLeft className="text-sm" />
-                  <span className="font-medium">Cambiar plan</span>
-                </button>
+                {!modoPrueba && (
+                  <button
+                    onClick={handleVolverAPlanes}
+                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <FaArrowLeft className="text-sm" />
+                    <span className="font-medium">Cambiar plan</span>
+                  </button>
+                )}
 
                 {planSeleccionado && (
                   <div className="flex items-center gap-2  px-4 py-2 rounded-full">
                     <span className="text-sm text-gray-600">Plan:</span>
-                    <span className="font-bold text-gray-900">{planSeleccionado.nombre}</span>
+                    <span className="font-bold text-gray-900">
+                      {planSeleccionado.nombre}
+                    </span>
                     <span className="text-sm text-gray-600">
-                      (${planSeleccionado.precioMensual?.toLocaleString("es-MX")}/mes)
+                      ($
+                      {planSeleccionado.precioMensual?.toLocaleString("es-MX")}
+                      /mes)
                     </span>
                   </div>
                 )}
@@ -155,13 +189,16 @@ const FormMainWrapper = ({ planInicial }) => {
     // Si hay un plan inicial, podríamos setear el localStorage para que FormMain lo use
     if (planInicial) {
       // Guardar la selección del plan para que FormMain lo detecte
-      localStorage.setItem("b2b_plan_seleccionado", JSON.stringify({
-        sucursales: planInicial.sucursales,
-        nombre: planInicial.nombre,
-        precioMensual: planInicial.precioMensual,
-        precioMensualConIVA: planInicial.precioMensualConIVA,
-        priceId: planInicial.priceId,
-      }));
+      localStorage.setItem(
+        "b2b_plan_seleccionado",
+        JSON.stringify({
+          sucursales: planInicial.sucursales,
+          nombre: planInicial.nombre,
+          precioMensual: planInicial.precioMensual,
+          precioMensualConIVA: planInicial.precioMensualConIVA,
+          priceId: planInicial.priceId,
+        }),
+      );
     }
     // ⚠️ NO limpiar b2b_plan_seleccionado al desmontar
     // El plan debe persistir para cuando el usuario regrese de Stripe

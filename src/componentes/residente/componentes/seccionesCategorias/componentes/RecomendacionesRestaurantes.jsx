@@ -12,7 +12,7 @@ const RecomendacionesRestaurantes = ({ categoria, restaurantes }) => (
                     className="bg-black text-white text-[18px] font-semibold font-sans px-2 py-1 shadow-md whitespace-nowrap "
                 >
                     <Link
-                        to={`/restaurante/${rest.slug}`}
+                        to={`/restaurantes/${rest.slug}`}
                         className="text-black-600 hover:underline"
                     >
                         {rest.nombre_restaurante.charAt(0).toUpperCase() +

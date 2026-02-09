@@ -3,11 +3,18 @@ import { imgApi } from "../../api/url";
 
 const rutaNegra = `${imgApi}/fotos/fotos-estaticas/componente-iconos/iconos-negros/`;
 
+// Obtener el logo de color negro
 function obtenerIconoNegro(icono) {
-  // Extrae el nombre del archivo original y lo reemplaza por la versión negra
-  const nombreArchivo = icono.split("/").pop();
-  const nombreNegro = nombreArchivo.replace(".webp", "-negro.webp");
-  return `${rutaNegra}${nombreNegro}`;
+  const nombreArchivo = String(icono || "").split("/").pop() || "";
+  // match: baseName, optional -negro, extension
+  const m = nombreArchivo.match(/^(.*?)(-negro)?(\.[^.]+)$/);
+  if (!m) {
+    // Si no se reconoce, devolver con el mismo nombre (fallback)
+    return `${rutaNegra}${nombreArchivo}`;
+  }
+  const base = m[1];
+  const ext = m[3] || ".webp";
+  return `${rutaNegra}${base}-negro${ext}`;
 }
 
 const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {

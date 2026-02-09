@@ -62,6 +62,9 @@ const ListaNotasUsuarios = () => {
     nombre_responsable: '',
     email_responsable: '',
     telefono_responsable: '',
+    // Campos Vendedor
+    nombre_completo: '',
+    telefono: '',
     nombre_comercial: '',
     razon_social: '',
     rfc: '',
@@ -154,6 +157,7 @@ const ListaNotasUsuarios = () => {
 
       if (value === 'todos') nuevoRol = 'residente';
       else if (value === 'b2b') nuevoRol = 'b2b';
+      else if (value === 'vendedor') nuevoRol = 'vendedor';
       else if (value === 'mama-de-rocco') nuevoRol = 'colaborador';
       else nuevoRol = 'invitado'; // Por defecto para nuevo cliente y otros clientes existentes
 
@@ -368,7 +372,9 @@ const ListaNotasUsuarios = () => {
         estado: formData.estado,
         restaurante_id: null,
         enviar_correo: false,  // No enviar correo al crear usuario desde admin
-        logo_url: formData.logo_url || null  // Incluir logo_url si existe
+        logo_url: formData.logo_url || null,  // Incluir logo_url si existe
+        nombre_completo: formData.nombre_completo, // Para Vendedor
+        telefono: formData.telefono // Para Vendedor
       };
 
       // Validación final antes de enviar: asegurar que correo nunca sea null o undefined
@@ -660,6 +666,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
               <option value="colaborador">Colaborador</option>
               <option value="invitado">Invitado</option>
               <option value="b2b">B2B</option>
+              <option value="vendedor">Vendedor</option>
             </select>
           </div>
 
@@ -700,7 +707,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
       {showRegistro && (
         <div className="bg-white border rounded-lg p-6 mb-6 shadow-md">
           <h3 className="text-lg font-semibold mb-4">
-            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Cliente'}
+            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -734,7 +741,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cliente/Permiso
+                  Usuario/Permiso
                 </label>
                 <div className="flex space-x-2">
                   <select
@@ -743,37 +750,46 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                     onChange={handleInputChange}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="usuario">Usuario General</option>
+                    <option value="usuario">Invitado</option>
                     <option value="todos">Administrador</option>
-                    <option value="mama-de-rocco">Mamá de Rocco</option>
+                    <option value="mama-de-rocco">Colaborador</option>
                     <option value="b2b">Usuario B2B</option>
-
-                    {/* Mostrar permisos existentes que no están en las opciones predefinidas */}
-                    {permisosExistentes
-                      .filter(permiso => !['todos', 'mama-de-rocco', 'b2b'].includes(permiso))
-                      .map(permiso => (
-                        <option key={permiso} value={permiso}>
-                          {formatearPermiso(permiso)}
-                        </option>
-                      ))
-                    }
-
-                    <option value="nuevo-cliente">+ Nuevo Cliente</option>
+                    <option value="vendedor">Vendedor</option>
                   </select>
-                  {formData.permisos === 'nuevo-cliente' && (
-                    <input
-                      type="text"
-                      value={permisoPersonalizado}
-                      onChange={(e) => setPermisoPersonalizado(e.target.value)}
-                      placeholder="Nombre del cliente (ej: restaurante-nuevo)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
                 </p>
               </div>
+
+              {formData.permisos === 'vendedor' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre Completo (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="nombre_completo"
+                      value={formData.nombre_completo}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Teléfono (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              )}
 
               {formData.permisos === 'nuevo-cliente' && (
                 <div className="md:col-span-2">
@@ -858,6 +874,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                   <option value="colaborador">Colaborador</option>
                   <option value="invitado">Invitado</option>
                   <option value="b2b">B2B</option>
+                  <option value="vendedor">Vendedor</option>
                 </select>
               </div>
 
@@ -1106,14 +1123,14 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (() => {
                           // Lógica para determinar el enlace
-                          let href = `https://residente.mx/${user.permisos}`;
+                          let href = `/${user.permisos}`;
                           let disabled = false;
 
                           if (user.rol === 'b2b') {
                             // Buscar el restaurante asignado a este usuario
                             const restauranteAsignado = restaurantes.find(r => r.usuario_id === user.id);
                             if (restauranteAsignado && restauranteAsignado.slug) {
-                              href = `https://residente.mx/restaurantes/${restauranteAsignado.slug}`;
+                              href = `/restaurantes/${restauranteAsignado.slug}`;
                             } else {
                               // Si es B2B pero no tiene restaurante asignado
                               disabled = true;
@@ -1133,8 +1150,6 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                             <a
                               href={href}
                               className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-                              target="_blank"
-                              rel="noopener noreferrer"
                             >
                               <FaExternalLinkAlt className="mr-1" />
                               Ver Página

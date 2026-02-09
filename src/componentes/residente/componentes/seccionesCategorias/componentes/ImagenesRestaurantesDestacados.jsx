@@ -8,7 +8,7 @@ const ImagenesRestaurantesDestacados = ({ restaurantes, small = false, cantidad 
       restaurantes.slice(0, cantidad).map(rest => (
         <Link
           key={rest.id}
-          to={`/restaurante/${rest.slug}`}
+          to={`/restaurantes/${rest.slug}`}
           className="relative items-center block group"
         >
           <div className={`relative ${small ? 'h-28' : 'h-40'} overflow-hidden bg-black`}>

@@ -5,6 +5,7 @@ import { useAuth } from "../../../Context";
 import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
+import SmartTagsInput from "../SmartTagsInput.jsx";
 
 // Límites de caracteres según el modelo Recetas.js
 const CHAR_LIMITS = {
@@ -29,12 +30,13 @@ const CharCounter = ({ value, max }) => {
 
   return (
     <span
-      className={`text-xs ${isAtLimit
-        ? "text-red-500 font-bold"
-        : isNearLimit
-          ? "text-amber-500"
-          : "text-gray-400"
-        }`}
+      className={`text-xs ${
+        isAtLimit
+          ? "text-red-500 font-bold"
+          : isNearLimit
+            ? "text-amber-500"
+            : "text-gray-400"
+      }`}
     >
       {current}/{max}
     </span>
@@ -71,6 +73,7 @@ export default function FormularioReceta({
     seo_keyword: "",
     meta_description: "",
     destacada_invitado: 0,
+    smart_tags: [],
   });
 
   const [cargando, setCargando] = useState(false);
@@ -124,6 +127,7 @@ export default function FormularioReceta({
         seo_keyword: receta.seo_keyword || "",
         meta_description: receta.meta_description || "",
         destacada_invitado: receta.destacada_invitado || 0,
+        smart_tags: receta.smart_tags || [],
       });
     } else {
       // Resetear si no hay receta (modo crear)
@@ -147,6 +151,7 @@ export default function FormularioReceta({
         seo_keyword: "",
         meta_description: "",
         destacada_invitado: 0,
+        smart_tags: [],
       });
     }
   }, [receta]);
@@ -173,7 +178,8 @@ export default function FormularioReceta({
     }
   };
 
-  // --- AUTO-GENERACIÓN SEO (Recetas) ---
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  /*
   // NOTA: Solo ejecutar para recetas NUEVAS, no cuando se está editando
   useEffect(() => {
     // Si estamos editando una receta existente, NO sobrescribir los campos SEO
@@ -203,7 +209,6 @@ export default function FormularioReceta({
       ) {
         return prev;
       }
-
       return {
         ...prev,
         seo_title: newSeoTitle,
@@ -212,13 +217,9 @@ export default function FormularioReceta({
         meta_description: newMetaDesc,
       };
     });
-  }, [
-    receta,
-    formData.titulo,
-    formData.categoria,
-    formData.descripcion,
-    formData.autor,
-  ]);
+  }, [formData.titulo, formData.categoria, formData.descripcion, formData.autor, receta]);
+  */
+
   // -------------------------------------
 
   // Enviar datos
@@ -232,8 +233,14 @@ export default function FormularioReceta({
       // Primero agregar todos los campos de texto
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "imagen") return; // Saltar imagen por ahora
+        // Especial handling for smart_tags (array to JSON string)
+        if (key === "smart_tags") {
+          data.append(key, value?.length ? JSON.stringify(value) : "");
+          return;
+        }
         // Enviar todos los campos, incluyendo vacíos (para poder borrar valores)
-        data.append(key, value !== null ? value : "");
+        // Para campos SEO/meta, enviar vacío para que el backend lo convierta a null
+        data.append(key, value !== null && value !== undefined ? value : "");
       });
 
       // Agregar la imagen al final si existe
@@ -256,7 +263,7 @@ export default function FormularioReceta({
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.error ||
-          `Error al ${receta ? "actualizar" : "enviar"} la receta`
+            `Error al ${receta ? "actualizar" : "enviar"} la receta`,
         );
       }
 
@@ -298,7 +305,7 @@ export default function FormularioReceta({
       console.error(err);
       setMensaje(
         `Hubo un error al ${receta ? "actualizar" : "enviar"} la receta: ` +
-        err.message
+          err.message,
       );
     } finally {
       setCargando(false);
@@ -310,7 +317,7 @@ export default function FormularioReceta({
     if (!receta?.id) return;
 
     const confirmacion = window.confirm(
-      "¿Estás seguro de que deseas eliminar esta receta? La receta será desactivada y ya no aparecerá en las publicadas."
+      "¿Estás seguro de que deseas eliminar esta receta? La receta será desactivada y ya no aparecerá en las publicadas.",
     );
 
     if (!confirmacion) return;
@@ -363,10 +370,11 @@ export default function FormularioReceta({
         </h1>
         {mensaje && (
           <div
-            className={`px-4 py-2 rounded mb-2 text-center ${mensaje.includes("correctamente")
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-              }`}
+            className={`px-4 py-2 rounded mb-2 text-center ${
+              mensaje.includes("correctamente")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
           >
             {mensaje}
           </div>
@@ -399,8 +407,8 @@ export default function FormularioReceta({
                   receta.imagen.startsWith("http")
                     ? receta.imagen
                     : `${urlApi}api/recetas/imagen/${encodeURIComponent(
-                      receta.imagen.split("/").pop()
-                    )}`
+                        receta.imagen.split("/").pop(),
+                      )}`
                 }
                 alt="Imagen actual de la receta"
                 className="max-w-xs max-h-48 object-cover rounded-lg border border-gray-300"
@@ -455,8 +463,13 @@ export default function FormularioReceta({
         {/* Autor de la Receta (opcional) */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-1">
-            <label className="font-roman font-bold">Autor de la Receta (opcional)</label>
-            <CharCounter value={formData.autor_receta} max={CHAR_LIMITS.autor_receta} />
+            <label className="font-roman font-bold">
+              Autor de la Receta (opcional)
+            </label>
+            <CharCounter
+              value={formData.autor_receta}
+              max={CHAR_LIMITS.autor_receta}
+            />
           </div>
           <input
             type="text"
@@ -616,29 +629,29 @@ export default function FormularioReceta({
           usuario?.rol?.toLowerCase() === "invitados" ||
           usuario?.permisos?.toLowerCase() === "invitado" ||
           usuario?.permisos?.toLowerCase() === "invitados") && (
-            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <label className="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="destacada_invitado"
-                  checked={formData.destacada_invitado === 1}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      destacada_invitado: e.target.checked ? 1 : 0,
-                    });
-                  }}
-                  className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                />
-                <span className="ml-2 font-roman font-bold text-gray-700">
-                  ⭐ Marcar como receta destacada
-                </span>
-              </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Las recetas destacadas aparecen en secciones especiales del sitio
-              </p>
-            </div>
-          )}
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="destacada_invitado"
+                checked={formData.destacada_invitado === 1}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    destacada_invitado: e.target.checked ? 1 : 0,
+                  });
+                }}
+                className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+              />
+              <span className="ml-2 font-roman font-bold text-gray-700">
+                ⭐ Marcar como receta destacada
+              </span>
+            </label>
+            <p className="text-xs text-gray-500 mt-1">
+              Las recetas destacadas aparecen en secciones especiales del sitio
+            </p>
+          </div>
+        )}
 
         {/* Créditos */}
         <div className="mb-4">
@@ -659,62 +672,75 @@ export default function FormularioReceta({
           />
         </div>
 
+        {/* Botón para optimizar con IA */}
+        <div className="mb-6 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!formData.titulo) {
+                alert("Necesitas al menos un título para optimizar con IA");
+                return;
+              }
 
-        {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
-        {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={async () => {
-                if (!formData.titulo) {
-                  alert('Necesitas al menos un título para optimizar con IA');
-                  return;
-                }
+              try {
+                const optimizado = await optimizarReceta({
+                  titulo: formData.titulo,
+                  tipo_receta: formData.tipo_receta,
+                  autor: formData.autor,
+                  descripcion: formData.descripcion,
+                  ingredientes: formData.ingredientes,
+                  preparacion: formData.preparacion,
+                  porciones: formData.porciones,
+                  tiempo: formData.tiempo,
+                  categoria: formData.categoria,
+                });
 
-                try {
-                  const optimizado = await optimizarReceta({
-                    titulo: formData.titulo,
-                    tipo_receta: formData.tipo_receta,
-                    autor: formData.autor,
-                    descripcion: formData.descripcion,
-                    ingredientes: formData.ingredientes,
-                    preparacion: formData.preparacion,
-                    porciones: formData.porciones,
-                    tiempo: formData.tiempo,
-                    categoria: formData.categoria
-                  });
+                setSeoOptimizado(optimizado);
+                setShowSEOComparison(true);
+              } catch (error) {
+                console.error("Error:", error);
+                alert("Error al optimizar con IA: " + error.message);
+              }
+            }}
+            disabled={geminiLoading || !formData.titulo}
+            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <FaRobot className="text-2xl" />
+            <span className="text-lg">
+              {geminiLoading
+                ? "Optimizando con Gemini..."
+                : "Optimizar Contenido y SEO con Gemini"}
+            </span>
+          </button>
+          <p className="text-sm text-gray-500 mt-2 text-center">
+            La IA mejorará tu contenido, campos SEO y generará Smart Tags
+            automáticamente
+          </p>
+        </div>
 
-                  setSeoOptimizado(optimizado);
-                  setShowSEOComparison(true);
-                } catch (error) {
-                  console.error('Error:', error);
-                  alert('Error al optimizar con IA: ' + error.message);
-                }
-              }}
-              disabled={geminiLoading || !formData.titulo}
-              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              <FaRobot className="text-2xl" />
-              <span className="text-lg">
-                {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Receta y SEO con Gemini'}
-              </span>
-            </button>
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              La IA mejorará tu título, descripción y campos SEO automáticamente
-            </p>
-          </div>
-        )}
-
-
-        {/* Sección SEO Metadata */}
+        {/* Smart Tags Input (Debajo del botón) */}
+        <div className="mb-4">
+          <SmartTagsInput
+            value={formData.smart_tags}
+            onChange={(tags) => setFormData({ ...formData, smart_tags: tags })}
+            isGenerating={geminiLoading}
+            hideGenerationButton={true}
+          />
+        </div>
         <div className="border-t pt-4 mt-6">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-xl font-bold">SEO Metadata (Opcional)</h2>
             <div className="group relative inline-block">
-              <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">ⓘ</span>
+              <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">
+                ⓘ
+              </span>
               <div className="invisible group-hover:visible absolute z-10 w-72 p-3 mt-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg -left-32">
                 <p className="font-bold mb-1">¿Qué es SEO?</p>
-                <p>SEO son técnicas para que tu contenido aparezca en los primeros resultados de Google. Completa estos campos para mejorar tu visibilidad en buscadores.</p>
+                <p>
+                  SEO son técnicas para que tu contenido aparezca en los
+                  primeros resultados de Google. Completa estos campos para
+                  mejorar tu visibilidad en buscadores.
+                </p>
               </div>
             </div>
           </div>
@@ -726,9 +752,12 @@ export default function FormularioReceta({
                 Texto Alt de Imagen
               </label>
               <div className="group relative inline-block">
-                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <span className="cursor-help text-blue-600 hover:text-blue-800">
+                  ?
+                </span>
                 <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                  Descripción de la imagen para personas con discapacidad visual y buscadores. Mejora la accesibilidad y el SEO.
+                  Descripción de la imagen para personas con discapacidad visual
+                  y buscadores. Mejora la accesibilidad y el SEO.
                 </div>
               </div>
             </div>
@@ -745,11 +774,17 @@ export default function FormularioReceta({
           {/* SEO Title */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-1">
-              <label className="space-y-2 font-roman font-bold">Título SEO</label>
+              <label className="space-y-2 font-roman font-bold">
+                Título SEO
+              </label>
               <div className="group relative inline-block">
-                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <span className="cursor-help text-blue-600 hover:text-blue-800">
+                  ?
+                </span>
                 <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                  Título que aparece en la pestaña del navegador y en resultados de Google. Incluye palabras clave importantes (máx. 60 caracteres).
+                  Título que aparece en la pestaña del navegador y en resultados
+                  de Google. Incluye palabras clave importantes (máx. 60
+                  caracteres).
                 </div>
               </div>
             </div>
@@ -770,9 +805,12 @@ export default function FormularioReceta({
                 Palabras Clave
               </label>
               <div className="group relative inline-block">
-                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <span className="cursor-help text-blue-600 hover:text-blue-800">
+                  ?
+                </span>
                 <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                  La palabra o frase principal por la que quieres que encuentren tu contenido en Google. Ejemplo: "receta tacos al pastor".
+                  La palabra o frase principal por la que quieres que encuentren
+                  tu contenido en Google. Ejemplo: "receta tacos al pastor".
                 </div>
               </div>
             </div>
@@ -793,9 +831,12 @@ export default function FormularioReceta({
                 Meta Descripción
               </label>
               <div className="group relative inline-block">
-                <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                <span className="cursor-help text-blue-600 hover:text-blue-800">
+                  ?
+                </span>
                 <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                  Resumen que aparece bajo el título en Google. Convence a las personas de hacer clic (máx. 155 caracteres).
+                  Resumen que aparece bajo el título en Google. Convence a las
+                  personas de hacer clic (máx. 155 caracteres).
                 </div>
               </div>
             </div>
@@ -839,8 +880,9 @@ export default function FormularioReceta({
               type="button"
               onClick={onCancelar}
               disabled={cargando || eliminando}
-              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition ${
+                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               Cancelar
             </button>
@@ -848,8 +890,9 @@ export default function FormularioReceta({
           <button
             type="submit"
             disabled={cargando || eliminando}
-            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`flex-1 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition ${
+              cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {cargando
               ? "Enviando..."
@@ -862,8 +905,9 @@ export default function FormularioReceta({
               type="button"
               onClick={handleEliminar}
               disabled={cargando || eliminando}
-              className={`flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition ${cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition ${
+                cargando || eliminando ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {eliminando ? "Eliminando..." : "Eliminar"}
             </button>
@@ -881,18 +925,27 @@ export default function FormularioReceta({
             seo_title: formData.seo_title,
             seo_keyword: formData.seo_keyword,
             meta_description: formData.meta_description,
-            seo_alt_text: formData.seo_alt_text
+            seo_alt_text: formData.seo_alt_text,
+            smart_tags: formData.smart_tags,
           }}
           optimizado={seoOptimizado}
           onSelect={(camposSeleccionados) => {
             // Aplicar solo los campos seleccionados
             const nuevoFormData = { ...formData };
-            if (camposSeleccionados.titulo) nuevoFormData.titulo = seoOptimizado.titulo;
-            if (camposSeleccionados.descripcion) nuevoFormData.descripcion = seoOptimizado.descripcion;
-            if (camposSeleccionados.seo_title) nuevoFormData.seo_title = seoOptimizado.seo_title;
-            if (camposSeleccionados.seo_keyword) nuevoFormData.seo_keyword = seoOptimizado.seo_keyword;
-            if (camposSeleccionados.meta_description) nuevoFormData.meta_description = seoOptimizado.meta_description;
-            if (camposSeleccionados.seo_alt_text) nuevoFormData.seo_alt_text = seoOptimizado.seo_alt_text;
+            if (camposSeleccionados.titulo)
+              nuevoFormData.titulo = seoOptimizado.titulo;
+            if (camposSeleccionados.descripcion)
+              nuevoFormData.descripcion = seoOptimizado.descripcion;
+            if (camposSeleccionados.seo_title)
+              nuevoFormData.seo_title = seoOptimizado.seo_title;
+            if (camposSeleccionados.seo_keyword)
+              nuevoFormData.seo_keyword = seoOptimizado.seo_keyword;
+            if (camposSeleccionados.meta_description)
+              nuevoFormData.meta_description = seoOptimizado.meta_description;
+            if (camposSeleccionados.seo_alt_text)
+              nuevoFormData.seo_alt_text = seoOptimizado.seo_alt_text;
+            if (camposSeleccionados.smart_tags)
+              nuevoFormData.smart_tags = seoOptimizado.smart_tags;
             setFormData(nuevoFormData);
             setShowSEOComparison(false);
           }}

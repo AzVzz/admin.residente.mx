@@ -35,6 +35,7 @@ import DetallePost from "../DetallePost.jsx";
 import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
+import SmartTagsInput from "../SmartTagsInput.jsx";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -73,14 +74,14 @@ const FormMainResidente = () => {
   // Generar tipoNotaUsuario dinámicamente basado en los permisos del usuario
   const tipoNotaUsuario = usuario
     ? tipoNotaPorPermiso[usuario.permisos] ||
-    (usuario.permisos &&
+      (usuario.permisos &&
       usuario.permisos !== "usuario" &&
       usuario.permisos !== "todo" &&
       usuario.permisos !== "todos"
-      ? usuario.permisos
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase())
-      : "")
+        ? usuario.permisos
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+        : "")
     : "";
 
   // Redirect B2B users to their dashboard
@@ -122,6 +123,7 @@ const FormMainResidente = () => {
       seo_title: "",
       seo_keyword: "",
       meta_description: "",
+      smart_tags: [],
       destacada_invitado: 0,
     },
   });
@@ -148,6 +150,55 @@ const FormMainResidente = () => {
   const [showSEOComparison, setShowSEOComparison] = useState(false);
   const [seoOptimizado, setSeoOptimizado] = useState(null);
 
+  // Handler para generar tags/SEO con AI MANUALMENTE (botón en SmartTagsInput)
+  const handleGenerateAI = async () => {
+    // Validar que haya contenido mínimo
+    const titulo = watch("titulo");
+    const contenido = watch("contenido");
+
+    if (!titulo || isContenidoVacio(contenido)) {
+      alert("Por favor agrega un título y contenido antes de generar con IA.");
+      return;
+    }
+
+    try {
+      const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
+      const nombreRestaurante = watch("nombre_restaurante");
+      const subtitulo = watch("subtitulo");
+
+      const notaData = {
+        titulo,
+        subtitulo,
+        descripcion: contenido, // El backend espera 'descripcion'
+        autor: watch("autor"),
+        tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario || "Nota",
+        nombre_restaurante,
+      };
+
+      const seoData = await optimizarNota(notaData);
+
+      if (seoData) {
+        // Actualizar Smart Tags
+        if (seoData.smart_tags && Array.isArray(seoData.smart_tags)) {
+          setValue("smart_tags", seoData.smart_tags);
+        }
+
+        // Actualizar campos SEO si están vacíos o si el usuario confirma (podríamos agregar lógica acá)
+        // Por ahora, actualizamos los campos SEO para mantener consistencia con la funcionalidad existente
+        setValue("seo_title", seoData.seo_title);
+        setValue("meta_description", seoData.meta_description);
+        setValue("seo_keyword", seoData.seo_keyword);
+        setValue("seo_alt_text", seoData.seo_alt_text);
+
+        // Opcional: Mostrar feedback
+        setShowSEOComparison(true); // Reutilizamos el modal de comparación si existe o creamos uno simple
+      }
+    } catch (error) {
+      console.error("Error generando IA:", error);
+      alert("Error generando etiquetas inteligente: " + error.message);
+    }
+  };
+
   // Watch para mostrar en tiempo real las notas editandose:
   const titulo = watch("titulo");
   const subtitulo = watch("subtitulo");
@@ -161,9 +212,9 @@ const FormMainResidente = () => {
     // Elimina etiquetas HTML y espacios
     const textoPlano = contenido
       ? contenido
-        .replace(/<[^>]*>/g, "")
-        .replace(/&nbsp;/g, "")
-        .trim()
+          .replace(/<[^>]*>/g, "")
+          .replace(/&nbsp;/g, "")
+          .trim()
       : "";
     return !textoPlano;
   }
@@ -191,8 +242,9 @@ const FormMainResidente = () => {
     : [];
   if (stickersSeleccionados.length < 2) {
     camposFaltantes.push(
-      `selecciona ${2 - stickersSeleccionados.length} sticker${2 - stickersSeleccionados.length === 1 ? "" : "s"
-      }`
+      `selecciona ${2 - stickersSeleccionados.length} sticker${
+        2 - stickersSeleccionados.length === 1 ? "" : "s"
+      }`,
     );
   }
   const faltanCamposObligatorios = camposFaltantes.length > 0;
@@ -210,7 +262,10 @@ const FormMainResidente = () => {
   }, [faltanCamposObligatorios, setValue]);
 
   // --- AUTO-GENERACIÓN SEO (Notas) ---
-  // NOTA: Solo ejecutar para notas NUEVAS, no cuando se está editando
+  /*
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  // Se comenta para dejar que el Backend (Gemini) se encargue de esto.
+
   const zonas = watch("zonas");
   const tiposDeNotaSeleccionadas = watch("tiposDeNotaSeleccionadas");
 
@@ -268,6 +323,7 @@ const FormMainResidente = () => {
     tipoNotaUsuario,
     setValue,
   ]);
+  */
   // -----------------------------------
 
   useEffect(() => {
@@ -402,10 +458,16 @@ const FormMainResidente = () => {
             try {
               const fechaInsta = new Date(data.programar_insta_imagen);
               const anioInsta = fechaInsta.getFullYear();
-              const mesInsta = String(fechaInsta.getMonth() + 1).padStart(2, "0");
+              const mesInsta = String(fechaInsta.getMonth() + 1).padStart(
+                2,
+                "0",
+              );
               const diaInsta = String(fechaInsta.getDate()).padStart(2, "0");
               const horasInsta = String(fechaInsta.getHours()).padStart(2, "0");
-              const minutosInsta = String(fechaInsta.getMinutes()).padStart(2, "0");
+              const minutosInsta = String(fechaInsta.getMinutes()).padStart(
+                2,
+                "0",
+              );
               fechaProgramadaInstafoto = `${anioInsta}-${mesInsta}-${diaInsta}T${horasInsta}:${minutosInsta}`;
             } catch (e) {
               console.error("Error convirtiendo fecha instafoto:", e);
@@ -422,14 +484,18 @@ const FormMainResidente = () => {
             fechaProgramada: fechaProgramada || "",
             tipoDeNotaSeleccionada: tipoNotaUsuario || data.tipo_nota || "",
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
-              ? data.secciones_categorias.reduce((acc, { seccion, categoria }) => {
-                if (seccion === "Food & Drink") {
-                  acc[seccion] = categoria;
-                } else if (!acc[seccion]) {
-                  acc[seccion] = categoria;
-                }
-                return acc;
-              }, {})
+              ? data.secciones_categorias.reduce(
+                  (acc, { seccion, categoria }) => {
+                    // Priorizar "Food & Drink" si existe
+                    if (seccion === "Food & Drink") {
+                      acc[seccion] = categoria;
+                    } else if (!acc[seccion]) {
+                      acc[seccion] = categoria;
+                    }
+                    return acc;
+                  },
+                  {},
+                )
               : {},
             sticker: data.sticker || "",
             destacada: !!data.destacada,
@@ -448,6 +514,7 @@ const FormMainResidente = () => {
             destacada_invitado: data.destacada_invitado || 0,
             programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
+            smart_tags: data.smart_tags || [],
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -503,7 +570,8 @@ const FormMainResidente = () => {
 
     try {
       // ✅ DECLARAR PRIMERO tipoNotaFinal
-      const tipoNotaFinal = tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+      const tipoNotaFinal =
+        tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
 
       let seccionesCategorias = [];
 
@@ -511,37 +579,34 @@ const FormMainResidente = () => {
         const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
         const zonasSeleccionadas = data.zonas || [];
 
-
-
         if (categoriaFoodDrink) {
           // Mapeo de opciones del formulario Food & Drink a nombres de sección en BD
           const mapeoCategoria = {
-            "Cafés": "Cafés",
-            "Bares": "Bar",
-            "Postres": "Postres",
-            "Snacks": "Snacks",
-            "Bebidas": "Bebidas"
+            Cafés: "Cafés",
+            Bares: "Bares",
+            Postres: "Postres",
+            Snacks: "Snacks",
+            Bebidas: "Bebidas",
           };
 
-          const seccionFinal = mapeoCategoria[categoriaFoodDrink] || categoriaFoodDrink;
+          const seccionFinal =
+            mapeoCategoria[categoriaFoodDrink] || categoriaFoodDrink;
 
           // ✅ AGREGAR ENTRADA ORIGINAL (para el formulario)
           seccionesCategorias.push({
             seccion: "Food & Drink",
-            categoria: categoriaFoodDrink
+            categoria: categoriaFoodDrink,
           });
 
           // ✅ AGREGAR ENTRADAS TRANSFORMADAS (para el directorio)
           if (zonasSeleccionadas.length > 0) {
-            zonasSeleccionadas.forEach(zona => {
+            zonasSeleccionadas.forEach((zona) => {
               seccionesCategorias.push({
                 seccion: seccionFinal,
-                categoria: zona
+                categoria: zona,
               });
             });
           }
-
-
         }
       } else {
         seccionesCategorias = Object.entries(data.categoriasSeleccionadas)
@@ -566,10 +631,11 @@ const FormMainResidente = () => {
         // NUEVO: Indicar si se debe actualizar la fecha
         actualizar_fecha: actualizarFecha,
         zonas: data.zonas,
-        seo_alt_text: data.seo_alt_text,
-        seo_title: data.seo_title,
-        seo_keyword: data.seo_keyword,
-        meta_description: data.meta_description,
+        seo_alt_text: data.seo_alt_text?.trim() || null,
+        seo_title: data.seo_title?.trim() || null,
+        seo_keyword: data.seo_keyword?.trim() || null,
+        meta_description: data.meta_description?.trim() || null,
+        smart_tags: data.smart_tags?.length ? data.smart_tags : null,
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"
@@ -656,7 +722,7 @@ const FormMainResidente = () => {
 
   // Llaman a onSubmit con el flag 'actualizarFecha'
   const submitActualizada = methods.handleSubmit((data) =>
-    onSubmit(data, true)
+    onSubmit(data, true),
   );
   const submitCambios = methods.handleSubmit((data) => onSubmit(data, false));
 
@@ -704,7 +770,8 @@ const FormMainResidente = () => {
                   tipoDeNota={tipoDeNota}
                   secciones={[
                     ...secciones.filter(
-                      (s) => s.seccion !== "Zona" && s.seccion !== "Experiencia"
+                      (s) =>
+                        s.seccion !== "Zona" && s.seccion !== "Experiencia",
                     ),
                     ...(secciones.find((s) => s.seccion === "Zona")
                       ? [secciones.find((s) => s.seccion === "Zona")]
@@ -776,29 +843,29 @@ const FormMainResidente = () => {
                   usuario?.rol?.toLowerCase() === "invitados" ||
                   usuario?.permisos?.toLowerCase() === "invitado" ||
                   usuario?.permisos?.toLowerCase() === "invitados") && (
-                    <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <label className="inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={watch("destacada_invitado") === 1}
-                          onChange={(e) => {
-                            setValue(
-                              "destacada_invitado",
-                              e.target.checked ? 1 : 0
-                            );
-                          }}
-                          className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                        />
-                        <span className="ml-2 font-roman font-bold text-gray-700">
-                          ⭐ Marcar como nota destacada para invitados
-                        </span>
-                      </label>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Las notas destacadas aparecen en secciones especiales del
-                        sitio
-                      </p>
-                    </div>
-                  )}
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={watch("destacada_invitado") === 1}
+                        onChange={(e) => {
+                          setValue(
+                            "destacada_invitado",
+                            e.target.checked ? 1 : 0,
+                          );
+                        }}
+                        className="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
+                      />
+                      <span className="ml-2 font-roman font-bold text-gray-700">
+                        ⭐ Marcar como nota destacada para invitados
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Las notas destacadas aparecen en secciones especiales del
+                      sitio
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <NombreRestaurante />
@@ -854,10 +921,11 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="publicar-ahora"
-                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                            }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           Publicar ahora
                         </label>
@@ -874,10 +942,11 @@ const FormMainResidente = () => {
                         />
                         <label
                           htmlFor="programar"
-                          className={`text-sm text-yellow-800 cursor-pointer ${faltanCamposObligatorios
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                            }`}
+                          className={`text-sm text-yellow-800 cursor-pointer ${
+                            faltanCamposObligatorios
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           Programar publicación
                         </label>
@@ -920,49 +989,69 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
-
                 {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
-                {(usuario?.permisos === "todos" || usuario?.rol?.toLowerCase() === "residente") && (
-                  <div className="mb-6 pb-4">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (!titulo || !contenido) {
-                          alert('Necesitas al menos un título y contenido para optimizar con IA');
-                          return;
-                        }
+                {(usuario?.permisos === "todos" ||
+                  usuario?.rol?.toLowerCase() === "residente") && (
+                  <>
+                    <div className="mb-6 pb-4">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!titulo || !contenido) {
+                            alert(
+                              "Necesitas al menos un título y contenido para optimizar con IA",
+                            );
+                            return;
+                          }
 
-                        try {
-                          const optimizado = await optimizarNota({
-                            titulo,
-                            subtitulo,
-                            descripcion: contenido,
-                            autor,
-                            tipo_nota: tiposDeNotaSeleccionadas || tipoNotaUsuario,
-                            nombre_restaurante: nombreRestaurante
-                          });
+                          try {
+                            const optimizado = await optimizarNota({
+                              titulo,
+                              subtitulo,
+                              descripcion: contenido,
+                              autor,
+                              tipo_nota:
+                                tiposDeNotaSeleccionadas || tipoNotaUsuario,
+                              nombre_restaurante: nombreRestaurante,
+                            });
 
-                          setSeoOptimizado(optimizado);
-                          setShowSEOComparison(true);
-                        } catch (error) {
-                          console.error('Error:', error);
-                          alert('Error al optimizar con IA: ' + error.message);
-                        }
-                      }}
-                      disabled={geminiLoading || !titulo || !contenido}
-                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                      <FaRobot className="text-2xl" />
-                      <span className="text-lg">
-                        {geminiLoading ? 'Optimizando con Gemini...' : 'Optimizar Contenido y SEO con Gemini'}
-                      </span>
-                    </button>
-                    <p className="text-sm text-gray-500 mt-2 text-center">
-                      La IA mejorará tu título, subtítulo, descripción y campos SEO automáticamente
-                    </p>
-                  </div>
+                            setSeoOptimizado(optimizado);
+                            setShowSEOComparison(true);
+                          } catch (error) {
+                            console.error("Error:", error);
+                            alert(
+                              "Error al optimizar con IA: " + error.message,
+                            );
+                          }
+                        }}
+                        disabled={geminiLoading || !titulo || !contenido}
+                        className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      >
+                        <FaRobot className="text-2xl" />
+                        <span className="text-lg">
+                          {geminiLoading
+                            ? "Optimizando con Gemini..."
+                            : "Optimizar Contenido y SEO con Gemini"}
+                        </span>
+                      </button>
+                      <p className="text-sm text-gray-500 mt-2 text-center">
+                        La IA mejorará tu título, subtítulo, descripción, campos
+                        SEO y generará Smart Tags automáticamente
+                      </p>
+                    </div>
+
+                    {/* Smart Tags Input (Debajo del botón) */}
+                    <div className="mb-6 pb-4">
+                      <SmartTagsInput
+                        value={watch("smart_tags")}
+                        onChange={(tags) => setValue("smart_tags", tags)}
+                        onGenerateAI={handleGenerateAI} // Fallback, but hidden
+                        isGenerating={geminiLoading}
+                        hideGenerationButton={true}
+                      />
+                    </div>
+                  </>
                 )}
-
 
                 {/* Sección SEO Metadata */}
                 <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -971,10 +1060,16 @@ const FormMainResidente = () => {
                       SEO Metadata (Opcional)
                     </h3>
                     <div className="group relative inline-block">
-                      <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">ⓘ</span>
+                      <span className="cursor-help text-blue-600 hover:text-blue-800 text-lg font-bold">
+                        ⓘ
+                      </span>
                       <div className="invisible group-hover:visible absolute z-10 w-72 p-3 mt-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg -left-32">
                         <p className="font-bold mb-1">¿Qué es SEO?</p>
-                        <p>SEO son técnicas para que tu contenido aparezca en los primeros resultados de Google. Completa estos campos para mejorar tu visibilidad en buscadores.</p>
+                        <p>
+                          SEO son técnicas para que tu contenido aparezca en los
+                          primeros resultados de Google. Completa estos campos
+                          para mejorar tu visibilidad en buscadores.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -986,9 +1081,13 @@ const FormMainResidente = () => {
                           Texto Alt de Imagen
                         </label>
                         <div className="group relative inline-block">
-                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">
+                            ?
+                          </span>
                           <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                            Descripción de la imagen para personas con discapacidad visual y buscadores. Mejora la accesibilidad y el SEO.
+                            Descripción de la imagen para personas con
+                            discapacidad visual y buscadores. Mejora la
+                            accesibilidad y el SEO.
                           </div>
                         </div>
                       </div>
@@ -1005,9 +1104,13 @@ const FormMainResidente = () => {
                           Título SEO
                         </label>
                         <div className="group relative inline-block">
-                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">
+                            ?
+                          </span>
                           <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                            Título que aparece en la pestaña del navegador y en resultados de Google. Incluye palabras clave importantes (máx. 60 caracteres).
+                            Título que aparece en la pestaña del navegador y en
+                            resultados de Google. Incluye palabras clave
+                            importantes (máx. 60 caracteres).
                           </div>
                         </div>
                       </div>
@@ -1024,9 +1127,13 @@ const FormMainResidente = () => {
                           Palabra Clave
                         </label>
                         <div className="group relative inline-block">
-                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">
+                            ?
+                          </span>
                           <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                            La palabra o frase principal por la que quieres que encuentren tu contenido en Google. Ejemplo: "restaurante italiano monterrey".
+                            La palabra o frase principal por la que quieres que
+                            encuentren tu contenido en Google. Ejemplo:
+                            "restaurante italiano monterrey".
                           </div>
                         </div>
                       </div>
@@ -1043,9 +1150,13 @@ const FormMainResidente = () => {
                           Meta Descripción
                         </label>
                         <div className="group relative inline-block">
-                          <span className="cursor-help text-blue-600 hover:text-blue-800">?</span>
+                          <span className="cursor-help text-blue-600 hover:text-blue-800">
+                            ?
+                          </span>
                           <div className="invisible group-hover:visible absolute z-10 w-64 p-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg left-0">
-                            Resumen que aparece bajo el título en Google. Convence a las personas de hacer clic (máx. 155 caracteres).
+                            Resumen que aparece bajo el título en Google.
+                            Convence a las personas de hacer clic (máx. 155
+                            caracteres).
                           </div>
                         </div>
                       </div>
@@ -1066,10 +1177,11 @@ const FormMainResidente = () => {
                       type="button"
                       onClick={eliminarNota}
                       disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${eliminando
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-red-600 text-white hover:bg-red-700"
-                        }`}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
                     >
                       {eliminando ? "Eliminando..." : "Eliminar Nota"}
                     </button>
@@ -1138,21 +1250,31 @@ const FormMainResidente = () => {
             titulo,
             subtitulo,
             descripcion: contenido,
-            seo_title: watch('seo_title'),
-            seo_keyword: watch('seo_keyword'),
-            meta_description: watch('meta_description'),
-            seo_alt_text: watch('seo_alt_text')
+            seo_title: watch("seo_title"),
+            seo_keyword: watch("seo_keyword"),
+            meta_description: watch("meta_description"),
+            seo_alt_text: watch("seo_alt_text"),
+            smart_tags: watch("smart_tags"),
           }}
           optimizado={seoOptimizado}
           onSelect={(camposSeleccionados) => {
             // Aplicar solo los campos que el usuario seleccionó
-            if (camposSeleccionados.titulo) setValue('titulo', seoOptimizado.titulo);
-            if (camposSeleccionados.subtitulo) setValue('subtitulo', seoOptimizado.subtitulo);
-            if (camposSeleccionados.descripcion) setValue('contenido', seoOptimizado.descripcion);
-            if (camposSeleccionados.seo_title) setValue('seo_title', seoOptimizado.seo_title);
-            if (camposSeleccionados.seo_keyword) setValue('seo_keyword', seoOptimizado.seo_keyword);
-            if (camposSeleccionados.meta_description) setValue('meta_description', seoOptimizado.meta_description);
-            if (camposSeleccionados.seo_alt_text) setValue('seo_alt_text', seoOptimizado.seo_alt_text);
+            if (camposSeleccionados.titulo)
+              setValue("titulo", seoOptimizado.titulo);
+            if (camposSeleccionados.subtitulo)
+              setValue("subtitulo", seoOptimizado.subtitulo);
+            if (camposSeleccionados.descripcion)
+              setValue("contenido", seoOptimizado.descripcion);
+            if (camposSeleccionados.seo_title)
+              setValue("seo_title", seoOptimizado.seo_title);
+            if (camposSeleccionados.seo_keyword)
+              setValue("seo_keyword", seoOptimizado.seo_keyword);
+            if (camposSeleccionados.meta_description)
+              setValue("meta_description", seoOptimizado.meta_description);
+            if (camposSeleccionados.seo_alt_text)
+              setValue("seo_alt_text", seoOptimizado.seo_alt_text);
+            if (camposSeleccionados.smart_tags)
+              setValue("smart_tags", seoOptimizado.smart_tags);
             setShowSEOComparison(false);
           }}
           onClose={() => setShowSEOComparison(false)}

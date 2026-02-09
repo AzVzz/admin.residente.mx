@@ -15,7 +15,7 @@ const CarruselPosts = ({ restaurantes = [] }) => {
       ? urlApi.replace(/\/$/, "") + rest.imagenes[0].src
       : "https://via.placeholder.com/800x440?text=Sin+Imagen";
     return (
-      <Link to={`/restaurante/${rest.slug}`} className="block h-[400px] relative">
+      <Link to={`/restaurantes/${rest.slug}`} className="block h-[400px] relative">
         <img src={src} alt={rest?.nombre_restaurante ?? "Restaurante"} className="w-full h-full object-cover" />
       </Link>
     );
@@ -116,7 +116,7 @@ const CarruselPosts = ({ restaurantes = [] }) => {
         >
           {slides.map((rest, i) => (
             <div key={(rest?.id ?? `s-${i}`) + "-" + i} className="min-w-full flex-none h-full relative">
-              <Link to={`/restaurante/${rest.slug}`} className="block h-full w-full">
+              <Link to={`/restaurantes/${rest.slug}`} className="block h-full w-full">
                 <img
                   src={getSrc(rest)}
                   alt={getName(rest)}
@@ -142,10 +142,10 @@ const CarruselPosts = ({ restaurantes = [] }) => {
           aria-label="Anterior"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-6 h-6">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
           </svg>
         </button>
 
@@ -157,10 +157,10 @@ const CarruselPosts = ({ restaurantes = [] }) => {
           aria-label="Siguiente"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-               viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-               className="w-6 h-6">
+            viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+              d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
           </svg>
         </button>
 

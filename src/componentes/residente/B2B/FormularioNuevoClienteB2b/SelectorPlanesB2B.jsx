@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaStore, FaBuilding, FaCity, FaWarehouse, FaStoreAlt } from "react-icons/fa";
+import {
+  FaStore,
+  FaBuilding,
+  FaCity,
+  FaWarehouse,
+  FaStoreAlt,
+} from "react-icons/fa";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 
 const NOMBRES_MEMBRESIAS = {
   1: "Membresía Básica",
   3: "Membresía Oro",
+  5: "Membresía Platino",
   "5+": "Membresía Platino",
 };
 
@@ -13,6 +20,7 @@ const NOMBRES_MEMBRESIAS = {
 const TEXTO_SUCURSALES = {
   1: "Suscripción Anual",
   3: "Suscripción Anual",
+  5: "Suscripción Anual",
   "5+": "Suscripción Anual",
 };
 
@@ -94,7 +102,24 @@ const CARACTERISTICAS_POR_PLAN = {
     "Promociones especiales",
     "Reportes mensuales",
   ],
-  // Plan 5+ sucursales
+  // Plan 5/5+ sucursales
+  5: [
+    "Publicidad masiva 'Club Residente'",
+    "Presencia en directorio Web",
+    "Presencia en directorio Revista",
+    "Presencia en directorio Redes Sociales",
+    "Presencia en directorio Newsletter",
+    "Ticket de Descuento ilimitado",
+    "Micrositio individual.Cambios ilimitados",
+    "Acervo historico.SEO Google y ChatGPT",
+    "Descuentos para tu negocio",
+    "Rifas",
+    "──────────────────",
+    "Estudios de mercado. ilimitado",
+    "Acceso a eventos Residente",
+    "──────────────────",
+    "1 Pagina Revista. A escoger en 1 de 12 meses",
+  ],
   "5+": [
     "Publicidad masiva 'Club Residente'",
     "Presencia en directorio Web",
@@ -128,9 +153,10 @@ const PlanCard = ({ plan, onSelectPlan }) => {
     <div
       className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out
         hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
-        ${plan.destacado
-          ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
-          : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
+        ${
+          plan.destacado
+            ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
+            : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
         }`}
       onClick={() => onSelectPlan(plan)}
     >
@@ -146,55 +172,79 @@ const PlanCard = ({ plan, onSelectPlan }) => {
       {/* Header del plan */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg transition-all duration-300 group-hover:scale-110 ${plan.destacado ? "bg-yellow-400/20" : "bg-gray-100"}`}>
-            <IconoComponent className={`text-2xl transition-transform duration-300 ${plan.destacado ? "text-black" : "text-gray-700"}`} />
+          <div
+            className={`p-2 rounded-lg transition-all duration-300 group-hover:scale-110 ${plan.destacado ? "bg-yellow-400/20" : "bg-gray-100"}`}
+          >
+            <IconoComponent
+              className={`text-2xl transition-transform duration-300 ${plan.destacado ? "text-black" : "text-gray-700"}`}
+            />
           </div>
           <h2 className="text-xl font-bold">{plan.nombreMembresia || "B2B"}</h2>
         </div>
-        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${plan.destacado ? "border-black" : "border-gray-300"
-          }`}>
-          <div className={`w-3 h-3 rounded-full transition-all duration-300 ${plan.destacado
-            ? "bg-black scale-100"
-            : "bg-black scale-0 group-hover:scale-100"
-            }`}></div>
+        <div
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${
+            plan.destacado ? "border-black" : "border-gray-300"
+          }`}
+        >
+          <div
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              plan.destacado
+                ? "bg-black scale-100"
+                : "bg-black scale-0 group-hover:scale-100"
+            }`}
+          ></div>
         </div>
       </div>
 
       {/* Precio */}
       <div className="mb-4">
         <div className="flex items-baseline gap-1">
-          <span className={`text-4xl font-bold transition-all duration-300 ${plan.destacado ? "group-hover:text-black" : "group-hover:text-black"}`}>
+          <span
+            className={`text-4xl font-bold transition-all duration-300 ${plan.destacado ? "group-hover:text-black" : "group-hover:text-black"}`}
+          >
             ${plan.precioMensual?.toLocaleString("es-MX")}
           </span>
-          <span className={`text-[20px] transition-colors duration-300 ${plan.destacado ? "text-gray-400" : "text-gray-500"}`}>
+          <span
+            className={`text-[20px] transition-colors duration-300 ${plan.destacado ? "text-gray-400" : "text-gray-500"}`}
+          >
             + IVA / MES
           </span>
         </div>
       </div>
 
       {/* Sucursales destacadas */}
-      <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${plan.destacado ? "bg-yellow-400/20 text-yellow-400" : "bg-gray-100 text-gray-700"
-        }`}>
+      <div
+        className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${
+          plan.destacado
+            ? "bg-yellow-400/20 text-yellow-400"
+            : "bg-gray-100 text-gray-700"
+        }`}
+      >
         {plan.textoSucursales}
       </div>
 
       {/* Características */}
       <ul className="space-y-3 mb-6">
-        {plan.caracteristicas?.map((caracteristica, idx) => (
+        {plan.caracteristicas?.map((caracteristica, idx) =>
           caracteristica.includes("──") ? (
             <li key={idx} className="flex justify-center my-2">
               <div className="w-full border-t border-black"></div>
             </li>
           ) : (
             <li key={idx} className="flex items-start gap-2">
-              <HiOutlineCheckCircle className={`text-lg mt-0.5 flex-shrink-0 ${plan.destacado ? "text-black" : "text-black"
-                }`} />
-              <span className={`text-sm ${plan.destacado ? "text-gray-200" : "text-gray-700"}`}>
+              <HiOutlineCheckCircle
+                className={`text-lg mt-0.5 flex-shrink-0 ${
+                  plan.destacado ? "text-black" : "text-black"
+                }`}
+              />
+              <span
+                className={`text-sm ${plan.destacado ? "text-gray-200" : "text-gray-700"}`}
+              >
                 {caracteristica}
               </span>
             </li>
-          )
-        ))}
+          ),
+        )}
       </ul>
 
       {/* Botón de selección */}
@@ -203,10 +253,11 @@ const PlanCard = ({ plan, onSelectPlan }) => {
           e.stopPropagation();
           onSelectPlan(plan);
         }}
-        className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${plan.destacado
-          ? " cursor-pointer"
-          : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
-          }
+        className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+          plan.destacado
+            ? " cursor-pointer"
+            : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+        }
         }`}
       >
         Seleccionar
@@ -261,7 +312,9 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
       >
         {/* Header del modal */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">5 Razones para Suscribirte</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            5 Razones para Suscribirte
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
@@ -286,12 +339,19 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
               <div className="text-center p-8 max-w-md">
                 <div className="text-6xl mb-4">📄</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">PDF no encontrado</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  PDF no encontrado
+                </h3>
                 <p className="text-gray-600 mb-4">
-                  El archivo PDF aún no está disponible. Por favor, sube el archivo a la carpeta <code className="bg-gray-200 px-2 py-1 rounded text-sm">public</code> con el nombre:
+                  El archivo PDF aún no está disponible. Por favor, sube el
+                  archivo a la carpeta{" "}
+                  <code className="bg-gray-200 px-2 py-1 rounded text-sm">
+                    public
+                  </code>{" "}
+                  con el nombre:
                 </p>
                 <p className="text-sm text-gray-500 mb-6 font-mono bg-gray-200 px-3 py-2 rounded">
-                  {pdfUrl.replace('/', '')}
+                  {pdfUrl.replace("/", "")}
                 </p>
                 <button
                   onClick={onClose}
@@ -322,24 +382,26 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
   // URL del PDF - ruta completa desde la raíz del servidor
 
-  const pdfUrl = "https://residente.mx/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
-  // Filtrar solo los planes de 1, 3 y 5+ sucursales
-  const planesPermitidos = [1, 3, "5+"];
+  const pdfUrl =
+    "https://residente.mx/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
+  // Filtrar solo los planes de 1, 3 y 5/5+ sucursales
+  const planesPermitidos = [1, 3, 5, "5+"];
 
-  const planes = planesData && planesData.length > 0
-    ? planesData
-      .filter((plan) => planesPermitidos.includes(plan.sucursales))
-      .map((plan, index) => ({
-        ...plan,
-        id: plan.priceId || index,
-        icono: getIconoPorSucursales(plan.sucursales),
-        caracteristicas: getCaracteristicasPorSucursales(plan.sucursales),
-        nombreMembresia: getNombreMembresia(plan.sucursales),
-        textoSucursales: getTextoSucursales(plan.sucursales),
-        // Sin plan destacado - todas las tarjetas iguales en blanco
-        destacado: false,
-      }))
-    : [];
+  const planes =
+    planesData && planesData.length > 0
+      ? planesData
+          .filter((plan) => planesPermitidos.includes(plan.sucursales))
+          .map((plan, index) => ({
+            ...plan,
+            id: plan.priceId || index,
+            icono: getIconoPorSucursales(plan.sucursales),
+            caracteristicas: getCaracteristicasPorSucursales(plan.sucursales),
+            nombreMembresia: getNombreMembresia(plan.sucursales),
+            textoSucursales: getTextoSucursales(plan.sucursales),
+            // Sin plan destacado - todas las tarjetas iguales en blanco
+            destacado: false,
+          }))
+      : [];
 
   if (loadingPrecios) {
     return (
@@ -357,7 +419,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">No se pudieron cargar los planes disponibles.</p>
+          <p className="text-gray-600 mb-4">
+            No se pudieron cargar los planes disponibles.
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-bold hover:bg-yellow-300"
@@ -373,7 +437,6 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-10">
-        
         <img
           className="w-40 mx-auto mb-6"
           src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"

@@ -118,9 +118,85 @@ export const useGeminiSEO = () => {
         }
     };
 
+    const optimizarRestaurante = async (restauranteData) => {
+        setLoading(true);
+        setError(null);
+
+        let response;
+        try {
+            const apiUrl = import.meta.env.DEV
+                ? '/api/gemini/optimize-seo-restaurante'
+                : 'https://admin.residente.mx/api/gemini/optimize-seo-restaurante';
+
+            response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(restauranteData)
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                const mensajeAmigable = getMensajeErrorAmigable({ message: data.error }, response);
+                throw new Error(mensajeAmigable);
+            }
+
+            return data.seo;
+        } catch (err) {
+            const mensajeAmigable = err.message.startsWith('🚫') || err.message.startsWith('📡') ||
+                err.message.startsWith('⚠️') || err.message.startsWith('🔐') ||
+                err.message.startsWith('⏱️') || err.message.startsWith('❌')
+                ? err.message
+                : getMensajeErrorAmigable(err, response);
+            setError(mensajeAmigable);
+            throw new Error(mensajeAmigable);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const optimizarCupon = async (cuponData) => {
+        setLoading(true);
+        setError(null);
+
+        let response;
+        try {
+            const apiUrl = import.meta.env.DEV
+                ? '/api/gemini/optimize-seo-cupon'
+                : 'https://admin.residente.mx/api/gemini/optimize-seo-cupon';
+
+            response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cuponData)
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                const mensajeAmigable = getMensajeErrorAmigable({ message: data.error }, response);
+                throw new Error(mensajeAmigable);
+            }
+
+            return data.seo;
+        } catch (err) {
+            const mensajeAmigable = err.message.startsWith('🚫') || err.message.startsWith('📡') ||
+                err.message.startsWith('⚠️') || err.message.startsWith('🔐') ||
+                err.message.startsWith('⏱️') || err.message.startsWith('❌')
+                ? err.message
+                : getMensajeErrorAmigable(err, response);
+            setError(mensajeAmigable);
+            throw new Error(mensajeAmigable);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         optimizarNota,
         optimizarReceta,
+        optimizarRestaurante,
+        optimizarCupon,
         loading,
         error
     };

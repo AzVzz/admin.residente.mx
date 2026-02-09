@@ -9,7 +9,8 @@ import {
 } from "react-router-dom";
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
-import { FaUser, FaStore, FaStar } from "react-icons/fa6";
+import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet";
+import { FaUser, FaStore, FaStar, FaMagnifyingGlass } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -50,6 +51,7 @@ const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
 const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboard.jsx"));
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
+const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -83,10 +85,22 @@ const ListaNotas = () => {
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  // Leer vistaActiva de la URL o usar "notas" por defecto
-  const [vistaActiva, setVistaActivaInternal] = useState(
-    searchParams.get("vista") || "notas"
-  );
+  // Leer vistaActiva de la URL o usar "notas" por defecto (o "mis_restaurantes" para vendedores/b2b)
+  const getDefaultView = () => {
+    const vistaParam = searchParams.get("vista");
+    if (vistaParam) return vistaParam;
+    if (usuario?.rol === "vendedor" || usuario?.rol === "b2b") return "mis_restaurantes";
+    return "notas";
+  };
+
+  const [vistaActiva, setVistaActivaInternal] = useState(getDefaultView());
+
+  // Actualizar vista si cambia el usuario (por si el login se completa después del mount)
+  useEffect(() => {
+    if (!searchParams.get("vista") && (usuario?.rol === "vendedor" || usuario?.rol === "b2b")) {
+      setVistaActivaInternal("mis_restaurantes");
+    }
+  }, [usuario, searchParams]);
 
   // Función para cambiar vistaActiva y actualizar URL
   const setVistaActiva = (vista) => {
@@ -106,6 +120,22 @@ const ListaNotas = () => {
   const [mostrarFormularioReceta, setMostrarFormularioReceta] = useState(false);
   const [recetaEditando, setRecetaEditando] = useState(null);
   const [recargarListaRecetas, setRecargarListaRecetas] = useState(0);
+
+  // Estado para los restaurantes del vendedor
+  const [restaurantesVendedor, setRestaurantesVendedor] = useState([]);
+
+  // Efecto para obtener los restaurantes del vendedor
+  useEffect(() => {
+    if (usuario?.rol?.toLowerCase() === "vendedor" && token) {
+      restaurantesBasicosGet()
+        .then(data => {
+          if (data && Array.isArray(data)) {
+            setRestaurantesVendedor(data);
+          }
+        })
+        .catch(err => console.error("Error fetching vendor restaurants:", err));
+    }
+  }, [usuario, token]);
 
   // Estados para permisos de invitado
   const [permisosInvitado, setPermisosInvitado] = useState({
@@ -567,7 +597,11 @@ const ListaNotas = () => {
     // Para otros usuarios no admin
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
-      setVistaActiva("notas");
+      if (usuario?.rol?.toLowerCase() === 'vendedor') {
+        setVistaActiva("mis_restaurantes");
+      } else {
+        setVistaActiva("notas");
+      }
     }
   }, [vistaActiva, usuario, permisosInvitado]);
 
@@ -641,6 +675,11 @@ const ListaNotas = () => {
       label: "Restaurante",
       icon: <FaStore className="mr-2" />,
     },
+    {
+      key: "mis_restaurantes",
+      label: "Mis Restaurantes",
+      icon: <FaStore className="mr-2" />,
+    },
     { key: "ednl", label: "Ednl", icon: <FaStar className="mr-2" /> },
     {
       key: "codigos_admin",
@@ -656,6 +695,11 @@ const ListaNotas = () => {
       key: "todob2b",
       label: "B2B",
       icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "buscador",
+      label: "Buscador",
+      icon: <FaMagnifyingGlass className="mr-2" />,
     }
   ];
 
@@ -670,18 +714,27 @@ const ListaNotas = () => {
   // Filtrar opciones del menú para invitados según sus permisos específicos
   const menuOptions = esAdmin
     ? todasLasOpciones
-    : todasLasOpciones.filter(
-      (option) =>
-        usuario?.rol !== "b2b" && // Hide all menu options for B2B users if they are here
-        (option.key === "notas" ||
-          option.key === "recetas" ||
-          (option.key === "cupones" &&
-            !esInvitado &&
-            usuario?.rol !== "colaborador") ||
-          (esResidente && option.key === "restaurante_link") ||
-          (usuario?.rol === "residente" && option.key === "ednl") || // EDNL only for residente role
-          (usuario?.rol === "residente" && option.key === "codigos_admin")) // Only for residente role
-    );
+    : todasLasOpciones.filter((option) => {
+      if (usuario?.rol === "b2b") return false;
+
+      // Lógica para Vendedor
+      if (usuario?.rol === "vendedor") {
+        return option.key === "mis_restaurantes" || option.key === "cupones";
+      }
+
+      // Lógica original para otros roles
+      return (
+        option.key === "notas" ||
+        option.key === "recetas" ||
+        (option.key === "cupones" &&
+          !esInvitado &&
+          usuario?.rol !== "colaborador") ||
+        (esResidente && option.key === "restaurante_link") ||
+        (usuario?.rol === "residente" && option.key === "ednl") ||
+        (usuario?.rol === "residente" && option.key === "codigos_admin") ||
+        (usuario?.rol === "residente" && option.key === "buscador")
+      );
+    });
 
   if (cargando) {
     return (
@@ -859,6 +912,8 @@ const ListaNotas = () => {
                   onClick={() => {
                     if (option.key === "restaurante_link") {
                       navigate("/formulario");
+                    } else if (option.key === "mis_restaurantes") {
+                      setVistaActiva("mis_restaurantes");
                     } else if (option.key === "cupones") {
                       navigate("/dashboardtickets");
                     } else if (option.key === "codigos_admin") {
@@ -886,30 +941,23 @@ const ListaNotas = () => {
           <>
             {/* Barra de búsqueda y filtros para vista de notas */}
             <div className="flex justify-between mb-5 gap-4 items-center">
-              {/* Barra de búsqueda - solo para no colaboradores */}
-              {usuario?.rol !== "colaborador" && (
+              {/* Barra de búsqueda - solo para no colaboradores y no vendedores/b2b */}
+              {(usuario?.rol !== "colaborador" && usuario?.rol !== "vendedor" && usuario?.rol !== "b2b") && (
                 <div className="flex-1 max-w-md">
                   <SearchNotasLocal
                     searchTerm={searchTerm}
                     setSearchTerm={handleSetSearchTerm}
-                  />
-                </div>
-              )}
-
-              {/* Filtros - SIEMPRE VISIBLE */}
-              <div className="flex gap-2 items-center">
-                {usuario?.permisos === "todos" && (
-                  <FiltroEstadoNota estado={estado} setEstado={handleSetEstado} />
-                )}
-                {usuario?.permisos === "todos" && (
-                  <FiltroTipoCliente
+                    estado={estado}
+                    setEstado={handleSetEstado}
                     tipoCliente={tipoCliente}
                     setTipoCliente={handleSetTipoCliente}
                   />
-                )}
-                {usuario?.permisos === "todos" && (
                   <FiltroAutor autor={autor} setAutor={handleSetAutor} />
-                )}
+                </div>
+              )}
+
+              {/* Contenedor de acciones derecha */}
+              <div className="flex gap-2 items-center">
                 {usuario?.rol === "colaborador" ? (
                   <Suspense fallback={
                     <div className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">
@@ -920,24 +968,27 @@ const ListaNotas = () => {
                     <MenuColaboradoresDashboard />
                   </Suspense>
                 ) : (
-                  <Link
-                    to="/dashboard/nota/nueva"
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
-                  >
-                    <svg
-                      className="-ml-1 mr-2 h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  // Ocultar botón "Nueva Nota" para Vendedor y B2B
+                  (usuario?.rol !== "vendedor" && usuario?.rol !== "b2b") && (
+                    <Link
+                      to="/dashboard/nota/nueva"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Nueva Nota
-                  </Link>
+                      <svg
+                        className="-ml-1 mr-2 h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Nueva Nota
+                    </Link>
+                  )
                 )}
               </div>
             </div>
@@ -1282,6 +1333,90 @@ const ListaNotas = () => {
             </div>
           </Suspense>
         )}
+        {vistaActiva === "buscador" && (
+          <Suspense fallback={<LazyFallback />}>
+            <div className="w-full">
+              <BuscadorDashboard />
+            </div>
+          </Suspense>
+        )}
+
+        {vistaActiva === "mis_restaurantes" && (
+          <div className="w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Mis Restaurantes</h2>
+              <button
+                onClick={() => navigate("/formulario")}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors"
+              >
+                <FaStore className="mr-2" />
+                Crear Nuevo Restaurante
+              </button>
+            </div>
+
+            {restaurantesVendedor.length === 0 ? (
+              <div className="bg-white rounded-xl shadow p-8 text-center">
+                <FaStore className="mx-auto text-4xl text-gray-300 mb-4" />
+                <h3 className="text-xl font-medium text-gray-900 mb-2">Aún no tienes restaurantes</h3>
+                <p className="text-gray-500 mb-6">Comienza creando tu primer restaurante para administrarlo.</p>
+                <button
+                  onClick={() => navigate("/formulario")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors"
+                >
+                  Crear Restaurante
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {restaurantesVendedor.map((restaurante) => (
+                  <div key={restaurante.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
+                    <div className="h-32 bg-gray-200 relative">
+                      {restaurante.imagen_portada || restaurante.logo ? (
+                        <img
+                          src={restaurante.imagen_portada || restaurante.logo}
+                          alt={restaurante.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-400 to-indigo-500">
+                          <FaStore className="text-white text-3xl" />
+                        </div>
+                      )}
+                      <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold ${restaurante.status === 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {restaurante.status === 1 ? 'Activo' : 'Inactivo'}
+                      </div>
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{restaurante.nombre}</h3>
+                      <p className="text-sm text-gray-500 mb-4 truncate">{restaurante.direccion || 'Sin dirección registrada'}</p>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/formulario/${restaurante.slug}`)}
+                          className="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold py-2 px-3 rounded-lg transition-colors"
+                        >
+                          Administrar
+                        </button>
+                        {restaurante.slug && (
+                          <a
+                            href={`https://residente.mx/restaurantes/${restaurante.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm flex items-center mb-1"
+                            title="Ver en vivo"
+                          >
+                            <FaMagnifyingGlass />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );

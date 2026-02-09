@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { catalogoHeadersGet } from "./api/catalogoSeccionesGet";
 import { urlApi, imgApi } from "./api/url";
@@ -11,9 +11,151 @@ import {
   FaSearch,
   FaTimes,
   FaBars,
+  FaLinkedin
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { MdMailOutline } from "react-icons/md";
 import SearchResults from "./SearchResults";
 import { useAuth } from "./Context";
+
+// Componente ProfileMenu 
+const ProfileMenu = ({ fondoOscuro = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+  const { usuario, logout } = useAuth();
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "https://residente.mx";
+  };
+
+  const isB2B = usuario?.rol?.toLowerCase() === "b2b";
+
+  return (
+    <div ref={menuRef} className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`${fondoOscuro ? "text-white hover:text-gray-300" : "text-black hover:text-gray-600"
+          } text-sm font-medium flex items-center gap-1`}
+        style={{ fontSize: "14px" }}
+        aria-label="Menú de perfil"
+      >
+        {usuario ? usuario.nombre_usuario?.toUpperCase() : "LOGIN / REGISTRO"}
+        <svg
+          className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+
+      {/* Menú desplegable */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg border border-gray-200 py-1 z-50">
+          {usuario ? (
+            <>
+              {/* Info del usuario */}
+              <div className="px-3 py-2 border-b border-gray-100">
+                <p className="font-bold text-sm truncate">
+                  {usuario.nombre_usuario?.toUpperCase()}
+                </p>
+                <p className="text-xs text-gray-500 capitalize">{usuario.rol}</p>
+              </div>
+
+              {/* Opción: Dashboard según el rol */}
+              {isB2B ? (
+                <Link
+                  to="/dashboardb2b"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard B2B
+                </Link>
+              ) : (
+                <Link
+                  to="/dashboard"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Mi Dashboard
+                </Link>
+              )}
+
+              {/* Opción: Buscador Dashboard (solo Residente) */}
+              {usuario?.rol === "residente" && (
+                <Link
+                  to="/dashboard?vista=buscador"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Admin Buscador
+                </Link>
+              )}
+
+              {/* Opción: Cerrar sesión */}
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+              >
+                Cerrar Sesión
+              </button>
+            </>
+          ) : (
+            <>
+              <a
+                href="/admin/registro"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Inicia sesión
+              </a>
+              <a
+                href="/admin/registrob2b"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro B2B
+              </a>
+              <a
+                href="/admin/registroinvitados"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro Invitados
+              </a>
+              <a
+                href="/admin/registrocolaboradores"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Registro Colaboradores
+              </a>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Header = () => {
   const { usuario } = useAuth();
@@ -94,12 +236,47 @@ const Header = () => {
     setActiveDropdown(null);
   };
 
+  const filteredMenu = menuHeader
+    .filter((section) => section.seccion !== "Guías zonales")
+    .map((section) => {
+      if (section.submenu) {
+        if (section.seccion === "Residente") {
+          return {
+            ...section,
+            submenu: section.submenu.filter(
+              (item) => item.nombre !== "Input OpEd"
+            ),
+          };
+        }
+        if (section.seccion === "Noticias") {
+          return {
+            ...section,
+            submenu: section.submenu.filter(
+              (item) =>
+                item.nombre !== "Gastro-Destinos" &&
+                item.nombre !== "Gastro-destinos"
+            ),
+          };
+        }
+      }
+      return section;
+    });
+
+  const abrirEnNuevaPestana = [
+    "Nuestros medios",
+    "Historia",
+    "Misión",
+    "Rostros detrás del sabor",
+    "Platillos icónicos de Nuevo León",
+    "Anúnciate",
+    "Anunciate",
+  ];
+
   return (
     <header className="w-full">
       {/* ========== HEADER MÓVIL (< 640px) ========== */}
       <div className="sm:hidden">
         <div className="bg-[#fff200] flex items-center justify-between px-4 py-3">
-          {/* Menú hamburguesa */}
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="text-black p-1"
@@ -107,29 +284,31 @@ const Header = () => {
           >
             <FaBars className="w-6 h-6" />
           </button>
-          
+
           {/* Logo centrado */}
-          <Link to="https://residente.mx" className="flex items-center gap-2">
+          <a href="https://residente.mx" className="flex items-center gap-2">
             <img
               src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
               alt="Logo Residente"
               className="h-8 w-8 rounded-full bg-white"
             />
-            <span className="text-black font-bold text-sm">Residente. Food&Drink Media</span>
-          </Link>
-          
-          {/* Espacio vacío para balancear */}
+            <span className="text-black font-bold text-sm">
+              Residente. Food&Drink Media
+            </span>
+          </a>
+
           <div className="w-6"></div>
         </div>
 
-        {/* Menú móvil desplegable */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setMobileMenuOpen(false)}>
-            <div 
+          <div
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div
               className="absolute left-0 top-0 h-full w-[280px] bg-white shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header del menú */}
               <div className="bg-[#fff200] p-4 flex items-center justify-between">
                 <span className="font-bold text-black">Menú</span>
                 <button
@@ -140,17 +319,18 @@ const Header = () => {
                   <FaTimes className="w-5 h-5" />
                 </button>
               </div>
-              
-              {/* Items del menú */}
+
               <nav className="p-4">
                 <ul className="space-y-4">
-                  {menuHeader.map((section, idx) => (
+                  {filteredMenu.map((section, idx) => (
                     <li key={idx}>
                       {section.url ? (
                         <a
                           href={section.url}
                           className="block text-black font-semibold py-2 hover:text-gray-600"
-                          target={section.url.startsWith("http") ? "_blank" : undefined}
+                          target={
+                            section.url.startsWith("http") ? "_blank" : undefined
+                          }
                           rel="noopener noreferrer"
                           onClick={() => setMobileMenuOpen(false)}
                         >
@@ -171,11 +351,17 @@ const Header = () => {
                                   <a
                                     href={item.url}
                                     className="block text-gray-600 py-1 hover:text-black"
-                                    target={item.url.startsWith("http") ? "_blank" : undefined}
+                                    target={
+                                      item.url.startsWith("http")
+                                        ? "_blank"
+                                        : undefined
+                                    }
                                     rel="noopener noreferrer"
                                     onClick={() => setMobileMenuOpen(false)}
                                   >
-                                    {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
+                                    {item.nombre === "Antojos"
+                                      ? "Antojeria"
+                                      : item.nombre}
                                   </a>
                                 </li>
                               ))}
@@ -185,32 +371,14 @@ const Header = () => {
                       )}
                     </li>
                   ))}
-                  
-                  {/* Link de sesión */}
+
                   <li className="border-t pt-4">
-                    {!usuario ? (
-                      <Link
-                        to="/registro"
-                        className="block text-black font-semibold py-2"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Iniciar Sesión
-                      </Link>
-                    ) : (
-                      <Link
-                        to={usuario.rol === "b2b" ? "/dashboardb2b" : "/dashboard"}
-                        className="block text-black font-semibold py-2"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
-                    )}
+                    <ProfileMenu fondoOscuro={false} />
                   </li>
-                  
-                  {/* B2B Link */}
+
                   <li>
                     <a
-                      href="/B2b"
+                      href="https://residente.mx/b2b"
                       className="block text-black font-semibold py-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -218,21 +386,36 @@ const Header = () => {
                     </a>
                   </li>
                 </ul>
-                
-                {/* Redes sociales */}
+
                 <div className="mt-8 pt-4 border-t">
                   <p className="text-gray-500 text-sm mb-3">Síguenos</p>
                   <div className="flex gap-4">
-                    <a href="http://instagram.com/residentemty" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="http://instagram.com/residentemty"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <FaInstagram className="w-6 h-6 text-black" />
                     </a>
-                    <a href="http://facebook.com/residentemx" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="http://facebook.com/residentemx"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <FaFacebookF className="w-6 h-6 text-black" />
                     </a>
-                    <a href="http://youtube.com/@revistaresidente5460" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="http://youtube.com/@revistaresidente5460"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <FaYoutube className="w-6 h-6 text-black" />
                     </a>
-                    <a href="tel:+528114186985" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="tel:+528114186985"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <FaWhatsapp className="w-6 h-6 text-black" />
                     </a>
                   </div>
@@ -268,48 +451,66 @@ const Header = () => {
               </a>
             )}
           </div>
-
-          <div className="flex pb-0 pt-5 relative z-10">
+          <div className="flex pb-0 pt-8">
             <div className="flex pr-3">
-              <Link
-                to="https://residente.mx"
-                className="h-16 w-16 self-end object-contain bg-white rounded-full"
+              <a
+                href="https://residente.mx"
+                className="h-16 w-16 self-end object-contain bg-white rounded-full flex items-center justify-center overflow-hidden"
+                aria-label="Ir a inicio (Logo R)"
+                title="Ir a inicio"
               >
                 <img
                   src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
-                  alt="Logo Residente Circulo"
+                  alt="Logo R"
+                  className="h-full w-full object-contain"
                 />
-              </Link>
-            </div>
-            <div className="w-full">
-              <div className="grid grid-cols-[87%_13%] pb-3">
-                <div className="flex flex-col gap-2">
+              </a>
+            </div >
+            <div className="w-full relative">
+              {/* ProfileMenu arriba a la derecha */}
+              <div className="absolute top-3 right-0 z-50">
+                <ProfileMenu fondoOscuro={false} />
+              </div>
+
+              <div className="grid grid-cols-[87%_13%] pb-[9px]">
+                <div className="flex sm:flex-col gap-2">
                   <div className="flex flex-1 w-full justify-end items-start">
                     <div className="flex flex-col pr-2"></div>
                   </div>
-                  <Link to="" className="flex">
+                  <a
+                    href="https://residente.mx"
+                    className="flex"
+                    aria-label="Ir a inicio (Texto)"
+                    title="Ir a inicio"
+                  >
                     <img
                       src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
                       alt="ResidenteNegro"
                       className="h-6 object-contain"
                     />
-                  </Link>
+                  </a>
                 </div>
               </div>
 
               {/* Menú Amarillo */}
-              <div className="flex flex-col flex-1 relative z-10">
-                <div className="flex justify-between items-center px-5 py-0.5 bg-[#fff200] relative z-10">
-                  <div className="flex gap-6 items-center text-sm font-semibold">
-                    {menuHeader.map((section, idx) =>
+              <div className="flex flex-col flex-1.1">
+                <div className="flex justify-between items-center px-2 -ml-[6px] w-[calc(100%+6px)] py-0 bg-[#fff200] h-[24px]">
+                  <div className="flex gap-1 sm:gap-4 items-center sm:text-[13px] text-[10px] font-semibold">
+                    {filteredMenu.map((section, idx) =>
                       section.url ? (
                         <a
                           key={idx}
                           href={section.url}
                           className="hover:underline text-black font-roman"
-                          rel="noopener noreferrer"
+                          rel={
+                            abrirEnNuevaPestana.includes(section.seccion)
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
                           target={
-                            section.url.startsWith("http") ? "_blank" : undefined
+                            abrirEnNuevaPestana.includes(section.seccion)
+                              ? "_blank"
+                              : undefined
                           }
                         >
                           {section.seccion}
@@ -327,29 +528,22 @@ const Header = () => {
                           </button>
                           {section.submenu && (
                             <div
-                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
-                                activeDropdown === idx
-                                  ? "opacity-100 visible"
-                                  : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                              }`}
+                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
+                                ? "opacity-100 visible"
+                                : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                                }`}
                             >
                               <ul>
                                 {section.submenu.map((item, subIdx) => (
                                   <li key={subIdx}>
                                     <a
                                       href={item.url}
-                                      rel="noopener noreferrer"
+                                      rel={abrirEnNuevaPestana.includes(item.nombre) ? "noopener noreferrer" : undefined}
+                                      target={abrirEnNuevaPestana.includes(item.nombre) ? "_blank" : undefined}
                                       className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
-                                      target={
-                                        item.url.startsWith("http")
-                                          ? "_blank"
-                                          : undefined
-                                      }
                                       onClick={handleDropdownClose}
                                     >
-                                      {item.nombre === "Antojos"
-                                        ? "Antojeria"
-                                        : item.nombre}
+                                      {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
                                     </a>
                                   </li>
                                 ))}
@@ -359,33 +553,11 @@ const Header = () => {
                         </div>
                       )
                     )}
-                    {!usuario ? (
-                      <Link
-                        to="/registro"
-                        className="hover:underline text-black font-roman"
-                      >
-                        Iniciar Sesión
-                      </Link>
-                    ) : usuario.rol === "b2b" ? (
-                      <Link
-                        to="/dashboardb2b"
-                        className="hover:underline text-black font-roman"
-                      >
-                        Dashboard
-                      </Link>
-                    ) : (
-                      <Link
-                        to="/dashboard"
-                        className="hover:underline text-black font-roman"
-                      >
-                        Dashboard
-                      </Link>
-                    )}
                   </div>
                   <div className="flex gap-1.5 items-center">
                     {!isSearchOpen ? (
                       <>
-                        <a href="/B2b">
+                        <a href="https://residente.mx/b2b">
                           <img
                             src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b.webp"
                             className="object-contain h-4 w-12 b2b"
@@ -413,6 +585,12 @@ const Header = () => {
                         >
                           <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
+                        <a href="https://x.com/Residente_mty" target="_blank" rel="noopener noreferrer">
+                          <FaXTwitter className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
+                        <a href="https://www.linkedin.com/company/residente/" target="_blank" rel="noopener noreferrer">
+                          <FaLinkedin className="w-4 h-4 text-black hover:text-gray-400" />
+                        </a>
                         <a
                           href="tel:+528114186985"
                           target="_blank"
@@ -421,15 +599,8 @@ const Header = () => {
                           <FaWhatsapp className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a href="mailto:contacto@residente.mx?subject=%C2%A1Quiero%20mas%20informaci%C3%B3n%20de%20Residente!">
-                          <FaEnvelope className="w-4 h-4 text-black hover:text-gray-400" />
+                          <MdMailOutline className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
-                        <button
-                          onClick={handleSearchToggle}
-                          className="w-4 h-4 text-black hover:text-gray-400 transition-colors"
-                          title="Buscar"
-                        >
-                          <FaSearch className="w-4 h-4" />
-                        </button>
                       </>
                     ) : (
                       <div className="relative w-full max-w-md bg-white shadow-sm">
@@ -464,10 +635,11 @@ const Header = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </header>
+          </div >
+        </div >
+      </div >
+      {/* HEADER MOBILE ...igual que ya tienes, solo cuida los tamaños y separaciones */}
+    </header >
   );
 };
 
