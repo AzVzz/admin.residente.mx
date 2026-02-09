@@ -122,7 +122,6 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       seo_title: "",
       seo_keyword: "",
       meta_description: "",
-      meta_description: "",
       smart_tags: [],
       ...restaurante,
     };
@@ -645,12 +644,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   experiencia_opinion: [],
                   reconocimientos: [],
                   secciones_categorias: seccionesCategorias,
-                  seo_alt_text: data.seo_alt_text,
-                  seo_title: data.seo_title,
-                  seo_keyword: data.seo_keyword,
-                  seo_keyword: data.seo_keyword,
-                  meta_description: data.meta_description,
-                  smart_tags: data.smart_tags,
+                  seo_alt_text: data.seo_alt_text?.trim() || null,
+                  seo_title: data.seo_title?.trim() || null,
+                  seo_keyword: data.seo_keyword?.trim() || null,
+                  meta_description: data.meta_description?.trim() || null,
+                  smart_tags: data.smart_tags?.length ? data.smart_tags : null,
                 };
 
                 // Construir arrays estructurados

@@ -62,8 +62,6 @@ const PromoMain = () => {
     seo_alt_text: "",
     seo_title: "",
     seo_keyword: "",
-    seo_title: "",
-    seo_keyword: "",
     meta_description: "",
     smart_tags: [],
   });
@@ -165,12 +163,12 @@ const PromoMain = () => {
     return selectedStickers
       .map((clave) => {
         const found = allStickers.find((item) => item.clave === clave);
-        
+
         // --- CORRECCIÓN AQUÍ ---
         if (found && found.icono) {
           // Quitamos el dominio para que quede solo "/fotos/..."
           // y así Vite use el Proxy configurado.
-          return found.icono.replace("https://residente.mx", ""); 
+          return found.icono.replace("https://residente.mx", "");
         }
         return null;
         // -----------------------
@@ -315,7 +313,7 @@ const PromoMain = () => {
       subtitulo: formData.promoSubtitle,
       descripcion: formData.descPromo,
       icon: stickerClave,
-      email: formData.emailPromos|| "",
+      email: formData.emailPromos || "",
       tipo: "promo",
       link: formData.urlPromo || "",
       fecha_validez: formData.tiene_caducidad
@@ -339,12 +337,11 @@ const PromoMain = () => {
       estilos_campos: getTicketEstilosCampos(),
       tipografia: formData.tipografia || "default",
       tipografia_bold: formData.tipografia_bold !== false,
-      seo_alt_text: formData.seo_alt_text,
-      seo_title: formData.seo_title,
-      seo_keyword: formData.seo_keyword,
-      seo_keyword: formData.seo_keyword,
-      meta_description: formData.meta_description,
-      smart_tags: formData.smart_tags || [],
+      seo_alt_text: formData.seo_alt_text?.trim() || null,
+      seo_title: formData.seo_title?.trim() || null,
+      seo_keyword: formData.seo_keyword?.trim() || null,
+      meta_description: formData.meta_description?.trim() || null,
+      smart_tags: formData.smart_tags?.length ? formData.smart_tags : null,
     };
   };
 
