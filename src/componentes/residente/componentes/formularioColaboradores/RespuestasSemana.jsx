@@ -205,16 +205,13 @@ const RespuestasSemana = () => {
                             <div className="mb-3 p-4 bg-[#fff200] text-start rounded">
                                 <span className="font-bold">
                                     IMPORTANTE:<br />
-                                    Tu colaboración se publicará en tu perfil.
+                                    Tu colaboración se publicará solamente en tu perfil.
                                 </span>
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <h1 className="text-2xl font-bold mb-4 text-center">
                                     {editarId ? "Editar colaboración" : "Entrada de colaboraciones"}
                                 </h1>
-                                <h2 className="text-xl font-bold mb-4 text-center">
-                                    {pregunta ? pregunta : "No hay preguntas por el momento"}
-                                </h2>
                                 <div className="mb-4">
                                     <label className="space-y-2 font-roman font-bold">
                                         Título
@@ -305,6 +302,9 @@ const RespuestasSemana = () => {
                                 <h2 className="text-xl font-bold mb-4 text-center">
                                     Envíanos tu consejo editorial
                                 </h2>
+                                <h3 className="text-lg font-bold mb-4 text-center text-gray-700">
+                                    {pregunta ? pregunta : "No hay preguntas por el momento"}
+                                </h3>
                                 <p className="text-sm text-gray-600 mb-4 text-center">
                                     Tu consejo será enviado directamente a nuestro equipo y no se publicará en tu perfil.
                                 </p>
@@ -322,14 +322,12 @@ const RespuestasSemana = () => {
                                             pregunta,
                                             respuesta_colaboracion: "",
                                             titulo: "",
-                                            imagen: imagenConsejo,
+                                            imagen: null,
                                             respuesta_consejo: true,
                                             texto_consejo: textoConsejo
                                         });
                                         setMensajeConsejo("¡Consejo enviado correctamente!");
                                         setTextoConsejo("");
-                                        setImagenConsejo(null);
-                                        setImagenConsejoPreview(null);
                                     } catch (error) {
                                         console.error("Error enviando consejo:", error);
                                         setMensajeConsejo("Error al enviar el consejo.");
@@ -349,33 +347,6 @@ const RespuestasSemana = () => {
                                             placeholder="Escribe aquí tu consejo editorial..."
                                         />
                                     </div>
-                                    <div className="mb-4">
-                                        <label className="space-y-2 font-roman font-bold">
-                                            Subir Imagen (Opcional)
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="image/jpeg,image/png,image/webp"
-                                            onChange={(e) => {
-                                                const file = e.target.files && e.target.files[0];
-                                                if (file) {
-                                                    setImagenConsejo(file);
-                                                    setImagenConsejoPreview(URL.createObjectURL(file));
-                                                }
-                                            }}
-                                            className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
-                                        />
-                                    </div>
-                                    {imagenConsejoPreview && (
-                                        <div className="text-center mb-4">
-                                            <img
-                                                src={imagenConsejoPreview}
-                                                alt="Vista previa"
-                                                className="w-full h-28 object-cover mx-auto"
-                                                style={{ maxWidth: '160px', borderRadius: '8px' }}
-                                            />
-                                        </div>
-                                    )}
                                     {mensajeConsejo && (
                                         <div className={`text-center font-bold mb-4 ${mensajeConsejo.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
                                             {mensajeConsejo}
