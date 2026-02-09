@@ -205,7 +205,7 @@ const TicketPromo = forwardRef((props, ref) => {
             {/* Perforated top edge */}
             <div className={config.perforatedTop || "w-full"}>
                 <img
-                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
+                    src="/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp"
                     alt="Perforado superior"
                     className="w-full"
                 />
@@ -229,7 +229,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
                         <img
-                            src={logoPersonalizado || `${imgApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
+                            src={logoPersonalizado || "/fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp"}
                             alt="Logo"
                             className={config.logo}
                             style={{ transform: `scale(${logoEscala / 100})`, transformOrigin: 'top left' }}
@@ -294,7 +294,7 @@ const TicketPromo = forwardRef((props, ref) => {
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
+                        src="/fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif"
                         alt="Código de barras"
                         className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
@@ -302,7 +302,7 @@ const TicketPromo = forwardRef((props, ref) => {
             </div>
             <div className={config.perforatedBottom}>
                 <img
-                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    src="/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp"
                     alt="Perforado inferior"
                     className="w-full"
                 />

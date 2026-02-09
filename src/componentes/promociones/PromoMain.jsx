@@ -165,7 +165,15 @@ const PromoMain = () => {
     return selectedStickers
       .map((clave) => {
         const found = allStickers.find((item) => item.clave === clave);
-        return found ? found.icono : null;
+        
+        // --- CORRECCIÓN AQUÍ ---
+        if (found && found.icono) {
+          // Quitamos el dominio para que quede solo "/fotos/..."
+          // y así Vite use el Proxy configurado.
+          return found.icono.replace("https://residente.mx", ""); 
+        }
+        return null;
+        // -----------------------
       })
       .filter(Boolean);
   };
@@ -307,7 +315,7 @@ const PromoMain = () => {
       subtitulo: formData.promoSubtitle,
       descripcion: formData.descPromo,
       icon: stickerClave,
-      email: formData.emailPromo || "",
+      email: formData.emailPromos|| "",
       tipo: "promo",
       link: formData.urlPromo || "",
       fecha_validez: formData.tiene_caducidad
