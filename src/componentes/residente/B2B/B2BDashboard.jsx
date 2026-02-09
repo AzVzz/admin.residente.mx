@@ -34,7 +34,11 @@ const B2BDashboard = () => {
   const [cupon, setCupon] = useState(null);
   const [loadingCupon, setLoadingCupon] = useState(true);
   const [cupones, setCupones] = useState([]);
-  
+
+  // 🆕 Estado para datos de Google Analytics
+  const [analytics, setAnalytics] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
@@ -75,15 +79,15 @@ const B2BDashboard = () => {
     const query = new URLSearchParams(window.location.search);
     const paymentSuccess = query.get("payment_success");
     const sessionId = query.get("session_id");
-    
+
     if (paymentSuccess === "true") {
       if (sessionId) {
         obtenerDetallesSesion(sessionId);
         enviarCorreoConfirmacion(sessionId);
       }
-      
+
       setPagoRealizado(true);
-      
+
       setTimeout(() => {
         setPagoRealizado(false);
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -118,7 +122,7 @@ const B2BDashboard = () => {
     fetchProductos();
   }, []);
 
-  // Actualizar fecha automáticamente cada minuto
+  // Actualizar fecha automáticamente cada mínuto
   useEffect(() => {
     const interval = setInterval(() => {
       setFechaActual(new Date());
@@ -156,7 +160,7 @@ const B2BDashboard = () => {
       const apiUrl = import.meta.env.DEV
         ? `${urlApi}api/tienda/session-details/${sessionId}`
         : `https://admin.residente.mx/api/tienda/session-details/${sessionId}`;
-      
+
       await fetch(apiUrl);
     } catch (error) {
       // Silenciar errores
@@ -175,7 +179,7 @@ const B2BDashboard = () => {
     try {
       const successUrl = `${window.location.origin}/dashboardb2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/dashboardb2b?payment_canceled=true`;
-      
+
       // Formato exacto que espera el backend: { productId: '1', quantity: 1 }
       const items = productosSeleccionados.map((p) => ({
         productId: p.id.toString(),
@@ -190,9 +194,9 @@ const B2BDashboard = () => {
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
-      
+
       console.log('📦 Enviando datos de pago:', paymentData);
-      
+
       const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
 
       if (resp.data.url) {
@@ -386,8 +390,8 @@ const B2BDashboard = () => {
 
     try {
       const apiUrl = import.meta.env.DEV
-        ? `${urlApi}api/stripe-suscripciones/user-subscription/${b2bId}`
-        : `https://admin.residente.mx/api/stripe-suscripciones/user-subscription/${b2bId}`;
+        ? `${urlApi}api/stripe/user-subscription/${b2bId}`
+        : `https://admin.residente.mx/api/stripe/user-subscription/${b2bId}`;
 
       const response = await fetch(apiUrl);
 
@@ -481,6 +485,27 @@ const B2BDashboard = () => {
     if (usuario) fetchCupones();
   }, [usuario]);
 
+  // 🆕 Obtener datos de Google Analytics
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch(`${urlApi}api/google-analytics/ultimo`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.id) {
+            setAnalytics(data);
+          }
+        }
+      } catch (error) {
+        console.error('Error al obtener analytics:', error);
+      } finally {
+        setLoadingAnalytics(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
+
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
@@ -495,11 +520,12 @@ const B2BDashboard = () => {
     }
   };
 
-  {/*const handleVer = () => {
+  const handleVer = () => {
     if (restaurante) {
-      navigate(`/restaurante/${restaurante.slug}`);
+      // Abrir el micrositio en residente.mx en una nueva pestaña
+      window.open(`https://residente.mx/restaurantes/${restaurante.slug}`, '_blank');
     }
-  };*/}
+  };
 
   const handleCupones = () => {
     navigate("/dashboardtickets");
@@ -530,12 +556,33 @@ const B2BDashboard = () => {
   const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
   const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
 
+  // Estado para credenciales nuevas (modal)
+  const [credencialesNuevas, setCredencialesNuevas] = useState(null);
+
+  useEffect(() => {
+    // Leer credenciales guardadas en sessionStorage
+    const credenciales = sessionStorage.getItem("credencialesNuevas");
+    if (credenciales) {
+      try {
+        setCredencialesNuevas(JSON.parse(credenciales));
+      } catch {
+        setCredencialesNuevas(null);
+      }
+    }
+  }, [usuario]);
+
+  // Función para cerrar el modal y limpiar credenciales
+  const cerrarBannerCredenciales = () => {
+    setCredencialesNuevas(null);
+    sessionStorage.removeItem("credencialesNuevas");
+  };
+
   return (
     <div>
       {/* Barra superior del usuario */}
       <div className="w-full h-10 bg-[#fff200] flex items-center justify-end mt-2 pr-6">
         <span className="font-bold text-[14px] mr-3">
-          {usuario?.nombre_usuario || "Usuario B2B"}
+          Usuario: <span className="font-normal">{usuario?.nombre_usuario || "Usuario B2B"}</span>
         </span>
         <img
           src={`${imgApi}/fotos/fotos-estaticas/Usuario-Icono.webp`}
@@ -581,7 +628,7 @@ const B2BDashboard = () => {
           ) : restaurante ? (
             <div className="flex items-center gap-3"></div>
           ) : (
-            <div className="text-center py-2 text-gray-500 leading-[1.2] text-left font-roman">
+            <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
               Aún no tienes un restaurante registrado.<br />
               Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
             </div>
@@ -590,7 +637,7 @@ const B2BDashboard = () => {
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-4 items-start">
             <button
-              onClick={restaurante ? handleVer : () => navigate('/formulario')}
+              onClick={restaurante ? handleEditar : () => navigate('/formulario')}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
               {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
@@ -609,16 +656,20 @@ const B2BDashboard = () => {
             </button>
           </div>
           <address className="flex flex-col mt-auto">
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.nombre_responsable ||
+            <p className="text-xl">Credenciales de Acceso</p>
+            <strong className="text-lg text-gray-900 font-roman">
+              Nombre: {b2bUser?.nombre_responsable ||
                 b2bUser?.nombre_responsable_restaurante ||
                 "Nombre no disponible"}
             </strong>
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.correo || "Correo no disponible"}
+            <strong className="text-lg text-gray-900 font-roman">
+              Correo: {b2bUser?.correo || "Correo no disponible"}
             </strong>
-            <strong className="text-xs text-gray-900 font-roman">
-              {b2bUser?.telefono || "Teléfono no disponible"}
+            <strong className="text-lg text-gray-900 font-roman">
+              Teléfono: {b2bUser?.telefono || "Teléfono no disponible"}
+            </strong>
+            <strong className="text-lg text-gray-900 font-roman">
+              Contraseña: La misma que usaste para registrarte.
             </strong>
           </address>
         </div>
@@ -626,6 +677,44 @@ const B2BDashboard = () => {
         <div className="flex flex-col p-5">
           <p className="text-[35px] text-left mb-8 leading-none">Checa tus<br />Resultados</p>
           <div className="space-y-4">
+            {/* 🆕 Datos de Google Analytics */}
+            {!loadingAnalytics && analytics && (
+              <>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {analytics.club_residente_trafico?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">
+                    Tráfico total del “Club Residente” en el mes de {analytics.mes} {analytics.anio}
+                  </p>
+                  {analytics.pdf_url ? (
+                    <a
+                      href={analytics.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-black cursor-pointer hover:text-gray-700 block"
+                    >
+                      liga a descarga pdf y numero ingresado manual.
+                      <br />
+                      Se actualiza cada dia 1 del mes
+                    </a>
+                  ) : (
+                    <p className="text-xs text-black">
+                      liga a descarga pdf y numero ingresado manual.
+                      <br />
+                      Se actualiza cada dia 1 del mes
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {analytics.residente_mx_trafico?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">Tráfico Residente.mx en el mes de {analytics.mes} {analytics.anio}</p>
+                </div>
+
+              </>
+            )}
             <div>
               <p className="text-[40px] font-bold text-black leading-tight">
                 {restaurante?.views?.toLocaleString("es-MX") || 0}
@@ -638,14 +727,6 @@ const B2BDashboard = () => {
               </p>
               <p className="text-sm text-black">Clicks totales en tu restaurante</p>
             </div>
-            {restaurante && (
-              <div>
-                <p className="text-[40px] font-bold text-black leading-tight">
-                  {restaurante.total_interacciones?.toLocaleString("es-MX") || 0}
-                </p>
-                <p className="text-sm text-black">Total de interacciones (vistas y clicks) en tu restaurante</p>
-              </div>
-            )}
             {/* Mostrar cupón del usuario */}
             {/* Mostrar views y clicks del cupón del usuario */}
             {loadingCupon ? (
@@ -737,6 +818,7 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
+              <p className="text-sm text-black">El total es el costo de los beneficios seleccionados.</p>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
               <button
                 onClick={handleIrAPagar}
@@ -744,7 +826,7 @@ const B2BDashboard = () => {
               >
                 Ir a pagar
               </button>
-              
+
               {/* 🆕 Mensaje de pago realizado */}
               {pagoRealizado && (
                 <div className="text-green-600 font-bold text-sm text-center animate-pulse">
@@ -777,6 +859,58 @@ const B2BDashboard = () => {
             document.body
           )}
         </div>
+      )}
+      {credencialesNuevas && createPortal(
+        <div>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60"
+            style={{ zIndex: 9998 }}
+            onClick={cerrarBannerCredenciales}
+          />
+          {/* Modal */}
+          <div
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              <div className="bg-[#fff200] px-6 py-4">
+                <h2 className="text-xl font-bold text-black font-roman">
+                  Credenciales de Acceso
+                </h2>
+              </div>
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xl text-black font-roman leading-[1.3] pr-10">
+                      Tu <span className="font-bold underline">Nombre de Usuario</span> para acceder al dashboard de B2B es:
+                    </label>
+                    <p className="text-2xl font-bold text-black font-roman mt-2">
+                      {credencialesNuevas.nombre_usuario}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-xl text-black font-roman leading-[1.3]">
+                      Tu <span className="font-bold underline">Contraseña</span> es:
+                    </label>
+                    <p className="text-sm text-black font-roman mt-1">
+                      Usa la misma contraseña que usaste para registrarte.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={cerrarBannerCredenciales}
+                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

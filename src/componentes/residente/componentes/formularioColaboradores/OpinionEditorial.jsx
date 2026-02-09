@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { consejerosPost } from "../../../api/consejerosApi.js";
+import { loginPost } from "../../../api/loginPost";
+import { useAuth } from "../../../Context";
 import { useNavigate } from "react-router-dom";
 import DirectorioVertical from "../../../residente/componentes/componentesColumna2/DirectorioVertical";
 import Infografia from "../../../residente/componentes/componentesColumna1/Infografia";
@@ -8,6 +10,7 @@ import BotonesAnunciateSuscribirme from "../../../residente/componentes/componen
 import PortadaRevista from "../componentesColumna2/PortadaRevista";
 
 const OpinionEditorial = () => {
+  const { saveToken, saveUsuario } = useAuth();
   const [formData, setFormData] = useState({
     nombre_usuario: "",
     password: "",
@@ -245,8 +248,15 @@ const OpinionEditorial = () => {
 
       setMessage({
         type: "success",
-        text: "¡Registro enviado exitosamente! Te contactaremos pronto.",
+        text: "¡Registro exitoso! Iniciando sesión automáticamente...",
       });
+
+      // Guardar credenciales para usar en login automático
+      const credencialesParaLogin = {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+      };
+
       setFormData({
         nombre_usuario: "",
         password: "",
@@ -264,10 +274,46 @@ const OpinionEditorial = () => {
       setFotografia(null);
       setFotoPreview(null);
 
-      // Redirige después de 2 segundos
-      setTimeout(() => {
-        navigate("/registro");
-      }, 2000);
+      // Esperar un momento para que el backend procese el registro
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Login automático
+      try {
+        console.log("Intentando login con:", credencialesParaLogin.nombre_usuario);
+        const respuesta = await loginPost(credencialesParaLogin.nombre_usuario, credencialesParaLogin.password);
+        console.log("Login exitoso:", respuesta);
+        saveToken(respuesta.token);
+        saveUsuario(respuesta.usuario);
+
+        // Guardar credenciales temporalmente para mostrar en el dashboard
+        sessionStorage.setItem(
+          "credenciales_nuevas",
+          JSON.stringify({
+            nombre_usuario: respuesta.usuario.nombre_usuario,
+            password: credencialesParaLogin.password,
+          })
+        );
+
+        setMessage({
+          type: "success",
+          text: "¡Login exitoso! Redirigiendo al dashboard...",
+        });
+
+        // Redirigir al dashboard
+        setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 1500);
+      } catch (loginErr) {
+        console.error("Error en login automático:", loginErr);
+        // Si falla el login automático, redirigir al login manual
+        setMessage({
+          type: "success",
+          text: "¡Registro exitoso! Redirigiendo al login...",
+        });
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
     } catch (error) {
       console.error("Error catch:", error);
       let errorMsg = "Error al enviar el formulario.";
@@ -315,23 +361,23 @@ const OpinionEditorial = () => {
   };
 
   return (
-    <div className="max-w-[1080px] mx-auto py-8">
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
+    <div className="px-4 sm:px-0 sm:max-w-[1080px] mx-auto py-4 sm:py-8">
+      <div className="sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:gap-x-15 sm:gap-y-9">
         {/* Columna principal: formulario */}
         <div>
-          <h1 className="text-[24px] leading-[1.2] font-bold mb-4 text-center">
+          <h1 className="text-2xl sm:text-[24px] leading-[1.2] font-bold mb-3 sm:mb-4 sm:text-center">
             REGISTRO DE COLABORADORES Y <br />
             CONSEJEROS EDITORIALES
           </h1>
-          <p className="mb-4 text-center text-black leading-[1.2] px-5">
+          <p className="mb-4 sm:text-center text-black leading-[1.2] text-sm sm:px-5">
             Bienvenido al selecto grupo de críticos, consejeros y analistas de
             la cultura gastronómica de Nuevo León. Ten por seguro que tu
             aportación será parte fundamental del futuro de nuestra industria y
             por ende del destino de nuestro estado.
           </p>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-0">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Código de Acceso*
               </label>
               <input
@@ -340,12 +386,12 @@ const OpinionEditorial = () => {
                 value={formData.codigo}
                 onChange={handleInputChange}
                 placeholder="Ingresa tu código de invitación"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                 required
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Tu nombre*
               </label>
               <input
@@ -360,13 +406,13 @@ const OpinionEditorial = () => {
                   }));
                 }}
                 placeholder="Ej. Juan Pérez"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                 maxLength={21}
                 required
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Año de nacimiento*
               </label>
               <input
@@ -380,15 +426,15 @@ const OpinionEditorial = () => {
                   });
                 }}
                 placeholder="Ej. 1990"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                 maxLength={4}
                 required
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Lugar de nacimiento*
               </label>
               <input
@@ -397,25 +443,45 @@ const OpinionEditorial = () => {
                 value={formData.lugar_nacimiento}
                 onChange={handleInputChange}
                 placeholder="Ej. Monterrey, NL"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                 required
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
-                Curriculum
-              </label>
+            <div className="sm:mb-4">
+              <div className="flex justify-between items-center mb-1 sm:mb-0">
+                <label className="block font-roman font-bold text-base sm:text-sm">
+                  Curriculum
+                </label>
+                <span
+                  className={`text-xs ${
+                    formData.curriculum.length >= 300
+                      ? "text-red-500 font-bold"
+                      : formData.curriculum.length >= 270
+                      ? "text-amber-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {formData.curriculum.length}/300
+                </span>
+              </div>
               <textarea
                 name="curriculum"
                 value={formData.curriculum}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  const value = e.target.value.slice(0, 300);
+                  setFormData(prev => ({
+                    ...prev,
+                    curriculum: value
+                  }));
+                }}
                 placeholder="Describe tu experiencia"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
                 rows={4}
+                maxLength={300}
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Instagram
               </label>
               <input
@@ -424,22 +490,24 @@ const OpinionEditorial = () => {
                 value={formData.instagram}
                 onChange={handleInputChange}
                 placeholder="@usuario"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">Facebook</label>
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+                Facebook
+              </label>
               <input
                 type="text"
                 name="facebook"
                 value={formData.facebook}
                 onChange={handleInputChange}
                 placeholder="facebook.com/usuario"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Otras redes sociales
               </label>
               <input
@@ -448,11 +516,11 @@ const OpinionEditorial = () => {
                 value={formData.otras_redes}
                 onChange={handleInputChange}
                 placeholder="Enlace o usuario"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
               />
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Nombre de usuario*
               </label>
               <input
@@ -461,7 +529,7 @@ const OpinionEditorial = () => {
                 value={formData.nombre_usuario}
                 onChange={handleInputChange}
                 placeholder="Usuario para acceso"
-                className={`bg-white w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-family-roman font-bold text-sm ${
+                className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
                   usernameExists
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:ring-blue-500"
@@ -475,8 +543,7 @@ const OpinionEditorial = () => {
               )}
               {usernameExists && !checkingUsername && (
                 <p className="text-red-500 text-sm mt-1 font-bold">
-                  ⚠️ Este nombre de usuario ya está en uso. Por favor, elige
-                  otro.
+                  ⚠️ Este nombre de usuario ya está en uso. Por favor, elige otro.
                 </p>
               )}
               {!usernameExists &&
@@ -487,8 +554,8 @@ const OpinionEditorial = () => {
                   </p>
                 )}
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Correo electrónico*
               </label>
               <input
@@ -497,41 +564,28 @@ const OpinionEditorial = () => {
                 value={formData.correo}
                 onChange={handleInputChange}
                 placeholder="correo@ejemplo.com"
-                className={`bg-white w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-family-roman font-bold text-sm ${
+                className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
                   emailExists || !emailValid
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:ring-blue-500"
                 }`}
                 required
               />
-              {checkingEmail && (
-                <p className="text-gray-500 text-xs mt-1">
-                  Verificando correo...
-                </p>
-              )}
+              {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
               {!emailValid && !checkingEmail && formData.correo && (
-                <p className="text-red-500 text-sm mt-1 font-bold">
-                  ⚠️ Formato de correo inválido
-                </p>
+                <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Formato de correo inválido</p>
               )}
               {emailExists && emailValid && !checkingEmail && (
                 <p className="text-red-500 text-sm mt-1 font-bold">
-                  ⚠️ Este correo ya está registrado. Por favor, usa otro o
-                  inicia sesión.
+                  ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia sesión.
                 </p>
               )}
-              {!emailExists &&
-                emailValid &&
-                !checkingEmail &&
-                formData.correo &&
-                formData.correo.includes("@") && (
-                  <p className="text-green-500 text-xs mt-1">
-                    ✓ Correo disponible
-                  </p>
-                )}
+              {!emailExists && emailValid && !checkingEmail && formData.correo && formData.correo.includes("@") && (
+                <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+              )}
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Contraseña*
               </label>
               <div className="relative">
@@ -541,12 +595,12 @@ const OpinionEditorial = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="********"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm pr-10"
+                  className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                  className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
@@ -554,8 +608,8 @@ const OpinionEditorial = () => {
                 </button>
               </div>
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div>
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Confirmar Contraseña*
               </label>
               <div className="relative">
@@ -565,32 +619,28 @@ const OpinionEditorial = () => {
                   value={formData.confirm_password}
                   onChange={handleInputChange}
                   placeholder="********"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm pr-10"
+                  className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-2 text-xl text-black cursor-pointer"
+                  className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   tabIndex={-1}
                 >
-                  {showConfirmPassword ? (
-                    <AiOutlineEyeInvisible />
-                  ) : (
-                    <AiOutlineEye />
-                  )}
+                  {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
                 </button>
               </div>
             </div>
-            <div className="mb-4">
-              <label className="space-y-2 font-roman font-bold">
+            <div className="sm:mb-4">
+              <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
                 Subir Fotografía*
               </label>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 onChange={handleFileChange}
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm"
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
               />
             </div>
             {fotoPreview && (
@@ -608,8 +658,10 @@ const OpinionEditorial = () => {
             )}
             {message.text && (
               <div
-                className={`text-center font-bold mt-4 ${
-                  message.type === "success" ? "text-green-600" : "text-red-600"
+                className={`text-center font-bold mt-4 p-4 sm:p-3 rounded-lg sm:rounded ${
+                  message.type === "success" 
+                    ? "text-green-600 bg-green-50 border border-green-200" 
+                    : "text-red-600 bg-red-50 border border-red-200"
                 }`}
               >
                 {message.text}
@@ -618,7 +670,7 @@ const OpinionEditorial = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`font-bold py-2 px-4 rounded mt-4 w-full cursor-pointer ${
+              className={`font-bold py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full cursor-pointer text-xl sm:text-base mt-2 sm:mt-4 ${
                 isSubmitting
                   ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                   : "bg-[#fff200] hover:bg-[#e6d900] text-black"
@@ -628,8 +680,8 @@ const OpinionEditorial = () => {
             </button>
           </form>
         </div>
-        {/* Barra lateral */}
-        <div className="flex flex-col items-end justify-start gap-10">
+        {/* Barra lateral - solo desktop */}
+        <div className="hidden sm:flex flex-col items-end justify-start gap-10">
           <DirectorioVertical />
           <PortadaRevista />
         </div>

@@ -1,5 +1,6 @@
 //src/componentes/promociones/PromoMainTest.jsx
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context';
 import { toPng } from 'html-to-image';
 import FormularioPromo from "./componentes/FormularioPromo";
@@ -11,6 +12,7 @@ import { Iconografia } from '../../componentes/utils/Iconografia.jsx'
 
 const PromoMain = () => {
     const { usuario, token } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         restaurantName: "",
         promoName: "",
@@ -21,6 +23,8 @@ const PromoMain = () => {
         fechaFin: "",
         esPermanente: true, // NUEVO - Default a true por ahora
         zonaHoraria: "America/Monterrey", // Default
+        tiene_caducidad: false, // Para auto-expiración
+        fecha_caducidad: "", // Fecha en que expira automáticamente
         seo_alt_text: "",
         seo_title: "",
         seo_keyword: "",
@@ -39,7 +43,18 @@ const PromoMain = () => {
 
     useEffect(() => {
         restaurantesBasicosGet()
-            .then(data => setRestaurantes(data))
+            .then(data => {
+                setRestaurantes(data);
+                if (data && data.length === 1) {
+                    const r = data[0];
+                    setSelectedRestauranteId(r.id);
+                    setRestauranteInfo(r);
+                    setFormData(prev => ({
+                        ...prev,
+                        restaurantName: r.nombre_restaurante
+                    }));
+                }
+            })
             .catch(err => console.error("Error cargando restaurantes:", err));
     }, []);
 
@@ -228,6 +243,7 @@ const PromoMain = () => {
         const zonaHoraria = formData.zonaHoraria || "America/Monterrey";
 
         return {
+            restaurante_id: selectedRestauranteId || null,
             nombre_restaurante: formData.restaurantName,
             titulo: formData.promoName,
             subtitulo: formData.promoSubtitle,
@@ -236,11 +252,12 @@ const PromoMain = () => {
             email: formData.emailPromo || "",
             tipo: 'promo',
             link: formData.urlPromo || "",
-            fecha_validez: formData.fechaValidez,
+            fecha_validez: formData.tiene_caducidad ? formatWithTimezone(formData.fecha_caducidad, zonaHoraria) : null,
             fecha_inicio: formData.esPermanente ? null : formatWithTimezone(formData.fechaInicio, zonaHoraria),
             fecha_fin: formData.esPermanente ? null : formatWithTimezone(formData.fechaFin, zonaHoraria),
             es_permanente: formData.esPermanente,
             zona_horaria: zonaHoraria, // Guardamos la zona horaria también por si acaso
+            tiene_caducidad: formData.tiene_caducidad || false,
             metadata: JSON.stringify({
                 sticker_url: stickerClave,
                 zona_horaria: zonaHoraria
@@ -285,6 +302,9 @@ const PromoMain = () => {
             console.log("✅ Promoción creada:", response);
 
             setSaveSuccess(true);
+            setTimeout(() => {
+                navigate('/dashboardtickets');
+            }, 1000);
         } catch (error) {
             console.error("Error al guardar promoción:", error);
             setSaveError(error.message || 'Error al guardar la promoción');

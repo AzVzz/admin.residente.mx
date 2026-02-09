@@ -3,13 +3,15 @@ import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
-import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff, FaLink } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
+import ModalAsignarRecursos from './ModalAsignarRecursos';
 
 const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
   const { recargarClientes } = useClientesValidos();
   const [usuarios, setUsuarios] = useState([]);
+  const [restaurantes, setRestaurantes] = useState([]);
 
   // Obtener permisos únicos de los usuarios existentes
   const obtenerPermisosUnicos = () => {
@@ -40,6 +42,13 @@ const ListaNotasUsuarios = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
 
+  // Estados para el modal de asignación de recursos
+  const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [usuarioParaAsignar, setUsuarioParaAsignar] = useState(null);
+
+  // Verificar si el usuario actual es admin/residente
+  const esAdmin = usuario?.rol === 'residente' || usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
+
   // Estados para el formulario de registro/edición
   const [formData, setFormData] = useState({
     nombre_usuario: '',
@@ -47,7 +56,7 @@ const ListaNotasUsuarios = () => {
     password: '',
     confirmPassword: '',
     permisos: 'todos',
-    rol: '',
+    rol: 'residente',
     estado: 'activo',
     // Campos B2B (UI por ahora)
     nombre_responsable: '',
@@ -61,6 +70,41 @@ const ListaNotasUsuarios = () => {
     logo_url: null
   });
 
+  // Estados para filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRol, setFilterRol] = useState('');
+  const [sortOrder, setSortOrder] = useState('fecha_desc');
+
+  // Filtrado y Ordenamiento de usuarios
+  const usuariosFiltrados = usuarios.filter(user => {
+    // 1. Filtro por búsqueda (nombre o correo)
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchSearch =
+      (user.nombre_usuario && user.nombre_usuario.toLowerCase().includes(normalizedSearch)) ||
+      (user.correo && user.correo.toLowerCase().includes(normalizedSearch));
+
+    if (!matchSearch) return false;
+
+    // 2. Filtro por Rol
+    if (filterRol && user.rol !== filterRol) return false;
+
+    return true;
+  }).sort((a, b) => {
+    // 3. Ordenamiento
+    switch (sortOrder) {
+      case 'fecha_asc':
+        return new Date(a.created_at) - new Date(b.created_at);
+      case 'fecha_desc':
+        return new Date(b.created_at) - new Date(a.created_at);
+      case 'nombre_asc':
+        return a.nombre_usuario.localeCompare(b.nombre_usuario);
+      case 'nombre_desc':
+        return b.nombre_usuario.localeCompare(a.nombre_usuario);
+      default:
+        return 0;
+    }
+  });
+
   // Cargar usuarios al montar el componente
   useEffect(() => {
     cargarUsuarios();
@@ -70,21 +114,33 @@ const ListaNotasUsuarios = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${urlApi}api/usuarios`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const [usuariosRes, restaurantesRes] = await Promise.all([
+        fetch(`${urlApi}api/usuarios`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(`${urlApi}api/restaurante/basicos`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error('Error al cargar usuarios');
+      if (!usuariosRes.ok) throw new Error('Error al cargar usuarios');
+
+      const usuariosData = await usuariosRes.json();
+      setUsuarios(usuariosData);
+
+      if (restaurantesRes.ok) {
+        const restaurantesData = await restaurantesRes.json();
+        setRestaurantes(restaurantesData);
       }
 
-      const data = await response.json();
-      setUsuarios(data);
     } catch (err) {
-      setError('Error al cargar usuarios: ' + err.message);
+      setError('Error al cargar datos: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -275,7 +331,7 @@ const ListaNotasUsuarios = () => {
       // Usar formato válido de email estándar para evitar problemas con validaciones del backend
       // Asegurar que siempre sea un string válido, nunca null o undefined
       let correoFinal = '';
-      
+
       // Limpiar y validar el correo ingresado
       if (formData.correo && typeof formData.correo === 'string') {
         const correoLimpio = formData.correo.trim();
@@ -283,7 +339,7 @@ const ListaNotasUsuarios = () => {
           correoFinal = correoLimpio;
         }
       }
-      
+
       // Si no hay correo válido, generar uno automático
       if (!correoFinal || correoFinal === '' || correoFinal === null || correoFinal === undefined) {
         // Limpiar el nombre de usuario para usarlo en el correo
@@ -292,11 +348,11 @@ const ListaNotasUsuarios = () => {
           .replace(/[^a-zA-Z0-9]/g, '')
           .toLowerCase()
           .substring(0, 50); // Limitar longitud
-        
+
         // Usar un formato de email estándar que pase validaciones
         correoFinal = `${nombreLimpio || 'usuario'}@no-reply.local`;
       }
-      
+
       // Validación final: asegurar que el correo nunca sea null, undefined o string vacío
       if (!correoFinal || correoFinal.trim() === '' || correoFinal === null || correoFinal === undefined) {
         correoFinal = `usuario${Date.now()}@no-reply.local`;
@@ -324,7 +380,7 @@ const ListaNotasUsuarios = () => {
           .substring(0, 50);
         datosEnvio.correo = `${nombreLimpio || 'usuario'}@no-reply.local`;
       }
-      
+
       // Convertir a string explícitamente para evitar cualquier problema de tipo
       datosEnvio.correo = String(datosEnvio.correo).trim();
 
@@ -450,6 +506,98 @@ const ListaNotasUsuarios = () => {
     }
   };
 
+  // 🆕 Función para desactivar completamente un usuario B2B
+  // Desactiva: suscripción B2B, cupones/tickets, restaurantes y la cuenta de usuario
+  const desactivarUsuarioB2B = async (user) => {
+    const mensaje = `¿Estás seguro de que quieres DESACTIVAR COMPLETAMENTE a este usuario B2B?
+
+Esto desactivará:
+• Su suscripción B2B
+• Todos sus cupones/tickets
+• Su restaurante
+• Su cuenta de usuario
+
+Usuario: ${user.nombre_usuario}
+Correo: ${user.correo || 'N/A'}
+
+Esta acción puede ser revertida activando manualmente cada elemento.`;
+
+    if (!window.confirm(mensaje)) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // 1. Desactivar la suscripción B2B (usuarios_b2b.suscripcion = false)
+      const b2bResponse = await fetch(`${urlApi}api/usuariosb2b/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ suscripcion: false })
+      });
+
+      if (!b2bResponse.ok) {
+        console.warn('No se encontró registro B2B o no se pudo actualizar');
+      }
+
+      // 2. Desactivar todos los cupones/tickets del usuario (activo_manual = false)
+      const ticketsResponse = await fetch(`${urlApi}api/tickets/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ activo_manual: false })
+      });
+
+      if (!ticketsResponse.ok) {
+        console.warn('No se encontraron tickets o no se pudieron desactivar');
+      }
+
+      // 3. Desactivar el restaurante del usuario (status = 0)
+      const restauranteResponse = await fetch(`${urlApi}api/restaurante/desactivar-por-usuario/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 0 })
+      });
+
+      if (!restauranteResponse.ok) {
+        console.warn('No se encontró restaurante o no se pudo desactivar');
+      }
+
+      // 4. Desactivar la cuenta del usuario (estado = 'inactivo')
+      const usuarioResponse = await fetch(`${urlApi}api/usuarios/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estado: 'inactivo' })
+      });
+
+      if (!usuarioResponse.ok) {
+        const errorData = await usuarioResponse.json();
+        throw new Error(errorData.error || 'Error al desactivar la cuenta del usuario');
+      }
+
+      // Recargar la lista de usuarios
+      await cargarUsuarios();
+      alert('✅ Usuario B2B desactivado completamente');
+
+    } catch (err) {
+      setError('Error al desactivar usuario B2B: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   //const encabezadoTablaUsuarios = {
   //  "Usuario", 
   //  "Cliente",
@@ -465,7 +613,7 @@ const ListaNotasUsuarios = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center">
           <FaUser className="mr-2" />
-          Gestión de Clientes
+          Gestión de Usuarios
         </h2>
         <button
           onClick={() => setShowRegistro(true)}
@@ -482,6 +630,71 @@ const ListaNotasUsuarios = () => {
           {error}
         </div>
       )}
+
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 border border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Filtrar Usuarios</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Búsqueda por nombre/correo */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Buscar por nombre o correo</label>
+            <input
+              type="text"
+              placeholder="Ej: Rocco, usuario@email.com..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          {/* Filtro por Rol */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Filtrar por Rol</label>
+            <select
+              value={filterRol}
+              onChange={(e) => setFilterRol(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="">Todos los roles</option>
+              <option value="residente">Residente</option>
+              <option value="colaborador">Colaborador</option>
+              <option value="invitado">Invitado</option>
+              <option value="b2b">B2B</option>
+            </select>
+          </div>
+
+          {/* Ordenar por */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Ordenar por</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="fecha_desc">Fecha: Más recientes primero</option>
+              <option value="fecha_asc">Fecha: Más antiguos primero</option>
+              <option value="nombre_asc">Nombre: A - Z</option>
+              <option value="nombre_desc">Nombre: Z - A</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Botón limpiar filtros */}
+        {(searchTerm || filterRol || sortOrder !== 'fecha_desc') && (
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterRol('');
+                setSortOrder('fecha_desc');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
+            >
+              Restablecer filtros
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Formulario de registro/edición */}
       {showRegistro && (
@@ -836,14 +1049,14 @@ const ListaNotasUsuarios = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {usuarios.length === 0 ? (
+                {usuariosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                      No hay usuarios registrados
+                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                      No hay usuarios que coincidan con los filtros
                     </td>
                   </tr>
                 ) : (
-                  usuarios.map((user) => (
+                  usuariosFiltrados.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -891,17 +1104,43 @@ const ListaNotasUsuarios = () => {
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (
-                          <Link
-                            to={`/${user.permisos}`}
-                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaExternalLinkAlt className="mr-1" />
-                            Ver Página
-                          </Link>
-                        ) : (
+                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (() => {
+                          // Lógica para determinar el enlace
+                          let href = `https://residente.mx/${user.permisos}`;
+                          let disabled = false;
+
+                          if (user.rol === 'b2b') {
+                            // Buscar el restaurante asignado a este usuario
+                            const restauranteAsignado = restaurantes.find(r => r.usuario_id === user.id);
+                            if (restauranteAsignado && restauranteAsignado.slug) {
+                              href = `https://residente.mx/restaurantes/${restauranteAsignado.slug}`;
+                            } else {
+                              // Si es B2B pero no tiene restaurante asignado
+                              disabled = true;
+                            }
+                          }
+
+                          if (disabled) {
+                            return (
+                              <span className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed" title="Sin restaurante asignado">
+                                <FaExternalLinkAlt className="mr-1" />
+                                Ver Página
+                              </span>
+                            );
+                          }
+
+                          return (
+                            <a
+                              href={href}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaExternalLinkAlt className="mr-1" />
+                              Ver Página
+                            </a>
+                          );
+                        })() : (
                           <span className="text-gray-400 text-xs">N/A</span>
                         )}
                       </td>
@@ -924,6 +1163,16 @@ const ListaNotasUsuarios = () => {
                           >
                             {user.estado === 'activo' ? <FaTimes /> : <FaCheck />}
                           </button>
+                          {/* Botón especial para desactivar usuarios B2B completamente */}
+                          {user.rol === 'b2b' && user.estado === 'activo' && (
+                            <button
+                              onClick={() => desactivarUsuarioB2B(user)}
+                              className="text-orange-600 hover:text-orange-900 cursor-pointer"
+                              title="Desactivar B2B Completo (suscripción, cupones, restaurante y cuenta)"
+                            >
+                              <FaBan />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="text-red-600 hover:text-red-900 cursor-pointer"
@@ -931,6 +1180,19 @@ const ListaNotasUsuarios = () => {
                           >
                             <FaTrash />
                           </button>
+                          {/* Botón para asignar recursos (solo admin/residente) */}
+                          {esAdmin && (
+                            <button
+                              onClick={() => {
+                                setUsuarioParaAsignar(user);
+                                setShowAsignarModal(true);
+                              }}
+                              className="text-purple-600 hover:text-purple-900 cursor-pointer"
+                              title="Asignar Recursos (Restaurante, Cupones)"
+                            >
+                              <FaLink />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -941,6 +1203,20 @@ const ListaNotasUsuarios = () => {
           </div>
         )}
       </div>
+
+      {/* Modal para asignar recursos */}
+      <ModalAsignarRecursos
+        isOpen={showAsignarModal}
+        onClose={() => {
+          setShowAsignarModal(false);
+          setUsuarioParaAsignar(null);
+        }}
+        usuario={usuarioParaAsignar}
+        token={token}
+        onAsignacionExitosa={() => {
+          cargarUsuarios();
+        }}
+      />
     </div>
   );
 };

@@ -6,7 +6,8 @@ const ZonasHabilitadas = () => {
 
     const zonasHabilitadas = [
         { value: "Comedor" },
-        { value: "Terraza" }
+        { value: "Terraza" },
+        { value: "Pick up" }
     ];
 
     return (

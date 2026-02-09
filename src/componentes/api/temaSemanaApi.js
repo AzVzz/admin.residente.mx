@@ -21,6 +21,7 @@ export const postRespuestaSemana = async (data) => {
   formData.append("pregunta", data.pregunta);
   formData.append("respuesta_colaboracion", data.respuesta_colaboracion);
   formData.append("titulo", data.titulo);
+  formData.append("subtitulo", data.subtitulo || "");
   if (data.imagen) formData.append("imagen", data.imagen);
   formData.append("respuesta_consejo", data.respuesta_consejo ? 1 : 0);
   formData.append("texto_consejo", data.texto_consejo || "");
@@ -52,6 +53,7 @@ export const putRespuestaSemana = async (id, data) => {
   formData.append("pregunta", data.pregunta);
   formData.append("respuesta_colaboracion", data.respuesta_colaboracion);
   formData.append("titulo", data.titulo);
+  formData.append("subtitulo", data.subtitulo || "");
   if (data.imagen) formData.append("imagen", data.imagen);
   formData.append("respuesta_consejo", data.respuesta_consejo ? 1 : 0);
   formData.append("texto_consejo", data.texto_consejo || "");

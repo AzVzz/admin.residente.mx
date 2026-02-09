@@ -15,13 +15,13 @@ export const Iconografia = {
     ocasiones: [
         { nombre: "Desayunos", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/desayunos.webp`, clave: "desayunos" },
         { nombre: "Amigos", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/amigos.webp`, clave: "amigos" },
-        { nombre: "Cumpleaños", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/cumpleaños.webp`, clave: "cumpleaños" },
         { nombre: "Night", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/noche.webp`, clave: "noche" },
         { nombre: "Familiar", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/familiar.webp`, clave: "familiar" },
         { nombre: "Negocios", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/negocios.webp`, clave: "negocios" },
         { nombre: "Antojo", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/yum.webp`, clave: "yum" },
         { nombre: "En pareja", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/en-pareja.webp`, clave: "enPareja" },
         { nombre: "Munch", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/munch.webp`, clave: "munch" },
+        { nombre: "Saludable", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/saludable.png`, clave: "saludable" },
     ],
     zonas: [
         { nombre: "Monterrey", icono: `${imgApi}fotos/fotos-estaticas/componente-iconos/mty.webp`, clave: "mty" },

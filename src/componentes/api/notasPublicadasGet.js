@@ -3,15 +3,22 @@ import { urlApi, imgApi } from './url.js';
 
 // Puro Gets a notasPublicadas
 
-export const catalogoNotasGet = async (page = 1, limit = 15) => {
+export const catalogoNotasGet = async (page = 1, limit = 50) => {
     try {
         const response = await fetch(`${urlApi}api/notas?page=${page}&limit=${limit}`);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const result = await response.json();
-        // Si tu API regresa un array directo:
-        return result;
-        // Si tu API regresa { data: [...] }:
-        // return result.data;
+
+        // Manejar nuevo formato paginado y formato antiguo (retrocompatibilidad)
+        if (Array.isArray(result)) {
+            // Formato antiguo: array directo
+            return result;
+        } else if (result.notas && Array.isArray(result.notas)) {
+            // Nuevo formato: { notas: [...], paginacion: {...} }
+            return result.notas;
+        } else {
+            return [];
+        }
     } catch (error) {
         console.error("Error fetching notas:", error);
         throw error;
@@ -47,20 +54,20 @@ export const notasDestacadasTopGet = async () => {
 export const notasPorTipoNota = async (tipoNota) => {
     // Intentar primero con guiones (formato URL)
     const tipoNotaUrl = tipoNota.toLowerCase().replace(/ /g, '-');
-    
+
     let response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaUrl}`);
     let result = await response.json();
-    
+
     // Si no hay resultados, intentar con espacios
     if (result.length === 0) {
         const tipoNotaConEspacios = tipoNota.replace(/-/g, ' ');
-        
+
         response = await fetch(`${urlApi}api/notas/por-tipo-nota/${tipoNotaConEspacios}`);
         if (response.ok) {
             result = await response.json();
         }
     }
-    
+
     return result;
 };
 

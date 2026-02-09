@@ -17,8 +17,10 @@ import DirectorioVertical from "../../componentes/componentesColumna2/Directorio
 import PortadaRevista from "../../componentes/componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import { Dialog, Transition } from "@headlessui/react";
+import { loginPost } from "../../../api/loginPost";
+import { useAuth } from "../../../Context";
 
-const FormMain = () => {
+const FormMain = ({ planInicial = null }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -44,11 +46,124 @@ const FormMain = () => {
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
+  const { saveToken, saveUsuario } = useAuth();
+
+  // Precios de fallback (se usan si el endpoint no está disponible)
+  const PRECIOS_FALLBACK = [
+    { sucursales: 1, sucursalesTexto: "1 sucursal", precioMensual: 2199, precioMensualConIVA: 2550.84, nombre: "Plan 1 Sucursal", priceId: "fallback_1" },
+    { sucursales: 2, sucursalesTexto: "2 sucursales", precioMensual: 2599, precioMensualConIVA: 3014.84, nombre: "Plan 2 Sucursales", priceId: "fallback_2" },
+    { sucursales: 3, sucursalesTexto: "3 sucursales", precioMensual: 3599, precioMensualConIVA: 4174.84, nombre: "Plan 3 Sucursales", priceId: "fallback_3" },
+    { sucursales: 4, sucursalesTexto: "4 sucursales", precioMensual: 3999, precioMensualConIVA: 4638.84, nombre: "Plan 4 Sucursales", priceId: "fallback_4" },
+    { sucursales: "5+", sucursalesTexto: "5 o más sucursales", precioMensual: 4599, precioMensualConIVA: 5334.84, nombre: "Plan 5+ Sucursales", priceId: "fallback_5" },
+  ];
+
+  // Estados para número de sucursales y precios
+  // Si viene un planInicial, usarlo como valor inicial
+  const [numeroSucursales, setNumeroSucursales] = useState(() => {
+    if (planInicial?.sucursales) {
+      return planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+    }
+    return 1;
+  });
+  const [preciosDisponibles, setPreciosDisponibles] = useState(PRECIOS_FALLBACK);
+  const [loadingPrecios, setLoadingPrecios] = useState(true);
+  const [precioSeleccionado, setPrecioSeleccionado] = useState(() => {
+    if (planInicial) {
+      return planInicial;
+    }
+    return PRECIOS_FALLBACK[0];
+  });
 
   // Estados para verificación de nombre de usuario
   const [usernameExists, setUsernameExists] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const usernameDebounceRef = useRef(null);
+
+  // Estados para verificación de restaurante restringido/vetado
+  const [restauranteVetado, setRestauranteVetado] = useState(false);
+  const [verificandoRestaurante, setVerificandoRestaurante] = useState(false);
+  const [mensajeVetado, setMensajeVetado] = useState("");
+  const vetadoDebounceRef = useRef(null);
+
+  // Estado para código de acceso (desbloqueo de restringidos)
+  const [codigoAcceso, setCodigoAcceso] = useState("");
+  const [codigoValido, setCodigoValido] = useState(false);
+  const [verificandoCodigo, setVerificandoCodigo] = useState(false);
+  const [errorCodigo, setErrorCodigo] = useState("");
+  const [restauranteRestringidoId, setRestauranteRestringidoId] = useState(null);
+
+  // Código maestro para desbloquear restaurantes vetados
+  const CODIGO_MAESTRO = "RESIDENTE";
+
+  // Obtener precios desde el backend al cargar el componente
+  useEffect(() => {
+    const fetchPrecios = async () => {
+      setLoadingPrecios(true);
+      try {
+        // Siempre usar la URL absoluta del backend
+        const apiUrl = "https://admin.residente.mx/api/stripe/precios";
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.precios && data.precios.length > 0) {
+          setPreciosDisponibles(data.precios);
+          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
+          if (planInicial) {
+            const precioCoincidente = data.precios.find(p =>
+              p.sucursales === planInicial.sucursales ||
+              (planInicial.sucursales === "5+" && p.sucursales === "5+")
+            );
+            if (precioCoincidente) {
+              setPrecioSeleccionado(precioCoincidente);
+            }
+          } else {
+            const precioInicial = data.precios.find(p => p.sucursales === 1);
+            if (precioInicial) {
+              setPrecioSeleccionado(precioInicial);
+            }
+          }
+        } else {
+          // Si no hay precios del servidor, usar fallback
+          console.warn("No se obtuvieron precios del servidor, usando fallback");
+        }
+      } catch (error) {
+        console.warn("Error obteniendo precios del servidor, usando precios locales:", error.message);
+        // Los precios de fallback ya están cargados por defecto
+      } finally {
+        setLoadingPrecios(false);
+      }
+    };
+
+    fetchPrecios();
+  }, [planInicial]);
+
+  // Actualizar cuando cambia el planInicial desde el selector de planes
+  useEffect(() => {
+    if (planInicial) {
+      const sucursales = planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+      setNumeroSucursales(sucursales);
+      setPrecioSeleccionado(planInicial);
+    }
+  }, [planInicial]);
+
+  // Actualizar precio seleccionado cuando cambia el número de sucursales
+  useEffect(() => {
+    if (preciosDisponibles.length > 0) {
+      // Buscar el precio correspondiente al número de sucursales
+      // Si es 5 o más, usar el precio de "5+"
+      const sucursalesKey = numeroSucursales >= 5 ? "5+" : numeroSucursales;
+      const precio = preciosDisponibles.find(p => p.sucursales === sucursalesKey || p.sucursales === numeroSucursales);
+      if (precio) {
+        setPrecioSeleccionado(precio);
+      }
+    }
+  }, [numeroSucursales, preciosDisponibles]);
 
   // Verificar si el nombre de usuario ya existe (con debounce)
   useEffect(() => {
@@ -97,6 +212,94 @@ const FormMain = () => {
       }
     };
   }, [formData.nombre_usuario]);
+
+  // Función para verificar si el restaurante está restringido
+  const verificarRestauranteRestringido = async (nombreRestaurante) => {
+    try {
+      const apiUrl = "https://admin.residente.mx/api/clientes-editorial/verificar-restringido";
+      console.log("🔍 Verificando restaurante restringido:", nombreRestaurante);
+
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre_restaurante: nombreRestaurante })
+      });
+
+      if (!res.ok) {
+        console.error("❌ Error verificando restringido:", res.status);
+        return { restringido: false, encontrado: false };
+      }
+
+      const data = await res.json();
+      console.log("📦 Respuesta del servidor:", data);
+      return data;
+    } catch (error) {
+      console.error("❌ Error verificando estado del restaurante:", error);
+      return { restringido: false, encontrado: false };
+    }
+  };
+
+  // Verificar si el restaurante está restringido (con debounce)
+  useEffect(() => {
+    if (vetadoDebounceRef.current) {
+      clearTimeout(vetadoDebounceRef.current);
+    }
+
+    const nombreRestaurante = formData.nombre_restaurante.trim();
+
+    // Si no hay nombre de restaurante, resetear estado
+    if (!nombreRestaurante || nombreRestaurante.length < 3) {
+      setRestauranteVetado(false);
+      setVerificandoRestaurante(false);
+      setMensajeVetado("");
+      setCodigoAcceso("");
+      setCodigoValido(false);
+      setErrorCodigo("");
+      setRestauranteRestringidoId(null);
+      return;
+    }
+
+    // Limpiar estado de código mientras escribe
+    setCodigoAcceso("");
+    setCodigoValido(false);
+    setErrorCodigo("");
+
+    setVerificandoRestaurante(true);
+
+    // Debounce de 800ms (igual que Astro)
+    vetadoDebounceRef.current = setTimeout(async () => {
+      try {
+        console.log("⏰ Ejecutando verificación para:", nombreRestaurante);
+        const resultado = await verificarRestauranteRestringido(nombreRestaurante);
+        console.log("📋 Resultado de verificación:", resultado);
+
+        if (resultado.restringido) {
+          console.log("🚫 Restaurante RESTRINGIDO - Mostrando mensaje");
+          console.log("📝 ID del restaurante:", resultado.id);
+          setRestauranteVetado(true);
+          setRestauranteRestringidoId(resultado.id || null);
+          setMensajeVetado(
+            `Este restaurante no puede registrarse en este momento. Contacta al administrador para más información.`
+          );
+        } else {
+          setRestauranteVetado(false);
+          setRestauranteRestringidoId(null);
+          setMensajeVetado("");
+        }
+      } catch (error) {
+        console.error("Error verificando restaurante:", error);
+        setRestauranteVetado(false);
+      } finally {
+        setVerificandoRestaurante(false);
+      }
+    }, 800);
+
+    return () => {
+      if (vetadoDebounceRef.current) {
+        clearTimeout(vetadoDebounceRef.current);
+      }
+    };
+  }, [formData.nombre_restaurante]);
 
   // Estados para verificación de correo
   const [emailExists, setEmailExists] = useState(false);
@@ -206,7 +409,7 @@ const FormMain = () => {
                 const apiUrl = import.meta.env.DEV
                   ? "/api/stripe/checkout-session/" + savedSessionId
                   : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                    savedSessionId;
+                  savedSessionId;
 
                 const sessionRes = await fetch(apiUrl);
                 const sessionData = await sessionRes.json();
@@ -262,6 +465,21 @@ const FormMain = () => {
         // Si llegamos aquí, el usuario se creó exitosamente
         usuarioId = usuarioRes.usuario.id;
 
+        // Guardar credenciales para el modal del dashboard
+        sessionStorage.setItem(
+          "credencialesNuevas",
+          JSON.stringify({
+            nombre_usuario: formDataToUse.nombre_usuario,
+            password: formDataToUse.password,
+            correo: formDataToUse.correo,
+          })
+        );
+        console.log("📝 Guardando credenciales:", {
+          nombre_usuario: formDataToUse.nombre_usuario,
+          password: formDataToUse.password,
+          correo: formDataToUse.correo,
+        });
+
         // Obtener el b2b_id desde el session_id si existe
         let b2bId = null;
         if (savedSessionId) {
@@ -269,7 +487,7 @@ const FormMain = () => {
             const apiUrl = import.meta.env.DEV
               ? "/api/stripe/checkout-session/" + savedSessionId
               : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                savedSessionId;
+              savedSessionId;
 
             const sessionRes = await fetch(apiUrl);
             const sessionData = await sessionRes.json();
@@ -336,9 +554,28 @@ const FormMain = () => {
         localStorage.removeItem("b2b_payment_completed");
         localStorage.removeItem("b2b_stripe_session_id");
         localStorage.removeItem("b2b_form_data");
+        localStorage.removeItem("b2b_plan_seleccionado");
 
-        // Redirigir a registro
-        window.location.href = "/registro";
+        // Login automático
+        const loginResp = await loginPost(
+          formDataToUse.correo,
+          formDataToUse.password
+        );
+        saveToken(loginResp.token);
+        saveUsuario(loginResp.usuario);
+        sessionStorage.setItem(
+          "credencialesNuevas",
+          JSON.stringify({
+            nombre_usuario: formDataToUse.nombre_usuario,
+            password: formDataToUse.password,
+            correo: formDataToUse.correo,
+          })
+        );
+        navigate("/dashboardb2b");
+
+        return; // <-- Importante para que no siga ejecutando el resto
+
+        // window.location.href = "/registro"; // <-- Quita o comenta esta línea
       } catch (error) {
         console.error("Error en handleCreateAccountAfterPayment:", error);
 
@@ -349,20 +586,36 @@ const FormMain = () => {
             error.message.includes("ya existe"))
         ) {
           console.log(
-            "✅ Usuario ya tiene registro B2B, redirigiendo a /registro"
+            "✅ Usuario ya tiene registro B2B, intentando login automático"
           );
           // Limpiar localStorage
           localStorage.removeItem("b2b_payment_completed");
           localStorage.removeItem("b2b_stripe_session_id");
           localStorage.removeItem("b2b_form_data");
-          // Redirigir de todas formas
-          window.location.href = "/registro";
-          return;
+          localStorage.removeItem("b2b_plan_seleccionado");
+
+          // Intentar login automático
+          try {
+            const loginResp = await loginPost(
+              formDataToUse.correo,
+              formDataToUse.password
+            );
+            saveToken(loginResp.token);
+            saveUsuario(loginResp.usuario);
+            navigate("/dashboard", { replace: true });
+            return;
+          } catch (loginError) {
+            setPaymentError(
+              "El usuario ya existe, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión manualmente."
+            );
+            setTimeout(() => navigate("/login"), 2000);
+            return;
+          }
         }
 
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente."
+          "Error al crear la cuenta. Por favor, intenta nuevamente."
         );
         setTimeout(() => setPaymentError(""), 5000);
       } finally {
@@ -469,6 +722,14 @@ const FormMain = () => {
   }, [searchParams, setSearchParams]);
 
   const handlePaymentClick = () => {
+    // Validar si el restaurante está vetado y no tiene código válido
+    if (restauranteVetado && !codigoValido) {
+      setPaymentError(
+        "Este restaurante no puede registrarse. Ingresa el código de acceso si lo tienes."
+      );
+      return;
+    }
+
     // Validar campos obligatorios antes de mostrar el modal
     if (
       !formData.nombre_responsable_restaurante ||
@@ -525,10 +786,15 @@ const FormMain = () => {
         return;
       }
 
+      // Obtener el número de sucursales del plan seleccionado
+      const sucursalesPlan = precioSeleccionado?.sucursales;
+      // Convertir "5+" a 5 para el backend
+      const numeroSucursalesParaBackend = sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
+
       const requestBody = {
-        // El priceId ahora se maneja en el backend (STRIPE_PRICE_ID_B2B en .env)
-        userData: userData, // el backend lo usa para crear el usuario
-        customerEmail: formData.correo || "", 
+        numeroSucursales: numeroSucursalesParaBackend,
+        userData: userData,
+        customerEmail: formData.correo || "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
@@ -565,6 +831,61 @@ const FormMain = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handler para verificar el código de acceso y habilitar el restaurante
+  const handleVerificarCodigo = async () => {
+    setVerificandoCodigo(true);
+    setErrorCodigo("");
+
+    // Verificar si el código es correcto
+    if (codigoAcceso.trim().toUpperCase() !== CODIGO_MAESTRO) {
+      setCodigoValido(false);
+      setErrorCodigo("Código inválido. Contacta al administrador para obtener un código válido.");
+      setVerificandoCodigo(false);
+      return;
+    }
+
+    // Si el código es válido, actualizar el estado en el backend
+    console.log("🔑 Código correcto! restauranteRestringidoId:", restauranteRestringidoId);
+
+    try {
+      if (restauranteRestringidoId) {
+        console.log("✅ Código válido - Habilitando restaurante ID:", restauranteRestringidoId);
+
+        const apiUrl = `https://admin.residente.mx/api/clientes-editorial/${restauranteRestringidoId}`;
+        const res = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado_cliente: 'HA SIDO CLIENTE' })
+        });
+
+        if (!res.ok) {
+          console.error("❌ Error al habilitar restaurante:", res.status);
+          setErrorCodigo("Error al habilitar el restaurante. Intenta de nuevo.");
+          setVerificandoCodigo(false);
+          return;
+        }
+
+        const data = await res.json();
+        console.log("✅ Restaurante habilitado:", data);
+      }
+
+      if (!restauranteRestringidoId) {
+        console.log("⚠️ No hay ID del restaurante - El backend no devolvió el ID");
+        console.log("⚠️ Permitiendo continuar de todos modos...");
+      }
+
+      setCodigoValido(true);
+      setErrorCodigo("");
+      setRestauranteVetado(false); // Ya no está restringido
+      setMensajeVetado("");
+    } catch (error) {
+      console.error("❌ Error habilitando restaurante:", error);
+      setErrorCodigo("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setVerificandoCodigo(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -609,7 +930,7 @@ const FormMain = () => {
               const apiUrl = import.meta.env.DEV
                 ? "/api/stripe/checkout-session/" + savedSessionId
                 : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                  savedSessionId;
+                savedSessionId;
 
               const sessionRes = await fetch(apiUrl);
               const sessionData = await sessionRes.json();
@@ -670,6 +991,21 @@ const FormMain = () => {
       // Si llegamos aquí, el usuario se creó exitosamente
       usuarioId = usuarioRes.usuario.id;
 
+      // Guardar credenciales para el modal del dashboard
+      sessionStorage.setItem(
+        "credencialesNuevas",
+        JSON.stringify({
+          nombre_usuario: formData.nombre_usuario,
+          password: formData.password,
+          correo: formData.correo,
+        })
+      );
+      console.log("📝 Guardando credenciales:", {
+        nombre_usuario: formData.nombre_usuario,
+        password: formData.password,
+        correo: formData.correo,
+      });
+
       // ⭐ CRÍTICO: Obtener el b2b_id desde el session_id si existe
       // El backend ya creó un registro cuando se pagó, necesitamos actualizarlo, no crear uno nuevo
       let b2bId = null;
@@ -678,7 +1014,7 @@ const FormMain = () => {
           const apiUrl = import.meta.env.DEV
             ? "/api/stripe/checkout-session/" + savedSessionId
             : "https://admin.residente.mx/api/stripe/checkout-session/" +
-              savedSessionId;
+            savedSessionId;
 
           const sessionRes = await fetch(apiUrl);
           const sessionData = await sessionRes.json();
@@ -750,14 +1086,14 @@ const FormMain = () => {
         razon_social: "",
         nombre_usuario: "",
         password: "",
-        confirm_password: "", // <-- limpiar el nuevo campo
+        confirm_password: "",
       });
       // Limpiar el estado de pago después de crear la cuenta exitosamente
       setPaymentCompleted(false);
       setStripeSessionId("");
       localStorage.removeItem("b2b_payment_completed");
       localStorage.removeItem("b2b_stripe_session_id");
-      localStorage.removeItem("b2b_stripe_session_id");
+      localStorage.removeItem("b2b_plan_seleccionado");
       setTimeout(() => {
         setSuccessMsg("");
         window.location.href = "/login";
@@ -772,7 +1108,7 @@ const FormMain = () => {
       } else {
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente."
+          "Error al crear la cuenta. Por favor, intenta nuevamente."
         );
       }
       setTimeout(() => setPaymentError(""), 5000);
@@ -790,464 +1126,505 @@ const FormMain = () => {
     return () => document.body.classList.remove("overflow-hidden");
   }, [showModal]);
 
-  return (
-    <div className="grid grid-cols-[minmax(680px,2fr)_minmax(350px,1fr)] gap-x-12 gap-y-9 max-w-[1400px] mx-auto py-8">
-      <div className="flex flex-col left-column translate-x-[-200px]">
-        <img
-          className="w-25 pb-5"
-          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
+  // JSX del formulario (inline para evitar re-renders que pierden el foco)
+  const formularioJSX = (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handlePaymentClick();
+      }}
+      className="space-y-3 sm:space-y-0"
+    >
+      {/* Campo nombre del responsable */}
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Nombre del responsable*
+        </label>
+        <input
+          type="text"
+          name="nombre_responsable_restaurante"
+          value={formData.nombre_responsable_restaurante}
+          onChange={handleChange}
+          placeholder="Nombre del responsable"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
         />
+      </div>
 
-        <h1 className="leading-tight text-2xl mb-4">Suscripción B2B</h1>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {/* Campo nombre del responsable */}
-          <div>
-            <label className="space-y-2 font-roman font-bold ">
-              Nombre del responsable*
-            </label>
-            <input
-              type="text"
-              name="nombre_responsable_restaurante"
-              value={formData.nombre_responsable_restaurante}
-              onChange={handleChange}
-              placeholder="Nombre del responsable"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Nombre comercial del restaurante*
-            </label>
-            <input
-              type="text"
-              name="nombre_restaurante"
-              value={formData.nombre_restaurante}
-              onChange={handleChange}
-              placeholder="Nombre del restaurante"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">Teléfono*</label>
-            <input
-              type="text"
-              name="telefono"
-              value={formData.telefono}
-              onChange={handleChange}
-              placeholder="Teléfono del restaurante"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Correo Electrónico*
-            </label>
-            <input
-              type="email"
-              name="correo"
-              value={formData.correo}
-              onChange={handleChange}
-              placeholder="Escribe tu correo electrónico"
-              className={`bg-white w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-family-roman font-bold text-sm ${
-                emailExists || !emailValid
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Nombre comercial del restaurante*
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            name="nombre_restaurante"
+            value={formData.nombre_restaurante}
+            onChange={handleChange}
+            placeholder="Nombre del restaurante"
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${restauranteVetado
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-blue-500"
               }`}
-            />
-            {checkingEmail && (
-              <p className="text-gray-500 text-xs mt-1">
-                Verificando correo...
-              </p>
-            )}
-            {!emailValid && !checkingEmail && formData.correo && (
-              <p className="text-red-500 text-sm mt-1 font-bold">
-                ⚠️ El formato del correo no es válido
-              </p>
-            )}
-            {emailExists && emailValid && !checkingEmail && (
-              <p className="text-red-500 text-sm mt-1 font-bold">
-                ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
-                sesión.
-              </p>
-            )}
-            {!emailExists &&
-              emailValid &&
-              !checkingEmail &&
-              formData.correo &&
-              formData.correo.includes("@") && (
-                <p className="text-green-500 text-xs mt-1">
-                  ✓ Correo disponible
-                </p>
-              )}
-            <div className="mb-4"></div>
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">RFC*</label>
-            <input
-              type="text"
-              name="rfc"
-              value={formData.rfc}
-              onChange={handleChange}
-              placeholder="Escribe tu RFC"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Dirección completa del restaurante*
-            </label>
-            <input
-              type="text"
-              name="direccion_completa"
-              value={formData.direccion_completa}
-              onChange={handleChange}
-              placeholder="Calle, número, colonia, municipio, código postal"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Razón Social*
-            </label>
-            <input
-              type="text"
-              name="razon_social"
-              value={formData.razon_social}
-              onChange={handleChange}
-              placeholder="Escribe la razón social"
-              className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-            />
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Nombre de usuario*
-            </label>
-            <input
-              type="text"
-              name="nombre_usuario"
-              value={formData.nombre_usuario}
-              onChange={handleChange}
-              placeholder="Tu nombre de usuario"
-              className={`bg-white w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 font-family-roman font-bold text-sm ${
-                usernameExists
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
-              }`}
-            />
-            {checkingUsername && (
-              <p className="text-gray-500 text-xs mt-1">
-                Verificando disponibilidad...
-              </p>
-            )}
-            {usernameExists && !checkingUsername && (
-              <p className="text-red-500 text-sm mt-1 font-bold">
-                ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
-              </p>
-            )}
-            {!usernameExists &&
-              !checkingUsername &&
-              formData.nombre_usuario.length >= 3 && (
-                <p className="text-green-500 text-xs mt-1">
-                  ✓ Nombre de usuario disponible
-                </p>
-              )}
-            <div className="mb-4"></div>
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Contraseña*
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Escribe  contraseña"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-2 text-xl text-black cursor-pointer"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="space-y-2 font-roman font-bold">
-              Confirmar Contraseña*
-            </label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirm_password"
-                value={formData.confirm_password}
-                onChange={handleChange}
-                placeholder="Confirma tu contraseña"
-                className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm mb-4"
-                required
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-2 text-xl text-black cursor-pointer"
-                onClick={() => setShowConfirmPassword((v) => !v)}
-                tabIndex={-1}
-              >
-                {showConfirmPassword ? (
-                  <AiOutlineEyeInvisible />
-                ) : (
-                  <AiOutlineEye />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center">
-            <input type="checkbox" className="w-6 h-6 mr-2 cursor-pointer" />
-            <span className="font-roman font-bold">
-              Acepto los{" "}
-              <span
-                className="text-black underline cursor-pointer"
-                onClick={() => setShowModal(true)}
-                tabIndex={0}
-                role="button"
-              >
-                Términos y Condiciones
-              </span>
-              *
+            required
+          />
+          {verificandoRestaurante && (
+            <span className="absolute right-3 top-2 text-gray-400 text-sm">
+              Verificando...
             </span>
-          </div>
-
-          {/* Mensaje de exito */}
-          {successMsg && (
-            <div className="text-green-600 font-bold text-center mt-4">
-              {successMsg}
-            </div>
           )}
+        </div>
+        {restauranteVetado && mensajeVetado && !codigoValido && (
+          <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
+            <p className="mb-3">⚠️ {mensajeVetado}</p>
 
-          {/* Mensaje de pago completado */}
-          {paymentCompleted && creatingAccount && (
-            <div className="text-blue-600 font-bold text-center mt-4 mb-4">
-              <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
-            </div>
-          )}
-
-          {/* Mensaje de error */}
-          {paymentError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-center">
-              <p className="font-bold">Error:</p>
-              <p>{paymentError}</p>
-            </div>
-          )}
-
-          {/* Botones */}
-          <div className="flex flex-col items-center gap-4 mt-6">
-            {/* Botón de Pagar */}
-            <button
-              type="button"
-              onClick={handlePaymentClick}
-              disabled={paymentLoading || creatingAccount}
-              className="inline-flex items-center justify-center font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] h-[40px] bg-[#fff200] text-black text-sm uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {paymentLoading || creatingAccount ? "Procesando..." : "Pagar"}
-            </button>
-          </div>
-        </form>
-
-        {/* Modal de Checkout de Stripe */}
-        {showPaymentModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
-            <div className="bg-white rounded shadow-lg max-w-lg w-full p-8 relative">
-              <button
-                className="absolute top-4 right-4 text-2xl text-gray-600 cursor-pointer hover:text-gray-800 z-10"
-                onClick={() => {
-                  setShowPaymentModal(false);
-                  setPaymentLoading(false);
-                  setPaymentError("");
-                }}
-              >
-                ×
-              </button>
-
-              <div className="mt-2">
-                <h2 className="text-2xl font-bold mb-6 text-center">
-                  Checkout de Pago
-                </h2>
-
-                {paymentError && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <p className="font-bold">Error:</p>
-                    <p>{paymentError}</p>
-                  </div>
-                )}
-
-                <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                  <div className="text-center">
-                    <p className="text-xl font-semibold mb-2 text-gray-800">
-                      B2B Residente
-                    </p>
-                    <p className="text-3xl font-bold text-black mb-2">
-                      $2,199.00 MXN
-                    </p>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Suscripción mensual
-                    </p>
-                    <p className="text-sm text-green-600 font-semibold italic">
-                      Más IVA
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Plan:</span>
-                    <span className="font-semibold">B2B Residente</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Periodo:</span>
-                    <span className="font-semibold">Mensual</span>
-                  </div>
-                  <div className="flex justify-between text-sm border-t pt-2">
-                    <span className="text-gray-600">Total:</span>
-                    <span className="font-bold text-lg text-black">
-                      $2,199.00 MXN
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={handleProceedToCheckout}
-                    disabled={paymentLoading}
-                    className="bg-[#fff200] hover:bg-[#fff200] text-black font-bold py-3 px-6 rounded disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  >
-                    {paymentLoading ? (
-                      <span className="flex items-center justify-center">
-                        <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                        Procesando...
-                      </span>
-                    ) : (
-                      "Continuar al Pago"
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowPaymentModal(false);
-                      setPaymentLoading(false);
-                      setPaymentError("");
-                    }}
-                    disabled={paymentLoading}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded disabled:bg-gray-200 transition-colors cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-
-                <div className="mt-6 text-center text-xs text-gray-500">
-                  <p>
-                    Serás redirigido a Stripe para completar el pago de forma
-                    segura.
-                  </p>
-                  <p className="mt-1">
-                    Una vez completado el pago, tu cuenta se creará
-                    automáticamente y serás redirigido al dashboard.
-                  </p>
-                </div>
+            <div className="mt-3 pt-3 border-t border-red-200">
+              <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
+                ¿Tienes un código de acceso? Ingrésalo aquí:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+                <input
+                  type="text"
+                  value={codigoAcceso}
+                  onChange={(e) => {
+                    setCodigoAcceso(e.target.value.toUpperCase());
+                    setErrorCodigo("");
+                  }}
+                  placeholder="CÓDIGO DE ACCESO"
+                  className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
+                />
+                <button
+                  type="button"
+                  onClick={handleVerificarCodigo}
+                  disabled={!codigoAcceso.trim() || verificandoCodigo}
+                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${!codigoAcceso.trim() || verificandoCodigo
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                    }`}
+                >
+                  {verificandoCodigo ? "Verificando..." : "Verificar"}
+                </button>
               </div>
+              {errorCodigo && (
+                <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">{errorCodigo}</p>
+              )}
             </div>
           </div>
         )}
+        {restauranteVetado && codigoValido && (
+          <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
+            ✓ Código válido. Puedes continuar con el registro.
+          </div>
+        )}
+        {!restauranteVetado && !verificandoRestaurante && formData.nombre_restaurante.length >= 3 && (
+          <p className="text-green-500 text-xs mt-1">✓ Restaurante disponible para registro</p>
+        )}
+        {!restauranteVetado && formData.nombre_restaurante && <div className="mb-4"></div>}
+        {!formData.nombre_restaurante && <div className="mb-4"></div>}
+      </div>
 
-        {/* Modal de Términos y Condiciones */}
-        <Transition appear show={showModal} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-[9999]"
-            onClose={() => setShowModal(false)}
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Teléfono*
+        </label>
+        <input
+          type="text"
+          name="telefono"
+          value={formData.telefono}
+          onChange={handleChange}
+          placeholder="Teléfono del restaurante"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Correo Electrónico*
+        </label>
+        <input
+          type="email"
+          name="correo"
+          value={formData.correo}
+          onChange={handleChange}
+          placeholder="Escribe tu correo electrónico"
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${emailExists || !emailValid
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+            }`}
+          required
+        />
+        {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
+        {!emailValid && !checkingEmail && formData.correo && (
+          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ El formato del correo no es válido</p>
+        )}
+        {emailExists && emailValid && !checkingEmail && (
+          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este correo ya está registrado. Por favor, usa otro o inicia sesión.</p>
+        )}
+        {!emailExists && emailValid && !checkingEmail && formData.correo && formData.correo.includes("@") && (
+          <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          RFC*
+        </label>
+        <input
+          type="text"
+          name="rfc"
+          value={formData.rfc}
+          onChange={handleChange}
+          placeholder="Escribe tu RFC"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Dirección completa del restaurante*
+        </label>
+        <input
+          type="text"
+          name="direccion_completa"
+          value={formData.direccion_completa}
+          onChange={handleChange}
+          placeholder="Calle, número, colonia, municipio, código postal"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Razón Social*
+        </label>
+        <input
+          type="text"
+          name="razon_social"
+          value={formData.razon_social}
+          onChange={handleChange}
+          placeholder="Escribe la razón social"
+          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Nombre de usuario*
+        </label>
+        <input
+          type="text"
+          name="nombre_usuario"
+          value={formData.nombre_usuario}
+          onChange={handleChange}
+          placeholder="Tu nombre de usuario"
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${usernameExists
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+            }`}
+          required
+        />
+        {checkingUsername && <p className="text-gray-500 text-xs mt-1">Verificando disponibilidad...</p>}
+        {usernameExists && !checkingUsername && (
+          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este nombre de usuario ya existe. Por favor, elige otro.</p>
+        )}
+        {!usernameExists && !checkingUsername && formData.nombre_usuario.length >= 3 && (
+          <p className="text-green-500 text-xs mt-1">✓ Nombre de usuario disponible</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Contraseña*
+        </label>
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Escribe tu contraseña"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+            required
+          />
+          <button
+            type="button"
+            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+            onClick={() => setShowPassword((v) => !v)}
           >
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black/60" />
-            </Transition.Child>
+            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </button>
+        </div>
+      </div>
 
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-[#fff200] p-4 shadow-2xl transition-all relative">
-                    {/* Botón X para cerrar */}
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="absolute top-4 right-4 text-black hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
-                      aria-label="Cerrar modal"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
+      <div>
+        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+          Confirmar Contraseña*
+        </label>
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirm_password"
+            value={formData.confirm_password}
+            onChange={handleChange}
+            placeholder="Confirma tu contraseña"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+            required
+          />
+          <button
+            type="button"
+            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            tabIndex={-1}
+          >
+            {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </button>
+        </div>
+      </div>
 
-                    {/* Título */}
-                    <Dialog.Title className="text-2xl font-bold mb-2 pr-8">
-                      Términos y Condiciones
-                    </Dialog.Title>
-
-                    {/* Contenido scrolleable */}
-                    <div className="max-h-[60vh] overflow-y-auto pr-2 scroll-modal">
-                      <TerminosyCondiciones />
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
+      {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
+      {!planInicial && (
+        <div className="sm:mb-4">
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+            Número de sucursales*
+          </label>
+          {loadingPrecios ? (
+            <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
+              Cargando precios...
             </div>
-          </Dialog>
-        </Transition>
+          ) : (
+            <select
+              value={numeroSucursales}
+              onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
+            >
+              {preciosDisponibles.map((precio) => (
+                <option
+                  key={precio.priceId}
+                  value={precio.sucursales === "5+" ? 5 : precio.sucursales}
+                >
+                  {precio.sucursalesTexto}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
+        <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
+        <span className="font-roman text-base sm:text-sm">
+          Acepto los{" "}
+          <button
+            type="button"
+            className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
+            onClick={() => setShowModal(true)}
+          >
+            Términos y Condiciones
+          </button>
+          *
+        </span>
       </div>
-      {/* Barra lateral */}
-      <div className="flex flex-col items-end justify-start gap-10 translate-x-[-200px]">
-        <DirectorioVertical />
-        <PortadaRevista />
+
+      {/* Mensajes */}
+      {successMsg && (
+        <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
+      )}
+
+      {paymentCompleted && creatingAccount && (
+        <div className="text-blue-600 font-bold text-center mt-4 mb-4">
+          <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
+        </div>
+      )}
+
+      {paymentError && (
+        <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          {paymentError}
+        </div>
+      )}
+
+      {/* Botón de Pagar - Igual que Astro */}
+      <button
+        type="submit"
+        disabled={paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount}
+        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
+          }`}
+      >
+        {verificandoRestaurante ? "Verificando..." : paymentLoading || creatingAccount ? "Procesando..." : (restauranteVetado && !codigoValido) ? "Ingresa código de acceso" : "Ir a Pagar"}
+      </button>
+    </form>
+  );
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-col">
+        {/* Logo - Alineado igual que en Astro */}
+        <img
+          className="w-32 sm:w-25 pt-3 pb-5 sm:pb-7 sm:mx-auto"
+          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
+          alt="B2B Logo"
+        />
+
+        <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">Suscripción B2B</h1>
+
+        {formularioJSX}
       </div>
+
+      {/* Modal Terminos y Condiciones using Headless UI */}
+      <Transition appear show={showModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setShowModal(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  >
+                    Términos y Condiciones
+                  </Dialog.Title>
+                  <div className="mt-2 max-h-[60vh] overflow-y-auto">
+                    <TerminosyCondiciones />
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
+      {/* Payment Modal */}
+      <Transition appear show={showPaymentModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setShowPaymentModal(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  >
+                    Confirmar Pago
+                  </Dialog.Title>
+                  <div className="mt-2 text-start">
+                    <p className="text-sm text-gray-500 mb-4">
+                      Serás redirigido a Stripe para completar tu suscripción de manera segura.
+                    </p>
+
+                    {/* Resumen del plan en el modal - igual que Stripe */}
+                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Plan:</span>
+                          <span className="font-semibold">{precioSeleccionado?.nombre}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Sucursales:</span>
+                          <span className="font-semibold">{precioSeleccionado?.sucursalesTexto}</span>
+                        </div>
+                        <div className="flex justify-between border-t pt-2 mt-2">
+                          <span className="text-gray-600">Precio base:</span>
+                          <span className="font-bold text-lg">
+                            ${precioSeleccionado?.precioMensual?.toLocaleString('es-MX')} MXN
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">IVA (16%):</span>
+                          <span className="font-semibold">
+                            +${((precioSeleccionado?.precioMensualConIVA || 0) - (precioSeleccionado?.precioMensual || 0)).toLocaleString('es-MX')} MXN
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-t pt-2">
+                          <span className="text-gray-700 font-semibold">Total mensual:</span>
+                          <span className="font-bold text-lg text-green-600">
+                            ${precioSeleccionado?.precioMensualConIVA?.toLocaleString('es-MX')} MXN
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {paymentError && (
+                      <p className="text-red-500 text-sm mb-4">{paymentError}</p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
+                      onClick={() => setShowPaymentModal(false)}
+                      disabled={paymentLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-yellow-400 px-4 py-2 text-sm font-medium text-black hover:bg-yellow-500"
+                      onClick={handleProceedToCheckout}
+                      disabled={paymentLoading}
+                    >
+                      {paymentLoading ? "Cargando..." : "Continuar a Stripe"}
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };

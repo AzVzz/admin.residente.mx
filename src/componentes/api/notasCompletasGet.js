@@ -1,7 +1,7 @@
 //src/componentes/api/notasCompletas.js
 import { urlApi, imgApi } from './url.js';
 
-export const notasTodasGet = async (token, page = 1, limit = "all", q = "", filtros = {}) => {
+export const notasTodasGet = async (token, page = 1, limit = 100, q = "", filtros = {}) => {
     try {
         const url = new URL(`${urlApi}api/notas/todas`);
         url.searchParams.append("page", page);
@@ -13,7 +13,7 @@ export const notasTodasGet = async (token, page = 1, limit = "all", q = "", filt
         });
 
         const response = await fetch(url, {
-            headers: token ? { 
+            headers: token ? {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             } : {

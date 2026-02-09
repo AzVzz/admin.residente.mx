@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
 import { urlApi } from '../../api/url.js';
 import { useAuth } from '../../Context';
+import EditarNoticia from './EditarNoticia';
+
+const ITEMS_PER_PAGE = 9; // Noticias por página
 
 const NoticiasAdmin = () => {
   const [noticias, setNoticias] = useState([]);
   const [noticiasGuardadas, setNoticiasGuardadas] = useState([]); // Noticias ya guardadas
   const [loading, setLoading] = useState(true);
+  const [loadingNotas, setLoadingNotas] = useState(false);
   const [guardando, setGuardando] = useState(null);
   const [mensaje, setMensaje] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('pendientes'); // pendientes, guardadas, todas
   const [filtroFuente, setFiltroFuente] = useState('todas'); // todas o nombre de fuente
+  const [tabActiva, setTabActiva] = useState('noticias'); // noticias, guardadas
+  const [misNotas, setMisNotas] = useState([]); // Notas guardadas del usuario
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageNotas, setCurrentPageNotas] = useState(1);
+  const [notaSeleccionada, setNotaSeleccionada] = useState(null);
   const { usuario } = useAuth(); // Obtener usuario del contexto
 
   const API_URL = 'https://admin.residente.mx';
@@ -19,7 +28,7 @@ const NoticiasAdmin = () => {
     try {
       const response = await fetch(`${API_URL}/api/noticias/guardadas`);
       const data = await response.json();
-      
+
       if (data.success && data.notas) {
         setNoticiasGuardadas(data.notas);
         return data.notas;
@@ -37,11 +46,11 @@ const NoticiasAdmin = () => {
       // Primero obtener las ya guardadas
       const guardadas = await fetchNoticiasGuardadas();
       const titulosGuardados = guardadas.map(n => n.titulo?.toLowerCase().trim());
-      
+
       // Luego obtener las nuevas de la API
       const response = await fetch(`${API_URL}/api/noticias?pageSize=100`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Filtrar las que ya están guardadas (por título)
         const noticiasFiltradas = data.articles.filter(article => {
@@ -57,15 +66,58 @@ const NoticiasAdmin = () => {
     }
   };
 
+  // Cargar mis notas guardadas (solo si no hay notas locales)
+  const fetchMisNotas = async () => {
+    // Si ya tenemos notas guardadas localmente, no sobrescribir
+    if (misNotas.length > 0) {
+      return;
+    }
+
+    setLoadingNotas(true);
+    try {
+      const response = await fetch(`${API_URL}/api/noticias/guardadas`);
+
+      if (!response.ok) {
+        console.log('Endpoint de notas guardadas no disponible');
+        // NO resetear misNotas aquí para mantener las guardadas localmente
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.noticias?.length > 0) {
+        setMisNotas(data.noticias);
+        setCurrentPageNotas(1);
+      }
+    } catch (error) {
+      console.error('Error cargando notas:', error);
+      // NO resetear misNotas aquí para mantener las guardadas localmente
+    } finally {
+      setLoadingNotas(false);
+    }
+  };
+
   useEffect(() => {
     fetchNoticias();
+    fetchMisNotas(); // Intentar cargar notas guardadas al inicio
   }, []);
+
+  // Resetear página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtroFuente]);
+
+  // Variables de paginación para notas guardadas
+  const totalPagesNotas = Math.ceil(misNotas.length / ITEMS_PER_PAGE);
+  const startIndexNotas = (currentPageNotas - 1) * ITEMS_PER_PAGE;
+  const endIndexNotas = startIndexNotas + ITEMS_PER_PAGE;
+  const notasActuales = misNotas.slice(startIndexNotas, endIndexNotas);
 
   // Guardar UNA noticia como nota
   const guardarComoNota = async (noticia, index, e) => {
-    e.stopPropagation(); // Evitar que se abra el link
+    e.stopPropagation();
     e.preventDefault();
-    
+
     setGuardando(index);
     setMensaje(null);
 
@@ -83,7 +135,8 @@ const NoticiasAdmin = () => {
           publishedAt: noticia.publishedAt,
           source: noticia.source,
           author: noticia.author,
-          usuario_id: usuario?.id // ID del usuario que guarda la nota
+          usuario_id: usuario?.id,
+          url: noticia.url
         })
       });
 
@@ -95,7 +148,7 @@ const NoticiasAdmin = () => {
         setNoticiasGuardadas(prev => [...prev, { ...noticia, guardadaEn: new Date() }]);
         // Quitar de la lista de pendientes
         setNoticias(prev => prev.filter((_, i) => i !== index));
-        
+
         // Limpiar mensaje después de 3 segundos
         setTimeout(() => setMensaje(null), 3000);
       } else {
@@ -119,13 +172,49 @@ const NoticiasAdmin = () => {
     });
   };
 
-  // Colores para las categorías
   const getCategoryColor = (source) => {
-    const colors = [
-      'bg-green-500'
-    ];
+    const colors = ['bg-green-500'];
     const hash = source?.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
     return colors[hash % colors.length];
+  };
+
+  // Cambiar estatus de una nota
+  const cambiarEstatus = async (notaId, nuevoEstatus) => {
+    // Actualizar localmente primero
+    setMisNotas(prev => prev.map(nota =>
+      nota.id === notaId ? { ...nota, estatus: nuevoEstatus } : nota
+    ));
+
+    // Intentar actualizar en el servidor
+    try {
+      const response = await fetch(`${API_URL}/api/notas/${notaId}/estatus`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estatus: nuevoEstatus })
+      });
+
+      if (response.ok) {
+        setMensaje({ tipo: 'exito', texto: `Estatus cambiado a "${nuevoEstatus}"` });
+        setTimeout(() => setMensaje(null), 2000);
+      }
+    } catch (error) {
+      console.log('No se pudo actualizar en servidor, cambio local aplicado');
+    }
+  };
+
+  // Colores según estatus
+  const getEstatusColor = (estatus) => {
+    switch (estatus) {
+      case 'publicada':
+        return 'bg-green-500 text-white';
+      case 'revision':
+        return 'bg-yellow-500 text-white';
+      case 'borrador':
+      default:
+        return 'bg-gray-500 text-white';
+    }
   };
 
   if (loading) {
@@ -140,23 +229,38 @@ const NoticiasAdmin = () => {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <h2 className="text-2xl font-black text-black"> Noticias </h2>
-        <button 
-          onClick={fetchNoticias} 
-          className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors font-bold"
+
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6  p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setTabActiva('noticias')}
+          className={`px-6 py-2 rounded-md font-bold text-sm transition-all ${tabActiva === 'noticias'
+            ? 'bg-white text-black shadow-sm'
+            : 'text-gray-600 hover:text-black'
+            }`}
         >
-          Actualizar
+          Noticias
+
+        </button>
+        <button
+          onClick={() => setTabActiva('guardadas')}
+          className={`px-6 py-2 rounded-md font-bold text-sm transition-all ${tabActiva === 'guardadas'
+            ? 'bg-white text-black shadow-sm'
+            : 'text-gray-600 hover:text-black'
+            }`}
+        >
+          Mis Notas Guardadas
+
         </button>
       </div>
 
       {/* Mensaje de estado */}
       {mensaje && (
-        <div className={`p-4 rounded-lg mb-4 ${
-          mensaje.tipo === 'exito' 
-            ? 'bg-green-100 text-green-800 border border-green-300' 
-            : 'bg-red-100 text-red-800 border border-red-300'
-        }`}>
+        <div className={`p-4 rounded-lg mb-4 ${mensaje.tipo === 'exito'
+          ? 'bg-green-100 text-green-800 border-green-300'
+          : 'bg-red-100 text-red-800 border border-red-300'
+          }`}>
           {mensaje.texto}
         </div>
       )}
@@ -188,11 +292,11 @@ const NoticiasAdmin = () => {
 
         {/* Contador */}
         <span className="px-4 py-2 bg-gray-100 rounded-full text-gray-600 font-roman">
-          {filtroEstado === 'guardadas' 
-            ? `${noticiasGuardadas.length} guardadas` 
+          {filtroEstado === 'guardadas'
+            ? `${noticiasGuardadas.length} guardadas`
             : filtroEstado === 'pendientes'
-            ? `${noticias.length} pendientes`
-            : `${noticias.length + noticiasGuardadas.length} total`
+              ? `${noticias.length} pendientes`
+              : `${noticias.length + noticiasGuardadas.length} total`
           }
         </span>
       </div>
@@ -200,14 +304,14 @@ const NoticiasAdmin = () => {
       {/* Grid de noticias estilo tarjetas como las notas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {/* Mostrar noticias pendientes */}
-        {(filtroEstado === 'pendientes' || filtroEstado === 'todas') && 
+        {(filtroEstado === 'pendientes' || filtroEstado === 'todas') &&
           noticias
             .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
             .map((noticia, index) => (
-              <NoticiaCard 
+              <NoticiaCard
                 key={`pendiente-${index}`}
                 index={index}
-                noticia={noticia} 
+                noticia={noticia}
                 formatDate={formatDate}
                 getCategoryColor={getCategoryColor}
                 onGuardar={guardarComoNota}
@@ -216,16 +320,16 @@ const NoticiasAdmin = () => {
               />
             ))
         }
-        
+
         {/* Mostrar noticias guardadas */}
-        {(filtroEstado === 'guardadas' || filtroEstado === 'todas') && 
+        {(filtroEstado === 'guardadas' || filtroEstado === 'todas') &&
           noticiasGuardadas
             .filter(n => filtroFuente === 'todas' || n.source === filtroFuente)
             .map((noticia, index) => (
-              <NoticiaCard 
+              <NoticiaCard
                 key={`guardada-${index}`}
                 index={index}
-                noticia={noticia} 
+                noticia={noticia}
                 formatDate={formatDate}
                 getCategoryColor={getCategoryColor}
                 onGuardar={null}
@@ -236,33 +340,115 @@ const NoticiasAdmin = () => {
         }
       </div>
 
-      {noticias.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No hay noticias nuevas disponibles</p>
-          <button 
-            onClick={fetchNoticias}
-            className="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-          >
-            Reintentar
-          </button>
-        </div>
+
+
+      {tabActiva === 'guardadas' && (
+        <>
+          {loadingNotas ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mb-4"></div>
+              <p className="text-gray-600 font-roman">Cargando tus notas guardadas...</p>
+            </div>
+          ) : notaSeleccionada ? (
+
+            <EditarNoticia
+              nota={notaSeleccionada}
+              onVolver={() => setNotaSeleccionada(null)}
+              formatDate={formatDate}
+              estatus={notaSeleccionada.estatus}
+              onCambiarEstatus={(nuevoEstatus) => {
+                cambiarEstatus(notaSeleccionada.id, nuevoEstatus);
+                setNotaSeleccionada(prev => ({ ...prev, estatus: nuevoEstatus }));
+              }}
+            />
+          ) : misNotas.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4"></div>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">No tienes notas guardadas</h3>
+              <p className="text-gray-500 mb-6">
+                Ve a la pestaña "Noticias" y guarda las que te interesen
+              </p>
+              <button
+                onClick={() => setTabActiva('noticias')}
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 font-bold"
+              >
+                Ver Noticias
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Info */}
+              <div className="flex items-center justify-between mb-6 py-3 px-1  border-gray-200">
+                <span className="text-sm text-gray-500">
+                  {misNotas.length} notas guardadas
+                </span>
+              </div>
+
+              {/* Grid de notas guardadas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {notasActuales.map((nota, index) => (
+                  <NoticiaCard
+                    key={nota.id || startIndexNotas + index}
+                    index={index}
+                    noticia={nota}
+                    formatDate={formatDate}
+                    getCategoryColor={getCategoryColor}
+                    mostrarBotonGuardar={false}
+                    esGuardada={true}
+                    onCambiarEstatus={cambiarEstatus}
+                    getEstatusColor={getEstatusColor}
+                    onVerNota={() => setNotaSeleccionada(nota)}
+                  />
+                ))}
+              </div>
+
+              {/* Paginación */}
+              {totalPagesNotas > 1 && (
+                <Paginacion
+                  currentPage={currentPageNotas}
+                  totalPages={totalPagesNotas}
+                  onPageChange={setCurrentPageNotas}
+                />
+              )}
+
+              {/* Info de paginación */}
+              {misNotas.length > 0 && (
+                <div className="text-center text-gray-600 text-sm mb-4">
+                  Mostrando {startIndexNotas + 1} - {Math.min(endIndexNotas, misNotas.length)} de {misNotas.length} notas
+                </div>
+              )}
+            </>
+          )}
+        </>
       )}
     </div>
   );
 };
 
 // Componente de tarjeta con el diseño exacto de las notas
-const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando, esGuardada = false }) => {
+const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, guardando, esGuardada = false, onVerNota, onCambiarEstatus, getEstatusColor, mostrarBotonGuardar = true }) => {
   const categoryColor = getCategoryColor(noticia.source);
   const [imagenError, setImagenError] = useState(false);
-  
-  // Imagen por defecto
-  const imagenDefault = `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
-  
+
+  // Obtener color del borde según estatus
+  const getBorderColor = () => {
+    if (!esGuardada) return '';
+    switch (noticia.estatus) {
+      case 'publicada':
+        return 'ring-2 ring-green-500';
+      case 'revision':
+        return 'ring-2 ring-yellow-500';
+      case 'borrador':
+      default:
+        return 'ring-2 ring-gray-400';
+    }
+  };
+
   return (
     <div
-      className="group relative block rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-gray-100"
+      className={`group relative block rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-gray-100 ${getBorderColor()} ${esGuardada ? 'cursor-pointer' : ''}`}
       style={{ aspectRatio: '4/3' }}
+      onClick={esGuardada && onVerNota ? onVerNota : undefined}
     >
       {/* Imagen de fondo */}
       <div className="absolute inset-0">
@@ -278,23 +464,20 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
             <span className="text-6xl opacity-50">📰</span>
           </div>
         )}
-        {/* Overlay para mejorar legibilidad */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
       </div>
 
       {/* Contenido superpuesto */}
       <div className="relative h-full flex flex-col justify-between p-3 z-10">
-        
-        {/* Parte superior: Estado y Categoría */}
+
+        {/* Parte superior */}
         <div className="flex justify-between items-start">
-          {/* Datos de la izquierda */}
           <div className="flex flex-col gap-1">
             {/* Etiqueta de estado */}
-            <span className={`px-2 py-1 text-xs rounded-full font-bold w-fit ${
-              esGuardada 
-                ? 'bg-green-500 text-white' 
-                : 'bg-yellow-500 text-white'
-            }`}>
+            <span className={`px-2 py-1 text-xs rounded-full font-bold w-fit ${esGuardada
+              ? 'bg-green-500 text-white'
+              : 'bg-yellow-500 text-white'
+              }`}>
               {esGuardada ? 'Guardada' : 'Pendiente'}
             </span>
             {/* Fecha */}
@@ -307,19 +490,19 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
             </span>
           </div>
 
-          {/* Categoría a la derecha */}
+          {/* Categoría */}
           <div className={`${categoryColor} text-white px-3 py-1 text-sm font-black uppercase tracking-wide`}>
             NOTICIAS
           </div>
         </div>
 
-        {/* Parte inferior: Título y botones */}
+        {/* Parte inferior */}
         <div className="w-full">
           <div className="bg-white/95 backdrop-blur-sm p-3 rounded">
             <h3 className="text-black text-sm font-black leading-tight line-clamp-2 mb-2">
               {noticia.title}
             </h3>
-            
+
             {/* Botones de acción */}
             <div className="flex gap-2 mt-2">
               {esGuardada ? (
@@ -327,22 +510,21 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
                   ✓ Ya guardada
                 </span>
               ) : (
-                <button 
+                <button
                   onClick={(e) => onGuardar && onGuardar(noticia, index, e)}
                   disabled={guardando === index}
-                  className={`flex-1 px-3 py-1.5 rounded font-bold transition-colors text-xs ${
-                    guardando === index
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
+                  className={`flex-1 px-3 py-1.5 rounded font-bold transition-colors text-xs ${guardando === index
+                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
                 >
                   {guardando === index ? 'Guardando...' : 'Guardar como Nota'}
                 </button>
               )}
-              
-              <a 
-                href={noticia.url} 
-                target="_blank" 
+
+              <a
+                href={noticia.url}
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="px-3 py-1.5 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors text-xs text-center"
@@ -353,6 +535,33 @@ const NoticiaCard = ({ noticia, index, formatDate, getCategoryColor, onGuardar, 
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+// Componente de paginación
+const Paginacion = ({ currentPage, totalPages, onPageChange }) => {
+  return (
+    <div className="flex justify-center items-center gap-2 my-6">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Anterior
+      </button>
+
+      <span className="px-4 py-1 bg-black text-white rounded font-bold">
+        {currentPage} / {totalPages}
+      </span>
+
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Siguiente
+      </button>
     </div>
   );
 };

@@ -50,10 +50,10 @@ const PaginaCliente = () => {
         // Obtener todas las notas y filtrar en frontend
         const cargarNotasFiltradas = async () => {
             try {
-                // Obtener todas las notas (sin límite para poder filtrar correctamente)
-                const todasLasNotas = await catalogoNotasGet(1, 1000);
-                console.log('Todas las notas obtenidas:', todasLasNotas);
-                console.log('Número total de notas:', todasLasNotas.length);
+                // 🚀 OPTIMIZADO: Traer las últimas 100 notas (antes eran 1000)
+                // Esto es suficiente para la mayoría de clientes
+                const todasLasNotas = await catalogoNotasGet(1, 100);
+                console.log('Notas obtenidas:', todasLasNotas.length);
 
                 // Mostrar todos los tipos de nota únicos para debugging
                 const tiposNotaUnicos = [...new Set(todasLasNotas.map(nota => nota.tipo_nota).filter(Boolean))];
@@ -122,7 +122,7 @@ const PaginaCliente = () => {
     if (loading) return <div>Cargando...</div>;
     // Solo valida cuando loading es false
     if (!loading && (!clientesValidos.includes(nombreCliente) || nombreCliente === "b2b")) {
-      return <NoEncontrado />;
+        return <NoEncontrado />;
     }
 
     if (cargando) return <div>Cargando...</div>;

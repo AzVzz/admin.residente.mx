@@ -8,6 +8,7 @@ import { useFormStorage } from "../../hooks/useFormStorage";
 import { urlApi } from "../api/url.js";
 
 import "./FormularioMain.css";
+import TipoLugar from "./componentes/TipoLugar";
 import TipoRestaurante from "./componentes/TipoRestaurante";
 import Categorias from "./componentes/Categorias";
 import Informacion from "./componentes/Informacion";
@@ -77,7 +78,17 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
   // Preparar baseDefaults
   const baseDefaults = useMemo(() => {
+    // Lista de subcategorías de Food & Drink
+    const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
+
+    // Determinar si el tipo_lugar es una subcategoría de Food & Drink
+    const tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+    const esSubcategoria = subcategoriasFoodDrink.includes(tipoLugarActual);
+
     const defaults = {
+      // Si es una subcategoría, tipo_lugar será "Food & Drink" y sub_tipo_lugar tendrá el valor específico
+      tipo_lugar: esSubcategoria ? "Food & Drink" : tipoLugarActual,
+      sub_tipo_lugar: esSubcategoria ? tipoLugarActual : "",
       sucursales: [],
       tipo_area: [],
       tipo_area_restaurante: [],
@@ -429,6 +440,51 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   );
                 }
 
+                // ✅ Si es Food & Drink con subcategoría, limpiar entradas antiguas y agregar las correctas
+                const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
+                // Secciones que deben ser limpiadas cuando se usa Food & Drink
+                const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bar", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
+
+                const subTipoLugar = data.sub_tipo_lugar;
+                const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
+
+                if (subTipoLugar && subcategoriasFoodDrink.includes(subTipoLugar)) {
+                  // Mapeo de opciones del formulario a nombres de sección en BD
+                  const mapeoSeccion = {
+                    "Cafés": "Cafés",
+                    "Bares": "Bar",
+                    "Postres": "Postres",
+                    "Snacks": "Snacks",
+                    "Bebidas": "Bebidas"
+                  };
+                  const seccionFinal = mapeoSeccion[subTipoLugar] || subTipoLugar;
+
+                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink y secciones relacionadas
+                  const seccionesCategoriasLimpias = seccionesCategorias.filter(
+                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion)
+                  );
+
+                  // Limpiar el array original y copiar las entradas limpias
+                  seccionesCategorias.length = 0;
+                  seccionesCategoriasLimpias.forEach(item => seccionesCategorias.push(item));
+
+                  // Agregar entrada original Food & Drink
+                  seccionesCategorias.push({
+                    seccion: "Food & Drink",
+                    categoria: subTipoLugar
+                  });
+
+                  // Agregar entradas con las zonas como categorías
+                  if (Array.isArray(zonasSeleccionadas) && zonasSeleccionadas.length > 0) {
+                    zonasSeleccionadas.forEach(zona => {
+                      seccionesCategorias.push({
+                        seccion: seccionFinal,
+                        categoria: zona
+                      });
+                    });
+                  }
+                }
+
                 // Helper cleaning function
                 const cleanText = (text) => {
                   if (typeof text !== "string") return text;
@@ -445,9 +501,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   fecha_inauguracion: data.fecha_inauguracion,
                   comida: data.comida
                     ? data.comida
-                        .split(",")
-                        .map((item) => item.trim())
-                        .filter(Boolean)
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean)
                     : [],
                   telefono: data.telefono,
                   ticket_promedio: data.ticket_promedio,
@@ -455,7 +511,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   numero_sucursales: data.numero_sucursales,
                   sucursales: data.sucursales,
                   imagenesEliminadas: data.imagenesEliminadas || [],
-                  tipo_restaurante: data.tipo_restaurante,
+                  // Si hay sub_tipo_lugar (Postres, Cafés, Bares, etc.), usarlo como tipo_lugar
+                  // Si no, usar el tipo_lugar principal (Restaurante o Food & Drink)
+                  tipo_lugar: data.sub_tipo_lugar || data.tipo_lugar || "Restaurante",
+                  // Si hay sub_tipo_lugar, también enviarlo a tipo_restaurante
+                  // Si no, usar el tipo_restaurante que viene del campo "Tipo de comida"
+                  tipo_restaurante: data.sub_tipo_lugar || data.tipo_restaurante,
                   categoria: data.categoria,
                   sitio_web: data.sitio_web,
                   rappi_link: data.rappi_link,
@@ -572,9 +633,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   // Procesar imágenes
                   const imagenes = data.imagenes || [];
                   const imagenesEliminadas = data.imagenesEliminadas || [];
+
+                  // Separar imágenes nuevas (Files) de las existentes (con id)
                   const newImages = imagenes.filter(
                     (img) => img instanceof File
                   );
+
+                  // Obtener IDs de imágenes existentes que se conservan
+                  const imagenesConservadasIds = imagenes
+                    .filter((img) => img?.id && !imagenesEliminadas.includes(img.id))
+                    .map((img) => img.id);
 
                   // Procesar FOTOS DEL LUGAR
                   const fotosLugar = data.fotos_lugar || [];
@@ -606,14 +674,21 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     await postFotosLugar(restaurantId, formDataFotos);
                   }
 
+                  // Enviar imágenes si hay nuevas O si hay que eliminar alguna
                   if (newImages.length > 0 || imagenesEliminadas.length > 0) {
                     const formData = new FormData();
                     newImages.forEach((img) => {
                       formData.append("fotos", img);
                     });
+                    // IMPORTANTE: El backend espera 'eliminadas' no 'imagenesEliminadas'
                     formData.append(
-                      "imagenesEliminadas",
+                      "eliminadas",
                       JSON.stringify(imagenesEliminadas)
+                    );
+                    // También enviar las conservadas
+                    formData.append(
+                      "conservadas",
+                      JSON.stringify(imagenesConservadasIds)
                     );
                     await postImages(restaurantId, formData);
                   }
@@ -644,7 +719,15 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   const finalSlug =
                     result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
-                    navigate(`/restaurante/${finalSlug}`);
+                    // Abrir el restaurante en una nueva pestaña en residente.mx
+                    window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
+                    // Si es usuario B2B, redirigir a su dashboard
+                    // Si no, quedarse en la página del restaurante en admin
+                    if (usuario?.rol === 'b2b') {
+                      navigate('/dashboardb2b');
+                    } else {
+                      navigate(`/restaurante/${finalSlug}`);
+                    }
                   }
                 }
               } catch (error) {
@@ -659,6 +742,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
             return (
               <form onSubmit={methods.handleSubmit(onSubmit)}>
+                <TipoLugar />
                 <NuevasSeccionesCategorias />
                 <Informacion />
                 {/* <Logo existingLogo={restaurante?.logo} /> */}
@@ -722,7 +806,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-                    
+
                 {/* Selector de Iconos/Stickers */}
                 <div className="form-iconos">
                   <fieldset>
@@ -730,7 +814,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     <FormularioPromoExt
                       onStickerSelect={(stickers) => methods.setValue('icon', stickers)}
                       stickerSeleccionado={methods.watch('icon') || []}
-                      maxStickers={1} 
+                      maxStickers={1}
                     />
                   </fieldset>
                 </div>
