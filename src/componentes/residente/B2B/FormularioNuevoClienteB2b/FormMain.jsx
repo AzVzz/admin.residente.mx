@@ -50,11 +50,46 @@ const FormMain = ({ planInicial = null }) => {
 
   // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
-    { sucursales: 1, sucursalesTexto: "1 sucursal", precioMensual: 2199, precioMensualConIVA: 2550.84, nombre: "Plan 1 Sucursal", priceId: "fallback_1" },
-    { sucursales: 2, sucursalesTexto: "2 sucursales", precioMensual: 2599, precioMensualConIVA: 3014.84, nombre: "Plan 2 Sucursales", priceId: "fallback_2" },
-    { sucursales: 3, sucursalesTexto: "3 sucursales", precioMensual: 3599, precioMensualConIVA: 4174.84, nombre: "Plan 3 Sucursales", priceId: "fallback_3" },
-    { sucursales: 4, sucursalesTexto: "4 sucursales", precioMensual: 3999, precioMensualConIVA: 4638.84, nombre: "Plan 4 Sucursales", priceId: "fallback_4" },
-    { sucursales: "5+", sucursalesTexto: "5 o más sucursales", precioMensual: 4599, precioMensualConIVA: 5334.84, nombre: "Plan 5+ Sucursales", priceId: "fallback_5" },
+    {
+      sucursales: 1,
+      sucursalesTexto: "1 sucursal",
+      precioMensual: 2199,
+      precioMensualConIVA: 2550.84,
+      nombre: "Plan 1 Sucursal",
+      priceId: "fallback_1",
+    },
+    {
+      sucursales: 2,
+      sucursalesTexto: "2 sucursales",
+      precioMensual: 2599,
+      precioMensualConIVA: 3014.84,
+      nombre: "Plan 2 Sucursales",
+      priceId: "fallback_2",
+    },
+    {
+      sucursales: 3,
+      sucursalesTexto: "3 sucursales",
+      precioMensual: 3599,
+      precioMensualConIVA: 4174.84,
+      nombre: "Plan 3 Sucursales",
+      priceId: "fallback_3",
+    },
+    {
+      sucursales: 4,
+      sucursalesTexto: "4 sucursales",
+      precioMensual: 3999,
+      precioMensualConIVA: 4638.84,
+      nombre: "Plan 4 Sucursales",
+      priceId: "fallback_4",
+    },
+    {
+      sucursales: "5+",
+      sucursalesTexto: "5 o más sucursales",
+      precioMensual: 4599,
+      precioMensualConIVA: 5334.84,
+      nombre: "Plan 5+ Sucursales",
+      priceId: "fallback_5",
+    },
   ];
 
   // Estados para número de sucursales y precios
@@ -65,7 +100,8 @@ const FormMain = ({ planInicial = null }) => {
     }
     return 1;
   });
-  const [preciosDisponibles, setPreciosDisponibles] = useState(PRECIOS_FALLBACK);
+  const [preciosDisponibles, setPreciosDisponibles] =
+    useState(PRECIOS_FALLBACK);
   const [loadingPrecios, setLoadingPrecios] = useState(true);
   const [precioSeleccionado, setPrecioSeleccionado] = useState(() => {
     if (planInicial) {
@@ -90,7 +126,8 @@ const FormMain = ({ planInicial = null }) => {
   const [codigoValido, setCodigoValido] = useState(false);
   const [verificandoCodigo, setVerificandoCodigo] = useState(false);
   const [errorCodigo, setErrorCodigo] = useState("");
-  const [restauranteRestringidoId, setRestauranteRestringidoId] = useState(null);
+  const [restauranteRestringidoId, setRestauranteRestringidoId] =
+    useState(null);
 
   // Código maestro para desbloquear restaurantes vetados
   const CODIGO_MAESTRO = "RESIDENTE";
@@ -115,25 +152,31 @@ const FormMain = ({ planInicial = null }) => {
           setPreciosDisponibles(data.precios);
           // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
           if (planInicial) {
-            const precioCoincidente = data.precios.find(p =>
-              p.sucursales === planInicial.sucursales ||
-              (planInicial.sucursales === "5+" && p.sucursales === "5+")
+            const precioCoincidente = data.precios.find(
+              (p) =>
+                p.sucursales === planInicial.sucursales ||
+                (planInicial.sucursales === "5+" && p.sucursales === "5+"),
             );
             if (precioCoincidente) {
               setPrecioSeleccionado(precioCoincidente);
             }
           } else {
-            const precioInicial = data.precios.find(p => p.sucursales === 1);
+            const precioInicial = data.precios.find((p) => p.sucursales === 1);
             if (precioInicial) {
               setPrecioSeleccionado(precioInicial);
             }
           }
         } else {
           // Si no hay precios del servidor, usar fallback
-          console.warn("No se obtuvieron precios del servidor, usando fallback");
+          console.warn(
+            "No se obtuvieron precios del servidor, usando fallback",
+          );
         }
       } catch (error) {
-        console.warn("Error obteniendo precios del servidor, usando precios locales:", error.message);
+        console.warn(
+          "Error obteniendo precios del servidor, usando precios locales:",
+          error.message,
+        );
         // Los precios de fallback ya están cargados por defecto
       } finally {
         setLoadingPrecios(false);
@@ -146,7 +189,8 @@ const FormMain = ({ planInicial = null }) => {
   // Actualizar cuando cambia el planInicial desde el selector de planes
   useEffect(() => {
     if (planInicial) {
-      const sucursales = planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+      const sucursales =
+        planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
       setNumeroSucursales(sucursales);
       setPrecioSeleccionado(planInicial);
     }
@@ -158,7 +202,10 @@ const FormMain = ({ planInicial = null }) => {
       // Buscar el precio correspondiente al número de sucursales
       // Si es 5 o más, usar el precio de "5+"
       const sucursalesKey = numeroSucursales >= 5 ? "5+" : numeroSucursales;
-      const precio = preciosDisponibles.find(p => p.sucursales === sucursalesKey || p.sucursales === numeroSucursales);
+      const precio = preciosDisponibles.find(
+        (p) =>
+          p.sucursales === sucursalesKey || p.sucursales === numeroSucursales,
+      );
       if (precio) {
         setPrecioSeleccionado(precio);
       }
@@ -192,7 +239,7 @@ const FormMain = ({ planInicial = null }) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nombre_usuario: nombreUsuario }),
-          }
+          },
         );
 
         const data = await response.json();
@@ -216,13 +263,14 @@ const FormMain = ({ planInicial = null }) => {
   // Función para verificar si el restaurante está restringido
   const verificarRestauranteRestringido = async (nombreRestaurante) => {
     try {
-      const apiUrl = "https://admin.residente.mx/api/clientes-editorial/verificar-restringido";
+      const apiUrl =
+        "https://admin.residente.mx/api/clientes-editorial/verificar-restringido";
       console.log("🔍 Verificando restaurante restringido:", nombreRestaurante);
 
       const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_restaurante: nombreRestaurante })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre_restaurante: nombreRestaurante }),
       });
 
       if (!res.ok) {
@@ -270,7 +318,8 @@ const FormMain = ({ planInicial = null }) => {
     vetadoDebounceRef.current = setTimeout(async () => {
       try {
         console.log("⏰ Ejecutando verificación para:", nombreRestaurante);
-        const resultado = await verificarRestauranteRestringido(nombreRestaurante);
+        const resultado =
+          await verificarRestauranteRestringido(nombreRestaurante);
         console.log("📋 Resultado de verificación:", resultado);
 
         if (resultado.restringido) {
@@ -279,7 +328,7 @@ const FormMain = ({ planInicial = null }) => {
           setRestauranteVetado(true);
           setRestauranteRestringidoId(resultado.id || null);
           setMensajeVetado(
-            `Este restaurante no puede registrarse en este momento. Contacta al administrador para más información.`
+            `Este restaurante no puede registrarse en este momento. Contacta al administrador para más información.`,
           );
         } else {
           setRestauranteVetado(false);
@@ -343,7 +392,7 @@ const FormMain = ({ planInicial = null }) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ correo }),
-          }
+          },
         );
 
         const data = await response.json();
@@ -369,7 +418,7 @@ const FormMain = ({ planInicial = null }) => {
       // Prevenir ejecuciones duplicadas
       if (accountCreationInProgress.current) {
         console.log(
-          "⚠️ La creación de cuenta ya está en progreso, ignorando llamada duplicada"
+          "⚠️ La creación de cuenta ya está en progreso, ignorando llamada duplicada",
         );
         return;
       }
@@ -394,6 +443,7 @@ const FormMain = ({ planInicial = null }) => {
             nombre_usuario: formDataToUse.nombre_usuario,
             password: formDataToUse.password,
             correo: formDataToUse.correo,
+            stripe_session_id: savedSessionId || undefined,
           };
           usuarioRes = await registrob2bPost(usuarioData);
           usuarioId = usuarioRes.usuario.id;
@@ -401,7 +451,7 @@ const FormMain = ({ planInicial = null }) => {
           // Si el usuario ya existe, intentar obtener el usuario B2B existente
           if (error.message && error.message.includes("ya existe")) {
             console.log(
-              "⚠️ El usuario ya existe, buscando usuario B2B existente..."
+              "⚠️ El usuario ya existe, buscando usuario B2B existente...",
             );
 
             if (savedSessionId) {
@@ -409,7 +459,7 @@ const FormMain = ({ planInicial = null }) => {
                 const apiUrl = import.meta.env.DEV
                   ? "/api/stripe/checkout-session/" + savedSessionId
                   : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                  savedSessionId;
+                    savedSessionId;
 
                 const sessionRes = await fetch(apiUrl);
                 const sessionData = await sessionRes.json();
@@ -453,7 +503,7 @@ const FormMain = ({ planInicial = null }) => {
             }
 
             setPaymentError(
-              "El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario."
+              "El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario.",
             );
             setTimeout(() => setPaymentError(""), 5000);
             return;
@@ -472,7 +522,7 @@ const FormMain = ({ planInicial = null }) => {
             nombre_usuario: formDataToUse.nombre_usuario,
             password: formDataToUse.password,
             correo: formDataToUse.correo,
-          })
+          }),
         );
         console.log("📝 Guardando credenciales:", {
           nombre_usuario: formDataToUse.nombre_usuario,
@@ -480,24 +530,51 @@ const FormMain = ({ planInicial = null }) => {
           correo: formDataToUse.correo,
         });
 
-        // Obtener el b2b_id desde el session_id si existe
+        // Obtener el b2b_id
+        // 1. Puede venir de la respuesta de registro (si el webhook ya creo el registro B2B)
+        // 2. Intentar desde la session metadata (puede no estar si el webhook no ha corrido)
+        // 3. Polling con reintentos si no se encuentra
         let b2bId = null;
-        if (savedSessionId) {
-          try {
-            const apiUrl = import.meta.env.DEV
-              ? "/api/stripe/checkout-session/" + savedSessionId
-              : "https://admin.residente.mx/api/stripe/checkout-session/" +
+
+        // Intentar desde la respuesta de registro (el backend busca por correo y vincula)
+        if (usuarioRes?.usuario?.b2b_id) {
+          b2bId = usuarioRes.usuario.b2b_id;
+          console.log("✅ b2b_id obtenido desde respuesta de registro:", b2bId);
+        }
+
+        // Si no, intentar desde session metadata (con polling para dar tiempo al webhook)
+        if (!b2bId && savedSessionId) {
+          const apiUrl = import.meta.env.DEV
+            ? "/api/stripe/checkout-session/" + savedSessionId
+            : "https://admin.residente.mx/api/stripe/checkout-session/" +
               savedSessionId;
 
-            const sessionRes = await fetch(apiUrl);
-            const sessionData = await sessionRes.json();
+          // Intentar hasta 3 veces con 2s de espera entre cada intento
+          for (let intento = 0; intento < 3 && !b2bId; intento++) {
+            try {
+              if (intento > 0) {
+                console.log(`⏳ Reintento ${intento}/3 para obtener b2b_id...`);
+                await new Promise((r) => setTimeout(r, 2000));
+              }
+              const sessionRes = await fetch(apiUrl);
+              const sessionData = await sessionRes.json();
 
-            if (sessionData.success && sessionData.session?.metadata?.b2b_id) {
-              b2bId = parseInt(sessionData.session.metadata.b2b_id);
-              console.log("✅ b2b_id obtenido desde session:", b2bId);
+              if (
+                sessionData.success &&
+                sessionData.session?.metadata?.b2b_id
+              ) {
+                b2bId = parseInt(sessionData.session.metadata.b2b_id);
+                console.log(
+                  "✅ b2b_id obtenido desde session metadata:",
+                  b2bId,
+                );
+              }
+            } catch (error) {
+              console.warn(
+                "⚠️ No se pudo obtener b2b_id desde session:",
+                error,
+              );
             }
-          } catch (error) {
-            console.warn("⚠️ No se pudo obtener b2b_id desde session:", error);
           }
         }
 
@@ -559,7 +636,7 @@ const FormMain = ({ planInicial = null }) => {
         // Login automático
         const loginResp = await loginPost(
           formDataToUse.correo,
-          formDataToUse.password
+          formDataToUse.password,
         );
         saveToken(loginResp.token);
         saveUsuario(loginResp.usuario);
@@ -569,7 +646,7 @@ const FormMain = ({ planInicial = null }) => {
             nombre_usuario: formDataToUse.nombre_usuario,
             password: formDataToUse.password,
             correo: formDataToUse.correo,
-          })
+          }),
         );
         navigate("/dashboardb2b");
 
@@ -586,7 +663,7 @@ const FormMain = ({ planInicial = null }) => {
             error.message.includes("ya existe"))
         ) {
           console.log(
-            "✅ Usuario ya tiene registro B2B, intentando login automático"
+            "✅ Usuario ya tiene registro B2B, intentando login automático",
           );
           // Limpiar localStorage
           localStorage.removeItem("b2b_payment_completed");
@@ -598,7 +675,7 @@ const FormMain = ({ planInicial = null }) => {
           try {
             const loginResp = await loginPost(
               formDataToUse.correo,
-              formDataToUse.password
+              formDataToUse.password,
             );
             saveToken(loginResp.token);
             saveUsuario(loginResp.usuario);
@@ -606,7 +683,7 @@ const FormMain = ({ planInicial = null }) => {
             return;
           } catch (loginError) {
             setPaymentError(
-              "El usuario ya existe, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión manualmente."
+              "El usuario ya existe, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión manualmente.",
             );
             setTimeout(() => navigate("/login"), 2000);
             return;
@@ -615,14 +692,14 @@ const FormMain = ({ planInicial = null }) => {
 
         setPaymentError(
           error.message ||
-          "Error al crear la cuenta. Por favor, intenta nuevamente."
+            "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
         setTimeout(() => setPaymentError(""), 5000);
       } finally {
         setCreatingAccount(false);
       }
     },
-    [navigate, stripeSessionId]
+    [navigate, stripeSessionId],
   );
 
   // Verificar si el pago fue completado al cargar el componente
@@ -725,7 +802,7 @@ const FormMain = ({ planInicial = null }) => {
     // Validar si el restaurante está vetado y no tiene código válido
     if (restauranteVetado && !codigoValido) {
       setPaymentError(
-        "Este restaurante no puede registrarse. Ingresa el código de acceso si lo tienes."
+        "Este restaurante no puede registrarse. Ingresa el código de acceso si lo tienes.",
       );
       return;
     }
@@ -738,7 +815,7 @@ const FormMain = ({ planInicial = null }) => {
       !formData.password
     ) {
       setPaymentError(
-        "Por favor completa todos los campos obligatorios antes de pagar."
+        "Por favor completa todos los campos obligatorios antes de pagar.",
       );
       return;
     }
@@ -781,7 +858,7 @@ const FormMain = ({ planInicial = null }) => {
       if (!userData.nombre_responsable_restaurante || !userData.correo) {
         setPaymentLoading(false);
         setPaymentError(
-          "Por favor completa todos los campos obligatorios antes de pagar."
+          "Por favor completa todos los campos obligatorios antes de pagar.",
         );
         return;
       }
@@ -789,7 +866,8 @@ const FormMain = ({ planInicial = null }) => {
       // Obtener el número de sucursales del plan seleccionado
       const sucursalesPlan = precioSeleccionado?.sucursales;
       // Convertir "5+" a 5 para el backend
-      const numeroSucursalesParaBackend = sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
+      const numeroSucursalesParaBackend =
+        sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
 
       const requestBody = {
         // El backend usa numeroSucursales para obtener el priceId correcto
@@ -825,7 +903,7 @@ const FormMain = ({ planInicial = null }) => {
     } catch (error) {
       setPaymentLoading(false);
       setPaymentError(
-        error.message || "Error creando la sesión de suscripción."
+        error.message || "Error creando la sesión de suscripción.",
       );
     }
   };
@@ -842,28 +920,38 @@ const FormMain = ({ planInicial = null }) => {
     // Verificar si el código es correcto
     if (codigoAcceso.trim().toUpperCase() !== CODIGO_MAESTRO) {
       setCodigoValido(false);
-      setErrorCodigo("Código inválido. Contacta al administrador para obtener un código válido.");
+      setErrorCodigo(
+        "Código inválido. Contacta al administrador para obtener un código válido.",
+      );
       setVerificandoCodigo(false);
       return;
     }
 
     // Si el código es válido, actualizar el estado en el backend
-    console.log("🔑 Código correcto! restauranteRestringidoId:", restauranteRestringidoId);
+    console.log(
+      "🔑 Código correcto! restauranteRestringidoId:",
+      restauranteRestringidoId,
+    );
 
     try {
       if (restauranteRestringidoId) {
-        console.log("✅ Código válido - Habilitando restaurante ID:", restauranteRestringidoId);
+        console.log(
+          "✅ Código válido - Habilitando restaurante ID:",
+          restauranteRestringidoId,
+        );
 
         const apiUrl = `https://admin.residente.mx/api/clientes-editorial/${restauranteRestringidoId}`;
         const res = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estado_cliente: 'HA SIDO CLIENTE' })
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estado_cliente: "HA SIDO CLIENTE" }),
         });
 
         if (!res.ok) {
           console.error("❌ Error al habilitar restaurante:", res.status);
-          setErrorCodigo("Error al habilitar el restaurante. Intenta de nuevo.");
+          setErrorCodigo(
+            "Error al habilitar el restaurante. Intenta de nuevo.",
+          );
           setVerificandoCodigo(false);
           return;
         }
@@ -873,7 +961,9 @@ const FormMain = ({ planInicial = null }) => {
       }
 
       if (!restauranteRestringidoId) {
-        console.log("⚠️ No hay ID del restaurante - El backend no devolvió el ID");
+        console.log(
+          "⚠️ No hay ID del restaurante - El backend no devolvió el ID",
+        );
         console.log("⚠️ Permitiendo continuar de todos modos...");
       }
 
@@ -913,6 +1003,7 @@ const FormMain = ({ planInicial = null }) => {
           nombre_usuario: formData.nombre_usuario,
           password: formData.password,
           correo: formData.correo,
+          stripe_session_id: savedSessionId || undefined,
         };
         usuarioRes = await registrob2bPost(usuarioData);
         usuarioId = usuarioRes.usuario.id;
@@ -920,7 +1011,7 @@ const FormMain = ({ planInicial = null }) => {
         // Si el error es que el usuario ya existe, intentar obtener el usuario B2B existente
         if (error.message && error.message.includes("ya existe")) {
           console.log(
-            "⚠️ El usuario ya existe, buscando usuario B2B existente..."
+            "⚠️ El usuario ya existe, buscando usuario B2B existente...",
           );
 
           // Si tenemos session_id, el backend debería poder encontrar el usuario B2B
@@ -931,7 +1022,7 @@ const FormMain = ({ planInicial = null }) => {
               const apiUrl = import.meta.env.DEV
                 ? "/api/stripe/checkout-session/" + savedSessionId
                 : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                savedSessionId;
+                  savedSessionId;
 
               const sessionRes = await fetch(apiUrl);
               const sessionData = await sessionRes.json();
@@ -979,7 +1070,7 @@ const FormMain = ({ planInicial = null }) => {
           // Si no podemos obtener el usuario B2B, mostrar error más específico
           setSuccessMsg("");
           setPaymentError(
-            "El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario."
+            "El usuario ya existe. Por favor, inicia sesión o usa otro nombre de usuario.",
           );
           setTimeout(() => setPaymentError(""), 5000);
           return;
@@ -999,7 +1090,7 @@ const FormMain = ({ planInicial = null }) => {
           nombre_usuario: formData.nombre_usuario,
           password: formData.password,
           correo: formData.correo,
-        })
+        }),
       );
       console.log("📝 Guardando credenciales:", {
         nombre_usuario: formData.nombre_usuario,
@@ -1015,7 +1106,7 @@ const FormMain = ({ planInicial = null }) => {
           const apiUrl = import.meta.env.DEV
             ? "/api/stripe/checkout-session/" + savedSessionId
             : "https://admin.residente.mx/api/stripe/checkout-session/" +
-            savedSessionId;
+              savedSessionId;
 
           const sessionRes = await fetch(apiUrl);
           const sessionData = await sessionRes.json();
@@ -1104,12 +1195,12 @@ const FormMain = ({ planInicial = null }) => {
       // Mostrar error más amigable al usuario
       if (error.message && error.message.includes("ya existe")) {
         setPaymentError(
-          "El usuario ya existe. Por favor, inicia sesión o elige otro nombre de usuario."
+          "El usuario ya existe. Por favor, inicia sesión o elige otro nombre de usuario.",
         );
       } else {
         setPaymentError(
           error.message ||
-          "Error al crear la cuenta. Por favor, intenta nuevamente."
+            "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
       }
       setTimeout(() => setPaymentError(""), 5000);
@@ -1163,10 +1254,11 @@ const FormMain = ({ planInicial = null }) => {
             value={formData.nombre_restaurante}
             onChange={handleChange}
             placeholder="Nombre del restaurante"
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${restauranteVetado
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
+              restauranteVetado
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-              }`}
+            }`}
             required
           />
           {verificandoRestaurante && (
@@ -1198,16 +1290,19 @@ const FormMain = ({ planInicial = null }) => {
                   type="button"
                   onClick={handleVerificarCodigo}
                   disabled={!codigoAcceso.trim() || verificandoCodigo}
-                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${!codigoAcceso.trim() || verificandoCodigo
+                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
+                    !codigoAcceso.trim() || verificandoCodigo
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                    }`}
+                  }`}
                 >
                   {verificandoCodigo ? "Verificando..." : "Verificar"}
                 </button>
               </div>
               {errorCodigo && (
-                <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">{errorCodigo}</p>
+                <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
+                  {errorCodigo}
+                </p>
               )}
             </div>
           </div>
@@ -1217,10 +1312,16 @@ const FormMain = ({ planInicial = null }) => {
             ✓ Código válido. Puedes continuar con el registro.
           </div>
         )}
-        {!restauranteVetado && !verificandoRestaurante && formData.nombre_restaurante.length >= 3 && (
-          <p className="text-green-500 text-xs mt-1">✓ Restaurante disponible para registro</p>
+        {!restauranteVetado &&
+          !verificandoRestaurante &&
+          formData.nombre_restaurante.length >= 3 && (
+            <p className="text-green-500 text-xs mt-1">
+              ✓ Restaurante disponible para registro
+            </p>
+          )}
+        {!restauranteVetado && formData.nombre_restaurante && (
+          <div className="mb-4"></div>
         )}
-        {!restauranteVetado && formData.nombre_restaurante && <div className="mb-4"></div>}
         {!formData.nombre_restaurante && <div className="mb-4"></div>}
       </div>
 
@@ -1249,22 +1350,34 @@ const FormMain = ({ planInicial = null }) => {
           value={formData.correo}
           onChange={handleChange}
           placeholder="Escribe tu correo electrónico"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${emailExists || !emailValid
-            ? "border-red-500 focus:ring-red-500"
-            : "border-gray-300 focus:ring-blue-500"
-            }`}
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
+            emailExists || !emailValid
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+          }`}
           required
         />
-        {checkingEmail && <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>}
+        {checkingEmail && (
+          <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>
+        )}
         {!emailValid && !checkingEmail && formData.correo && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ El formato del correo no es válido</p>
+          <p className="text-red-500 text-sm mt-1 font-bold">
+            ⚠️ El formato del correo no es válido
+          </p>
         )}
         {emailExists && emailValid && !checkingEmail && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este correo ya está registrado. Por favor, usa otro o inicia sesión.</p>
+          <p className="text-red-500 text-sm mt-1 font-bold">
+            ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
+            sesión.
+          </p>
         )}
-        {!emailExists && emailValid && !checkingEmail && formData.correo && formData.correo.includes("@") && (
-          <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
-        )}
+        {!emailExists &&
+          emailValid &&
+          !checkingEmail &&
+          formData.correo &&
+          formData.correo.includes("@") && (
+            <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+          )}
       </div>
 
       <div>
@@ -1322,19 +1435,30 @@ const FormMain = ({ planInicial = null }) => {
           value={formData.nombre_usuario}
           onChange={handleChange}
           placeholder="Tu nombre de usuario"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${usernameExists
-            ? "border-red-500 focus:ring-red-500"
-            : "border-gray-300 focus:ring-blue-500"
-            }`}
+          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
+            usernameExists
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+          }`}
           required
         />
-        {checkingUsername && <p className="text-gray-500 text-xs mt-1">Verificando disponibilidad...</p>}
+        {checkingUsername && (
+          <p className="text-gray-500 text-xs mt-1">
+            Verificando disponibilidad...
+          </p>
+        )}
         {usernameExists && !checkingUsername && (
-          <p className="text-red-500 text-sm mt-1 font-bold">⚠️ Este nombre de usuario ya existe. Por favor, elige otro.</p>
+          <p className="text-red-500 text-sm mt-1 font-bold">
+            ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
+          </p>
         )}
-        {!usernameExists && !checkingUsername && formData.nombre_usuario.length >= 3 && (
-          <p className="text-green-500 text-xs mt-1">✓ Nombre de usuario disponible</p>
-        )}
+        {!usernameExists &&
+          !checkingUsername &&
+          formData.nombre_usuario.length >= 3 && (
+            <p className="text-green-500 text-xs mt-1">
+              ✓ Nombre de usuario disponible
+            </p>
+          )}
       </div>
 
       <div>
@@ -1399,7 +1523,9 @@ const FormMain = ({ planInicial = null }) => {
           ) : (
             <select
               value={numeroSucursales}
-              onChange={(e) => setNumeroSucursales(parseInt(e.target.value, 10))}
+              onChange={(e) =>
+                setNumeroSucursales(parseInt(e.target.value, 10))
+              }
               className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
             >
               {preciosDisponibles.map((precio) => (
@@ -1432,7 +1558,9 @@ const FormMain = ({ planInicial = null }) => {
 
       {/* Mensajes */}
       {successMsg && (
-        <div className="text-green-600 font-bold text-center mt-4">{successMsg}</div>
+        <div className="text-green-600 font-bold text-center mt-4">
+          {successMsg}
+        </div>
       )}
 
       {paymentCompleted && creatingAccount && (
@@ -1450,11 +1578,28 @@ const FormMain = ({ planInicial = null }) => {
       {/* Botón de Pagar - Igual que Astro */}
       <button
         type="submit"
-        disabled={paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount}
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${(paymentLoading || verificandoRestaurante || (restauranteVetado && !codigoValido) || creatingAccount) ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-400"
-          }`}
+        disabled={
+          paymentLoading ||
+          verificandoRestaurante ||
+          (restauranteVetado && !codigoValido) ||
+          creatingAccount
+        }
+        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
+          paymentLoading ||
+          verificandoRestaurante ||
+          (restauranteVetado && !codigoValido) ||
+          creatingAccount
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:bg-yellow-400"
+        }`}
       >
-        {verificandoRestaurante ? "Verificando..." : paymentLoading || creatingAccount ? "Procesando..." : (restauranteVetado && !codigoValido) ? "Ingresa código de acceso" : "Ir a Pagar"}
+        {verificandoRestaurante
+          ? "Verificando..."
+          : paymentLoading || creatingAccount
+            ? "Procesando..."
+            : restauranteVetado && !codigoValido
+              ? "Ingresa código de acceso"
+              : "Ir a Pagar"}
       </button>
     </form>
   );
@@ -1469,14 +1614,20 @@ const FormMain = ({ planInicial = null }) => {
           alt="B2B Logo"
         />
 
-        <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">Suscripción B2B</h1>
+        <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">
+          Suscripción B2B
+        </h1>
 
         {formularioJSX}
       </div>
 
       {/* Modal Terminos y Condiciones using Headless UI */}
       <Transition appear show={showModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setShowModal(false)}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setShowModal(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -1529,7 +1680,11 @@ const FormMain = ({ planInicial = null }) => {
 
       {/* Payment Modal */}
       <Transition appear show={showPaymentModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setShowPaymentModal(false)}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setShowPaymentModal(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -1562,7 +1717,8 @@ const FormMain = ({ planInicial = null }) => {
                   </Dialog.Title>
                   <div className="mt-2 text-start">
                     <p className="text-sm text-gray-500 mb-4">
-                      Serás redirigido a Stripe para completar tu suscripción de manera segura.
+                      Serás redirigido a Stripe para completar tu suscripción de
+                      manera segura.
                     </p>
 
                     {/* Resumen del plan en el modal - igual que Stripe */}
@@ -1570,35 +1726,56 @@ const FormMain = ({ planInicial = null }) => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Plan:</span>
-                          <span className="font-semibold">{precioSeleccionado?.nombre}</span>
+                          <span className="font-semibold">
+                            {precioSeleccionado?.nombre}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Sucursales:</span>
-                          <span className="font-semibold">{precioSeleccionado?.sucursalesTexto}</span>
+                          <span className="font-semibold">
+                            {precioSeleccionado?.sucursalesTexto}
+                          </span>
                         </div>
                         <div className="flex justify-between border-t pt-2 mt-2">
                           <span className="text-gray-600">Precio base:</span>
                           <span className="font-bold text-lg">
-                            ${precioSeleccionado?.precioMensual?.toLocaleString('es-MX')} MXN
+                            $
+                            {precioSeleccionado?.precioMensual?.toLocaleString(
+                              "es-MX",
+                            )}{" "}
+                            MXN
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">IVA (16%):</span>
                           <span className="font-semibold">
-                            +${((precioSeleccionado?.precioMensualConIVA || 0) - (precioSeleccionado?.precioMensual || 0)).toLocaleString('es-MX')} MXN
+                            +$
+                            {(
+                              (precioSeleccionado?.precioMensualConIVA || 0) -
+                              (precioSeleccionado?.precioMensual || 0)
+                            ).toLocaleString("es-MX")}{" "}
+                            MXN
                           </span>
                         </div>
                         <div className="flex justify-between border-t pt-2">
-                          <span className="text-gray-700 font-semibold">Total mensual:</span>
+                          <span className="text-gray-700 font-semibold">
+                            Total mensual:
+                          </span>
                           <span className="font-bold text-lg text-green-600">
-                            ${precioSeleccionado?.precioMensualConIVA?.toLocaleString('es-MX')} MXN
+                            $
+                            {precioSeleccionado?.precioMensualConIVA?.toLocaleString(
+                              "es-MX",
+                            )}{" "}
+                            MXN
                           </span>
                         </div>
                       </div>
                     </div>
 
                     {paymentError && (
-                      <p className="text-red-500 text-sm mb-4">{paymentError}</p>
+                      <p className="text-red-500 text-sm mb-4">
+                        {paymentError}
+                      </p>
                     )}
                   </div>
 
