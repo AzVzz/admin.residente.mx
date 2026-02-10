@@ -110,43 +110,49 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: "localhost",
+    host: "0.0.0.0", // Permite acceso desde fuera del contenedor
     port: 5173,
     strictPort: false,
+    watch: {
+      usePolling: true, // Necesario para hot reload en Docker
+    },
     hmr: {
       protocol: "ws",
       host: "localhost",
       port: 5173,
       clientPort: 5173,
     },
+    // En desarrollo, el proxy apunta al servidor de producción
     proxy: {
       "/api/gemini": {
-        target: "https://admin.residente.mx",
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path,
-        ws: true,
       },
       "/api/stripe": {
-        target: "https://admin.residente.mx",
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path,
-        ws: true, // Habilitar WebSocket para el proxy
       },
       "/api/stripe-suscripciones": {
-        target: "https://admin.residente.mx",
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path,
-        ws: true,
       },
       "/api/tienda": {
-        target: "https://admin.residente.mx",
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path,
-        ws: true,
+      },
+      "/api/productosb2b": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/api/usuariosb2b": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
       },
       "/fotos": {
         target: "https://residente.mx",
