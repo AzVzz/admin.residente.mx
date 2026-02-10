@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   FaStore,
   FaBuilding,
@@ -8,6 +8,8 @@ import {
 } from "react-icons/fa";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
+import { urlApi } from "../../../api/url.js";
+import { useAuth } from "../../../Context";
 
 const NOMBRES_MEMBRESIAS = {
   1: "Membresía Básica",
@@ -379,11 +381,101 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
 const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Estados para el dropdown de clientes vetados
+  const [clientesVetados, setClientesVetados] = useState([]);
+  const [loadingClientes, setLoadingClientes] = useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
+  const [errorClientes, setErrorClientes] = useState(null);
+  const { token, usuario } = useAuth();
+  
+  // Estado para mostrar/ocultar las tarjetas de planes
+  const [mostrarPlanes, setMostrarPlanes] = useState(false);
+
+  // Función para truncar texto largo
+  const truncarTexto = (texto, maxLength = 50) => {
+    if (!texto) return 'Sin nombre';
+    return texto.length > maxLength ? texto.substring(0, maxLength) + '...' : texto;
+  };
 
   // URL del PDF - ruta completa desde la raíz del servidor
-
   const pdfUrl =
     "https://residente.mx/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
+
+  // Función para cargar clientes vetados
+  const fetchClientesVetados = useCallback(async () => {
+    console.log('🔍 Iniciando carga de clientes vetados...');
+    console.log('🔑 Token disponible:', !!token);
+    console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
+    console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
+    
+    if (!token) {
+      console.warn('⚠️ No hay token disponible para cargar clientes');
+      setErrorClientes('No hay sesión activa. Por favor inicia sesión.');
+      return;
+    }
+    
+    setLoadingClientes(true);
+    setErrorClientes(null);
+    
+    try {
+      const response = await fetch(`${urlApi}api/clientes-editorial`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📦 Datos recibidos:', data);
+      console.log('📊 Total de clientes:', Array.isArray(data) ? data.length : (data.clientes?.length || 0));
+      
+      const clientesArray = Array.isArray(data) ? data : data.clientes || [];
+      setClientesVetados(clientesArray);
+      setErrorClientes(null);
+      console.log('✅ Clientes cargados en estado:', clientesArray.length);
+    } catch (err) {
+      console.error('❌ Error cargando clientes vetados:', err);
+      setErrorClientes(err.message);
+    } finally {
+      setLoadingClientes(false);
+    }
+  }, [token, usuario]);
+
+  // Cargar clientes vetados de la API
+  useEffect(() => {
+    fetchClientesVetados();
+  }, [fetchClientesVetados]);
+
+  // Función para manejar la selección de cliente del dropdown
+  const handleClienteChange = (clienteId) => {
+    setClienteSeleccionado(clienteId);
+    
+    if (clienteId) {
+      // Si selecciona un cliente del dropdown:
+      // 1. Ocultar las tarjetas de planes
+      setMostrarPlanes(false);
+      
+      // 2. Auto-seleccionar el plan de 5+ sucursales (el más caro)
+      const planMasCaro = planes.find(p => p.sucursales === "5+" || p.sucursales === 5);
+      if (planMasCaro) {
+        console.log('🎯 Auto-seleccionando plan más caro (5+) para cliente restringido:', planMasCaro);
+        onSelectPlan(planMasCaro);
+      }
+    } else {
+      // Si deselecciona (vuelve a "Seleccionar"), no hacer nada
+      setMostrarPlanes(false);
+    }
+  };
   // Filtrar solo los planes de 1, 3 y 5/5+ sucursales
   const planesPermitidos = [1, 3, 5, "5+"];
 
@@ -435,59 +527,126 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+      `}</style>
+      
       {/* Header */}
       <div className="text-center mb-10">
-        <img
-          className="w-40 mx-auto mb-6"
-          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
-          alt="B2B Logo"
-        />
+        {/* Dropdown de Clientes Vetados con botón */}
+        <div className="mb-4 max-w-2xl mx-auto">
+          <div className="flex items-center justify-center mb-2">
+            <label htmlFor="clienteVetado" className="block text-sm font-medium text-black">
+              Nombre del Cliente
+            </label>
+          </div>
+          
+          <div className="flex gap-3 justify-center items-center">
+            <select
+              id="clienteVetado"
+              value={clienteSeleccionado}
+              onChange={(e) => handleClienteChange(e.target.value)}
+              disabled={loadingClientes || !!errorClientes}
+              className="w-full max-w-md px-4 py-2 bg-white disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {loadingClientes 
+                  ? 'Cargando...' 
+                  : errorClientes 
+                    ? 'Error al cargar'
+                    : `Seleccionar (${clientesVetados.length})`}
+              </option>
+              {clientesVetados.map((cliente) => {
+                const nombreCompleto = `${cliente.restaurante || 'Sin nombre'}${cliente.telefono ? ` - ${cliente.telefono}` : ''}`;
+                return (
+                  <option key={cliente.id} value={cliente.id} title={nombreCompleto}>
+                    {truncarTexto(nombreCompleto, 50)}
+                  </option>
+                );
+              })}
+            </select>
+            
+            <button
+              onClick={() => setMostrarPlanes(!mostrarPlanes)}
+              className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
+              type="button"
+            >
+              {mostrarPlanes ? 'Volver' : 'Nuevo Cliente'}
+            </button>
+          </div>
+          
+          {/* Mensaje de éxito compacto */}
+          {clienteSeleccionado && !errorClientes && (
+            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+              <p className="text-xs text-green-700 font-medium">
+                ✓ {clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante}
+              </p>
+              <p className="text-xs text-green-600 mt-1">
+                📋 Membresía asignada: <span className="font-bold">Platino (5+ sucursales)</span>
+              </p>
+            </div>
+          )}
+          
+          {/* Mensaje de error compacto */}
+          {errorClientes && (
+            <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
+              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
+              <button
+                onClick={fetchClientesVetados}
+                className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
+                type="button"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+        </div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
-          {[
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/1.png",
-              alt: "Banner Registro B2B 1",
-            },
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/2.png",
-              alt: "Banner Registro B2B 2",
-            },
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/3.png",
-              alt: "Banner Registro B2B 3",
-            },
-          ].map((banner) => (
-            <img
-              key={banner.src}
-              className="w-155 mx-auto h-auto rounded-xl shadow-sm border border-gray-100 object-cover"
-              src={banner.src}
-              alt={banner.alt}
-              loading="lazy"
-              decoding="async"
+          <div className="w-full max-w-2xl mx-auto">
+            <iframe
+              src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE%20%287%29.pdf#toolbar=0&view=FitH"
+              title="Club Residente"
+              className="w-full h-[1010px] rounded-md"
             />
-          ))}
+          </div>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de membresia para el "Club Residente"
         </h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105"
+          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105 drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
         >
           5 RAZONES PARA SUSCRIBIRTE
         </button>
       </div>
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {planes.map((plan, index) => (
-          <PlanCard
-            key={plan.id || plan.priceId || index}
-            plan={plan}
-            onSelectPlan={onSelectPlan}
-          />
-        ))}
-      </div>
+      {/* Solo se muestran si mostrarPlanes es true */}
+      {mostrarPlanes && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
+          {planes.map((plan, index) => (
+            <PlanCard
+              key={plan.id || plan.priceId || index}
+              plan={plan}
+              onSelectPlan={onSelectPlan}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Modal del PDF */}
       <ModalPDF
