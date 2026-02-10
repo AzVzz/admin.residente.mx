@@ -865,7 +865,6 @@ const FormMain = ({ planInicial = null }) => {
         sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
 
       const requestBody = {
-        // El backend usa numeroSucursales para obtener el priceId correcto
         numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
         customerEmail: formData.correo || "",

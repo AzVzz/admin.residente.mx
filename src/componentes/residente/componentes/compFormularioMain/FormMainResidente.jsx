@@ -486,7 +486,7 @@ const FormMainResidente = () => {
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
               ? data.secciones_categorias.reduce(
                   (acc, { seccion, categoria }) => {
-                    // ✅ Priorizar "Food & Drink" si existe
+                    // Priorizar "Food & Drink" si existe
                     if (seccion === "Food & Drink") {
                       acc[seccion] = categoria;
                     } else if (!acc[seccion]) {

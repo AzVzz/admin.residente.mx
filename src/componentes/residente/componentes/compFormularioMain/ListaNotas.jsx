@@ -372,7 +372,6 @@ const ListaNotas = () => {
 
       // Si el usuario NO es admin (todos), filtrar por tipo_nota
       if (usuario?.permisos !== "todos" && usuario?.permisos !== "todo") {
-        // Normalizar el permiso del usuario para comparar con tipo_nota
         const permisoUsuario = usuario.permisos || "";
         const permisoNormalizado = permisoUsuario
           .replace(/-/g, " ")
