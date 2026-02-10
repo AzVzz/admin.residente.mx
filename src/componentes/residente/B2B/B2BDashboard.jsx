@@ -110,12 +110,18 @@ const B2BDashboard = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const res = await fetch("https://admin.residente.mx/api/productosb2b");
-        if (!res.ok) throw new Error("Error al obtener productos");
+        const apiUrl = `${urlApi}api/productosb2b`;
+        console.log('📦 Cargando productos desde:', apiUrl);
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          console.error('❌ Error al cargar productos:', res.status, res.statusText);
+          throw new Error("Error al obtener productos");
+        }
         const data = await res.json();
+        console.log('✅ Productos cargados:', data);
         setProductos(data);
       } catch (error) {
-        // Error al cargar productos
+        console.error('❌ Error al cargar productos:', error);
       }
     };
 
@@ -776,11 +782,6 @@ const B2BDashboard = () => {
                             onChange={() => handleToggleProducto(producto.id)}
                             className="w-4 h-4 cursor-pointer"
                           />
-                        </div>
-                        <div className="flex justify-left mb-3">
-                          <button className="bg-black hover:bg-black text-white text-[15px] font-bold px-3 py-1 rounded transition-colors cursor-pointer">
-                            {producto.boton_texto || `Crea Tu ${producto.titulo?.split(' ')[0] || 'Contenido'}`}
-                          </button>
                         </div>
                       </div>
                     </div>
