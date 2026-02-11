@@ -468,8 +468,16 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       // 2. Auto-seleccionar el plan de 5+ sucursales (el más caro)
       const planMasCaro = planes.find(p => p.sucursales === "5+" || p.sucursales === 5);
       if (planMasCaro) {
-        console.log('🎯 Auto-seleccionando plan más caro (5+) para cliente restringido:', planMasCaro);
-        onSelectPlan(planMasCaro);
+        // Agregar información del cliente seleccionado al plan
+        const planConCliente = {
+          ...planMasCaro,
+          clienteRestringidoId: clienteId,
+          esClienteRestringido: true,
+          nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteId))?.restaurante
+        };
+        
+        console.log('🎯 Auto-seleccionando plan más caro (5+) para cliente restringido:', planConCliente);
+        onSelectPlan(planConCliente);
       }
     } else {
       // Si deselecciona (vuelve a "Seleccionar"), no hacer nada
@@ -569,10 +577,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                     : `Seleccionar (${clientesVetados.length})`}
               </option>
               {clientesVetados.map((cliente) => {
-                const nombreCompleto = `${cliente.restaurante || 'Sin nombre'}${cliente.telefono ? ` - ${cliente.telefono}` : ''}`;
+                const nombreRestaurante = cliente.restaurante || 'Sin nombre';
                 return (
-                  <option key={cliente.id} value={cliente.id} title={nombreCompleto}>
-                    {truncarTexto(nombreCompleto, 50)}
+                  <option key={cliente.id} value={cliente.id} title={nombreRestaurante}>
+                    {truncarTexto(nombreRestaurante, 50)}
                   </option>
                 );
               })}
@@ -616,10 +624,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
         
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
-            <iframe
-              src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE%20%287%29.pdf#toolbar=0&view=FitH"
-              title="Club Residente"
-              className="w-full h-[1010px] rounded-md"
+            <img
+              src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE%20(9)_page-0001.jpg"
+              alt="Club Residente"
+              className="w-full h-auto rounded-md shadow-lg"
             />
           </div>
         </div>
