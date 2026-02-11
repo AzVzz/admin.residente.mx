@@ -11,14 +11,14 @@ import {
   FaSearch,
   FaTimes,
   FaBars,
-  FaLinkedin
+  FaLinkedin,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { MdMailOutline } from "react-icons/md";
 import SearchResults from "./SearchResults";
 import { useAuth } from "./Context";
 
-// Componente ProfileMenu 
+// Componente ProfileMenu
 const ProfileMenu = ({ fondoOscuro = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -47,8 +47,11 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`${fondoOscuro ? "text-white hover:text-gray-300" : "text-black hover:text-gray-600"
-          } text-sm font-medium flex items-center gap-1`}
+        className={`${
+          fondoOscuro
+            ? "text-white hover:text-gray-300"
+            : "text-black hover:text-gray-600"
+        } text-sm font-medium flex items-center gap-1`}
         style={{ fontSize: "14px" }}
         aria-label="Menú de perfil"
       >
@@ -78,7 +81,9 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
                 <p className="font-bold text-sm truncate">
                   {usuario.nombre_usuario?.toUpperCase()}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">{usuario.rol}</p>
+                <p className="text-xs text-gray-500 capitalize">
+                  {usuario.rol}
+                </p>
               </div>
 
               {/* Opción: Dashboard según el rol */}
@@ -97,17 +102,6 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
                   onClick={() => setIsOpen(false)}
                 >
                   Mi Dashboard
-                </Link>
-              )}
-
-              {/* Opción: Buscador Dashboard (solo Residente) */}
-              {usuario?.rol === "residente" && (
-                <Link
-                  to="/dashboard?vista=buscador"
-                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Admin Buscador
                 </Link>
               )}
 
@@ -244,7 +238,7 @@ const Header = () => {
           return {
             ...section,
             submenu: section.submenu.filter(
-              (item) => item.nombre !== "Input OpEd"
+              (item) => item.nombre !== "Input OpEd",
             ),
           };
         }
@@ -254,7 +248,7 @@ const Header = () => {
             submenu: section.submenu.filter(
               (item) =>
                 item.nombre !== "Gastro-Destinos" &&
-                item.nombre !== "Gastro-destinos"
+                item.nombre !== "Gastro-destinos",
             ),
           };
         }
@@ -329,7 +323,9 @@ const Header = () => {
                           href={section.url}
                           className="block text-black font-semibold py-2 hover:text-gray-600"
                           target={
-                            section.url.startsWith("http") ? "_blank" : undefined
+                            section.url.startsWith("http")
+                              ? "_blank"
+                              : undefined
                           }
                           rel="noopener noreferrer"
                           onClick={() => setMobileMenuOpen(false)}
@@ -465,7 +461,7 @@ const Header = () => {
                   className="h-full w-full object-contain"
                 />
               </a>
-            </div >
+            </div>
             <div className="w-full relative">
               {/* ProfileMenu arriba a la derecha */}
               <div className="absolute top-3 right-0 z-50">
@@ -528,22 +524,37 @@ const Header = () => {
                           </button>
                           {section.submenu && (
                             <div
-                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${activeDropdown === idx
-                                ? "opacity-100 visible"
-                                : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                                }`}
+                              className={`absolute left-0 top-full mt-2 bg-gray-900/75 border border-gray-700 rounded shadow-lg z-50 min-w-[260px] transition-all duration-150 backdrop-blur-xs ${
+                                activeDropdown === idx
+                                  ? "opacity-100 visible"
+                                  : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                              }`}
                             >
                               <ul>
                                 {section.submenu.map((item, subIdx) => (
                                   <li key={subIdx}>
                                     <a
                                       href={item.url}
-                                      rel={abrirEnNuevaPestana.includes(item.nombre) ? "noopener noreferrer" : undefined}
-                                      target={abrirEnNuevaPestana.includes(item.nombre) ? "_blank" : undefined}
+                                      rel={
+                                        abrirEnNuevaPestana.includes(
+                                          item.nombre,
+                                        )
+                                          ? "noopener noreferrer"
+                                          : undefined
+                                      }
+                                      target={
+                                        abrirEnNuevaPestana.includes(
+                                          item.nombre,
+                                        )
+                                          ? "_blank"
+                                          : undefined
+                                      }
                                       className="block px-4 py-2 text-white hover:bg-gray-800/70 text-sm cursor-pointer font-roman"
                                       onClick={handleDropdownClose}
                                     >
-                                      {item.nombre === "Antojos" ? "Antojeria" : item.nombre}
+                                      {item.nombre === "Antojos"
+                                        ? "Antojeria"
+                                        : item.nombre}
                                     </a>
                                   </li>
                                 ))}
@@ -551,7 +562,7 @@ const Header = () => {
                             </div>
                           )}
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                   <div className="flex gap-1.5 items-center">
@@ -585,10 +596,18 @@ const Header = () => {
                         >
                           <FaYoutube className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
-                        <a href="https://x.com/Residente_mty" target="_blank" rel="noopener noreferrer">
+                        <a
+                          href="https://x.com/Residente_mty"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <FaXTwitter className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
-                        <a href="https://www.linkedin.com/company/residente/" target="_blank" rel="noopener noreferrer">
+                        <a
+                          href="https://www.linkedin.com/company/residente/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <FaLinkedin className="w-4 h-4 text-black hover:text-gray-400" />
                         </a>
                         <a
@@ -635,11 +654,11 @@ const Header = () => {
                 </div>
               </div>
             </div>
-          </div >
-        </div >
-      </div >
+          </div>
+        </div>
+      </div>
       {/* HEADER MOBILE ...igual que ya tienes, solo cuida los tamaños y separaciones */}
-    </header >
+    </header>
   );
 };
 
