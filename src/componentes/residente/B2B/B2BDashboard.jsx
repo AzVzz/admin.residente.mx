@@ -145,11 +145,11 @@ const B2BDashboard = () => {
         [id]: !prev[id],
       };
 
-      // Recalcular total con base en los seleccionados usando precio_descuento de la API
+      // Recalcular total con base en los seleccionados usando monto (precio final)
       const nuevoTotal = productos.reduce((suma, producto) => {
         if (nuevoSeleccionados[producto.id]) {
-          // Usar precio_descuento si existe, si no usar monto
-          const precio = Number(producto.precio_descuento || producto.monto || 0);
+          // Usar monto como precio final
+          const precio = Number(producto.monto || 0);
           return suma + precio;
         }
         return suma;
@@ -611,7 +611,7 @@ const B2BDashboard = () => {
         </div>
       )}
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3 mb-10  relative">
+      <div className="w-full grid grid-cols-3 mb-10 relative items-start">
         {/* Línea divisoria izquierda */}
         <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
@@ -748,34 +748,32 @@ const B2BDashboard = () => {
         </div>
         {/* Columna roja */}
         <div className="p-3">
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
               <p className="text-[35px] text-left mb-2 leading-none">Canjea tus<br />Beneficios</p>
-              <ol>
+              
                 {productos.map((producto) => (
                   <li
                     key={producto.id}
                     className="select-none flex flex-col gap-3"
                   >
                     <div>
-                      <p className="text-xl leading-tight font-bold">
+                      <p className="text-xl leading-tight font-bold ">
                         {producto.titulo}
                       </p>
-                      <div>
-                        <p className="text-sm text-black mb-1 uppercase">
-                          {producto.descripcion}
-                        </p>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm text-black">
-                            {producto.precio_original ? (
-                              <>
-                                <span className="line-through text-gray-500">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
-                                {" "}
-                              </>
+                      <p className="text-sm text-black uppercase">
+                        {producto.descripcion}
+                      </p>
+                      <div className="flex items-center gap-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            {producto.precio_original && Number(producto.precio_original) > 0 ? (
+                              <span className="line-through text-gray-500 text-sm">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
                             ) : null}
-                            ${Number(producto.precio_descuento || producto.monto || 0).toLocaleString("es-MX")}
-                          </p>
+                            <p className="text-sm text-black font-bold">
+                              ${Number(producto.monto || 0).toLocaleString("es-MX")}
+                            </p>
+                          </div>
                           <input
                             type="checkbox"
                             checked={!!seleccionados[producto.id]}
@@ -783,11 +781,10 @@ const B2BDashboard = () => {
                             className="w-4 h-4 cursor-pointer"
                           />
                         </div>
-                      </div>
                     </div>
                   </li>
                 ))}
-              </ol>
+             
             </div>
 
             {/* Parte de abajo: total + botón */}
