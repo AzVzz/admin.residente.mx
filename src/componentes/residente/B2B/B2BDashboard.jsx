@@ -765,7 +765,7 @@ const B2BDashboard = () => {
                       <p className="text-sm text-black uppercase">
                         {producto.descripcion}
                       </p>
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-2 mb-7">
                           <div className="flex items-center gap-2">
                             {producto.precio_original && Number(producto.precio_original) > 0 ? (
                               <span className="line-through text-gray-500 text-sm">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
