@@ -881,34 +881,33 @@ const B2BDashboard = () => {
                       <p className="text-xl leading-tight font-bold">
                         {producto.titulo}
                       </p>
-                      <div>
-                        <p className="text-sm text-black mb-1 uppercase">
-                          {producto.descripcion}
-                        </p>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm text-black">
-                            {producto.precio_original ? (
-                              <>
-                                <span className="line-through text-gray-500">
-                                  $
-                                  {Number(
-                                    producto.precio_original,
-                                  ).toLocaleString("es-MX")}
-                                </span>{" "}
-                              </>
-                            ) : null}
+                      <p className="text-sm text-black uppercase">
+                        {producto.descripcion}
+                      </p>
+                      <div className="flex items-center gap-2 mb-7">
+                        <div className="flex items-center gap-2">
+                          {producto.precio_original &&
+                          Number(producto.precio_original) > 0 ? (
+                            <span className="line-through text-gray-500 text-sm">
+                              $
+                              {Number(producto.precio_original).toLocaleString(
+                                "es-MX",
+                              )}
+                            </span>
+                          ) : null}
+                          <span className="text-sm text-black">
                             $
                             {Number(
                               producto.precio_descuento || producto.monto || 0,
                             ).toLocaleString("es-MX")}
-                          </p>
-                          <input
-                            type="checkbox"
-                            checked={!!seleccionados[producto.id]}
-                            onChange={() => handleToggleProducto(producto.id)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
+                          </span>
                         </div>
+                        <input
+                          type="checkbox"
+                          checked={!!seleccionados[producto.id]}
+                          onChange={() => handleToggleProducto(producto.id)}
+                          className="w-4 h-4 cursor-pointer"
+                        />
                       </div>
                     </div>
                   </li>
