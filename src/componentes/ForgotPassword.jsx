@@ -35,16 +35,20 @@ const ForgotPassword = () => {
 
     return (
         <div className="max-w-[1080px] mx-auto py-8">
-            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
+            <div className="flex justify-center items-center">
                 <div className="flex flex-col">
                     <div className="mb-8">
-                        <h1 className="text-[40px] mb-8 text-center">Recuperar Contraseña</h1>
 
-                        <div className="flex justify-center">
-                            <form onSubmit={handleSubmit} className="">
-                                <div className="mb-4 max-w-[250px]">
+                        <div className="flex justify-center w-full">
+                            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 border border-gray-200 w-full max-w-sm">
+                                <h1 className="text-2xl font-bold text-center mb-2">Recuperar Contraseña</h1>
+                                <p class="text-center text-gray-600 mb-8 text-sm">
+                                    Ingresa tu correo electrónico y te enviaremos un enlace para
+                                    restablecer tu contraseña
+                                </p>
+                                <div className="mb-4">
                                     <label
-                                        className="space-y-2 font-roman font-bold"
+                                        className="block text-gray-700 text-sm font-bold mb-2"
                                         htmlFor="correo"
                                     >
                                         Correo Electrónico
@@ -52,7 +56,7 @@ const ForgotPassword = () => {
                                     <input
                                         id="correo"
                                         type="email"
-                                        className="bg-white w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-sm max-w-[250px]"
+                                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                         placeholder="tu@email.com"
                                         value={correo}
                                         onChange={(e) => setCorreo(e.target.value)}
@@ -63,23 +67,22 @@ const ForgotPassword = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`font-bold py-2 px-4 rounded w-full font-roman cursor-pointer max-w-[250px] ${loading ? "bg-gray-400 text-gray-600" : "bg-[#fff200] text-black"
-                                        }`}
+                                    className={`bg-[#fff200] cursor-pointer text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)] ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                    {loading ? "Enviando..." : "Enviar enlace"}
+                                    {loading ? "Enviando..." : "Enviar enlace de recuperación"}
                                 </button>
 
                                 {message && (
-                                    <div className="mt-4 text-green-600 font-bold max-w-[250px]">
+                                    <div className="mt-4 text-green-600 font-bold text-center text-sm">
                                         {message}
                                     </div>
                                 )}
 
                                 {error && (
-                                    <div className="mt-4 text-red-600 font-bold max-w-[250px]">{error}</div>
+                                    <div className="mt-4 text-red-600 font-bold text-center text-sm">{error}</div>
                                 )}
 
-                                <div className="mt-4 max-w-[250px] text-center">
+                                <div className="mt-4 text-center">
                                     <Link to="/registro" className="text-sm font-bold text-black hover:underline">
                                         Volver al registro
                                     </Link>
@@ -87,14 +90,6 @@ const ForgotPassword = () => {
                             </form>
                         </div>
                     </div>
-                </div>
-
-                {/* Barra lateral */}
-                <div className="flex flex-col items-end justify-start gap-10">
-                    <DirectorioVertical />
-                    <PortadaRevista />
-                    <BotonesAnunciateSuscribirme />
-                    <Infografia />
                 </div>
             </div>
         </div>
