@@ -202,15 +202,6 @@ const TicketPromo = forwardRef((props, ref) => {
             className={`relative ${className}`}
             style={{ background: 'transparent' }}
         >
-            {/* Perforated top edge */}
-            <div className={config.perforatedTop || "w-full"}>
-                <img
-                    src="/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp"
-                    alt="Perforado superior"
-                    className="w-full"
-                />
-            </div>
-
             <div
                 ref={containerRef}
                 className={`flex flex-col ${config.container} relative`}
