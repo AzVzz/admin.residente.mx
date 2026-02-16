@@ -5,7 +5,7 @@ import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
 import { cuponesGetActivos } from "../../api/cuponesGet";
-import axios from 'axios';
+import axios from "axios";
 // import FormularioBanner from "./FormularioBanner";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
@@ -39,14 +39,17 @@ const B2BDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
+  // Estado para stats de notas del usuario
+  const [notaStats, setNotaStats] = useState(null);
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
   // 👇 AGREGADO: URL de la API de tienda
   // En desarrollo usa el proxy de Vite, en producción usa la URL directa
   const API_URL = import.meta.env.DEV
-    ? '/api/tienda'  // Usa el proxy configurado en vite.config.js
-    : `${urlApi}api/tienda`;  // URL directa en producción
+    ? "/api/tienda" // Usa el proxy configurado en vite.config.js
+    : `${urlApi}api/tienda`; // URL directa en producción
 
   // 🆕 Función para enviar correo de confirmación después del pago
   const enviarCorreoConfirmacion = async (sessionId) => {
@@ -63,9 +66,9 @@ const B2BDashboard = () => {
         : `https://admin.residente.mx/api/tienda/send-confirmation-email`;
 
       await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(emailData),
       });
@@ -90,7 +93,11 @@ const B2BDashboard = () => {
 
       setTimeout(() => {
         setPagoRealizado(false);
-        window.history.replaceState({}, document.title, window.location.pathname);
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
       }, 5000);
     }
   }, [usuario, b2bId]);
@@ -111,17 +118,21 @@ const B2BDashboard = () => {
     const fetchProductos = async () => {
       try {
         const apiUrl = `${urlApi}api/productosb2b`;
-        console.log('📦 Cargando productos desde:', apiUrl);
+        console.log("📦 Cargando productos desde:", apiUrl);
         const res = await fetch(apiUrl);
         if (!res.ok) {
-          console.error('❌ Error al cargar productos:', res.status, res.statusText);
+          console.error(
+            "❌ Error al cargar productos:",
+            res.status,
+            res.statusText,
+          );
           throw new Error("Error al obtener productos");
         }
         const data = await res.json();
-        console.log('✅ Productos cargados:', data);
+        console.log("✅ Productos cargados:", data);
         setProductos(data);
       } catch (error) {
-        console.error('❌ Error al cargar productos:', error);
+        console.error("❌ Error al cargar productos:", error);
       }
     };
 
@@ -148,8 +159,10 @@ const B2BDashboard = () => {
       // Recalcular total con base en los seleccionados usando monto (precio final)
       const nuevoTotal = productos.reduce((suma, producto) => {
         if (nuevoSeleccionados[producto.id]) {
-          // Usar monto como precio final
-          const precio = Number(producto.monto || 0);
+          // Usar precio_descuento si existe, si no usar monto
+          const precio = Number(
+            producto.precio_descuento || producto.monto || 0,
+          );
           return suma + precio;
         }
         return suma;
@@ -196,14 +209,18 @@ const B2BDashboard = () => {
         items,
         b2bId: b2bId,
         customerEmail: usuario?.correo || b2bUser?.correo || null,
-        customerName: usuario?.nombre_usuario || b2bUser?.nombre_responsable || null,
+        customerName:
+          usuario?.nombre_usuario || b2bUser?.nombre_responsable || null,
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
 
-      console.log('📦 Enviando datos de pago:', paymentData);
+      console.log("📦 Enviando datos de pago:", paymentData);
 
-      const resp = await axios.post(`${API_URL}/create-checkout-session`, paymentData);
+      const resp = await axios.post(
+        `${API_URL}/create-checkout-session`,
+        paymentData,
+      );
 
       if (resp.data.url) {
         window.location.href = resp.data.url;
@@ -211,8 +228,12 @@ const B2BDashboard = () => {
         alert("No se pudo obtener la URL de pago.");
       }
     } catch (err) {
-      console.error('❌ Error en pago:', err.response?.data || err);
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error desconocido';
+      console.error("❌ Error en pago:", err.response?.data || err);
+      const errorMsg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "Error desconocido";
       alert(`Error al crear la sesión de pago: ${errorMsg}`);
     }
   };
@@ -234,7 +255,9 @@ const B2BDashboard = () => {
           if (data && data.length > 0) {
             const primerRestaurante = data[0];
 
-            const detailResponse = await fetch(`${urlApi}api/restaurante/${primerRestaurante.slug}`);
+            const detailResponse = await fetch(
+              `${urlApi}api/restaurante/${primerRestaurante.slug}`,
+            );
             if (detailResponse.ok) {
               const detailData = await detailResponse.json();
               setRestaurante(detailData);
@@ -259,7 +282,7 @@ const B2BDashboard = () => {
       try {
         if (usuario?.id) {
           const response = await fetch(
-            `${urlApi}api/usuariosb2b/user/${usuario.id}`
+            `${urlApi}api/usuariosb2b/user/${usuario.id}`,
           );
           if (response.ok) {
             const data = await response.json();
@@ -290,7 +313,7 @@ const B2BDashboard = () => {
         return;
       }
 
-      if (usuario.id && usuario.rol === 'b2b') {
+      if (usuario.id && usuario.rol === "b2b") {
         try {
           const apiUrl = import.meta.env.DEV
             ? `${urlApi}api/usuariosb2b/${usuario.id}`
@@ -331,7 +354,8 @@ const B2BDashboard = () => {
             if (contentType && contentType.includes("application/json")) {
               const data = await response.json();
               if (Array.isArray(data) && data.length > 0) {
-                const registroCorrecto = data.find(reg => reg.usuario_id === usuario.id) || data[0];
+                const registroCorrecto =
+                  data.find((reg) => reg.usuario_id === usuario.id) || data[0];
                 setB2bId(registroCorrecto.id);
                 setLoadingB2bId(false);
                 return;
@@ -374,7 +398,7 @@ const B2BDashboard = () => {
         }
       }
 
-      if (usuario.id && usuario.rol === 'b2b') {
+      if (usuario.id && usuario.rol === "b2b") {
         setB2bId(usuario.id);
       }
 
@@ -407,43 +431,56 @@ const B2BDashboard = () => {
           if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
             setSubscriptionData({
               suscripcionDB: {
-                estado: 'active',
-                nombre_plan: 'B2B Residente',
-                facturas: 'month'
+                estado: "active",
+                nombre_plan: "B2B Residente",
+                facturas: "month",
               },
-              sincronizado: false
+              sincronizado: false,
             });
             setSubscriptionError(null);
             return;
           }
-          setSubscriptionError('No se encontró una suscripción activa');
+          setSubscriptionError("No se encontró una suscripción activa");
           return;
         }
-        throw new Error('La respuesta del servidor no es válida');
+        throw new Error("La respuesta del servidor no es válida");
       }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al obtener la suscripción');
+        throw new Error(data.error || "Error al obtener la suscripción");
       }
 
-      if (data.success || data.subscription || data.suscripcionDB || data.subscription_id) {
+      if (
+        data.success ||
+        data.subscription ||
+        data.suscripcionDB ||
+        data.subscription_id
+      ) {
         setSubscriptionData(data);
         setSubscriptionError(null);
       } else {
         if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-          setSubscriptionData({ suscripcionDB: { estado: 'active' }, sincronizado: false });
+          setSubscriptionData({
+            suscripcionDB: { estado: "active" },
+            sincronizado: false,
+          });
           setSubscriptionError(null);
         } else {
-          setSubscriptionError('No se encontró una suscripción activa');
+          setSubscriptionError("No se encontró una suscripción activa");
         }
       }
     } catch (error) {
-      if (error.message.includes('JSON') || error.message.includes('Unexpected token')) {
-        setSubscriptionError('No se encontró una suscripción activa');
+      if (
+        error.message.includes("JSON") ||
+        error.message.includes("Unexpected token")
+      ) {
+        setSubscriptionError("No se encontró una suscripción activa");
       } else {
-        setSubscriptionError(error.message || 'Error al obtener la suscripción');
+        setSubscriptionError(
+          error.message || "Error al obtener la suscripción",
+        );
       }
     } finally {
       setLoadingSubscription(false);
@@ -456,11 +493,11 @@ const B2BDashboard = () => {
       if (!subscriptionData && !loadingSubscription) {
         setSubscriptionData({
           suscripcionDB: {
-            estado: 'active',
-            nombre_plan: 'B2B Residente',
-            facturas: 'month'
+            estado: "active",
+            nombre_plan: "B2B Residente",
+            facturas: "month",
           },
-          sincronizado: false
+          sincronizado: false,
         });
         setSubscriptionError(null);
       }
@@ -478,7 +515,9 @@ const B2BDashboard = () => {
       setLoadingCupon(true);
       try {
         const cuponesActivos = await cuponesGetActivos();
-        const misCupones = cuponesActivos.filter(c => c.user_id === usuario.id);
+        const misCupones = cuponesActivos.filter(
+          (c) => c.user_id === usuario.id,
+        );
         setCupones(misCupones);
         setCupon(misCupones[0] || null); // Si quieres seguir mostrando el primero
       } catch (err) {
@@ -489,6 +528,25 @@ const B2BDashboard = () => {
       }
     };
     if (usuario) fetchCupones();
+  }, [usuario]);
+
+  // Obtener stats de notas del usuario
+  useEffect(() => {
+    const fetchNotaStats = async () => {
+      if (!usuario?.id) return;
+      try {
+        const response = await fetch(
+          `${urlApi}api/notas/usuario/${usuario.id}/stats`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setNotaStats(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener stats de notas:", error);
+      }
+    };
+    fetchNotaStats();
   }, [usuario]);
 
   // 🆕 Obtener datos de Google Analytics
@@ -503,7 +561,7 @@ const B2BDashboard = () => {
           }
         }
       } catch (error) {
-        console.error('Error al obtener analytics:', error);
+        console.error("Error al obtener analytics:", error);
       } finally {
         setLoadingAnalytics(false);
       }
@@ -522,14 +580,17 @@ const B2BDashboard = () => {
     if (restaurante) {
       navigate(`/formulario/${restaurante.slug}`);
     } else {
-      navigate('/formulario');
+      navigate("/formulario");
     }
   };
 
   const handleVer = () => {
     if (restaurante) {
       // Abrir el micrositio en residente.mx en una nueva pestaña
-      window.open(`https://residente.mx/restaurantes/${restaurante.slug}`, '_blank');
+      window.open(
+        `https://residente.mx/restaurantes/${restaurante.slug}`,
+        "_blank",
+      );
     }
   };
 
@@ -538,29 +599,35 @@ const B2BDashboard = () => {
   };
 
   const handleFormularioPromo = () => {
-    navigate('/promo');
+    navigate("/promo");
   };
 
   const handleClasificado = () => {
-    alert('Próximamente');
+    alert("Próximamente");
   };
 
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
   // Imagen por defecto si no hay restaurante o imagen
   const imagenRestaurante = restaurante?.imagenes?.[0]?.src
-    ? (restaurante.imagenes[0].src.startsWith('http')
+    ? restaurante.imagenes[0].src.startsWith("http")
       ? restaurante.imagenes[0].src
-      : `${imgApi}${restaurante.imagenes[0].src}`)
+      : `${imgApi}${restaurante.imagenes[0].src}`
     : `${imgApi}/fotos/platillos/default.webp`;
 
   // Calcular total de interacciones de  cupones del usuario
   const totalInteraccionesCupones = cupones
-    .filter(c => c.user_id === usuario.id)
+    .filter((c) => c.user_id === usuario.id)
     .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
 
-  const totalViewsCupones = cupones.reduce((suma, c) => suma + (c.views || 0), 0);
-  const totalClicksCupones = cupones.reduce((suma, c) => suma + (c.clicks || 0), 0);
+  const totalViewsCupones = cupones.reduce(
+    (suma, c) => suma + (c.views || 0),
+    0,
+  );
+  const totalClicksCupones = cupones.reduce(
+    (suma, c) => suma + (c.clicks || 0),
+    0,
+  );
 
   // Estado para credenciales nuevas (modal)
   const [credencialesNuevas, setCredencialesNuevas] = useState(null);
@@ -601,11 +668,11 @@ const B2BDashboard = () => {
             {restaurante.nombre_restaurante}
           </h1>
           <p className="text-lg text-black">
-            {fechaActual.toLocaleDateString('es-MX', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
+            {fechaActual.toLocaleDateString("es-MX", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -619,7 +686,11 @@ const B2BDashboard = () => {
 
         {/* Columna azul */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">Crea tus<br />Contenidos</p>
+          <p className="text-[35px] text-left mb-2 leading-none">
+            Crea tus
+            <br />
+            Contenidos
+          </p>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -627,18 +698,22 @@ const B2BDashboard = () => {
             <div className="flex items-center gap-3"></div>
           ) : (
             <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
-              Aún no tienes un restaurante registrado.<br />
-              Haz clic en MICROSITIO para crear tu restaurante y comenzar a personalizar tu espacio.
+              Aún no tienes un restaurante registrado.
+              <br />
+              Haz clic en MICROSITIO para crear tu restaurante y comenzar a
+              personalizar tu espacio.
             </div>
           )}
 
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-3 items-start">
             <button
-              onClick={restaurante ? handleEditar : () => navigate('/formulario')}
+              onClick={
+                restaurante ? handleEditar : () => navigate("/formulario")
+              }
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
             >
-              {restaurante ? 'MICROSITIO' : 'CREAR SITIO'}
+              {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
             <button
               onClick={handleCupones}
@@ -656,7 +731,8 @@ const B2BDashboard = () => {
           <address className="flex flex-col mt-auto">
             <p>Credenciales de Acceso</p>
             <strong className="text-xs text-gray-900 font-roman">
-              Nombre: {b2bUser?.nombre_responsable ||
+              Nombre:{" "}
+              {b2bUser?.nombre_responsable ||
                 b2bUser?.nombre_responsable_restaurante ||
                 "Nombre no disponible"}
             </strong>
@@ -676,17 +752,24 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">Checa tus<br />Resultados</p>
+          <p className="text-[35px] text-left mb-2 leading-none">
+            Checa tus
+            <br />
+            Resultados
+          </p>
           <div className="space-y-4">
             {/* 🆕 Datos de Google Analytics */}
             {!loadingAnalytics && analytics && (
               <>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-tight">
-                    {analytics.club_residente_trafico?.toLocaleString("es-MX") || 0}
+                    {analytics.club_residente_trafico?.toLocaleString(
+                      "es-MX",
+                    ) || 0}
                   </p>
                   <p className="text-sm text-black">
-                    Tráfico total del “Club Residente” en el mes de {analytics.mes} {analytics.anio}
+                    Tráfico total del “Club Residente” en el mes de{" "}
+                    {analytics.mes} {analytics.anio}
                   </p>
                   {analytics.pdf_url ? (
                     <a
@@ -709,24 +792,33 @@ const B2BDashboard = () => {
                 </div>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-tight">
-                    {analytics.residente_mx_trafico?.toLocaleString("es-MX") || 0}
+                    {analytics.residente_mx_trafico?.toLocaleString("es-MX") ||
+                      0}
                   </p>
-                  <p className="text-sm text-black">Tráfico Residente.mx en el mes de {analytics.mes} {analytics.anio}</p>
+                  <p className="text-sm text-black">
+                    Tráfico Residente.mx en el mes de {analytics.mes}{" "}
+                    {analytics.anio}
+                  </p>
                 </div>
-
               </>
             )}
             <div>
               <p className="text-[40px] font-bold text-black leading-tight">
-                {((restaurante?.views || 0) + (cupon?.views || 0)).toLocaleString("es-MX")}
+                {(
+                  (restaurante?.views || 0) + (cupon?.views || 0)
+                ).toLocaleString("es-MX")}
               </p>
-              <p className="text-sm text-black">Vistas totales en tu restaurante</p>
+              <p className="text-sm text-black">
+                Vistas totales en tu restaurante
+              </p>
             </div>
             <div>
               <p className="text-[40px] font-bold text-black leading-tight">
                 {restaurante?.clicks?.toLocaleString("es-MX") || 0}
               </p>
-              <p className="text-sm text-black">Clicks totales en tu restaurante</p>
+              <p className="text-sm text-black">
+                Clicks totales en tu restaurante
+              </p>
             </div>
             {/* Mostrar cupón del usuario */}
             {/* Mostrar views y clicks del cupón del usuario */}
@@ -738,11 +830,34 @@ const B2BDashboard = () => {
                   <p className="text-[40px] font-bold text-black leading-tight">
                     {cupon.clicks?.toLocaleString("es-MX") || 0}
                   </p>
-                  <p className="text-sm text-black">Clicks totales de tu cupón</p>
+                  <p className="text-sm text-black">
+                    Clicks totales de tu cupón
+                  </p>
                 </div>
               </>
             ) : (
               <div>No tienes cupones activos.</div>
+            )}
+            {/* Stats de notas del usuario */}
+            {notaStats && notaStats.total > 0 && (
+              <>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {notaStats.views?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">
+                    Vistas totales de tus notas
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-tight">
+                    {notaStats.clicks?.toLocaleString("es-MX") || 0}
+                  </p>
+                  <p className="text-sm text-black">
+                    Clicks totales de tus notas
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -751,8 +866,12 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <p className="text-[35px] text-left mb-2 leading-none">Canjea tus<br />Beneficios</p>
-              
+              <p className="text-[35px] text-left mb-2 leading-none">
+                Canjea tus
+                <br />
+                Beneficios
+              </p>
+              <ol>
                 {productos.map((producto) => (
                   <li
                     key={producto.id}
@@ -766,25 +885,34 @@ const B2BDashboard = () => {
                         {producto.descripcion}
                       </p>
                       <div className="flex items-center gap-2 mb-7">
-                          <div className="flex items-center gap-2">
-                            {producto.precio_original && Number(producto.precio_original) > 0 ? (
-                              <span className="line-through text-gray-500 text-sm">${Number(producto.precio_original).toLocaleString("es-MX")}</span>
-                            ) : null}
-                            <p className="text-sm text-black font-bold">
-                              ${Number(producto.monto || 0).toLocaleString("es-MX")}
-                            </p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={!!seleccionados[producto.id]}
-                            onChange={() => handleToggleProducto(producto.id)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
+                        <div className="flex items-center gap-2">
+                          {producto.precio_original &&
+                          Number(producto.precio_original) > 0 ? (
+                            <span className="line-through text-gray-500 text-sm">
+                              $
+                              {Number(producto.precio_original).toLocaleString(
+                                "es-MX",
+                              )}
+                            </span>
+                          ) : null}
+                          <span className="text-sm text-black font-bold">
+                            $
+                            {Number(
+                              producto.precio_descuento || producto.monto || 0,
+                            ).toLocaleString("es-MX")}
+                          </span>
                         </div>
+                        <input
+                          type="checkbox"
+                          checked={!!seleccionados[producto.id]}
+                          onChange={() => handleToggleProducto(producto.id)}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </div>
                     </div>
                   </li>
                 ))}
-             
+              </ol>
             </div>
 
             {/* Parte de abajo: total + botón */}
@@ -799,7 +927,9 @@ const B2BDashboard = () => {
                   })}
                 </p>
               </div>
-              <p className="text-sm text-black">El total es el costo de los beneficios seleccionados.</p>
+              <p className="text-sm text-black">
+                El total es el costo de los beneficios seleccionados.
+              </p>
               {/* 👇 BOTÓN ACTUALIZADO CON LA FUNCIÓN handleIrAPagar */}
               <button
                 onClick={handleIrAPagar}
@@ -837,62 +967,69 @@ const B2BDashboard = () => {
                 </button>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
         </div>
       )}
-      {credencialesNuevas && createPortal(
-        <div>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 bg-black/60"
-            style={{ zIndex: 9998 }}
-            onClick={cerrarBannerCredenciales}
-          />
-          {/* Modal */}
-          <div
-            className="fixed inset-0 flex items-center justify-center pointer-events-none"
-            style={{ zIndex: 9999 }}
-          >
-            <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
-              <div className="bg-[#fff200] px-6 py-4">
-                <h2 className="text-xl font-bold text-black font-roman">
-                  Credenciales de Acceso
-                </h2>
-              </div>
-              <div className="px-6 py-5">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xl text-black font-roman leading-[1.3] pr-10">
-                      Tu <span className="font-bold underline">Nombre de Usuario</span> para acceder al dashboard de B2B es:
-                    </label>
-                    <p className="text-2xl font-bold text-black font-roman mt-2">
-                      {credencialesNuevas.nombre_usuario}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xl text-black font-roman leading-[1.3]">
-                      Tu <span className="font-bold underline">Contraseña</span> es:
-                    </label>
-                    <p className="text-sm text-black font-roman mt-1">
-                      Usa la misma contraseña que usaste para registrarte.
-                    </p>
+      {credencialesNuevas &&
+        createPortal(
+          <div>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black/60"
+              style={{ zIndex: 9998 }}
+              onClick={cerrarBannerCredenciales}
+            />
+            {/* Modal */}
+            <div
+              className="fixed inset-0 flex items-center justify-center pointer-events-none"
+              style={{ zIndex: 9999 }}
+            >
+              <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+                <div className="bg-[#fff200] px-6 py-4">
+                  <h2 className="text-xl font-bold text-black font-roman">
+                    Credenciales de Acceso
+                  </h2>
+                </div>
+                <div className="px-6 py-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xl text-black font-roman leading-[1.3] pr-10">
+                        Tu{" "}
+                        <span className="font-bold underline">
+                          Nombre de Usuario
+                        </span>{" "}
+                        para acceder al dashboard de B2B es:
+                      </label>
+                      <p className="text-2xl font-bold text-black font-roman mt-2">
+                        {credencialesNuevas.nombre_usuario}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-xl text-black font-roman leading-[1.3]">
+                        Tu{" "}
+                        <span className="font-bold underline">Contraseña</span>{" "}
+                        es:
+                      </label>
+                      <p className="text-sm text-black font-roman mt-1">
+                        Usa la misma contraseña que usaste para registrarte.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                <button
-                  onClick={cerrarBannerCredenciales}
-                  className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
-                >
-                  Entendido
-                </button>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                  <button
+                    onClick={cerrarBannerCredenciales}
+                    className="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition font-roman cursor-pointer"
+                  >
+                    Entendido
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

@@ -1,19 +1,21 @@
 # === Dev stage (hot reload con Vite) ===
 FROM node:20-alpine AS dev
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+RUN corepack enable pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
 EXPOSE 5173
-CMD ["npx", "vite", "--host", "0.0.0.0"]
+CMD ["pnpm", "vite", "--host", "0.0.0.0"]
 
 # === Prod build ===
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+RUN corepack enable pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 # === Prod serve con nginx ===
 FROM nginx:alpine AS prod
