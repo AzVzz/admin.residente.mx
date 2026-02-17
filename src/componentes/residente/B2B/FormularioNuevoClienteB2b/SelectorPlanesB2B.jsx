@@ -631,6 +631,13 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             />
           </div>
         </div>
+        <div className="w-full max-w-2xl mx-auto mb-4">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/banners/BANNER%20PARA%20GUÍA%20FIFA.jpeg"
+            alt="Banner Guía FIFA"
+            className="w-full h-auto "
+          />
+        </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de membresia para el "Club Residente"
         </h1>
