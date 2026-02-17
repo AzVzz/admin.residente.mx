@@ -241,7 +241,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                 className="whitespace-nowrap overflow-hidden text-center"
                                 style={{
                                     fontSize: `${promoFontSize}px`,
-                                    lineHeight: lineHeight,
+                                    lineHeight: 1,
                                     letterSpacing: letterSpacing,
                                     color: colorTexto,
                                     margin: 0,
@@ -259,7 +259,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                 className="text-center whitespace-nowrap overflow-hidden"
                                 style={{
                                     fontSize: `${burgersFontSize}px`,
-                                    lineHeight: lineHeight,
+                                    lineHeight: 1,
                                     letterSpacing: letterSpacing,
                                     color: colorTexto,
                                     margin: 0,
