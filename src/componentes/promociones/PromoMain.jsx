@@ -417,7 +417,7 @@ const PromoMain = () => {
           selectedRestauranteId={selectedRestauranteId}
           onRestauranteChange={handleRestauranteChange}
         />
-        <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col">
+        <div className="bg-[#3B3B3C] w-auto h-auto px-14 pt-10 pb-10 shadow-lg relative flex flex-col sticky top-5 self-start">
           {/* Mensajes de éxito/error flotantes con transición */}
           {(saveSuccess || saveError) && (
             <div
