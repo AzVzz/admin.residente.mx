@@ -28,27 +28,32 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Función para cambiar página y actualizar URL
-  const setPaginaActual = useCallback((pagina) => {
-    const nuevaPagina = typeof pagina === 'function' ? pagina(paginaActual) : pagina;
-    setPaginaActualInternal(nuevaPagina);
+  const setPaginaActual = useCallback(
+    (pagina) => {
+      const nuevaPagina =
+        typeof pagina === "function" ? pagina(paginaActual) : pagina;
+      setPaginaActualInternal(nuevaPagina);
 
-    // Actualizar URL manteniendo otros params
-    const newParams = new URLSearchParams(searchParams);
-    if (nuevaPagina === 1) {
-      newParams.delete("pageRecetas");
-    } else {
-      newParams.set("pageRecetas", nuevaPagina.toString());
-    }
-    setSearchParams(newParams, { replace: true });
-  }, [paginaActual, searchParams, setSearchParams]);
+      // Actualizar URL manteniendo otros params
+      const newParams = new URLSearchParams(searchParams);
+      if (nuevaPagina === 1) {
+        newParams.delete("pageRecetas");
+      } else {
+        newParams.set("pageRecetas", nuevaPagina.toString());
+      }
+      setSearchParams(newParams, { replace: true });
+    },
+    [paginaActual, searchParams, setSearchParams],
+  );
 
   const cargarRecetas = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       // Determinar si es admin o invitado
-      const esAdmin = usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
-      const esInvitado = usuario?.rol?.toLowerCase() === 'invitado';
+      const esAdmin =
+        usuario?.permisos === "todos" || usuario?.permisos === "todo";
+      const esInvitado = usuario?.rol?.toLowerCase() === "invitado";
 
       // Construir filtros para la API
       const filtros = {};
@@ -58,7 +63,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
         // Para otros usuarios, filtrar por permisos como autor
         filtros.autor = esInvitado
           ? usuario.nombre_usuario
-          : usuario.permisos?.replace(/-/g, ' ');
+          : usuario.permisos?.replace(/-/g, " ");
       }
 
       // Agregar término de búsqueda si existe
@@ -67,18 +72,31 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
       }
 
       // Usar paginación del servidor CON filtros
-      const response = await recetasGetTodas(paginaActual, recetasPorPagina, filtros);
+      const response = await recetasGetTodas(
+        paginaActual,
+        recetasPorPagina,
+        filtros,
+      );
       const recetasData = response?.recetas || [];
 
       setRecetas(recetasData);
       setTotalRecetas(response?.total || recetasData.length);
-      setTotalPaginas(response?.totalPages || Math.ceil((response?.total || recetasData.length) / recetasPorPagina));
+      setTotalPaginas(
+        response?.totalPages ||
+          Math.ceil((response?.total || recetasData.length) / recetasPorPagina),
+      );
     } catch (err) {
-      setError(err.message || 'Error al cargar las recetas');
+      setError(err.message || "Error al cargar las recetas");
     } finally {
       setLoading(false);
     }
-  }, [paginaActual, usuario?.permisos, usuario?.rol, usuario?.nombre_usuario, debouncedSearchTerm]);
+  }, [
+    paginaActual,
+    usuario?.permisos,
+    usuario?.rol,
+    usuario?.nombre_usuario,
+    debouncedSearchTerm,
+  ]);
 
   useEffect(() => {
     cargarRecetas();
@@ -114,13 +132,15 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     setMenuAbierto(null);
     try {
       await recetaBorrar(id);
-      setRecetas(recetas.filter(r => r.id !== id));
+      setRecetas(recetas.filter((r) => r.id !== id));
       if (onRecetaEliminada) {
         onRecetaEliminada();
       }
       alert("Receta eliminada correctamente");
     } catch (err) {
-      alert("Error al borrar la receta: " + (err.message || "Error desconocido"));
+      alert(
+        "Error al borrar la receta: " + (err.message || "Error desconocido"),
+      );
     } finally {
       setEliminando(null);
     }
@@ -140,7 +160,7 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
     } else {
       const recetaParaCopiar = {
         ...receta,
-        id: undefined
+        id: undefined,
       };
       navigator.clipboard.writeText(JSON.stringify(recetaParaCopiar, null, 2));
       alert("Datos de la receta copiados al portapapeles");
@@ -150,13 +170,25 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const formatearFecha = (fecha) => {
     if (!fecha) return "Sin fecha";
     const date = new Date(fecha);
-    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const meses = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ];
     const dia = date.getDate();
     const mes = meses[date.getMonth()];
     const año = date.getFullYear();
-    const horas = String(date.getHours()).padStart(2, '0');
-    const minutos = String(date.getMinutes()).padStart(2, '0');
+    const horas = String(date.getHours()).padStart(2, "0");
+    const minutos = String(date.getMinutes()).padStart(2, "0");
     return `${mes} ${dia}, ${año} ${horas}:${minutos}`;
   };
 
@@ -164,73 +196,84 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
   const construirUrlImagen = (receta) => {
     try {
       if (!receta?.imagen) {
+        console.log("[construirUrlImagen] No imagen:", receta.titulo);
         return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
       }
 
       const imagenStr = String(receta.imagen).trim();
+      console.log("[construirUrlImagen]", receta.titulo, "→", imagenStr);
 
       if (!imagenStr) {
         return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
       }
 
-      if (imagenStr.startsWith('http://') || imagenStr.startsWith('https://')) {
+      if (imagenStr.startsWith("http://") || imagenStr.startsWith("https://")) {
         try {
           const urlObj = new URL(imagenStr);
           const pathname = urlObj.pathname;
 
-          if (urlObj.hostname.includes('admin.residente.mx')) {
-            const filename = pathname.split('/').pop();
+          if (urlObj.hostname.includes("admin.residente.mx")) {
+            const filename = pathname.split("/").pop();
             if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-              return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+              return `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(filename)}`;
             }
           }
 
-          if (urlObj.hostname.includes('residente.mx') && !urlObj.hostname.includes('admin')) {
-            const pathSegments = pathname.split('/').map(segment => {
-              if (!segment) return '';
+          if (
+            urlObj.hostname.includes("residente.mx") &&
+            !urlObj.hostname.includes("admin")
+          ) {
+            const pathSegments = pathname.split("/").map((segment) => {
+              if (!segment) return "";
               return encodeURIComponent(segment);
             });
-            urlObj.pathname = pathSegments.join('/');
+            urlObj.pathname = pathSegments.join("/");
             return urlObj.toString();
           }
 
-          const filename = pathname.split('/').pop();
+          const filename = pathname.split("/").pop();
           if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+            return `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(filename)}`;
           }
 
           return encodeURI(imagenStr);
         } catch (e) {
-          const match = imagenStr.match(/\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i);
+          const match = imagenStr.match(
+            /\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i,
+          );
           if (match && match[1]) {
-            return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(match[1])}`;
+            return `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(match[1])}`;
           }
           return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
         }
       }
 
-      if (imagenStr.startsWith('/uploads/recetas/')) {
-        const filename = imagenStr.split('/').pop();
-        return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+      if (imagenStr.startsWith("/uploads/recetas/")) {
+        // Nginx en Plesk sirve /uploads/ directamente
+        return `https://admin.residente.mx${imagenStr}`;
       }
 
-      if (imagenStr.startsWith('/fotos/')) {
-        const pathSegments = imagenStr.split('/').map(segment =>
-          segment ? encodeURIComponent(segment) : ''
-        ).join('/');
-        return `${imgApi.replace(/\/$/, '')}${pathSegments}`;
+      if (imagenStr.startsWith("/fotos/")) {
+        const pathSegments = imagenStr
+          .split("/")
+          .map((segment) => (segment ? encodeURIComponent(segment) : ""))
+          .join("/");
+        return `${imgApi.replace(/\/$/, "")}${pathSegments}`;
       }
 
-      const filename = imagenStr.split('/').pop();
+      const filename = imagenStr.split("/").pop();
       if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-        return `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+        return `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(filename)}`;
       }
 
-      const imagenPath = imagenStr.startsWith('/') ? imagenStr : `/${imagenStr}`;
-      const pathSegments = imagenPath.split('/').map(segment =>
-        segment ? encodeURIComponent(segment) : ''
-      ).join('/');
-      return `${imgApi.replace(/\/$/, '')}${pathSegments}`;
+      const imagenPath = imagenStr.startsWith("/")
+        ? imagenStr
+        : `/${imagenStr}`;
+      const pathSegments = imagenPath
+        .split("/")
+        .map((segment) => (segment ? encodeURIComponent(segment) : ""))
+        .join("/");
+      return `${imgApi.replace(/\/$/, "")}${pathSegments}`;
     } catch (error) {
       return `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
     }
@@ -302,32 +345,40 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                     alt={receta.titulo}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      if (e.target.src.includes('SinFoto')) {
+                      if (e.target.src.includes("SinFoto")) {
                         return;
                       }
-                      if (e.target.src.includes('/api/recetas/imagen/')) {
+                      if (e.target.src.includes("/api/recetas/imagen/")) {
                         e.target.src = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
                         return;
                       }
                       if (receta.imagen) {
                         let filename = null;
-                        if (receta.imagen.startsWith('http://') || receta.imagen.startsWith('https://')) {
+                        if (
+                          receta.imagen.startsWith("http://") ||
+                          receta.imagen.startsWith("https://")
+                        ) {
                           try {
                             const urlObj = new URL(receta.imagen);
-                            filename = urlObj.pathname.split('/').pop();
+                            filename = urlObj.pathname.split("/").pop();
                           } catch (err) {
-                            const match = receta.imagen.match(/\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i);
+                            const match = receta.imagen.match(
+                              /\/([^\/]+\.(webp|jpg|jpeg|png|gif))(\?|$)/i,
+                            );
                             if (match && match[1]) {
                               filename = match[1];
                             }
                           }
-                        } else if (receta.imagen.includes('/')) {
-                          filename = receta.imagen.split('/').pop();
+                        } else if (receta.imagen.includes("/")) {
+                          filename = receta.imagen.split("/").pop();
                         } else {
                           filename = receta.imagen;
                         }
-                        if (filename && filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-                          const urlApiBackend = `${urlApi.replace(/\/$/, '')}/api/recetas/imagen/${encodeURIComponent(filename)}`;
+                        if (
+                          filename &&
+                          filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+                        ) {
+                          const urlApiBackend = `${urlApi.replace(/\/$/, "")}/api/recetas/imagen/${encodeURIComponent(filename)}`;
                           e.target.src = urlApiBackend;
                           return;
                         }
@@ -354,7 +405,9 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setMenuAbierto(menuAbierto === receta.id ? null : receta.id);
+                          setMenuAbierto(
+                            menuAbierto === receta.id ? null : receta.id,
+                          );
                         }}
                         className="bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-colors"
                         title="Opciones"
@@ -383,7 +436,9 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 disabled:opacity-50"
                           >
                             <FaTrash className="text-xs" />
-                            {eliminando === receta.id ? "Eliminando..." : "Borrar"}
+                            {eliminando === receta.id
+                              ? "Eliminando..."
+                              : "Borrar"}
                           </button>
                         </div>
                       )}
@@ -404,7 +459,10 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                 {/* Contenido de la tarjeta */}
                 <div className="p-4">
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    <span className="font-semibold">{receta.autor || "Autor"}:</span> {receta.descripcion || receta.titulo || "Sin descripción"}
+                    <span className="font-semibold">
+                      {receta.autor || "Autor"}:
+                    </span>{" "}
+                    {receta.descripcion || receta.titulo || "Sin descripción"}
                   </p>
                 </div>
               </div>
@@ -415,7 +473,8 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
           <div className="flex flex-col items-center mt-8 space-y-4">
             {/* Información de paginación */}
             <div className="text-sm text-gray-600">
-              Mostrando {inicioIndice + 1} - {finIndice} de {totalRecetas} recetas
+              Mostrando {inicioIndice + 1} - {finIndice} de {totalRecetas}{" "}
+              recetas
               {searchTerm && ` (filtradas por "${searchTerm}")`}
             </div>
 
@@ -426,56 +485,68 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
                 <button
                   onClick={irAPaginaAnterior}
                   disabled={paginaActual === 1}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                    paginaActual === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
                 >
                   ← Anterior
                 </button>
 
                 {/* Números de página */}
                 <div className="flex space-x-1">
-                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
-                    const mostrarPagina =
-                      numero === 1 ||
-                      numero === totalPaginas ||
-                      (numero >= paginaActual - 2 && numero <= paginaActual + 2);
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
+                    (numero) => {
+                      const mostrarPagina =
+                        numero === 1 ||
+                        numero === totalPaginas ||
+                        (numero >= paginaActual - 2 &&
+                          numero <= paginaActual + 2);
 
-                    if (!mostrarPagina) {
-                      if (numero === paginaActual - 3 || numero === paginaActual + 3) {
-                        return (
-                          <span key={numero} className="px-2 py-2 text-gray-400">
-                            ...
-                          </span>
-                        );
+                      if (!mostrarPagina) {
+                        if (
+                          numero === paginaActual - 3 ||
+                          numero === paginaActual + 3
+                        ) {
+                          return (
+                            <span
+                              key={numero}
+                              className="px-2 py-2 text-gray-400"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        return null;
                       }
-                      return null;
-                    }
 
-                    return (
-                      <button
-                        key={numero}
-                        onClick={() => irAPagina(numero)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg ${numero === paginaActual
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                      return (
+                        <button
+                          key={numero}
+                          onClick={() => irAPagina(numero)}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                            numero === paginaActual
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                           }`}
-                      >
-                        {numero}
-                      </button>
-                    );
-                  })}
+                        >
+                          {numero}
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
 
                 {/* Botón siguiente */}
                 <button
                   onClick={irAPaginaSiguiente}
                   disabled={paginaActual === totalPaginas}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${paginaActual === totalPaginas
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                    paginaActual === totalPaginas
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
                 >
                   Siguiente →
                 </button>
