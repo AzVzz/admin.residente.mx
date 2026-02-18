@@ -274,7 +274,7 @@ const TicketPromo = forwardRef((props, ref) => {
                                 {burgersText}
                             </h3>
                         </div>
-                        <p className={`mt-1 text-gray-800 ${config.description}`} style={{ fontFamily, fontWeight, letterSpacing, lineHeight: lineHeight, color: colorTexto }}>
+                        <p className={`mt-1 text-gray-800 text-center ${config.description}`} style={{ fontFamily, fontWeight, letterSpacing, lineHeight: lineHeight, color: colorTexto, }}>
                             {size === 'small' ? limitText(descripcionPromo, 160) : descripcionPromo}
                         </p>
                     </div>
