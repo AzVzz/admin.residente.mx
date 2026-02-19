@@ -5,7 +5,6 @@ import {
   HiOutlineFilm,
   HiOutlineAcademicCap,
   HiOutlineShieldCheck,
-  HiMiniChevronRight,
 } from "react-icons/hi2";
 import { urlApi } from "../../api/url";
 
@@ -203,10 +202,11 @@ const B2CInterior = () => {
         >
           ← Volver al video
         </button>
-        <h1 className="text-2xl font-bold mb-2">Pagar para ver el video</h1>
-        <p className="text-gray-600 mb-6">
-          Completa tus datos y paga para acceder al video.
-        </p>
+        <img
+          src="https://residente.mx/fotos/fotos-estaticas/banners/Etiqueta%20restaurantera%20%281%29.png"
+          alt="La Etiqueta Restaurantera"
+          className="mx-auto h-auto max-w-xs md:max-w-sm mb-8"
+        />
         <form onSubmit={handlePagar} className="space-y-4">
           <div>
             <label className="block font-bold text-sm mb-1">Nombre *</label>
@@ -288,32 +288,42 @@ const B2CInterior = () => {
               "NeueHaasGroteskDisplayW02Bold, NeueHaasGroteskDisplayPro55Roman, system-ui, Avenir, Helvetica, Arial, sans-serif",
           }}
         >
-          La Etiqueta Restaurantera
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/banners/Etiqueta%20restaurantera%20%281%29.png"
+            alt="La Etiqueta Restaurantera"
+            className="mx-auto h-auto max-w-xs md:max-w-sm"
+          />
         </h1>
-        <div className="rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-gray-50/80 p-8 md:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.06)]  mb-8 ">
-          <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto text-global text-lg md:text-xl leading-relaxed">
+        <div className=" from-white p-8   mb-8 ">
+          <p className="text-center mb-8 max-w-2xl mx-auto text-global text-lg md:text-xl leading-relaxed font-semibold text-black">
             Las reglas no escritas que determinan si tu cliente regresa… o no.
           </p>
           <ul className="space-y-4 text-black text-global list-none">
             {[
-              "El 80% de los restaurantes pierde clientes por detalles que nadie les enseñó a cuidar.",
-              "Un restaurante no fracasa por su comida. Fracasa por la experiencia.",
-              "La temperatura, el volumen de la música, el lenguaje del mesero, la claridad en la cuenta, el manejo de una queja, el baño.",
-              "Hay reglas que no están escritas en ningún manual… pero que el cliente sí juzga.",
-              "Este video es una guía clara, directa y profesional sobre La Etiqueta Restaurantera: los estándares invisibles que hacen que un comensal vuelva — o no regrese jamás.",
-              "No es teoría. Es práctica real aplicada al servicio.",
-            ].map((texto, i) => (
-              <li
-                key={i}
-                className={`flex items-start gap-3 transition-colors duration-200 rounded-lg py-2 px-3 -mx-3 hover:bg-black/[0.03] ${i % 2 === 0 ? "justify-start text-left" : "justify-end text-right flex-row-reverse"}`}
-              >
-                <span
-                  className="flex-shrink-0 w-2 h-2 rounded-full bg-black/80 mt-1.5 ring-2 ring-black/10"
-                  aria-hidden
-                />
-                <span className="max-w-[88%] leading-[1.6] text-gray-800">{texto}</span>
-              </li>
-            ))}
+              { texto: "El 80% de los restaurantes pierde clientes por detalles que nadie les enseñó a cuidar.", Icono: HiOutlineUserGroup },
+              { texto: "Un restaurante no fracasa por su comida. Fracasa por la experiencia.", Icono: HiOutlineAcademicCap },
+              { texto: "La temperatura, el volumen de la música, el lenguaje del mesero, la claridad en la cuenta, el manejo de una queja, el baño.", Icono: HiOutlineFilm },
+              { texto: "Hay reglas que no están escritas en ningún manual… pero que el cliente sí juzga.", Icono: HiOutlineBookOpen },
+              { texto: "Este video es una guía clara, directa y profesional sobre La Etiqueta Restaurantera: los estándares invisibles que hacen que un comensal vuelva — o no regrese jamás.", Icono: HiOutlineShieldCheck },
+            ].map((item, i) => {
+              const IconComponent = item.Icono;
+              return (
+                <li
+                  key={i}
+                  className={`flex items-start gap-2 transition-colors duration-200 rounded-lg py-2 px-3 -mx-3 ${i % 2 === 0 ? "justify-start text-left" : "justify-end flex-row-reverse"}`}
+                >
+                  <span
+                    className="flex-shrink-0 w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center text-black/90 mt-0.5"
+                    aria-hidden
+                  >
+                    <IconComponent className="w-4 h-4" />
+                  </span>
+                  <span className={`max-w-[88%] leading-tight text-gray-800 ${i % 2 === 1 ? "text-right" : ""}`}>
+                    {item.texto}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -345,11 +355,11 @@ const B2CInterior = () => {
         </button>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-gray-200/80 bg-white p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-colors duration-300 hover:border-black/30">
+          <div className="  p-7 md:p-8 transition-colors duration-300 ">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/10">
-                <HiOutlineBookOpen className="w-5 h-5 text-black" />
-              </div>
+              <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-black/5 flex items-center justify-center text-black">
+                <HiOutlineAcademicCap className="w-6 h-6" />
+              </span>
               <h2 className="text-sm font-semibold tracking-[0.15em] text-black uppercase">
                 ¿Qué aprenderás?
               </h2>
@@ -364,19 +374,18 @@ const B2CInterior = () => {
                 "Protocolos de seguridad y emergencias",
                 "Criterios para servicio a domicilio sin fallas",
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 group/item">
-                  <HiMiniChevronRight className="w-4 h-4 text-black/60 mt-1 flex-shrink-0 transition-transform duration-200 group-hover/item:translate-x-0.5" />
-                  <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                <li key={i} className="text-gray-800 text-[20px] md:text-base leading-relaxed">
+                  {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-gray-200/80 bg-white p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-colors duration-300 hover:border-black/30">
+          <div className="  p-7 md:p-8 transition-colors duration-300 ">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/10">
-                <HiOutlineUserGroup className="w-5 h-5 text-black" />
-              </div>
+              <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-black/5 flex items-center justify-center text-black">
+                <HiOutlineUserGroup className="w-6 h-6" />
+              </span>
               <h2 className="text-sm font-semibold tracking-[0.15em] text-black uppercase">
                 ¿Para quién es?
               </h2>
@@ -389,14 +398,13 @@ const B2CInterior = () => {
                 "Equipos de servicio",
                 "Restaurantes que quieren subir de nivel sin invertir en remodelación",
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 group/item">
-                  <HiMiniChevronRight className="w-4 h-4 text-black/60 mt-1 flex-shrink-0 transition-transform duration-200 group-hover/item:translate-x-0.5" />
-                  <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                <li key={i} className="text-gray-800 text-[20px] md:text-base leading-relaxed">
+                  {item}
                 </li>
               ))}
             </ul>
-            <div className="mt-6 pt-5 border-t border-gray-200/80">
-              <p className="text-gray-600 text-sm leading-relaxed italic text-global">
+            <div className="mt-6 pt-5 ">
+              <p className="text-gray-700 text-[20px] md:text-base leading-relaxed italic text-global">
                 Si quieres aumentar recompra sin gastar en marketing, empieza por el servicio.
               </p>
             </div>
@@ -404,11 +412,11 @@ const B2CInterior = () => {
         </div>
 
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-gray-200/80 bg-white p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-colors duration-300 hover:border-black/30">
+          <div className="  p-7 md:p-8 transition-colors duration-300 ">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/10">
-                <HiOutlineFilm className="w-5 h-5 text-black" />
-              </div>
+              <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-black/5 flex items-center justify-center text-black">
+                <HiOutlineFilm className="w-6 h-6" />
+              </span>
               <h2 className="text-sm font-semibold tracking-[0.15em] text-black uppercase">
                 Formato
               </h2>
@@ -421,43 +429,39 @@ const B2CInterior = () => {
                 "Acceso ilimitado",
                 "Ideal para capacitación interna",
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 group/item">
-                  <HiMiniChevronRight className="w-4 h-4 text-black/60 mt-1 flex-shrink-0 transition-transform duration-200 group-hover/item:translate-x-0.5" />
-                  <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                <li key={i} className="text-gray-800 text-[15px] md:text-base leading-relaxed">
+                  {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-gray-200/80 bg-white p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-colors duration-300 hover:border-black/30">
+          <div className="  p-7 md:p-8 transition-colors duration-300 ">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/10">
-                <HiOutlineAcademicCap className="w-5 h-5 text-black" />
-              </div>
+              <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-black/5 flex items-center justify-center text-black">
+                <HiOutlineBookOpen className="w-6 h-6" />
+              </span>
               <h2 className="text-sm font-semibold tracking-[0.15em] text-black uppercase">
                 Diferenciador
               </h2>
             </div>
-            <p className="text-gray-700 text-sm leading-relaxed mb-4 text-global">
+            <p className="text-gray-800 text-[20px] md:text-base leading-relaxed mb-4 text-global">
               Este no es un curso de “hospitalidad emocional”. Es un estándar profesional
               basado en prácticas internacionales adaptadas al contexto latinoamericano.
             </p>
-            <p className="text-gray-700 text-sm leading-relaxed font-medium text-global">
-              La reputación no se construye con publicidad. Se construye con consistencia.
-            </p>
+            
           </div>
         </div>
-
-        <div className="mt-5 rounded-2xl border border-black/20 bg-black/5 p-7 md:p-8">
+        <div className="mt-5  p-7 md:p-8">
           <div className="flex items-start gap-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black/10 flex-shrink-0">
-              <HiOutlineShieldCheck className="w-5 h-5 text-black" />
-            </div>
+            <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-black/5 flex items-center justify-center text-black mt-0.5">
+              <HiOutlineShieldCheck className="w-6 h-6" />
+            </span>
             <div>
               <h2 className="text-sm font-semibold tracking-[0.15em] text-black uppercase mb-3">
                 Garantía
               </h2>
-              <p className="text-gray-700 text-sm leading-relaxed text-global">
+              <p className="text-gray-800 text-[20px] md:text-base leading-relaxed text-global">
                 Garantía de satisfacción 7 días. Si el contenido no cumple tus expectativas,
                 puedes solicitar la devolución dentro de los primeros 7 días posteriores a la
                 compra. Sin preguntas innecesarias.
