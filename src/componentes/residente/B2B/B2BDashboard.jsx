@@ -684,15 +684,15 @@ const B2BDashboard = () => {
         </div>
       )}
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3 mb-10 relative items-start">
+      <div className="w-full grid grid-cols-3 mb-10 relative items-stretch">
         {/* Línea divisoria izquierda - empieza más abajo */}
-        <div className="absolute left-[33.333%] top-[9em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
+        <div className="absolute left-[33.333%] top-[8em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
-        <div className="absolute left-[66.666%] top-[9em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
+        <div className="absolute left-[66.666%] top-[8em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
 
         {/* Columna azul */}
-        <div className="flex flex-col p-3">
-          <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+        <div className="flex flex-col p-3 min-h-0">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[40px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Crea tus
               <br />
@@ -719,19 +719,19 @@ const B2BDashboard = () => {
               onClick={
                 restaurante ? handleEditar : () => navigate("/formulario")
               }
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
             <button
               onClick={handleCupones}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
             <button
               onClick={handleClasificado}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               CLASIFICADO
             </button>
@@ -760,7 +760,7 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[40px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Checa tus
               <br />
@@ -799,33 +799,33 @@ const B2BDashboard = () => {
                     )}
                   </p>
                 </div>
-                <div>
+                <div className="leading-tight">
                   <p className="text-[40px] font-bold text-black leading-tight">
                     {analytics.residente_mx_trafico?.toLocaleString("es-MX") ||
                       0}
                   </p>
-                  <p className="text-sm text-black">
+                  <p className="text-sm text-black -mt-1">
                     Tráfico Residente.mx en el mes de {analytics.mes}{" "}
                     {analytics.anio}
                   </p>
                 </div>
               </>
             )}
-            <div>
+            <div className="leading-tight">
               <p className="text-[40px] font-bold text-black leading-tight">
                 {(
                   (restaurante?.views || 0) + (cupon?.views || 0)
                 ).toLocaleString("es-MX")}
               </p>
-              <p className="text-sm text-black">
+              <p className="text-sm text-black -mt-1">
                 Vistas totales en tu restaurante
               </p>
             </div>
-            <div>
+            <div className="leading-tight">
               <p className="text-[40px] font-bold text-black leading-tight">
                 {restaurante?.clicks?.toLocaleString("es-MX") || 0}
               </p>
-              <p className="text-sm text-black">
+              <p className="text-sm text-black -mt-1">
                 Clicks totales en tu restaurante
               </p>
             </div>
@@ -875,18 +875,18 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+              <div className="border-b-[7px] border-black pb-0.5 mb-[43px] w-fit">
                 <p className="text-[35px] text-left leading-none">
                   Aprovecha tus
                   <br />
                   Beneficios
                 </p>
               </div>
-              <ol className="list-none pl-0 space-y-4">
+              <ol className="list-none pl-0 space-y-2">
                 {productos.map((producto, index) => (
                   <li
                     key={producto.id}
-                    className="select-none flex flex-col gap-3"
+                    className="select-none flex flex-col gap-1"
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold ">
@@ -895,7 +895,7 @@ const B2BDashboard = () => {
                       <p className="text-sm text-black uppercase">
                         {producto.descripcion}
                       </p>
-                      <div className="flex items-center gap-2 mb-7">
+                      <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           {producto.precio_original &&
                           Number(producto.precio_original) > 0 ? (
@@ -1008,10 +1008,10 @@ const B2BDashboard = () => {
             />
             {/* Modal */}
             <div
-              className="fixed inset-0 flex items-center justify-center pointer-events-none"
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
               style={{ zIndex: 9999 }}
             >
-              <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              <div className="bg-white w-full max-w-md overflow-hidden pointer-events-auto rounded-lg shadow-xl">
                 <div className="bg-[#fff200] px-6 py-4">
                   <h2 className="text-xl font-bold text-black font-roman">
                     Credenciales de Acceso
