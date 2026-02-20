@@ -679,18 +679,20 @@ const B2BDashboard = () => {
       )}
       {/* Grid de 3 columnas */}
       <div className="w-full grid grid-cols-3 mb-10 relative items-start">
-        {/* Línea divisoria izquierda */}
-        <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+        {/* Línea divisoria izquierda - empieza más abajo */}
+        <div className="absolute left-[33.333%] top-[9em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
-        <div className="absolute left-[66.666%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+        <div className="absolute left-[66.666%] top-[9em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
 
         {/* Columna azul */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">
-            Crea tus
-            <br />
-            Contenidos
-          </p>
+          <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+            <p className="text-[35px] text-left leading-none">
+              Crea tus
+              <br />
+              Contenidos
+            </p>
+          </div>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -752,11 +754,13 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">
-            Checa tus
-            <br />
-            Resultados
-          </p>
+          <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+            <p className="text-[35px] text-left leading-none">
+              Checa tus
+              <br />
+              Resultados
+            </p>
+          </div>
           <div className="space-y-4">
             {/* 🆕 Datos de Google Analytics */}
             {!loadingAnalytics && analytics && (
@@ -866,11 +870,13 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <p className="text-[35px] text-left mb-2 leading-none">
-                Aprovecha tus
-                <br />
-                Beneficios
-              </p>
+              <div className="border-b-[10px] border-black pb-0.5 mb-[50px] w-fit">
+                <p className="text-[35px] text-left leading-none">
+                  Aprovecha tus
+                  <br />
+                  Beneficios
+                </p>
+              </div>
               <ol>
                 {productos.map((producto) => (
                   <li
