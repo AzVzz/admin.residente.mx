@@ -654,7 +654,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 flex items-center justify-end mt-1 pr-2">
+      <div className="w-full h-10 flex items-center justify-end mt-1 pr-1">
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
@@ -686,13 +686,13 @@ const B2BDashboard = () => {
       {/* Grid de 3 columnas */}
       <div className="w-full grid grid-cols-3 mb-10 relative items-stretch">
         {/* Línea divisoria izquierda - empieza más abajo */}
-        <div className="absolute left-[33.333%] top-[8em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
+        <div className="absolute left-[33.333%] top-[7.5em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
-        <div className="absolute left-[66.666%] top-[8em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
+        <div className="absolute left-[66.666%] top-[7.5em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
 
         {/* Columna azul */}
         <div className="flex flex-col p-3 min-h-0">
-          <div className="border-b-[7px] border-black pb-0.5 mb-[40px] w-fit">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Crea tus
               <br />
@@ -760,7 +760,7 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <div className="border-b-[7px] border-black pb-0.5 mb-[40px] w-fit">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Checa tus
               <br />
@@ -875,7 +875,7 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <div className="border-b-[7px] border-black pb-0.5 mb-[43px] w-fit">
+              <div className="border-b-[7px] border-black pb-0.5 mb-[37px] w-fit">
                 <p className="text-[35px] text-left leading-none">
                   Aprovecha tus
                   <br />
