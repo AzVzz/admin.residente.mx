@@ -885,22 +885,37 @@ const B2BDashboard = () => {
                         {producto.descripcion}
                       </p>
                       <div className="flex items-center gap-2 mb-7">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {producto.precio_original &&
                           Number(producto.precio_original) > 0 ? (
-                            <span className="line-through text-gray-500 text-sm">
+                            <>
+                              <span className="text-sm text-black">
+                                <span className="mx-1">de</span>{" "}
+                                <span className=" text-black">
+                                  $
+                                  {Number(
+                                    producto.precio_original,
+                                  ).toLocaleString("es-MX")}
+                                </span>{" "}
+                                <span className="mx-1">a</span>{" "}
+                                <span className="font-bold text-black">
+                                  $
+                                  {Number(
+                                    producto.precio_descuento ||
+                                      producto.monto ||
+                                      0,
+                                  ).toLocaleString("es-MX")}
+                                </span>
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-sm text-black font-bold">
                               $
-                              {Number(producto.precio_original).toLocaleString(
-                                "es-MX",
-                              )}
+                              {Number(
+                                producto.precio_descuento || producto.monto || 0,
+                              ).toLocaleString("es-MX")}
                             </span>
-                          ) : null}
-                          <span className="text-sm text-black font-bold">
-                            $
-                            {Number(
-                              producto.precio_descuento || producto.monto || 0,
-                            ).toLocaleString("es-MX")}
-                          </span>
+                          )}
                         </div>
                         <input
                           type="checkbox"
