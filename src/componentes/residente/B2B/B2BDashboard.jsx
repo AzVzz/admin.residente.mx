@@ -867,7 +867,7 @@ const B2BDashboard = () => {
             {/* Parte de arriba: título + lista */}
             <div>
               <p className="text-[35px] text-left mb-2 leading-none">
-                Canjea tus
+                Aprovecha tus
                 <br />
                 Beneficios
               </p>
@@ -890,14 +890,14 @@ const B2BDashboard = () => {
                           Number(producto.precio_original) > 0 ? (
                             <>
                               <span className="text-sm text-black">
-                                <span className="mx-1">de</span>{" "}
+                                <span className="mx-0.5">De</span>{" "}
                                 <span className=" text-black">
                                   $
                                   {Number(
                                     producto.precio_original,
                                   ).toLocaleString("es-MX")}
                                 </span>{" "}
-                                <span className="mx-1">a</span>{" "}
+                                <span className="mx-0.5">a</span>{" "}
                                 <span className="font-bold text-black">
                                   $
                                   {Number(
