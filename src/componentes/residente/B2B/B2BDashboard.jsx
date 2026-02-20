@@ -654,7 +654,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 flex items-center justify-end mt-2 pr-2">
+      <div className="w-full h-10 flex items-center justify-end mt-1 pr-2">
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
@@ -664,11 +664,11 @@ const B2BDashboard = () => {
       </div>
       {/* Logo Club Residente + Nombre del restaurante centrado */}
       {restaurante?.nombre_restaurante && (
-        <div className="w-full flex flex-col justify-center items-center py-2">
+        <div className="w-full flex flex-col justify-center items-center py-0.5 mb-6">
           <img
             src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
             alt="Club Residente Facil"
-            className="h-12 w-auto object-contain mb-4"
+            className="h-12 w-auto object-contain mb-0"
           />
           <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
             {restaurante.nombre_restaurante}
