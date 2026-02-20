@@ -9,6 +9,7 @@ import axios from "axios";
 // import FormularioBanner from "./FormularioBanner";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
+import { FaFilePdf } from "react-icons/fa";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -653,7 +654,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 flex items-center justify-end mt-2 pr-6">
+      <div className="w-full h-10 flex items-center justify-end mt-2 pr-2">
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
@@ -661,13 +662,18 @@ const B2BDashboard = () => {
           Cerrar Sesión
         </button>
       </div>
-      {/* Nombre del restaurante centrado */}
+      {/* Logo Club Residente + Nombre del restaurante centrado */}
       {restaurante?.nombre_restaurante && (
         <div className="w-full flex flex-col justify-center items-center py-2">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+            alt="Club Residente Facil"
+            className="h-12 w-auto object-contain mb-4"
+          />
           <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
             {restaurante.nombre_restaurante}
           </h1>
-          <p className="text-lg text-black">
+          <p className="text-sm text-black">
             {fechaActual.toLocaleDateString("es-MX", {
               weekday: "long",
               year: "numeric",
@@ -713,19 +719,19 @@ const B2BDashboard = () => {
               onClick={
                 restaurante ? handleEditar : () => navigate("/formulario")
               }
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
             >
               {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
             <button
               onClick={handleCupones}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
             <button
               onClick={handleClasificado}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-lg transition-colors cursor-pointer w-60"
             >
               CLASIFICADO
             </button>
@@ -771,28 +777,27 @@ const B2BDashboard = () => {
                       "es-MX",
                     ) || 0}
                   </p>
-                  <p className="text-sm text-black">
-                    Tráfico total del “Club Residente” en el mes de{" "}
-                    {analytics.mes} {analytics.anio}
+                  <p className="text-sm text-black leading-tight">
+                    Tráfico total del “Club Residente-Facil"
+                    <br />
+                    en el mes de {analytics.mes} {analytics.anio}
+                    {analytics.pdf_url ? (
+                      <a
+                        href={analytics.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-0.5 ml-1 text-[10px] text-black cursor-pointer align-middle bg-[#fff200] hover:bg-[#e6d900] px-1.5 py-0.5"
+                      >
+                        <FaFilePdf className="w-2 h-2 shrink-0 align-middle" />
+                        descarga pdf
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5 -ml-0.5 text-[10px] text-black align-middle bg-[#fff200] px-1.5 py-0.5">
+                        <FaFilePdf className="w-2 h-2 shrink-0 align-middle" />
+                        descarga pdf
+                      </span>
+                    )}
                   </p>
-                  {analytics.pdf_url ? (
-                    <a
-                      href={analytics.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-black cursor-pointer hover:text-gray-700 block"
-                    >
-                      liga a descarga pdf y numero ingresado manual.
-                      <br />
-                      Se actualiza cada dia 1 del mes
-                    </a>
-                  ) : (
-                    <p className="text-xs text-black">
-                      liga a descarga pdf y numero ingresado manual.
-                      <br />
-                      Se actualiza cada dia 1 del mes
-                    </p>
-                  )}
                 </div>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-tight">
@@ -877,15 +882,15 @@ const B2BDashboard = () => {
                   Beneficios
                 </p>
               </div>
-              <ol>
-                {productos.map((producto) => (
+              <ol className="list-none pl-0 space-y-4">
+                {productos.map((producto, index) => (
                   <li
                     key={producto.id}
                     className="select-none flex flex-col gap-3"
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold ">
-                        {producto.titulo}
+                        {index + 1}. {producto.titulo}
                       </p>
                       <p className="text-sm text-black uppercase">
                         {producto.descripcion}
