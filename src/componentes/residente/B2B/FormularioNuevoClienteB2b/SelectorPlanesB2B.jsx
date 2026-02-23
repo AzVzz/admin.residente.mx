@@ -11,140 +11,67 @@ import { IoClose } from "react-icons/io5";
 import { urlApi } from "../../../api/url.js";
 import { useAuth } from "../../../Context";
 
+// Planes por meses: 6, 9, 12 (cobro mensual, renovación al cumplir los meses)
 const NOMBRES_MEMBRESIAS = {
-  1: "Membresía Básica",
-  3: "Membresía Oro",
-  5: "Membresía Platino",
-  "5+": "Membresía Platino",
+  6: "Plan 6 meses",
+  9: "Plan 9 meses",
+  12: "Plan 12 meses",
 };
 
-// Texto personalizado para el badge de sucursales
-const TEXTO_SUCURSALES = {
-  1: "Suscripción Anual",
-  3: "Suscripción Anual",
-  5: "Suscripción Anual",
-  "5+": "Suscripción Anual",
+const TEXTO_MESES = {
+  6: "6 meses (cobro mensual)",
+  9: "9 meses (cobro mensual)",
+  12: "12 meses (cobro mensual)",
 };
 
-// Función para obtener el nombre de la membresía
-const getNombreMembresia = (sucursales) => {
-  const key = sucursales === "5+" ? "5+" : parseInt(sucursales);
-  return NOMBRES_MEMBRESIAS[key] || "B2B";
+const getNombreMembresia = (meses) => {
+  const key = parseInt(meses, 10);
+  return NOMBRES_MEMBRESIAS[key] || `Plan ${meses} meses`;
 };
 
-// Función para obtener el texto de sucursales
-const getTextoSucursales = (sucursales) => {
-  const key = sucursales === "5+" ? "5+" : parseInt(sucursales);
-  return TEXTO_SUCURSALES[key] || `${sucursales} Sucursales`;
+const getTextoMeses = (meses) => {
+  const key = parseInt(meses, 10);
+  return TEXTO_MESES[key] || `${meses} meses`;
 };
 
-// Mapeo de iconos según el número de sucursales
-const getIconoPorSucursales = (sucursales) => {
-  const num = sucursales === "5+" ? 5 : parseInt(sucursales);
+const getIconoPorMeses = (meses) => {
+  const num = parseInt(meses, 10);
   switch (num) {
-    case 1:
+    case 6:
       return FaStore;
-    case 2:
-      return FaStoreAlt;
-    case 3:
+    case 9:
       return FaBuilding;
-    case 4:
-      return FaWarehouse;
-    case 5:
+    case 12:
     default:
       return FaCity;
   }
 };
 
 const CARACTERISTICAS_POR_PLAN = {
-  // Plan 1 sucursal
-  1: [
+  6: [
     "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
+    "Presencia en directorio Web, Revista, Redes, Newsletter",
     "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
+    "Micrositio individual. Cambios ilimitados",
+    "Acervo histórico. SEO Google y ChatGPT",
+    "Descuentos para tu negocio. Rifas",
   ],
-  // Plan 2 sucursales
-  2: [
-    "2 sucursales incluidas",
-    "Perfil de negocio verificado",
-    "Publicación en directorio",
-    "Soporte prioritario",
-    "Estadísticas avanzadas",
-  ],
-  // Plan 3 sucursales
-  3: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
+  9: [
+    "Todo lo del plan 6 meses",
     "──────────────────",
-    "Estudios de mercado. ilimitado",
+    "Estudios de mercado ilimitado",
     "Acceso a eventos Residente",
   ],
-  // Plan 4 sucursales
-  4: [
-    "4 sucursales incluidas",
-    "Perfil de negocio verificado",
-    "Publicación en directorio",
-    "Soporte prioritario",
-    "Estadísticas avanzadas",
-    "Promociones especiales",
-    "Reportes mensuales",
-  ],
-  // Plan 5/5+ sucursales
-  5: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
+  12: [
+    "Todo lo del plan 9 meses",
     "──────────────────",
-    "Estudios de mercado. ilimitado",
-    "Acceso a eventos Residente",
-    "──────────────────",
-    "1 Pagina Revista. A escoger en 1 de 12 meses",
-  ],
-  "5+": [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
-    "──────────────────",
-    "Estudios de mercado. ilimitado",
-    "Acceso a eventos Residente",
-    "──────────────────",
-    "1 Pagina Revista. A escoger en 1 de 12 meses",
+    "1 Página Revista. A escoger en 1 de 12 meses",
   ],
 };
 
-// Función para obtener características del plan
-const getCaracteristicasPorSucursales = (sucursales) => {
-  const key = sucursales === "5+" ? "5+" : parseInt(sucursales);
-  return CARACTERISTICAS_POR_PLAN[key] || CARACTERISTICAS_POR_PLAN[1];
+const getCaracteristicasPorMeses = (meses) => {
+  const key = parseInt(meses, 10);
+  return CARACTERISTICAS_POR_PLAN[key] || CARACTERISTICAS_POR_PLAN[12];
 };
 
 // Componente de Card individual para cada plan
@@ -214,7 +141,7 @@ const PlanCard = ({ plan, onSelectPlan }) => {
         </div>
       </div>
 
-      {/* Sucursales destacadas */}
+      {/* Duración del plan */}
       <div
         className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${
           plan.destacado
@@ -222,7 +149,7 @@ const PlanCard = ({ plan, onSelectPlan }) => {
             : "bg-gray-100 text-gray-700"
         }`}
       >
-        {plan.textoSucursales}
+        {plan.textoMeses}
       </div>
 
       {/* Características */}
@@ -404,47 +331,27 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
-    console.log('🔍 Iniciando carga de clientes vetados...');
-    console.log('🔑 Token disponible:', !!token);
-    console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
-    console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
-    
     if (!token) {
-      console.warn('⚠️ No hay token disponible para cargar clientes');
       setErrorClientes('No hay sesión activa. Por favor inicia sesión.');
       return;
     }
-    
     setLoadingClientes(true);
     setErrorClientes(null);
-    
     try {
       const response = await fetch(`${urlApi}api/clientes-editorial`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-      
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-      
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      
       const data = await response.json();
-      console.log('📦 Datos recibidos:', data);
-      console.log('📊 Total de clientes:', Array.isArray(data) ? data.length : (data.clientes?.length || 0));
-      
       const clientesArray = Array.isArray(data) ? data : data.clientes || [];
       setClientesVetados(clientesArray);
       setErrorClientes(null);
-      console.log('✅ Clientes cargados en estado:', clientesArray.length);
     } catch (err) {
-      console.error('❌ Error cargando clientes vetados:', err);
       setErrorClientes(err.message);
     } finally {
       setLoadingClientes(false);
@@ -461,22 +368,15 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     setClienteSeleccionado(clienteId);
     
     if (clienteId) {
-      // Si selecciona un cliente del dropdown:
-      // 1. Ocultar las tarjetas de planes
       setMostrarPlanes(false);
-      
-      // 2. Auto-seleccionar el plan de 5+ sucursales (el más caro)
-      const planMasCaro = planes.find(p => p.sucursales === "5+" || p.sucursales === 5);
+      const planMasCaro = planes.find((p) => p.meses === 12);
       if (planMasCaro) {
-        // Agregar información del cliente seleccionado al plan
         const planConCliente = {
           ...planMasCaro,
           clienteRestringidoId: clienteId,
           esClienteRestringido: true,
-          nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteId))?.restaurante
+          nombreCliente: clientesVetados.find((c) => c.id === parseInt(clienteId))?.restaurante,
         };
-        
-        console.log('🎯 Auto-seleccionando plan más caro (5+) para cliente restringido:', planConCliente);
         onSelectPlan(planConCliente);
       }
     } else {
@@ -484,21 +384,19 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       setMostrarPlanes(false);
     }
   };
-  // Filtrar solo los planes de 1, 3 y 5/5+ sucursales
-  const planesPermitidos = [1, 3, 5, "5+"];
+  const planesPermitidos = [6, 9, 12];
 
   const planes =
     planesData && planesData.length > 0
       ? planesData
-          .filter((plan) => planesPermitidos.includes(plan.sucursales))
+          .filter((plan) => planesPermitidos.includes(plan.meses))
           .map((plan, index) => ({
             ...plan,
             id: plan.priceId || index,
-            icono: getIconoPorSucursales(plan.sucursales),
-            caracteristicas: getCaracteristicasPorSucursales(plan.sucursales),
-            nombreMembresia: getNombreMembresia(plan.sucursales),
-            textoSucursales: getTextoSucursales(plan.sucursales),
-            // Sin plan destacado - todas las tarjetas iguales en blanco
+            icono: getIconoPorMeses(plan.meses),
+            caracteristicas: getCaracteristicasPorMeses(plan.meses),
+            nombreMembresia: getNombreMembresia(plan.meses),
+            textoMeses: plan.mesesTexto || getTextoMeses(plan.meses),
             destacado: false,
           }))
       : [];
@@ -602,7 +500,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                 ✓ {clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante}
               </p>
               <p className="text-xs text-green-600 mt-1">
-                📋 Membresía asignada: <span className="font-bold">Platino (5+ sucursales)</span>
+                📋 Membresía asignada: <span className="font-bold">Plan 12 meses</span>
               </p>
             </div>
           )}
@@ -642,7 +540,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
         </button>
       </div>
 
-      {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
+      {/* Cards de planes - 3 tarjetas: 6, 9 y 12 meses */}
       {/* Solo se muestran si mostrarPlanes es true */}
       {mostrarPlanes && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">

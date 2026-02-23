@@ -7,15 +7,14 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import { urlApi } from "../../../api/url";
 
-const PLAN_PRUEBA_6_SUCURSALES = {
-  sucursales: "6+",
-  sucursalesTexto: "6 o mas sucursales",
-  priceId: "price_1SyxQc2NQ01PW0zjiBPA54XR",
-  precioMensual: 0.2,
-  precioMensualConIVA: 0.23,
-  precioMensualCentavos: 20,
-  nombre: "B2B",
-  descripcion: "! Bienvenido",
+const PLAN_PRUEBA_12_MESES = {
+  meses: 12,
+  mesesTexto: "12 meses",
+  priceId: "price_fallback_12",
+  precioMensual: 2199,
+  precioMensualConIVA: 2550.84,
+  nombre: "Plan 12 meses",
+  descripcion: "Suscripción por 12 meses",
   moneda: "MXN",
   intervalo: "month",
 };
@@ -23,7 +22,7 @@ const PLAN_PRUEBA_6_SUCURSALES = {
 const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [searchParams] = useSearchParams();
   const [planSeleccionado, setPlanSeleccionado] = useState(
-    modoPrueba ? PLAN_PRUEBA_6_SUCURSALES : null,
+    modoPrueba ? PLAN_PRUEBA_12_MESES : null,
   );
   const [preciosDisponibles, setPreciosDisponibles] = useState([]);
   const [loadingPrecios, setLoadingPrecios] = useState(!modoPrueba);
@@ -31,20 +30,6 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   // 🔑 Detectar si viene de Stripe con pago exitoso para mostrar formulario directamente
   const paymentSuccess = searchParams.get("payment_success") === "true";
   const savedPlan = localStorage.getItem("b2b_plan_seleccionado");
-
-  // 🔍 DEBUG: Log para entender qué está pasando
-  console.log("🔍 RegistroB2BConPlanes - Diagnóstico:");
-  console.log(
-    "   📍 URL params - payment_success:",
-    searchParams.get("payment_success"),
-  );
-  console.log(
-    "   💾 localStorage - b2b_plan_seleccionado:",
-    savedPlan ? "EXISTE" : "NO EXISTE",
-  );
-  console.log("   ✅ paymentSuccess:", paymentSuccess);
-  console.log("   📋 Debería mostrar formulario:", paymentSuccess && savedPlan);
-  console.log("   🧪 modoPrueba:", modoPrueba);
 
   const [mostrarFormulario, setMostrarFormulario] = useState(
     modoPrueba || (paymentSuccess && savedPlan),
@@ -68,7 +53,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
           setPreciosDisponibles(data.precios);
         }
       } catch (error) {
-        console.error("Error obteniendo precios del servidor:", error);
+        // Error obteniendo precios
       } finally {
         setLoadingPrecios(false);
       }
@@ -86,9 +71,8 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         const plan = JSON.parse(savedPlan);
         setPlanSeleccionado(plan);
         setMostrarFormulario(true);
-        console.log("✅ Plan restaurado después de pago:", plan);
       } catch (error) {
-        console.error("Error restaurando plan seleccionado:", error);
+        // Error restaurando plan
       }
     }
   }, [paymentSuccess, savedPlan, planSeleccionado]);
@@ -186,13 +170,12 @@ const FormMainWrapper = ({ planInicial }) => {
   // El FormMain ya tiene lógica para manejar el número de sucursales
 
   useEffect(() => {
-    // Si hay un plan inicial, podríamos setear el localStorage para que FormMain lo use
     if (planInicial) {
-      // Guardar la selección del plan para que FormMain lo detecte
       localStorage.setItem(
         "b2b_plan_seleccionado",
         JSON.stringify({
-          sucursales: planInicial.sucursales,
+          meses: planInicial.meses,
+          mesesTexto: planInicial.mesesTexto,
           nombre: planInicial.nombre,
           precioMensual: planInicial.precioMensual,
           precioMensualConIVA: planInicial.precioMensualConIVA,
@@ -200,9 +183,6 @@ const FormMainWrapper = ({ planInicial }) => {
         }),
       );
     }
-    // ⚠️ NO limpiar b2b_plan_seleccionado al desmontar
-    // El plan debe persistir para cuando el usuario regrese de Stripe
-    // Se limpia en FormMain.jsx después de completar el registro exitosamente
   }, [planInicial]);
 
   return <FormMain planInicial={planInicial} />;
