@@ -49,66 +49,22 @@ const FormMain = ({ planInicial = null }) => {
   const accountCreationInProgress = useRef(false);
   const { saveToken, saveUsuario } = useAuth();
 
-  // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
-    {
-      sucursales: 1,
-      sucursalesTexto: "1 sucursal",
-      precioMensual: 2199,
-      precioMensualConIVA: 2550.84,
-      nombre: "Plan 1 Sucursal",
-      priceId: "fallback_1",
-    },
-    {
-      sucursales: 2,
-      sucursalesTexto: "2 sucursales",
-      precioMensual: 2599,
-      precioMensualConIVA: 3014.84,
-      nombre: "Plan 2 Sucursales",
-      priceId: "fallback_2",
-    },
-    {
-      sucursales: 3,
-      sucursalesTexto: "3 sucursales",
-      precioMensual: 3599,
-      precioMensualConIVA: 4174.84,
-      nombre: "Plan 3 Sucursales",
-      priceId: "fallback_3",
-    },
-    {
-      sucursales: 4,
-      sucursalesTexto: "4 sucursales",
-      precioMensual: 3999,
-      precioMensualConIVA: 4638.84,
-      nombre: "Plan 4 Sucursales",
-      priceId: "fallback_4",
-    },
-    {
-      sucursales: "5+",
-      sucursalesTexto: "5 o más sucursales",
-      precioMensual: 4599,
-      precioMensualConIVA: 5334.84,
-      nombre: "Plan 5+ Sucursales",
-      priceId: "fallback_5",
-    },
+    { meses: 6, mesesTexto: "6 meses", precioMensual: 4299, precioMensualConIVA: 4990.84, nombre: "Plan 6 meses", priceId: "fallback_6" },
+    { meses: 9, mesesTexto: "9 meses", precioMensual: 2899, precioMensualConIVA: 3362.84, nombre: "Plan 9 meses", priceId: "fallback_9" },
+    { meses: 12, mesesTexto: "12 meses", precioMensual: 2199, precioMensualConIVA: 2550.84, nombre: "Plan 12 meses", priceId: "fallback_12" },
   ];
 
-  // Estados para número de sucursales y precios
-  // Si viene un planInicial, usarlo como valor inicial
-  const [numeroSucursales, setNumeroSucursales] = useState(() => {
-    if (planInicial?.sucursales) {
-      return planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
-    }
-    return 1;
+  const [numeroMeses, setNumeroMeses] = useState(() => {
+    if (planInicial?.meses) return parseInt(planInicial.meses, 10) || 12;
+    return 12;
   });
   const [preciosDisponibles, setPreciosDisponibles] =
     useState(PRECIOS_FALLBACK);
   const [loadingPrecios, setLoadingPrecios] = useState(true);
   const [precioSeleccionado, setPrecioSeleccionado] = useState(() => {
-    if (planInicial) {
-      return planInicial;
-    }
-    return PRECIOS_FALLBACK[0];
+    if (planInicial) return planInicial;
+    return PRECIOS_FALLBACK[2]; // default 12 meses
   });
   
   // Detectar si es un cliente restringido del dropdown (no necesita código de acceso)
@@ -154,34 +110,18 @@ const FormMain = ({ planInicial = null }) => {
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
           if (planInicial) {
             const precioCoincidente = data.precios.find(
-              (p) =>
-                p.sucursales === planInicial.sucursales ||
-                (planInicial.sucursales === "5+" && p.sucursales === "5+"),
+              (p) => p.meses === planInicial.meses,
             );
-            if (precioCoincidente) {
-              setPrecioSeleccionado(precioCoincidente);
-            }
+            if (precioCoincidente) setPrecioSeleccionado(precioCoincidente);
           } else {
-            const precioInicial = data.precios.find((p) => p.sucursales === 1);
-            if (precioInicial) {
-              setPrecioSeleccionado(precioInicial);
-            }
+            const precioInicial = data.precios.find((p) => p.meses === 12);
+            if (precioInicial) setPrecioSeleccionado(precioInicial);
           }
-        } else {
-          // Si no hay precios del servidor, usar fallback
-          console.warn(
-            "No se obtuvieron precios del servidor, usando fallback",
-          );
         }
       } catch (error) {
-        console.warn(
-          "Error obteniendo precios del servidor, usando precios locales:",
-          error.message,
-        );
-        // Los precios de fallback ya están cargados por defecto
+        // Usar precios fallback
       } finally {
         setLoadingPrecios(false);
       }
@@ -190,31 +130,19 @@ const FormMain = ({ planInicial = null }) => {
     fetchPrecios();
   }, [planInicial]);
 
-  // Actualizar cuando cambia el planInicial desde el selector de planes
   useEffect(() => {
     if (planInicial) {
-      const sucursales =
-        planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
-      setNumeroSucursales(sucursales);
+      setNumeroMeses(parseInt(planInicial.meses, 10) || 12);
       setPrecioSeleccionado(planInicial);
     }
   }, [planInicial]);
 
-  // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
     if (preciosDisponibles.length > 0) {
-      // Buscar el precio correspondiente al número de sucursales
-      // Si es 5 o más, usar el precio de "5+"
-      const sucursalesKey = numeroSucursales >= 5 ? "5+" : numeroSucursales;
-      const precio = preciosDisponibles.find(
-        (p) =>
-          p.sucursales === sucursalesKey || p.sucursales === numeroSucursales,
-      );
-      if (precio) {
-        setPrecioSeleccionado(precio);
-      }
+      const precio = preciosDisponibles.find((p) => p.meses === numeroMeses);
+      if (precio) setPrecioSeleccionado(precio);
     }
-  }, [numeroSucursales, preciosDisponibles]);
+  }, [numeroMeses, preciosDisponibles]);
 
   // Verificar si el nombre de usuario ya existe (con debounce)
   useEffect(() => {
@@ -858,14 +786,11 @@ const FormMain = ({ planInicial = null }) => {
         return;
       }
 
-      // Obtener el número de sucursales del plan seleccionado
-      const sucursalesPlan = precioSeleccionado?.sucursales;
-      // Convertir "5+" a 5 para el backend
-      const numeroSucursalesParaBackend =
-        sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
+      const numeroMesesParaBackend =
+        parseInt(precioSeleccionado?.meses, 10) || 12;
 
       const requestBody = {
-        numeroSucursales: numeroSucursalesParaBackend,
+        numeroMeses: numeroMesesParaBackend,
         userData: userData,
         customerEmail: formData.correo || "",
         successUrl: successUrl,
@@ -1498,11 +1423,11 @@ const FormMain = ({ planInicial = null }) => {
         </div>
       </div>
 
-      {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
+      {/* Selector de duración del plan - Oculto si viene de las tarjetas */}
       {!planInicial && (
         <div className="sm:mb-4">
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-            Número de sucursales*
+            Duración del plan*
           </label>
           {loadingPrecios ? (
             <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
@@ -1510,18 +1435,13 @@ const FormMain = ({ planInicial = null }) => {
             </div>
           ) : (
             <select
-              value={numeroSucursales}
-              onChange={(e) =>
-                setNumeroSucursales(parseInt(e.target.value, 10))
-              }
+              value={numeroMeses}
+              onChange={(e) => setNumeroMeses(parseInt(e.target.value, 10))}
               className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
             >
               {preciosDisponibles.map((precio) => (
-                <option
-                  key={precio.priceId}
-                  value={precio.sucursales === "5+" ? 5 : precio.sucursales}
-                >
-                  {precio.sucursalesTexto}
+                <option key={precio.priceId} value={precio.meses}>
+                  {precio.mesesTexto}
                 </option>
               ))}
             </select>
@@ -1719,9 +1639,9 @@ const FormMain = ({ planInicial = null }) => {
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Sucursales:</span>
+                          <span className="text-gray-600">Duración:</span>
                           <span className="font-semibold">
-                            {precioSeleccionado?.sucursalesTexto}
+                            {precioSeleccionado?.mesesTexto}
                           </span>
                         </div>
                         <div className="flex justify-between border-t pt-2 mt-2">
