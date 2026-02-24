@@ -19,6 +19,7 @@ import BotonesAnunciateSuscribirme from "../../componentes/componentesColumna1/B
 import { Dialog, Transition } from "@headlessui/react";
 import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
+import { urlApi } from "../../../api/url";
 
 const FormMain = ({ planInicial = null }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -109,6 +110,9 @@ const FormMain = ({ planInicial = null }) => {
     }
     return PRECIOS_FALLBACK[0];
   });
+  
+  // Detectar si es un cliente restringido del dropdown (no necesita código de acceso)
+  const esClienteRestringidoAprobado = planInicial?.esClienteRestringido === true;
 
   // Estados para verificación de nombre de usuario
   const [usernameExists, setUsernameExists] = useState(false);
@@ -138,7 +142,7 @@ const FormMain = ({ planInicial = null }) => {
       setLoadingPrecios(true);
       try {
         // Siempre usar la URL absoluta del backend
-        const apiUrl = "https://admin.residente.mx/api/stripe/precios";
+        const apiUrl = `${urlApi}api/stripe/precios`;
 
         const response = await fetch(apiUrl);
 
@@ -234,7 +238,7 @@ const FormMain = ({ planInicial = null }) => {
     usernameDebounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
-          "https://admin.residente.mx/api/usuarios/verificar-nombre-usuario",
+          `${urlApi}api/usuarios/verificar-nombre-usuario`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -264,7 +268,7 @@ const FormMain = ({ planInicial = null }) => {
   const verificarRestauranteRestringido = async (nombreRestaurante) => {
     try {
       const apiUrl =
-        "https://admin.residente.mx/api/clientes-editorial/verificar-restringido";
+        `${urlApi}api/clientes-editorial/verificar-restringido`;
       console.log("🔍 Verificando restaurante restringido:", nombreRestaurante);
 
       const res = await fetch(apiUrl, {
@@ -387,7 +391,7 @@ const FormMain = ({ planInicial = null }) => {
     emailDebounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
-          "https://admin.residente.mx/api/usuarios/verificar-correo",
+          `${urlApi}api/usuarios/verificar-correo`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -456,10 +460,7 @@ const FormMain = ({ planInicial = null }) => {
 
             if (savedSessionId) {
               try {
-                const apiUrl = import.meta.env.DEV
-                  ? "/api/stripe/checkout-session/" + savedSessionId
-                  : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                    savedSessionId;
+                const apiUrl = `${urlApi}api/stripe/checkout-session/${savedSessionId}`;
 
                 const sessionRes = await fetch(apiUrl);
                 const sessionData = await sessionRes.json();
@@ -544,10 +545,7 @@ const FormMain = ({ planInicial = null }) => {
 
         // Si no, intentar desde session metadata (con polling para dar tiempo al webhook)
         if (!b2bId && savedSessionId) {
-          const apiUrl = import.meta.env.DEV
-            ? "/api/stripe/checkout-session/" + savedSessionId
-            : "https://admin.residente.mx/api/stripe/checkout-session/" +
-              savedSessionId;
+          const apiUrl = `${urlApi}api/stripe/checkout-session/${savedSessionId}`;
 
           // Intentar hasta 3 veces con 2s de espera entre cada intento
           for (let intento = 0; intento < 3 && !b2bId; intento++) {
@@ -608,9 +606,7 @@ const FormMain = ({ planInicial = null }) => {
         // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
         if (savedSessionId) {
           try {
-            const apiUrl = import.meta.env.DEV
-              ? "/api/stripe/associate-session"
-              : "https://admin.residente.mx/api/stripe/associate-session";
+            const apiUrl = `${urlApi}api/stripe/associate-session`;
 
             await fetch(apiUrl, {
               method: "POST",
@@ -800,7 +796,8 @@ const FormMain = ({ planInicial = null }) => {
 
   const handlePaymentClick = () => {
     // Validar si el restaurante está vetado y no tiene código válido
-    if (restauranteVetado && !codigoValido) {
+    // EXCEPCIÓN: Si es un cliente restringido aprobado del dropdown, permitir continuar
+    if (restauranteVetado && !codigoValido && !esClienteRestringidoAprobado) {
       setPaymentError(
         "Este restaurante no puede registrarse. Ingresa el código de acceso si lo tienes.",
       );
@@ -833,9 +830,7 @@ const FormMain = ({ planInicial = null }) => {
       localStorage.setItem("b2b_form_data", JSON.stringify(formData));
 
       // Crear sesión de suscripción
-      const apiUrl = import.meta.env.DEV
-        ? "/api/stripe/create-subscription-session"
-        : "https://admin.residente.mx/api/stripe/create-subscription-session";
+      const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
       const successUrl = `${window.location.origin}/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/registrob2b?payment_canceled=true`;
@@ -870,7 +865,6 @@ const FormMain = ({ planInicial = null }) => {
         sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
 
       const requestBody = {
-        // El backend usa numeroSucursales para obtener el priceId correcto
         numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
         customerEmail: formData.correo || "",
@@ -940,7 +934,7 @@ const FormMain = ({ planInicial = null }) => {
           restauranteRestringidoId,
         );
 
-        const apiUrl = `https://admin.residente.mx/api/clientes-editorial/${restauranteRestringidoId}`;
+        const apiUrl = `${urlApi}api/clientes-editorial/${restauranteRestringidoId}`;
         const res = await fetch(apiUrl, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -1019,10 +1013,7 @@ const FormMain = ({ planInicial = null }) => {
           if (savedSessionId) {
             // Intentar obtener el usuario B2B desde el backend usando el session_id
             try {
-              const apiUrl = import.meta.env.DEV
-                ? "/api/stripe/checkout-session/" + savedSessionId
-                : "https://admin.residente.mx/api/stripe/checkout-session/" +
-                  savedSessionId;
+              const apiUrl = `${urlApi}api/stripe/checkout-session/${savedSessionId}`;
 
               const sessionRes = await fetch(apiUrl);
               const sessionData = await sessionRes.json();
@@ -1103,10 +1094,7 @@ const FormMain = ({ planInicial = null }) => {
       let b2bId = null;
       if (savedSessionId) {
         try {
-          const apiUrl = import.meta.env.DEV
-            ? "/api/stripe/checkout-session/" + savedSessionId
-            : "https://admin.residente.mx/api/stripe/checkout-session/" +
-              savedSessionId;
+          const apiUrl = `${urlApi}api/stripe/checkout-session/${savedSessionId}`;
 
           const sessionRes = await fetch(apiUrl);
           const sessionData = await sessionRes.json();
@@ -1149,9 +1137,7 @@ const FormMain = ({ planInicial = null }) => {
       // Si tenemos session_id y el backend no lo procesó, intentar asociarlo manualmente
       if (savedSessionId) {
         try {
-          const apiUrl = import.meta.env.DEV
-            ? "/api/stripe/associate-session"
-            : "https://admin.residente.mx/api/stripe/associate-session";
+          const apiUrl = `${urlApi}api/stripe/associate-session`;
 
           await fetch(apiUrl, {
             method: "POST",
@@ -1255,7 +1241,7 @@ const FormMain = ({ planInicial = null }) => {
             onChange={handleChange}
             placeholder="Nombre del restaurante"
             className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
-              restauranteVetado
+              restauranteVetado && !esClienteRestringidoAprobado
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
             }`}
@@ -1267,7 +1253,9 @@ const FormMain = ({ planInicial = null }) => {
             </span>
           )}
         </div>
-        {restauranteVetado && mensajeVetado && !codigoValido && (
+        
+        
+        {restauranteVetado && mensajeVetado && !codigoValido && !esClienteRestringidoAprobado && (
           <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
             <p className="mb-3">⚠️ {mensajeVetado}</p>
 
@@ -1581,13 +1569,13 @@ const FormMain = ({ planInicial = null }) => {
         disabled={
           paymentLoading ||
           verificandoRestaurante ||
-          (restauranteVetado && !codigoValido) ||
+          (restauranteVetado && !codigoValido && !esClienteRestringidoAprobado) ||
           creatingAccount
         }
         className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
           paymentLoading ||
           verificandoRestaurante ||
-          (restauranteVetado && !codigoValido) ||
+          (restauranteVetado && !codigoValido && !esClienteRestringidoAprobado) ||
           creatingAccount
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-yellow-400"
@@ -1597,7 +1585,7 @@ const FormMain = ({ planInicial = null }) => {
           ? "Verificando..."
           : paymentLoading || creatingAccount
             ? "Procesando..."
-            : restauranteVetado && !codigoValido
+            : restauranteVetado && !codigoValido && !esClienteRestringidoAprobado
               ? "Ingresa código de acceso"
               : "Ir a Pagar"}
       </button>

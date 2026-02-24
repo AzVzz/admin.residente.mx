@@ -152,6 +152,9 @@ const CuestionarioB2C = lazy(
   () =>
     import("./componentes/residente/componentes/cuestionarioB2C/cuestionarioB2C.jsx"),
 );
+const B2CInterior = lazy(
+  () => import("./componentes/residente/B2C/B2CInterior.jsx"),
+);
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -320,7 +323,7 @@ function App() {
             </div>
           )}
         <main
-          className={`flex-grow overflow-x-hidden w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow overflow-x-clip w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
           <Suspense
             fallback={
@@ -436,6 +439,15 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <CuestionarioB2C />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/B2C"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <B2CInterior />
                   </div>
                 }
               />

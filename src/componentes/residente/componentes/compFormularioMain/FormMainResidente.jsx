@@ -486,7 +486,7 @@ const FormMainResidente = () => {
             categoriasSeleccionadas: Array.isArray(data.secciones_categorias)
               ? data.secciones_categorias.reduce(
                   (acc, { seccion, categoria }) => {
-                    // ✅ Priorizar "Food & Drink" si existe
+                    // Priorizar "Food & Drink" si existe
                     if (seccion === "Food & Drink") {
                       acc[seccion] = categoria;
                     } else if (!acc[seccion]) {
@@ -631,11 +631,11 @@ const FormMainResidente = () => {
         // NUEVO: Indicar si se debe actualizar la fecha
         actualizar_fecha: actualizarFecha,
         zonas: data.zonas,
-        seo_alt_text: data.seo_alt_text,
-        seo_title: data.seo_title,
-        seo_keyword: data.seo_keyword,
-        meta_description: data.meta_description,
-        smart_tags: data.smart_tags,
+        seo_alt_text: data.seo_alt_text?.trim() || null,
+        seo_title: data.seo_title?.trim() || null,
+        seo_keyword: data.seo_keyword?.trim() || null,
+        meta_description: data.meta_description?.trim() || null,
+        smart_tags: data.smart_tags?.length ? data.smart_tags : null,
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"

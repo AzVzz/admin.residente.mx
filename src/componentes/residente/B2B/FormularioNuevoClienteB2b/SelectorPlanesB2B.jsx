@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   FaStore,
   FaBuilding,
@@ -6,20 +6,21 @@ import {
   FaWarehouse,
   FaStoreAlt,
 } from "react-icons/fa";
-import { HiOutlineCheckCircle } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
+import { urlApi } from "../../../api/url.js";
+import { useAuth } from "../../../Context";
 
 const NOMBRES_MEMBRESIAS = {
-  1: "Membresía Básica",
-  3: "Membresía Oro",
-  5: "Membresía Platino",
+  1: "Suscripción de 6 Meses",
+  3: "Suscripción de 9 Mesess",
+  5: "Suscripción Anual",
   "5+": "Membresía Platino",
 };
 
 // Texto personalizado para el badge de sucursales
 const TEXTO_SUCURSALES = {
-  1: "Suscripción Anual",
-  3: "Suscripción Anual",
+  1: "Suscripción 6 Meses",
+  3: "Suscripción 9 Mesess",
   5: "Suscripción Anual",
   "5+": "Suscripción Anual",
 };
@@ -54,88 +55,39 @@ const getIconoPorSucursales = (sucursales) => {
   }
 };
 
+const CARACTERISTICAS_BASE = [
+  "CLUB DE NEGOCIOS.\nExclusividad, descuentos, rifas y eventos",
+  "DIRECTORIO. \nPresencia constante entre consumidores reales ded NL",
+  "MICROSITIO. \nTu página web en 15 minutos, con cambios ilimitados y métricas",
+  "DESCUENTOS. \nTu propio generador de promociones, sin limite de publicaciones",
+  "PUBLICIDAD. \nTu marca, todos los meses en medios Residente",
+];
+
 const CARACTERISTICAS_POR_PLAN = {
   // Plan 1 sucursal
-  1: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
-  ],
+  1: [...CARACTERISTICAS_BASE],
+  
   // Plan 2 sucursales
   2: [
-    "2 sucursales incluidas",
-    "Perfil de negocio verificado",
-    "Publicación en directorio",
-    "Soporte prioritario",
-    "Estadísticas avanzadas",
+    ...CARACTERISTICAS_BASE,
   ],
+  
   // Plan 3 sucursales
   3: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
-    "──────────────────",
-    "Estudios de mercado. ilimitado",
-    "Acceso a eventos Residente",
+    ...CARACTERISTICAS_BASE,
   ],
+  
   // Plan 4 sucursales
   4: [
-    "4 sucursales incluidas",
-    "Perfil de negocio verificado",
-    "Publicación en directorio",
-    "Soporte prioritario",
-    "Estadísticas avanzadas",
-    "Promociones especiales",
-    "Reportes mensuales",
+    ...CARACTERISTICAS_BASE,
   ],
+  
   // Plan 5/5+ sucursales
   5: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
-    "──────────────────",
-    "Estudios de mercado. ilimitado",
-    "Acceso a eventos Residente",
-    "──────────────────",
-    "1 Pagina Revista. A escoger en 1 de 12 meses",
+    ...CARACTERISTICAS_BASE,
   ],
   "5+": [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web",
-    "Presencia en directorio Revista",
-    "Presencia en directorio Redes Sociales",
-    "Presencia en directorio Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual.Cambios ilimitados",
-    "Acervo historico.SEO Google y ChatGPT",
-    "Descuentos para tu negocio",
-    "Rifas",
-    "──────────────────",
-    "Estudios de mercado. ilimitado",
-    "Acceso a eventos Residente",
-    "──────────────────",
-    "1 Pagina Revista. A escoger en 1 de 12 meses",
+    ...CARACTERISTICAS_BASE,
   ],
 };
 
@@ -151,8 +103,7 @@ const PlanCard = ({ plan, onSelectPlan }) => {
 
   return (
     <div
-      className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out
-        hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
+      className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
         ${
           plan.destacado
             ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
@@ -211,40 +162,51 @@ const PlanCard = ({ plan, onSelectPlan }) => {
           </span>
         </div>
       </div>
-
-      {/* Sucursales destacadas */}
-      <div
-        className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${
-          plan.destacado
-            ? "bg-yellow-400/20 text-yellow-400"
-            : "bg-gray-100 text-gray-700"
-        }`}
-      >
-        {plan.textoSucursales}
-      </div>
-
       {/* Características */}
       <ul className="space-y-3 mb-6">
-        {plan.caracteristicas?.map((caracteristica, idx) =>
-          caracteristica.includes("──") ? (
-            <li key={idx} className="flex justify-center my-2">
-              <div className="w-full border-t border-black"></div>
-            </li>
-          ) : (
-            <li key={idx} className="flex items-start gap-2">
-              <HiOutlineCheckCircle
-                className={`text-lg mt-0.5 flex-shrink-0 ${
-                  plan.destacado ? "text-black" : "text-black"
-                }`}
-              />
-              <span
-                className={`text-sm ${plan.destacado ? "text-gray-200" : "text-gray-700"}`}
-              >
-                {caracteristica}
-              </span>
-            </li>
-          ),
-        )}
+        {(() => {
+          let currentNumber = 0;
+          return plan.caracteristicas?.map((caracteristica, idx) => {
+            if (caracteristica.includes("──")) {
+              return (
+                <li key={idx} className="flex justify-center my-2">
+                  <div className="w-full border-t border-black"></div>
+                </li>
+              );
+            }
+            currentNumber++;
+            return (
+              <li key={idx} className="flex items-start gap-4">
+                <div 
+                  className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-lg
+                    ${plan.destacado ? "text-black" : "text-black"}`}
+                >
+                  {currentNumber}
+                </div>
+                <span
+                  className={`text-sm whitespace-pre-line ${plan.destacado ? "text-gray-200" : "text-black"}`}
+                >
+                  {(() => {
+                    const dotIndex = caracteristica.indexOf('.');
+                    if (dotIndex === -1) return caracteristica;
+                    
+                    const title = caracteristica.substring(0, dotIndex + 1);
+                    const description = caracteristica.substring(dotIndex + 1);
+                    
+                    return (
+                      <>
+                        <span className="font-bold uppercase">{title}</span>
+                        <span className={`${plan.destacado ? "text-gray-400" : "text-gray-500 font-roman"}`}>
+                          {description}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </li>
+            );
+          });
+        })()}
       </ul>
 
       {/* Botón de selección */}
@@ -379,11 +341,108 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
 const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Estados para el dropdown de clientes vetados
+  const [clientesVetados, setClientesVetados] = useState([]);
+  const [loadingClientes, setLoadingClientes] = useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
+  const [errorClientes, setErrorClientes] = useState(null);
+  const { token, usuario } = useAuth();
+  
+  // Estado para mostrar/ocultar las tarjetas de planes
+  const [mostrarPlanes, setMostrarPlanes] = useState(false);
+
+  // Función para truncar texto largo
+  const truncarTexto = (texto, maxLength = 50) => {
+    if (!texto) return 'Sin nombre';
+    return texto.length > maxLength ? texto.substring(0, maxLength) + '...' : texto;
+  };
 
   // URL del PDF - ruta completa desde la raíz del servidor
-
   const pdfUrl =
     "https://residente.mx/fotos/fotos-estaticas/5-razones-para-suscribirte.pdf";
+
+  // Función para cargar clientes vetados
+  const fetchClientesVetados = useCallback(async () => {
+    console.log('🔍 Iniciando carga de clientes vetados...');
+    console.log('🔑 Token disponible:', !!token);
+    console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
+    console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
+    
+    if (!token) {
+      console.warn('⚠️ No hay token disponible para cargar clientes');
+      setErrorClientes('No hay sesión activa. Por favor inicia sesión.');
+      return;
+    }
+    
+    setLoadingClientes(true);
+    setErrorClientes(null);
+    
+    try {
+      const response = await fetch(`${urlApi}api/clientes-editorial`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📦 Datos recibidos:', data);
+      console.log('📊 Total de clientes:', Array.isArray(data) ? data.length : (data.clientes?.length || 0));
+      
+      const clientesArray = Array.isArray(data) ? data : data.clientes || [];
+      setClientesVetados(clientesArray);
+      setErrorClientes(null);
+      console.log('✅ Clientes cargados en estado:', clientesArray.length);
+    } catch (err) {
+      console.error('❌ Error cargando clientes vetados:', err);
+      setErrorClientes(err.message);
+    } finally {
+      setLoadingClientes(false);
+    }
+  }, [token, usuario]);
+
+  // Cargar clientes vetados de la API
+  useEffect(() => {
+    fetchClientesVetados();
+  }, [fetchClientesVetados]);
+
+  // Función para manejar la selección de cliente del dropdown
+  const handleClienteChange = (clienteId) => {
+    setClienteSeleccionado(clienteId);
+    
+    if (clienteId) {
+      // Si selecciona un cliente del dropdown, mostrar las 3 tarjetas de planes
+      setMostrarPlanes(true);
+    } else {
+      // Si deselecciona (vuelve a "Seleccionar"), ocultar planes
+    }
+  };
+
+  // Función para manejar la selección de un plan (agrega info del cliente si hay uno seleccionado)
+  const handleSelectPlan = (plan) => {
+    if (clienteSeleccionado) {
+      const planConCliente = {
+        ...plan,
+        clienteRestringidoId: clienteSeleccionado,
+        esClienteRestringido: true,
+        nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
+      };
+      console.log('🎯 Plan seleccionado para cliente restringido:', planConCliente);
+      onSelectPlan(planConCliente);
+    } else {
+      onSelectPlan(plan);
+    }
+  };
   // Filtrar solo los planes de 1, 3 y 5/5+ sucursales
   const planesPermitidos = [1, 3, 5, "5+"];
 
@@ -435,59 +494,121 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+      `}</style>
+      
       {/* Header */}
       <div className="text-center mb-10">
-        <img
-          className="w-40 mx-auto mb-6"
-          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
-          alt="B2B Logo"
-        />
+        {/* Dropdown de Clientes Vetados con botón */}
+        <div className="mb-4 max-w-2xl mx-auto">
+          <div className="flex items-center justify-center mb-2">
+            <label htmlFor="clienteVetado" className="block text-sm font-medium text-black">
+              Nombre del Cliente
+            </label>
+          </div>
+          
+          <div className="flex gap-3 justify-center items-center">
+            <select
+              id="clienteVetado"
+              value={clienteSeleccionado}
+              onChange={(e) => handleClienteChange(e.target.value)}
+              disabled={loadingClientes || !!errorClientes}
+              className="w-full max-w-md px-4 py-2 bg-white disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {loadingClientes 
+                  ? 'Cargando...' 
+                  : errorClientes 
+                    ? 'Error al cargar'
+                    : `Seleccionar (${clientesVetados.length})`}
+              </option>
+              {clientesVetados.map((cliente) => {
+                const nombreRestaurante = cliente.restaurante || 'Sin nombre';
+                return (
+                  <option key={cliente.id} value={cliente.id} title={nombreRestaurante}>
+                    {truncarTexto(nombreRestaurante, 50)}
+                  </option>
+                );
+              })}
+            </select>
+            
+            <button
+              onClick={() => setMostrarPlanes(!mostrarPlanes)}
+              className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
+              type="button"
+            >
+              {mostrarPlanes ? 'Volver' : 'Nuevo Cliente'}
+            </button>
+          </div>
+          
+          {/* Mensaje de error compacto */}
+          {errorClientes && (
+            <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
+              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
+              <button
+                onClick={fetchClientesVetados}
+                className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
+                type="button"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+        </div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
-          {[
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/1.png",
-              alt: "Banner Registro B2B 1",
-            },
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/2.png",
-              alt: "Banner Registro B2B 2",
-            },
-            {
-              src: "https://residente.mx/fotos/fotos-estaticas/BannerRegistroB2B/3.png",
-              alt: "Banner Registro B2B 3",
-            },
-          ].map((banner) => (
+          <div className="w-full max-w-2xl mx-auto">
             <img
-              key={banner.src}
-              className="w-155 mx-auto h-auto rounded-xl shadow-sm border border-gray-100 object-cover"
-              src={banner.src}
-              alt={banner.alt}
-              loading="lazy"
-              decoding="async"
+              src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE%20(9)_page-0001.jpg"
+              alt="Club Residente"
+              className="w-full h-auto rounded-md shadow-lg"
             />
-          ))}
+          </div>
+        </div>
+        <div className="w-full max-w-2xl mx-auto mb-4">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/banners/BANNER%20PARA%20GUÍA%20FIFA.jpeg"
+            alt="Banner Guía FIFA"
+            className="w-full h-auto "
+          />
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de membresia para el "Club Residente"
         </h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105"
+          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105 drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
         >
           5 RAZONES PARA SUSCRIBIRTE
         </button>
       </div>
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {planes.map((plan, index) => (
-          <PlanCard
-            key={plan.id || plan.priceId || index}
-            plan={plan}
-            onSelectPlan={onSelectPlan}
-          />
-        ))}
-      </div>
+      {/* Solo se muestran si mostrarPlanes es true */}
+      {mostrarPlanes && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
+          {planes.map((plan, index) => (
+            <PlanCard
+              key={plan.id || plan.priceId || index}
+              plan={plan}
+              onSelectPlan={handleSelectPlan}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Modal del PDF */}
       <ModalPDF

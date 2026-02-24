@@ -43,11 +43,27 @@ const FormularioPromo = ({
     const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
     const fontDropdownRef = useRef(null);
 
-    // Cerrar dropdown al hacer click fuera
+    // Estado para el dropdown de restaurantes con búsqueda
+    const [restSearchTerm, setRestSearchTerm] = useState('');
+    const [restDropdownOpen, setRestDropdownOpen] = useState(false);
+    const restDropdownRef = useRef(null);
+
+    // Restaurantes ordenados alfabéticamente y filtrados por búsqueda
+    const restaurantesOrdenados = [...restaurantes]
+        .sort((a, b) => (a.nombre_restaurante || '').localeCompare(b.nombre_restaurante || '', 'es'))
+        .filter(r => {
+            if (!restSearchTerm) return true;
+            return (r.nombre_restaurante || '').toLowerCase().includes(restSearchTerm.toLowerCase());
+        });
+
+    // Cerrar dropdowns al hacer click fuera
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target)) {
                 setFontDropdownOpen(false);
+            }
+            if (restDropdownRef.current && !restDropdownRef.current.contains(event.target)) {
+                setRestDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -204,23 +220,64 @@ const FormularioPromo = ({
                 </div>
             </div>
 
-            {/* Dropdown de restaurantes */}
-            <div className="">
+            {/* Dropdown de restaurantes con búsqueda */}
+            <div className="" ref={restDropdownRef}>
                 <label className="block text-gray-950 text-xl font-bold mb-1">
                     Selecciona un restaurante:
                 </label>
-                <select
-                    className="text-xl rounded px-3 py-2 w-full bg-white border-0"
-                    value={selectedRestauranteId}
-                    onChange={onRestauranteChange}
-                >
-                    <option value="">-- Elige uno --</option>
-                    {restaurantes.map(r => (
-                        <option key={r.id} value={r.id}>
-                            {r.nombre_restaurante}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    <div
+                        className="w-full text-xl rounded px-3 py-2 bg-white border-0 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                        onClick={() => setRestDropdownOpen(!restDropdownOpen)}
+                    >
+                        <span className={selectedRestauranteId ? 'text-gray-950' : 'text-gray-400'}>
+                            {selectedRestauranteId
+                                ? restaurantes.find(r => String(r.id) === String(selectedRestauranteId))?.nombre_restaurante || '-- Elige uno --'
+                                : '-- Elige uno --'}
+                        </span>
+                        <svg className={`w-5 h-5 transition-transform ${restDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    {restDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                            <div className="p-2 border-b border-gray-100">
+                                <input
+                                    type="text"
+                                    value={restSearchTerm}
+                                    onChange={(e) => setRestSearchTerm(e.target.value)}
+                                    placeholder="🔍 Buscar restaurante..."
+                                    className="w-full px-3 py-2 text-lg bg-gray-50 rounded-md border-0 outline-none focus:bg-gray-100 transition-colors"
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="max-h-110 overflow-y-auto">
+                                {restaurantesOrdenados.length > 0 ? (
+                                    restaurantesOrdenados.map(r => (
+                                        <button
+                                            key={r.id}
+                                            type="button"
+                                            onClick={() => {
+                                                onRestauranteChange({ target: { value: String(r.id) } });
+                                                setRestDropdownOpen(false);
+                                                setRestSearchTerm('');
+                                            }}
+                                            className={`w-full text-left px-3 py-2 text-lg hover:bg-yellow-100 transition-colors ${
+                                                String(selectedRestauranteId) === String(r.id) ? 'bg-yellow-50 font-medium' : ''
+                                            }`}
+                                        >
+                                            {r.nombre_restaurante}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="px-3 py-4 text-gray-400 text-center text-lg">
+                                        No se encontraron restaurantes
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
 
@@ -236,6 +293,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo nombre de la promoción */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Nombre de la promoción *</label>
                 <textarea
@@ -248,6 +306,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo subtitulo de la promoción */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Subtitulo de la promocion *</label>
                 <input
@@ -259,6 +318,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo descripción de la promoción */}
             <div className="flex flex-col pb-0">
                 <div className="flex justify-between items-center">
                     <label className="block text-xl font-medium text-gray-950 mb-1">
@@ -310,34 +370,11 @@ const FormularioPromo = ({
                 </div>
             </div>
 
-            {/* Espaciado de letras */}
-            <div className="flex flex-col pb-0">
-                <label className="block text-xl font-medium text-gray-950 mb-1">
-                    Espaciado entre letras: <span className="font-bold">{formData.espaciadoLetras || 0}px</span>
-                </label>
-                <div className="flex gap-3 items-center">
-                    <input
-                        type="range"
-                        min="-5"
-                        max="15"
-                        step="1"
-                        value={formData.espaciadoLetras || 0}
-                        onChange={(e) => onFieldChange("espaciadoLetras", parseInt(e.target.value))}
-                        className="flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => onFieldChange("espaciadoLetras", 0)}
-                        className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                        Reiniciar
-                    </button>
-                </div>
-            </div>
             {/* Espaciado de líneas */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">
                     Espaciado entre líneas: <span className="font-bold">{formData.espaciadoLineas || 1}</span>
+                    <span className="text-sm text-gray-400 font-normal ml-1">(solo afecta descripción)</span>
                 </label>
                 <div className="flex gap-3 items-center">
                     <input
@@ -352,6 +389,32 @@ const FormularioPromo = ({
                     <button
                         type="button"
                         onClick={() => onFieldChange("espaciadoLineas", 1)}
+                        className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Reiniciar
+                    </button>
+                </div>
+            </div>
+
+            {/* Espaciado de letras */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">
+                    Espaciado entre letras: <span className="font-bold">{formData.espaciadoLetras || 0}px</span>
+                    <span className="text-sm text-gray-400 font-normal ml-1">(afecta todos los textos)</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="range"
+                        min="-5"
+                        max="15"
+                        step="1"
+                        value={formData.espaciadoLetras || 0}
+                        onChange={(e) => onFieldChange("espaciadoLetras", parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("espaciadoLetras", 0)}
                         className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                         Reiniciar
