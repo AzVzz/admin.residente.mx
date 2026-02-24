@@ -53,19 +53,20 @@ const CARACTERISTICAS_POR_PLAN = {
     "Presencia en directorio Web, Revista, Redes, Newsletter",
     "Ticket de Descuento ilimitado",
     "Micrositio individual. Cambios ilimitados",
-    "Acervo histórico. SEO Google y ChatGPT",
+    "Acervo historico. SEO Google y ChatGPT",
     "Descuentos para tu negocio. Rifas",
+    "──────────────────",
+    "Elige 1 beneficio adicional",
   ],
   9: [
     "Todo lo del plan 6 meses",
     "──────────────────",
-    "Estudios de mercado ilimitado",
-    "Acceso a eventos Residente",
+    "Elige 2 beneficios adicionales",
   ],
   12: [
     "Todo lo del plan 9 meses",
     "──────────────────",
-    "1 Página Revista. A escoger en 1 de 12 meses",
+    "Los 5 beneficios adicionales incluidos",
   ],
 };
 
@@ -308,21 +309,23 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
 const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Estados para el dropdown de clientes vetados
   const [clientesVetados, setClientesVetados] = useState([]);
   const [loadingClientes, setLoadingClientes] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState("");
   const [errorClientes, setErrorClientes] = useState(null);
   const { token, usuario } = useAuth();
-  
+
   // Estado para mostrar/ocultar las tarjetas de planes
   const [mostrarPlanes, setMostrarPlanes] = useState(false);
 
   // Función para truncar texto largo
   const truncarTexto = (texto, maxLength = 50) => {
-    if (!texto) return 'Sin nombre';
-    return texto.length > maxLength ? texto.substring(0, maxLength) + '...' : texto;
+    if (!texto) return "Sin nombre";
+    return texto.length > maxLength
+      ? texto.substring(0, maxLength) + "..."
+      : texto;
   };
 
   // URL del PDF - ruta completa desde la raíz del servidor
@@ -332,7 +335,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
     if (!token) {
-      setErrorClientes('No hay sesión activa. Por favor inicia sesión.');
+      setErrorClientes("No hay sesión activa. Por favor inicia sesión.");
       return;
     }
     setLoadingClientes(true);
@@ -341,7 +344,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       const response = await fetch(`${urlApi}api/clientes-editorial`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       if (!response.ok) {
@@ -366,7 +369,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Función para manejar la selección de cliente del dropdown
   const handleClienteChange = (clienteId) => {
     setClienteSeleccionado(clienteId);
-    
+
     if (clienteId) {
       setMostrarPlanes(false);
       const planMasCaro = planes.find((p) => p.meses === 12);
@@ -375,7 +378,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           ...planMasCaro,
           clienteRestringidoId: clienteId,
           esClienteRestringido: true,
-          nombreCliente: clientesVetados.find((c) => c.id === parseInt(clienteId))?.restaurante,
+          nombreCliente: clientesVetados.find(
+            (c) => c.id === parseInt(clienteId),
+          )?.restaurante,
         };
         onSelectPlan(planConCliente);
       }
@@ -448,17 +453,20 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           animation: fadeIn 0.3s ease-in-out;
         }
       `}</style>
-      
+
       {/* Header */}
       <div className="text-center mb-10">
         {/* Dropdown de Clientes Vetados con botón */}
         <div className="mb-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-center mb-2">
-            <label htmlFor="clienteVetado" className="block text-sm font-medium text-black">
+            <label
+              htmlFor="clienteVetado"
+              className="block text-sm font-medium text-black"
+            >
               Nombre del Cliente
             </label>
           </div>
-          
+
           <div className="flex gap-3 justify-center items-center">
             <select
               id="clienteVetado"
@@ -468,43 +476,53 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
               className="w-full max-w-md px-4 py-2 bg-white disabled:cursor-not-allowed"
             >
               <option value="">
-                {loadingClientes 
-                  ? 'Cargando...' 
-                  : errorClientes 
-                    ? 'Error al cargar'
+                {loadingClientes
+                  ? "Cargando..."
+                  : errorClientes
+                    ? "Error al cargar"
                     : `Seleccionar (${clientesVetados.length})`}
               </option>
               {clientesVetados.map((cliente) => {
-                const nombreRestaurante = cliente.restaurante || 'Sin nombre';
+                const nombreRestaurante = cliente.restaurante || "Sin nombre";
                 return (
-                  <option key={cliente.id} value={cliente.id} title={nombreRestaurante}>
+                  <option
+                    key={cliente.id}
+                    value={cliente.id}
+                    title={nombreRestaurante}
+                  >
                     {truncarTexto(nombreRestaurante, 50)}
                   </option>
                 );
               })}
             </select>
-            
+
             <button
               onClick={() => setMostrarPlanes(!mostrarPlanes)}
               className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
               type="button"
             >
-              {mostrarPlanes ? 'Volver' : 'Nuevo Cliente'}
+              {mostrarPlanes ? "Volver" : "Nuevo Cliente"}
             </button>
           </div>
-          
+
           {/* Mensaje de éxito compacto */}
           {clienteSeleccionado && !errorClientes && (
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
               <p className="text-xs text-green-700 font-medium">
-                ✓ {clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante}
+                ✓{" "}
+                {
+                  clientesVetados.find(
+                    (c) => c.id === parseInt(clienteSeleccionado),
+                  )?.restaurante
+                }
               </p>
               <p className="text-xs text-green-600 mt-1">
-                📋 Membresía asignada: <span className="font-bold">Plan 12 meses</span>
+                📋 Membresía asignada:{" "}
+                <span className="font-bold">Plan 12 meses</span>
               </p>
             </div>
           )}
-          
+
           {/* Mensaje de error compacto */}
           {errorClientes && (
             <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
@@ -519,7 +537,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             </div>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
             <img
