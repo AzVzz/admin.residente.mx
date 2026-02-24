@@ -9,6 +9,7 @@ import axios from "axios";
 // import FormularioBanner from "./FormularioBanner";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
+import { FaFilePdf } from "react-icons/fa";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -653,7 +654,7 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 flex items-center justify-end mt-2 pr-6">
+      <div className="w-full h-10 flex items-center justify-end mt-1 pr-1">
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
@@ -661,13 +662,18 @@ const B2BDashboard = () => {
           Cerrar Sesión
         </button>
       </div>
-      {/* Nombre del restaurante centrado */}
+      {/* Logo Club Residente + Nombre del restaurante centrado */}
       {restaurante?.nombre_restaurante && (
-        <div className="w-full flex flex-col justify-center items-center py-2">
+        <div className="w-full flex flex-col justify-center items-center py-0.5 mb-6">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+            alt="Club Residente Facil"
+            className="h-12 w-auto object-contain mb-0"
+          />
           <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
             {restaurante.nombre_restaurante}
           </h1>
-          <p className="text-lg text-black">
+          <p className="text-sm text-black">
             {fechaActual.toLocaleDateString("es-MX", {
               weekday: "long",
               year: "numeric",
@@ -678,19 +684,21 @@ const B2BDashboard = () => {
         </div>
       )}
       {/* Grid de 3 columnas */}
-      <div className="w-full grid grid-cols-3 mb-10 relative items-start">
-        {/* Línea divisoria izquierda */}
-        <div className="absolute left-[33.333%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+      <div className="w-full grid grid-cols-3 mb-10 relative items-stretch">
+        {/* Línea divisoria izquierda - empieza más abajo */}
+        <div className="absolute left-[33.333%] top-[7.5em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
         {/* Línea divisoria derecha */}
-        <div className="absolute left-[66.666%] top-0 w-[1px] h-[calc(117%-100px)] bg-gray-600"></div>
+        <div className="absolute left-[66.666%] top-[7.5em] w-[1px] h-[calc(100%-8rem)] bg-gray-600"></div>
 
         {/* Columna azul */}
-        <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">
-            Crea tus
-            <br />
-            Contenidos
-          </p>
+        <div className="flex flex-col p-3 min-h-0">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
+            <p className="text-[35px] text-left leading-none">
+              Crea tus
+              <br />
+              Contenidos
+            </p>
+          </div>
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
@@ -711,19 +719,19 @@ const B2BDashboard = () => {
               onClick={
                 restaurante ? handleEditar : () => navigate("/formulario")
               }
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
             <button
               onClick={handleCupones}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
             <button
               onClick={handleClasificado}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded transition-colors cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               CLASIFICADO
             </button>
@@ -752,11 +760,13 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <p className="text-[35px] text-left mb-2 leading-none">
-            Checa tus
-            <br />
-            Resultados
-          </p>
+          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
+            <p className="text-[35px] text-left leading-none">
+              Checa tus
+              <br />
+              Resultados
+            </p>
+          </div>
           <div className="space-y-4">
             {/* 🆕 Datos de Google Analytics */}
             {!loadingAnalytics && analytics && (
@@ -767,56 +777,55 @@ const B2BDashboard = () => {
                       "es-MX",
                     ) || 0}
                   </p>
-                  <p className="text-sm text-black">
-                    Tráfico total del “Club Residente” en el mes de{" "}
-                    {analytics.mes} {analytics.anio}
+                  <p className="text-sm text-black leading-tight">
+                    Tráfico total del “Club Residente-Facil"
+                    <br />
+                    en el mes de {analytics.mes} {analytics.anio}
+                    {analytics.pdf_url ? (
+                      <a
+                        href={analytics.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-0.5 ml-1 text-[10px] text-black cursor-pointer align-middle bg-[#fff200] hover:bg-[#e6d900] px-1.5 py-0.5"
+                      >
+                        <FaFilePdf className="w-2 h-2 shrink-0 align-middle" />
+                        descarga pdf
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5 -ml-0.5 text-[10px] text-black align-middle bg-[#fff200] px-1.5 py-0.5">
+                        <FaFilePdf className="w-2 h-2 shrink-0 align-middle" />
+                        descarga pdf
+                      </span>
+                    )}
                   </p>
-                  {analytics.pdf_url ? (
-                    <a
-                      href={analytics.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-black cursor-pointer hover:text-gray-700 block"
-                    >
-                      liga a descarga pdf y numero ingresado manual.
-                      <br />
-                      Se actualiza cada dia 1 del mes
-                    </a>
-                  ) : (
-                    <p className="text-xs text-black">
-                      liga a descarga pdf y numero ingresado manual.
-                      <br />
-                      Se actualiza cada dia 1 del mes
-                    </p>
-                  )}
                 </div>
-                <div>
+                <div className="leading-tight">
                   <p className="text-[40px] font-bold text-black leading-tight">
                     {analytics.residente_mx_trafico?.toLocaleString("es-MX") ||
                       0}
                   </p>
-                  <p className="text-sm text-black">
+                  <p className="text-sm text-black -mt-1">
                     Tráfico Residente.mx en el mes de {analytics.mes}{" "}
                     {analytics.anio}
                   </p>
                 </div>
               </>
             )}
-            <div>
+            <div className="leading-tight">
               <p className="text-[40px] font-bold text-black leading-tight">
                 {(
                   (restaurante?.views || 0) + (cupon?.views || 0)
                 ).toLocaleString("es-MX")}
               </p>
-              <p className="text-sm text-black">
+              <p className="text-sm text-black -mt-1">
                 Vistas totales en tu restaurante
               </p>
             </div>
-            <div>
+            <div className="leading-tight">
               <p className="text-[40px] font-bold text-black leading-tight">
                 {restaurante?.clicks?.toLocaleString("es-MX") || 0}
               </p>
-              <p className="text-sm text-black">
+              <p className="text-sm text-black -mt-1">
                 Clicks totales en tu restaurante
               </p>
             </div>
@@ -866,41 +875,58 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <p className="text-[35px] text-left mb-2 leading-none">
-                Canjea tus
-                <br />
-                Beneficios
-              </p>
-              <ol>
-                {productos.map((producto) => (
+              <div className="border-b-[7px] border-black pb-0.5 mb-[37px] w-fit">
+                <p className="text-[35px] text-left leading-none">
+                  Aprovecha tus
+                  <br />
+                  Beneficios
+                </p>
+              </div>
+              <ol className="list-none pl-0 space-y-2">
+                {productos.map((producto, index) => (
                   <li
                     key={producto.id}
-                    className="select-none flex flex-col gap-3"
+                    className="select-none flex flex-col gap-1"
                   >
                     <div>
                       <p className="text-xl leading-tight font-bold ">
-                        {producto.titulo}
+                        {index + 1}. {producto.titulo}
                       </p>
                       <p className="text-sm text-black uppercase">
                         {producto.descripcion}
                       </p>
-                      <div className="flex items-center gap-2 mb-7">
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {producto.precio_original &&
                           Number(producto.precio_original) > 0 ? (
-                            <span className="line-through text-gray-500 text-sm">
+                            <>
+                              <span className="text-sm text-black">
+                                <span className="mx-0.5">De</span>{" "}
+                                <span className=" text-black">
+                                  $
+                                  {Number(
+                                    producto.precio_original,
+                                  ).toLocaleString("es-MX")}
+                                </span>{" "}
+                                <span className="mx-0.5">a</span>{" "}
+                                <span className="font-bold text-black">
+                                  $
+                                  {Number(
+                                    producto.precio_descuento ||
+                                      producto.monto ||
+                                      0,
+                                  ).toLocaleString("es-MX")}
+                                </span>
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-sm text-black font-bold">
                               $
-                              {Number(producto.precio_original).toLocaleString(
-                                "es-MX",
-                              )}
+                              {Number(
+                                producto.precio_descuento || producto.monto || 0,
+                              ).toLocaleString("es-MX")}
                             </span>
-                          ) : null}
-                          <span className="text-sm text-black font-bold">
-                            $
-                            {Number(
-                              producto.precio_descuento || producto.monto || 0,
-                            ).toLocaleString("es-MX")}
-                          </span>
+                          )}
                         </div>
                         <input
                           type="checkbox"
@@ -982,10 +1008,10 @@ const B2BDashboard = () => {
             />
             {/* Modal */}
             <div
-              className="fixed inset-0 flex items-center justify-center pointer-events-none"
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
               style={{ zIndex: 9999 }}
             >
-              <div className="bg-white w-full max-w-md mx-4 overflow-hidden pointer-events-auto">
+              <div className="bg-white w-full max-w-md overflow-hidden pointer-events-auto rounded-lg shadow-xl">
                 <div className="bg-[#fff200] px-6 py-4">
                   <h2 className="text-xl font-bold text-black font-roman">
                     Credenciales de Acceso
