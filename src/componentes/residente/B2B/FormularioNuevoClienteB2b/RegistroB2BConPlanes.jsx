@@ -1,11 +1,26 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useEffect, Fragment, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import SelectorPlanesB2B from "./SelectorPlanesB2B";
+import SelectorBeneficiosB2B from "./SelectorBeneficiosB2B";
 import FormMain from "./FormMain";
 import { Dialog, Transition } from "@headlessui/react";
 import { FaArrowLeft } from "react-icons/fa";
 
 import { urlApi } from "../../../api/url";
+import {
+  registrob2bPost,
+  extensionB2bPost,
+} from "../../../api/registrob2bPost";
+import { loginPost } from "../../../api/loginPost";
+import { useAuth } from "../../../Context";
+
+const TODOS_LOS_BENEFICIOS = [
+  "estudios_mercado",
+  "revista_residente",
+  "video_publicitario",
+  "giveaway",
+  "suscripcion_semestral",
+];
 
 const PLAN_PRUEBA_6_SUCURSALES = {
   sucursales: "6+",
@@ -21,33 +36,31 @@ const PLAN_PRUEBA_6_SUCURSALES = {
 };
 
 const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { saveToken, saveUsuario } = useAuth();
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_6_SUCURSALES : null,
   );
   const [preciosDisponibles, setPreciosDisponibles] = useState([]);
   const [loadingPrecios, setLoadingPrecios] = useState(!modoPrueba);
+  const [beneficiosSeleccionados, setBeneficiosSeleccionados] = useState([]);
+  const [mostrarSelectorBeneficios, setMostrarSelectorBeneficios] =
+    useState(false);
 
-  // 🔑 Detectar si viene de Stripe con pago exitoso para mostrar formulario directamente
+  // Detectar si viene de Stripe con pago exitoso
   const paymentSuccess = searchParams.get("payment_success") === "true";
+  const paymentSessionId = searchParams.get("session_id");
   const savedPlan = localStorage.getItem("b2b_plan_seleccionado");
 
-  // 🔍 DEBUG: Log para entender qué está pasando
-  console.log("🔍 RegistroB2BConPlanes - Diagnóstico:");
-  console.log(
-    "   📍 URL params - payment_success:",
-    searchParams.get("payment_success"),
+  const [procesandoPago, setProcesandoPago] = useState(paymentSuccess);
+  const [mensajeProceso, setMensajeProceso] = useState(
+    "Verificando tu pago...",
   );
-  console.log(
-    "   💾 localStorage - b2b_plan_seleccionado:",
-    savedPlan ? "EXISTE" : "NO EXISTE",
-  );
-  console.log("   ✅ paymentSuccess:", paymentSuccess);
-  console.log("   📋 Debería mostrar formulario:", paymentSuccess && savedPlan);
-  console.log("   🧪 modoPrueba:", modoPrueba);
+  const postPaymentRan = useRef(false);
 
   const [mostrarFormulario, setMostrarFormulario] = useState(
-    modoPrueba || (paymentSuccess && savedPlan),
+    modoPrueba || (!paymentSuccess && false),
   );
 
   // Obtener precios desde el backend
@@ -79,39 +92,217 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
     }
   }, [modoPrueba]);
 
-  // 🔑 Si viene de Stripe, restaurar el plan seleccionado del localStorage
+  // Post-pago: procesar automáticamente cuando vuelve de Stripe
   useEffect(() => {
-    if (paymentSuccess && savedPlan && !planSeleccionado) {
+    if (!paymentSuccess || postPaymentRan.current) return;
+    postPaymentRan.current = true;
+
+    const procesarPostPago = async () => {
       try {
-        const plan = JSON.parse(savedPlan);
-        setPlanSeleccionado(plan);
-        setMostrarFormulario(true);
-        console.log("✅ Plan restaurado después de pago:", plan);
+        // Limpiar query params de la URL
+        setSearchParams({});
+
+        const sessionId =
+          paymentSessionId || localStorage.getItem("b2b_stripe_session_id");
+        if (sessionId) {
+          localStorage.setItem("b2b_stripe_session_id", sessionId);
+        }
+
+        // Restaurar datos del formulario guardados antes del pago
+        const savedFormData = localStorage.getItem("b2b_form_data");
+        if (!savedFormData) {
+          setMensajeProceso(
+            "No se encontraron los datos del formulario. Redirigiendo...",
+          );
+          await new Promise((r) => setTimeout(r, 1500));
+          navigate("/registro", { replace: true });
+          return;
+        }
+
+        const formData = JSON.parse(savedFormData);
+
+        // Esperar a que Stripe confirme el pago
+        setMensajeProceso("Verificando tu pago...");
+        if (sessionId) {
+          const checkoutApiUrl = `${urlApi}api/stripe/checkout-session/${sessionId}`;
+          let pagado = false;
+          for (let i = 0; i < 12; i++) {
+            try {
+              const checkRes = await fetch(checkoutApiUrl);
+              const checkData = await checkRes.json();
+              if (
+                checkData.success &&
+                checkData.session?.payment_status === "paid"
+              ) {
+                pagado = true;
+                // Dar tiempo al webhook para procesar
+                if (i === 0) await new Promise((r) => setTimeout(r, 2500));
+                break;
+              }
+            } catch (_) {
+              /* ignorar */
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+          if (!pagado) {
+            setMensajeProceso("El pago aún no se confirma. Redirigiendo...");
+            await new Promise((r) => setTimeout(r, 2000));
+            navigate("/registro", { replace: true });
+            return;
+          }
+        }
+
+        // Crear/actualizar la cuenta del usuario
+        setMensajeProceso("Creando tu cuenta...");
+        let usuarioRes;
+        try {
+          usuarioRes = await registrob2bPost({
+            nombre_usuario: formData.nombre_usuario,
+            password: formData.password,
+            correo: formData.correo,
+            stripe_session_id: sessionId || undefined,
+          });
+        } catch (error) {
+          // Si ya existe pero no es temporal, redirigir a login
+          if (error.message && error.message.includes("ya existe")) {
+            setMensajeProceso(
+              "La cuenta ya existe. Redirigiendo a inicio de sesión...",
+            );
+            localStorage.removeItem("b2b_payment_completed");
+            localStorage.removeItem("b2b_stripe_session_id");
+            localStorage.removeItem("b2b_form_data");
+            localStorage.removeItem("b2b_plan_seleccionado");
+            await new Promise((r) => setTimeout(r, 1500));
+            navigate("/registro", { replace: true });
+            return;
+          }
+          throw error;
+        }
+
+        const usuarioId = usuarioRes.usuario.id;
+        const b2bId = usuarioRes.usuario.b2b_id || null;
+
+        // Actualizar datos del B2B
+        setMensajeProceso("Configurando tu perfil...");
+        try {
+          await extensionB2bPost({
+            ...(b2bId && { b2b_id: b2bId }),
+            usuario_id: usuarioId,
+            nombre_responsable_restaurante:
+              formData.nombre_responsable_restaurante,
+            correo: formData.correo,
+            nombre_responsable: formData.nombre_responsable_restaurante,
+            telefono: formData.telefono,
+            nombre_restaurante: formData.nombre_restaurante,
+            rfc: formData.rfc,
+            direccion_completa: formData.direccion_completa,
+            razon_social: formData.razon_social,
+            terminos_condiciones: true,
+            stripe_session_id: sessionId || undefined,
+          });
+        } catch (extError) {
+          // Si ya tiene registro B2B, no es error fatal
+          if (!extError.message?.includes("ya tiene un registro B2B")) {
+            console.warn("Error actualizando B2B:", extError);
+          }
+        }
+
+        // Login automático
+        setMensajeProceso("Iniciando sesión...");
+        const loginResp = await loginPost(formData.correo, formData.password);
+        saveToken(loginResp.token);
+        saveUsuario(loginResp.usuario);
+
+        // Guardar credenciales para mostrar en dashboard
+        sessionStorage.setItem(
+          "credencialesNuevas",
+          JSON.stringify({
+            nombre_usuario: formData.nombre_usuario,
+            password: formData.password,
+            correo: formData.correo,
+          }),
+        );
+
+        // Limpiar localStorage
+        localStorage.removeItem("b2b_payment_completed");
+        localStorage.removeItem("b2b_stripe_session_id");
+        localStorage.removeItem("b2b_form_data");
+        localStorage.removeItem("b2b_plan_seleccionado");
+
+        setMensajeProceso("¡Listo! Redirigiendo...");
+        await new Promise((r) => setTimeout(r, 500));
+        navigate("/dashboardb2b", { replace: true });
       } catch (error) {
-        console.error("Error restaurando plan seleccionado:", error);
+        console.error("Error en proceso post-pago:", error);
+        setMensajeProceso(
+          "Ocurrió un error. Redirigiendo a inicio de sesión...",
+        );
+        localStorage.removeItem("b2b_payment_completed");
+        localStorage.removeItem("b2b_stripe_session_id");
+        localStorage.removeItem("b2b_form_data");
+        localStorage.removeItem("b2b_plan_seleccionado");
+        await new Promise((r) => setTimeout(r, 2000));
+        navigate("/registro", { replace: true });
       }
-    }
-  }, [paymentSuccess, savedPlan, planSeleccionado]);
+    };
+
+    procesarPostPago();
+  }, [paymentSuccess]);
 
   const handleSelectPlan = (plan) => {
     setPlanSeleccionado(plan);
+    const meses = parseInt(plan.meses, 10);
+
+    // Siempre mostrar selector de beneficios:
+    // - 12 meses: todos pre-seleccionados y bloqueados
+    // - 6/9 meses: el usuario debe elegir
+    setBeneficiosSeleccionados(
+      meses === 12 ? [...TODOS_LOS_BENEFICIOS] : []
+    );
+    setMostrarSelectorBeneficios(true);
+    setMostrarFormulario(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleConfirmBeneficios = (beneficios) => {
+    setBeneficiosSeleccionados(beneficios);
+    setMostrarSelectorBeneficios(false);
     setMostrarFormulario(true);
-    // Scroll al inicio cuando se selecciona un plan
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleVolverAPlanes = () => {
     setMostrarFormulario(false);
+    setMostrarSelectorBeneficios(false);
     setPlanSeleccionado(null);
+    setBeneficiosSeleccionados([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const handleVolverABeneficios = () => {
+    setMostrarFormulario(false);
+    setMostrarSelectorBeneficios(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Pantalla de procesamiento post-pago
+  if (procesandoPago) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-6 p-8">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-yellow-500"></div>
+          <p className="text-lg font-medium text-gray-700">{mensajeProceso}</p>
+        </div>
+      </div>
+    );
+  }
 
   // Animación de transición
   return (
     <div className="min-h-screen ">
       {/* Vista de Selector de Planes */}
       <Transition
-        show={!mostrarFormulario}
+        show={!mostrarFormulario && !mostrarSelectorBeneficios}
         enter="transition-opacity duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -119,11 +310,34 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className={`${mostrarFormulario ? "hidden" : ""}`}>
+        <div
+          className={`${mostrarFormulario || mostrarSelectorBeneficios ? "hidden" : ""}`}
+        >
           <SelectorPlanesB2B
             onSelectPlan={handleSelectPlan}
             planesData={preciosDisponibles}
             loadingPrecios={loadingPrecios}
+          />
+        </div>
+      </Transition>
+
+      {/* Vista de Selector de Beneficios (solo para planes de 6 y 9 meses) */}
+      <Transition
+        show={mostrarSelectorBeneficios}
+        enter="transition-all duration-300"
+        enterFrom="opacity-0 translate-x-10"
+        enterTo="opacity-100 translate-x-0"
+        leave="transition-all duration-200"
+        leaveFrom="opacity-100 translate-x-0"
+        leaveTo="opacity-0 -translate-x-10"
+      >
+        <div className={`${!mostrarSelectorBeneficios ? "hidden" : ""}`}>
+          <SelectorBeneficiosB2B
+            numMeses={planSeleccionado?.meses}
+            beneficiosIniciales={beneficiosSeleccionados}
+            todosIncluidos={parseInt(planSeleccionado?.meses) === 12}
+            onConfirmBeneficios={handleConfirmBeneficios}
+            onVolver={handleVolverAPlanes}
           />
         </div>
       </Transition>
@@ -172,7 +386,10 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
 
           {/* Formulario B2B */}
           <div className="max-w-[650px] mx-auto px-4 py-6">
-            <FormMainWrapper planInicial={planSeleccionado} />
+            <FormMainWrapper
+              planInicial={planSeleccionado}
+              beneficiosSeleccionados={beneficiosSeleccionados}
+            />
           </div>
         </div>
       </Transition>
@@ -180,11 +397,8 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   );
 };
 
-// Wrapper del FormMain que pre-selecciona el número de sucursales
-const FormMainWrapper = ({ planInicial }) => {
-  // Importamos y usamos el FormMain original, pasando el plan como contexto
-  // El FormMain ya tiene lógica para manejar el número de sucursales
-
+// Wrapper del FormMain que persiste plan y beneficios en localStorage
+const FormMainWrapper = ({ planInicial, beneficiosSeleccionados = [] }) => {
   useEffect(() => {
     // Si hay un plan inicial, podríamos setear el localStorage para que FormMain lo use
     if (planInicial) {
@@ -197,15 +411,18 @@ const FormMainWrapper = ({ planInicial }) => {
           precioMensual: planInicial.precioMensual,
           precioMensualConIVA: planInicial.precioMensualConIVA,
           priceId: planInicial.priceId,
+          beneficiosSeleccionados,
         }),
       );
     }
-    // ⚠️ NO limpiar b2b_plan_seleccionado al desmontar
-    // El plan debe persistir para cuando el usuario regrese de Stripe
-    // Se limpia en FormMain.jsx después de completar el registro exitosamente
-  }, [planInicial]);
+  }, [planInicial, beneficiosSeleccionados]);
 
-  return <FormMain planInicial={planInicial} />;
+  return (
+    <FormMain
+      planInicial={planInicial}
+      beneficiosSeleccionados={beneficiosSeleccionados}
+    />
+  );
 };
 
 export default RegistroB2BConPlanes;

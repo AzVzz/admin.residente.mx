@@ -21,7 +21,7 @@ import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
 
-const FormMain = ({ planInicial = null }) => {
+const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -52,44 +52,28 @@ const FormMain = ({ planInicial = null }) => {
   // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
     {
-      sucursales: 1,
-      sucursalesTexto: "1 sucursal",
+      meses: 6,
+      mesesTexto: "6 meses",
+      precioMensual: 4299,
+      precioMensualConIVA: 4990.84,
+      nombre: "Plan 6 meses",
+      priceId: "fallback_6",
+    },
+    {
+      meses: 9,
+      mesesTexto: "9 meses",
+      precioMensual: 2899,
+      precioMensualConIVA: 3362.84,
+      nombre: "Plan 9 meses",
+      priceId: "fallback_9",
+    },
+    {
+      meses: 12,
+      mesesTexto: "12 meses",
       precioMensual: 2199,
       precioMensualConIVA: 2550.84,
-      nombre: "Plan 1 Sucursal",
-      priceId: "fallback_1",
-    },
-    {
-      sucursales: 2,
-      sucursalesTexto: "2 sucursales",
-      precioMensual: 2599,
-      precioMensualConIVA: 3014.84,
-      nombre: "Plan 2 Sucursales",
-      priceId: "fallback_2",
-    },
-    {
-      sucursales: 3,
-      sucursalesTexto: "3 sucursales",
-      precioMensual: 3599,
-      precioMensualConIVA: 4174.84,
-      nombre: "Plan 3 Sucursales",
-      priceId: "fallback_3",
-    },
-    {
-      sucursales: 4,
-      sucursalesTexto: "4 sucursales",
-      precioMensual: 3999,
-      precioMensualConIVA: 4638.84,
-      nombre: "Plan 4 Sucursales",
-      priceId: "fallback_4",
-    },
-    {
-      sucursales: "5+",
-      sucursalesTexto: "5 o más sucursales",
-      precioMensual: 4599,
-      precioMensualConIVA: 5334.84,
-      nombre: "Plan 5+ Sucursales",
-      priceId: "fallback_5",
+      nombre: "Plan 12 meses",
+      priceId: "fallback_12",
     },
   ];
 
@@ -110,9 +94,10 @@ const FormMain = ({ planInicial = null }) => {
     }
     return PRECIOS_FALLBACK[0];
   });
-  
+
   // Detectar si es un cliente restringido del dropdown (no necesita código de acceso)
-  const esClienteRestringidoAprobado = planInicial?.esClienteRestringido === true;
+  const esClienteRestringidoAprobado =
+    planInicial?.esClienteRestringido === true;
 
   // Estados para verificación de nombre de usuario
   const [usernameExists, setUsernameExists] = useState(false);
@@ -267,8 +252,7 @@ const FormMain = ({ planInicial = null }) => {
   // Función para verificar si el restaurante está restringido
   const verificarRestauranteRestringido = async (nombreRestaurante) => {
     try {
-      const apiUrl =
-        `${urlApi}api/clientes-editorial/verificar-restringido`;
+      const apiUrl = `${urlApi}api/clientes-editorial/verificar-restringido`;
       console.log("🔍 Verificando restaurante restringido:", nombreRestaurante);
 
       const res = await fetch(apiUrl, {
@@ -390,14 +374,11 @@ const FormMain = ({ planInicial = null }) => {
 
     emailDebounceRef.current = setTimeout(async () => {
       try {
-        const response = await fetch(
-          `${urlApi}api/usuarios/verificar-correo`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ correo }),
-          },
-        );
+        const response = await fetch(`${urlApi}api/usuarios/verificar-correo`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo }),
+        });
 
         const data = await response.json();
         setEmailExists(data.exists === true);
@@ -437,6 +418,28 @@ const FormMain = ({ planInicial = null }) => {
           sessionId ||
           localStorage.getItem("b2b_stripe_session_id") ||
           stripeSessionId;
+
+        // Esperar a que el pago esté confirmado y el webhook haya procesado
+        if (savedSessionId) {
+          const checkoutApiUrl = `${urlApi}api/stripe/checkout-session/${savedSessionId}`;
+          for (let i = 0; i < 10; i++) {
+            try {
+              const checkRes = await fetch(checkoutApiUrl);
+              const checkData = await checkRes.json();
+              if (
+                checkData.success &&
+                checkData.session?.payment_status === "paid"
+              ) {
+                // Pago confirmado, dar tiempo al webhook para procesar
+                if (i === 0) await new Promise((r) => setTimeout(r, 2000));
+                break;
+              }
+            } catch (_) {
+              /* ignorar */
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+        }
 
         let usuarioRes;
         let usuarioId;
@@ -832,8 +835,9 @@ const FormMain = ({ planInicial = null }) => {
       // Crear sesión de suscripción
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
-      const successUrl = `${window.location.origin}/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${window.location.origin}/registrob2b?payment_canceled=true`;
+      const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL || "/"}`;
+      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
@@ -870,6 +874,7 @@ const FormMain = ({ planInicial = null }) => {
         customerEmail: formData.correo || "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
+        beneficiosSeleccionados: beneficiosSeleccionados,
       };
 
       const res = await fetch(apiUrl, {
@@ -1253,48 +1258,50 @@ const FormMain = ({ planInicial = null }) => {
             </span>
           )}
         </div>
-        
-        
-        {restauranteVetado && mensajeVetado && !codigoValido && !esClienteRestringidoAprobado && (
-          <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
-            <p className="mb-3">⚠️ {mensajeVetado}</p>
 
-            <div className="mt-3 pt-3 border-t border-red-200">
-              <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
-                ¿Tienes un código de acceso? Ingrésalo aquí:
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
-                <input
-                  type="text"
-                  value={codigoAcceso}
-                  onChange={(e) => {
-                    setCodigoAcceso(e.target.value.toUpperCase());
-                    setErrorCodigo("");
-                  }}
-                  placeholder="CÓDIGO DE ACCESO"
-                  className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
-                />
-                <button
-                  type="button"
-                  onClick={handleVerificarCodigo}
-                  disabled={!codigoAcceso.trim() || verificandoCodigo}
-                  className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
-                    !codigoAcceso.trim() || verificandoCodigo
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                  }`}
-                >
-                  {verificandoCodigo ? "Verificando..." : "Verificar"}
-                </button>
-              </div>
-              {errorCodigo && (
-                <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
-                  {errorCodigo}
+        {restauranteVetado &&
+          mensajeVetado &&
+          !codigoValido &&
+          !esClienteRestringidoAprobado && (
+            <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
+              <p className="mb-3">⚠️ {mensajeVetado}</p>
+
+              <div className="mt-3 pt-3 border-t border-red-200">
+                <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
+                  ¿Tienes un código de acceso? Ingrésalo aquí:
                 </p>
-              )}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+                  <input
+                    type="text"
+                    value={codigoAcceso}
+                    onChange={(e) => {
+                      setCodigoAcceso(e.target.value.toUpperCase());
+                      setErrorCodigo("");
+                    }}
+                    placeholder="CÓDIGO DE ACCESO"
+                    className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerificarCodigo}
+                    disabled={!codigoAcceso.trim() || verificandoCodigo}
+                    className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
+                      !codigoAcceso.trim() || verificandoCodigo
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                    }`}
+                  >
+                    {verificandoCodigo ? "Verificando..." : "Verificar"}
+                  </button>
+                </div>
+                {errorCodigo && (
+                  <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
+                    {errorCodigo}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {restauranteVetado && codigoValido && (
           <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
             ✓ Código válido. Puedes continuar con el registro.
@@ -1569,13 +1576,17 @@ const FormMain = ({ planInicial = null }) => {
         disabled={
           paymentLoading ||
           verificandoRestaurante ||
-          (restauranteVetado && !codigoValido && !esClienteRestringidoAprobado) ||
+          (restauranteVetado &&
+            !codigoValido &&
+            !esClienteRestringidoAprobado) ||
           creatingAccount
         }
         className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
           paymentLoading ||
           verificandoRestaurante ||
-          (restauranteVetado && !codigoValido && !esClienteRestringidoAprobado) ||
+          (restauranteVetado &&
+            !codigoValido &&
+            !esClienteRestringidoAprobado) ||
           creatingAccount
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-yellow-400"
@@ -1585,7 +1596,9 @@ const FormMain = ({ planInicial = null }) => {
           ? "Verificando..."
           : paymentLoading || creatingAccount
             ? "Procesando..."
-            : restauranteVetado && !codigoValido && !esClienteRestringidoAprobado
+            : restauranteVetado &&
+                !codigoValido &&
+                !esClienteRestringidoAprobado
               ? "Ingresa código de acceso"
               : "Ir a Pagar"}
       </button>
