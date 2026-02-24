@@ -50,8 +50,32 @@ const TicketPromo = forwardRef((props, ref) => {
         subPromo,
         descripcionPromo,
         validezPromo,
-        stickerUrl
+        stickerUrl,
+        tipografia = 'default',
+        tipografiaBold = true,
+        colorFondo = '#FFFFFF',
+        espaciadoLetras = 0,
+        espaciadoLineas = 1,
+        logoPersonalizado = null,
+        logoEscala = 100,
+        colorTexto = "#000000"
     } = props;
+
+    // Helper para obtener la familia de fuentes
+    const getFontFamily = () => {
+        if (!tipografia || tipografia === 'default') return undefined;
+        // Para fuentes del sistema
+        if (['Arial', 'Calibri'].includes(tipografia)) {
+            return `"${tipografia}", sans-serif`;
+        }
+        // Para Google Fonts
+        return `"${tipografia}", sans-serif`;
+    };
+
+    const fontFamily = getFontFamily();
+    const fontWeight = tipografiaBold ? 900 : 400;
+    const letterSpacing = `${espaciadoLetras}px`;
+    const lineHeight = espaciadoLineas;
 
     const config = sizeConfig[size];
 
@@ -127,13 +151,15 @@ const TicketPromo = forwardRef((props, ref) => {
             adjustFontSize(burgersRef, setBurgersFontSize, config.fontSizes.sub.initial, config.fontSizes.sub.min);
         };
 
-        adjustAll();
+        // Pequeño delay para que la fuente se cargue antes de medir
+        const timeoutId = setTimeout(adjustAll, 50);
         window.addEventListener('resize', adjustAll);
 
         return () => {
+            clearTimeout(timeoutId);
             window.removeEventListener('resize', adjustAll);
         };
-    }, [promoText, burgersText, restaurantNameText, size]);
+    }, [promoText, burgersText, restaurantNameText, size, fontFamily, fontWeight, letterSpacing, lineHeight]);
 
     useEffect(() => {
         setRestaurantNameFontSize(config.fontSizes.restaurant.initial);
@@ -156,24 +182,30 @@ const TicketPromo = forwardRef((props, ref) => {
         return text.substring(0, limit) + '...';
     };
 
+    // Helper para usar el proxy de imágenes y evitar problemas CORS
+    const getProxyUrl = (url) => {
+        if (!url) return '';
+        // Solo ignorar data URLs
+        if (url.startsWith('data:')) return url;
+
+        // Log para depuración
+        // console.log("Transforming URL:", url);
+
+        // Forzar proxy para todas las imágenes remotas (residente.mx)
+        // Usamos urlApi que apunta a admin.residente.mx donde vive el proxy
+        return `${urlApi}api/img?url=${encodeURIComponent(url)}&w=1200&q=100&f=png`;
+    };
+
     return (
         <div
             ref={ref}
             className={`relative ${className}`}
             style={{ background: 'transparent' }}
         >
-            {/* Perforated top edge */}
-            <div className={config.perforatedTop || "w-full"}>
-                <img
-                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-top.webp`}
-                    alt="Perforado superior"
-                    className="w-full"
-                />
-            </div>
-
             <div
                 ref={containerRef}
-                className={`flex flex-col bg-white ${config.container} relative`}
+                className={`flex flex-col ${config.container} relative`}
+                style={{ backgroundColor: colorFondo }}
             >
                 {stickerUrl && (
                     <img
@@ -188,64 +220,72 @@ const TicketPromo = forwardRef((props, ref) => {
                 <div className={`${config.padding} flex-1 flex flex-col`}>
                     <div className="mb-1 z-20">
                         <img
-                            src={`${imgApi}fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp`}
-                            alt="Residente Discy Promo Logo"
+                            src={logoPersonalizado || "/fotos/fotos-estaticas/residente-logos/grises/discpromo-logo-gris.webp"}
+                            alt="Logo"
                             className={config.logo}
+                            style={{ transform: `scale(${logoEscala / 100})`, transformOrigin: 'top left' }}
+
                         />
                     </div>
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white font-black uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
-                            style={{ fontSize: `${restaurantNameFontSize}px` }}
+                            className="w-full bg-black text-white uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
+                            style={{ fontSize: `${restaurantNameFontSize}px`, fontFamily, fontWeight, letterSpacing }}
                         >
                             {restaurantNameText}
                         </h1>
                         <div className="text-center">
                             <h3
                                 ref={promoTextRef}
-                                className="whitespace-nowrap overflow-hidden font-black text-center"
+                                className="whitespace-nowrap overflow-hidden text-center"
                                 style={{
                                     fontSize: `${promoFontSize}px`,
-                                    lineHeight: '0.85',
-                                    letterSpacing: '-2px',
+                                    lineHeight: 1,
+                                    letterSpacing: letterSpacing,
+                                    color: colorTexto,
                                     margin: 0,
                                     marginBottom: 0,
                                     padding: 0,
-                                    display: 'block'
+                                    display: 'block',
+                                    fontFamily,
+                                    fontWeight
                                 }}
                             >
                                 {promoText}
                             </h3>
                             <h3
                                 ref={burgersRef}
-                                className="font-black text-center whitespace-nowrap overflow-hidden"
+                                className="text-center whitespace-nowrap overflow-hidden"
                                 style={{
                                     fontSize: `${burgersFontSize}px`,
-                                    lineHeight: '0.85',
-                                    letterSpacing: '-2px',
+                                    lineHeight: 1,
+                                    letterSpacing: letterSpacing,
+                                    color: colorTexto,
                                     margin: 0,
                                     marginBottom: 0,
                                     marginTop: 0,
                                     padding: 0,
-                                    display: 'block'
+                                    display: 'block',
+                                    fontFamily,
+                                    fontWeight
                                 }}
                             >
                                 {burgersText}
                             </h3>
                         </div>
-                        <p className={`font-black font-roman mt-1 text-gray-800 ${config.description}`}>
+                        <p className={`mt-1 text-gray-800 text-center ${config.description}`} style={{ fontFamily, fontWeight, letterSpacing, lineHeight: lineHeight, color: colorTexto, }}>
                             {size === 'small' ? limitText(descripcionPromo, 160) : descripcionPromo}
                         </p>
                     </div>
                 </div>
                 {/* Bottom section */}
                 <div className={`bg-[#FFF300] ${config.padding}  mt-auto relative`}>
-                    <h2 className={`mb-1 bg-black text-white text-center font-light font-roman leading-3 ${config.validity}`}>
+                    <h2 className={`mb-1 bg-black text-white text-center leading-3 ${config.validity}`} style={{ fontFamily, fontWeight: tipografiaBold ? 300 : 200 }}>
                         {validezPromo}
                     </h2>
                     <img
-                        src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif`}
+                        src="/fotos/fotos-estaticas/componente-sin-carpetas/barcode.avif"
                         alt="Código de barras"
                         className={`w-full ${config.barcode} object-fill z-30 relative`}
                     />
@@ -253,7 +293,7 @@ const TicketPromo = forwardRef((props, ref) => {
             </div>
             <div className={config.perforatedBottom}>
                 <img
-                    src={`${imgApi}fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp`}
+                    src="/fotos/fotos-estaticas/componente-sin-carpetas/orilla-ticket-bottom.webp"
                     alt="Perforado inferior"
                     className="w-full"
                 />

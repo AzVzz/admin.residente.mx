@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../Context";
 import { getColaboradores, getRespuestasPorColaborador, putRespuestaSemana, deleteRespuestaSemana } from "../../../api/temaSemanaApi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ListaBlogsColaborador = () => {
   const { usuario } = useAuth();
+  const navigate = useNavigate();
   const [cargando, setCargando] = useState(true);
   const [publicaciones, setPublicaciones] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -152,14 +153,17 @@ const ListaBlogsColaborador = () => {
 
               { /* Botón de editar en esquina superior izquierda */}
               <div className="absolute top-0 left-0 z-30 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-[-5px] group-hover:translate-y-0">
-                <Link
-                  to={`/colaboradores?editar=${pub.id}`}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigate(`/colaboradores?editar=${pub.id}`);
+                  }}
                   className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 inline-block"
                   title="Editar colaboración"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   <FaEdit size={18} />
-                </Link>
+                </button>
               </div>
 
               {/* Datos arriba */}

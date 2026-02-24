@@ -10,7 +10,14 @@ const NuevasSeccionesCategorias = () => {
   const esFoodDrink = tipoLugar === "Food & Drink";
 
   // Secciones a ocultar SIEMPRE de la lista principal
-  const seccionesOcultas = ["Food & Drink", "Cafetería", "Bar", "Postrería", "Snack"];
+  const seccionesOcultas = [
+    "Food & Drink",
+    "Cafetería", "Cafeteria", "Cafés", "Cafe", "Café", "Cafes",
+    "Bar", "Bares",
+    "Postrería", "Postreria", "Postres", "Postre",
+    "Snack", "Snacks",
+    "Bebidas", "Bebida"
+  ];
 
   // Si es Food & Drink, ocultar también Nivel de gasto y Tipo de comida
   if (esFoodDrink) {
@@ -88,10 +95,14 @@ const NuevasSeccionesCategorias = () => {
                         id={`${seccionName}-${categoria.nombre}`}
                         value={categoria.nombre}
                         {...register(fieldName, {
-                          validate: (value) =>
-                            Array.isArray(value) && value.length > 0
-                              ? true
-                              : 'Debes seleccionar al menos una zona',
+                          validate: (value) => {
+                            if (Array.isArray(value)) return value.length > 0 || 'Debes seleccionar al menos una zona';
+                            // Fallback: si RHF lo captura como string (un solo valor seleccionado)
+                            if (typeof value === 'string') return value.length > 0 || 'Debes seleccionar al menos una zona';
+                            // Si es booleano true (edge case), también es válido
+                            if (value === true) return true;
+                            return 'Debes seleccionar al menos una zona';
+                          }
                         })}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                       />

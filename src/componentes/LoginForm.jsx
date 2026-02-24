@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
 import { FaUser } from "react-icons/fa6";
@@ -156,9 +157,9 @@ export default function LoginForm({
         )}
 
         <div className="mt-4 text-center">
-          <a href="/recuperar-password" className="text-sm font-bold text-black hover:underline cursor-pointer">
+          <Link to="/recuperar-password" className="text-sm font-bold text-black hover:underline cursor-pointer">
             ¿Olvidaste tu contraseña?
-          </a>
+          </Link>
         </div>
       </form>
     </div>

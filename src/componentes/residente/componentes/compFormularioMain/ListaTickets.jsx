@@ -18,7 +18,18 @@ const ListaTickets = () => {
   const [savingCaducidad, setSavingCaducidad] = useState(false);
 
   // Verificar permisos al inicio
-  if (!usuario || (usuario.rol !== 'residente' && usuario.rol !== 'b2b' && usuario.permisos !== 'residente' && usuario.permisos !== 'b2b' && usuario.permisos !== 'todos')) {
+  const rolActual = usuario?.rol?.toLowerCase();
+  const permisosActual = usuario?.permisos?.toLowerCase();
+  const esAutorizado =
+    rolActual === 'residente' ||
+    rolActual === 'b2b' ||
+    rolActual === 'vendedor' ||
+    permisosActual === 'residente' ||
+    permisosActual === 'b2b' ||
+    permisosActual === 'todos' ||
+    permisosActual === 'todo';
+
+  if (!usuario || !esAutorizado) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">

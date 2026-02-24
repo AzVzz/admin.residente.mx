@@ -24,7 +24,8 @@ const UbicacionPrincipal = () => {
 
     const ubicacionPrincipal = [
         { value: "Interior" },
-        { value: "Terraza" }
+        { value: "Terraza" },
+        { value: "Pick up" }
     ];
     return (
         <div className="form-ubicacion-principal">

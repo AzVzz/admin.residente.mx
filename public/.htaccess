@@ -3,6 +3,8 @@
   RewriteBase /
   # Excluir las rutas del backend/API
   RewriteRule ^api(/.*)?$ - [L]
+  # No redirigir assets estáticos (evita servir HTML en vez de JS/CSS)
+  RewriteRule \.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|map|json)$ - [L]
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

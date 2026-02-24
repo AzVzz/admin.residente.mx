@@ -70,7 +70,7 @@ const Registro = () => {
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center">
                 <a
-                  href="/registrob2b"
+                  href="/admin/registrob2b"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
@@ -84,7 +84,7 @@ const Registro = () => {
 
               <div className="flex flex-col items-center">
                 <a
-                  href="/registroinvitados"
+                  href="/admin/registroinvitados"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
@@ -98,7 +98,7 @@ const Registro = () => {
 
               <div className="flex flex-col items-center">
                 <a
-                  href="/registrocolaboradores"
+                  href="/admin/registrocolaboradores"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
@@ -106,6 +106,20 @@ const Registro = () => {
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
                     COLABORADOR
+                  </button>
+                </a>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <a
+                  href="/admin/cuestionarioB2C"
+                  className="group w-full flex flex-col items-center"
+                >
+                  <button
+                    type="submit"
+                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  >
+                    RECURSOS HUMANOS
                   </button>
                 </a>
               </div>

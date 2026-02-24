@@ -74,3 +74,9 @@ export const revistaGetUltima = async () => {
 
   return data;
 };
+
+export const revistasGet = async () => {
+  const res = await fetch(`${urlApi}api/revistas`);
+  if (!res.ok) throw new Error("Error al obtener las revistas");
+  return await res.json();
+};

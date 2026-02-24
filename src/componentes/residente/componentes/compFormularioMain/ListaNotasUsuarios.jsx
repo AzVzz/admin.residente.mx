@@ -3,13 +3,15 @@ import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
-import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff, FaLink } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
+import ModalAsignarRecursos from './ModalAsignarRecursos';
 
 const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
   const { recargarClientes } = useClientesValidos();
   const [usuarios, setUsuarios] = useState([]);
+  const [restaurantes, setRestaurantes] = useState([]);
 
   // Obtener permisos únicos de los usuarios existentes
   const obtenerPermisosUnicos = () => {
@@ -40,6 +42,13 @@ const ListaNotasUsuarios = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
 
+  // Estados para el modal de asignación de recursos
+  const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [usuarioParaAsignar, setUsuarioParaAsignar] = useState(null);
+
+  // Verificar si el usuario actual es admin/residente
+  const esAdmin = usuario?.rol === 'residente' || usuario?.permisos === 'todos' || usuario?.permisos === 'todo';
+
   // Estados para el formulario de registro/edición
   const [formData, setFormData] = useState({
     nombre_usuario: '',
@@ -53,12 +62,50 @@ const ListaNotasUsuarios = () => {
     nombre_responsable: '',
     email_responsable: '',
     telefono_responsable: '',
+    // Campos Vendedor
+    nombre_completo: '',
+    telefono: '',
     nombre_comercial: '',
     razon_social: '',
     rfc: '',
     direccion: '',
     terminos: false,
     logo_url: null
+  });
+
+  // Estados para filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRol, setFilterRol] = useState('');
+  const [sortOrder, setSortOrder] = useState('fecha_desc');
+
+  // Filtrado y Ordenamiento de usuarios
+  const usuariosFiltrados = usuarios.filter(user => {
+    // 1. Filtro por búsqueda (nombre o correo)
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchSearch =
+      (user.nombre_usuario && user.nombre_usuario.toLowerCase().includes(normalizedSearch)) ||
+      (user.correo && user.correo.toLowerCase().includes(normalizedSearch));
+
+    if (!matchSearch) return false;
+
+    // 2. Filtro por Rol
+    if (filterRol && user.rol !== filterRol) return false;
+
+    return true;
+  }).sort((a, b) => {
+    // 3. Ordenamiento
+    switch (sortOrder) {
+      case 'fecha_asc':
+        return new Date(a.created_at) - new Date(b.created_at);
+      case 'fecha_desc':
+        return new Date(b.created_at) - new Date(a.created_at);
+      case 'nombre_asc':
+        return a.nombre_usuario.localeCompare(b.nombre_usuario);
+      case 'nombre_desc':
+        return b.nombre_usuario.localeCompare(a.nombre_usuario);
+      default:
+        return 0;
+    }
   });
 
   // Cargar usuarios al montar el componente
@@ -70,21 +117,33 @@ const ListaNotasUsuarios = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${urlApi}api/usuarios`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const [usuariosRes, restaurantesRes] = await Promise.all([
+        fetch(`${urlApi}api/usuarios`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        fetch(`${urlApi}api/restaurante/basicos`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error('Error al cargar usuarios');
+      if (!usuariosRes.ok) throw new Error('Error al cargar usuarios');
+
+      const usuariosData = await usuariosRes.json();
+      setUsuarios(usuariosData);
+
+      if (restaurantesRes.ok) {
+        const restaurantesData = await restaurantesRes.json();
+        setRestaurantes(restaurantesData);
       }
 
-      const data = await response.json();
-      setUsuarios(data);
     } catch (err) {
-      setError('Error al cargar usuarios: ' + err.message);
+      setError('Error al cargar datos: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -98,6 +157,7 @@ const ListaNotasUsuarios = () => {
 
       if (value === 'todos') nuevoRol = 'residente';
       else if (value === 'b2b') nuevoRol = 'b2b';
+      else if (value === 'vendedor') nuevoRol = 'vendedor';
       else if (value === 'mama-de-rocco') nuevoRol = 'colaborador';
       else nuevoRol = 'invitado'; // Por defecto para nuevo cliente y otros clientes existentes
 
@@ -312,7 +372,9 @@ const ListaNotasUsuarios = () => {
         estado: formData.estado,
         restaurante_id: null,
         enviar_correo: false,  // No enviar correo al crear usuario desde admin
-        logo_url: formData.logo_url || null  // Incluir logo_url si existe
+        logo_url: formData.logo_url || null,  // Incluir logo_url si existe
+        nombre_completo: formData.nombre_completo, // Para Vendedor
+        telefono: formData.telefono // Para Vendedor
       };
 
       // Validación final antes de enviar: asegurar que correo nunca sea null o undefined
@@ -575,11 +637,77 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
         </div>
       )}
 
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 border border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Filtrar Usuarios</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Búsqueda por nombre/correo */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Buscar por nombre o correo</label>
+            <input
+              type="text"
+              placeholder="Ej: Rocco, usuario@email.com..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          {/* Filtro por Rol */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Filtrar por Rol</label>
+            <select
+              value={filterRol}
+              onChange={(e) => setFilterRol(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="">Todos los roles</option>
+              <option value="residente">Residente</option>
+              <option value="colaborador">Colaborador</option>
+              <option value="invitado">Invitado</option>
+              <option value="b2b">B2B</option>
+              <option value="vendedor">Vendedor</option>
+            </select>
+          </div>
+
+          {/* Ordenar por */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Ordenar por</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="fecha_desc">Fecha: Más recientes primero</option>
+              <option value="fecha_asc">Fecha: Más antiguos primero</option>
+              <option value="nombre_asc">Nombre: A - Z</option>
+              <option value="nombre_desc">Nombre: Z - A</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Botón limpiar filtros */}
+        {(searchTerm || filterRol || sortOrder !== 'fecha_desc') && (
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterRol('');
+                setSortOrder('fecha_desc');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
+            >
+              Restablecer filtros
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Formulario de registro/edición */}
       {showRegistro && (
         <div className="bg-white border rounded-lg p-6 mb-6 shadow-md">
           <h3 className="text-lg font-semibold mb-4">
-            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Cliente'}
+            {editingUser ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -613,7 +741,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cliente/Permiso
+                  Usuario/Permiso
                 </label>
                 <div className="flex space-x-2">
                   <select
@@ -622,37 +750,46 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                     onChange={handleInputChange}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="usuario">Usuario General</option>
+                    <option value="usuario">Invitado</option>
                     <option value="todos">Administrador</option>
-                    <option value="mama-de-rocco">Mamá de Rocco</option>
+                    <option value="mama-de-rocco">Colaborador</option>
                     <option value="b2b">Usuario B2B</option>
-
-                    {/* Mostrar permisos existentes que no están en las opciones predefinidas */}
-                    {permisosExistentes
-                      .filter(permiso => !['todos', 'mama-de-rocco', 'b2b'].includes(permiso))
-                      .map(permiso => (
-                        <option key={permiso} value={permiso}>
-                          {formatearPermiso(permiso)}
-                        </option>
-                      ))
-                    }
-
-                    <option value="nuevo-cliente">+ Nuevo Cliente</option>
+                    <option value="vendedor">Vendedor</option>
                   </select>
-                  {formData.permisos === 'nuevo-cliente' && (
-                    <input
-                      type="text"
-                      value={permisoPersonalizado}
-                      onChange={(e) => setPermisoPersonalizado(e.target.value)}
-                      placeholder="Nombre del cliente (ej: restaurante-nuevo)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
                 </p>
               </div>
+
+              {formData.permisos === 'vendedor' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre Completo (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="nombre_completo"
+                      value={formData.nombre_completo}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Teléfono (Vendedor)
+                    </label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              )}
 
               {formData.permisos === 'nuevo-cliente' && (
                 <div className="md:col-span-2">
@@ -737,6 +874,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                   <option value="colaborador">Colaborador</option>
                   <option value="invitado">Invitado</option>
                   <option value="b2b">B2B</option>
+                  <option value="vendedor">Vendedor</option>
                 </select>
               </div>
 
@@ -928,14 +1066,14 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {usuarios.length === 0 ? (
+                {usuariosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                      No hay usuarios registrados
+                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                      No hay usuarios que coincidan con los filtros
                     </td>
                   </tr>
                 ) : (
-                  usuarios.map((user) => (
+                  usuariosFiltrados.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -983,17 +1121,41 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (
-                          <Link
-                            to={`/${user.permisos}`}
-                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaExternalLinkAlt className="mr-1" />
-                            Ver Página
-                          </Link>
-                        ) : (
+                        {user.permisos && user.permisos !== 'usuario' && user.permisos !== 'todo' && user.permisos !== 'todos' ? (() => {
+                          // Lógica para determinar el enlace
+                          let href = `/${user.permisos}`;
+                          let disabled = false;
+
+                          if (user.rol === 'b2b') {
+                            // Buscar el restaurante asignado a este usuario
+                            const restauranteAsignado = restaurantes.find(r => r.usuario_id === user.id);
+                            if (restauranteAsignado && restauranteAsignado.slug) {
+                              href = `/restaurantes/${restauranteAsignado.slug}`;
+                            } else {
+                              // Si es B2B pero no tiene restaurante asignado
+                              disabled = true;
+                            }
+                          }
+
+                          if (disabled) {
+                            return (
+                              <span className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed" title="Sin restaurante asignado">
+                                <FaExternalLinkAlt className="mr-1" />
+                                Ver Página
+                              </span>
+                            );
+                          }
+
+                          return (
+                            <a
+                              href={href}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                            >
+                              <FaExternalLinkAlt className="mr-1" />
+                              Ver Página
+                            </a>
+                          );
+                        })() : (
                           <span className="text-gray-400 text-xs">N/A</span>
                         )}
                       </td>
@@ -1033,6 +1195,19 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                           >
                             <FaTrash />
                           </button>
+                          {/* Botón para asignar recursos (solo admin/residente) */}
+                          {esAdmin && (
+                            <button
+                              onClick={() => {
+                                setUsuarioParaAsignar(user);
+                                setShowAsignarModal(true);
+                              }}
+                              className="text-purple-600 hover:text-purple-900 cursor-pointer"
+                              title="Asignar Recursos (Restaurante, Cupones)"
+                            >
+                              <FaLink />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1043,6 +1218,20 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
           </div>
         )}
       </div>
+
+      {/* Modal para asignar recursos */}
+      <ModalAsignarRecursos
+        isOpen={showAsignarModal}
+        onClose={() => {
+          setShowAsignarModal(false);
+          setUsuarioParaAsignar(null);
+        }}
+        usuario={usuarioParaAsignar}
+        token={token}
+        onAsignacionExitosa={() => {
+          cargarUsuarios();
+        }}
+      />
     </div>
   );
 };

@@ -28,26 +28,258 @@ const FormularioPromo = ({
         adjustTextareaHeight();
     }, [formData.descPromo]);
 
+    // Lista de fuentes disponibles
+    const fontOptions = [
+        { value: 'default', label: 'Predeterminada', fontFamily: 'inherit' },
+        { value: 'Arial', label: 'Arial', fontFamily: 'Arial, sans-serif' },
+        { value: 'Calibri', label: 'Calibri', fontFamily: 'Calibri, sans-serif' },
+        { value: 'Roboto', label: 'Roboto', fontFamily: '"Roboto", sans-serif' },
+        { value: 'Outfit', label: 'Outfit', fontFamily: '"Outfit", sans-serif' },
+        { value: 'Montserrat', label: 'Montserrat', fontFamily: '"Montserrat", sans-serif' },
+        { value: 'Bebas Neue', label: 'Bebas Neue', fontFamily: '"Bebas Neue", sans-serif' },
+        { value: 'Playfair Display', label: 'Playfair Display', fontFamily: '"Playfair Display", serif' }
+    ];
+
+    const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
+    const fontDropdownRef = useRef(null);
+
+    // Estado para el dropdown de restaurantes con búsqueda
+    const [restSearchTerm, setRestSearchTerm] = useState('');
+    const [restDropdownOpen, setRestDropdownOpen] = useState(false);
+    const restDropdownRef = useRef(null);
+
+    // Restaurantes ordenados alfabéticamente y filtrados por búsqueda
+    const restaurantesOrdenados = [...restaurantes]
+        .sort((a, b) => (a.nombre_restaurante || '').localeCompare(b.nombre_restaurante || '', 'es'))
+        .filter(r => {
+            if (!restSearchTerm) return true;
+            return (r.nombre_restaurante || '').toLowerCase().includes(restSearchTerm.toLowerCase());
+        });
+
+    // Cerrar dropdowns al hacer click fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target)) {
+                setFontDropdownOpen(false);
+            }
+            if (restDropdownRef.current && !restDropdownRef.current.contains(event.target)) {
+                setRestDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const selectedFont = fontOptions.find(f => f.value === (formData.tipografia || 'default')) || fontOptions[0];
+
     return (
         <div className="flex flex-col justify-around">
-            {/* Dropdown de restaurantes */}
-            <div className="">
+            {/* Tipografía */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Tipografía del ticket</label>
+                <div className="flex gap-3 items-center">
+                    {/* Dropdown de fuentes */}
+                    <div className="relative flex-1" ref={fontDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setFontDropdownOpen(!fontDropdownOpen)}
+                            className="w-full text-lg rounded px-3 py-2 bg-white border-0 text-left flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                        >
+                            <span style={{ fontFamily: selectedFont.fontFamily }}>
+                                {selectedFont.label} <span className="text-gray-400">Aa</span>
+                            </span>
+                            <svg className={`w-5 h-5 transition-transform ${fontDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        {fontDropdownOpen && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                                {fontOptions.map((font) => (
+                                    <button
+                                        key={font.value}
+                                        type="button"
+                                        onClick={() => {
+                                            onFieldChange("tipografia", font.value);
+                                            setFontDropdownOpen(false);
+                                        }}
+                                        className={`w-full text-left px-3 py-2 text-lg hover:bg-yellow-100 transition-colors ${formData.tipografia === font.value ? 'bg-yellow-50' : ''
+                                            }`}
+                                        style={{ fontFamily: font.fontFamily }}
+                                    >
+                                        {font.label} <span className="text-gray-400">Aa</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* Solo mostrar negritas si no es la fuente predeterminada */}
+                    {formData.tipografia && formData.tipografia !== 'default' && (
+                        <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-lg">
+                            <input
+                                type="checkbox"
+                                checked={formData.tipografia_bold !== false}
+                                onChange={(e) => onFieldChange("tipografia_bold", e.target.checked)}
+                                className="w-5 h-5 text-yellow-500 bg-white border-gray-300 rounded focus:ring-yellow-500 cursor-pointer"
+                            />
+                            <span className="text-lg font-medium text-gray-950">Negritas</span>
+                        </label>
+                    )}
+                </div>
+            </div>
+            {/* Color de fondo */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Color de fondo del ticket</label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="color"
+                        value={formData.colorFondo || "#FFFFFF"}
+                        onChange={(e) => onFieldChange("colorFondo", e.target.value)}
+                        className="w-12 h-10 rounded cursor-pointer border-0"
+                    />
+                    <input
+                        type="text"
+                        value={formData.colorFondo || "#FFFFFF"}
+                        onChange={(e) => onFieldChange("colorFondo", e.target.value)}
+                        placeholder="#FFFFFF"
+                        className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase"
+                        maxLength={7}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("colorFondo", "#FFFFFF")}
+                        className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors"
+                    >
+                        Blanco
+                    </button>
+                </div>
+            </div>
+
+            {/* Logo personalizado */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Logo personalizado</label>
+                <div className="flex gap-3 items-center">
+                    <label className="flex-1 bg-white rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors text-lg text-center">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        onFieldChange("logoPersonalizado", reader.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }}
+                        />
+                        {formData.logoPersonalizado ? '📷 Cambiar logo' : '📤 Subir logo'}
+                    </label>
+                    {formData.logoPersonalizado && (
+                        <>
+                            <img
+                                src={formData.logoPersonalizado}
+                                alt="Logo preview"
+                                className="h-10 w-auto object-contain bg-white rounded"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => onFieldChange("logoPersonalizado", null)}
+                                className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                            >
+                                ✕ Quitar
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Tamaño del logo */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">
+                    Tamaño del logo: <span className="font-bold">{formData.logoEscala || 100}%</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="range"
+                        min="50"
+                        max="200"
+                        step="10"
+                        value={formData.logoEscala || 100}
+                        onChange={(e) => onFieldChange("logoEscala", parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("logoEscala", 100)}
+                        className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Reiniciar
+                    </button>
+                </div>
+            </div>
+
+            {/* Dropdown de restaurantes con búsqueda */}
+            <div className="" ref={restDropdownRef}>
                 <label className="block text-gray-950 text-xl font-bold mb-1">
                     Selecciona un restaurante:
                 </label>
-                <select
-                    className="text-xl rounded px-3 py-2 w-full bg-white border-0"
-                    value={selectedRestauranteId}
-                    onChange={onRestauranteChange}
-                >
-                    <option value="">-- Elige uno --</option>
-                    {restaurantes.map(r => (
-                        <option key={r.id} value={r.id}>
-                            {r.nombre_restaurante}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    <div
+                        className="w-full text-xl rounded px-3 py-2 bg-white border-0 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                        onClick={() => setRestDropdownOpen(!restDropdownOpen)}
+                    >
+                        <span className={selectedRestauranteId ? 'text-gray-950' : 'text-gray-400'}>
+                            {selectedRestauranteId
+                                ? restaurantes.find(r => String(r.id) === String(selectedRestauranteId))?.nombre_restaurante || '-- Elige uno --'
+                                : '-- Elige uno --'}
+                        </span>
+                        <svg className={`w-5 h-5 transition-transform ${restDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    {restDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                            <div className="p-2 border-b border-gray-100">
+                                <input
+                                    type="text"
+                                    value={restSearchTerm}
+                                    onChange={(e) => setRestSearchTerm(e.target.value)}
+                                    placeholder="🔍 Buscar restaurante..."
+                                    className="w-full px-3 py-2 text-lg bg-gray-50 rounded-md border-0 outline-none focus:bg-gray-100 transition-colors"
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="max-h-110 overflow-y-auto">
+                                {restaurantesOrdenados.length > 0 ? (
+                                    restaurantesOrdenados.map(r => (
+                                        <button
+                                            key={r.id}
+                                            type="button"
+                                            onClick={() => {
+                                                onRestauranteChange({ target: { value: String(r.id) } });
+                                                setRestDropdownOpen(false);
+                                                setRestSearchTerm('');
+                                            }}
+                                            className={`w-full text-left px-3 py-2 text-lg hover:bg-yellow-100 transition-colors ${
+                                                String(selectedRestauranteId) === String(r.id) ? 'bg-yellow-50 font-medium' : ''
+                                            }`}
+                                        >
+                                            {r.nombre_restaurante}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="px-3 py-4 text-gray-400 text-center text-lg">
+                                        No se encontraron restaurantes
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
+
 
             {/* Campo nombre del restaurante */}
             <div className="flex flex-col pb-0">
@@ -61,6 +293,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo nombre de la promoción */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Nombre de la promoción *</label>
                 <textarea
@@ -73,6 +306,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo subtitulo de la promoción */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Subtitulo de la promocion *</label>
                 <input
@@ -84,6 +318,7 @@ const FormularioPromo = ({
                 />
             </div>
 
+            {/* Campo descripción de la promoción */}
             <div className="flex flex-col pb-0">
                 <div className="flex justify-between items-center">
                     <label className="block text-xl font-medium text-gray-950 mb-1">
@@ -105,6 +340,86 @@ const FormularioPromo = ({
                     maxLength={300}
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg min-h-[150px] max-h-[330px] overflow-hidden resize-none"
                 />
+            </div>
+
+            {/* Color del texto */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Color del texto de la promo</label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="color"
+                        value={formData.colorTexto || "#000000"}
+                        onChange={(e) => onFieldChange("colorTexto", e.target.value)}
+                        className="w-12 h-10 rounded cursor-pointer border-0"
+                    />
+                    <input
+                        type="text"
+                        value={formData.colorTexto || "#000000"}
+                        onChange={(e) => onFieldChange("colorTexto", e.target.value)}
+                        placeholder="#000000"
+                        className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase"
+                        maxLength={7}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("colorTexto", "#000000")}
+                        className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Negro
+                    </button>
+                </div>
+            </div>
+
+            {/* Espaciado de líneas */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">
+                    Espaciado entre líneas: <span className="font-bold">{formData.espaciadoLineas || 1}</span>
+                    <span className="text-sm text-gray-400 font-normal ml-1">(solo afecta descripción)</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="range"
+                        min="0.6"
+                        max="2"
+                        step="0.1"
+                        value={formData.espaciadoLineas || 1}
+                        onChange={(e) => onFieldChange("espaciadoLineas", parseFloat(e.target.value))}
+                        className="flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("espaciadoLineas", 1)}
+                        className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Reiniciar
+                    </button>
+                </div>
+            </div>
+
+            {/* Espaciado de letras */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">
+                    Espaciado entre letras: <span className="font-bold">{formData.espaciadoLetras || 0}px</span>
+                    <span className="text-sm text-gray-400 font-normal ml-1">(afecta todos los textos)</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="range"
+                        min="-5"
+                        max="15"
+                        step="1"
+                        value={formData.espaciadoLetras || 0}
+                        onChange={(e) => onFieldChange("espaciadoLetras", parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("espaciadoLetras", 0)}
+                        className="text-sm px-2 py-1 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Reiniciar
+                    </button>
+                </div>
             </div>
 
             <div className="flex flex-col pb-0">

@@ -53,7 +53,7 @@ const MegaMenu = () => {
           <div className="flex items-center justify-between px-0 py-3 contenedor-header-2">
             {/* Logo Principal */}
             <div className="flex items-center contenedor-header-3">
-              <Link to="/" className="flex-shrink-0">
+              <a href="https://residente.mx" className="flex-shrink-0">
                 <img
                   src={
                     `${imgApi}fotos/fotos-estaticas/residente-logos/food-drink-media-logo-amarillo.webp` ||
@@ -62,15 +62,14 @@ const MegaMenu = () => {
                   alt="Residente Food & Drink Media"
                   className="object-contain h-8 w-auto max-w-[380px]  [@media(max-width:800px)]:h-12"
                 />
-              </Link>
+              </a>
               <button
                 onClick={toggleMenu}
                 className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3"
               >
                 <svg
-                  className={`w-6 h-6 text-[#FFF200] transition-transform duration-200 ${
-                    isMenuOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-6 h-6 text-[#FFF200] transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -92,9 +91,8 @@ const MegaMenu = () => {
                 className="flex items-center space-x-2 hover:opacity-80 transition-opacity pl-3 pr-3"
               >
                 <svg
-                  className={`w-6 h-6 text-[#FFF200] transition-transform duration-200 ${
-                    isMenuOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-6 h-6 text-[#FFF200] transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -109,7 +107,7 @@ const MegaMenu = () => {
               </button>
               {/* se elimino el href */}
               <a
-                href="/b2b"
+                href="https://residente.mx/b2b"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-shrink-0"
@@ -239,9 +237,8 @@ const MegaMenu = () => {
                           {section.seccion}
                         </h3>
                         <svg
-                          className={`w-5 h-5 text-[#FFF200] transition-transform duration-200 ${
-                            isMenuSectionsOpen === idx ? "rotate-180" : ""
-                          }`}
+                          className={`w-5 h-5 text-[#FFF200] transition-transform duration-200 ${isMenuSectionsOpen === idx ? "rotate-180" : ""
+                            }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"

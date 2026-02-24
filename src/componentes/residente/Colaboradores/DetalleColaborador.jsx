@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+    import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getColaboradores, getRespuestasPorColaborador } from "../../api/temaSemanaApi";
 import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVertical";

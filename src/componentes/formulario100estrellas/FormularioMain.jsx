@@ -31,6 +31,8 @@ import FotosLugar from "./componentes/FotosLugar";
 import Colaboraciones from "./componentes/Colaboraciones";
 import NuevasSeccionesCategorias from "./componentes/NuevasSeccionesCategorias";
 import FormularioPromoExt from "../promociones/componentes/FormularioPromoExt.jsx";
+import { useGeminiSEO } from "../../hooks/useGeminiSEO.js";
+import SmartTagsInput from "../residente/componentes/SmartTagsInput.jsx";
 
 // Helper to get a stable ID for new forms across page reloads
 const getNewFormId = () => {
@@ -62,16 +64,18 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }, [idNegocio]);
 
   const { usuario, token } = useAuth();
+  const { optimizarRestaurante, loading: geminiLoading } = useGeminiSEO();
   const { loadedData, saveFormData, removeFormData } = useFormStorage(
     formId,
-    { disabled: true } // Deshabilitado para evitar persistencia no deseada
+    { disabled: true }, // Deshabilitado para evitar persistencia no deseada
   );
 
   // ⚠️ TODOS LOS HOOKS DEBEN ESTAR AL PRINCIPIO ANTES DE CUALQUIER RETURN
   // Estado para verificar si el usuario B2B ya tiene un restaurante
   // Inicializar en true si es B2B en modo creación para que verifique primero
+  // VENDEDORES YA NO TIENEN LÍMITE
   const [loadingRestauranteCheck, setLoadingRestauranteCheck] = useState(
-    usuario?.rol === "b2b" && !esEdicion
+    usuario?.rol === "b2b" && !esEdicion,
   );
   const [tieneRestaurante, setTieneRestaurante] = useState(false);
   const [error403, setError403] = useState(false);
@@ -79,10 +83,24 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   // Preparar baseDefaults
   const baseDefaults = useMemo(() => {
     // Lista de subcategorías de Food & Drink
-    const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
+    const subcategoriasFoodDrink = [
+      "Postres",
+      "Cafés",
+      "Bares",
+      "Snacks",
+      "Bebidas",
+    ];
 
     // Determinar si el tipo_lugar es una subcategoría de Food & Drink
-    const tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+    let tipoLugarActual = restaurante?.tipo_lugar || "Restaurante";
+
+    // Normalizar capitalización de Tipo de Lugar
+    if (tipoLugarActual.toLowerCase() === "restaurante")
+      tipoLugarActual = "Restaurante";
+    if (tipoLugarActual.toLowerCase() === "food & drink")
+      tipoLugarActual = "Food & Drink";
+
+    // const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"]; // Eliminado por duplicado
     const esSubcategoria = subcategoriasFoodDrink.includes(tipoLugarActual);
 
     const defaults = {
@@ -104,30 +122,53 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       seo_title: "",
       seo_keyword: "",
       meta_description: "",
+      smart_tags: [],
       ...restaurante,
     };
 
     defaults.secciones_categorias = {};
 
+    // Helper para normalizar nombres de secciones (Mapear BD -> Frontend JSON)
+    const normalizeSeccionName = (name) => {
+      const map = {
+        "nivel de gasto": "Nivel de gasto",
+        "nivel de precio": "Nivel de gasto",
+        precio: "Nivel de gasto",
+        gasto: "Nivel de gasto",
+        "tipo de comida": "Tipo de comida",
+        tipo: "Tipo de comida",
+        zona: "Zona",
+        experiencia: "Experiencia",
+        "food & drink": "Food & Drink",
+        ocasión: "Ocasión",
+      };
+      // Normalización básica: Capitalizar primera letra si no está en el mapa
+      const normalized = map[name.toLowerCase()];
+      if (normalized) return normalized;
+
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    };
+
     if (restaurante?.secciones_categorias) {
       restaurante.secciones_categorias.forEach((item) => {
         const { seccion, categoria } = item;
+        const seccionKey = normalizeSeccionName(seccion);
 
         // Si la sección aún no existe, inicialízala
-        if (defaults.secciones_categorias[seccion] === undefined) {
-          defaults.secciones_categorias[seccion] = categoria;
+        if (defaults.secciones_categorias[seccionKey] === undefined) {
+          defaults.secciones_categorias[seccionKey] = categoria;
           return;
         }
 
         // Si ya había algo y no es array, conviértelo a array
-        if (!Array.isArray(defaults.secciones_categorias[seccion])) {
-          defaults.secciones_categorias[seccion] = [
-            defaults.secciones_categorias[seccion],
+        if (!Array.isArray(defaults.secciones_categorias[seccionKey])) {
+          defaults.secciones_categorias[seccionKey] = [
+            defaults.secciones_categorias[seccionKey],
           ];
         }
 
         // Ahora sí, empuja la nueva categoría
-        defaults.secciones_categorias[seccion].push(categoria);
+        defaults.secciones_categorias[seccionKey].push(categoria);
       });
     }
 
@@ -173,7 +214,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
         const num = index + 1;
         if (num <= 5) {
           defaults[`reconocimiento_${num}`] = reconocimiento.titulo || "";
-          defaults[`fecha_reconocimiento_${num}`] = reconocimiento.fecha?.toString() || "";
+          defaults[`fecha_reconocimiento_${num}`] =
+            reconocimiento.fecha?.toString() || "";
         }
       });
     }
@@ -220,6 +262,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
   const { watch, reset, setValue } = methods;
 
+  // Estados para Gemini AI
+
   // Efecto para resetear el formulario cuando los datos del restaurante (props) cambian.
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
@@ -234,7 +278,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     }
   }, [loadedData, reset]);
 
-  // --- AUTO-GENERACIÓN SEO ---
+  // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
+  /*
   const nombreRestaurante = watch("nombre_restaurante");
   const tipoRestaurante = watch("tipo_restaurante");
   const comida = watch("comida");
@@ -281,6 +326,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     setValue("seo_keyword", generatedKeyword);
     setValue("seo_alt_text", generatedAltText);
   }, [nombreRestaurante, tipoRestaurante, comida, sucursales, setValue]);
+  */
   // ---------------------------
 
   // Auto-guardado: Suscribirse a cambios en el formulario
@@ -350,7 +396,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   }
 
   // Verificar roles permitidos
-  if (usuario && usuario.rol !== "residente" && usuario.rol !== "b2b") {
+  if (
+    usuario &&
+    usuario.rol !== "residente" &&
+    usuario.rol !== "b2b" &&
+    usuario.rol !== "vendedor"
+  ) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
@@ -359,7 +410,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
           </h2>
           <p className="text-gray-600">
             No tienes permisos para crear restaurantes. <br />
-            Solo usuarios Residentes y B2B pueden acceder a esta sección.
+            Solo usuarios Residentes, B2B y Vendedores pueden acceder a esta
+            sección.
           </p>
         </div>
       </div>
@@ -375,7 +427,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
             Límite de Restaurantes Alcanzado
           </h2>
           <p className="text-gray-600 mb-4">
-            Solo puedes tener un restaurante registrado. <br />
+            Solo puedes tener un restaurante registrado co tu plan actual.{" "}
+            <br />
             Para editar tu restaurante existente, ve a tu dashboard.
           </p>
           <button
@@ -431,58 +484,97 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     ([seccion, valor]) => {
                       if (Array.isArray(valor)) {
                         valor.forEach((categoria) =>
-                          seccionesCategorias.push({ seccion, categoria })
+                          seccionesCategorias.push({ seccion, categoria }),
                         );
                       } else if (valor) {
                         seccionesCategorias.push({ seccion, categoria: valor });
                       }
-                    }
+                    },
                   );
                 }
 
-                // ✅ Si es Food & Drink con subcategoría, limpiar entradas antiguas y agregar las correctas
-                const subcategoriasFoodDrink = ["Postres", "Cafés", "Bares", "Snacks", "Bebidas"];
-                // Secciones que deben ser limpiadas cuando se usa Food & Drink
-                const seccionesRelacionadasFoodDrink = ["Food & Drink", "Cafés", "Bar", "Postres", "Snacks", "Bebidas", "Cafetería", "Postrería"];
+                // ✅ Definir constantes
+                const subcategoriasFoodDrink = [
+                  "Postres",
+                  "Cafés",
+                  "Bares",
+                  "Snacks",
+                  "Bebidas",
+                ];
+                const seccionesRelacionadasFoodDrink = [
+                  "Food & Drink",
+                  "Cafés",
+                  "Bares",
+                  "Postres",
+                  "Snacks",
+                  "Bebidas",
+                  "Cafetería",
+                  "Postrería",
+                ];
 
                 const subTipoLugar = data.sub_tipo_lugar;
-                const zonasSeleccionadas = data.secciones_categorias?.Zona || [];
+                const zonasSeleccionadas =
+                  data.secciones_categorias?.Zona || [];
+                const tipoLugar = data.tipo_lugar;
 
-                if (subTipoLugar && subcategoriasFoodDrink.includes(subTipoLugar)) {
-                  // Mapeo de opciones del formulario a nombres de sección en BD
+                // ✅ CASO 1: Si es Food & Drink con subcategoría
+                if (
+                  subTipoLugar &&
+                  subcategoriasFoodDrink.includes(subTipoLugar)
+                ) {
                   const mapeoSeccion = {
-                    "Cafés": "Cafés",
-                    "Bares": "Bar",
-                    "Postres": "Postres",
-                    "Snacks": "Snacks",
-                    "Bebidas": "Bebidas"
+                    Cafés: "Cafés",
+                    Bares: "Bares", // ✅ Corregido: era "Bar", ahora es "Bares"
+                    Postres: "Postres",
+                    Snacks: "Snacks",
+                    Bebidas: "Bebidas",
                   };
-                  const seccionFinal = mapeoSeccion[subTipoLugar] || subTipoLugar;
+                  const seccionFinal =
+                    mapeoSeccion[subTipoLugar] || subTipoLugar;
 
-                  // ✅ PRIMERO: Eliminar entradas antiguas de Food & Drink y secciones relacionadas
+                  // Eliminar entradas antiguas de Food & Drink, secciones relacionadas Y ZONA
                   const seccionesCategoriasLimpias = seccionesCategorias.filter(
-                    item => !seccionesRelacionadasFoodDrink.includes(item.seccion)
+                    (item) =>
+                      !seccionesRelacionadasFoodDrink.includes(item.seccion) &&
+                      item.seccion !== "Zona",
                   );
 
-                  // Limpiar el array original y copiar las entradas limpias
                   seccionesCategorias.length = 0;
-                  seccionesCategoriasLimpias.forEach(item => seccionesCategorias.push(item));
+                  seccionesCategoriasLimpias.forEach((item) =>
+                    seccionesCategorias.push(item),
+                  );
 
-                  // Agregar entrada original Food & Drink
+                  // Agregar Food & Drink
                   seccionesCategorias.push({
                     seccion: "Food & Drink",
-                    categoria: subTipoLugar
+                    categoria: subTipoLugar,
                   });
 
-                  // Agregar entradas con las zonas como categorías
-                  if (Array.isArray(zonasSeleccionadas) && zonasSeleccionadas.length > 0) {
-                    zonasSeleccionadas.forEach(zona => {
+                  // Agregar zonas bajo la subcategoría
+                  if (
+                    Array.isArray(zonasSeleccionadas) &&
+                    zonasSeleccionadas.length > 0
+                  ) {
+                    zonasSeleccionadas.forEach((zona) => {
                       seccionesCategorias.push({
                         seccion: seccionFinal,
-                        categoria: zona
+                        categoria: zona,
                       });
                     });
                   }
+                }
+                // ✅ CASO 2: Si NO es Food & Drink (es Restaurante u otro), limpiar residuos de Food & Drink
+                else {
+                  // Eliminar cualquier entrada relacionada con Food & Drink que pudiera quedar de una edición anterior
+                  const seccionesCategoriasLimpias = seccionesCategorias.filter(
+                    (item) =>
+                      !seccionesRelacionadasFoodDrink.includes(item.seccion),
+                  );
+
+                  seccionesCategorias.length = 0;
+                  seccionesCategoriasLimpias.forEach((item) =>
+                    seccionesCategorias.push(item),
+                  );
                 }
 
                 // Helper cleaning function
@@ -501,9 +593,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   fecha_inauguracion: data.fecha_inauguracion,
                   comida: data.comida
                     ? data.comida
-                      .split(",")
-                      .map((item) => item.trim())
-                      .filter(Boolean)
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
                     : [],
                   telefono: data.telefono,
                   ticket_promedio: data.ticket_promedio,
@@ -513,10 +605,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   imagenesEliminadas: data.imagenesEliminadas || [],
                   // Si hay sub_tipo_lugar (Postres, Cafés, Bares, etc.), usarlo como tipo_lugar
                   // Si no, usar el tipo_lugar principal (Restaurante o Food & Drink)
-                  tipo_lugar: data.sub_tipo_lugar || data.tipo_lugar || "Restaurante",
+                  tipo_lugar:
+                    data.sub_tipo_lugar || data.tipo_lugar || "Restaurante",
                   // Si hay sub_tipo_lugar, también enviarlo a tipo_restaurante
                   // Si no, usar el tipo_restaurante que viene del campo "Tipo de comida"
-                  tipo_restaurante: data.sub_tipo_lugar || data.tipo_restaurante,
+                  tipo_restaurante:
+                    data.sub_tipo_lugar || data.tipo_restaurante,
                   categoria: data.categoria,
                   sitio_web: data.sitio_web,
                   rappi_link: data.rappi_link,
@@ -541,7 +635,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   colaboracion_coca_cola: data.colaboracion_coca_cola || false,
                   colaboracion_modelo: data.colaboracion_modelo || false,
                   colaboracion_heineken: data.colaboracion_heineken || false,
-                  colaboracion_descuentosx6: data.colaboracion_descuentosx6 || false,
+                  colaboracion_descuentosx6:
+                    data.colaboracion_descuentosx6 || false,
                   icon: data.icon || [],
                   reseñas: reseñasFields.map((field) => ({
                     [field]: cleanText(data[field]),
@@ -549,10 +644,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   experiencia_opinion: [],
                   reconocimientos: [],
                   secciones_categorias: seccionesCategorias,
-                  seo_alt_text: data.seo_alt_text,
-                  seo_title: data.seo_title,
-                  seo_keyword: data.seo_keyword,
-                  meta_description: data.meta_description,
+                  seo_alt_text: data.seo_alt_text?.trim() || null,
+                  seo_title: data.seo_title?.trim() || null,
+                  seo_keyword: data.seo_keyword?.trim() || null,
+                  meta_description: data.meta_description?.trim() || null,
+                  smart_tags: data.smart_tags?.length ? data.smart_tags : null,
                 };
 
                 // Construir arrays estructurados
@@ -636,12 +732,14 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
                   // Separar imágenes nuevas (Files) de las existentes (con id)
                   const newImages = imagenes.filter(
-                    (img) => img instanceof File
+                    (img) => img instanceof File,
                   );
 
                   // Obtener IDs de imágenes existentes que se conservan
                   const imagenesConservadasIds = imagenes
-                    .filter((img) => img?.id && !imagenesEliminadas.includes(img.id))
+                    .filter(
+                      (img) => img?.id && !imagenesEliminadas.includes(img.id),
+                    )
                     .map((img) => img.id);
 
                   // Procesar FOTOS DEL LUGAR
@@ -653,7 +751,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   const fotosConservadasIds = fotosLugar
                     .filter(
                       (foto) =>
-                        foto.isExisting && !fotosEliminadas.includes(foto.id)
+                        foto.isExisting && !fotosEliminadas.includes(foto.id),
                     )
                     .map((foto) => foto.id);
                   const fotosEliminadasIds = data.fotos_eliminadas || [];
@@ -665,11 +763,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     });
                     formDataFotos.append(
                       "eliminadas",
-                      JSON.stringify(fotosEliminadasIds)
+                      JSON.stringify(fotosEliminadasIds),
                     );
                     formDataFotos.append(
                       "conservadas",
-                      JSON.stringify(fotosConservadasIds)
+                      JSON.stringify(fotosConservadasIds),
                     );
                     await postFotosLugar(restaurantId, formDataFotos);
                   }
@@ -683,12 +781,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     // IMPORTANTE: El backend espera 'eliminadas' no 'imagenesEliminadas'
                     formData.append(
                       "eliminadas",
-                      JSON.stringify(imagenesEliminadas)
+                      JSON.stringify(imagenesEliminadas),
                     );
                     // También enviar las conservadas
                     formData.append(
                       "conservadas",
-                      JSON.stringify(imagenesConservadasIds)
+                      JSON.stringify(imagenesConservadasIds),
                     );
                     await postImages(restaurantId, formData);
                   }
@@ -720,13 +818,13 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     result.data.slug || (esEdicion ? restaurante.slug : null);
                   if (finalSlug) {
                     // Abrir el restaurante en una nueva pestaña en residente.mx
-                    window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
+                    // window.open(`https://residente.mx/restaurantes/${finalSlug}`, '_blank');
                     // Si es usuario B2B, redirigir a su dashboard
-                    // Si no, quedarse en la página del restaurante en admin
-                    if (usuario?.rol === 'b2b') {
-                      navigate('/dashboardb2b');
+                    // Si no, redirigir al dashboard general (admin)
+                    if (usuario?.rol === "b2b") {
+                      navigate("/dashboardb2b");
                     } else {
-                      navigate(`/restaurante/${finalSlug}`);
+                      navigate("/dashboard");
                     }
                   }
                 }
@@ -806,21 +904,83 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-
                 {/* Selector de Iconos/Stickers */}
                 <div className="form-iconos">
                   <fieldset>
                     <legend>Selecciona íconos para tu restaurante</legend>
                     <FormularioPromoExt
-                      onStickerSelect={(stickers) => methods.setValue('icon', stickers)}
-                      stickerSeleccionado={methods.watch('icon') || []}
+                      onStickerSelect={(stickers) =>
+                        methods.setValue("icon", stickers)
+                      }
+                      stickerSeleccionado={methods.watch("icon") || []}
                       maxStickers={1}
                     />
                   </fieldset>
                 </div>
+                {/* Sección Smart Tags (AI) */}
+                <div className="form-smart-tags" style={{ marginTop: "20px" }}>
+                  <SmartTagsInput
+                    value={methods.watch("smart_tags")}
+                    onChange={(tags) => methods.setValue("smart_tags", tags)}
+                    isGenerating={geminiLoading}
+                    hideGenerationButton={usuario?.rol !== "residente"}
+                    onGenerateAI={async () => {
+                      const datosRestaurante = methods.getValues();
 
+                      // Validaciones minimas
+                      if (!datosRestaurante.nombre_restaurante) {
+                        alert(
+                          "Por favor ingresa al menos el nombre del restaurante.",
+                        );
+                        return;
+                      }
 
-                {/* Sección SEO Metadata (OCULTA AUTOMÁTICAMENTE) */}
+                      try {
+                        const seo = await optimizarRestaurante({
+                          nombre_restaurante:
+                            datosRestaurante.nombre_restaurante,
+                          tipo_comida:
+                            datosRestaurante.tipo_restaurante ||
+                            datosRestaurante.comida ||
+                            "",
+                          historia: datosRestaurante.historia || "",
+                          ubicacion: datosRestaurante.ubicacion || "",
+                          especialidades:
+                            datosRestaurante.platillo_mas_vendido || "",
+                        });
+
+                        if (seo) {
+                          // Actualizar estado del formulario
+                          methods.setValue(
+                            "smart_tags",
+                            seo.smart_tags || methods.getValues("smart_tags"),
+                          );
+                          methods.setValue(
+                            "seo_title",
+                            seo.seo_title || methods.getValues("seo_title"),
+                          );
+                          methods.setValue(
+                            "seo_keyword",
+                            seo.seo_keyword || methods.getValues("seo_keyword"),
+                          );
+                          methods.setValue(
+                            "meta_description",
+                            seo.meta_description ||
+                              methods.getValues("meta_description"),
+                          );
+                          methods.setValue(
+                            "seo_alt_text",
+                            seo.seo_alt_text ||
+                              methods.getValues("seo_alt_text"),
+                          );
+                        }
+                      } catch (e) {
+                        console.error("Error generando tags:", e);
+                        alert("Error al generar con IA");
+                      }
+                    }}
+                  />
+                </div>
                 <div className="form-seo" style={{ display: "none" }}>
                   <fieldset>
                     <legend>SEO Metadata (Opcional)</legend>

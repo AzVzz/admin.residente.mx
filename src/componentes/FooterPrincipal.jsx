@@ -81,12 +81,12 @@ const FooterPrincipal = () => {
                     <div></div>
                     {/* Columna 7 */}
                     <div className="sm:flex flex-col gap-0 items-center hidden">
-                        <a href="/" className="hover:underline text-right w-full">Inicio</a>
-                        <a href="/historia" className="hover:underline text-right w-full">Historia</a>
-                        <a href="/mision" className="hover:underline text-right w-full">Misión</a>
-                        <a href="/trabajo" className="hover:underline text-right w-full">Trabajo</a>
-                        <a href="/anunciate" className="hover:underline text-right w-full">Anúnciate</a>
-                        <a href="/noticias" className="hover:underline text-right w-full">Noticias</a>
+                        <a href="https://residente.mx/" className="hover:underline text-right w-full">Inicio</a>
+                        <a href="https://residente.mx/historia" className="hover:underline text-right w-full">Historia</a>
+                        <a href="https://residente.mx/mision" className="hover:underline text-right w-full">Misión</a>
+                        <a href="https://residente.mx/trabajo" className="hover:underline text-right w-full">Trabajo</a>
+                        <a href="https://residente.mx/anunciate" className="hover:underline text-right w-full">Anúnciate</a>
+                        <a href="https://residente.mx/noticias" className="hover:underline text-right w-full">Noticias</a>
                         {/* Botón para ir arriba */}
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

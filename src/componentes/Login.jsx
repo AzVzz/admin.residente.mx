@@ -29,6 +29,7 @@ const Login = () => {
   const getFallbackByRole = (rol, permisos) => {
     const r = rol?.toLowerCase();
     if (r === "b2b") return "/dashboardb2b";
+    if (r === "vendedor") return "/dashboard";
     // Para usuarios "residente", "invitado" o "colaborador", redirigir a /notas
     if (r === "residente" || r === "invitado" || r === "colaborador") return "/notas";
     return "/"; // otros roles
@@ -40,6 +41,10 @@ const Login = () => {
 
     if (r === "b2b") {
       return path.startsWith("/dashboardb2b");
+    }
+
+    if (r === "vendedor") {
+      return path.startsWith("/dashboard");
     }
 
     // residente, invitado y colaborador pueden ir a /notas y lo que cuelgue de ahí
