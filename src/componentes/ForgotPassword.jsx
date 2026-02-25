@@ -39,7 +39,6 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="max-w-[1080px] mx-auto py-8">
       <div className="flex justify-center items-center">

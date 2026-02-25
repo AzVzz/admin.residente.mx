@@ -154,6 +154,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      "/api/productos-b2c": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/api/tienda-b2c": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
+      },
       "/fotos": {
         target: "https://residente.mx",
         changeOrigin: true,

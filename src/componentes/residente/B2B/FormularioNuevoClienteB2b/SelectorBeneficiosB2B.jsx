@@ -42,12 +42,21 @@ const BENEFICIOS_INFO = [
   },
 ];
 
-const SelectorBeneficiosB2B = ({ numMeses, onConfirmBeneficios, onVolver }) => {
-  const [seleccionados, setSeleccionados] = useState([]);
+const SelectorBeneficiosB2B = ({
+  numMeses,
+  beneficiosIniciales = [],
+  todosIncluidos = false,
+  onConfirmBeneficios,
+  onVolver,
+}) => {
+  const [seleccionados, setSeleccionados] = useState(beneficiosIniciales);
 
-  const maxSeleccion = numMeses === 6 ? 1 : 2;
+  const maxSeleccion = todosIncluidos ? 5 : numMeses === 6 ? 1 : 2;
 
   const handleToggle = (key) => {
+    // En modo "todos incluidos" las tarjetas no son interactivas
+    if (todosIncluidos) return;
+
     setSeleccionados((prev) => {
       if (prev.includes(key)) {
         return prev.filter((b) => b !== key);
@@ -62,7 +71,7 @@ const SelectorBeneficiosB2B = ({ numMeses, onConfirmBeneficios, onVolver }) => {
     });
   };
 
-  const puedeConfirmar = seleccionados.length === maxSeleccion;
+  const puedeConfirmar = todosIncluidos || seleccionados.length === maxSeleccion;
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
@@ -76,42 +85,86 @@ const SelectorBeneficiosB2B = ({ numMeses, onConfirmBeneficios, onVolver }) => {
           <span className="font-medium">Cambiar plan</span>
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
-          Elige {maxSeleccion === 1 ? "tu beneficio" : "tus 2 beneficios"}
-        </h1>
-        <p className="text-gray-600 text-center">
-          Tu plan de {numMeses} meses incluye{" "}
-          {maxSeleccion === 1
-            ? "1 beneficio a tu eleccion"
-            : "2 beneficios a tu eleccion"}
-          . Selecciona {maxSeleccion === 1 ? "el que prefieras" : "los que prefieras"}.
-        </p>
-        <p className="text-sm text-gray-500 text-center mt-2">
-          {seleccionados.length} de {maxSeleccion} seleccionado{maxSeleccion > 1 ? "s" : ""}
-        </p>
+        {todosIncluidos ? (
+          <>
+            <div className="flex justify-center mb-3">
+              <img
+                src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                className="w-110 h-auto object-contain"
+              />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
+              ¡Todos los beneficios incluidos!
+            </h1>
+            <p className="text-gray-600 text-center">
+              Tu plan anual de {numMeses} meses incluye los{" "}
+              <span className="font-bold">5 beneficios adicionales</span> sin
+              costo extra.
+            </p>
+            <p className="text-sm text-green-600 text-center mt-2 font-medium">
+              ✓ Revisa tus beneficios y presiona Continuar
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
+              Elige {maxSeleccion === 1 ? "tu beneficio" : "tus 2 beneficios"}
+            </h1>
+            <p className="text-gray-600 text-center">
+              Tu plan de {numMeses} meses incluye{" "}
+              {maxSeleccion === 1
+                ? "1 beneficio a tu eleccion"
+                : "2 beneficios a tu eleccion"}
+              . Selecciona{" "}
+              {maxSeleccion === 1 ? "el que prefieras" : "los que prefieras"}.
+            </p>
+            <p className="text-sm text-gray-500 text-center mt-2">
+              {seleccionados.length} de {maxSeleccion} seleccionado
+              {maxSeleccion > 1 ? "s" : ""}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Tarjetas de beneficios */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {BENEFICIOS_INFO.map((beneficio) => {
-          const isSelected = seleccionados.includes(beneficio.key);
+          const isSelected =
+            todosIncluidos || seleccionados.includes(beneficio.key);
           const isDisabled =
-            !isSelected && seleccionados.length >= maxSeleccion && maxSeleccion > 1;
+            todosIncluidos ||
+            (!isSelected &&
+              seleccionados.length >= maxSeleccion &&
+              maxSeleccion > 1);
 
           return (
             <div
               key={beneficio.key}
               onClick={() => !isDisabled && handleToggle(beneficio.key)}
-              className={`relative rounded-2xl p-5 cursor-pointer transform transition-all duration-300 ease-out
-                ${isDisabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105 hover:-translate-y-1 hover:shadow-xl"}
+              className={`relative rounded-2xl p-5 transform transition-all duration-300 ease-out
+                ${
+                  todosIncluidos
+                    ? "cursor-default"
+                    : isDisabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:scale-105 hover:-translate-y-1 hover:shadow-xl"
+                }
                 ${
                   isSelected
                     ? "bg-gray-900 text-white border-2 border-black shadow-xl"
                     : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black"
                 }`}
             >
+              {/* Logo pequeño arriba a la derecha */}
+              <div className="absolute top-2 right-2">
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  className="w-36 h-auto object-contain"
+                />
+              </div>
+
               {/* Check indicator */}
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-2 left-2">
                 <div
                   className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
                     ${isSelected ? "border-white bg-white" : "border-gray-300"}`}
@@ -141,6 +194,13 @@ const SelectorBeneficiosB2B = ({ numMeses, onConfirmBeneficios, onVolver }) => {
               >
                 {beneficio.descripcion}
               </p>
+
+              {/* Badge "Incluido" para plan 12 meses */}
+              {todosIncluidos && (
+                <span className="absolute bottom-3 right-3 text-[10px] font-bold bg-yellow-400 text-black px-2 py-0.5 rounded-full">
+                  INCLUIDO
+                </span>
+              )}
             </div>
           );
         })}

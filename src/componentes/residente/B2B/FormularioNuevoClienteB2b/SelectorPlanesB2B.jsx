@@ -6,32 +6,32 @@ import {
   FaWarehouse,
   FaStoreAlt,
 } from "react-icons/fa";
-import { HiOutlineCheckCircle } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import { urlApi } from "../../../api/url.js";
 import { useAuth } from "../../../Context";
 
 // Planes por meses: 6, 9, 12 (cobro mensual, renovación al cumplir los meses)
 const NOMBRES_MEMBRESIAS = {
-  6: "Plan 6 meses",
-  9: "Plan 9 meses",
-  12: "Plan 12 meses",
+  12: "Membresía Anual",
+  6: "Membresía de 6 Meses",
+  9: "Membresía de 9 Meses",
 };
 
-const TEXTO_MESES = {
-  6: "6 meses (cobro mensual)",
-  9: "9 meses (cobro mensual)",
-  12: "12 meses (cobro mensual)",
+// Texto personalizado para el badge de sucursales
+const TEXTO_SUCURSALES = {
+  12: "Suscripción Anual",
+  6: "Suscripción 6 Meses",
+  9: "Suscripción 9 Meses",
 };
 
+// Función para obtener el nombre de la membresía
 const getNombreMembresia = (meses) => {
-  const key = parseInt(meses, 10);
-  return NOMBRES_MEMBRESIAS[key] || `Plan ${meses} meses`;
+  return NOMBRES_MEMBRESIAS[parseInt(meses)] || "B2B";
 };
 
-const getTextoMeses = (meses) => {
-  const key = parseInt(meses, 10);
-  return TEXTO_MESES[key] || `${meses} meses`;
+// Función para obtener el texto de sucursales
+const getTextoSucursales = (meses) => {
+  return TEXTO_SUCURSALES[parseInt(meses)] || `${meses} Meses`;
 };
 
 const getIconoPorMeses = (meses) => {
@@ -47,32 +47,24 @@ const getIconoPorMeses = (meses) => {
   }
 };
 
+const CARACTERISTICAS_BASE = [
+  "CLUB DE NEGOCIOS.\nSolo el 2% de NL. Prestigio, descuentos, rifas y eventos",
+  "DIRECTORIO. \n20 por categoria. Presencia constante entre consumidores reales de NL",
+  "MICROSITIO. \nTu página web en 15 minutos, con cambios ilimitados y métricas",
+  "DESCUENTOS. \nTu propio generador de promociones, \nsin limite de publicaciones",
+  "PUBLICIDAD. \nTu marca, todos los meses en medios digitales e impresos Residente",
+];
+
 const CARACTERISTICAS_POR_PLAN = {
-  6: [
-    "Publicidad masiva 'Club Residente'",
-    "Presencia en directorio Web, Revista, Redes, Newsletter",
-    "Ticket de Descuento ilimitado",
-    "Micrositio individual. Cambios ilimitados",
-    "Acervo historico. SEO Google y ChatGPT",
-    "Descuentos para tu negocio. Rifas",
-    "──────────────────",
-    "Elige 1 beneficio adicional",
-  ],
-  9: [
-    "Todo lo del plan 6 meses",
-    "──────────────────",
-    "Elige 2 beneficios adicionales",
-  ],
-  12: [
-    "Todo lo del plan 9 meses",
-    "──────────────────",
-    "Los 5 beneficios adicionales incluidos",
-  ],
+  12: [...CARACTERISTICAS_BASE],
+  6: [...CARACTERISTICAS_BASE],
+  9: [...CARACTERISTICAS_BASE],
 };
 
+// Función para obtener características del plan por meses
 const getCaracteristicasPorMeses = (meses) => {
-  const key = parseInt(meses, 10);
-  return CARACTERISTICAS_POR_PLAN[key] || CARACTERISTICAS_POR_PLAN[12];
+  const key = parseInt(meses);
+  return CARACTERISTICAS_POR_PLAN[key] || CARACTERISTICAS_POR_PLAN[5];
 };
 
 // Componente de Card individual para cada plan
@@ -81,12 +73,10 @@ const PlanCard = ({ plan, onSelectPlan }) => {
 
   return (
     <div
-      className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out
-        hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
-        ${
-          plan.destacado
-            ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
-            : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
+      className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
+        ${plan.destacado
+          ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
+          : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
         }`}
       onClick={() => onSelectPlan(plan)}
     >
@@ -102,80 +92,105 @@ const PlanCard = ({ plan, onSelectPlan }) => {
       {/* Header del plan */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div
-            className={`p-2 rounded-lg transition-all duration-300 group-hover:scale-110 ${plan.destacado ? "bg-yellow-400/20" : "bg-gray-100"}`}
-          >
-            <IconoComponent
-              className={`text-2xl transition-transform duration-300 ${plan.destacado ? "text-black" : "text-gray-700"}`}
-            />
-          </div>
-          <h2 className="text-xl font-bold">{plan.nombreMembresia || "B2B"}</h2>
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+            className="w-65 h-auto object-contain"
+          />
+        </div>
+      </div>
+
+      {/* Nombre de la membresía */}
+      <div className="flex justify-center mb-8 mt-8">
+        <div>
+          <span className="text-sm font-bold tracking-widest uppercase text-gray-500 block">
+            Membresía de
+          </span>
+          <span className="text-3xl font-black uppercase block text-right">
+            {plan.meses} Meses
+          </span>
         </div>
         <div
-          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${
-            plan.destacado ? "border-black" : "border-gray-300"
-          }`}
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${plan.destacado ? "border-black" : "border-gray-300"
+            }`}
         >
           <div
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              plan.destacado
-                ? "bg-black scale-100"
-                : "bg-black scale-0 group-hover:scale-100"
-            }`}
-          ></div>
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${plan.destacado
+              ? "bg-black scale-100"
+              : "bg-black scale-0 group-hover:scale-100"
+              }`}></div>
         </div>
       </div>
 
       {/* Precio */}
       <div className="mb-4">
-        <div className="flex items-baseline gap-1">
+        <div className="flex items-center justify-center flex-col">
+          <div>
+            <span
+              className={`text-4xl font-bold transition-all duration-300 ${plan.destacado ? "group-hover:text-black" : "group-hover:text-black"}`}
+            >
+              ${plan.precioMensual?.toLocaleString("es-MX")}
+            </span>
+            <span className="text-4xl pl-2">
+              al mes
+            </span>
+          </div>
           <span
-            className={`text-4xl font-bold transition-all duration-300 ${plan.destacado ? "group-hover:text-black" : "group-hover:text-black"}`}
+            className={`text-[10px] leading-[1] transition-colors duration-300 ${plan.destacado ? "text-gray-300" : "text-gray-500"}`}
           >
-            ${plan.precioMensual?.toLocaleString("es-MX")}
-          </span>
-          <span
-            className={`text-[20px] transition-colors duration-300 ${plan.destacado ? "text-gray-400" : "text-gray-500"}`}
-          >
-            + IVA / MES
+            Precio no incluye IVA
           </span>
         </div>
       </div>
-
-      {/* Duración del plan */}
-      <div
-        className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 ${
-          plan.destacado
-            ? "bg-yellow-400/20 text-yellow-400"
-            : "bg-gray-100 text-gray-700"
-        }`}
-      >
-        {plan.textoMeses}
-      </div>
-
       {/* Características */}
-      <ul className="space-y-3 mb-6">
-        {plan.caracteristicas?.map((caracteristica, idx) =>
-          caracteristica.includes("──") ? (
-            <li key={idx} className="flex justify-center my-2">
-              <div className="w-full border-t border-black"></div>
-            </li>
-          ) : (
-            <li key={idx} className="flex items-start gap-2">
-              <HiOutlineCheckCircle
-                className={`text-lg mt-0.5 flex-shrink-0 ${
-                  plan.destacado ? "text-black" : "text-black"
-                }`}
-              />
-              <span
-                className={`text-sm ${plan.destacado ? "text-gray-200" : "text-gray-700"}`}
-              >
-                {caracteristica}
-              </span>
-            </li>
-          ),
-        )}
+      <ul className="space-y-3 mb-11">
+        {(() => {
+          let currentNumber = 0;
+          const total = plan.caracteristicas?.length ?? 0;
+          return plan.caracteristicas?.map((caracteristica, idx) => {
+            if (caracteristica.includes("──")) {
+              return (
+                <li key={idx} className="flex justify-center my-2">
+                  <div className="w-full border-t border-black"></div>
+                </li>
+              );
+            }
+            currentNumber++;
+            const isLast = idx === total - 1;
+            return (
+              <li key={idx} className="flex items-start gap-4">
+                <div
+                  className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-lg
+                    ${plan.destacado ? "text-black" : "text-black"}`}
+                >
+                  {isLast ? "5" : currentNumber}
+                </div>
+                <span
+                  className={`text-sm whitespace-pre-line ${plan.destacado ? "text-gray-200" : "text-black"}`}
+                >
+                  {(() => {
+                    const dotIndex = caracteristica.indexOf('.');
+                    if (dotIndex === -1) return caracteristica;
+
+                    const title = caracteristica.substring(0, dotIndex + 1);
+                    const description = caracteristica.substring(dotIndex + 1);
+
+                    return (
+                      <>
+                        <span className="font-bold uppercase">{title}</span>
+                        <span className="text-sm leading-tight font-light text-gray-500 font-roman">
+                          {description}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </li>
+            );
+          });
+        })()}
       </ul>
+
+      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">Incrementa los beneficios de <br/> tu suscripción cuando decides durante la cita</span>
 
       {/* Botón de selección */}
       <button
@@ -183,15 +198,21 @@ const PlanCard = ({ plan, onSelectPlan }) => {
           e.stopPropagation();
           onSelectPlan(plan);
         }}
-        className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-          plan.destacado
-            ? " cursor-pointer"
-            : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
-        }
+        className={`text-3xl w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${plan.destacado
+          ? " cursor-pointer"
+          : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+          }
         }`}
       >
-        Seleccionar
+        Más beneficios
       </button>
+
+      {/* Beneficios por plan */}
+      <p className="text-xl text-center font-bold transition-all duration-300 group-hover:text-black mt-2">
+        {parseInt(plan.meses) === 12 && "Incluye 5 beneficios extra"}
+        {parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"}
+        {parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"}
+      </p>
     </div>
   );
 };
@@ -334,12 +355,19 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
+    console.log('🔍 Iniciando carga de clientes vetados...');
+    console.log('🔑 Token disponible:', !!token);
+    console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
+    console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
+
     if (!token) {
       setErrorClientes("No hay sesión activa. Por favor inicia sesión.");
       return;
     }
+
     setLoadingClientes(true);
     setErrorClientes(null);
+
     try {
       const response = await fetch(`${urlApi}api/clientes-editorial`, {
         headers: {
@@ -347,10 +375,18 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           "Content-Type": "application/json",
         },
       });
+
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
+
       const data = await response.json();
+      console.log('📦 Datos recibidos:', data);
+      console.log('📊 Total de clientes:', Array.isArray(data) ? data.length : (data.clientes?.length || 0));
+
       const clientesArray = Array.isArray(data) ? data : data.clientes || [];
       setClientesVetados(clientesArray);
       setErrorClientes(null);
@@ -371,39 +407,59 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     setClienteSeleccionado(clienteId);
 
     if (clienteId) {
-      setMostrarPlanes(false);
-      const planMasCaro = planes.find((p) => p.meses === 12);
-      if (planMasCaro) {
-        const planConCliente = {
-          ...planMasCaro,
-          clienteRestringidoId: clienteId,
-          esClienteRestringido: true,
-          nombreCliente: clientesVetados.find(
-            (c) => c.id === parseInt(clienteId),
-          )?.restaurante,
-        };
-        onSelectPlan(planConCliente);
-      }
+      // Al seleccionar un cliente del dropdown, mostrar las tarjetas de planes
+      setMostrarPlanes(true);
     } else {
-      // Si deselecciona (vuelve a "Seleccionar"), no hacer nada
+      // Al deseleccionar, ocultar tarjetas
       setMostrarPlanes(false);
     }
   };
+
+  // Función para manejar la selección de un plan (agrega info del cliente si hay uno seleccionado)
+  const handleSelectPlan = (plan) => {
+    if (clienteSeleccionado) {
+      const planConCliente = {
+        ...plan,
+        clienteRestringidoId: clienteSeleccionado,
+        esClienteRestringido: true,
+        nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
+      };
+      console.log('🎯 Plan seleccionado para cliente restringido:', planConCliente);
+      onSelectPlan(planConCliente);
+    } else {
+      onSelectPlan(plan);
+    }
+  };
+  // Filtrar solo los planes de 6, 9 y 12 meses (nuevo modelo)
   const planesPermitidos = [6, 9, 12];
 
   const planes =
     planesData && planesData.length > 0
       ? planesData
-          .filter((plan) => planesPermitidos.includes(plan.meses))
-          .map((plan, index) => ({
+        .filter((plan) => planesPermitidos.includes(parseInt(plan.meses)))
+        .map((plan, index) => {
+          // Si hay cliente seleccionado y existe Precio A del backend, usarlo
+          const tieneClienteSeleccionado = !!clienteSeleccionado;
+          const precioA = plan.precioA;
+
+          return {
             ...plan,
             id: plan.priceId || index,
             icono: getIconoPorMeses(plan.meses),
             caracteristicas: getCaracteristicasPorMeses(plan.meses),
-            nombreMembresia: getNombreMembresia(plan.meses),
-            textoMeses: plan.mesesTexto || getTextoMeses(plan.meses),
+            nombreMembresia: plan.nombre || getNombreMembresia(plan.meses),
+            textoSucursales: getTextoSucursales(plan.meses),
             destacado: false,
-          }))
+            // Sobreescribir con Precio A si hay cliente seleccionado
+            ...(tieneClienteSeleccionado && precioA && {
+              priceId: precioA.priceId,
+              precioMensual: precioA.precioMensual,
+              precioMensualConIVA: precioA.precioMensualConIVA,
+              _precioOriginal: plan.precioMensual,
+            }),
+          };
+        })
+        .sort((a, b) => parseInt(b.meses) - parseInt(a.meses))
       : [];
 
   if (loadingPrecios) {
@@ -505,7 +561,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             </button>
           </div>
 
-          {/* Mensaje de éxito compacto */}
+          {/* Mensaje de éxito: cliente seleccionado del dropdown */}
           {clienteSeleccionado && !errorClientes && (
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
               <p className="text-xs text-green-700 font-medium">
@@ -517,8 +573,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                 }
               </p>
               <p className="text-xs text-green-600 mt-1">
-                📋 Membresía asignada:{" "}
-                <span className="font-bold">Plan 12 meses</span>
+                📋 Selecciona un plan para este cliente
               </p>
             </div>
           )}
@@ -573,7 +628,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             <PlanCard
               key={plan.id || plan.priceId || index}
               plan={plan}
-              onSelectPlan={onSelectPlan}
+              onSelectPlan={handleSelectPlan}
             />
           ))}
         </div>

@@ -252,17 +252,14 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
     setPlanSeleccionado(plan);
     const meses = parseInt(plan.meses, 10);
 
-    if (meses === 12 || plan.esClienteRestringido) {
-      // 12 meses o cliente restringido: todos los beneficios, ir directo al formulario
-      setBeneficiosSeleccionados([...TODOS_LOS_BENEFICIOS]);
-      setMostrarSelectorBeneficios(false);
-      setMostrarFormulario(true);
-    } else {
-      // 6 o 9 meses: mostrar selector de beneficios primero
-      setBeneficiosSeleccionados([]);
-      setMostrarSelectorBeneficios(true);
-      setMostrarFormulario(false);
-    }
+    // Siempre mostrar selector de beneficios:
+    // - 12 meses: todos pre-seleccionados y bloqueados
+    // - 6/9 meses: el usuario debe elegir
+    setBeneficiosSeleccionados(
+      meses === 12 ? [...TODOS_LOS_BENEFICIOS] : []
+    );
+    setMostrarSelectorBeneficios(true);
+    setMostrarFormulario(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -336,6 +333,8 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         <div className={`${!mostrarSelectorBeneficios ? "hidden" : ""}`}>
           <SelectorBeneficiosB2B
             numMeses={planSeleccionado?.meses}
+            beneficiosIniciales={beneficiosSeleccionados}
+            todosIncluidos={parseInt(planSeleccionado?.meses) === 12}
             onConfirmBeneficios={handleConfirmBeneficios}
             onVolver={handleVolverAPlanes}
           />

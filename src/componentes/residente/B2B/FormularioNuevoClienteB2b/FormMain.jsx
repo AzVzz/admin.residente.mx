@@ -132,7 +132,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          if (planInicial) {
+          if (planInicial?.esClienteRestringido && planInicial?.priceId) {
+            setPrecioSeleccionado(planInicial);
+          } else if (planInicial) {
             const precioCoincidente = data.precios.find(
               (p) => p.meses === planInicial.meses,
             );
@@ -160,6 +162,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
   }, [planInicial]);
 
   useEffect(() => {
+    if (planInicial?.esClienteRestringido) return;
     if (preciosDisponibles.length > 0) {
       const precio = preciosDisponibles.find((p) => p.meses === numeroMeses);
       if (precio) setPrecioSeleccionado(precio);
@@ -837,6 +840,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
         successUrl: successUrl,
         cancelUrl: cancelUrl,
         beneficiosSeleccionados: beneficiosSeleccionados,
+        ...(precioSeleccionado?.esClienteRestringido && precioSeleccionado?.priceId && {
+          priceIdOverride: precioSeleccionado.priceId,
+        }),
       };
 
       const res = await fetch(apiUrl, {
