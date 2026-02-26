@@ -622,6 +622,21 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           )}
         </div>
         
+        <div className="w-full max-w-2xl mx-auto mb-6">
+          <video
+            className="w-full h-auto rounded-md shadow-lg"
+            controls
+            playsInline
+            preload="metadata"
+          >
+            <source
+              src="https://residente.mx/fotos/videos/video%20de%20jose.mp4"
+              type="video/mp4"
+            />
+            Tu navegador no soporta la reproducción de video.
+          </video>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
             <img
