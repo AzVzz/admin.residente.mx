@@ -630,9 +630,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             preload="metadata"
           >
             <source
-              src="https://residente.mx/fotos/videos/video%20de%20jose.mp4"
+              src="https://residente.mx/fotos/videos/new%20video.mp4"
               type="video/mp4"
-            />
+            />x
             Tu navegador no soporta la reproducción de video.
           </video>
         </div>
