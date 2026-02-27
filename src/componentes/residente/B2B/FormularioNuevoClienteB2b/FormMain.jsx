@@ -474,12 +474,11 @@ const FormMain = ({ planInicial = null }) => {
                   const b2bData = {
                     b2b_id: b2bId,
                     nombre_responsable_restaurante:
-                      formDataToUse.nombre_responsable_restaurante,
+                      formDataToUse.nombre_restaurante,
                     correo: formDataToUse.correo,
                     nombre_responsable:
                       formDataToUse.nombre_responsable_restaurante,
                     telefono: formDataToUse.telefono,
-                    nombre_restaurante: formDataToUse.nombre_restaurante,
                     rfc: formDataToUse.rfc,
                     direccion_completa: formDataToUse.direccion_completa,
                     razon_social: formDataToUse.razon_social,
@@ -580,11 +579,10 @@ const FormMain = ({ planInicial = null }) => {
           ...(b2bId && { b2b_id: b2bId }),
           usuario_id: usuarioId,
           nombre_responsable_restaurante:
-            formDataToUse.nombre_responsable_restaurante,
+            formDataToUse.nombre_restaurante,
           correo: formDataToUse.correo,
           nombre_responsable: formDataToUse.nombre_responsable_restaurante,
           telefono: formDataToUse.telefono,
-          nombre_restaurante: formDataToUse.nombre_restaurante,
           rfc: formDataToUse.rfc,
           direccion_completa: formDataToUse.direccion_completa,
           razon_social: formDataToUse.razon_social,
@@ -807,6 +805,7 @@ const FormMain = ({ planInicial = null }) => {
     // Validar campos obligatorios antes de mostrar el modal
     if (
       !formData.nombre_responsable_restaurante ||
+      !formData.nombre_restaurante ||
       !formData.correo ||
       !formData.nombre_usuario ||
       !formData.password
@@ -838,10 +837,10 @@ const FormMain = ({ planInicial = null }) => {
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
       const userData = {
-        nombre_responsable_restaurante: formData.nombre_responsable_restaurante, // ✅ OBLIGATORIO
+        nombre_responsable_restaurante: formData.nombre_restaurante, // Nombre del restaurante (campo obligatorio en DB)
         correo: formData.correo, // ✅ OBLIGATORIO
         telefono: formData.telefono || null, // Opcional
-        nombre_responsable: formData.nombre_responsable_restaurante || null,
+        nombre_responsable: formData.nombre_responsable_restaurante || null, // Nombre de la persona responsable
         razon_social: formData.razon_social || null,
         rfc: formData.rfc || null,
         direccion_completa: formData.direccion_completa || null,
@@ -850,7 +849,7 @@ const FormMain = ({ planInicial = null }) => {
       };
 
       // Validar campos obligatorios
-      if (!userData.nombre_responsable_restaurante || !userData.correo) {
+      if (!userData.nombre_responsable_restaurante || !userData.correo || !userData.nombre_responsable) {
         setPaymentLoading(false);
         setPaymentError(
           "Por favor completa todos los campos obligatorios antes de pagar.",
@@ -1028,15 +1027,12 @@ const FormMain = ({ planInicial = null }) => {
                 // Por ahora, intentar obtenerlo desde el backend o usar el correo para buscarlo
                 // Actualizar el usuario B2B existente con los datos del formulario
                 const b2bData = {
-                  b2b_id: b2bId, // Especificar que es una actualización
-                  // ⚠️ IMPORTANTE: El backend debe buscar el usuario_id por correo o nombre_usuario
-                  // Por ahora, el backend debería poder encontrarlo si busca por correo
+                  b2b_id: b2bId,
                   nombre_responsable_restaurante:
-                    formData.nombre_responsable_restaurante,
-                  correo: formData.correo, // ⭐ CRÍTICO: Para que el backend pueda buscar el usuario_id
+                    formData.nombre_restaurante,
+                  correo: formData.correo,
                   nombre_responsable: formData.nombre_responsable_restaurante,
                   telefono: formData.telefono,
-                  nombre_restaurante: formData.nombre_restaurante,
                   rfc: formData.rfc,
                   direccion_completa: formData.direccion_completa,
                   razon_social: formData.razon_social,
@@ -1109,13 +1105,12 @@ const FormMain = ({ planInicial = null }) => {
       }
 
       const b2bData = {
-        ...(b2bId && { b2b_id: b2bId }), // ⭐ CRÍTICO: Si hay b2b_id, enviarlo para actualizar el registro existente
-        usuario_id: usuarioId, // ⭐ CRÍTICO: El ID del usuario creado en tabla usuarios
-        nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
-        correo: formData.correo, // IMPORTANTE: Para que el backend pueda buscar el registro si no hay b2b_id
+        ...(b2bId && { b2b_id: b2bId }),
+        usuario_id: usuarioId,
+        nombre_responsable_restaurante: formData.nombre_restaurante,
+        correo: formData.correo,
         nombre_responsable: formData.nombre_responsable_restaurante,
         telefono: formData.telefono,
-        nombre_restaurante: formData.nombre_restaurante,
         rfc: formData.rfc,
         direccion_completa: formData.direccion_completa,
         razon_social: formData.razon_social,

@@ -284,6 +284,11 @@ const B2BDashboard = () => {
         if (usuario?.id) {
           const response = await fetch(
             `${urlApi}api/usuariosb2b/user/${usuario.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
           );
           if (response.ok) {
             const data = await response.json();
@@ -320,7 +325,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b/${usuario.id}`
             : `https://admin.residente.mx/api/usuariosb2b/${usuario.id}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response.ok) {
             const contentType = response.headers.get("content-type");
@@ -348,7 +357,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b?usuario_id=${usuario.id}`
             : `https://admin.residente.mx/api/usuariosb2b?usuario_id=${usuario.id}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response.ok) {
             const contentType = response.headers.get("content-type");
@@ -378,7 +391,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`
             : `https://admin.residente.mx/api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (response.ok) {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
