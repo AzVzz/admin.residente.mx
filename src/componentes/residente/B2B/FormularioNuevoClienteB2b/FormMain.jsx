@@ -831,8 +831,10 @@ const FormMain = ({ planInicial = null }) => {
       // Crear sesión de suscripción
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
-      const successUrl = `${window.location.origin}/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${window.location.origin}/registrob2b?payment_canceled=true`;
+      const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
+      const planSuffix = currentPlanParam ? `&plan=${currentPlanParam}` : "";
+      const successUrl = `${window.location.origin}/admin/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}${planSuffix}`;
+      const cancelUrl = `${window.location.origin}/admin/registrob2b?payment_canceled=true${planSuffix}`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend

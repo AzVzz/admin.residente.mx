@@ -148,7 +148,8 @@ const getCaracteristicasPorSucursales = (sucursales) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan }) => {
+const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
+  const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
 
   return (
@@ -264,6 +265,23 @@ const PlanCard = ({ plan, onSelectPlan }) => {
       >
         Seleccionar
       </button>
+
+      {/* Botón copiar enlace - solo para sellers */}
+      {esSeller && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}`;
+            navigator.clipboard.writeText(link).then(() => {
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 2000);
+            });
+          }}
+          className="w-full py-2 px-4 mt-2 rounded-xl font-medium text-sm border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+        >
+          {copiado ? "Enlace copiado!" : "Copiar enlace del plan"}
+        </button>
+      )}
     </div>
   );
 };
@@ -378,7 +396,7 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   );
 };
 
-const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
+const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller = false }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -451,10 +469,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     }
   }, [token, usuario]);
 
-  // Cargar clientes vetados de la API
+  // Cargar clientes vetados de la API (solo para sellers)
   useEffect(() => {
-    fetchClientesVetados();
-  }, [fetchClientesVetados]);
+    if (esSeller) fetchClientesVetados();
+  }, [fetchClientesVetados, esSeller]);
 
   // Función para manejar la selección de cliente del dropdown
   const handleClienteChange = (clienteId) => {
@@ -553,14 +571,15 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       
       {/* Header */}
       <div className="text-center mb-10">
-        {/* Dropdown de Clientes Vetados con botón */}
+        {/* Dropdown de Clientes Vetados con botón - solo para sellers */}
+        {esSeller && (
         <div className="mb-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-center mb-2">
             <label htmlFor="clienteVetado" className="block text-sm font-medium text-black">
               Nombre del Cliente
             </label>
           </div>
-          
+
           <div className="flex gap-3 justify-center items-center">
             <select
               id="clienteVetado"
@@ -570,9 +589,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
               className="w-full max-w-md px-4 py-2 bg-white disabled:cursor-not-allowed"
             >
               <option value="">
-                {loadingClientes 
-                  ? 'Cargando...' 
-                  : errorClientes 
+                {loadingClientes
+                  ? 'Cargando...'
+                  : errorClientes
                     ? 'Error al cargar'
                     : `Seleccionar (${clientesVetados.length})`}
               </option>
@@ -585,7 +604,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                 );
               })}
             </select>
-            
+
             <button
               onClick={() => setMostrarPlanes(!mostrarPlanes)}
               className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
@@ -594,7 +613,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
               {mostrarPlanes ? 'Volver' : 'Nuevo Cliente'}
             </button>
           </div>
-          
+
           {/* Mensaje de éxito compacto */}
           {clienteSeleccionado && !errorClientes && (
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
@@ -602,15 +621,15 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                 ✓ {clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante}
               </p>
               <p className="text-xs text-green-600 mt-1">
-                📋 Membresía asignada: <span className="font-bold">Platino (5+ sucursales)</span>
+                Membresia asignada: <span className="font-bold">Platino (5+ sucursales)</span>
               </p>
             </div>
           )}
-          
+
           {/* Mensaje de error compacto */}
           {errorClientes && (
             <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
-              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
+              <p className="text-xs text-red-600 mb-1">{errorClientes}</p>
               <button
                 onClick={fetchClientesVetados}
                 className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
@@ -621,6 +640,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             </div>
           )}
         </div>
+        )}
         
         <div className="w-full max-w-2xl mx-auto mb-6">
           <video
@@ -665,14 +685,15 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       </div>
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
-      {/* Solo se muestran si mostrarPlanes es true */}
-      {mostrarPlanes && (
+      {/* Sellers: toggle con botón "Nuevo Cliente". Clientes: siempre visibles */}
+      {(mostrarPlanes || !esSeller) && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
           {planes.map((plan, index) => (
             <PlanCard
               key={plan.id || plan.priceId || index}
               plan={plan}
               onSelectPlan={onSelectPlan}
+              esSeller={esSeller}
             />
           ))}
         </div>
