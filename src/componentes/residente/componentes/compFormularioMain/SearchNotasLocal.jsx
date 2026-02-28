@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 
 export default function SearchNotasLocal({ searchTerm, setSearchTerm }) {
     const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm || '');
+    const debounceRef = useRef(null);
 
     const handleSearchChange = (event) => {
         const value = event.target.value;
         setLocalSearchTerm(value);
-        setSearchTerm(value);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setSearchTerm(value), 500);
     };
 
     const handleClearSearch = () => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
         setLocalSearchTerm('');
         setSearchTerm('');
     };
