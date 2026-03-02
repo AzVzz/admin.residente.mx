@@ -1011,7 +1011,7 @@ const FormMainResidente = () => {
                               descripcion: contenido,
                               autor,
                               tipo_nota:
-                                tiposDeNotaSeleccionadas || tipoNotaUsuario,
+                                watch("tiposDeNotaSeleccionadas") || tipoNotaUsuario,
                               nombre_restaurante: nombreRestaurante,
                             });
 

@@ -37,7 +37,11 @@ const PLAN_PRUEBA_12_MESES = {
 const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { saveToken, saveUsuario } = useAuth();
+  const { saveToken, saveUsuario, usuario } = useAuth();
+  const rol = usuario?.rol?.toLowerCase();
+  const esSeller = rol === "residente" || rol === "vendedor";
+  const planParam = searchParams.get("plan");
+
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_12_MESES : null,
   );
@@ -62,6 +66,20 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
     modoPrueba || (!paymentSuccess && false),
   );
 
+  // Gate de acceso: sin sesion de seller, sin ?plan= y sin payment_success -> bloquear
+  if (!modoPrueba && !esSeller && !planParam && !paymentSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-4">Acceso Restringido</h2>
+          <p className="text-gray-600">
+            Para ver los planes B2B, necesitas un enlace de invitacion de un vendedor.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Obtener precios desde el backend
   useEffect(() => {
     const fetchPrecios = async () => {
@@ -78,6 +96,15 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
+
+          // Si hay ?plan= param, auto-seleccionar ese plan y mostrar formulario
+          if (planParam) {
+            const planEncontrado = data.precios.find(p => p.priceId === planParam);
+            if (planEncontrado) {
+              setPlanSeleccionado(planEncontrado);
+              setMostrarFormulario(true);
+            }
+          }
         }
       } catch (error) {
         // Error obteniendo precios
@@ -316,6 +343,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             onSelectPlan={handleSelectPlan}
             planesData={preciosDisponibles}
             loadingPrecios={loadingPrecios}
+            esSeller={esSeller}
           />
         </div>
       </Transition>
@@ -356,7 +384,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
           <div className="">
             <div className="max-w-[650px] mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
-                {!modoPrueba && (
+                {!modoPrueba && esSeller && (
                   <button
                     onClick={handleVolverAPlanes}
                     className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
