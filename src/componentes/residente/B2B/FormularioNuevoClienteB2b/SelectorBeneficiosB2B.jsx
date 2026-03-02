@@ -51,7 +51,14 @@ const SelectorBeneficiosB2B = ({
 }) => {
   const [seleccionados, setSeleccionados] = useState(beneficiosIniciales);
 
-  const maxSeleccion = todosIncluidos ? 5 : numMeses === 6 ? 1 : 2;
+  const meses = parseInt(numMeses, 10) || numMeses;
+  const maxSeleccion = todosIncluidos
+    ? 5
+    : meses === 6
+      ? 1
+      : meses === 12
+        ? 3
+        : 2;
 
   const handleToggle = (key) => {
     // En modo "todos incluidos" las tarjetas no son interactivas
@@ -108,13 +115,16 @@ const SelectorBeneficiosB2B = ({
         ) : (
           <>
             <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
-              Elige {maxSeleccion === 1 ? "tu beneficio" : "tus 2 beneficios"}
+              Elige{" "}
+              {maxSeleccion === 1
+                ? "tu beneficio"
+                : `tus ${maxSeleccion} beneficios`}
             </h1>
             <p className="text-gray-600 text-center">
               Tu plan de {numMeses} meses incluye{" "}
               {maxSeleccion === 1
                 ? "1 beneficio a tu eleccion"
-                : "2 beneficios a tu eleccion"}
+                : `${maxSeleccion} beneficios a tu eleccion`}
               . Selecciona{" "}
               {maxSeleccion === 1 ? "el que prefieras" : "los que prefieras"}.
             </p>

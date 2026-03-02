@@ -87,6 +87,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
       setLoadingPrecios(true);
       try {
         const apiUrl = `${urlApi}api/stripe/precios`;
+        console.log("[B2B] urlApi usado para precios:", urlApi, "→", apiUrl);
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -96,11 +97,24 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         const data = await response.json();
 
         if (data.success && data.precios && data.precios.length > 0) {
-          setPreciosDisponibles(data.precios);
+          // Tomar solo un plan base del backend (ej. 1 sucursal)
+          const base =
+            data.precios.find(
+              (p) => p.sucursales === 1 || p.sucursales === "1",
+            ) || data.precios[0];
+
+          const planUnico = {
+            ...base,
+            meses: 12,
+            mesesTexto: "12 meses",
+          };
+
+          setPreciosDisponibles([planUnico]);
 
           // Si hay ?plan= param, auto-seleccionar ese plan y mostrar formulario
           if (planParam) {
-            const planEncontrado = data.precios.find(p => p.priceId === planParam);
+            const planEncontrado =
+              [planUnico].find((p) => p.priceId === planParam) || null;
             if (planEncontrado) {
               setPlanSeleccionado(planEncontrado);
               setMostrarFormulario(true);
@@ -108,7 +122,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
           }
         }
       } catch (error) {
-        // Error obteniendo precios
+        console.error("[B2B] Error obteniendo precios Stripe:", error);
       } finally {
         setLoadingPrecios(false);
       }
@@ -286,11 +300,8 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
       setNombreRestauranteOtro("");
     }
     setPlanSeleccionado(plan);
-    const meses = parseInt(plan.meses, 10);
-
-    setBeneficiosSeleccionados(
-      meses === 12 ? [...TODOS_LOS_BENEFICIOS] : []
-    );
+    // Para el plan actual (12 meses) el usuario elegirá manualmente 3 beneficios
+    setBeneficiosSeleccionados([]);
     setMostrarSelectorBeneficios(true);
     setMostrarFormulario(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -369,7 +380,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
           <SelectorBeneficiosB2B
             numMeses={planSeleccionado?.meses}
             beneficiosIniciales={beneficiosSeleccionados}
-            todosIncluidos={parseInt(planSeleccionado?.meses) === 12}
+            todosIncluidos={false}
             onConfirmBeneficios={handleConfirmBeneficios}
             onVolver={handleVolverAPlanes}
           />

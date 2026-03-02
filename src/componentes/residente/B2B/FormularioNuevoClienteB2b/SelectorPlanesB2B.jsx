@@ -213,7 +213,7 @@ const PlanCard = ({ plan, onSelectPlan }) => {
 
       {/* Beneficios por plan */}
       <p className="text-xl text-center font-bold transition-all duration-300 group-hover:text-black mt-2">
-        {parseInt(plan.meses) === 12 && "Incluye 5 beneficios extra"}
+        {parseInt(plan.meses) === 12 && "Incluye 3 beneficios extra"}
         {/*parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"*/}
         {/*parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"*/}
       </p>
