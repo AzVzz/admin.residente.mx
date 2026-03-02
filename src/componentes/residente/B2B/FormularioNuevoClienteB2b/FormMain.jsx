@@ -139,17 +139,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
-          if (planInicial) {
-            const precioCoincidente = data.precios.find(
-              (p) =>
-                p.sucursales === planInicial.sucursales ||
-                (planInicial.sucursales === "5+" && p.sucursales === "5+"),
-            );
-            if (precioCoincidente) {
-              setPrecioSeleccionado(precioCoincidente);
-            }
-          } else {
+          // Si hay un plan inicial (por ejemplo, cliente restringido con precio especial),
+          // respetar exactamente ese plan y no sobrescribir el precio mostrado en el modal.
+          if (!planInicial) {
             const precioInicial = data.precios.find((p) => p.sucursales === 1);
             if (precioInicial) {
               setPrecioSeleccionado(precioInicial);
@@ -194,6 +186,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
   // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
+    // Si viene de un plan inicial de cliente restringido, respetar el precio especial
+    if (planInicial?.esClienteRestringido) return;
+
     if (preciosDisponibles.length > 0) {
       // Buscar el precio correspondiente al número de sucursales
       // Si es 5 o más, usar el precio de "5+"
@@ -882,6 +877,8 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         successUrl: successUrl,
         cancelUrl: cancelUrl,
         beneficiosSeleccionados: beneficiosSeleccionados,
+        // Indicar al backend si es un cliente restringido aprobado (lista de 378)
+        esClienteRestringidoAprobado,
       };
 
       const res = await fetch(apiUrl, {
