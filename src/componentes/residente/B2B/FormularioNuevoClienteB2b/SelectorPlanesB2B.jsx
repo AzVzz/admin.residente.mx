@@ -10,18 +10,17 @@ import { IoClose } from "react-icons/io5";
 import { urlApi } from "../../../api/url.js";
 import { useAuth } from "../../../Context";
 
-// Planes por meses: 6, 9, 12 (cobro mensual, renovación al cumplir los meses)
 const NOMBRES_MEMBRESIAS = {
   12: "Membresía Anual",
-  6: "Membresía de 6 Meses",
-  9: "Membresía de 9 Meses",
+  //6: "Membresía de 6 Meses",
+  //9: "Membresía de 9 Meses",
 };
 
 // Texto personalizado para el badge de sucursales
 const TEXTO_SUCURSALES = {
   12: "Suscripción Anual",
-  6: "Suscripción 6 Meses",
-  9: "Suscripción 9 Meses",
+  //6: "Suscripción 6 Meses",
+  //9: "Suscripción 9 Meses",
 };
 
 // Función para obtener el nombre de la membresía
@@ -34,14 +33,19 @@ const getTextoSucursales = (meses) => {
   return TEXTO_SUCURSALES[parseInt(meses)] || `${meses} Meses`;
 };
 
-const getIconoPorMeses = (meses) => {
-  const num = parseInt(meses, 10);
+// Mapeo de iconos según el número de sucursales
+const getIconoPorSucursales = (sucursales) => {
+  const num = sucursales === "5+" ? 5 : parseInt(sucursales);
   switch (num) {
-    case 6:
+    case 1:
       return FaStore;
-    case 9:
+    case 2:
+      return FaStoreAlt;
+    case 3:
       return FaBuilding;
-    case 12:
+    case 4:
+      return FaWarehouse;
+    case 5:
     default:
       return FaCity;
   }
@@ -57,8 +61,8 @@ const CARACTERISTICAS_BASE = [
 
 const CARACTERISTICAS_POR_PLAN = {
   12: [...CARACTERISTICAS_BASE],
-  6: [...CARACTERISTICAS_BASE],
-  9: [...CARACTERISTICAS_BASE],
+  //6: [...CARACTERISTICAS_BASE],
+  //9: [...CARACTERISTICAS_BASE],
 };
 
 // Función para obtener características del plan por meses
@@ -68,8 +72,7 @@ const getCaracteristicasPorMeses = (meses) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
-  const [copiado, setCopiado] = useState(false);
+const PlanCard = ({ plan, onSelectPlan }) => {
   const IconoComponent = plan.icono;
 
   return (
@@ -191,7 +194,7 @@ const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
         })()}
       </ul>
 
-      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">Incrementa los beneficios de <br/> tu suscripción cuando decides durante la cita</span>
+      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">Incrementa los beneficios de <br/> tu suscripción si decides inscribirte durante la cita</span>
 
       {/* Botón de selección */}
       <button
@@ -211,26 +214,9 @@ const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
       {/* Beneficios por plan */}
       <p className="text-xl text-center font-bold transition-all duration-300 group-hover:text-black mt-2">
         {parseInt(plan.meses) === 12 && "Incluye 5 beneficios extra"}
-        {parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"}
-        {parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"}
+        {/*parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"*/}
+        {/*parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"*/}
       </p>
-
-      {/* Botón copiar enlace - solo para sellers */}
-      {esSeller && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}`;
-            navigator.clipboard.writeText(link).then(() => {
-              setCopiado(true);
-              setTimeout(() => setCopiado(false), 2000);
-            });
-          }}
-          className="w-full py-2 px-4 mt-2 rounded-xl font-medium text-sm border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
-        >
-          {copiado ? "Enlace copiado!" : "Copiar enlace del plan"}
-        </button>
-      )}
     </div>
   );
 };
@@ -345,7 +331,7 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   );
 };
 
-const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller = false }) => {
+const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -358,6 +344,23 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
 
   // Estado para mostrar/ocultar las tarjetas de planes
   const [mostrarPlanes, setMostrarPlanes] = useState(false);
+
+  // Estados para la opción "Otro" del dropdown
+  const [mostrarInputOtro, setMostrarInputOtro] = useState(false);
+  const [nombreOtro, setNombreOtro] = useState("");
+  const [clienteDuplicado, setClienteDuplicado] = useState(null); // cliente que ya existe
+
+  // Ref para hacer scroll a los planes
+  const planesRef = useRef(null);
+
+  // Efecto para scroll automático cuando se muestran los planes
+  useEffect(() => {
+    if (mostrarPlanes && planesRef.current) {
+      setTimeout(() => {
+        planesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [mostrarPlanes]);
 
   // Función para truncar texto largo
   const truncarTexto = (texto, maxLength = 50) => {
@@ -373,7 +376,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
 
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
-    console.log('🔍 Iniciando carga de clientes vetados...');
+    console.log('🔍 Iniciando carga de clientes en lista...');
     console.log('🔑 Token disponible:', !!token);
     console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
     console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
@@ -398,6 +401,8 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
       console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
@@ -408,29 +413,78 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
       const clientesArray = Array.isArray(data) ? data : data.clientes || [];
       setClientesVetados(clientesArray);
       setErrorClientes(null);
+      console.log('✅ Clientes cargados en estado:', clientesArray.length);
     } catch (err) {
+      console.error('❌ Error cargando clientes vetados:', err);
       setErrorClientes(err.message);
     } finally {
       setLoadingClientes(false);
     }
   }, [token, usuario]);
 
-  // Cargar clientes vetados de la API (solo para sellers)
+  // Cargar clientes vetados de la API
   useEffect(() => {
-    if (esSeller) fetchClientesVetados();
-  }, [fetchClientesVetados, esSeller]);
+    fetchClientesVetados();
+  }, [fetchClientesVetados]);
 
   // Función para manejar la selección de cliente del dropdown
   const handleClienteChange = (clienteId) => {
+    if (clienteId === "__otro__") {
+      setMostrarInputOtro(true);
+      setClienteSeleccionado("");
+      setMostrarPlanes(false);
+      setNombreOtro("");
+      setClienteDuplicado(null);
+      return;
+    }
+    setMostrarInputOtro(false);
+    setNombreOtro("");
+    setClienteDuplicado(null);
     setClienteSeleccionado(clienteId);
 
     if (clienteId) {
-      // Al seleccionar un cliente del dropdown, mostrar las tarjetas de planes
       setMostrarPlanes(true);
     } else {
-      // Al deseleccionar, ocultar tarjetas
       setMostrarPlanes(false);
     }
+  };
+
+  // Normaliza acentos: "limón" → "limon"
+  const normalizarTexto = (texto) =>
+    texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  // Verifica si el nombre escrito coincide con algún cliente existente (ignora acentos y mayúsculas)
+  const handleNombreOtroChange = (valor) => {
+    setNombreOtro(valor);
+    setClienteDuplicado(null);
+    if (!valor.trim()) return;
+
+    const valorNorm = normalizarTexto(valor.trim());
+    const encontrado = clientesVetados.find((c) => {
+      const clienteNorm = normalizarTexto(c.restaurante || "");
+
+      // Caso 1: el texto tecleado contiene al cliente → siempre es duplicado
+      // Ej: "Señor Limón Monterrey" contiene "Señor Limón"
+      if (valorNorm.includes(clienteNorm)) return true;
+
+      // Caso 2: el cliente contiene lo tecleado → solo si representa ≥50% del nombre del cliente
+      // Evita que "residente" (9 chars) haga match con "presidente intercontinental monterrey" (35 chars)
+      if (clienteNorm.includes(valorNorm)) {
+        return valorNorm.length / clienteNorm.length >= 0.5;
+      }
+
+      return false;
+    });
+    if (encontrado) {
+      setClienteDuplicado(encontrado);
+    }
+  };
+
+  // Confirmar nuevo cliente ("Otro")
+  const handleConfirmarOtro = () => {
+    if (!nombreOtro.trim()) return;
+    // Mostrar planes con precio normal (sin override de cliente restringido)
+    setMostrarPlanes(true);
   };
 
   // Función para manejar la selección de un plan (agrega info del cliente si hay uno seleccionado)
@@ -442,37 +496,45 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
         esClienteRestringido: true,
         nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
       };
-      console.log('🎯 Plan seleccionado para cliente restringido:', planConCliente);
       onSelectPlan(planConCliente);
+    } else if (mostrarInputOtro && nombreOtro.trim()) {
+      // Nuevo cliente tecleado en "Otro": incluir el nombre para pre-rellenar el formulario
+      onSelectPlan({ ...plan, nombreRestauranteOtro: nombreOtro.trim() });
     } else {
       onSelectPlan(plan);
     }
   };
   // Filtrar solo los planes de 6, 9 y 12 meses (nuevo modelo)
-  const planesPermitidos = [6, 9, 12];
+  const planesPermitidos = [12]; // [6, 9, 12];
+
+  // Precios especiales cuando se selecciona un cliente del dropdown
+  const PRECIOS_CLIENTE_RESTRINGIDO = {
+    // 6: 7499,
+    // 9: 4999,
+    12: 3999,
+  };
 
   const planes =
     planesData && planesData.length > 0
       ? planesData
         .filter((plan) => planesPermitidos.includes(parseInt(plan.meses)))
         .map((plan, index) => {
-          // Si hay cliente seleccionado y existe Precio A del backend, usarlo
-          const tieneClienteSeleccionado = !!clienteSeleccionado;
-          const precioA = plan.precioA;
-
+          const mesesNum = parseInt(plan.meses);
+          const precioOverride = clienteSeleccionado
+            ? PRECIOS_CLIENTE_RESTRINGIDO[mesesNum]
+            : null;
           return {
             ...plan,
             id: plan.priceId || index,
-            icono: getIconoPorMeses(plan.meses),
+            icono: getIconoPorSucursales(plan.meses),
             caracteristicas: getCaracteristicasPorMeses(plan.meses),
             nombreMembresia: plan.nombre || getNombreMembresia(plan.meses),
             textoSucursales: getTextoSucursales(plan.meses),
             destacado: false,
-            // Sobreescribir con Precio A si hay cliente seleccionado
-            ...(tieneClienteSeleccionado && precioA && {
-              priceId: precioA.priceId,
-              precioMensual: precioA.precioMensual,
-              precioMensualConIVA: precioA.precioMensualConIVA,
+            // Sobreescribir precio si hay cliente seleccionado
+            ...(precioOverride !== null && {
+              precioMensual: precioOverride,
+              precioMensualConIVA: Math.round(precioOverride * 1.16),
               _precioOriginal: plan.precioMensual,
             }),
           };
@@ -530,9 +592,8 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
 
       {/* Header */}
       <div className="text-center mb-10">
-        {/* Dropdown de Clientes Vetados con botón - solo para sellers */}
-        {esSeller && (
-        <div className="mb-4 max-w-2xl mx-auto">
+        {/* Dropdown de Clientes Vetados con botón */}
+        <div className="mb-4 max-w-lg mx-auto">
           <div className="flex items-center justify-center mb-2">
             <label
               htmlFor="clienteVetado"
@@ -542,13 +603,13 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
             </label>
           </div>
 
-          <div className="flex gap-3 justify-center items-center">
+          <div className="flex flex-col gap-3 justify-center items-center">
             <select
               id="clienteVetado"
-              value={clienteSeleccionado}
+              value={mostrarInputOtro ? "__otro__" : clienteSeleccionado}
               onChange={(e) => handleClienteChange(e.target.value)}
               disabled={loadingClientes || !!errorClientes}
-              className="w-full max-w-md px-4 py-2 bg-white disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 bg-white disabled:cursor-not-allowed"
             >
               <option value="">
                 {loadingClientes
@@ -569,15 +630,58 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
                   </option>
                 );
               })}
+              <option value="__otro__">Otro...</option>
             </select>
 
-            <button
+            {/* Input para nombre cuando se elige "Otro" */}
+            {mostrarInputOtro && (
+              <div className="w-full mt-3 animate-fadeIn relative">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={nombreOtro}
+                    onChange={(e) => handleNombreOtroChange(e.target.value)}
+                    placeholder="Nombre del restaurante"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleConfirmarOtro}
+                    disabled={!nombreOtro.trim() || !!clienteDuplicado}
+                    className="px-4 py-2 bg-gray-900 text-white font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                  >
+                    OK
+                  </button>
+                </div>
+
+                {/* Popup flotante de duplicado */}
+                {clienteDuplicado && (
+                  <div className="absolute left-0 right-0 top-full mt-1 z-50 p-3 bg-yellow-50 border border-yellow-400 rounded-lg flex items-start gap-2 shadow-lg animate-fadeIn">
+                    <span className="text-yellow-500 text-lg mt-0.5">⚠️</span>
+                    <div>
+                      <p className="text-sm font-bold text-yellow-800">
+                        Este restaurante ya está registrado
+                      </p>
+                      <p className="text-xs text-yellow-700 mt-0.5">
+                        Se encontró:{" "}
+                        <span className="font-semibold">
+                          {clienteDuplicado.restaurante}
+                        </span>
+                        . Selecciónalo desde el dropdown de arriba.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/*<button
               onClick={() => setMostrarPlanes(!mostrarPlanes)}
               className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
               type="button"
             >
               {mostrarPlanes ? "Volver" : "Nuevo Cliente"}
-            </button>
+            </button>*/}
           </div>
 
           {/* Mensaje de éxito: cliente seleccionado del dropdown */}
@@ -592,7 +696,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
                 }
               </p>
               <p className="text-xs text-green-600 mt-1">
-                Selecciona un plan para este cliente
+                📋 Selecciona un plan para este cliente
               </p>
             </div>
           )}
@@ -600,7 +704,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
           {/* Mensaje de error compacto */}
           {errorClientes && (
             <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
-              <p className="text-xs text-red-600 mb-1">{errorClientes}</p>
+              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
               <button
                 onClick={fetchClientesVetados}
                 className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
@@ -610,22 +714,6 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
               </button>
             </div>
           )}
-        </div>
-        )}
-
-        <div className="w-full max-w-2xl mx-auto mb-6">
-          <video
-            className="w-full h-auto rounded-md shadow-lg"
-            controls
-            playsInline
-            preload="metadata"
-          >
-            <source
-              src="https://residente.mx/fotos/videos/new%20video.mp4"
-              type="video/mp4"
-            />
-            Tu navegador no soporta la reproducción de video.
-          </video>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
@@ -655,20 +743,23 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
         </button>
       </div>
 
-      {/* Cards de planes */}
-      {/* Sellers: toggle con botón "Nuevo Cliente". Clientes: siempre visibles */}
-      {(mostrarPlanes || !esSeller) && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
-          {planes.map((plan, index) => (
-            <PlanCard
-              key={plan.id || plan.priceId || index}
-              plan={plan}
-              onSelectPlan={handleSelectPlan}
-              esSeller={esSeller}
-            />
-          ))}
-        </div>
-      )}
+      {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
+      {/* Solo se muestran si mostrarPlanes es true */}
+      <div ref={planesRef} className="scroll-mt-10">
+        {mostrarPlanes && (
+          <div className="flex justify-center mb-8 animate-fadeIn w-full">
+            <div className="w-full max-w-sm">
+              {planes.map((plan, index) => (
+                <PlanCard
+                  key={plan.id || plan.priceId || index}
+                  plan={plan}
+                  onSelectPlan={handleSelectPlan}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modal del PDF */}
       <ModalPDF

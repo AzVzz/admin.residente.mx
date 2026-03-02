@@ -21,7 +21,7 @@ import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
 
-const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
+const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRestauranteInicial = "" }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +49,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
   const accountCreationInProgress = useRef(false);
   const { saveToken, saveUsuario } = useAuth();
 
+  // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
     {
       meses: 6,
@@ -76,16 +77,22 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
     },
   ];
 
-  const [numeroMeses, setNumeroMeses] = useState(() => {
-    if (planInicial?.meses) return parseInt(planInicial.meses, 10) || 12;
-    return 12;
+  // Estados para número de sucursales y precios
+  // Si viene un planInicial, usarlo como valor inicial
+  const [numeroSucursales, setNumeroSucursales] = useState(() => {
+    if (planInicial?.sucursales) {
+      return planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+    }
+    return 1;
   });
   const [preciosDisponibles, setPreciosDisponibles] =
     useState(PRECIOS_FALLBACK);
   const [loadingPrecios, setLoadingPrecios] = useState(true);
   const [precioSeleccionado, setPrecioSeleccionado] = useState(() => {
-    if (planInicial) return planInicial;
-    return PRECIOS_FALLBACK[2]; // default 12 meses
+    if (planInicial) {
+      return planInicial;
+    }
+    return PRECIOS_FALLBACK[0];
   });
 
   // Detectar si es un cliente restringido del dropdown (no necesita código de acceso)
@@ -132,20 +139,34 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          if (planInicial?.esClienteRestringido && planInicial?.priceId) {
-            setPrecioSeleccionado(planInicial);
-          } else if (planInicial) {
+          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
+          if (planInicial) {
             const precioCoincidente = data.precios.find(
-              (p) => p.meses === planInicial.meses,
+              (p) =>
+                p.sucursales === planInicial.sucursales ||
+                (planInicial.sucursales === "5+" && p.sucursales === "5+"),
             );
-            if (precioCoincidente) setPrecioSeleccionado(precioCoincidente);
+            if (precioCoincidente) {
+              setPrecioSeleccionado(precioCoincidente);
+            }
           } else {
-            const precioInicial = data.precios.find((p) => p.meses === 12);
-            if (precioInicial) setPrecioSeleccionado(precioInicial);
+            const precioInicial = data.precios.find((p) => p.sucursales === 1);
+            if (precioInicial) {
+              setPrecioSeleccionado(precioInicial);
+            }
           }
+        } else {
+          // Si no hay precios del servidor, usar fallback
+          console.warn(
+            "No se obtuvieron precios del servidor, usando fallback",
+          );
         }
       } catch (error) {
-        // Usar precios fallback
+        console.warn(
+          "Error obteniendo precios del servidor, usando precios locales:",
+          error.message,
+        );
+        // Los precios de fallback ya están cargados por defecto
       } finally {
         setLoadingPrecios(false);
       }
@@ -154,20 +175,38 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
     fetchPrecios();
   }, [planInicial]);
 
+  // Pre-rellenar nombre_restaurante si viene de la opción "Otro"
+  useEffect(() => {
+    if (nombreRestauranteInicial) {
+      setFormData((prev) => ({ ...prev, nombre_restaurante: nombreRestauranteInicial }));
+    }
+  }, [nombreRestauranteInicial]);
+
+  // Actualizar cuando cambia el planInicial desde el selector de planes
   useEffect(() => {
     if (planInicial) {
-      setNumeroMeses(parseInt(planInicial.meses, 10) || 12);
+      const sucursales =
+        planInicial.sucursales === "5+" ? 5 : planInicial.sucursales;
+      setNumeroSucursales(sucursales);
       setPrecioSeleccionado(planInicial);
     }
   }, [planInicial]);
 
+  // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
-    if (planInicial?.esClienteRestringido) return;
     if (preciosDisponibles.length > 0) {
-      const precio = preciosDisponibles.find((p) => p.meses === numeroMeses);
-      if (precio) setPrecioSeleccionado(precio);
+      // Buscar el precio correspondiente al número de sucursales
+      // Si es 5 o más, usar el precio de "5+"
+      const sucursalesKey = numeroSucursales >= 5 ? "5+" : numeroSucursales;
+      const precio = preciosDisponibles.find(
+        (p) =>
+          p.sucursales === sucursalesKey || p.sucursales === numeroSucursales,
+      );
+      if (precio) {
+        setPrecioSeleccionado(precio);
+      }
     }
-  }, [numeroMeses, preciosDisponibles]);
+  }, [numeroSucursales, preciosDisponibles]);
 
   // Verificar si el nombre de usuario ya existe (con debounce)
   useEffect(() => {
@@ -445,11 +484,12 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
                   const b2bData = {
                     b2b_id: b2bId,
                     nombre_responsable_restaurante:
-                      formDataToUse.nombre_restaurante,
+                      formDataToUse.nombre_responsable_restaurante,
                     correo: formDataToUse.correo,
                     nombre_responsable:
                       formDataToUse.nombre_responsable_restaurante,
                     telefono: formDataToUse.telefono,
+                    nombre_restaurante: formDataToUse.nombre_restaurante,
                     rfc: formDataToUse.rfc,
                     direccion_completa: formDataToUse.direccion_completa,
                     razon_social: formDataToUse.razon_social,
@@ -550,10 +590,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
           ...(b2bId && { b2b_id: b2bId }),
           usuario_id: usuarioId,
           nombre_responsable_restaurante:
-            formDataToUse.nombre_restaurante,
+            formDataToUse.nombre_responsable_restaurante,
           correo: formDataToUse.correo,
           nombre_responsable: formDataToUse.nombre_responsable_restaurante,
           telefono: formDataToUse.telefono,
+          nombre_restaurante: formDataToUse.nombre_restaurante,
           rfc: formDataToUse.rfc,
           direccion_completa: formDataToUse.direccion_completa,
           razon_social: formDataToUse.razon_social,
@@ -657,7 +698,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
 
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente.",
+          "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
         setTimeout(() => setPaymentError(""), 5000);
       } finally {
@@ -776,7 +817,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
     // Validar campos obligatorios antes de mostrar el modal
     if (
       !formData.nombre_responsable_restaurante ||
-      !formData.nombre_restaurante ||
       !formData.correo ||
       !formData.nombre_usuario ||
       !formData.password
@@ -803,18 +843,16 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
       const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL || "/"}`;
-      const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
-      const planSuffix = currentPlanParam ? `&plan=${currentPlanParam}` : "";
-      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}${planSuffix}`;
-      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true${planSuffix}`;
+      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
       const userData = {
-        nombre_responsable_restaurante: formData.nombre_restaurante, // Nombre del restaurante (campo obligatorio en DB)
+        nombre_responsable_restaurante: formData.nombre_responsable_restaurante, // ✅ OBLIGATORIO
         correo: formData.correo, // ✅ OBLIGATORIO
         telefono: formData.telefono || null, // Opcional
-        nombre_responsable: formData.nombre_responsable_restaurante || null, // Nombre de la persona responsable
+        nombre_responsable: formData.nombre_responsable_restaurante || null,
         razon_social: formData.razon_social || null,
         rfc: formData.rfc || null,
         direccion_completa: formData.direccion_completa || null,
@@ -823,7 +861,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       };
 
       // Validar campos obligatorios
-      if (!userData.nombre_responsable_restaurante || !userData.correo || !userData.nombre_responsable) {
+      if (!userData.nombre_responsable_restaurante || !userData.correo) {
         setPaymentLoading(false);
         setPaymentError(
           "Por favor completa todos los campos obligatorios antes de pagar.",
@@ -831,19 +869,19 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
         return;
       }
 
-      const numeroMesesParaBackend =
-        parseInt(precioSeleccionado?.meses, 10) || 12;
+      // Obtener el número de sucursales del plan seleccionado
+      const sucursalesPlan = precioSeleccionado?.sucursales;
+      // Convertir "5+" a 5 para el backend
+      const numeroSucursalesParaBackend =
+        sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
 
       const requestBody = {
-        numeroMeses: numeroMesesParaBackend,
+        numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
         customerEmail: formData.correo || "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
         beneficiosSeleccionados: beneficiosSeleccionados,
-        ...(precioSeleccionado?.esClienteRestringido && precioSeleccionado?.priceId && {
-          priceIdOverride: precioSeleccionado.priceId,
-        }),
       };
 
       const res = await fetch(apiUrl, {
@@ -1002,12 +1040,15 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
                 // Por ahora, intentar obtenerlo desde el backend o usar el correo para buscarlo
                 // Actualizar el usuario B2B existente con los datos del formulario
                 const b2bData = {
-                  b2b_id: b2bId,
+                  b2b_id: b2bId, // Especificar que es una actualización
+                  // ⚠️ IMPORTANTE: El backend debe buscar el usuario_id por correo o nombre_usuario
+                  // Por ahora, el backend debería poder encontrarlo si busca por correo
                   nombre_responsable_restaurante:
-                    formData.nombre_restaurante,
-                  correo: formData.correo,
+                    formData.nombre_responsable_restaurante,
+                  correo: formData.correo, // ⭐ CRÍTICO: Para que el backend pueda buscar el usuario_id
                   nombre_responsable: formData.nombre_responsable_restaurante,
                   telefono: formData.telefono,
+                  nombre_restaurante: formData.nombre_restaurante,
                   rfc: formData.rfc,
                   direccion_completa: formData.direccion_completa,
                   razon_social: formData.razon_social,
@@ -1080,12 +1121,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       }
 
       const b2bData = {
-        ...(b2bId && { b2b_id: b2bId }),
-        usuario_id: usuarioId,
-        nombre_responsable_restaurante: formData.nombre_restaurante,
-        correo: formData.correo,
+        ...(b2bId && { b2b_id: b2bId }), // ⭐ CRÍTICO: Si hay b2b_id, enviarlo para actualizar el registro existente
+        usuario_id: usuarioId, // ⭐ CRÍTICO: El ID del usuario creado en tabla usuarios
+        nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
+        correo: formData.correo, // IMPORTANTE: Para que el backend pueda buscar el registro si no hay b2b_id
         nombre_responsable: formData.nombre_responsable_restaurante,
         telefono: formData.telefono,
+        nombre_restaurante: formData.nombre_restaurante,
         rfc: formData.rfc,
         direccion_completa: formData.direccion_completa,
         razon_social: formData.razon_social,
@@ -1156,7 +1198,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       } else {
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente.",
+          "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
       }
       setTimeout(() => setPaymentError(""), 5000);
@@ -1183,385 +1225,445 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       }}
       className="space-y-3 sm:space-y-0"
     >
-      {/* Campo nombre del responsable */}
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre del responsable*
-        </label>
-        <input
-          type="text"
-          name="nombre_responsable_restaurante"
-          value={formData.nombre_responsable_restaurante}
-          onChange={handleChange}
-          placeholder="Nombre del responsable"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre comercial del restaurante*
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            name="nombre_restaurante"
-            value={formData.nombre_restaurante}
-            onChange={handleChange}
-            placeholder="Nombre del restaurante"
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
-              restauranteVetado && !esClienteRestringidoAprobado
+      {/* -------------------- Datos Básicos Del Suscriptor -------------------- */}
+
+      <span className="text-4xl pt-4">1. Datos básicos del suscriptor</span>
+
+      <div className="pl-8 pt-4 pb-8">
+
+        {/* Nombre comercial del restaurante */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre comercial del restaurante o establecimiento*
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              name="nombre_restaurante"
+              value={formData.nombre_restaurante}
+              onChange={handleChange}
+              placeholder="Nombre del restaurante"
+              className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${restauranteVetado && !esClienteRestringidoAprobado
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-            }`}
-            required
-          />
-          {verificandoRestaurante && (
-            <span className="absolute right-3 top-2 text-gray-400 text-sm">
-              Verificando...
-            </span>
-          )}
-        </div>
+                }`}
+              required
+            />
+            {verificandoRestaurante && (
+              <span className="absolute right-3 top-2 text-gray-400 text-sm">
+                Verificando...
+              </span>
+            )}
+          </div>
 
-        {restauranteVetado &&
-          mensajeVetado &&
-          !codigoValido &&
-          !esClienteRestringidoAprobado && (
-            <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
-              <p className="mb-3">⚠️ {mensajeVetado}</p>
+          {restauranteVetado &&
+            mensajeVetado &&
+            !codigoValido &&
+            !esClienteRestringidoAprobado && (
+              <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
+                <p className="mb-3">⚠️ {mensajeVetado}</p>
 
-              <div className="mt-3 pt-3 border-t border-red-200">
-                <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
-                  ¿Tienes un código de acceso? Ingrésalo aquí:
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
-                  <input
-                    type="text"
-                    value={codigoAcceso}
-                    onChange={(e) => {
-                      setCodigoAcceso(e.target.value.toUpperCase());
-                      setErrorCodigo("");
-                    }}
-                    placeholder="CÓDIGO DE ACCESO"
-                    className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerificarCodigo}
-                    disabled={!codigoAcceso.trim() || verificandoCodigo}
-                    className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
-                      !codigoAcceso.trim() || verificandoCodigo
+                <div className="mt-3 pt-3 border-t border-red-200">
+                  <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
+                    ¿Tienes un código de acceso? Ingrésalo aquí:
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+                    <input
+                      type="text"
+                      value={codigoAcceso}
+                      onChange={(e) => {
+                        setCodigoAcceso(e.target.value.toUpperCase());
+                        setErrorCodigo("");
+                      }}
+                      placeholder="CÓDIGO DE ACCESO"
+                      className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerificarCodigo}
+                      disabled={!codigoAcceso.trim() || verificandoCodigo}
+                      className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${!codigoAcceso.trim() || verificandoCodigo
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                    }`}
-                  >
-                    {verificandoCodigo ? "Verificando..." : "Verificar"}
-                  </button>
+                        }`}
+                    >
+                      {verificandoCodigo ? "Verificando..." : "Verificar"}
+                    </button>
+                  </div>
+                  {errorCodigo && (
+                    <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
+                      {errorCodigo}
+                    </p>
+                  )}
                 </div>
-                {errorCodigo && (
-                  <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
-                    {errorCodigo}
-                  </p>
-                )}
               </div>
+            )}
+          {restauranteVetado && codigoValido && (
+            <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
+              ✓ Código válido. Puedes continuar con el registro.
             </div>
           )}
-        {restauranteVetado && codigoValido && (
-          <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
-            ✓ Código válido. Puedes continuar con el registro.
-          </div>
-        )}
-        {!restauranteVetado &&
-          !verificandoRestaurante &&
-          formData.nombre_restaurante.length >= 3 && (
-            <p className="text-green-500 text-xs mt-1">
-              ✓ Restaurante disponible para registro
-            </p>
+          {!restauranteVetado &&
+            !verificandoRestaurante &&
+            formData.nombre_restaurante.length >= 3 && (
+              <p className="text-green-500 text-xs mt-1">
+                ✓ Restaurante disponible para registro
+              </p>
+            )}
+          {!restauranteVetado && formData.nombre_restaurante && (
+            <div className="mb-4"></div>
           )}
-        {!restauranteVetado && formData.nombre_restaurante && (
-          <div className="mb-4"></div>
-        )}
-        {!formData.nombre_restaurante && <div className="mb-4"></div>}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Teléfono*
-        </label>
-        <input
-          type="text"
-          name="telefono"
-          value={formData.telefono}
-          onChange={handleChange}
-          placeholder="Teléfono del restaurante"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Correo Electrónico*
-        </label>
-        <input
-          type="email"
-          name="correo"
-          value={formData.correo}
-          onChange={handleChange}
-          placeholder="Escribe tu correo electrónico"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            emailExists || !emailValid
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
-          required
-        />
-        {checkingEmail && (
-          <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>
-        )}
-        {!emailValid && !checkingEmail && formData.correo && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ El formato del correo no es válido
-          </p>
-        )}
-        {emailExists && emailValid && !checkingEmail && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
-            sesión.
-          </p>
-        )}
-        {!emailExists &&
-          emailValid &&
-          !checkingEmail &&
-          formData.correo &&
-          formData.correo.includes("@") && (
-            <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
-          )}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          RFC*
-        </label>
-        <input
-          type="text"
-          name="rfc"
-          value={formData.rfc}
-          onChange={handleChange}
-          placeholder="Escribe tu RFC"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Dirección completa del restaurante*
-        </label>
-        <input
-          type="text"
-          name="direccion_completa"
-          value={formData.direccion_completa}
-          onChange={handleChange}
-          placeholder="Calle, número, colonia, municipio, código postal"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Razón Social*
-        </label>
-        <input
-          type="text"
-          name="razon_social"
-          value={formData.razon_social}
-          onChange={handleChange}
-          placeholder="Escribe la razón social"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre de usuario*
-        </label>
-        <input
-          type="text"
-          name="nombre_usuario"
-          value={formData.nombre_usuario}
-          onChange={handleChange}
-          placeholder="Tu nombre de usuario"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            usernameExists
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
-          required
-        />
-        {checkingUsername && (
-          <p className="text-gray-500 text-xs mt-1">
-            Verificando disponibilidad...
-          </p>
-        )}
-        {usernameExists && !checkingUsername && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
-          </p>
-        )}
-        {!usernameExists &&
-          !checkingUsername &&
-          formData.nombre_usuario.length >= 3 && (
-            <p className="text-green-500 text-xs mt-1">
-              ✓ Nombre de usuario disponible
-            </p>
-          )}
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Contraseña*
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Escribe tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowPassword((v) => !v)}
-          >
-            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </button>
+          {!formData.nombre_restaurante && <div className="mb-4"></div>}
         </div>
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Confirmar Contraseña*
-        </label>
-        <div className="relative">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirm_password"
-            value={formData.confirm_password}
-            onChange={handleChange}
-            placeholder="Confirma tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowConfirmPassword((v) => !v)}
-            tabIndex={-1}
-          >
-            {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </button>
-        </div>
-      </div>
-
-      {/* Selector de duración del plan - Oculto si viene de las tarjetas */}
-      {!planInicial && (
-        <div className="sm:mb-4">
-          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-            Duración del plan*
+        {/* Campo nombre del responsable */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre del responsable*
           </label>
-          {loadingPrecios ? (
-            <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
-              Cargando precios...
-            </div>
-          ) : (
-            <select
-              value={numeroMeses}
-              onChange={(e) => setNumeroMeses(parseInt(e.target.value, 10))}
-              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
-            >
-              {preciosDisponibles.map((precio) => (
-                <option key={precio.priceId} value={precio.meses}>
-                  {precio.mesesTexto}
-                </option>
-              ))}
-            </select>
-          )}
+          <input
+            type="text"
+            name="nombre_responsable_restaurante"
+            value={formData.nombre_responsable_restaurante}
+            onChange={handleChange}
+            placeholder="Nombre del responsable"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
         </div>
-      )}
 
-      <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
-        <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
-        <span className="font-roman text-base sm:text-sm">
-          Acepto los{" "}
-          <button
-            type="button"
-            className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
-            onClick={() => setShowModal(true)}
-          >
-            Términos y Condiciones
-          </button>
-          *
-        </span>
+        {/* Teléfono */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Teléfono*
+          </label>
+          <input
+            type="text"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            placeholder="Teléfono del restaurante"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* Correo */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Correo Electrónico*
+          </label>
+          <input
+            type="email"
+            name="correo"
+            value={formData.correo}
+            onChange={handleChange}
+            placeholder="Escribe tu correo electrónico"
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${emailExists || !emailValid
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+              }`}
+            required
+          />
+          {checkingEmail && (
+            <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>
+          )}
+          {!emailValid && !checkingEmail && formData.correo && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ El formato del correo no es válido
+            </p>
+          )}
+          {emailExists && emailValid && !checkingEmail && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
+              sesión.
+            </p>
+          )}
+          {!emailExists &&
+            emailValid &&
+            !checkingEmail &&
+            formData.correo &&
+            formData.correo.includes("@") && (
+              <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+            )}
+        </div>
+
       </div>
 
-      {/* Mensajes */}
-      {successMsg && (
-        <div className="text-green-600 font-bold text-center mt-4">
-          {successMsg}
-        </div>
-      )}
 
-      {paymentCompleted && creatingAccount && (
-        <div className="text-blue-600 font-bold text-center mt-4 mb-4">
-          <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
-        </div>
-      )}
+      {/* -------------------- Personalización -------------------- */}
 
-      {paymentError && (
-        <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          {paymentError}
-        </div>
-      )}
+      <span className="text-4xl leading-[1]">2. Personalización</span>
+      <br/>
+      <span>Escoge un usuario y contraseña para acceder a tus métricas y crear tus contenidos.</span>
 
-      {/* Botón de Pagar - Igual que Astro */}
-      <button
-        type="submit"
-        disabled={
-          paymentLoading ||
-          verificandoRestaurante ||
-          (restauranteVetado &&
-            !codigoValido &&
-            !esClienteRestringidoAprobado) ||
-          creatingAccount
-        }
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
-          paymentLoading ||
-          verificandoRestaurante ||
-          (restauranteVetado &&
-            !codigoValido &&
-            !esClienteRestringidoAprobado) ||
-          creatingAccount
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-yellow-400"
-        }`}
-      >
-        {verificandoRestaurante
-          ? "Verificando..."
-          : paymentLoading || creatingAccount
-            ? "Procesando..."
-            : restauranteVetado &&
+      <div className="pl-8 pt-4 pb-8">
+
+        {/* Nombre de usuario */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre de usuario*
+          </label>
+          <input
+            type="text"
+            name="nombre_usuario"
+            value={formData.nombre_usuario}
+            onChange={handleChange}
+            placeholder="Tu nombre de usuario"
+            autoComplete="off"
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${usernameExists
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+              }`}
+            required
+          />
+          {checkingUsername && (
+            <p className="text-gray-500 text-xs mt-1">
+              Verificando disponibilidad...
+            </p>
+          )}
+          {usernameExists && !checkingUsername && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
+            </p>
+          )}
+          {!usernameExists &&
+            !checkingUsername &&
+            formData.nombre_usuario.length >= 3 && (
+              <p className="text-green-500 text-xs mt-1">
+                ✓ Nombre de usuario disponible
+              </p>
+            )}
+        </div>
+
+        {/* Contraseña */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Contraseña*
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Escribe tu contraseña"
+              autoComplete="new-password"
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm
+              "
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
+          </div>
+        </div>
+
+        {/* Confirmar Contraseña */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Confirmar Contraseña*
+          </label>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirm_password"
+              value={formData.confirm_password}
+              onChange={handleChange}
+              placeholder="Confirma tu contraseña"
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      {/* -------------------- Términos Y Condiciones -------------------- */}
+
+      <span className="text-4xl pb-2 pt-4">3. Términos y condiciones</span>
+
+      <div className="pl-8">
+
+        {/* Checkbox Términos y Condiciones */}
+        <div className="flex items-center gap-3 pt-1 pb-4 sm:pt-4 sm:pb-6">
+          <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
+          <span className="font-roman text-base sm:text-xl">
+            He leído y acepto los{" "}
+            <button
+              type="button"
+              className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
+              onClick={() => setShowModal(true)}
+            >
+              términos y condiciones
+            </button>
+            *
+          </span>
+        </div>
+
+        {/* Mensajes y Botón de Pago integrados bajo el checkbox */}
+        <div className="mb-6 -mt-2 border-b-1 pb-15">
+          {/* Mensajes */}
+          {successMsg && (
+            <div className="text-green-600 font-bold text-center mt-4 mb-4">
+              {successMsg}
+            </div>
+          )}
+
+          {paymentCompleted && creatingAccount && (
+            <div className="text-blue-600 font-bold text-center mt-4 mb-4">
+              <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
+            </div>
+          )}
+
+          {paymentError && (
+            <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              {paymentError}
+            </div>
+          )}
+
+          {/* Botón de Pagar */}
+          <button
+            type="submit"
+            disabled={
+              paymentLoading ||
+              verificandoRestaurante ||
+              (restauranteVetado &&
                 !codigoValido &&
-                !esClienteRestringidoAprobado
-              ? "Ingresa código de acceso"
-              : "Ir a Pagar"}
-      </button>
+                !esClienteRestringidoAprobado) ||
+              creatingAccount
+            }
+            className={`font-bold py-5 sm:py-3 px-4 rounded-xl sm:rounded-md w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-lg mt-2 sm:mt-0 drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[5px_5px_0.9px_rgba(0,0,0,0.3)] ${
+              paymentLoading ||
+              verificandoRestaurante ||
+              (restauranteVetado &&
+                !codigoValido &&
+                !esClienteRestringidoAprobado) ||
+              creatingAccount
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {verificandoRestaurante
+              ? "Verificando..."
+              : paymentLoading || creatingAccount
+                ? "Procesando..."
+                : restauranteVetado &&
+                  !codigoValido &&
+                  !esClienteRestringidoAprobado
+                  ? "Ingresa código de acceso"
+                  : "Ir a Pagar"}
+          </button>
+        </div>
+
+        <span>Datos de facturación</span>
+
+        {/* Dirección completa del restaurante */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Dirección completa del restaurante*
+          </label>
+          <input
+            type="text"
+            name="direccion_completa"
+            value={formData.direccion_completa}
+            onChange={handleChange}
+            placeholder="Calle, número, colonia, municipio, código postal"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* RFC */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            RFC*
+          </label>
+          <input
+            type="text"
+            name="rfc"
+            value={formData.rfc}
+            onChange={handleChange}
+            placeholder="Escribe tu RFC"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* Razón Social */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Razón Social*
+          </label>
+          <input
+            type="text"
+            name="razon_social"
+            value={formData.razon_social}
+            onChange={handleChange}
+            placeholder="Escribe la razón social"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+            required
+          />
+        </div>
+
+      </div>
+
+
+
+
+
+
+
+      {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
+      {
+        !planInicial && (
+          <div className="sm:mb-4">
+            <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+              Número de sucursales*
+            </label>
+            {loadingPrecios ? (
+              <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
+                Cargando precios...
+              </div>
+            ) : (
+              <select
+                value={numeroSucursales}
+                onChange={(e) =>
+                  setNumeroSucursales(parseInt(e.target.value, 10))
+                }
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
+              >
+                {preciosDisponibles.map((precio) => (
+                  <option
+                    key={precio.priceId}
+                    value={precio.sucursales === "5+" ? 5 : precio.sucursales}
+                  >
+                    {precio.sucursalesTexto}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        )
+      }
+
+
     </form>
   );
 
@@ -1570,15 +1672,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       <div className="flex flex-col">
         {/* Logo - Alineado igual que en Astro */}
         <img
-          className="w-32 sm:w-25 pt-3 pb-5 sm:pb-7 sm:mx-auto"
-          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
+          className="w-50 sm:w-100 pt-3"
+          src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
           alt="B2B Logo"
         />
-
-        <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">
-          Suscripción B2B
-        </h1>
-
+        <span className="text-sm font-roman pb-6 uppercase">Inscríbete en 3 sencillos pasos. <span className="text-xs">(2 Minutos)</span></span>
         {formularioJSX}
       </div>
 
@@ -1692,9 +1790,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Duración:</span>
+                          <span className="text-gray-600">Sucursales:</span>
                           <span className="font-semibold">
-                            {precioSeleccionado?.mesesTexto}
+                            {precioSeleccionado?.sucursalesTexto}
                           </span>
                         </div>
                         <div className="flex justify-between border-t pt-2 mt-2">

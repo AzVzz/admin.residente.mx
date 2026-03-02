@@ -460,6 +460,7 @@ const Header = () => {
                   alt="Logo R"
                   className="h-full w-full object-contain"
                 />
+                
               </a>
             </div>
             <div className="w-full relative">
@@ -468,23 +469,26 @@ const Header = () => {
                 <ProfileMenu fondoOscuro={false} />
               </div>
 
-              <div className="grid grid-cols-[87%_13%] pb-[9px]">
+              <div className="grid grid-cols-[87%_13%] pb-[8px]">
                 <div className="flex sm:flex-col gap-2">
-                  <div className="flex flex-1 w-full justify-end items-start">
+                  <div className="flex flex-1 w-auto justify-end items-start">
                     <div className="flex flex-col pr-2"></div>
                   </div>
-                  <a
-                    href="https://residente.mx"
-                    className="flex"
-                    aria-label="Ir a inicio (Texto)"
-                    title="Ir a inicio"
-                  >
-                    <img
-                      src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
-                      alt="ResidenteNegro"
-                      className="h-6 object-contain"
-                    />
-                  </a>
+                  <div className="flex items-start gap-1">
+                    <a
+                      href="https://residente.mx"
+                      className="flex"
+                      aria-label="Ir a inicio (Texto)"
+                      title="Ir a inicio"
+                    >
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
+                        alt="ResidenteNegro"
+                        className="h-6 object-contain"
+                      />
+                    </a>
+                    <span className="font-roman text-[9px] font-bold text-black leading-none uppercase tracking-tighter">EST. 2015</span>
+                  </div>
                 </div>
               </div>
 

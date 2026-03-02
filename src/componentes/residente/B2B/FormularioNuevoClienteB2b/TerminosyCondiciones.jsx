@@ -1,8 +1,8 @@
 import React from "react";
 
 const TerminosyCondiciones = () => (
-  <div className="p-6 bg-[#3c3c3b] shadow text-gray-800 text-sm leading-relaxed mt-6">
-    <p className="mb-4 text-white text-[14px]">
+  <div className="text-sm mt-6">
+    <p className="mb-4 text-[14px]">
     Términos y Condiciones para Suscriptores de Residente.mx
 Última actualización: [20/01/2026]
 
