@@ -736,6 +736,12 @@ const B2BDashboard = () => {
               CLASIFICADO
             </button>
           </div>
+
+              <div>
+                <span>Beneficios seleccionados:</span>
+                <span>Mostrar beneficios que seleccionaste</span>
+              </div>
+
           <address className="flex flex-col mt-auto">
             <p>Credenciales de Acceso</p>
             <strong className="text-xs text-gray-900 font-roman">
