@@ -47,6 +47,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [beneficiosSeleccionados, setBeneficiosSeleccionados] = useState([]);
   const [mostrarSelectorBeneficios, setMostrarSelectorBeneficios] =
     useState(false);
+  const [nombreRestauranteOtro, setNombreRestauranteOtro] = useState("");
 
   // Detectar si viene de Stripe con pago exitoso
   const paymentSuccess = searchParams.get("payment_success") === "true";
@@ -250,12 +251,17 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   }, [paymentSuccess]);
 
   const handleSelectPlan = (plan) => {
+    // Guardar nombre si viene de "Otro" o de un cliente existente
+    if (plan.nombreRestauranteOtro) {
+      setNombreRestauranteOtro(plan.nombreRestauranteOtro);
+    } else if (plan.nombreCliente) {
+      setNombreRestauranteOtro(plan.nombreCliente);
+    } else {
+      setNombreRestauranteOtro("");
+    }
     setPlanSeleccionado(plan);
     const meses = parseInt(plan.meses, 10);
 
-    // Siempre mostrar selector de beneficios:
-    // - 12 meses: todos pre-seleccionados y bloqueados
-    // - 6/9 meses: el usuario debe elegir
     setBeneficiosSeleccionados(
       meses === 12 ? [...TODOS_LOS_BENEFICIOS] : []
     );
@@ -276,6 +282,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
     setMostrarSelectorBeneficios(false);
     setPlanSeleccionado(null);
     setBeneficiosSeleccionados([]);
+    setNombreRestauranteOtro(""); // limpiar nombre temporal
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -352,10 +359,10 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         leaveFrom="opacity-100 translate-x-0"
         leaveTo="opacity-0 -translate-x-10"
       >
-        <div className={`${!mostrarFormulario ? "hidden" : ""}`}>
+        <div className={`${!mostrarFormulario ? "hidden" : ""} max-w-[850px] mx-auto mb-96 transition-transform`}>
           {/* Header con botón de regreso y plan seleccionado */}
           <div className="">
-            <div className="max-w-[650px] mx-auto px-4 py-4">
+            <div className="w-full mx-auto md:mt-4 lg:mt-8">
               <div className="flex items-center justify-between">
                 {!modoPrueba && (
                   <button
@@ -363,32 +370,19 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
                     className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <FaArrowLeft className="text-sm" />
-                    <span className="font-medium">Cambiar plan</span>
+                    <span className="font-medium">Regresar</span>
                   </button>
-                )}
-
-                {planSeleccionado && (
-                  <div className="flex items-center gap-2  px-4 py-2 rounded-full">
-                    <span className="text-sm text-gray-600">Plan:</span>
-                    <span className="font-bold text-gray-900">
-                      {planSeleccionado.nombre}
-                    </span>
-                    <span className="text-sm text-gray-600">
-                      ($
-                      {planSeleccionado.precioMensual?.toLocaleString("es-MX")}
-                      /mes)
-                    </span>
-                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Formulario B2B */}
-          <div className="max-w-[650px] mx-auto px-4 py-6">
+          <div className="w-full mx-auto px-4 py-6">
             <FormMainWrapper
               planInicial={planSeleccionado}
               beneficiosSeleccionados={beneficiosSeleccionados}
+              nombreRestauranteInicial={nombreRestauranteOtro}
             />
           </div>
         </div>
@@ -398,11 +392,9 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
 };
 
 // Wrapper del FormMain que persiste plan y beneficios en localStorage
-const FormMainWrapper = ({ planInicial, beneficiosSeleccionados = [] }) => {
+const FormMainWrapper = ({ planInicial, beneficiosSeleccionados = [], nombreRestauranteInicial = "" }) => {
   useEffect(() => {
-    // Si hay un plan inicial, podríamos setear el localStorage para que FormMain lo use
     if (planInicial) {
-      // Guardar la selección del plan para que FormMain lo detecte
       localStorage.setItem(
         "b2b_plan_seleccionado",
         JSON.stringify({
@@ -421,6 +413,7 @@ const FormMainWrapper = ({ planInicial, beneficiosSeleccionados = [] }) => {
     <FormMain
       planInicial={planInicial}
       beneficiosSeleccionados={beneficiosSeleccionados}
+      nombreRestauranteInicial={nombreRestauranteInicial}
     />
   );
 };

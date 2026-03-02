@@ -21,7 +21,7 @@ import { loginPost } from "../../../api/loginPost";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
 
-const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
+const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRestauranteInicial = "" }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -174,6 +174,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
 
     fetchPrecios();
   }, [planInicial]);
+
+  // Pre-rellenar nombre_restaurante si viene de la opción "Otro"
+  useEffect(() => {
+    if (nombreRestauranteInicial) {
+      setFormData((prev) => ({ ...prev, nombre_restaurante: nombreRestauranteInicial }));
+    }
+  }, [nombreRestauranteInicial]);
 
   // Actualizar cuando cambia el planInicial desde el selector de planes
   useEffect(() => {
@@ -691,7 +698,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
 
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente.",
+          "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
         setTimeout(() => setPaymentError(""), 5000);
       } finally {
@@ -1191,7 +1198,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       } else {
         setPaymentError(
           error.message ||
-            "Error al crear la cuenta. Por favor, intenta nuevamente.",
+          "Error al crear la cuenta. Por favor, intenta nuevamente.",
         );
       }
       setTimeout(() => setPaymentError(""), 5000);
@@ -1218,390 +1225,445 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       }}
       className="space-y-3 sm:space-y-0"
     >
-      {/* Campo nombre del responsable */}
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre del responsable*
-        </label>
-        <input
-          type="text"
-          name="nombre_responsable_restaurante"
-          value={formData.nombre_responsable_restaurante}
-          onChange={handleChange}
-          placeholder="Nombre del responsable"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre comercial del restaurante*
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            name="nombre_restaurante"
-            value={formData.nombre_restaurante}
-            onChange={handleChange}
-            placeholder="Nombre del restaurante"
-            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
-              restauranteVetado && !esClienteRestringidoAprobado
+      {/* -------------------- Datos Básicos Del Suscriptor -------------------- */}
+
+      <span className="text-4xl pt-4">1. Datos básicos del suscriptor</span>
+
+      <div className="pl-8 pt-4 pb-8">
+
+        {/* Nombre comercial del restaurante */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre comercial del restaurante o establecimiento*
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              name="nombre_restaurante"
+              value={formData.nombre_restaurante}
+              onChange={handleChange}
+              placeholder="Nombre del restaurante"
+              className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${restauranteVetado && !esClienteRestringidoAprobado
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-            }`}
-            required
-          />
-          {verificandoRestaurante && (
-            <span className="absolute right-3 top-2 text-gray-400 text-sm">
-              Verificando...
-            </span>
-          )}
-        </div>
+                }`}
+              required
+            />
+            {verificandoRestaurante && (
+              <span className="absolute right-3 top-2 text-gray-400 text-sm">
+                Verificando...
+              </span>
+            )}
+          </div>
 
-        {restauranteVetado &&
-          mensajeVetado &&
-          !codigoValido &&
-          !esClienteRestringidoAprobado && (
-            <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
-              <p className="mb-3">⚠️ {mensajeVetado}</p>
+          {restauranteVetado &&
+            mensajeVetado &&
+            !codigoValido &&
+            !esClienteRestringidoAprobado && (
+              <div className="text-red-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded">
+                <p className="mb-3">⚠️ {mensajeVetado}</p>
 
-              <div className="mt-3 pt-3 border-t border-red-200">
-                <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
-                  ¿Tienes un código de acceso? Ingrésalo aquí:
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
-                  <input
-                    type="text"
-                    value={codigoAcceso}
-                    onChange={(e) => {
-                      setCodigoAcceso(e.target.value.toUpperCase());
-                      setErrorCodigo("");
-                    }}
-                    placeholder="CÓDIGO DE ACCESO"
-                    className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerificarCodigo}
-                    disabled={!codigoAcceso.trim() || verificandoCodigo}
-                    className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${
-                      !codigoAcceso.trim() || verificandoCodigo
+                <div className="mt-3 pt-3 border-t border-red-200">
+                  <p className="text-gray-700 text-base sm:text-sm mb-3 sm:mb-2">
+                    ¿Tienes un código de acceso? Ingrésalo aquí:
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+                    <input
+                      type="text"
+                      value={codigoAcceso}
+                      onChange={(e) => {
+                        setCodigoAcceso(e.target.value.toUpperCase());
+                        setErrorCodigo("");
+                      }}
+                      placeholder="CÓDIGO DE ACCESO"
+                      className="flex-1 px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg sm:text-sm uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerificarCodigo}
+                      disabled={!codigoAcceso.trim() || verificandoCodigo}
+                      className={`px-6 sm:px-4 py-4 sm:py-2 rounded-lg sm:rounded-md text-base sm:text-sm font-bold ${!codigoAcceso.trim() || verificandoCodigo
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                    }`}
-                  >
-                    {verificandoCodigo ? "Verificando..." : "Verificar"}
-                  </button>
+                        }`}
+                    >
+                      {verificandoCodigo ? "Verificando..." : "Verificar"}
+                    </button>
+                  </div>
+                  {errorCodigo && (
+                    <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
+                      {errorCodigo}
+                    </p>
+                  )}
                 </div>
-                {errorCodigo && (
-                  <p className="text-red-600 text-sm sm:text-xs mt-3 sm:mt-2">
-                    {errorCodigo}
-                  </p>
-                )}
               </div>
+            )}
+          {restauranteVetado && codigoValido && (
+            <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
+              ✓ Código válido. Puedes continuar con el registro.
             </div>
           )}
-        {restauranteVetado && codigoValido && (
-          <div className="text-green-600 text-base sm:text-sm mt-2 mb-3 p-4 sm:p-2 bg-green-50 border border-green-200 rounded-lg sm:rounded">
-            ✓ Código válido. Puedes continuar con el registro.
+          {!restauranteVetado &&
+            !verificandoRestaurante &&
+            formData.nombre_restaurante.length >= 3 && (
+              <p className="text-green-500 text-xs mt-1">
+                ✓ Restaurante disponible para registro
+              </p>
+            )}
+          {!restauranteVetado && formData.nombre_restaurante && (
+            <div className="mb-4"></div>
+          )}
+          {!formData.nombre_restaurante && <div className="mb-4"></div>}
+        </div>
+
+        {/* Campo nombre del responsable */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre del responsable*
+          </label>
+          <input
+            type="text"
+            name="nombre_responsable_restaurante"
+            value={formData.nombre_responsable_restaurante}
+            onChange={handleChange}
+            placeholder="Nombre del responsable"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* Teléfono */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Teléfono*
+          </label>
+          <input
+            type="text"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            placeholder="Teléfono del restaurante"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* Correo */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Correo Electrónico*
+          </label>
+          <input
+            type="email"
+            name="correo"
+            value={formData.correo}
+            onChange={handleChange}
+            placeholder="Escribe tu correo electrónico"
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${emailExists || !emailValid
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+              }`}
+            required
+          />
+          {checkingEmail && (
+            <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>
+          )}
+          {!emailValid && !checkingEmail && formData.correo && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ El formato del correo no es válido
+            </p>
+          )}
+          {emailExists && emailValid && !checkingEmail && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
+              sesión.
+            </p>
+          )}
+          {!emailExists &&
+            emailValid &&
+            !checkingEmail &&
+            formData.correo &&
+            formData.correo.includes("@") && (
+              <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+            )}
+        </div>
+
+      </div>
+
+
+      {/* -------------------- Personalización -------------------- */}
+
+      <span className="text-4xl leading-[1]">2. Personalización</span>
+      <br/>
+      <span>Escoge un usuario y contraseña para acceder a tus métricas y crear tus contenidos.</span>
+
+      <div className="pl-8 pt-4 pb-8">
+
+        {/* Nombre de usuario */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Nombre de usuario*
+          </label>
+          <input
+            type="text"
+            name="nombre_usuario"
+            value={formData.nombre_usuario}
+            onChange={handleChange}
+            placeholder="Tu nombre de usuario"
+            autoComplete="off"
+            className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${usernameExists
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+              }`}
+            required
+          />
+          {checkingUsername && (
+            <p className="text-gray-500 text-xs mt-1">
+              Verificando disponibilidad...
+            </p>
+          )}
+          {usernameExists && !checkingUsername && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
+            </p>
+          )}
+          {!usernameExists &&
+            !checkingUsername &&
+            formData.nombre_usuario.length >= 3 && (
+              <p className="text-green-500 text-xs mt-1">
+                ✓ Nombre de usuario disponible
+              </p>
+            )}
+        </div>
+
+        {/* Contraseña */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Contraseña*
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Escribe tu contraseña"
+              autoComplete="new-password"
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm
+              "
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
           </div>
-        )}
-        {!restauranteVetado &&
-          !verificandoRestaurante &&
-          formData.nombre_restaurante.length >= 3 && (
-            <p className="text-green-500 text-xs mt-1">
-              ✓ Restaurante disponible para registro
-            </p>
+        </div>
+
+        {/* Confirmar Contraseña */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Confirmar Contraseña*
+          </label>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirm_password"
+              value={formData.confirm_password}
+              onChange={handleChange}
+              placeholder="Confirma tu contraseña"
+              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      {/* -------------------- Términos Y Condiciones -------------------- */}
+
+      <span className="text-4xl pb-2 pt-4">3. Términos y condiciones</span>
+
+      <div className="pl-8">
+
+        {/* Checkbox Términos y Condiciones */}
+        <div className="flex items-center gap-3 pt-1 pb-4 sm:pt-4 sm:pb-6">
+          <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
+          <span className="font-roman text-base sm:text-xl">
+            He leído y acepto los{" "}
+            <button
+              type="button"
+              className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
+              onClick={() => setShowModal(true)}
+            >
+              términos y condiciones
+            </button>
+            *
+          </span>
+        </div>
+
+        {/* Mensajes y Botón de Pago integrados bajo el checkbox */}
+        <div className="mb-6 -mt-2 border-b-1 pb-15">
+          {/* Mensajes */}
+          {successMsg && (
+            <div className="text-green-600 font-bold text-center mt-4 mb-4">
+              {successMsg}
+            </div>
           )}
-        {!restauranteVetado && formData.nombre_restaurante && (
-          <div className="mb-4"></div>
-        )}
-        {!formData.nombre_restaurante && <div className="mb-4"></div>}
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Teléfono*
-        </label>
-        <input
-          type="text"
-          name="telefono"
-          value={formData.telefono}
-          onChange={handleChange}
-          placeholder="Teléfono del restaurante"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Correo Electrónico*
-        </label>
-        <input
-          type="email"
-          name="correo"
-          value={formData.correo}
-          onChange={handleChange}
-          placeholder="Escribe tu correo electrónico"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            emailExists || !emailValid
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
-          required
-        />
-        {checkingEmail && (
-          <p className="text-gray-500 text-xs mt-1">Verificando correo...</p>
-        )}
-        {!emailValid && !checkingEmail && formData.correo && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ El formato del correo no es válido
-          </p>
-        )}
-        {emailExists && emailValid && !checkingEmail && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ Este correo ya está registrado. Por favor, usa otro o inicia
-            sesión.
-          </p>
-        )}
-        {!emailExists &&
-          emailValid &&
-          !checkingEmail &&
-          formData.correo &&
-          formData.correo.includes("@") && (
-            <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
+          {paymentCompleted && creatingAccount && (
+            <div className="text-blue-600 font-bold text-center mt-4 mb-4">
+              <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
+            </div>
           )}
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          RFC*
-        </label>
-        <input
-          type="text"
-          name="rfc"
-          value={formData.rfc}
-          onChange={handleChange}
-          placeholder="Escribe tu RFC"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Dirección completa del restaurante*
-        </label>
-        <input
-          type="text"
-          name="direccion_completa"
-          value={formData.direccion_completa}
-          onChange={handleChange}
-          placeholder="Calle, número, colonia, municipio, código postal"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Razón Social*
-        </label>
-        <input
-          type="text"
-          name="razon_social"
-          value={formData.razon_social}
-          onChange={handleChange}
-          placeholder="Escribe la razón social"
-          className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Nombre de usuario*
-        </label>
-        <input
-          type="text"
-          name="nombre_usuario"
-          value={formData.nombre_usuario}
-          onChange={handleChange}
-          placeholder="Tu nombre de usuario"
-          className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm sm:mb-4 ${
-            usernameExists
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
-          required
-        />
-        {checkingUsername && (
-          <p className="text-gray-500 text-xs mt-1">
-            Verificando disponibilidad...
-          </p>
-        )}
-        {usernameExists && !checkingUsername && (
-          <p className="text-red-500 text-sm mt-1 font-bold">
-            ⚠️ Este nombre de usuario ya existe. Por favor, elige otro.
-          </p>
-        )}
-        {!usernameExists &&
-          !checkingUsername &&
-          formData.nombre_usuario.length >= 3 && (
-            <p className="text-green-500 text-xs mt-1">
-              ✓ Nombre de usuario disponible
-            </p>
+          {paymentError && (
+            <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              {paymentError}
+            </div>
           )}
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Contraseña*
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Escribe tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
-          />
+          {/* Botón de Pagar */}
           <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowPassword((v) => !v)}
+            type="submit"
+            disabled={
+              paymentLoading ||
+              verificandoRestaurante ||
+              (restauranteVetado &&
+                !codigoValido &&
+                !esClienteRestringidoAprobado) ||
+              creatingAccount
+            }
+            className={`font-bold py-5 sm:py-3 px-4 rounded-xl sm:rounded-md w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-lg mt-2 sm:mt-0 drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[5px_5px_0.9px_rgba(0,0,0,0.3)] ${
+              paymentLoading ||
+              verificandoRestaurante ||
+              (restauranteVetado &&
+                !codigoValido &&
+                !esClienteRestringidoAprobado) ||
+              creatingAccount
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
           >
-            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            {verificandoRestaurante
+              ? "Verificando..."
+              : paymentLoading || creatingAccount
+                ? "Procesando..."
+                : restauranteVetado &&
+                  !codigoValido &&
+                  !esClienteRestringidoAprobado
+                  ? "Ingresa código de acceso"
+                  : "Ir a Pagar"}
           </button>
         </div>
-      </div>
 
-      <div>
-        <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-          Confirmar Contraseña*
-        </label>
-        <div className="relative">
+        <span>Datos de facturación</span>
+
+        {/* Dirección completa del restaurante */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Dirección completa del restaurante*
+          </label>
           <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirm_password"
-            value={formData.confirm_password}
+            type="text"
+            name="direccion_completa"
+            value={formData.direccion_completa}
             onChange={handleChange}
-            placeholder="Confirma tu contraseña"
-            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+            placeholder="Calle, número, colonia, municipio, código postal"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
-          <button
-            type="button"
-            className="absolute right-4 sm:right-3 top-1/2 -translate-y-1/2 sm:top-2 sm:translate-y-0 text-2xl sm:text-xl text-gray-600 sm:text-black cursor-pointer"
-            onClick={() => setShowConfirmPassword((v) => !v)}
-            tabIndex={-1}
-          >
-            {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </button>
         </div>
+
+        {/* RFC */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            RFC*
+          </label>
+          <input
+            type="text"
+            name="rfc"
+            value={formData.rfc}
+            onChange={handleChange}
+            placeholder="Escribe tu RFC"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+            required
+          />
+        </div>
+
+        {/* Razón Social */}
+        <div>
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Razón Social*
+          </label>
+          <input
+            type="text"
+            name="razon_social"
+            value={formData.razon_social}
+            onChange={handleChange}
+            placeholder="Escribe la razón social"
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
+            required
+          />
+        </div>
+
       </div>
+
+
+
+
+
+
 
       {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
-      {!planInicial && (
-        <div className="sm:mb-4">
-          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
-            Número de sucursales*
-          </label>
-          {loadingPrecios ? (
-            <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
-              Cargando precios...
-            </div>
-          ) : (
-            <select
-              value={numeroSucursales}
-              onChange={(e) =>
-                setNumeroSucursales(parseInt(e.target.value, 10))
-              }
-              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
-            >
-              {preciosDisponibles.map((precio) => (
-                <option
-                  key={precio.priceId}
-                  value={precio.sucursales === "5+" ? 5 : precio.sucursales}
-                >
-                  {precio.sucursalesTexto}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      )}
+      {
+        !planInicial && (
+          <div className="sm:mb-4">
+            <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-sm">
+              Número de sucursales*
+            </label>
+            {loadingPrecios ? (
+              <div className="bg-gray-100 w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md text-gray-500 text-lg sm:text-sm">
+                Cargando precios...
+              </div>
+            ) : (
+              <select
+                value={numeroSucursales}
+                onChange={(e) =>
+                  setNumeroSucursales(parseInt(e.target.value, 10))
+                }
+                className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman font-bold text-lg sm:text-sm cursor-pointer"
+              >
+                {preciosDisponibles.map((precio) => (
+                  <option
+                    key={precio.priceId}
+                    value={precio.sucursales === "5+" ? 5 : precio.sucursales}
+                  >
+                    {precio.sucursalesTexto}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        )
+      }
 
-      <div className="flex items-center gap-3 pt-1 sm:mt-4 sm:mb-6">
-        <input type="checkbox" className="w-6 h-6 cursor-pointer" required />
-        <span className="font-roman text-base sm:text-sm">
-          Acepto los{" "}
-          <button
-            type="button"
-            className="text-black underline cursor-pointer bg-transparent border-0 p-0 font-bold"
-            onClick={() => setShowModal(true)}
-          >
-            Términos y Condiciones
-          </button>
-          *
-        </span>
-      </div>
 
-      {/* Mensajes */}
-      {successMsg && (
-        <div className="text-green-600 font-bold text-center mt-4">
-          {successMsg}
-        </div>
-      )}
-
-      {paymentCompleted && creatingAccount && (
-        <div className="text-blue-600 font-bold text-center mt-4 mb-4">
-          <div>✓ Pago completado exitosamente. Creando tu cuenta...</div>
-        </div>
-      )}
-
-      {paymentError && (
-        <div className="text-red-600 font-bold text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          {paymentError}
-        </div>
-      )}
-
-      {/* Botón de Pagar - Igual que Astro */}
-      <button
-        type="submit"
-        disabled={
-          paymentLoading ||
-          verificandoRestaurante ||
-          (restauranteVetado &&
-            !codigoValido &&
-            !esClienteRestringidoAprobado) ||
-          creatingAccount
-        }
-        className={`font-bold  py-5 sm:py-2 px-4 rounded-xl sm:rounded w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-base mt-2 sm:mt-0 ${
-          paymentLoading ||
-          verificandoRestaurante ||
-          (restauranteVetado &&
-            !codigoValido &&
-            !esClienteRestringidoAprobado) ||
-          creatingAccount
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-yellow-400"
-        }`}
-      >
-        {verificandoRestaurante
-          ? "Verificando..."
-          : paymentLoading || creatingAccount
-            ? "Procesando..."
-            : restauranteVetado &&
-                !codigoValido &&
-                !esClienteRestringidoAprobado
-              ? "Ingresa código de acceso"
-              : "Ir a Pagar"}
-      </button>
     </form>
   );
 
@@ -1610,15 +1672,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [] }) => {
       <div className="flex flex-col">
         {/* Logo - Alineado igual que en Astro */}
         <img
-          className="w-32 sm:w-25 pt-3 pb-5 sm:pb-7 sm:mx-auto"
-          src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/b2b%20logo%20completo.png"
+          className="w-50 sm:w-100 pt-3"
+          src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
           alt="B2B Logo"
         />
-
-        <h1 className="leading-tight text-3xl sm:text-2xl mb-3 sm:mb-4 font-bold">
-          Suscripción B2B
-        </h1>
-
+        <span className="text-sm font-roman pb-6 uppercase">Inscríbete en 3 sencillos pasos. <span className="text-xs">(2 Minutos)</span></span>
         {formularioJSX}
       </div>
 
