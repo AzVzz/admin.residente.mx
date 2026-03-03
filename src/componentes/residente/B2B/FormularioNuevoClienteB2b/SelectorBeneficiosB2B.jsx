@@ -1,46 +1,7 @@
 import React, { useState } from "react";
-import {
-  FaChartBar,
-  FaBookOpen,
-  FaVideo,
-  FaGift,
-  FaCalendarAlt,
-  FaArrowLeft,
-} from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import { HiOutlineCheckCircle } from "react-icons/hi";
-
-const BENEFICIOS_INFO = [
-  {
-    key: "estudios_mercado",
-    label: "Estudios de Mercado",
-    descripcion: "Acceso a estudios de mercado ilimitados para tu negocio",
-    Icono: FaChartBar,
-  },
-  {
-    key: "revista_residente",
-    label: "Revista Residente",
-    descripcion: "1 Pagina en Revista Residente. A escoger en 1 de 12 meses",
-    Icono: FaBookOpen,
-  },
-  {
-    key: "video_publicitario",
-    label: "Video Publicitario",
-    descripcion: "Video publicitario profesional para tu negocio",
-    Icono: FaVideo,
-  },
-  {
-    key: "giveaway",
-    label: "Giveaway",
-    descripcion: "Participacion en giveaways y sorteos exclusivos",
-    Icono: FaGift,
-  },
-  {
-    key: "suscripcion_semestral",
-    label: "Suscripcion Semestral",
-    descripcion: "Acceso a beneficios de suscripcion semestral",
-    Icono: FaCalendarAlt,
-  },
-];
+import { BENEFICIOS_INFO } from "../../B2B/beneficiosConfig";
 
 const SelectorBeneficiosB2B = ({
   numMeses,

@@ -10,6 +10,7 @@ import axios from "axios";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 import { FaFilePdf } from "react-icons/fa";
+import { BENEFICIOS_INFO } from "./beneficiosConfig";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -668,6 +669,11 @@ const B2BDashboard = () => {
     sessionStorage.removeItem("credencialesNuevas");
   };
 
+  // Beneficios incluidos en la membresía B2B (según tabla usuarios_b2b)
+  const beneficiosMembresia = b2bUser
+    ? BENEFICIOS_INFO.filter((b) => b2bUser[b.key])
+    : [];
+
   return (
     <div>
       {/* Barra superior del usuario */}
@@ -753,6 +759,34 @@ const B2BDashboard = () => {
               CLASIFICADO
             </button>
           </div>
+          
+              {beneficiosMembresia.length > 0 && (
+                <div className="mb-7 mt-7">
+                  <p className="text-sm text-black font-bold mb-2">
+                    Beneficios incluidos en tu membresía:
+                  </p>
+                  <ul className="mt-1 space-y-1">
+                    {beneficiosMembresia.map((beneficio) => (
+                      <li
+                        key={beneficio.key}
+                        className="flex items-start gap-2 text-sm text-black"
+                      >
+                        <span className="mt-[3px] h-2 w-2 rounded-full bg-black flex-shrink-0" />
+                        <span>
+                          <span className="font-bold">{beneficio.label}</span>
+                          {beneficio.descripcion && (
+                            <span className="text-gray-600 text-[11px] block leading-tight">
+                              {beneficio.descripcion}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+
           <address className="flex flex-col mt-auto">
             <p>Credenciales de Acceso</p>
             <strong className="text-xs text-gray-900 font-roman">
@@ -899,6 +933,9 @@ const B2BDashboard = () => {
                   Beneficios
                 </p>
               </div>
+
+              
+
               <ol className="list-none pl-0 space-y-2">
                 {productos.map((producto, index) => (
                   <li
