@@ -511,7 +511,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
   const PRECIOS_CLIENTE_RESTRINGIDO = {
     // 6: 7499,
     // 9: 4999,
-    12: 3999,
+    12: 4399,
   };
 
   const planes =
