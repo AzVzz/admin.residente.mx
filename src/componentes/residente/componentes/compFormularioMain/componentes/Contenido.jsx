@@ -2,13 +2,73 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { useEffect, useRef } from 'react';
+import Mention from '@tiptap/extension-mention';
+import { mergeAttributes } from '@tiptap/core';
+import { useEffect, useRef, useState } from 'react';
 import { imgApi, urlApi } from '../../../../api/url';
+import { restaurantesBasicosGet } from '../../../../api/restaurantesBasicosGet';
+import createSuggestion from './mentionSuggestion';
+
+// Extend Mention to render as <a> links with restauranteId attribute
+const RestauranteMention = Mention.extend({
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            restauranteId: {
+                default: null,
+                parseHTML: (element) => {
+                    const val = element.getAttribute('data-restaurante-id');
+                    return val ? parseInt(val) : null;
+                },
+                renderHTML: (attributes) => {
+                    if (!attributes.restauranteId) return {};
+                    return { 'data-restaurante-id': attributes.restauranteId };
+                },
+            },
+        };
+    },
+    renderHTML({ node, HTMLAttributes }) {
+        const slug = node.attrs.id;
+        const label = node.attrs.label || slug;
+        return [
+            'a',
+            mergeAttributes(
+                { 'data-type': 'mention' },
+                HTMLAttributes,
+                {
+                    href: `https://residente.mx/restaurantes/${slug}`,
+                    class: 'mention-restaurante',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                }
+            ),
+            `@${label}`,
+        ];
+    },
+    parseHTML() {
+        return [
+            { tag: 'a[data-type="mention"]' },
+            { tag: 'span[data-type="mention"]' },
+        ];
+    },
+});
 
 const Contenido = () => {
-    const { control, setValue, watch, formState: { errors } } = useFormContext();
+    const { control, setValue, getValues, watch, formState: { errors } } = useFormContext();
     const contenidoValue = watch('contenido');
     const fileInputRef = useRef(null);
+    const restaurantesRef = useRef([]);
+
+    // Fetch restaurantes for @ mentions
+    useEffect(() => {
+        restaurantesBasicosGet()
+            .then((data) => {
+                restaurantesRef.current = Array.isArray(data) ? data : [];
+            })
+            .catch(() => {
+                restaurantesRef.current = [];
+            });
+    }, []);
 
     const editor = useEditor({
         extensions: [
@@ -24,7 +84,13 @@ const Contenido = () => {
                 HTMLAttributes: {
                     class: 'editor-image',
                 },
-            })
+            }),
+            RestauranteMention.configure({
+                HTMLAttributes: {
+                    class: 'mention-restaurante',
+                },
+                suggestion: createSuggestion(restaurantesRef),
+            }),
         ],
         content: contenidoValue || '',
         onUpdate: ({ editor }) => {
@@ -33,6 +99,21 @@ const Contenido = () => {
             // Convertir saltos de línea a <br> para mejor preservación
             html = html.replace(/\n/g, '<br>');
             setValue('contenido', html);
+
+            // Extraer IDs numéricos de menciones y agregarlos a restaurantes_ids
+            const mentionIds = [];
+            editor.state.doc.descendants((node) => {
+                if (node.type.name === 'mention' && node.attrs.restauranteId) {
+                    mentionIds.push(node.attrs.restauranteId);
+                }
+            });
+            if (mentionIds.length > 0) {
+                const currentIds = getValues('restaurantes_ids') || [];
+                const merged = [...new Set([...currentIds, ...mentionIds])];
+                if (merged.length !== currentIds.length) {
+                    setValue('restaurantes_ids', merged, { shouldDirty: true });
+                }
+            }
         },
     });
 
@@ -123,7 +204,7 @@ const Contenido = () => {
                 render={() => (
                     <div>
                         {/* Toolbar */}
-                        <div className="flex gap-2 mb-2">
+                        <div className="flex gap-2 mb-2 flex-wrap items-center">
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().toggleBold().run()}
@@ -166,6 +247,9 @@ const Contenido = () => {
                             >
                                 Borrar imagen
                             </button>
+                            <span className="text-xs text-gray-400 ml-2">
+                                Escribe @ para mencionar un restaurante
+                            </span>
                         </div>
                         {/* Input oculto para seleccionar imágenes */}
                         <input
@@ -211,6 +295,55 @@ const Contenido = () => {
                         .ProseMirror .editor-image:hover {
                             cursor: pointer;
                             opacity: 0.9;
+                        }
+                        /* Mention styles in editor */
+                        .ProseMirror .mention-restaurante {
+                            color: #2563eb;
+                            background-color: #eff6ff;
+                            border-radius: 4px;
+                            padding: 1px 4px;
+                            font-weight: 500;
+                            text-decoration: none;
+                            cursor: pointer;
+                        }
+                        .ProseMirror .mention-restaurante:hover {
+                            background-color: #dbeafe;
+                            text-decoration: underline;
+                        }
+                        /* Mention dropdown styles */
+                        .mention-dropdown {
+                            background: white;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                            max-height: 200px;
+                            overflow-y: auto;
+                            min-width: 200px;
+                        }
+                        .mention-dropdown-item {
+                            display: block;
+                            width: 100%;
+                            text-align: left;
+                            padding: 6px 12px;
+                            font-size: 13px;
+                            border: none;
+                            background: none;
+                            cursor: pointer;
+                            font-family: var(--font-roman, Arial), sans-serif;
+                        }
+                        .mention-dropdown-item:hover,
+                        .mention-dropdown-item.is-selected {
+                            background-color: #eff6ff;
+                            color: #1e40af;
+                        }
+                        /* Tippy overrides for mention popup */
+                        .tippy-box {
+                            background: transparent !important;
+                            border: none !important;
+                            box-shadow: none !important;
+                        }
+                        .tippy-content {
+                            padding: 0 !important;
                         }
                         `}</style>
                     </div>

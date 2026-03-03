@@ -125,6 +125,7 @@ const FormMainResidente = () => {
       meta_description: "",
       smart_tags: [],
       destacada_invitado: 0,
+      restaurantes_ids: [],
     },
   });
 
@@ -501,6 +502,7 @@ const FormMainResidente = () => {
             destacada: !!data.destacada,
             destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
             nombre_restaurante: data.nombre_restaurante || "",
+            restaurantes_ids: Array.isArray(data.restaurantes_ids) ? data.restaurantes_ids : [],
             tiposDeNotaSeleccionadas: data.tipo_nota || "",
             zonas: data.zonas
               ? typeof data.zonas === "string"
@@ -646,6 +648,11 @@ const FormMainResidente = () => {
 
       // Guardar nombre_restaurante SIEMPRE
       datosNota.nombre_restaurante = data.nombre_restaurante || null;
+
+      // Guardar restaurantes taggeados
+      datosNota.restaurantes_ids = Array.isArray(data.restaurantes_ids) && data.restaurantes_ids.length > 0
+        ? data.restaurantes_ids
+        : null;
 
       // Programar instafoto
       if (data.programarInstafoto && data.fechaProgramadaInstafoto) {

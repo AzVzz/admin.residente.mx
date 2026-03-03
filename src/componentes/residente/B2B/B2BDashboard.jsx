@@ -43,6 +43,9 @@ const B2BDashboard = () => {
   // Estado para stats de notas del usuario
   const [notaStats, setNotaStats] = useState(null);
 
+  // Estado para notas taggeadas al restaurante
+  const [notasRestaurante, setNotasRestaurante] = useState(null);
+
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
@@ -567,6 +570,25 @@ const B2BDashboard = () => {
     fetchNotaStats();
   }, [usuario]);
 
+  // Obtener notas taggeadas al restaurante
+  useEffect(() => {
+    const fetchNotasRestaurante = async () => {
+      if (!restaurante?.id) return;
+      try {
+        const response = await fetch(
+          `${urlApi}api/notas/restaurante/${restaurante.id}/stats`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setNotasRestaurante(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener notas del restaurante:", error);
+      }
+    };
+    fetchNotasRestaurante();
+  }, [restaurante]);
+
   // 🆕 Obtener datos de Google Analytics
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -885,6 +907,62 @@ const B2BDashboard = () => {
                 </div>
               </>
             )}
+            {/* Notas taggeadas a este restaurante */}
+            <div className="border-t border-gray-300 pt-3 mt-3">
+              <p className="text-sm font-bold text-black mb-2">
+                Notas sobre tu restaurante
+                {notasRestaurante ? ` (${notasRestaurante.total_notas})` : ""}
+              </p>
+              {/* Suma total de vistas de notas */}
+              <div className="leading-tight mb-1">
+                <p className="text-[40px] font-bold text-black leading-tight">
+                  {notasRestaurante?.total_vistas?.toLocaleString("es-MX") || 0}
+                </p>
+                <p className="text-sm text-black -mt-1">
+                  Suma de vistas de notas etiquetadas
+                </p>
+              </div>
+              <div className="leading-tight mb-2">
+                <p className="text-[40px] font-bold text-black leading-tight">
+                  {notasRestaurante?.total_clicks?.toLocaleString("es-MX") || 0}
+                </p>
+                <p className="text-sm text-black -mt-1">
+                  Suma de clicks de notas etiquetadas
+                </p>
+              </div>
+              {/* Lista individual de cada nota con sus vistas */}
+              {notasRestaurante && notasRestaurante.notas.length > 0 ? (
+                <div className="space-y-1.5 mt-3">
+                  <p className="text-xs font-semibold text-gray-700 mb-1">
+                    Detalle por nota:
+                  </p>
+                  {notasRestaurante.notas.map((nota) => (
+                    <div
+                      key={nota.id}
+                      className="flex justify-between items-center text-xs border-b border-gray-200 pb-1.5"
+                    >
+                      <a
+                        href={`https://residente.mx/notas/${nota.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="truncate max-w-[55%] text-blue-700 hover:underline"
+                        title={nota.titulo}
+                      >
+                        {nota.titulo}
+                      </a>
+                      <span className="text-gray-600 whitespace-nowrap">
+                        {nota.vistas?.toLocaleString("es-MX")} vistas &middot;{" "}
+                        {nota.clicks?.toLocaleString("es-MX")} clicks
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 mt-1">
+                  Aún no hay notas etiquetadas a tu restaurante.
+                </p>
+              )}
+            </div>
           </div>
         </div>
         {/* Columna roja */}
