@@ -46,6 +46,11 @@ const B2BDashboard = () => {
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
+  // 🆕 Anunciador
+  const [mensajes, setMensajes] = useState([]);
+  const [nuevoMensaje, setNuevoMensaje] = useState({ titulo: "", mensaje: "", es_general: true, destinatarios: "" });
+  const esSeller = usuario?.rol === 'vendedor' || usuario?.rol === 'residente';
+
   // 👇 AGREGADO: URL de la API de tienda
   // En desarrollo usa el proxy de Vite, en producción usa la URL directa
   const API_URL = import.meta.env.DEV
@@ -284,6 +289,11 @@ const B2BDashboard = () => {
         if (usuario?.id) {
           const response = await fetch(
             `${urlApi}api/usuariosb2b/user/${usuario.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
           );
           if (response.ok) {
             const data = await response.json();
@@ -320,7 +330,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b/${usuario.id}`
             : `https://admin.residente.mx/api/usuariosb2b/${usuario.id}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response.ok) {
             const contentType = response.headers.get("content-type");
@@ -348,7 +362,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b?usuario_id=${usuario.id}`
             : `https://admin.residente.mx/api/usuariosb2b?usuario_id=${usuario.id}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response.ok) {
             const contentType = response.headers.get("content-type");
@@ -378,7 +396,11 @@ const B2BDashboard = () => {
             ? `${urlApi}api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`
             : `https://admin.residente.mx/api/usuariosb2b?correo=${encodeURIComponent(usuario.correo)}`;
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (response.ok) {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
@@ -571,6 +593,60 @@ const B2BDashboard = () => {
     fetchAnalytics();
   }, []);
 
+  // 🆕 Obtener Mensajes (Anunciador)
+  useEffect(() => {
+    if (b2bId && token) {
+      const fetchMensajes = async () => {
+        try {
+          const res = await fetch(`${urlApi}api/mensajesb2b/${b2bId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setMensajes(data);
+          }
+        } catch(e) {}
+      };
+      fetchMensajes();
+    }
+  }, [b2bId, token]);
+
+  const handleCrearMensaje = async (e) => {
+    e.preventDefault();
+    if (!nuevoMensaje.titulo || !nuevoMensaje.mensaje) return;
+    
+    let destsArray = [];
+    if (!nuevoMensaje.es_general && nuevoMensaje.destinatarios) {
+      destsArray = nuevoMensaje.destinatarios.split(',').map(d => Number(d.trim())).filter(d => !isNaN(d));
+    }
+
+    try {
+      const res = await fetch(`${urlApi}api/mensajesb2b`, {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+         },
+         body: JSON.stringify({
+           titulo: nuevoMensaje.titulo,
+           mensaje: nuevoMensaje.mensaje,
+           es_general: nuevoMensaje.es_general,
+           destinatarios: destsArray
+         })
+      });
+      if (res.ok) {
+         alert("Mensaje publicado exitosamente");
+         setNuevoMensaje({ titulo: "", mensaje: "", es_general: true, destinatarios: "" });
+         const fetchRes = await fetch(`${urlApi}api/mensajesb2b/${b2bId}`, { headers: { Authorization: `Bearer ${token}` } });
+         if (fetchRes.ok) setMensajes(await fetchRes.json());
+      } else {
+         alert("Hubo un error al publicar el mensaje.");
+      }
+    } catch(e) {
+      alert("Error de conexión al publicar el mensaje");
+    }
+  };
+
   const handleLogout = () => {
     saveToken(null);
     saveUsuario(null);
@@ -683,6 +759,70 @@ const B2BDashboard = () => {
           </p>
         </div>
       )}
+
+      {/* Zona de Mensajes para Tí (si hay mensajes) */}
+      {mensajes.length > 0 && (
+        <div className="w-full bg-[#fff200]/20 border-l-4 border-black p-4 mb-8">
+          <h2 className="text-2xl font-bold mb-3">Tus Anuncios y Mensajes</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {mensajes.map(m => (
+               <div key={m.id} className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                       <h3 className="font-bold text-lg leading-tight">{m.titulo}</h3>
+                       {!m.es_general && <span className="bg-yellow-100 text-yellow-800 text-[10px] px-2 py-1 rounded-full whitespace-nowrap ml-2 font-bold">SOLO PARA TI</span>}
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap text-gray-700">{m.mensaje}</p>
+                  </div>
+                  <span className="text-xs text-gray-400 mt-4 block">{new Date(m.fecha_creacion).toLocaleDateString()}</span>
+               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Zona de Creación de Mensajes (Solo Sellers) */}
+      {esSeller && (
+        <div className="w-full bg-gray-50 border-2 border-dashed border-gray-300 p-5 mb-8 rounded-xl relative">
+          <span className="absolute -top-3 left-4 bg-gray-600 text-white px-3 py-0.5 text-xs font-bold rounded-full">ADMIN/SELLER TOOLS</span>
+          <h2 className="text-xl font-bold mb-4 font-roman">Difundir Nuevo Anuncio</h2>
+          <form onSubmit={handleCrearMensaje} className="flex flex-col gap-3 max-w-2xl">
+            <input 
+              type="text" placeholder="Título del anuncio" 
+              value={nuevoMensaje.titulo} onChange={e => setNuevoMensaje({...nuevoMensaje, titulo: e.target.value})}
+              className="border border-gray-300 p-2 rounded focus:border-black outline-none" required
+            />
+            <textarea 
+              placeholder="Escribe el mensaje o anuncio aquí..."
+              value={nuevoMensaje.mensaje} onChange={e => setNuevoMensaje({...nuevoMensaje, mensaje: e.target.value})}
+              className="border border-gray-300 p-2 rounded focus:border-black outline-none" rows="3" required
+            />
+            <div className="flex gap-4 items-center bg-white p-3 rounded border border-gray-200">
+               <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                  <input type="radio" checked={nuevoMensaje.es_general} onChange={() => setNuevoMensaje({...nuevoMensaje, es_general: true})} />
+                  Para Todos
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                  <input type="radio" checked={!nuevoMensaje.es_general} onChange={() => setNuevoMensaje({...nuevoMensaje, es_general: false})} />
+                  Destinatarios Específicos
+               </label>
+            </div>
+            
+            {!nuevoMensaje.es_general && (
+              <div className="flex flex-col gap-1">
+                <input 
+                  type="text" placeholder="IDs B2B destino (ej: 1, 4, 15)" 
+                  value={nuevoMensaje.destinatarios} onChange={e => setNuevoMensaje({...nuevoMensaje, destinatarios: e.target.value})}
+                  className="border border-yellow-400 bg-yellow-50 p-2 rounded outline-none w-full" required
+                />
+                <span className="text-[10px] text-gray-500">Separados por coma usando los "B2B_ID" de los restaurantes</span>
+              </div>
+            )}
+            <button type="submit" className="bg-black hover:bg-gray-800 text-white font-bold px-6 py-2 rounded mt-2 w-fit transition-all cursor-pointer">Publicar Mensaje</button>
+          </form>
+        </div>
+      )}
+
       {/* Grid de 3 columnas */}
       <div className="w-full grid grid-cols-3 mb-10 relative items-stretch">
         {/* Línea divisoria izquierda - empieza más abajo */}

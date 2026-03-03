@@ -72,7 +72,8 @@ const getCaracteristicasPorMeses = (meses) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan }) => {
+const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
+  const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
 
   return (
@@ -217,6 +218,23 @@ const PlanCard = ({ plan, onSelectPlan }) => {
         {/*parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"*/}
         {/*parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"*/}
       </p>
+
+      {/* Botón copiar enlace - solo para sellers */}
+      {esSeller && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}`;
+            navigator.clipboard.writeText(link).then(() => {
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 2000);
+            });
+          }}
+          className="w-full py-2 px-4 mt-2 rounded-xl font-medium text-sm border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+        >
+          {copiado ? "Enlace copiado!" : "Copiar enlace del plan"}
+        </button>
+      )}
     </div>
   );
 };
@@ -331,7 +349,7 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   );
 };
 
-const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
+const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller = false }) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -422,10 +440,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
     }
   }, [token, usuario]);
 
-  // Cargar clientes vetados de la API
+  // Cargar clientes vetados de la API (solo para sellers)
   useEffect(() => {
-    fetchClientesVetados();
-  }, [fetchClientesVetados]);
+    if (esSeller) fetchClientesVetados();
+  }, [fetchClientesVetados, esSeller]);
 
   // Función para manejar la selección de cliente del dropdown
   const handleClienteChange = (clienteId) => {
@@ -592,7 +610,8 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
 
       {/* Header */}
       <div className="text-center mb-10">
-        {/* Dropdown de Clientes Vetados con botón */}
+        {/* Dropdown de Clientes Vetados con botón - solo para sellers */}
+        {esSeller && (
         <div className="mb-4 max-w-lg mx-auto">
           <div className="flex items-center justify-center mb-2">
             <label
@@ -696,7 +715,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                 }
               </p>
               <p className="text-xs text-green-600 mt-1">
-                📋 Selecciona un plan para este cliente
+                Membresia asignada: <span className="font-bold">Platino (5+ sucursales)</span>
               </p>
             </div>
           )}
@@ -704,7 +723,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           {/* Mensaje de error compacto */}
           {errorClientes && (
             <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
-              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
+              <p className="text-xs text-red-600 mb-1">{errorClientes}</p>
               <button
                 onClick={fetchClientesVetados}
                 className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
@@ -714,6 +733,22 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
               </button>
             </div>
           )}
+        </div>
+        )}
+        
+        <div className="w-full max-w-2xl mx-auto mb-6">
+          <video
+            className="w-full h-auto rounded-md shadow-lg"
+            controls
+            playsInline
+            preload="metadata"
+          >
+            <source
+              src="https://residente.mx/fotos/videos/new%20video.mp4"
+              type="video/mp4"
+            />
+            Tu navegador no soporta la reproducción de video.
+          </video>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
@@ -744,9 +779,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
       </div>
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
-      {/* Solo se muestran si mostrarPlanes es true */}
+      {/* Sellers: toggle con botón "Nuevo Cliente". Clientes: siempre visibles */}
       <div ref={planesRef} className="scroll-mt-10">
-        {mostrarPlanes && (
+        {(mostrarPlanes || !esSeller) && (
           <div className="flex justify-center mb-8 animate-fadeIn w-full">
             <div className="w-full max-w-sm">
               {planes.map((plan, index) => (
@@ -754,6 +789,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
                   key={plan.id || plan.priceId || index}
                   plan={plan}
                   onSelectPlan={handleSelectPlan}
+                  esSeller={esSeller}
                 />
               ))}
             </div>
