@@ -837,9 +837,10 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       // Crear sesión de suscripción
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
-      const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL || "/"}`;
-      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true`;
+      const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
+      const planSuffix = currentPlanParam ? `&plan=${currentPlanParam}` : "";
+      const successUrl = `${window.location.origin}/admin/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}${planSuffix}`;
+      const cancelUrl = `${window.location.origin}/admin/registrob2b?payment_canceled=true${planSuffix}`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
@@ -1615,14 +1616,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
           />
         </div>
-
       </div>
-
-
-
-
-
-
 
       {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
       {
