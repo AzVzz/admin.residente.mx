@@ -230,7 +230,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             ...(b2bId && { b2b_id: b2bId }),
             usuario_id: usuarioId,
             nombre_responsable_restaurante:
-              formData.nombre_responsable_restaurante,
+              formData.nombre_restaurante,
             correo: formData.correo,
             nombre_responsable: formData.nombre_responsable_restaurante,
             telefono: formData.telefono,
