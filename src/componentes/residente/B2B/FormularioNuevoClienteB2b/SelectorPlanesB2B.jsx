@@ -716,6 +716,21 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
           )}
         </div>
 
+                <div className="w-full max-w-2xl mx-auto mt-8 mb-6">
+          <video
+            className="w-full h-auto rounded-md shadow-lg"
+            controls
+            playsInline
+            preload="metadata"
+          >
+            <source
+              src="https://residente.mx/fotos/videos/new%20video.mp4"
+              type="video/mp4"
+            />
+            Tu navegador no soporta la reproducción de video.
+          </video>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
             <img
@@ -725,13 +740,13 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios }) => {
             />
           </div>
         </div>
-        <div className="w-full max-w-2xl mx-auto mb-4">
+        {/*BANNER FIFAS <div className="w-full max-w-2xl mx-auto mb-4">
           <img
             src="https://residente.mx/fotos/fotos-estaticas/banners/BANNER%20PARA%20GUÍA%20FIFA.jpeg"
             alt="Banner Guía FIFA"
             className="w-full h-auto "
           />
-        </div>
+        </div>*/}
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
           Elige tu tipo de membresia para el "Club Residente"
         </h1>
