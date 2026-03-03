@@ -1324,7 +1324,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             name="nombre_responsable_restaurante"
             value={formData.nombre_responsable_restaurante}
             onChange={handleChange}
-            placeholder="Persona que se encargará de la relación entre el negocio y el club Residente"
+            placeholder="Persona que se encargará de la relación entre el negocio y el club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1340,7 +1340,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             name="telefono"
             value={formData.telefono}
             onChange={handleChange}
-            placeholder="Teléfono de la persona encargada de la relación con club residente fácil"
+            placeholder="Teléfono de la persona encargada de la relación con club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1574,7 +1574,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* Dirección completa del restaurante */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Dirección completa del restaurante*
+            Dirección completa del restaurante
           </label>
           <input
             type="text"
@@ -1589,7 +1589,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* RFC */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            RFC*
+            RFC
           </label>
           <input
             type="text"
@@ -1604,7 +1604,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* Razón Social */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Razón Social*
+            Razón Social
           </label>
           <input
             type="text"
