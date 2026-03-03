@@ -13,8 +13,20 @@ const BENEFICIOS_INFO = [
   {
     key: "estudios_mercado",
     label: "Estudios de Mercado",
-    descripcion: "Acceso a estudios de mercado ilimitados para tu negocio",
+    descripcion: "Acceso libre a todo el acero de estudios de mercado de Residente",
     Icono: FaChartBar,
+  },
+  {
+    key: "giveaway",
+    label: "Giveaway",
+    descripcion: "Publica 1 Giveaway en instagram de Residente. (Premio mínimo a ofrecer $1,800)",
+    Icono: FaGift,
+  },
+  {
+    key: "video_publicitario",
+    label: "Nota / 5 razones",
+    descripcion: "Publica 1 nota periodística en el “main” de residente.mx. 5 razones para asistir a tu negocio.",
+    Icono: FaVideo,
   },
   {
     key: "revista_residente",
@@ -23,21 +35,9 @@ const BENEFICIOS_INFO = [
     Icono: FaBookOpen,
   },
   {
-    key: "video_publicitario",
-    label: "Video Publicitario",
-    descripcion: "Video publicitario profesional para tu negocio",
-    Icono: FaVideo,
-  },
-  {
-    key: "giveaway",
-    label: "Giveaway",
-    descripcion: "Participacion en giveaways y sorteos exclusivos",
-    Icono: FaGift,
-  },
-  {
     key: "suscripcion_semestral",
-    label: "Suscripcion Semestral",
-    descripcion: "Acceso a beneficios de suscripcion semestral",
+    label: "2da Membresia gratis",
+    descripcion: "Inscribe gratis a otra marca perteneciente a tu mismo grupo de negocios",
     Icono: FaCalendarAlt,
   },
 ];
@@ -152,17 +152,15 @@ const SelectorBeneficiosB2B = ({
               key={beneficio.key}
               onClick={() => !isDisabled && handleToggle(beneficio.key)}
               className={`relative rounded-2xl p-5 transform transition-all duration-300 ease-out
-                ${
-                  todosIncluidos
-                    ? "cursor-default"
-                    : isDisabled
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer hover:scale-105 hover:-translate-y-1 hover:shadow-xl"
+                ${todosIncluidos
+                  ? "cursor-default"
+                  : isDisabled
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer hover:scale-105 hover:-translate-y-1 hover:shadow-xl"
                 }
-                ${
-                  isSelected
-                    ? "bg-gray-900 text-white border-2 border-black shadow-xl"
-                    : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black"
+                ${isSelected
+                  ? "bg-gray-900 text-white border-2 border-black shadow-xl"
+                  : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black"
                 }`}
             >
               {/* Logo pequeño arriba a la derecha */}
@@ -222,10 +220,9 @@ const SelectorBeneficiosB2B = ({
           onClick={() => puedeConfirmar && onConfirmBeneficios(seleccionados)}
           disabled={!puedeConfirmar}
           className={`px-10 py-3 rounded-xl font-bold text-lg transition-all duration-300 transform
-            ${
-              puedeConfirmar
-                ? "bg-gray-900 text-white hover:bg-gray-800 hover:scale-105 cursor-pointer shadow-lg"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ${puedeConfirmar
+              ? "bg-gray-900 text-white hover:bg-gray-800 hover:scale-105 cursor-pointer shadow-lg"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
           Continuar
