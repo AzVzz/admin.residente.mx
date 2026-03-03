@@ -57,6 +57,20 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const paymentSessionId = searchParams.get("session_id");
   const savedPlan = localStorage.getItem("b2b_plan_seleccionado");
 
+  // 🔍 DEBUG: Log para entender qué está pasando
+  console.log("🔍 RegistroB2BConPlanes - Diagnóstico:");
+  console.log(
+    "   📍 URL params - payment_success:",
+    searchParams.get("payment_success"),
+  );
+  console.log(
+    "   💾 localStorage - b2b_plan_seleccionado:",
+    savedPlan ? "EXISTE" : "NO EXISTE",
+  );
+  console.log("   ✅ paymentSuccess:", paymentSuccess);
+  console.log("   📋 Debería mostrar formulario:", paymentSuccess && savedPlan);
+  console.log("   🧪 modoPrueba:", modoPrueba);
+
   const [procesandoPago, setProcesandoPago] = useState(paymentSuccess);
   const [mensajeProceso, setMensajeProceso] = useState(
     "Verificando tu pago...",
@@ -64,7 +78,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const postPaymentRan = useRef(false);
 
   const [mostrarFormulario, setMostrarFormulario] = useState(
-    modoPrueba || (!paymentSuccess && false),
+    modoPrueba || (paymentSuccess && savedPlan),
   );
 
   // Gate de acceso: sin sesion de seller, sin ?plan= y sin payment_success -> bloquear

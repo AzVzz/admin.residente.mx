@@ -139,17 +139,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
         if (data.success && data.precios && data.precios.length > 0) {
           setPreciosDisponibles(data.precios);
-          // Si hay un plan inicial, usar ese; si no, usar el de 1 sucursal
-          if (planInicial) {
-            const precioCoincidente = data.precios.find(
-              (p) =>
-                p.sucursales === planInicial.sucursales ||
-                (planInicial.sucursales === "5+" && p.sucursales === "5+"),
-            );
-            if (precioCoincidente) {
-              setPrecioSeleccionado(precioCoincidente);
-            }
-          } else {
+          // Si hay un plan inicial (por ejemplo, cliente restringido con precio especial),
+          // respetar exactamente ese plan y no sobrescribir el precio mostrado en el modal.
+          if (!planInicial) {
             const precioInicial = data.precios.find((p) => p.sucursales === 1);
             if (precioInicial) {
               setPrecioSeleccionado(precioInicial);
@@ -194,6 +186,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
   // Actualizar precio seleccionado cuando cambia el número de sucursales
   useEffect(() => {
+    // Si viene de un plan inicial de cliente restringido, respetar el precio especial
+    if (planInicial?.esClienteRestringido) return;
+
     if (preciosDisponibles.length > 0) {
       // Buscar el precio correspondiente al número de sucursales
       // Si es 5 o más, usar el precio de "5+"
@@ -842,9 +837,10 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       // Crear sesión de suscripción
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
-      const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL || "/"}`;
-      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true`;
+      const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
+      const planSuffix = currentPlanParam ? `&plan=${currentPlanParam}` : "";
+      const successUrl = `${window.location.origin}/admin/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}${planSuffix}`;
+      const cancelUrl = `${window.location.origin}/admin/registrob2b?payment_canceled=true${planSuffix}`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
@@ -882,6 +878,8 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         successUrl: successUrl,
         cancelUrl: cancelUrl,
         beneficiosSeleccionados: beneficiosSeleccionados,
+        // Indicar al backend si es un cliente restringido aprobado (lista de 378)
+        esClienteRestringidoAprobado,
       };
 
       const res = await fetch(apiUrl, {
@@ -1320,14 +1318,14 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* Campo nombre del responsable */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Nombre del responsable*
+            Nombre del encargado*
           </label>
           <input
             type="text"
             name="nombre_responsable_restaurante"
             value={formData.nombre_responsable_restaurante}
             onChange={handleChange}
-            placeholder="Nombre del responsable"
+            placeholder="Persona que se encargará de la relación entre el negocio y el club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1343,7 +1341,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             name="telefono"
             value={formData.telefono}
             onChange={handleChange}
-            placeholder="Teléfono del restaurante"
+            placeholder="Teléfono de la persona encargada de la relación con club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1577,7 +1575,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* Dirección completa del restaurante */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Dirección completa del restaurante*
+            Dirección completa del restaurante
           </label>
           <input
             type="text"
@@ -1586,14 +1584,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Calle, número, colonia, municipio, código postal"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
         {/* RFC */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            RFC*
+            RFC
           </label>
           <input
             type="text"
@@ -1602,14 +1599,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe tu RFC"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
         {/* Razón Social */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Razón Social*
+            Razón Social
           </label>
           <input
             type="text"
@@ -1618,17 +1614,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe la razón social"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
           />
         </div>
-
       </div>
-
-
-
-
-
-
 
       {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
       {
