@@ -479,7 +479,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
                   const b2bData = {
                     b2b_id: b2bId,
                     nombre_responsable_restaurante:
-                      formDataToUse.nombre_responsable_restaurante,
+                      formDataToUse.nombre_restaurante,
                     correo: formDataToUse.correo,
                     nombre_responsable:
                       formDataToUse.nombre_responsable_restaurante,
@@ -585,7 +585,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
           ...(b2bId && { b2b_id: b2bId }),
           usuario_id: usuarioId,
           nombre_responsable_restaurante:
-            formDataToUse.nombre_responsable_restaurante,
+            formDataToUse.nombre_restaurante,
           correo: formDataToUse.correo,
           nombre_responsable: formDataToUse.nombre_responsable_restaurante,
           telefono: formDataToUse.telefono,
@@ -845,7 +845,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
       const userData = {
-        nombre_responsable_restaurante: formData.nombre_responsable_restaurante, // ✅ OBLIGATORIO
+        nombre_responsable_restaurante: formData.nombre_restaurante, // ✅ OBLIGATORIO - nombre del restaurante
         correo: formData.correo, // ✅ OBLIGATORIO
         telefono: formData.telefono || null, // Opcional
         nombre_responsable: formData.nombre_responsable_restaurante || null,
@@ -1042,7 +1042,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
                   // ⚠️ IMPORTANTE: El backend debe buscar el usuario_id por correo o nombre_usuario
                   // Por ahora, el backend debería poder encontrarlo si busca por correo
                   nombre_responsable_restaurante:
-                    formData.nombre_responsable_restaurante,
+                    formData.nombre_restaurante,
                   correo: formData.correo, // ⭐ CRÍTICO: Para que el backend pueda buscar el usuario_id
                   nombre_responsable: formData.nombre_responsable_restaurante,
                   telefono: formData.telefono,
@@ -1121,7 +1121,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       const b2bData = {
         ...(b2bId && { b2b_id: b2bId }), // ⭐ CRÍTICO: Si hay b2b_id, enviarlo para actualizar el registro existente
         usuario_id: usuarioId, // ⭐ CRÍTICO: El ID del usuario creado en tabla usuarios
-        nombre_responsable_restaurante: formData.nombre_responsable_restaurante,
+        nombre_responsable_restaurante: formData.nombre_restaurante,
         correo: formData.correo, // IMPORTANTE: Para que el backend pueda buscar el registro si no hay b2b_id
         nombre_responsable: formData.nombre_responsable_restaurante,
         telefono: formData.telefono,

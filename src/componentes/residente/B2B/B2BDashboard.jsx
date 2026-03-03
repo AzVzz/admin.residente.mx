@@ -977,7 +977,9 @@ const B2BDashboard = () => {
                             <span className="text-sm text-black font-bold">
                               $
                               {Number(
-                                producto.precio_descuento || producto.monto || 0,
+                                producto.precio_descuento ||
+                                  producto.monto ||
+                                  0,
                               ).toLocaleString("es-MX")}
                             </span>
                           )}
