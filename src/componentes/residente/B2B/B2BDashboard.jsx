@@ -674,6 +674,46 @@ const B2BDashboard = () => {
     ? BENEFICIOS_INFO.filter((b) => b2bUser[b.key])
     : [];
 
+  // Fecha de vigencia de la membresía (misma vigencia para las bonificaciones)
+  let fechaVigenciaBeneficios = null;
+
+  // 1) Calcular usando fecha_aceptacion_terminos + numero_meses del propio registro B2B
+  if (b2bUser?.fecha_aceptacion_terminos && b2bUser?.numero_meses) {
+    const meses = parseInt(b2bUser.numero_meses, 10);
+    const inicio = new Date(b2bUser.fecha_aceptacion_terminos);
+    if (!Number.isNaN(inicio.getTime()) && meses > 0) {
+      const fin = new Date(inicio);
+      fin.setMonth(fin.getMonth() + meses);
+      fechaVigenciaBeneficios = fin.toLocaleDateString("es-MX", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    }
+  }
+
+  // 2) Si por alguna razón no se pudo calcular arriba, intentar con la fecha que viene de Stripe
+  if (!fechaVigenciaBeneficios) {
+    const periodoFinStripe = subscriptionData?.subscription?.current_period_end;
+    if (periodoFinStripe) {
+      fechaVigenciaBeneficios = new Date(
+        periodoFinStripe * 1000,
+      ).toLocaleDateString("es-MX", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } else if (subscriptionData?.suscripcionDB?.fecha_fin_periodo_actual) {
+      fechaVigenciaBeneficios = new Date(
+        subscriptionData.suscripcionDB.fecha_fin_periodo_actual,
+      ).toLocaleDateString("es-MX", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    }
+  }
+
   return (
     <div>
       {/* Barra superior del usuario */}
@@ -760,31 +800,7 @@ const B2BDashboard = () => {
             </button>
           </div>
           
-              {beneficiosMembresia.length > 0 && (
-                <div className="mb-7 mt-7">
-                  <p className="text-sm text-black font-bold mb-2">
-                    Beneficios incluidos en tu membresía:
-                  </p>
-                  <ul className="mt-1 space-y-1">
-                    {beneficiosMembresia.map((beneficio) => (
-                      <li
-                        key={beneficio.key}
-                        className="flex items-start gap-2 text-sm text-black"
-                      >
-                        <span className="mt-[3px] h-2 w-2 rounded-full bg-black flex-shrink-0" />
-                        <span>
-                          <span className="font-bold">{beneficio.label}</span>
-                          {beneficio.descripcion && (
-                            <span className="text-gray-600 text-[11px] block leading-tight">
-                              {beneficio.descripcion}
-                            </span>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              
 
 
           <address className="flex flex-col mt-auto">
@@ -937,6 +953,9 @@ const B2BDashboard = () => {
               
 
               <ol className="list-none pl-0 space-y-2">
+                <h1 className="text-[30px] text-black font-bold mb-2">
+                  Descuentos
+                </h1>
                 {productos.map((producto, index) => (
                   <li
                     key={producto.id}
@@ -1019,6 +1038,48 @@ const B2BDashboard = () => {
               >
                 Ir a pagar
               </button>
+
+              {beneficiosMembresia.length > 0 && (
+                <div className="mb-7 mt-1">
+                  <div className="flex items-end justify-between gap-4 mb-2">
+                    <h1 className="text-black font-bold">
+                      <span className="block text-[30px] leading-none">
+                        Bonificaciones
+                      </span>
+                      <span className="block text-sm leading-tight">
+                        incluidos en tu membresía:
+                      </span>
+                    </h1>
+                    {fechaVigenciaBeneficios && (
+                      <p className="text-[11px] text-gray-700 text-right leading-tight">
+                        Vigentes hasta:
+                        <br />
+                        <span className="font-semibold">
+                          {fechaVigenciaBeneficios}
+                        </span>
+                      </p>
+                    )}  
+                  </div>
+                  <ul className="mt-1 space-y-1">
+                    {beneficiosMembresia.map((beneficio) => (
+                      <li
+                        key={beneficio.key}
+                        className="flex items-start gap-2 text-sm text-black"
+                      >
+                        <span className="mt-[3px] h-2 w-2 rounded-full bg-black flex-shrink-0" />
+                        <span>
+                          <span className="font-bold">{beneficio.label}</span>
+                          {beneficio.descripcion && (
+                            <span className="text-gray-600 text-[11px] block leading-tight">
+                              {beneficio.descripcion}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* 🆕 Mensaje de pago realizado */}
               {pagoRealizado && (
