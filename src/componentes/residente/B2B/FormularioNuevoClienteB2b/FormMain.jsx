@@ -1583,7 +1583,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Calle, número, colonia, municipio, código postal"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
@@ -1599,7 +1598,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe tu RFC"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
@@ -1615,7 +1613,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe la razón social"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
           />
         </div>
 
