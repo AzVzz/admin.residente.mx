@@ -41,16 +41,18 @@ const NombreRestaurante = () => {
   );
 
   const toggleRestaurante = (id) => {
-    const current = selectedIds;
-    if (current.includes(id)) {
-      setValue("restaurantes_ids", current.filter((rid) => rid !== id), { shouldDirty: true });
+    const numId = Number(id);
+    const current = selectedIds.map(Number);
+    if (current.includes(numId)) {
+      setValue("restaurantes_ids", current.filter((rid) => rid !== numId), { shouldDirty: true });
     } else {
-      setValue("restaurantes_ids", [...current, id], { shouldDirty: true });
+      setValue("restaurantes_ids", [...current, numId], { shouldDirty: true });
     }
   };
 
   const removeRestaurante = (id) => {
-    setValue("restaurantes_ids", selectedIds.filter((rid) => rid !== id), { shouldDirty: true });
+    const numId = Number(id);
+    setValue("restaurantes_ids", selectedIds.map(Number).filter((rid) => rid !== numId), { shouldDirty: true });
   };
 
   return (
@@ -63,17 +65,18 @@ const NombreRestaurante = () => {
       {selectedIds.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {selectedIds.map((id) => {
-            const r = restaurantes.find((rest) => rest.id === id);
-            if (!r) return null;
+            const numId = Number(id);
+            const r = restaurantes.find((rest) => Number(rest.id) === numId);
+            const nombre = r?.nombre_restaurante || `Restaurante #${numId}`;
             return (
               <span
-                key={id}
+                key={numId}
                 className="inline-flex items-center bg-blue-50 border border-blue-200 rounded-full px-2.5 py-0.5 text-sm text-blue-800"
               >
-                {r.nombre_restaurante}
+                {nombre}
                 <button
                   type="button"
-                  onClick={() => removeRestaurante(id)}
+                  onClick={() => removeRestaurante(numId)}
                   className="ml-1.5 text-blue-400 hover:text-red-500 font-bold"
                 >
                   x
@@ -101,7 +104,7 @@ const NombreRestaurante = () => {
       {isOpen && busqueda.length > 0 && filtrados.length > 0 && (
         <ul className="border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto bg-white shadow-lg z-10 relative">
           {filtrados.slice(0, 20).map((r) => {
-            const isSelected = selectedIds.includes(r.id);
+            const isSelected = selectedIds.map(Number).includes(Number(r.id));
             return (
               <li
                 key={r.id}

@@ -502,7 +502,11 @@ const FormMainResidente = () => {
             destacada: !!data.destacada,
             destacada_normal: !!data.destacada_normal, // <-- agrega esta línea
             nombre_restaurante: data.nombre_restaurante || "",
-            restaurantes_ids: Array.isArray(data.restaurantes_ids) ? data.restaurantes_ids : [],
+            restaurantes_ids: (() => {
+              let ids = data.restaurantes_ids;
+              if (typeof ids === "string") try { ids = JSON.parse(ids); } catch { ids = []; }
+              return Array.isArray(ids) ? ids.map(Number) : [];
+            })(),
             tiposDeNotaSeleccionadas: data.tipo_nota || "",
             zonas: data.zonas
               ? typeof data.zonas === "string"
