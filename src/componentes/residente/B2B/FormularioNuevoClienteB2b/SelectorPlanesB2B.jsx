@@ -72,7 +72,7 @@ const getCaracteristicasPorMeses = (meses) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink }) => {
+const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esClienteRestringido }) => {
   const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
 
@@ -227,7 +227,8 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink }) =
             const restauranteSuffix = nombreRestauranteParaLink
               ? `&restaurante=${encodeURIComponent(nombreRestauranteParaLink)}`
               : "";
-            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}${restauranteSuffix}&tienda=RESIDENTE`;
+            const tipoSuffix = esClienteRestringido ? "&tipo=restringido" : "";
+            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}${restauranteSuffix}${tipoSuffix}&tienda=RESIDENTE`;
             navigator.clipboard.writeText(link).then(() => {
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
@@ -809,6 +810,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
                       ? clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
                       : mostrarInputOtro ? nombreOtro.trim() : ""
                   }
+                  esClienteRestringido={!!clienteSeleccionado && clienteSeleccionado !== "__otro__"}
                 />
               ))}
             </div>

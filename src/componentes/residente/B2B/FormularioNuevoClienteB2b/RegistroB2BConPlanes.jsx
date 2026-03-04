@@ -42,6 +42,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const esSeller = rol === "residente" || rol === "vendedor";
   const planParam = searchParams.get("plan");
   const restauranteParam = searchParams.get("restaurante");
+  const tipoParam = searchParams.get("tipo");
 
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_12_MESES : null,
@@ -133,15 +134,17 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             const planEncontrado =
               [planUnico].find((p) => p.priceId === planParam) || null;
             if (planEncontrado) {
-              // Si NO es seller, aplicar precio barato ($2,199) para clientes nuevos
-              const planFinal = !esSeller
-                ? {
-                    ...planEncontrado,
-                    precioMensual: 2199,
-                    precioMensualConIVA: Math.round(2199 * 1.16),
-                    _precioOriginal: planEncontrado.precioMensual,
-                  }
-                : planEncontrado;
+              // Determinar precio según tipo de cliente:
+              // tipo=restringido → Plan A ($4,399), sino → Plan B ($2,199)
+              const esRestringido = tipoParam === "restringido";
+              const precioCliente = esRestringido ? 4399 : 2199;
+              const planFinal = {
+                ...planEncontrado,
+                precioMensual: precioCliente,
+                precioMensualConIVA: Math.round(precioCliente * 1.16),
+                _precioOriginal: planEncontrado.precioMensual,
+                esClienteRestringido: esRestringido,
+              };
               setPlanSeleccionado(planFinal);
               setMostrarFormulario(true);
             }
