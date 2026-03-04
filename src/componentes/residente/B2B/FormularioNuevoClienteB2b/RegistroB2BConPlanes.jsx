@@ -25,13 +25,14 @@ const TODOS_LOS_BENEFICIOS = [
 const PLAN_PRUEBA_12_MESES = {
   meses: 12,
   mesesTexto: "12 meses",
-  priceId: "price_fallback_12",
+  priceId: "price_1SyxQc2NQ01PW0zjiBPA54XR",
   precioMensual: 2199,
   precioMensualConIVA: 2550.84,
   nombre: "Plan 12 meses",
   descripcion: "Suscripción por 12 meses",
   moneda: "MXN",
   intervalo: "month",
+  sucursales: 6,
 };
 
 const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
