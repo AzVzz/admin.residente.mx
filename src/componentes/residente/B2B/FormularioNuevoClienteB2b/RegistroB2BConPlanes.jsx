@@ -41,7 +41,6 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const rol = usuario?.rol?.toLowerCase();
   const esSeller = rol === "residente" || rol === "vendedor";
   const planParam = searchParams.get("plan");
-  const restauranteParam = searchParams.get("restaurante");
 
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_12_MESES : null,
@@ -51,9 +50,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [beneficiosSeleccionados, setBeneficiosSeleccionados] = useState([]);
   const [mostrarSelectorBeneficios, setMostrarSelectorBeneficios] =
     useState(false);
-  const [nombreRestauranteOtro, setNombreRestauranteOtro] = useState(
-    restauranteParam || "",
-  );
+  const [nombreRestauranteOtro, setNombreRestauranteOtro] = useState("");
 
   // Detectar si viene de Stripe con pago exitoso
   const paymentSuccess = searchParams.get("payment_success") === "true";
@@ -133,16 +130,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             const planEncontrado =
               [planUnico].find((p) => p.priceId === planParam) || null;
             if (planEncontrado) {
-              // Si NO es seller, aplicar precio barato ($2,199) para clientes nuevos
-              const planFinal = !esSeller
-                ? {
-                    ...planEncontrado,
-                    precioMensual: 2199,
-                    precioMensualConIVA: Math.round(2199 * 1.16),
-                    _precioOriginal: planEncontrado.precioMensual,
-                  }
-                : planEncontrado;
-              setPlanSeleccionado(planFinal);
+              setPlanSeleccionado(planEncontrado);
               setMostrarFormulario(true);
             }
           }

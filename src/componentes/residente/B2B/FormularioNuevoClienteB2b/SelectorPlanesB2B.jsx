@@ -72,7 +72,7 @@ const getCaracteristicasPorMeses = (meses) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink }) => {
+const PlanCard = ({ plan, onSelectPlan, esSeller }) => {
   const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
 
@@ -224,10 +224,7 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink }) =
         <button
           onClick={(e) => {
             e.stopPropagation();
-            const restauranteSuffix = nombreRestauranteParaLink
-              ? `&restaurante=${encodeURIComponent(nombreRestauranteParaLink)}`
-              : "";
-            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}${restauranteSuffix}&tienda=RESIDENTE`;
+            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}`;
             navigator.clipboard.writeText(link).then(() => {
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
@@ -508,8 +505,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
     setMostrarPlanes(true);
   };
 
+  // Función para manejar la selección de un plan (agrega info del cliente si hay uno seleccionado)
   const handleSelectPlan = (plan) => {
-    if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
+    if (clienteSeleccionado) {
       const planConCliente = {
         ...plan,
         clienteRestringidoId: clienteSeleccionado,
@@ -527,16 +525,11 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
   // Filtrar solo los planes de 6, 9 y 12 meses (nuevo modelo)
   const planesPermitidos = [12]; // [6, 9, 12];
 
-  // Precios especiales cuando se selecciona un cliente del dropdown (caro)
+  // Precios especiales cuando se selecciona un cliente del dropdown
   const PRECIOS_CLIENTE_RESTRINGIDO = {
     // 6: 7499,
     // 9: 4999,
     12: 4399,
-  };
-
-  // Precios para clientes nuevos vía "Otro" (barato)
-  const PRECIOS_CLIENTE_NUEVO = {
-    12: 2199,
   };
 
   const planes =
@@ -545,16 +538,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
         .filter((plan) => planesPermitidos.includes(parseInt(plan.meses)))
         .map((plan, index) => {
           const mesesNum = parseInt(plan.meses);
-          // Determinar qué precio usar:
-          // - Cliente del dropdown → precio caro ($4,399)
-          // - "Otro" (cliente nuevo) → precio barato ($2,199)
-          // - Sin seller / visitante con link → precio original de Stripe
-          let precioOverride = null;
-          if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
-            precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
-          } else if (mostrarInputOtro || (!esSeller)) {
-            precioOverride = PRECIOS_CLIENTE_NUEVO[mesesNum];
-          }
+          const precioOverride = clienteSeleccionado
+            ? PRECIOS_CLIENTE_RESTRINGIDO[mesesNum]
+            : null;
           return {
             ...plan,
             id: plan.priceId || index,
@@ -563,7 +549,7 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
             nombreMembresia: plan.nombre || getNombreMembresia(plan.meses),
             textoSucursales: getTextoSucursales(plan.meses),
             destacado: false,
-            // Sobreescribir precio si hay override
+            // Sobreescribir precio si hay cliente seleccionado
             ...(precioOverride !== null && {
               precioMensual: precioOverride,
               precioMensualConIVA: Math.round(precioOverride * 1.16),
@@ -799,16 +785,11 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
           <div className="flex justify-center mb-8 animate-fadeIn w-full">
             <div className="w-full max-w-sm">
               {planes.map((plan, index) => (
-              <PlanCard
+                <PlanCard
                   key={plan.id || plan.priceId || index}
                   plan={plan}
                   onSelectPlan={handleSelectPlan}
                   esSeller={esSeller}
-                  nombreRestauranteParaLink={
-                    clienteSeleccionado
-                      ? clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
-                      : mostrarInputOtro ? nombreOtro.trim() : ""
-                  }
                 />
               ))}
             </div>
