@@ -201,7 +201,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         setPrecioSeleccionado(precio);
       }
     }
-  }, [numeroSucursales, preciosDisponibles]);
+  }, [numeroSucursales, preciosDisponibles, planInicial]);
 
   // Verificar si el nombre de usuario ya existe (con debounce)
   useEffect(() => {
@@ -880,6 +880,10 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         beneficiosSeleccionados: beneficiosSeleccionados,
         // Indicar al backend si es un cliente restringido aprobado (lista de 378)
         esClienteRestringidoAprobado,
+        // Enviar precio override para que el backend use el Price ID correcto
+        ...(esClienteRestringidoAprobado && precioSeleccionado?.precioMensual && {
+          precioOverride: precioSeleccionado.precioMensual,
+        }),
       };
 
       const res = await fetch(apiUrl, {
