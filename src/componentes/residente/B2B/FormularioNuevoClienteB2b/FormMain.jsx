@@ -52,22 +52,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
     {
-      meses: 6,
-      mesesTexto: "6 meses",
-      precioMensual: 4299,
-      precioMensualConIVA: 4990.84,
-      nombre: "Plan 6 meses",
-      priceId: "fallback_6",
-    },
-    {
-      meses: 9,
-      mesesTexto: "9 meses",
-      precioMensual: 2899,
-      precioMensualConIVA: 3362.84,
-      nombre: "Plan 9 meses",
-      priceId: "fallback_9",
-    },
-    {
       meses: 12,
       mesesTexto: "12 meses",
       precioMensual: 2199,
@@ -111,8 +95,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   const vetadoDebounceRef = useRef(null);
 
   // Estado para código de acceso (desbloqueo de restringidos)
-  const [codigoAcceso, setCodigoAcceso] = useState("");
-  const [codigoValido, setCodigoValido] = useState(false);
+  const codigoDesdeUrl = searchParams.get("tienda");
+  const [codigoAcceso, setCodigoAcceso] = useState(codigoDesdeUrl || "");
+  const [codigoValido, setCodigoValido] = useState(
+    codigoDesdeUrl?.toUpperCase() === "RESIDENTE",
+  );
   const [verificandoCodigo, setVerificandoCodigo] = useState(false);
   const [errorCodigo, setErrorCodigo] = useState("");
   const [restauranteRestringidoId, setRestauranteRestringidoId] =
@@ -188,6 +175,8 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   useEffect(() => {
     // Si viene de un plan inicial de cliente restringido, respetar el precio especial
     if (planInicial?.esClienteRestringido) return;
+    // Si el plan ya tiene un precio override aplicado (_precioOriginal), no sobreescribir
+    if (planInicial?._precioOriginal) return;
 
     if (preciosDisponibles.length > 0) {
       // Buscar el precio correspondiente al número de sucursales
@@ -279,6 +268,14 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
   // Verificar si el restaurante está restringido (con debounce)
   useEffect(() => {
+    // Si viene de un link de seller (tiene _precioOriginal), no verificar restricción
+    if (planInicial?._precioOriginal) {
+      setRestauranteVetado(false);
+      setVerificandoRestaurante(false);
+      setMensajeVetado("");
+      return;
+    }
+
     if (vetadoDebounceRef.current) {
       clearTimeout(vetadoDebounceRef.current);
     }
@@ -290,17 +287,22 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       setRestauranteVetado(false);
       setVerificandoRestaurante(false);
       setMensajeVetado("");
-      setCodigoAcceso("");
-      setCodigoValido(false);
-      setErrorCodigo("");
+      // No resetear código si viene validado desde URL
+      if (!codigoDesdeUrl) {
+        setCodigoAcceso("");
+        setCodigoValido(false);
+        setErrorCodigo("");
+      }
       setRestauranteRestringidoId(null);
       return;
     }
 
-    // Limpiar estado de código mientras escribe
-    setCodigoAcceso("");
-    setCodigoValido(false);
-    setErrorCodigo("");
+    // Limpiar estado de código mientras escribe (solo si no viene de URL)
+    if (!codigoDesdeUrl) {
+      setCodigoAcceso("");
+      setCodigoValido(false);
+      setErrorCodigo("");
+    }
 
     setVerificandoRestaurante(true);
 
@@ -837,9 +839,10 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       // Crear sesión de suscripción
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
-      const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL || "/"}`;
-      const successUrl = `${baseUrl}registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${baseUrl}registrob2b?payment_canceled=true`;
+      const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
+      const planSuffix = currentPlanParam ? `&plan=${currentPlanParam}` : "";
+      const successUrl = `${window.location.origin}/admin/registrob2b?payment_success=true&session_id={CHECKOUT_SESSION_ID}${planSuffix}`;
+      const cancelUrl = `${window.location.origin}/admin/registrob2b?payment_canceled=true${planSuffix}`;
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
@@ -1324,7 +1327,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             name="nombre_responsable_restaurante"
             value={formData.nombre_responsable_restaurante}
             onChange={handleChange}
-            placeholder="Persona que se encargará de la relación entre el negocio y el club Residente"
+            placeholder="Persona que se encargará de la relación entre el negocio y el club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1340,7 +1343,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             name="telefono"
             value={formData.telefono}
             onChange={handleChange}
-            placeholder="Teléfono de la persona encargada de la relación con club residente fácil"
+            placeholder="Teléfono de la persona encargada de la relación con club Residente-fácil"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
             required
           />
@@ -1447,8 +1450,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               onChange={handleChange}
               placeholder="Escribe tu contraseña"
               autoComplete="new-password"
-              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm
-              "
+              className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
+                formData.password && formData.password.length < 6
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
               required
             />
             <button
@@ -1459,6 +1465,14 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
             </button>
           </div>
+          {formData.password && formData.password.length < 6 && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ La contraseña debe tener al menos 6 caracteres
+            </p>
+          )}
+          {formData.password && formData.password.length >= 6 && (
+            <p className="text-green-500 text-xs mt-1">✓ Contraseña válida</p>
+          )}
         </div>
 
         {/* Confirmar Contraseña */}
@@ -1473,7 +1487,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               value={formData.confirm_password}
               onChange={handleChange}
               placeholder="Confirma tu contraseña"
-              className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+              className={`bg-white w-full px-4 sm:px-3 py-4 sm:py-2 pr-14 sm:pr-10 border rounded-lg sm:rounded-md focus:outline-none focus:ring-2 font-family-roman text-lg sm:text-sm ${
+                formData.confirm_password && formData.confirm_password !== formData.password
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
               required
             />
             <button
@@ -1485,6 +1503,14 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
             </button>
           </div>
+          {formData.confirm_password && formData.confirm_password !== formData.password && (
+            <p className="text-red-500 text-sm mt-1 font-bold">
+              ⚠️ Las contraseñas no coinciden
+            </p>
+          )}
+          {formData.confirm_password && formData.confirm_password === formData.password && formData.password.length >= 6 && (
+            <p className="text-green-500 text-xs mt-1">✓ Las contraseñas coinciden</p>
+          )}
         </div>
 
       </div>
@@ -1535,7 +1561,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             </div>
           )}
 
-          {/* Botón de Pagar */}
           <button
             type="submit"
             disabled={
@@ -1544,7 +1569,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               (restauranteVetado &&
                 !codigoValido &&
                 !esClienteRestringidoAprobado) ||
-              creatingAccount
+              creatingAccount ||
+              formData.password.length < 6 ||
+              formData.password !== formData.confirm_password
             }
             className={`font-bold py-5 sm:py-3 px-4 rounded-xl sm:rounded-md w-full font-roman cursor-pointer bg-[#fff200] text-black text-xl sm:text-lg mt-2 sm:mt-0 drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[5px_5px_0.9px_rgba(0,0,0,0.3)] ${
               paymentLoading ||
@@ -1552,7 +1579,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
               (restauranteVetado &&
                 !codigoValido &&
                 !esClienteRestringidoAprobado) ||
-              creatingAccount
+              creatingAccount ||
+              formData.password.length < 6 ||
+              formData.password !== formData.confirm_password
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
@@ -1574,7 +1603,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         {/* Dirección completa del restaurante */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Dirección completa del restaurante*
+            Dirección completa del restaurante
           </label>
           <input
             type="text"
@@ -1583,14 +1612,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Calle, número, colonia, municipio, código postal"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
         {/* RFC */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            RFC*
+            RFC
           </label>
           <input
             type="text"
@@ -1599,14 +1627,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe tu RFC"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
-            required
           />
         </div>
 
         {/* Razón Social */}
         <div>
           <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
-            Razón Social*
+            Razón Social
           </label>
           <input
             type="text"
@@ -1615,17 +1642,9 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             placeholder="Escribe la razón social"
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm sm:mb-4"
-            required
           />
         </div>
-
       </div>
-
-
-
-
-
-
 
       {/* Selector de número de sucursales - Oculto si viene de las tarjetas de planes */}
       {

@@ -41,6 +41,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const rol = usuario?.rol?.toLowerCase();
   const esSeller = rol === "residente" || rol === "vendedor";
   const planParam = searchParams.get("plan");
+  const restauranteParam = searchParams.get("restaurante");
 
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_12_MESES : null,
@@ -50,12 +51,28 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const [beneficiosSeleccionados, setBeneficiosSeleccionados] = useState([]);
   const [mostrarSelectorBeneficios, setMostrarSelectorBeneficios] =
     useState(false);
-  const [nombreRestauranteOtro, setNombreRestauranteOtro] = useState("");
+  const [nombreRestauranteOtro, setNombreRestauranteOtro] = useState(
+    restauranteParam || "",
+  );
 
   // Detectar si viene de Stripe con pago exitoso
   const paymentSuccess = searchParams.get("payment_success") === "true";
   const paymentSessionId = searchParams.get("session_id");
   const savedPlan = localStorage.getItem("b2b_plan_seleccionado");
+
+  // 🔍 DEBUG: Log para entender qué está pasando
+  console.log("🔍 RegistroB2BConPlanes - Diagnóstico:");
+  console.log(
+    "   📍 URL params - payment_success:",
+    searchParams.get("payment_success"),
+  );
+  console.log(
+    "   💾 localStorage - b2b_plan_seleccionado:",
+    savedPlan ? "EXISTE" : "NO EXISTE",
+  );
+  console.log("   ✅ paymentSuccess:", paymentSuccess);
+  console.log("   📋 Debería mostrar formulario:", paymentSuccess && savedPlan);
+  console.log("   🧪 modoPrueba:", modoPrueba);
 
   const [procesandoPago, setProcesandoPago] = useState(paymentSuccess);
   const [mensajeProceso, setMensajeProceso] = useState(
@@ -64,7 +81,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const postPaymentRan = useRef(false);
 
   const [mostrarFormulario, setMostrarFormulario] = useState(
-    modoPrueba || (!paymentSuccess && false),
+    modoPrueba || (paymentSuccess && savedPlan),
   );
 
   // Gate de acceso: sin sesion de seller, sin ?plan= y sin payment_success -> bloquear
@@ -116,7 +133,16 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             const planEncontrado =
               [planUnico].find((p) => p.priceId === planParam) || null;
             if (planEncontrado) {
-              setPlanSeleccionado(planEncontrado);
+              // Si NO es seller, aplicar precio barato ($2,199) para clientes nuevos
+              const planFinal = !esSeller
+                ? {
+                    ...planEncontrado,
+                    precioMensual: 2199,
+                    precioMensualConIVA: Math.round(2199 * 1.16),
+                    _precioOriginal: planEncontrado.precioMensual,
+                  }
+                : planEncontrado;
+              setPlanSeleccionado(planFinal);
               setMostrarFormulario(true);
             }
           }
