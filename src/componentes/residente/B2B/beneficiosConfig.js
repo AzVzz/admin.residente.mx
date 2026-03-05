@@ -22,8 +22,9 @@ export const BENEFICIOS_INFO = [
   },
   {
     key: "video_publicitario",
-    label: "Video Publicitario",
-    descripcion: "Video publicitario profesional para tu negocio",
+    label: "Nota / 5 razones",
+    descripcion:
+      "Publica una nota periodística en el main de residente.mx con 5 razones para asistir a tu negocio",
     Icono: FaVideo,
   },
   {
@@ -34,8 +35,9 @@ export const BENEFICIOS_INFO = [
   },
   {
     key: "suscripcion_semestral",
-    label: "Suscripcion Semestral",
-    descripcion: "Acceso a beneficios de suscripcion semestral",
+    label: "2da Membresía gratis",
+    descripcion:
+      "Inscribe gratis a otra marca perteneciente a tu mismo grupo de negocios",
     Icono: FaCalendarAlt,
   },
 ];

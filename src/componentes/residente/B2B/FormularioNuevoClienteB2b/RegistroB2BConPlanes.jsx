@@ -278,9 +278,29 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
           }
         }
 
-        // Login automático
+        // Login automático (con retry porque el webhook puede tardar unos segundos en activar al usuario)
         setMensajeProceso("Iniciando sesión...");
-        const loginResp = await loginPost(formData.correo, formData.password);
+        let loginResp = null;
+        const MAX_INTENTOS = 5;
+        for (let intento = 1; intento <= MAX_INTENTOS; intento++) {
+          try {
+            loginResp = await loginPost(formData.correo, formData.password);
+            break;
+          } catch (loginError) {
+            if (
+              loginError.message?.includes("inactivo") &&
+              intento < MAX_INTENTOS
+            ) {
+              setMensajeProceso(
+                `Activando tu cuenta... (${intento}/${MAX_INTENTOS})`,
+              );
+              await new Promise((r) => setTimeout(r, 3000));
+            } else {
+              throw loginError;
+            }
+          }
+        }
+        if (!loginResp) throw new Error("No se pudo iniciar sesión");
         saveToken(loginResp.token);
         saveUsuario(loginResp.usuario);
 

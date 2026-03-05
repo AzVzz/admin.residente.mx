@@ -4,9 +4,9 @@ import { FaUser, FaCheck, FaTimes, FaBan, FaTrash } from "react-icons/fa";
 const BENEFICIOS = [
   { key: "estudios_mercado", label: "Estudios" },
   { key: "revista_residente", label: "Revista" },
-  { key: "video_publicitario", label: "Video" },
+  { key: "video_publicitario", label: "Nota / 5 razones" },
   { key: "giveaway", label: "Giveaway" },
-  { key: "suscripcion_semestral", label: "Suscripción" },
+  { key: "suscripcion_semestral", label: "2da Membresía gratis" },
 ];
 
 const TablaUsuariosB2B = ({

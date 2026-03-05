@@ -736,6 +736,61 @@ const B2BDashboard = () => {
     }
   }
 
+  // Enviar reclamo de bonificación (correo al equipo)
+  const handleReclamarBeneficio = async (beneficio) => {
+    if (!restaurante && !b2bUser && !usuario) {
+      alert(
+        "No se encontró información de tu restaurante. Intenta recargar la página.",
+      );
+      return;
+    }
+
+    const restauranteNombre =
+      restaurante?.nombre_restaurante ||
+      b2bUser?.nombre_responsable_restaurante ||
+      b2bUser?.nombre_responsable ||
+      usuario?.nombre_usuario ||
+      "Restaurante sin nombre";
+
+    const payload = {
+      restauranteNombre,
+      restauranteSlug: restaurante?.slug || null,
+      beneficioKey: beneficio.key,
+      beneficioLabel: beneficio.label,
+      beneficioDescripcion: beneficio.descripcion || "",
+      usuarioEmail: usuario?.correo || b2bUser?.correo || null,
+    };
+
+    try {
+      const resp = await fetch(`${urlApi}api/beneficios-b2b/reclamo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        const msg =
+          data.error ||
+          data.message ||
+          `Error ${resp.status} al enviar la solicitud de bonificación.`;
+        alert(msg);
+        return;
+      }
+
+      alert(
+        `Hemos recibido tu solicitud para el beneficio "${beneficio.label}". Nuestro equipo se pondrá en contacto contigo.`,
+      );
+    } catch (error) {
+      console.error("Error enviando reclamo de beneficio:", error);
+      alert(
+        "Hubo un problema al enviar tu solicitud de bonificación. Intenta de nuevo en unos momentos.",
+      );
+    }
+  };
+
   return (
     <div>
       {/* Barra superior del usuario */}
@@ -1119,7 +1174,7 @@ const B2BDashboard = () => {
 
               {beneficiosMembresia.length > 0 && (
                 <div className="mb-7 mt-1">
-                  <div className="flex items-end justify-between gap-4 mb-2">
+                  <div className="mb-2">
                     <h1 className="text-black font-bold">
                       <span className="block text-[30px] leading-none">
                         Bonificaciones
@@ -1127,32 +1182,36 @@ const B2BDashboard = () => {
                       <span className="block text-sm leading-tight">
                         incluidos en tu membresía:
                       </span>
-                    </h1>
-                    {fechaVigenciaBeneficios && (
-                      <p className="text-[11px] text-gray-700 text-right leading-tight">
-                        Vigentes hasta:
-                        <br />
-                        <span className="font-semibold">
-                          {fechaVigenciaBeneficios}
+                      {fechaVigenciaBeneficios && (
+                        <span className="block text-[11px] text-gray-700 leading-tight mt-0.5">
+                          Vigentes hasta:{" "}
+                          <span className="font-semibold">
+                            {fechaVigenciaBeneficios}
+                          </span>
                         </span>
-                      </p>
-                    )}  
+                      )}
+                    </h1>
                   </div>
                   <ul className="mt-1 space-y-1">
                     {beneficiosMembresia.map((beneficio) => (
                       <li
                         key={beneficio.key}
-                        className="flex items-start gap-2 text-sm text-black"
+                        onClick={() => handleReclamarBeneficio(beneficio)}
+                        className="flex items-start justify-between gap-3 text-sm text-black rounded-lg px-2 py-1 cursor-pointer transition-colors hover:bg-gray-100"
                       >
-                        <span className="mt-[3px] h-2 w-2 rounded-full bg-black flex-shrink-0" />
-                        <span>
-                          <span className="font-bold">{beneficio.label}</span>
-                          {beneficio.descripcion && (
-                            <span className="text-gray-600 text-[11px] block leading-tight">
-                              {beneficio.descripcion}
+                        <div className="flex items-start gap-2">
+                          <span className="mt-[3px] h-2 w-2 rounded-full bg-black flex-shrink-0" />
+                          <span>
+                            <span className="font-bold">
+                              {beneficio.label}
                             </span>
-                          )}
-                        </span>
+                            {beneficio.descripcion && (
+                              <span className="text-gray-600 text-[11px] block leading-tight">
+                                {beneficio.descripcion}
+                              </span>
+                            )}
+                          </span>
+                        </div>
                       </li>
                     ))}
                   </ul>
