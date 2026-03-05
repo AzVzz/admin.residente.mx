@@ -17,9 +17,9 @@ import { useAuth } from "../../../Context";
 const TODOS_LOS_BENEFICIOS = [
   "estudios_mercado",
   "revista_residente",
-  "video_publicitario",
+  "nota_publicitaria",
   "giveaway",
-  "suscripcion_semestral",
+  "suscripcion_extra",
 ];
 
 const PLAN_PRUEBA_12_MESES = {
@@ -87,18 +87,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   );
 
   // Gate de acceso: sin sesion de seller, sin ?plan= y sin payment_success -> bloquear
-  if (!modoPrueba && !esSeller && !planParam && !paymentSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-4">Acceso Restringido</h2>
-          <p className="text-gray-600">
-            Para ver los planes B2B, necesitas un enlace de invitacion de un vendedor.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const accesoRestringido = !modoPrueba && !esSeller && !planParam && !paymentSuccess;
 
   // Obtener precios desde el backend
   useEffect(() => {
@@ -339,6 +328,20 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
 
     procesarPostPago();
   }, [paymentSuccess]);
+
+  // Gate de acceso (después de todos los hooks)
+  if (accesoRestringido) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-4">Acceso Restringido</h2>
+          <p className="text-gray-600">
+            Para ver los planes B2B, necesitas un enlace de invitacion de un vendedor.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSelectPlan = (plan) => {
     // Guardar nombre si viene de "Otro" o de un cliente existente

@@ -12,6 +12,14 @@ import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/Checkout
 import { FaFilePdf } from "react-icons/fa";
 import { BENEFICIOS_INFO } from "./beneficiosConfig";
 
+const BENEFICIOS_INFO = [
+  { key: "estudios_mercado", label: "Estudios de Mercado" },
+  { key: "revista_residente", label: "Revista Residente" },
+  { key: "nota_publicitaria", label: "Nota / 5 razones" },
+  { key: "giveaway", label: "Giveaway" },
+  { key: "suscripcion_extra", label: "2da Membresía gratis" },
+];
+
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [b2bId, setB2bId] = useState(null);
