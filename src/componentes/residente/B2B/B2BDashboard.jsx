@@ -752,6 +752,12 @@ const B2BDashboard = () => {
             </div>
           )}
 
+          <video
+            src="https://residente.mx/fotos/videos/Video%20explicativo%20dashboard%20b2b.mp4"
+            controls
+            className="w-full h-full aspect-[4/3] bg-black"
+          />
+
           {/* Botones alineados a la izquierda en columna */}
           <div className="flex flex-col gap-3 mt-3 items-start">
             <button
@@ -850,8 +856,11 @@ const B2BDashboard = () => {
                 </div>
               </>
             )}
-            <div className="leading-tight">
-              <p className="text-[40px] font-bold text-black leading-tight">
+            <span className="text-[25px] leading-[1] underline">
+              Directorio
+            </span>
+            <div className="">
+              <p className="text-[40px] font-bold text-black leading-[1]">
                 {(
                   (restaurante?.views || 0) + (cupon?.views || 0)
                 ).toLocaleString("es-MX")}
@@ -868,25 +877,7 @@ const B2BDashboard = () => {
                 Clicks totales en tu restaurante
               </p>
             </div>
-            {/* Mostrar cupón del usuario */}
-            {/* Mostrar views y clicks del cupón del usuario */}
-            {loadingCupon ? (
-              <div>Cargando cupón...</div>
-            ) : cupon ? (
-              <>
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
-                    {cupon.clicks?.toLocaleString("es-MX") || 0}
-                  </p>
-                  <p className="text-sm text-black">
-                    Clicks totales de tu cupón
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div>No tienes cupones activos.</div>
-            )}
-            {/* Stats de notas del usuario */}
+
             {notaStats && notaStats.total > 0 && (
               <>
                 <div>
@@ -907,10 +898,12 @@ const B2BDashboard = () => {
                 </div>
               </>
             )}
+
+            <span className="text-[25px] leading-[1] underline">Notas</span>
+
             {/* Notas taggeadas a este restaurante */}
-            <div className="border-t border-gray-300 pt-3 mt-3">
-              <p className="text-sm font-bold text-black mb-2">
-                Notas sobre tu restaurante
+            <div className="border-t border-gray-300">
+              <p className="text-sm font-bold text-black">
                 {notasRestaurante ? ` (${notasRestaurante.total_notas})` : ""}
               </p>
               {/* Suma total de vistas de notas */}
@@ -958,9 +951,27 @@ const B2BDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 mt-2 mb-4">
                   Aún no hay notas etiquetadas a tu restaurante.
                 </p>
+              )}
+
+              <span className="text-[25px] leading-[1] underline">Cupones</span>
+              {loadingCupon ? (
+                <div>Cargando cupón...</div>
+              ) : cupon ? (
+                <>
+                  <div>
+                    <p className="text-[40px] font-bold text-black leading-tight">
+                      {cupon.clicks?.toLocaleString("es-MX") || 0}
+                    </p>
+                    <p className="text-sm text-black">
+                      Clicks totales de tu cupón
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div>No tienes cupones activos.</div>
               )}
             </div>
           </div>
@@ -1115,7 +1126,7 @@ const B2BDashboard = () => {
                   </h2>
                 </div>
                 <div className="px-6 py-5">
-                  <div className="space-y-4">
+                  <div className="">
                     <div>
                       <label className="block text-xl text-black font-roman leading-[1.3] pr-10">
                         Tu{" "}
