@@ -72,16 +72,23 @@ const getCaracteristicasPorMeses = (meses) => {
 };
 
 // Componente de Card individual para cada plan
-const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esClienteRestringido }) => {
+const PlanCard = ({
+  plan,
+  onSelectPlan,
+  esSeller,
+  nombreRestauranteParaLink,
+  esClienteRestringido,
+}) => {
   const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
 
   return (
     <div
       className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
-        ${plan.destacado
-          ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
-          : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
+        ${
+          plan.destacado
+            ? "bg-gray-900 text-white border-2 border-black shadow-xl hover:shadow-black/30"
+            : "bg-white text-gray-900 border border-gray-200 shadow-lg hover:border-black hover:shadow-black/20"
         }`}
       onClick={() => onSelectPlan(plan)}
     >
@@ -115,14 +122,17 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esC
           </span>
         </div>
         <div
-          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${plan.destacado ? "border-black" : "border-gray-300"
-            }`}
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:border-black ${
+            plan.destacado ? "border-black" : "border-gray-300"
+          }`}
         >
           <div
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${plan.destacado
-              ? "bg-black scale-100"
-              : "bg-black scale-0 group-hover:scale-100"
-              }`}></div>
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              plan.destacado
+                ? "bg-black scale-100"
+                : "bg-black scale-0 group-hover:scale-100"
+            }`}
+          ></div>
         </div>
       </div>
 
@@ -135,9 +145,7 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esC
             >
               ${plan.precioMensual?.toLocaleString("es-MX")}
             </span>
-            <span className="text-4xl pl-2">
-              al mes
-            </span>
+            <span className="text-4xl pl-2">al mes</span>
           </div>
           <span
             className={`text-[10px] leading-[1] transition-colors duration-300 ${plan.destacado ? "text-gray-300" : "text-gray-500"}`}
@@ -173,7 +181,7 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esC
                   className={`text-sm whitespace-pre-line ${plan.destacado ? "text-gray-200" : "text-black"}`}
                 >
                   {(() => {
-                    const dotIndex = caracteristica.indexOf('.');
+                    const dotIndex = caracteristica.indexOf(".");
                     if (dotIndex === -1) return caracteristica;
 
                     const title = caracteristica.substring(0, dotIndex + 1);
@@ -195,7 +203,10 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esC
         })()}
       </ul>
 
-      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">Incrementa los beneficios de <br/> tu suscripción si decides inscribirte durante la cita</span>
+      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">
+        Incrementa los beneficios de <br /> tu suscripción si decides
+        inscribirte durante la cita
+      </span>
 
       {/* Botón de selección */}
       <button
@@ -203,10 +214,11 @@ const PlanCard = ({ plan, onSelectPlan, esSeller, nombreRestauranteParaLink, esC
           e.stopPropagation();
           onSelectPlan(plan);
         }}
-        className={`text-3xl w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${plan.destacado
-          ? " cursor-pointer"
-          : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
-          }
+        className={`text-3xl w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+          plan.destacado
+            ? " cursor-pointer"
+            : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+        }
         }`}
       >
         Más beneficios
@@ -353,7 +365,12 @@ const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   );
 };
 
-const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller = false }) => {
+const SelectorPlanesB2B = ({
+  onSelectPlan,
+  planesData,
+  loadingPrecios,
+  esSeller = false,
+}) => {
   // Estado para controlar el modal del PDF
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -379,7 +396,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
   useEffect(() => {
     if (mostrarPlanes && planesRef.current) {
       setTimeout(() => {
-        planesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        planesRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }, 100);
     }
   }, [mostrarPlanes]);
@@ -398,10 +418,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
 
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
-    console.log('🔍 Iniciando carga de clientes en lista...');
-    console.log('🔑 Token disponible:', !!token);
-    console.log('👤 Usuario:', usuario?.nombre || 'No disponible');
-    console.log('🌐 URL API:', `${urlApi}api/clientes-editorial`);
+    console.log("🔍 Iniciando carga de clientes en lista...");
+    console.log("🔑 Token disponible:", !!token);
+    console.log("👤 Usuario:", usuario?.nombre || "No disponible");
+    console.log("🌐 URL API:", `${urlApi}api/clientes-editorial`);
 
     if (!token) {
       setErrorClientes("No hay sesión activa. Por favor inicia sesión.");
@@ -419,25 +439,31 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
         },
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+      console.log("📡 Response status:", response.status);
+      console.log(
+        "📡 Response headers:",
+        Object.fromEntries(response.headers.entries()),
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
+        console.error("❌ Error response:", errorText);
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('📦 Datos recibidos:', data);
-      console.log('📊 Total de clientes:', Array.isArray(data) ? data.length : (data.clientes?.length || 0));
+      console.log("📦 Datos recibidos:", data);
+      console.log(
+        "📊 Total de clientes:",
+        Array.isArray(data) ? data.length : data.clientes?.length || 0,
+      );
 
       const clientesArray = Array.isArray(data) ? data : data.clientes || [];
       setClientesVetados(clientesArray);
       setErrorClientes(null);
-      console.log('✅ Clientes cargados en estado:', clientesArray.length);
+      console.log("✅ Clientes cargados en estado:", clientesArray.length);
     } catch (err) {
-      console.error('❌ Error cargando clientes vetados:', err);
+      console.error("❌ Error cargando clientes vetados:", err);
       setErrorClientes(err.message);
     } finally {
       setLoadingClientes(false);
@@ -473,7 +499,10 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
 
   // Normaliza acentos: "limón" → "limon"
   const normalizarTexto = (texto) =>
-    texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    texto
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
 
   // Verifica si el nombre escrito coincide con algún cliente existente (ignora acentos y mayúsculas)
   const handleNombreOtroChange = (valor) => {
@@ -515,7 +544,9 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
         ...plan,
         clienteRestringidoId: clienteSeleccionado,
         esClienteRestringido: true,
-        nombreCliente: clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
+        nombreCliente: clientesVetados.find(
+          (c) => c.id === parseInt(clienteSeleccionado),
+        )?.restaurante,
       };
       onSelectPlan(planConCliente);
     } else if (mostrarInputOtro && nombreOtro.trim()) {
@@ -543,36 +574,36 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
   const planes =
     planesData && planesData.length > 0
       ? planesData
-        .filter((plan) => planesPermitidos.includes(parseInt(plan.meses)))
-        .map((plan, index) => {
-          const mesesNum = parseInt(plan.meses);
-          // Determinar qué precio usar:
-          // - Cliente del dropdown → precio caro ($4,399)
-          // - "Otro" (cliente nuevo) → precio barato ($2,199)
-          // - Sin seller / visitante con link → precio original de Stripe
-          let precioOverride = null;
-          if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
-            precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
-          } else if (mostrarInputOtro || (!esSeller)) {
-            precioOverride = PRECIOS_CLIENTE_NUEVO[mesesNum];
-          }
-          return {
-            ...plan,
-            id: plan.priceId || index,
-            icono: getIconoPorSucursales(plan.meses),
-            caracteristicas: getCaracteristicasPorMeses(plan.meses),
-            nombreMembresia: plan.nombre || getNombreMembresia(plan.meses),
-            textoSucursales: getTextoSucursales(plan.meses),
-            destacado: false,
-            // Sobreescribir precio si hay override
-            ...(precioOverride !== null && {
-              precioMensual: precioOverride,
-              precioMensualConIVA: Math.round(precioOverride * 1.16),
-              _precioOriginal: plan.precioMensual,
-            }),
-          };
-        })
-        .sort((a, b) => parseInt(b.meses) - parseInt(a.meses))
+          .filter((plan) => planesPermitidos.includes(parseInt(plan.meses)))
+          .map((plan, index) => {
+            const mesesNum = parseInt(plan.meses);
+            // Determinar qué precio usar:
+            // - Cliente del dropdown → precio caro ($4,399)
+            // - "Otro" (cliente nuevo) → precio barato ($2,199)
+            // - Sin seller / visitante con link → precio original de Stripe
+            let precioOverride = null;
+            if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
+              precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
+            } else if (mostrarInputOtro || !esSeller) {
+              precioOverride = PRECIOS_CLIENTE_NUEVO[mesesNum];
+            }
+            return {
+              ...plan,
+              id: plan.priceId || index,
+              icono: getIconoPorSucursales(plan.meses),
+              caracteristicas: getCaracteristicasPorMeses(plan.meses),
+              nombreMembresia: plan.nombre || getNombreMembresia(plan.meses),
+              textoSucursales: getTextoSucursales(plan.meses),
+              destacado: false,
+              // Sobreescribir precio si hay override
+              ...(precioOverride !== null && {
+                precioMensual: precioOverride,
+                precioMensualConIVA: Math.round(precioOverride * 1.16),
+                _precioOriginal: plan.precioMensual,
+              }),
+            };
+          })
+          .sort((a, b) => parseInt(b.meses) - parseInt(a.meses))
       : [];
 
   if (loadingPrecios) {
@@ -627,131 +658,131 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
       <div className="text-center mb-10">
         {/* Dropdown de Clientes Vetados con botón - solo para sellers */}
         {esSeller && (
-        <div className="mb-4 max-w-lg mx-auto">
-          <div className="flex items-center justify-center mb-2">
-            <label
-              htmlFor="clienteVetado"
-              className="block text-sm font-medium text-black"
-            >
-              Nombre del Cliente
-            </label>
-          </div>
+          <div className="mb-4 max-w-lg mx-auto">
+            <div className="flex items-center justify-center mb-2">
+              <label
+                htmlFor="clienteVetado"
+                className="block text-sm font-medium text-black"
+              >
+                Nombre del Cliente
+              </label>
+            </div>
 
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <select
-              id="clienteVetado"
-              value={mostrarInputOtro ? "__otro__" : clienteSeleccionado}
-              onChange={(e) => handleClienteChange(e.target.value)}
-              disabled={loadingClientes || !!errorClientes}
-              className="w-full px-4 py-2 bg-white disabled:cursor-not-allowed"
-            >
-              <option value="">
-                {loadingClientes
-                  ? "Cargando..."
-                  : errorClientes
-                    ? "Error al cargar"
-                    : `Seleccionar (${clientesVetados.length})`}
-              </option>
-              {clientesVetados.map((cliente) => {
-                const nombreRestaurante = cliente.restaurante || "Sin nombre";
-                return (
-                  <option
-                    key={cliente.id}
-                    value={cliente.id}
-                    title={nombreRestaurante}
-                  >
-                    {truncarTexto(nombreRestaurante, 50)}
-                  </option>
-                );
-              })}
-              <option value="__otro__">Otro...</option>
-            </select>
+            <div className="flex flex-col gap-3 justify-center items-center">
+              <select
+                id="clienteVetado"
+                value={mostrarInputOtro ? "__otro__" : clienteSeleccionado}
+                onChange={(e) => handleClienteChange(e.target.value)}
+                disabled={loadingClientes || !!errorClientes}
+                className="w-full px-4 py-2 bg-white disabled:cursor-not-allowed"
+              >
+                <option value="">
+                  {loadingClientes
+                    ? "Cargando..."
+                    : errorClientes
+                      ? "Error al cargar"
+                      : `Seleccionar (${clientesVetados.length})`}
+                </option>
+                {clientesVetados.map((cliente) => {
+                  const nombreRestaurante = cliente.restaurante || "Sin nombre";
+                  return (
+                    <option
+                      key={cliente.id}
+                      value={cliente.id}
+                      title={nombreRestaurante}
+                    >
+                      {nombreRestaurante}
+                    </option>
+                  );
+                })}
+                <option value="__otro__">Otro...</option>
+              </select>
 
-            {/* Input para nombre cuando se elige "Otro" */}
-            {mostrarInputOtro && (
-              <div className="w-full mt-3 animate-fadeIn relative">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={nombreOtro}
-                    onChange={(e) => handleNombreOtroChange(e.target.value)}
-                    placeholder="Nombre del restaurante"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleConfirmarOtro}
-                    disabled={!nombreOtro.trim() || !!clienteDuplicado}
-                    className="px-4 py-2 bg-gray-900 text-white font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
-                  >
-                    OK
-                  </button>
-                </div>
-
-                {/* Popup flotante de duplicado */}
-                {clienteDuplicado && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-50 p-3 bg-yellow-50 border border-yellow-400 rounded-lg flex items-start gap-2 shadow-lg animate-fadeIn">
-                    <span className="text-yellow-500 text-lg mt-0.5">⚠️</span>
-                    <div>
-                      <p className="text-sm font-bold text-yellow-800">
-                        Este restaurante ya está registrado
-                      </p>
-                      <p className="text-xs text-yellow-700 mt-0.5">
-                        Se encontró:{" "}
-                        <span className="font-semibold">
-                          {clienteDuplicado.restaurante}
-                        </span>
-                        . Selecciónalo desde el dropdown de arriba.
-                      </p>
-                    </div>
+              {/* Input para nombre cuando se elige "Otro" */}
+              {mostrarInputOtro && (
+                <div className="w-full mt-3 animate-fadeIn relative">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={nombreOtro}
+                      onChange={(e) => handleNombreOtroChange(e.target.value)}
+                      placeholder="Nombre del restaurante"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleConfirmarOtro}
+                      disabled={!nombreOtro.trim() || !!clienteDuplicado}
+                      className="px-4 py-2 bg-gray-900 text-white font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                    >
+                      OK
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/*<button
+                  {/* Popup flotante de duplicado */}
+                  {clienteDuplicado && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-50 p-3 bg-yellow-50 border border-yellow-400 rounded-lg flex items-start gap-2 shadow-lg animate-fadeIn">
+                      <span className="text-yellow-500 text-lg mt-0.5">⚠️</span>
+                      <div>
+                        <p className="text-sm font-bold text-yellow-800">
+                          Este restaurante ya está registrado
+                        </p>
+                        <p className="text-xs text-yellow-700 mt-0.5">
+                          Se encontró:{" "}
+                          <span className="font-semibold">
+                            {clienteDuplicado.restaurante}
+                          </span>
+                          . Selecciónalo desde el dropdown de arriba.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/*<button
               onClick={() => setMostrarPlanes(!mostrarPlanes)}
               className="px-6 py-2 text-sm font-bold text-black bg-[#FFF200] hover:bg-[#FFF200] cursor-pointer drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
               type="button"
             >
               {mostrarPlanes ? "Volver" : "Nuevo Cliente"}
             </button>*/}
+            </div>
+
+            {/* Mensaje de éxito: cliente seleccionado del dropdown */}
+            {clienteSeleccionado && !errorClientes && (
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                <p className="text-xs text-green-700 font-medium">
+                  ✓{" "}
+                  {
+                    clientesVetados.find(
+                      (c) => c.id === parseInt(clienteSeleccionado),
+                    )?.restaurante
+                  }
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  📋 Selecciona un plan para este cliente
+                </p>
+              </div>
+            )}
+
+            {/* Mensaje de error compacto */}
+            {errorClientes && (
+              <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
+                <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
+                <button
+                  onClick={fetchClientesVetados}
+                  className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
+                  type="button"
+                >
+                  Reintentar
+                </button>
+              </div>
+            )}
           </div>
-
-          {/* Mensaje de éxito: cliente seleccionado del dropdown */}
-          {clienteSeleccionado && !errorClientes && (
-            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
-              <p className="text-xs text-green-700 font-medium">
-                ✓{" "}
-                {
-                  clientesVetados.find(
-                    (c) => c.id === parseInt(clienteSeleccionado),
-                  )?.restaurante
-                }
-              </p>
-              <p className="text-xs text-green-600 mt-1">
-                📋 Selecciona un plan para este cliente
-              </p>
-            </div>
-          )}
-
-          {/* Mensaje de error compacto */}
-          {errorClientes && (
-            <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded">
-              <p className="text-xs text-red-600 mb-1">⚠️ {errorClientes}</p>
-              <button
-                onClick={fetchClientesVetados}
-                className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
-                type="button"
-              >
-                Reintentar
-              </button>
-            </div>
-          )}
-        </div>
         )}
 
-                <div className="w-full max-w-2xl mx-auto mt-8 mb-6">
+        <div className="w-full max-w-2xl mx-auto mt-8 mb-6">
           <video
             className="w-full h-auto rounded-md shadow-lg"
             controls
@@ -800,17 +831,23 @@ const SelectorPlanesB2B = ({ onSelectPlan, planesData, loadingPrecios, esSeller 
           <div className="flex justify-center mb-8 animate-fadeIn w-full">
             <div className="w-full max-w-sm">
               {planes.map((plan, index) => (
-              <PlanCard
+                <PlanCard
                   key={plan.id || plan.priceId || index}
                   plan={plan}
                   onSelectPlan={handleSelectPlan}
                   esSeller={esSeller}
                   nombreRestauranteParaLink={
                     clienteSeleccionado
-                      ? clientesVetados.find(c => c.id === parseInt(clienteSeleccionado))?.restaurante
-                      : mostrarInputOtro ? nombreOtro.trim() : ""
+                      ? clientesVetados.find(
+                          (c) => c.id === parseInt(clienteSeleccionado),
+                        )?.restaurante
+                      : mostrarInputOtro
+                        ? nombreOtro.trim()
+                        : ""
                   }
-                  esClienteRestringido={!!clienteSeleccionado && clienteSeleccionado !== "__otro__"}
+                  esClienteRestringido={
+                    !!clienteSeleccionado && clienteSeleccionado !== "__otro__"
+                  }
                 />
               ))}
             </div>
