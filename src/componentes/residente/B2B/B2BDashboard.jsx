@@ -10,6 +10,7 @@ import axios from "axios";
 
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 import { FaFilePdf } from "react-icons/fa";
+import { BENEFICIOS_INFO } from "./beneficiosConfig";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
