@@ -34,6 +34,7 @@ import Fade from "@mui/material/Fade";
 import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
+import FiltroFechas from "./FiltroFechas";
 import SearchNotasLocal from "./SearchNotasLocal";
 
 const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
@@ -113,6 +114,7 @@ const ListaNotas = () => {
   const [tipoCliente, setTipoCliente] = useState("");
   const [autor, setAutor] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [fechaRange, setFechaRange] = useState({ desde: "", hasta: "" });
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -304,8 +306,10 @@ const ListaNotas = () => {
     if (debouncedSearchTerm?.trim()) {
       filtros.q = debouncedSearchTerm.trim();
     }
+    if (fechaRange.desde) filtros.fecha_desde = fechaRange.desde;
+    if (fechaRange.hasta) filtros.fecha_hasta = fechaRange.hasta;
     return filtros;
-  }, [estado, autor, tipoCliente, debouncedSearchTerm]);
+  }, [estado, autor, tipoCliente, debouncedSearchTerm, fechaRange]);
 
   const fetchTodasLasNotas = async (usarCache = true) => {
     setCargando(true);
@@ -524,7 +528,7 @@ const ListaNotas = () => {
     // Solo cargar notas, sin prefetch automático para mejorar rendimiento inicial
     fetchTodasLasNotas();
     // eslint-disable-next-line
-  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm]);
+  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm, fechaRange]);
 
   // Wrappers para setters que resetean la página y el caché al cambiar filtros
   const handleSetEstado = useCallback((val) => {
@@ -548,6 +552,12 @@ const ListaNotas = () => {
   const handleSetSearchTerm = useCallback((val) => {
     setSearchTerm(val);
     // Solo si hay cambio real y no está vacío (opcional)
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetFechaRange = useCallback(({ desde, hasta }) => {
+    setFechaRange({ desde, hasta });
     cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
@@ -947,12 +957,13 @@ const ListaNotas = () => {
                   <SearchNotasLocal
                     searchTerm={searchTerm}
                     setSearchTerm={handleSetSearchTerm}
-                    estado={estado}
-                    setEstado={handleSetEstado}
-                    tipoCliente={tipoCliente}
-                    setTipoCliente={handleSetTipoCliente}
                   />
-                  <FiltroAutor autor={autor} setAutor={handleSetAutor} />
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    <FiltroEstadoNota estado={estado} setEstado={handleSetEstado} />
+                    <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={handleSetTipoCliente} />
+                    <FiltroAutor autor={autor} setAutor={handleSetAutor} />
+                    <FiltroFechas fechaRange={fechaRange} setFechaRange={handleSetFechaRange} />
+                  </div>
                 </div>
               )}
 
@@ -1002,7 +1013,7 @@ const ListaNotas = () => {
               // Si NO es colaborador, mostrar la lista de notas normal
               <>
                 {!notas || notas.length === 0 ? (
-                  (searchTerm || estado || autor || tipoCliente) ? (
+                  (searchTerm || estado || autor || tipoCliente || fechaRange.desde || fechaRange.hasta) ? (
                     <div className="text-center py-12">
                       <div className="text-gray-500 text-lg">
                         {searchTerm
