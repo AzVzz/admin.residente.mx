@@ -82,7 +82,6 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   // Detectar si es un cliente restringido del dropdown (no necesita código de acceso)
   const esClienteRestringidoAprobado =
     planInicial?.esClienteRestringido === true;
-  console.log("🔍 DEBUG planInicial:", JSON.stringify({ esClienteRestringido: planInicial?.esClienteRestringido, precioMensual: planInicial?.precioMensual, esClienteRestringidoAprobado }));
 
   // Estados para verificación de nombre de usuario
   const [usernameExists, setUsernameExists] = useState(false);

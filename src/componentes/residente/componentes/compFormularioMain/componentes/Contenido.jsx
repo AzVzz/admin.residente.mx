@@ -2,6 +2,7 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
 import Mention from '@tiptap/extension-mention';
 import { mergeAttributes } from '@tiptap/core';
 import { useEffect, useRef, useState } from 'react';
@@ -42,7 +43,7 @@ const RestauranteMention = Mention.extend({
                     rel: 'noopener noreferrer',
                 }
             ),
-            `@${label}`,
+            label,
         ];
     },
     parseHTML() {
@@ -83,6 +84,17 @@ const Contenido = () => {
             Image.configure({
                 HTMLAttributes: {
                     class: 'editor-image',
+                },
+            }),
+            Link.configure({
+                openOnClick: false,
+                autolink: true,
+                protocols: ['http', 'https', 'mailto'],
+                defaultProtocol: 'https',
+                HTMLAttributes: {
+                    class: 'editor-link',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
                 },
             }),
             RestauranteMention.configure({
@@ -170,6 +182,20 @@ const Contenido = () => {
         fileInputRef.current?.click();
     };
 
+    const handleSetLink = () => {
+        if (!editor) return;
+        // Si ya tiene link, quitarlo
+        if (editor.isActive('link')) {
+            editor.chain().focus().unsetLink().run();
+            return;
+        }
+        const input = window.prompt('URL del enlace (ej: https://residente.mx):');
+        if (!input) return;
+        // Agregar https:// si no tiene protocolo
+        const url = /^https?:\/\//i.test(input) ? input : `https://${input}`;
+        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    };
+
     const handleDeleteImage = () => {
         if (!editor) return;
         // Si la selección actual es una imagen, eliminarla
@@ -247,6 +273,13 @@ const Contenido = () => {
                             >
                                 Borrar imagen
                             </button>
+                            <button
+                                type="button"
+                                onClick={handleSetLink}
+                                className={editor.isActive('link') ? 'font-roman text-blue-600 w-20 border-1 rounded bg-blue-50 hover:bg-blue-100' : 'font-roman text-blue-600 w-20 border-1 rounded bg-gray-50 hover:bg-gray-100'}
+                            >
+                                Enlace
+                            </button>
                             <span className="text-xs text-gray-400 ml-2">
                                 Escribe @ para mencionar un restaurante
                             </span>
@@ -296,19 +329,23 @@ const Contenido = () => {
                             cursor: pointer;
                             opacity: 0.9;
                         }
-                        /* Mention styles in editor */
+                        /* Mention styles in editor - underlined hyperlink */
                         .ProseMirror .mention-restaurante {
                             color: #2563eb;
-                            background-color: #eff6ff;
-                            border-radius: 4px;
-                            padding: 1px 4px;
-                            font-weight: 500;
-                            text-decoration: none;
+                            text-decoration: underline;
                             cursor: pointer;
                         }
                         .ProseMirror .mention-restaurante:hover {
-                            background-color: #dbeafe;
+                            color: #1d4ed8;
+                        }
+                        /* Link styles in editor */
+                        .ProseMirror .editor-link {
+                            color: #2563eb;
                             text-decoration: underline;
+                            cursor: pointer;
+                        }
+                        .ProseMirror .editor-link:hover {
+                            color: #1d4ed8;
                         }
                         /* Mention dropdown styles */
                         .mention-dropdown {
