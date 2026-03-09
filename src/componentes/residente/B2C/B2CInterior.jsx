@@ -342,7 +342,7 @@ const B2CInterior = () => {
             }}
           >
             <img
-              src="https://residente.mx/fotos/videos/miniaturas/minaturavideo.png"
+              src="https://residente.mx/fotos/videos/miniaturas/etiqueta.jpg.jpeg"
               alt="Miniatura del video"
               className="absolute top-0 left-0 w-full h-full object-cover border-0"
             />
