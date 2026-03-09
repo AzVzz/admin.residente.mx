@@ -34,7 +34,9 @@ const B2CInterior = () => {
     if (success && sessionId) {
       setVista("exito");
       setLoadingCompras(true);
-      fetch(`${API_CHECKOUT}/compras?session_id=${encodeURIComponent(sessionId)}`)
+      fetch(
+        `${API_CHECKOUT}/compras?session_id=${encodeURIComponent(sessionId)}`,
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data.compras) setCompras(data.compras);
@@ -300,11 +302,31 @@ const B2CInterior = () => {
           </p>
           <ul className="space-y-4 text-black text-global list-none">
             {[
-              { texto: "El 80% de los restaurantes pierde clientes por detalles que nadie les enseñó a cuidar.", Icono: HiOutlineUserGroup },
-              { texto: "Un restaurante no fracasa por su comida. Fracasa por la experiencia.", Icono: HiOutlineAcademicCap },
-              { texto: "La temperatura, el volumen de la música, el lenguaje del mesero, la claridad en la cuenta, el manejo de una queja, el baño.", Icono: HiOutlineFilm },
-              { texto: "Hay reglas que no están escritas en ningún manual… pero que el cliente sí juzga.", Icono: HiOutlineBookOpen },
-              { texto: "Este video es una guía clara, directa y profesional sobre La Etiqueta Restaurantera: los estándares invisibles que hacen que un comensal vuelva — o no regrese jamás.", Icono: HiOutlineShieldCheck },
+              {
+                texto:
+                  "El 80% de los restaurantes pierde clientes por detalles que nadie les enseñó a cuidar.",
+                Icono: HiOutlineUserGroup,
+              },
+              {
+                texto:
+                  "Un restaurante no fracasa por su comida. Fracasa por la experiencia.",
+                Icono: HiOutlineAcademicCap,
+              },
+              {
+                texto:
+                  "La temperatura, el volumen de la música, el lenguaje del mesero, la claridad en la cuenta, el manejo de una queja, el baño.",
+                Icono: HiOutlineFilm,
+              },
+              {
+                texto:
+                  "Hay reglas que no están escritas en ningún manual… pero que el cliente sí juzga.",
+                Icono: HiOutlineBookOpen,
+              },
+              {
+                texto:
+                  "Este video es una guía clara, directa y profesional sobre La Etiqueta Restaurantera: los estándares invisibles que hacen que un comensal vuelva — o no regrese jamás.",
+                Icono: HiOutlineShieldCheck,
+              },
             ].map((item, i) => {
               const IconComponent = item.Icono;
               return (
@@ -318,7 +340,9 @@ const B2CInterior = () => {
                   >
                     <IconComponent className="w-4 h-4" />
                   </span>
-                  <span className={`max-w-[88%] leading-tight text-gray-800 ${i % 2 === 1 ? "text-right" : ""}`}>
+                  <span
+                    className={`max-w-[88%] leading-tight text-gray-800 ${i % 2 === 1 ? "text-right" : ""}`}
+                  >
                     {item.texto}
                   </span>
                 </li>
@@ -342,7 +366,7 @@ const B2CInterior = () => {
             }}
           >
             <img
-              src="https://residente.mx/fotos/videos/miniaturas/minaturavideo.png"
+              src="https://residente.mx/fotos/videos/miniaturas/etiqueta.jpg.jpeg"
               alt="Miniatura del video"
               className="absolute top-0 left-0 w-full h-full object-cover border-0"
             />
@@ -374,7 +398,10 @@ const B2CInterior = () => {
                 "Protocolos de seguridad y emergencias",
                 "Criterios para servicio a domicilio sin fallas",
               ].map((item, i) => (
-                <li key={i} className="text-gray-800 text-[20px] md:text-base leading-relaxed">
+                <li
+                  key={i}
+                  className="text-gray-800 text-[20px] md:text-base leading-relaxed"
+                >
                   {item}
                 </li>
               ))}
@@ -398,14 +425,18 @@ const B2CInterior = () => {
                 "Equipos de servicio",
                 "Restaurantes que quieren subir de nivel sin invertir en remodelación",
               ].map((item, i) => (
-                <li key={i} className="text-gray-800 text-[20px] md:text-base leading-relaxed">
+                <li
+                  key={i}
+                  className="text-gray-800 text-[20px] md:text-base leading-relaxed"
+                >
                   {item}
                 </li>
               ))}
             </ul>
             <div className="mt-6 pt-5 ">
               <p className="text-gray-700 text-[20px] md:text-base leading-relaxed italic text-global">
-                Si quieres aumentar recompra sin gastar en marketing, empieza por el servicio.
+                Si quieres aumentar recompra sin gastar en marketing, empieza
+                por el servicio.
               </p>
             </div>
           </div>
@@ -429,7 +460,10 @@ const B2CInterior = () => {
                 "Acceso ilimitado",
                 "Ideal para capacitación interna",
               ].map((item, i) => (
-                <li key={i} className="text-gray-800 text-[15px] md:text-base leading-relaxed">
+                <li
+                  key={i}
+                  className="text-gray-800 text-[15px] md:text-base leading-relaxed"
+                >
                   {item}
                 </li>
               ))}
@@ -446,10 +480,10 @@ const B2CInterior = () => {
               </h2>
             </div>
             <p className="text-gray-800 text-[20px] md:text-base leading-relaxed mb-4 text-global">
-              Este no es un curso de “hospitalidad emocional”. Es un estándar profesional
-              basado en prácticas internacionales adaptadas al contexto latinoamericano.
+              Este no es un curso de “hospitalidad emocional”. Es un estándar
+              profesional basado en prácticas internacionales adaptadas al
+              contexto latinoamericano.
             </p>
-            
           </div>
         </div>
         <div className="mt-5  p-7 md:p-8">
@@ -462,9 +496,10 @@ const B2CInterior = () => {
                 Garantía
               </h2>
               <p className="text-gray-800 text-[20px] md:text-base leading-relaxed text-global">
-                Garantía de satisfacción 7 días. Si el contenido no cumple tus expectativas,
-                puedes solicitar la devolución dentro de los primeros 7 días posteriores a la
-                compra. Sin preguntas innecesarias.
+                Garantía de satisfacción 7 días. Si el contenido no cumple tus
+                expectativas, puedes solicitar la devolución dentro de los
+                primeros 7 días posteriores a la compra. Sin preguntas
+                innecesarias.
               </p>
             </div>
           </div>
