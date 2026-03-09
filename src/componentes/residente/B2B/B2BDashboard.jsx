@@ -50,6 +50,20 @@ const B2BDashboard = () => {
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
 
+  // 🆕 Anunciador
+  const [mensajes, setMensajes] = useState([]);
+  const [nuevoMensaje, setNuevoMensaje] = useState({
+    titulo: "",
+    mensaje: "",
+    es_general: true,
+    destinatarios: "",
+  });
+  const esSeller = usuario?.rol === "vendedor" || usuario?.rol === "residente";
+
+  // 📢 Estado para anuncios B2B
+  const [anuncios, setAnuncios] = useState([]);
+  const [loadingAnuncios, setLoadingAnuncios] = useState(true);
+
   // 👇 AGREGADO: URL de la API de tienda
   // En desarrollo usa el proxy de Vite, en producción usa la URL directa
   const API_URL = import.meta.env.DEV
@@ -152,6 +166,25 @@ const B2BDashboard = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // 📢 Cargar anuncios B2B (filtrados por b2bId)
+  useEffect(() => {
+    if (!b2bId) return;
+    const fetchAnuncios = async () => {
+      try {
+        setLoadingAnuncios(true);
+        const res = await fetch(`${urlApi}api/anuncios-b2b?b2bId=${b2bId}`);
+        if (!res.ok) throw new Error("Error al obtener anuncios");
+        const data = await res.json();
+        setAnuncios(data);
+      } catch (error) {
+        console.error("Error cargando anuncios:", error);
+      } finally {
+        setLoadingAnuncios(false);
+      }
+    };
+    fetchAnuncios();
+  }, [b2bId]);
 
   // 🆕 Manejar selección de productos y total
   const handleToggleProducto = (id) => {
@@ -832,7 +865,7 @@ const B2BDashboard = () => {
 
         {/* Columna azul */}
         <div className="flex flex-col p-3 min-h-0">
-          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[8px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Crea tus
               <br />
@@ -853,28 +886,37 @@ const B2BDashboard = () => {
             </div>
           )}
 
-          <video
-            src="https://residente.mx/fotos/videos/Video%20explicativo%20dashboard%20b2b.mp4"
-            controls
-            className="w-full h-full aspect-[4/3] bg-black"
-          />
-
           {/* Botones alineados a la izquierda en columna */}
-          <div className="flex flex-col gap-3 mt-3 items-start">
+          <div className="flex flex-col gap-2 mt-3 items-start">
             <button
               onClick={
                 restaurante ? handleEditar : () => navigate("/formulario")
               }
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
+
+            <video
+              src="https://residente.mx/fotos/videos/BIENVENIDO%20Con%20Caratula.mp4"
+              controls
+              preload="metadata"
+              className="w-60 aspect-[4/3] bg-black mb-6"
+            />
+
             <button
               onClick={handleCupones}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
+              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
               DESCUENTOS
             </button>
+
+            <video
+              src="https://residente.mx/fotos/videos/Aprovecho%20de%20descuentos.mp4"
+              controls
+              className="w-60 aspect-[4/3] bg-black mb-6"
+            />
+
             <button
               onClick={handleClasificado}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
@@ -882,7 +924,7 @@ const B2BDashboard = () => {
               CLASIFICADO
             </button>
           </div>
-          <address className="flex flex-col mt-auto">
+          <address className="flex flex-col mt-auto pt-10">
             <p>Credenciales de Acceso</p>
             <strong className="text-xs text-gray-900 font-roman">
               Nombre:{" "}
@@ -906,27 +948,31 @@ const B2BDashboard = () => {
         </div>
         {/* Columna verde - Estadísticas */}
         <div className="flex flex-col p-3">
-          <div className="border-b-[7px] border-black pb-0.5 mb-[36px] w-fit">
+          <div className="border-b-[7px] border-black pb-0.5 mb-[17px] w-fit">
             <p className="text-[35px] text-left leading-none">
               Checa tus
               <br />
               Resultados
             </p>
           </div>
-          <div className="space-y-4">
+          <div className="flex flex-col">
             {/* 🆕 Datos de Google Analytics */}
             {!loadingAnalytics && analytics && (
               <>
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
+                <div className="mb-2">
+                  <img
+                    src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
+                    className="w-52 mb-2 max-w-full h-auto border-b-2 pb-0.5"
+                  />
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {analytics.club_residente_trafico?.toLocaleString(
                       "es-MX",
                     ) || 0}
                   </p>
                   <p className="text-sm text-black leading-tight">
-                    Tráfico total del “Club Residente-Facil"
+                    Tráfico total de los medios digitales de Residente
                     <br />
-                    en el mes de {analytics.mes} {analytics.anio}
+                    del último mes.
                     {analytics.pdf_url ? (
                       <a
                         href={analytics.pdf_url}
@@ -945,22 +991,29 @@ const B2BDashboard = () => {
                     )}
                   </p>
                 </div>
-                <div className="leading-tight">
-                  <p className="text-[40px] font-bold text-black leading-tight">
+                <div className="mb-9">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {analytics.residente_mx_trafico?.toLocaleString("es-MX") ||
                       0}
+                    {/* Jose me va a pasar 2 numeros y tengo que mostrar el rango al azar si me pasa el 1 y el 10, mostrar un rango al azar entre esos 2 aqui en el trafico promedio */}
                   </p>
-                  <p className="text-sm text-black -mt-1">
-                    Tráfico Residente.mx en el mes de {analytics.mes}{" "}
-                    {analytics.anio}
+                  <p className="text-sm text-black -mt-1 leading-[1.2]">
+                    Tráfico promedio de los ultimos 3 meses en www.residente.mx
+                    desde el 9 de diciembre 2025 al día de hoy (9 de marzo
+                    2026). Google Analitycs
                   </p>
+                  {/* Hacer la Logica que cambie dia con dia con el dia actual */}
                 </div>
               </>
             )}
-            <span className="text-[25px] leading-[1] underline">
-              Directorio
-            </span>
-            <div className="">
+
+            {/* Directorio, JUNTAR ESTO */}
+            <div className="mb-0">
+              <span className="text-[25px] leading-[1] underline pr-2">
+                Directorio
+              </span>
+              <span>{restaurante?.nombre_restaurante}</span>
+
               <p className="text-[40px] font-bold text-black leading-[1]">
                 {(
                   (restaurante?.views || 0) + (cupon?.views || 0)
@@ -970,19 +1023,20 @@ const B2BDashboard = () => {
                 Vistas totales en tu restaurante
               </p>
             </div>
-            <div className="leading-tight">
-              <p className="text-[40px] font-bold text-black leading-tight">
+
+            {/* Clicks totales en tu restaurante */}
+            <div className="mb-9">
+              <p className="text-[40px] font-bold text-black leading-[1]">
                 {restaurante?.clicks?.toLocaleString("es-MX") || 0}
               </p>
               <p className="text-sm text-black -mt-1">
                 Clicks totales en tu restaurante
               </p>
             </div>
-
             {notaStats && notaStats.total > 0 && (
               <>
                 <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.views?.toLocaleString("es-MX") || 0}
                   </p>
                   <p className="text-sm text-black">
@@ -990,7 +1044,7 @@ const B2BDashboard = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[40px] font-bold text-black leading-tight">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.clicks?.toLocaleString("es-MX") || 0}
                   </p>
                   <p className="text-sm text-black">
@@ -1000,16 +1054,19 @@ const B2BDashboard = () => {
               </>
             )}
 
-            <span className="text-[25px] leading-[1] underline">Notas</span>
+            {/* Notas  */}
+            <div className="mb-9">
+              <span className="text-[25px] leading-[1] underline pr-2">
+                Notas
+              </span>
+              <span>{restaurante?.nombre_restaurante}</span>
 
-            {/* Notas taggeadas a este restaurante */}
-            <div className="border-t border-gray-300">
-              <p className="text-sm font-bold text-black">
+              <span className="text-sm font-bold text-black">
                 {notasRestaurante ? ` (${notasRestaurante.total_notas})` : ""}
-              </p>
+              </span>
               {/* Suma total de vistas de notas */}
               <div className="leading-tight mb-1">
-                <p className="text-[40px] font-bold text-black leading-tight">
+                <p className="text-[40px] font-bold text-black leading-[1]">
                   {notasRestaurante?.total_vistas?.toLocaleString("es-MX") || 0}
                 </p>
                 <p className="text-sm text-black -mt-1">
@@ -1017,7 +1074,7 @@ const B2BDashboard = () => {
                 </p>
               </div>
               <div className="leading-tight mb-2">
-                <p className="text-[40px] font-bold text-black leading-tight">
+                <p className="text-[40px] font-bold text-black leading-[1]">
                   {notasRestaurante?.total_clicks?.toLocaleString("es-MX") || 0}
                 </p>
                 <p className="text-sm text-black -mt-1">
@@ -1056,14 +1113,20 @@ const B2BDashboard = () => {
                   Aún no hay notas etiquetadas a tu restaurante.
                 </p>
               )}
+            </div>
 
-              <span className="text-[25px] leading-[1] underline">Cupones</span>
+            {/* Cupones */}
+            <div className="mb-9">
+              <span className="text-[25px] leading-[1] underline pr-2">
+                Cupones
+              </span>
+              <span>{restaurante?.nombre_restaurante}</span>
               {loadingCupon ? (
                 <div>Cargando cupón...</div>
               ) : cupon ? (
                 <>
                   <div>
-                    <p className="text-[40px] font-bold text-black leading-tight">
+                    <p className="text-[40px] font-bold text-black leading-[1]">
                       {cupon.clicks?.toLocaleString("es-MX") || 0}
                     </p>
                     <p className="text-sm text-black">
@@ -1082,7 +1145,7 @@ const B2BDashboard = () => {
           <div className="flex flex-col">
             {/* Parte de arriba: título + lista */}
             <div>
-              <div className="border-b-[7px] border-black pb-0.5 mb-[37px] w-fit">
+              <div className="border-b-[7px] border-black pb-0.5 mb-[14px] w-fit">
                 <p className="text-[35px] text-left leading-none">
                   Aprovecha tus
                   <br />
@@ -1227,6 +1290,58 @@ const B2BDashboard = () => {
           </div>
         </div>
       </div>
+      {/* 📢 Sección de Anuncios B2B */}
+      <div className="max-w-[1080px] mx-auto mt-8 px-4 mb-8">
+        <h2 className="text-6xl font-bold text-black mb-4 text-center tracking-tighter">
+          Centro de mensajes
+        </h2>
+        {loadingAnuncios ? (
+          <p className="text-gray-500 text-sm">Cargando anuncios...</p>
+        ) : anuncios.length === 0 ? (
+          <p className="text-gray-400 text-sm">
+            No hay anuncios por el momento.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {anuncios.map((anuncio) => (
+              <div
+                key={anuncio.id}
+                className={`border p-4 ${
+                  anuncio.tipo === "alerta"
+                    ? "border-red-300 bg-red-50"
+                    : anuncio.tipo === "promo"
+                      ? "border-yellow-300 bg-yellow-50"
+                      : anuncio.tipo === "novedad"
+                        ? "border-blue-300 bg-blue-50"
+                        : "border-gray-200 bg-white"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-md font-bold uppercase tracking-wide text-gray-800">
+                    {anuncio.tipo}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {new Date(
+                      anuncio.created_at || anuncio.createdAt,
+                    ).toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-black font-roman">
+                  {anuncio.titulo}
+                </h3>
+                <p className="text-md text-gray-700 mt-1">
+                  {anuncio.contenido}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Modal para cupon ampliado */}
       {showModal && (
         <div>

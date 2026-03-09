@@ -813,15 +813,20 @@ const SelectorPlanesB2B = ({
             className="w-full h-auto "
           />
         </div>*/}
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-          Elige tu tipo de membresia para el "Club Residente"
-        </h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-[#FFF200] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#FFF200]/80 cursor-pointer transition-all duration-200 hover:scale-105 drop-shadow-[1.5px_1.5px_0.9px_rgba(0,0,0,0.3)] hover:drop-shadow-[3px_3px_0.9px_rgba(0,0,0,0.3)]"
-        >
-          5 RAZONES PARA SUSCRIBIRTE
-        </button>
+        <div className="w-full max-w-2xl mx-auto mb-6">
+          <video
+            className="w-full h-auto rounded-md shadow-lg"
+            controls
+            playsInline
+            preload="metadata"
+          >
+            <source
+              src="https://residente.mx/fotos/videos/copy_F1C166B3-8371-4C1F-949B-35A50C1284BC.mp4"
+              type="video/mp4"
+            />
+            Tu navegador no soporta la reproducción de video.
+          </video>
+        </div>
       </div>
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}

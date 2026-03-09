@@ -5,6 +5,7 @@ import { IoStorefront } from "react-icons/io5";
 import TablaUsuariosB2B from "./TodoB2bComponentes/TablaUsuariosB2B";
 import FormGoogleAnalytics from "./TodoB2bComponentes/FormGoogleAnalytics";
 import HistorialGoogleAnalytics from "./TodoB2bComponentes/HistorialGoogleAnalytics";
+import GestionAnunciosB2B from "./TodoB2bComponentes/GestionAnunciosB2B";
 
 const TodoB2b = () => {
   const { token } = useAuth();
@@ -250,11 +251,8 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
 
           {/* Fila inferior: 2 cuadros */}
           <div className="grid grid-cols-3">
-            <div className="bg-white p-6 min-h-[200px]">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Cuadro 3
-              </h3>
-              <p className="text-gray-500">Contenido del cuadro 3</p>
+            <div className="bg-white min-h-[200px] overflow-hidden">
+              <GestionAnunciosB2B usuarios={usuarios} />
             </div>
             {/* Tabla de usuarios B2B - ocupa 2 columnas */}
             <div className="col-span-2 min-h-[200px]">
