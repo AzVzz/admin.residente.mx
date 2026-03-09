@@ -23,7 +23,7 @@ const BENEFICIOS_INFO = [
     Icono: FaGift,
   },
   {
-    key: "video_publicitario",
+    key: "nota_publicitaria",
     label: "Nota / 5 razones",
     descripcion: "Publica 1 nota periodística en el “main” de residente.mx. 5 razones para asistir a tu negocio.",
     Icono: FaVideo,
@@ -35,7 +35,7 @@ const BENEFICIOS_INFO = [
     Icono: FaBookOpen,
   },
   {
-    key: "suscripcion_semestral",
+    key: "suscripcion_extra",
     label: "2da Membresia gratis",
     descripcion: "Inscribe gratis a otra marca perteneciente a tu mismo grupo de negocios",
     Icono: FaCalendarAlt,

@@ -61,11 +61,11 @@ const StripeCheckout = () => {
     if (returnUrlParam) {
       setReturnUrl(returnUrlParam);
     }
-    
+
     if (query.get("success")) {
       setSuccess(true);
       setSessionId(query.get("session_id"));
-      
+
       // Si hay un returnUrl, redirigir al formulario con el parámetro de éxito
       if (returnUrlParam) {
         // Guardar en localStorage que el pago fue completado
@@ -114,11 +114,11 @@ const StripeCheckout = () => {
       // Obtener returnUrl de los query params
       const query = new URLSearchParams(window.location.search);
       const returnUrlParam = query.get("returnUrl");
-      
+
       // Construir las URLs de éxito y cancelación
       let successUrl = `${window.location.origin}/stripe-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`;
       let cancelUrl = `${window.location.origin}/stripe-checkout?canceled=true`;
-      
+
       // Si hay returnUrl, incluirlo en los parámetros
       if (returnUrlParam) {
         successUrl += `&returnUrl=${encodeURIComponent(returnUrlParam)}`;
@@ -128,7 +128,7 @@ const StripeCheckout = () => {
       const requestBody = {
         priceId: "price_1SY9IGRzQ7oLCa50mibJc2n3",
         b2b_id: 1,
-        customerEmail: "christophervalero05@hotmail.com",
+        customerEmail: "",
         successUrl: successUrl,
         cancelUrl: cancelUrl,
       };
@@ -140,7 +140,7 @@ const StripeCheckout = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
-      }); 
+      });
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -148,7 +148,7 @@ const StripeCheckout = () => {
           status: res.status,
           statusText: res.statusText,
           headers: Object.fromEntries(res.headers.entries()),
-          body: errorText
+          body: errorText,
         });
         throw new Error(`Error ${res.status}: ${errorText}`);
       }
@@ -191,9 +191,7 @@ const Logo = () => (
     viewBox="0 0 14 16"
     version="1.1"
   >
-    <g fill="none" fillRule="evenodd">
-      
-    </g>
+    <g fill="none" fillRule="evenodd"></g>
   </svg>
 );
 
