@@ -337,14 +337,15 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     return () => subscription.unsubscribe();
   }, [watch, saveFormData]);
 
-  // Verificar si el usuario B2B ya tiene un restaurante (solo para creación, no edición)
+  // Verificar si el usuario B2B puede crear otro restaurante (solo para creación, no edición)
+  const [limiteRestaurantes, setLimiteRestaurantes] = useState(1);
   useEffect(() => {
     // Solo verificar si es usuario B2B y NO está en modo edición
     if (usuario?.rol === "b2b" && !esEdicion && token) {
       const verificarRestaurante = async () => {
         setLoadingRestauranteCheck(true);
         try {
-          const response = await fetch(`${urlApi}api/restaurante/basicos`, {
+          const response = await fetch(`${urlApi}api/restaurante/puede-crear`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -352,12 +353,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
           if (response.ok) {
             const data = await response.json();
-            // Si el usuario tiene algún restaurante registrado
-            if (data && data.length > 0) {
-              setTieneRestaurante(true);
-            } else {
-              setTieneRestaurante(false);
-            }
+            setTieneRestaurante(!data.puedeCrear);
+            if (data.limite) setLimiteRestaurantes(data.limite);
           }
         } catch (error) {
           console.error("Error verificando restaurante:", error);
@@ -427,7 +424,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
             Límite de Restaurantes Alcanzado
           </h2>
           <p className="text-gray-600 mb-4">
-            Solo puedes tener un restaurante registrado co tu plan actual.{" "}
+            Solo puedes tener {limiteRestaurantes} restaurante{limiteRestaurantes > 1 ? "s" : ""} registrado{limiteRestaurantes > 1 ? "s" : ""} con tu plan actual.{" "}
             <br />
             Para editar tu restaurante existente, ve a tu dashboard.
           </p>

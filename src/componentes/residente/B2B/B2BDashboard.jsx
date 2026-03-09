@@ -22,6 +22,7 @@ const B2BDashboard = () => {
   const { saveToken, saveUsuario, usuario, token } = useAuth();
   const navigate = useNavigate();
   const [restaurante, setRestaurante] = useState(null);
+  const [restaurante2, setRestaurante2] = useState(null);
   const [loadingRestaurante, setLoadingRestaurante] = useState(true);
   const [b2bUser, setB2bUser] = useState(null);
   const [showFormularioPromo, setShowFormularioPromo] = useState(false);
@@ -291,14 +292,24 @@ const B2BDashboard = () => {
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
-            const primerRestaurante = data[0];
-
+            // Primer restaurante
             const detailResponse = await fetch(
-              `${urlApi}api/restaurante/${primerRestaurante.slug}`,
+              `${urlApi}api/restaurante/${data[0].slug}`,
             );
             if (detailResponse.ok) {
               const detailData = await detailResponse.json();
               setRestaurante(detailData);
+            }
+
+            // Segundo restaurante (si existe)
+            if (data.length > 1) {
+              const detail2Response = await fetch(
+                `${urlApi}api/restaurante/${data[1].slug}`,
+              );
+              if (detail2Response.ok) {
+                const detail2Data = await detail2Response.json();
+                setRestaurante2(detail2Data);
+              }
             }
           }
         }
@@ -569,12 +580,18 @@ const B2BDashboard = () => {
     const fetchCupones = async () => {
       setLoadingCupon(true);
       try {
-        const cuponesActivos = await cuponesGetActivos();
-        const misCupones = cuponesActivos.filter(
-          (c) => c.user_id === usuario.id,
-        );
-        setCupones(misCupones);
-        setCupon(misCupones[0] || null); // Si quieres seguir mostrando el primero
+        const response = await fetch(`${urlApi}api/tickets/activos`);
+        if (response.ok) {
+          const cuponesActivos = await response.json();
+          const misCupones = cuponesActivos.filter(
+            (c) => c.user_id === usuario.id,
+          );
+          setCupones(misCupones);
+          setCupon(misCupones[0] || null);
+        } else {
+          setCupones([]);
+          setCupon(null);
+        }
       } catch (err) {
         setCupones([]);
         setCupon(null);
@@ -904,6 +921,18 @@ const B2BDashboard = () => {
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
 
+            {b2bUser?.suscripcion_extra && (
+              <button
+                onClick={
+                  restaurante2
+                    ? () => navigate(`/formulario/${restaurante2.slug}`)
+                    : () => navigate("/formulario")
+                }
+                className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
+              >
+                {restaurante2 ? "MICROSITIO 2" : "CREAR SITIO 2"}
+              </button>
+            )}
             <button
               onClick={handleCupones}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
