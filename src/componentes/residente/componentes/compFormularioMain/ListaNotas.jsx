@@ -35,6 +35,7 @@ import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
 import FiltroAutor from "./FiltroAutor";
 import FiltroFechas from "./FiltroFechas";
+import FiltroVistas from "./FiltroVistas";
 import SearchNotasLocal from "./SearchNotasLocal";
 
 const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
@@ -115,6 +116,8 @@ const ListaNotas = () => {
   const [autor, setAutor] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [fechaRange, setFechaRange] = useState({ desde: "", hasta: "" });
+  const [vistas, setVistas] = useState("");
+  const [ordenVistas, setOrdenVistas] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -308,8 +311,10 @@ const ListaNotas = () => {
     }
     if (fechaRange.desde) filtros.fecha_desde = fechaRange.desde;
     if (fechaRange.hasta) filtros.fecha_hasta = fechaRange.hasta;
+    if (vistas) filtros.vistas = vistas;
+    if (ordenVistas) filtros.orden = ordenVistas;
     return filtros;
-  }, [estado, autor, tipoCliente, debouncedSearchTerm, fechaRange]);
+  }, [estado, autor, tipoCliente, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
 
   const fetchTodasLasNotas = async (usarCache = true) => {
     setCargando(true);
@@ -528,7 +533,7 @@ const ListaNotas = () => {
     // Solo cargar notas, sin prefetch automático para mejorar rendimiento inicial
     fetchTodasLasNotas();
     // eslint-disable-next-line
-  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm, fechaRange]);
+  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
 
   // Wrappers para setters que resetean la página y el caché al cambiar filtros
   const handleSetEstado = useCallback((val) => {
@@ -558,6 +563,18 @@ const ListaNotas = () => {
 
   const handleSetFechaRange = useCallback(({ desde, hasta }) => {
     setFechaRange({ desde, hasta });
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetVistas = useCallback((val) => {
+    setVistas(val);
+    cacheRef.current.clear();
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetOrdenVistas = useCallback((val) => {
+    setOrdenVistas(val);
     cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
@@ -963,6 +980,7 @@ const ListaNotas = () => {
                     <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={handleSetTipoCliente} />
                     <FiltroAutor autor={autor} setAutor={handleSetAutor} />
                     <FiltroFechas fechaRange={fechaRange} setFechaRange={handleSetFechaRange} />
+                    <FiltroVistas vistas={vistas} setVistas={handleSetVistas} ordenVistas={ordenVistas} setOrdenVistas={handleSetOrdenVistas} />
                   </div>
                 </div>
               )}
