@@ -915,8 +915,9 @@ const B2BDashboard = () => {
             </button>
 
             <video
-              src="https://residente.mx/fotos/videos/BIENVENIDO%20Con%20Caratula.mp4"
+              src="https://residente.mx/fotos/videos/BIENVENIDOCLUBRESIDENTE.mp4"
               controls
+              playsInline
               preload="metadata"
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
@@ -941,8 +942,10 @@ const B2BDashboard = () => {
             </button>
 
             <video
-              src="https://residente.mx/fotos/videos/Aprovecho%20de%20descuentos.mp4"
+              src="https://residente.mx/fotos/videos/SACARPROVECHO.mp4"
               controls
+              playsInline
+              preload="metadata"
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
 

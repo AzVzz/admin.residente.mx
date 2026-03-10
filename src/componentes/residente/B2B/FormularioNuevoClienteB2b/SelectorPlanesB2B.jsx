@@ -790,7 +790,7 @@ const SelectorPlanesB2B = ({
             preload="metadata"
           >
             <source
-              src="https://residente.mx/fotos/videos/new%20video.mp4"
+              src="https://residente.mx/fotos/videos/new%20video.mp4#t=1"
               type="video/mp4"
             />
             Tu navegador no soporta la reproducción de video.
@@ -821,7 +821,7 @@ const SelectorPlanesB2B = ({
             preload="metadata"
           >
             <source
-              src="https://residente.mx/fotos/videos/copy_F1C166B3-8371-4C1F-949B-35A50C1284BC.mp4"
+              src="https://residente.mx/fotos/videos/7FORMASDERECUPERARTUINVERSION.mp4"
               type="video/mp4"
             />
             Tu navegador no soporta la reproducción de video.
