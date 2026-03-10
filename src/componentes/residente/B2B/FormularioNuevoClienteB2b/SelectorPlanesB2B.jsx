@@ -821,7 +821,7 @@ const SelectorPlanesB2B = ({
             preload="metadata"
           >
             <source
-              src="https://residente.mx/fotos/videos/7FORMASDERECUPERARTUINVERSION.mp4"
+              src="https://residente.mx/fotos/videos/7FORMAS.mp4#t=1"
               type="video/mp4"
             />
             Tu navegador no soporta la reproducción de video.

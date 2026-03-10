@@ -914,14 +914,6 @@ const B2BDashboard = () => {
               {restaurante ? "MICROSITIO" : "CREAR SITIO"}
             </button>
 
-            <video
-              src="https://residente.mx/fotos/videos/BIENVENIDOCLUBRESIDENTE.mp4"
-              controls
-              playsInline
-              preload="metadata"
-              className="w-60 aspect-[4/3] bg-black mb-6"
-            />
-
             {b2bUser?.suscripcion_extra && (
               <button
                 onClick={
@@ -929,11 +921,19 @@ const B2BDashboard = () => {
                     ? () => navigate(`/formulario/${restaurante2.slug}`)
                     : () => navigate("/formulario")
                 }
-                className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
+                className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
               >
                 {restaurante2 ? "MICROSITIO 2" : "CREAR SITIO 2"}
               </button>
             )}
+
+            <video
+              src="https://residente.mx/fotos/videos/BIENVENIDOCLUBRESIDENTE.mp4"
+              controls
+              playsInline
+              preload="metadata"
+              className="w-60 aspect-[4/3] bg-black mb-6"
+            />
             <button
               onClick={handleCupones}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
