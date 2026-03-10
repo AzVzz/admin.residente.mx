@@ -215,7 +215,7 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
   };
 
   return (
-    <div className="p-6">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center">
           <IoStorefront className="mr-2" />

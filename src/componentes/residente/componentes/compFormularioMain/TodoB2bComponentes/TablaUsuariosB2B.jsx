@@ -33,9 +33,6 @@ const TablaUsuariosB2B = ({
                 Usuario
               </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Plan
-              </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Beneficios
               </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -49,7 +46,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {usuarios.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="4" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -66,6 +63,11 @@ const TablaUsuariosB2B = ({
                         <div>
                           <span className="text-sm font-medium text-gray-900 block">
                             {user.nombre_usuario}
+                            {b2b?.numero_meses && (
+                              <span className="text-xs text-gray-400 font-normal ml-1">
+                                ({b2b.numero_meses} meses)
+                              </span>
+                            )}
                           </span>
                           {b2b?.correo && (
                             <span className="text-xs text-gray-500">
@@ -74,15 +76,6 @@ const TablaUsuariosB2B = ({
                           )}
                         </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {b2b ? (
-                        <span className="text-sm text-gray-700 font-medium">
-                          {b2b.numero_meses || "—"} meses
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400">Sin datos</span>
-                      )}
                     </td>
                     <td className="px-4 py-3">
                       {b2b ? (

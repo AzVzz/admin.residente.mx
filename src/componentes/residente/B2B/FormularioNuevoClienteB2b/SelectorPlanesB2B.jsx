@@ -418,10 +418,10 @@ const SelectorPlanesB2B = ({
 
   // Función para cargar clientes vetados
   const fetchClientesVetados = useCallback(async () => {
-    console.log("🔍 Iniciando carga de clientes en lista...");
-    console.log("🔑 Token disponible:", !!token);
-    console.log("👤 Usuario:", usuario?.nombre || "No disponible");
-    console.log("🌐 URL API:", `${urlApi}api/clientes-editorial`);
+    //console.log("🔍 Iniciando carga de clientes en lista...");
+    //console.log("🔑 Token disponible:", !!token);
+    //console.log("👤 Usuario:", usuario?.nombre || "No disponible");
+    //console.log("🌐 URL API:", `${urlApi}api/clientes-editorial`);
 
     if (!token) {
       setErrorClientes("No hay sesión activa. Por favor inicia sesión.");
@@ -439,11 +439,11 @@ const SelectorPlanesB2B = ({
         },
       });
 
-      console.log("📡 Response status:", response.status);
-      console.log(
-        "📡 Response headers:",
-        Object.fromEntries(response.headers.entries()),
-      );
+      //console.log("📡 Response status:", response.status);
+      //console.log(
+      //  "📡 Response headers:",
+      //  Object.fromEntries(response.headers.entries()),
+      //);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -452,16 +452,16 @@ const SelectorPlanesB2B = ({
       }
 
       const data = await response.json();
-      console.log("📦 Datos recibidos:", data);
-      console.log(
-        "📊 Total de clientes:",
-        Array.isArray(data) ? data.length : data.clientes?.length || 0,
-      );
+      //console.log("📦 Datos recibidos:", data);
+      //console.log(
+      //  "📊 Total de clientes:",
+      //  Array.isArray(data) ? data.length : data.clientes?.length || 0,
+      //);
 
       const clientesArray = Array.isArray(data) ? data : data.clientes || [];
       setClientesVetados(clientesArray);
       setErrorClientes(null);
-      console.log("✅ Clientes cargados en estado:", clientesArray.length);
+      //console.log("✅ Clientes cargados en estado:", clientesArray.length);
     } catch (err) {
       console.error("❌ Error cargando clientes vetados:", err);
       setErrorClientes(err.message);

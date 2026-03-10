@@ -1025,16 +1025,17 @@ const B2BDashboard = () => {
                 </div>
                 <div className="mb-9">
                   <p className="text-[40px] font-bold text-black leading-[1]">
-                    {analytics.residente_mx_trafico?.toLocaleString("es-MX") ||
-                      0}
-                    {/* Jose me va a pasar 2 numeros y tengo que mostrar el rango al azar si me pasa el 1 y el 10, mostrar un rango al azar entre esos 2 aqui en el trafico promedio */}
+                    {(() => {
+                      const hoy = new Date();
+                      const seed = hoy.getFullYear() * 10000 + (hoy.getMonth() + 1) * 100 + hoy.getDate();
+                      const rand = ((seed * 9301 + 49297) % 233280) / 233280;
+                      return Math.floor(46300 + rand * (53400 - 46300)).toLocaleString("es-MX");
+                    })()}
                   </p>
                   <p className="text-sm text-black -mt-1 leading-[1.2]">
                     Tráfico promedio de los ultimos 3 meses en www.residente.mx
-                    desde el 9 de diciembre 2025 al día de hoy (9 de marzo
-                    2026). Google Analitycs
+                    desde el 9 de diciembre 2025 al día de hoy ({new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}). Google Analytics
                   </p>
-                  {/* Hacer la Logica que cambie dia con dia con el dia actual */}
                 </div>
               </>
             )}
