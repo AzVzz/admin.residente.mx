@@ -786,6 +786,7 @@ const SelectorPlanesB2B = ({
           <video
             className="w-full h-auto rounded-md shadow-lg"
             controls
+            controlsList="nodownload"
             playsInline
             preload="metadata"
           >
