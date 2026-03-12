@@ -1034,7 +1034,14 @@ const B2BDashboard = () => {
                   </p>
                   <p className="text-sm text-black -mt-1 leading-[1.2]">
                     Tráfico promedio de los ultimos 3 meses en www.residente.mx
-                    desde el 9 de diciembre 2025 al día de hoy ({new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}). Google Analytics
+                    desde el {(() => {
+                      const hoy = new Date();
+                      const hace3 = new Date(hoy.getFullYear(), hoy.getMonth() - 3, hoy.getDate());
+                      if (hace3.getMonth() !== ((hoy.getMonth() - 3 + 12) % 12)) {
+                        hace3.setDate(0);
+                      }
+                      return hace3.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+                    })()} al día de hoy ({new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}). Google Analytics
                   </p>
                 </div>
               </>
