@@ -64,121 +64,46 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         const colorTarjeta = colores[idx % colores.length];
                         const colorTexto = coloresTexto[idx % coloresTexto.length];
                         return (
-                            <>
-                                {/* Diseño CULTURA RESTAURANTERA */}
-                                <div
-                                    key={`${nota.id}-cultura`}
-                                    className={`relative flex flex-col items-center justify-end nota-card mb-8 pt-10 pb-10 px-10 w-[400px] h-[658px] overflow-hidden ${colorTarjeta}`}
-                                    data-slug={nota.slug}
-                                >
-                                    {/* Línea negra superpuesta */}
-                                    <div className="absolute right-0 bottom-[90px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
-                                    {/* Stickers arriba del recuadro negro, alineados al centro */}
-                                    <div className="w-full flex justify-start mb-1.5">
-                                        {stickersConResidente.map((clave, idxIcono) => {
-                                            const icono = idx === 1 
-                                                ? iconosDisponibles.find(i => i.clave === clave)
-                                                : iconosNegros.find(i => i.clave === clave);
-                                            return icono ? (
-                                                <img
-                                                    key={clave}
-                                                    src={icono.icono}
-                                                    alt={icono.nombre}
-                                                    className={`h-7 w-7 rounded-full bg-white ${idxIcono > 0 ? "ml-0.5" : ""}`}
-                                                />
-                                            ) : null;
-                                        })}
-                                    </div>
-                                    {/* Categoría en recuadro negro */}
-                                    <div className="bg-[#111] text-white rounded-md px-2.5 py-0.5 text-[0.9rem] mb-2 inline-block text-center self-start">
-                                        {categoria}
-                                    </div>
-                                    {/* Título */}
-                                    <div className={`text-[23px] ${colorTexto} text-left mb-3 w-full leading-6`}>
-                                        {nota.titulo}
-                                    </div>
-                                    {/* Imagen */}
-                                    <div className="w-full h-[320px] flex justify-center items-center">
-                                        <img
-                                            src={nota.imagen}
-                                            alt={nota.titulo}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
+                            <div
+                                key={nota.id}
+                                className={`relative flex flex-col items-center justify-end nota-card mb-8 pt-10 pb-10 px-10 w-[400px] h-[658px] overflow-hidden ${colorTarjeta}`}
+                                data-slug={nota.slug}
+                            >
+                                {/* Línea negra superpuesta */}
+                                <div className="absolute right-0 bottom-[90px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
+                                {/* Stickers arriba del recuadro negro, alineados al centro */}
+                                <div className="w-full flex justify-start mb-1.5">
+                                    {(idx === 1 ? stickersConResidente : stickersConResidente).map((clave, idxIcono) => {
+                                        const icono = idx === 1 
+                                        ? iconosDisponibles.find(i => i.clave === clave)
+                                        : iconosNegros.find(i => i.clave === clave);
+                                        return icono ? (
+                                            <img
+                                                key={clave}
+                                                src={icono.icono}
+                                                alt={icono.nombre}
+                                                className={`h-7 w-7 rounded-full bg-white ${idxIcono > 0 ? "ml-0.5" : ""}`}
+                                            />
+                                        ) : null;
+                                    })}
                                 </div>
-
-                                {/* Diseño FOOD & DRINK (tipo story) */}
-                                <div
-                                    key={`${nota.id}-fooddrink`}
-                                    data-slug={nota.slug}
-                                    className="relative nota-card mb-8 w-[400px] h-[658px] overflow-hidden"
-                                >
+                                {/* Categoría en recuadro negro */}
+                                <div className="bg-[#111] text-white rounded-md px-2.5 py-0.5 text-[0.9rem] mb-2 inline-block text-center self-start">
+                                    {categoria}
+                                </div>
+                                {/* Título */}
+                                <div className={`text-[23px] ${colorTexto} text-left mb-3 w-full leading-6`}>
+                                    {nota.titulo}
+                                </div>
+                                {/* Imagen */}
+                                <div className="w-full h-[320px] flex justify-center items-center">
                                     <img
                                         src={nota.imagen}
                                         alt={nota.titulo}
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        className="w-full h-full object-cover"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10" />
-                                    <div className="relative z-10 w-full flex justify-center mt-6 mb-4">
-                                        {stickersConResidente.map((clave, idxIcono) => {
-                                            const icono = iconosNegros.find(i => i.clave === clave);
-                                            return icono ? (
-                                                <img
-                                                    key={clave}
-                                                    src={icono.icono}
-                                                    alt={icono.nombre}
-                                                    className={`h-8 w-8 rounded-full bg-white ${idxIcono > 0 ? "ml-1" : ""}`}
-                                                />
-                                            ) : null;
-                                        })}
-                                    </div>
-                                    <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 pb-20 text-center">
-                                        <div className="text-white font-semibold tracking-[0.08em] uppercase text-sm mb-3">
-                                            {categoria}
-                                        </div>
-                                        <div className="text-white text-[20px] leading-7">
-                                            {nota.titulo}
-                                        </div>
-                                    </div>
-                                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[55%] h-[40px] bg-black rounded-full" />
                                 </div>
-
-                                {/* Diseño ANTOJERÍA (tipo story, texto amarillo) */}
-                                <div
-                                    key={`${nota.id}-antojeria`}
-                                    data-slug={nota.slug}
-                                    className="relative nota-card mb-8 w-[400px] h-[658px] overflow-hidden"
-                                >
-                                    <img
-                                        src={nota.imagen}
-                                        alt={nota.titulo}
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10" />
-                                    <div className="relative z-10 w-full flex justify-center mt-6 mb-4">
-                                        {stickersConResidente.map((clave, idxIcono) => {
-                                            const icono = iconosNegros.find(i => i.clave === clave);
-                                            return icono ? (
-                                                <img
-                                                    key={clave}
-                                                    src={icono.icono}
-                                                    alt={icono.nombre}
-                                                    className={`h-8 w-8 rounded-full bg-[#FFF200] ${idxIcono > 0 ? "ml-1" : ""}`}
-                                                />
-                                            ) : null;
-                                        })}
-                                    </div>
-                                    <div className="relative z-10 flex flex-col items-center justify-end h-full px-6 pb-24 text-center">
-                                        <div className="text-[#FFF200] font-semibold tracking-[0.08em] uppercase text-sm mb-3">
-                                            {categoria}
-                                        </div>
-                                        <div className="text-[#FFF200] text-[20px] leading-7">
-                                            {nota.titulo}
-                                        </div>
-                                    </div>
-                                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[55%] h-[40px] bg-black rounded-full" />
-                                </div>
-                            </>
+                            </div>
                         );
                     })}
                 </div>
