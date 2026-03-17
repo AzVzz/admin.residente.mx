@@ -5,9 +5,10 @@ const NuevasSeccionesCategorias = () => {
   const { data, loading, error } = useJsonData();
   const { register, formState: { errors }, watch, setValue } = useFormContext();
 
-  // Detectar si es Food & Drink para ocultar ciertas secciones
+  // Detectar tipo de lugar para ajustar validaciones
   const tipoLugar = watch("tipo_lugar") || "";
   const esFoodDrink = tipoLugar === "Food & Drink";
+  const esHotel = tipoLugar === "Hotel";
 
   // Secciones a ocultar SIEMPRE de la lista principal
   const seccionesOcultas = [
@@ -30,7 +31,7 @@ const NuevasSeccionesCategorias = () => {
   return (
     <div className="categorias">
       <fieldset>
-        <legend>Secciones y Categorías *</legend>
+        <legend>Secciones y Categorías {esHotel ? '' : '*'}</legend>
 
         {data?.filter((seccion) => {
           const seccionName = (seccion.seccion || '').trim();
@@ -43,7 +44,10 @@ const NuevasSeccionesCategorias = () => {
 
           return (
             <div key={seccionName} className="mb-6">
-              <h3 className="font-bold text-lg mb-3">{seccionName}</h3>
+              <h3 className="font-bold text-lg mb-3">
+                {seccionName}
+                {esHotel && <span className="text-gray-400 text-sm font-normal ml-2">(opcional)</span>}
+              </h3>
 
               <div className="flex flex-wrap gap-3">
                 {seccion.categorias.map((categoria) => {
@@ -51,15 +55,16 @@ const NuevasSeccionesCategorias = () => {
 
                   // ----- RADIOS: Nivel de gasto / Tipo de comida / Experiencia
                   if (!isZona) {
-                    // Solo estas dos secciones son obligatorias
+                    // Si es Hotel, todo es opcional
+                    // Si no, solo "Nivel de gasto" es obligatorio
                     const esRequerida =
-                      seccionName === 'Nivel de gasto';
+                      !esHotel && seccionName === 'Nivel de gasto';
 
                     const rules = esRequerida
                       ? {
                         required: `Debes seleccionar una categoría para ${seccionName}`,
                       }
-                      : {}; // Experiencia = opcional
+                      : {}; // Hotel y Experiencia = opcional
 
                     return (
                       <div key={categoria.nombre} className="flex items-center">
@@ -87,23 +92,26 @@ const NuevasSeccionesCategorias = () => {
                     );
                   }
 
-                  // ----- ZONA: checkbox múltiple obligatorio -----
+                  // ----- ZONA: checkbox múltiple -----
+                  // Si es Hotel, zona es opcional; si no, es obligatorio
+                  const zonaRules = esHotel
+                    ? {}
+                    : {
+                      validate: (value) => {
+                        if (Array.isArray(value)) return value.length > 0 || 'Debes seleccionar al menos una zona';
+                        if (typeof value === 'string') return value.length > 0 || 'Debes seleccionar al menos una zona';
+                        if (value === true) return true;
+                        return 'Debes seleccionar al menos una zona';
+                      }
+                    };
+
                   return (
                     <div key={categoria.nombre} className="flex items-center">
                       <input
                         type="checkbox"
                         id={`${seccionName}-${categoria.nombre}`}
                         value={categoria.nombre}
-                        {...register(fieldName, {
-                          validate: (value) => {
-                            if (Array.isArray(value)) return value.length > 0 || 'Debes seleccionar al menos una zona';
-                            // Fallback: si RHF lo captura como string (un solo valor seleccionado)
-                            if (typeof value === 'string') return value.length > 0 || 'Debes seleccionar al menos una zona';
-                            // Si es booleano true (edge case), también es válido
-                            if (value === true) return true;
-                            return 'Debes seleccionar al menos una zona';
-                          }
-                        })}
+                        {...register(fieldName, zonaRules)}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                       />
                       <label
@@ -117,8 +125,8 @@ const NuevasSeccionesCategorias = () => {
                 })}
               </div>
 
-              {/* No mostramos errores para Experiencia */}
-              {!isExperiencia &&
+              {/* No mostramos errores para Experiencia ni cuando es Hotel */}
+              {!isExperiencia && !esHotel &&
                 errors.secciones_categorias?.[seccionName] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.secciones_categorias[seccionName].message}

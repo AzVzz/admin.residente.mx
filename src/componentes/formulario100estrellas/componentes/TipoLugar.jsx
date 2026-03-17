@@ -16,9 +16,9 @@ const TipoLugar = () => {
 
     const esFoodDrink = tipoLugar === "Food & Drink";
 
-    // Cuando cambia de Restaurante a Food & Drink o viceversa, limpiar sub_tipo
+    // Cuando cambia de tipo, limpiar sub_tipo
     useEffect(() => {
-        if (tipoLugar === "Restaurante") {
+        if (tipoLugar === "Restaurante" || tipoLugar === "Hotel") {
             setValue("sub_tipo_lugar", "");
         }
     }, [tipoLugar, setValue]);
@@ -54,6 +54,30 @@ const TipoLugar = () => {
                                 className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
                             >
                                 Restaurante
+                            </label>
+                        </div>
+
+                        {/* Opción Hotel */}
+                        <div className="flex items-center">
+                            <input
+                                type="radio"
+                                id="tipo_lugar-Hotel"
+                                value="Hotel"
+                                {...register("tipo_lugar", {
+                                    required: "Debes seleccionar un tipo de lugar"
+                                })}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                onClick={() => {
+                                    if (tipoLugar === "Hotel") {
+                                        setValue("tipo_lugar", "");
+                                    }
+                                }}
+                            />
+                            <label
+                                htmlFor="tipo_lugar-Hotel"
+                                className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
+                            >
+                                Hotel
                             </label>
                         </div>
 
