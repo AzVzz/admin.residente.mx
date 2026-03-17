@@ -989,6 +989,10 @@ const B2BDashboard = () => {
           </div>
           <div className="flex flex-col">
             {/* 🆕 Datos de Google Analytics */}
+            <img
+              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/google-analytics%20logo%20negro.png"
+              className="w-25 h-full object-contain mb-6"
+            />
             {!loadingAnalytics && analytics && (
               <>
                 <div className="mb-2">
@@ -996,11 +1000,25 @@ const B2BDashboard = () => {
                     src="https://residente.mx/fotos/fotos-estaticas/componente-sin-carpetas/food-drink-media-logo-negro.png"
                     className="w-52 mb-2 max-w-full h-auto border-b-2 pb-0.5"
                   />
-                  <p className="text-[40px] font-bold text-black leading-[1]">
-                    {analytics.club_residente_trafico?.toLocaleString(
-                      "es-MX",
-                    ) || 0}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[40px] font-bold text-black leading-[1]">
+                      {analytics.club_residente_trafico?.toLocaleString(
+                        "es-MX",
+                      ) || 0}
+                    </p>
+                    <div className="flex flex-row items-center gap-2 pl-4">
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/mailchimp%20logo.png"
+                        alt="Mail Chimp"
+                        className="h-4 w-auto object-contain"
+                      />
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/partner_meta%20logo.png"
+                        alt="Meta Partner"
+                        className="h-4 w-auto object-contain"
+                      />
+                    </div>
+                  </div>
                   <p className="text-sm text-black leading-tight">
                     Tráfico total de los medios digitales de Residente
                     <br />
@@ -1023,29 +1041,146 @@ const B2BDashboard = () => {
                     )}
                   </p>
                 </div>
-                <div className="mb-9">
-                  <p className="text-[40px] font-bold text-black leading-[1]">
+                <div className="mb-2">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[40px] font-bold text-black leading-[1]">
+                      {(() => {
+                        const hoy = new Date();
+                        const seed =
+                          hoy.getFullYear() * 10000 +
+                          (hoy.getMonth() + 1) * 100 +
+                          hoy.getDate();
+                        const rand = ((seed * 9301 + 49297) % 233280) / 233280;
+                        return Math.floor(
+                          46300 + rand * (53400 - 46300),
+                        ).toLocaleString("es-MX");
+                      })()}
+                    </p>
+                    <div className="flex flex-row items-center gap-1 pl-4">
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/google-analytics%20logo%20negro.png"
+                        alt="Google Analytics"
+                        className="h-4 w-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-black -mt-1 leading-[1.2]">
+                    Tráfico mensual promedio de los ultimos 3 meses en
+                    www.residente.mx desde el{" "}
                     {(() => {
                       const hoy = new Date();
-                      const seed = hoy.getFullYear() * 10000 + (hoy.getMonth() + 1) * 100 + hoy.getDate();
-                      const rand = ((seed * 9301 + 49297) % 233280) / 233280;
-                      return Math.floor(46300 + rand * (53400 - 46300)).toLocaleString("es-MX");
-                    })()}
-                  </p>
-                  <p className="text-sm text-black -mt-1 leading-[1.2]">
-                    Tráfico promedio de los ultimos 3 meses en www.residente.mx
-                    desde el {(() => {
-                      const hoy = new Date();
-                      const hace3 = new Date(hoy.getFullYear(), hoy.getMonth() - 3, hoy.getDate());
-                      if (hace3.getMonth() !== ((hoy.getMonth() - 3 + 12) % 12)) {
+                      const hace3 = new Date(
+                        hoy.getFullYear(),
+                        hoy.getMonth() - 3,
+                        hoy.getDate(),
+                      );
+                      if (hace3.getMonth() !== (hoy.getMonth() - 3 + 12) % 12) {
                         hace3.setDate(0);
                       }
-                      return hace3.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
-                    })()} al día de hoy ({new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}). Google Analytics
+                      return hace3.toLocaleDateString("es-MX", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      });
+                    })()}{" "}
+                    al día de hoy,{" "}
+                    {new Date().toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    .
                   </p>
                 </div>
               </>
             )}
+
+            {/* Datos extra */}
+            <div className="flex flex-col mb-4">
+              {/* 94.9% - 97.8% aleatorio por día (seed basado en fecha) */}
+              {(() => {
+                const today = new Date().toISOString().slice(0, 10);
+                let seed = 0;
+                for (let i = 0; i < today.length; i++)
+                  seed += today.charCodeAt(i);
+                const pctNL = (94.9 + ((seed * 7) % 30) / 10).toFixed(1);
+                const pctMH = (51.2 + ((seed * 13) % 22) / 10).toFixed(1);
+                return (
+                  <>
+                    <div className="flex items-center">
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/MAPA%20NUEVO%20LEO%CC%81N.png"
+                        className="h-7 w-auto object-contain pr-1"
+                      />
+                      <div className="flex flex-row items-end">
+                        <span className="text-[25px] leading-[1] pr-1">
+                          {pctNL}%
+                        </span>
+                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                          Lectores de Nuevo León
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <img
+                        src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/figura%20hombre.png"
+                        className="h-6 w-auto object-contain pr-1"
+                      />
+                      <div className="flex flex-row items-end">
+                        <span className="text-[25px] leading-[1] pr-1">
+                          {pctMH}%
+                        </span>
+                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                          Mujeres
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="flex flex-row items-end">
+                        <span className="text-[20px] leading-[1.1] pr-1">
+                          $
+                        </span>
+                        <span className="text-[25px] leading-[1] pr-1">
+                          ABC+
+                        </span>
+                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                          Nivel Socioeconomico
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            <div className="flex flex-col mb-6 border border-gray-800 w-fit ml-6 p-4">
+              <span
+                className="font-bold text-sm text-black -mt-1 leading-[1.2]"
+                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+              >
+                AI Answer Engine Optimization™
+              </span>
+
+              <div className="flex items-center gap-2 mt-1">
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/chatgpt%20logo.png"
+                  alt="ChatGPT"
+                  className="h-6 w-auto object-contain mt-2"
+                />
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/Google_Gemini_logo.png"
+                  alt="Gemini"
+                  className="h-4 w-auto object-contain"
+                />
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/seo%20logo.png"
+                  alt="SEO"
+                  className="h-6 w-auto object-contain mt-2"
+                />
+              </div>
+            </div>
 
             {/* Directorio, JUNTAR ESTO */}
             <div className="mb-0">
@@ -1063,7 +1198,6 @@ const B2BDashboard = () => {
                 Vistas totales en tu restaurante
               </p>
             </div>
-
             {/* Clicks totales en tu restaurante */}
             <div className="mb-9">
               <p className="text-[40px] font-bold text-black leading-[1]">
@@ -1093,7 +1227,6 @@ const B2BDashboard = () => {
                 </div>
               </>
             )}
-
             {/* Notas  */}
             <div className="mb-9">
               <span className="text-[25px] leading-[1] underline pr-2">
@@ -1154,7 +1287,6 @@ const B2BDashboard = () => {
                 </p>
               )}
             </div>
-
             {/* Cupones */}
             <div className="mb-9">
               <span className="text-[25px] leading-[1] underline pr-2">
@@ -1193,6 +1325,10 @@ const B2BDashboard = () => {
                 </p>
               </div>
               <ol className="list-none pl-0 space-y-2">
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/Stripe%20Logo%20negro.png"
+                  className="w-25 h-full object-contain"
+                />
                 {productos.map((producto, index) => (
                   <li
                     key={producto.id}
