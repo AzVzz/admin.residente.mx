@@ -161,9 +161,9 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     alt={nota.titulo}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                {/* "ANTOJERÍA®" en arco arriba */}
+                                {/* "ANTOJERÍA®" en arco arriba + iconos pegados */}
                                 <div className="relative z-10 pt-8">
-                                    <svg viewBox="0 0 400 100" className="w-full">
+                                    <svg viewBox="0 0 400 130" className="w-full">
                                         <defs>
                                             <path
                                                 id={`arco-categoria-${nota.id}`}
@@ -181,21 +181,32 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                                 ANTOJERÍA®
                                             </textPath>
                                         </text>
-                                    </svg>
-                                    {/* Iconos debajo del arco */}
-                                    <div className="flex justify-center mt-1">
+                                        {/* Iconos como círculos amarillos con imagen encima */}
                                         {stickersConResidente.map((clave, idxIcono) => {
                                             const icono = iconosNegros.find(i => i.clave === clave);
-                                            return icono ? (
-                                                <img
-                                                    key={clave}
-                                                    src={icono.icono}
-                                                    alt={icono.nombre}
-                                                    className={`h-8 w-8 rounded-full bg-[#FFF200] ${idxIcono > 0 ? "ml-1" : ""}`}
-                                                />
-                                            ) : null;
+                                            if (!icono) return null;
+                                            const totalIconos = stickersConResidente.filter(c => iconosNegros.find(i => i.clave === c)).length;
+                                            const iconSize = 28;
+                                            const gap = 4;
+                                            const totalWidth = totalIconos * iconSize + (totalIconos - 1) * gap;
+                                            const startX = 200 - totalWidth / 2;
+                                            const cx = startX + idxIcono * (iconSize + gap) + iconSize / 2;
+                                            const cy = 108;
+                                            return (
+                                                <g key={clave}>
+                                                    <circle cx={cx} cy={cy} r={iconSize / 2} fill="#FFF200" />
+                                                    <image
+                                                        href={icono.icono}
+                                                        x={cx - iconSize / 2}
+                                                        y={cy - iconSize / 2}
+                                                        width={iconSize}
+                                                        height={iconSize}
+                                                        clipPath={`circle(${iconSize / 2}px at center)`}
+                                                    />
+                                                </g>
+                                            );
                                         })}
-                                    </div>
+                                    </svg>
                                 </div>
                                 {/* Título abajo normal */}
                                 <div className="absolute bottom-20 left-0 right-0 z-10 px-6 text-center">
