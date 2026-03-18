@@ -63,7 +63,10 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                         const stickersConResidente = ["residente", ...stickers];
                         const colorTarjeta = colores[idx % colores.length];
                         const colorTexto = coloresTexto[idx % coloresTexto.length];
-                        return (
+
+                        // idx 0 → Cultura Restaurantera, idx 1 → Food & Drink, idx 2 → Antojería
+                        if (idx === 0) return (
+                            /* Diseño CULTURA RESTAURANTERA */
                             <div
                                 key={nota.id}
                                 className={`relative flex flex-col items-center justify-end nota-card mb-8 pt-10 pb-10 px-10 w-[400px] h-[658px] overflow-hidden ${colorTarjeta}`}
@@ -71,12 +74,10 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                             >
                                 {/* Línea negra superpuesta */}
                                 <div className="absolute right-0 bottom-[90px] w-[55%] h-[45px] bg-[#111] rounded-tl-[50px] rounded-bl-[50px]" />
-                                {/* Stickers arriba del recuadro negro, alineados al centro */}
+                                {/* Stickers */}
                                 <div className="w-full flex justify-start mb-1.5">
-                                    {(idx === 1 ? stickersConResidente : stickersConResidente).map((clave, idxIcono) => {
-                                        const icono = idx === 1 
-                                        ? iconosDisponibles.find(i => i.clave === clave)
-                                        : iconosNegros.find(i => i.clave === clave);
+                                    {stickersConResidente.map((clave, idxIcono) => {
+                                        const icono = iconosNegros.find(i => i.clave === clave);
                                         return icono ? (
                                             <img
                                                 key={clave}
@@ -103,6 +104,115 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
+                            </div>
+                        );
+
+                        if (idx === 1) return (
+                            /* Diseño FOOD & DRINK (tipo story) */
+                            <div
+                                key={nota.id}
+                                data-slug={nota.slug}
+                                className="relative nota-card mb-8 w-[400px] h-[658px] overflow-hidden"
+                            >
+                                <img
+                                    src={nota.imagen}
+                                    alt={nota.titulo}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                                {/* Contenido superior */}
+                                <div className="relative z-10 flex flex-col items-center pt-10 px-6 text-center">
+                                    {/* Iconos */}
+                                    <div className="flex justify-center mb-3">
+                                        {stickersConResidente.map((clave, idxIcono) => {
+                                            const icono = iconosNegros.find(i => i.clave === clave);
+                                            return icono ? (
+                                                <img
+                                                    key={clave}
+                                                    src={icono.icono}
+                                                    alt={icono.nombre}
+                                                    className={`h-8 w-8 rounded-full bg-white ${idxIcono > 0 ? "ml-1" : ""}`}
+                                                />
+                                            ) : null;
+                                        })}
+                                    </div>
+                                    {/* Categoría grande */}
+                                    <div className="text-white font-bold text-[28px] leading-tight mb-3">
+                                        Food&amp;Drink®
+                                    </div>
+                                    {/* Título */}
+                                    <div className="text-white text-[18px] leading-6 font-normal">
+                                        {nota.titulo}
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[55%] h-[40px] bg-black rounded-full" />
+                            </div>
+                        );
+
+                        // idx === 2
+                        return (
+                            /* Diseño ANTOJERÍA (tipo story, texto amarillo) */
+                            <div
+                                key={nota.id}
+                                data-slug={nota.slug}
+                                className="relative nota-card mb-8 w-[400px] h-[658px] overflow-hidden"
+                            >
+                                <img
+                                    src={nota.imagen}
+                                    alt={nota.titulo}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                                {/* "ANTOJERÍA®" en arco arriba + iconos pegados */}
+                                <div className="relative z-10 pt-8">
+                                    <svg viewBox="0 0 400 130" className="w-full">
+                                        <defs>
+                                            <path
+                                                id={`arco-categoria-${nota.id}`}
+                                                d="M 30,90 Q 200,10 370,90"
+                                            />
+                                        </defs>
+                                        <text
+                                            fill="#FFF200"
+                                            fontSize="42"
+                                            fontWeight="bold"
+                                            textAnchor="middle"
+                                            fontFamily="inherit"
+                                        >
+                                            <textPath href={`#arco-categoria-${nota.id}`} startOffset="50%">
+                                                ANTOJERÍA®
+                                            </textPath>
+                                        </text>
+                                        {/* Iconos como círculos amarillos con imagen encima */}
+                                        {stickersConResidente.map((clave, idxIcono) => {
+                                            const icono = iconosNegros.find(i => i.clave === clave);
+                                            if (!icono) return null;
+                                            const totalIconos = stickersConResidente.filter(c => iconosNegros.find(i => i.clave === c)).length;
+                                            const iconSize = 28;
+                                            const gap = 4;
+                                            const totalWidth = totalIconos * iconSize + (totalIconos - 1) * gap;
+                                            const startX = 200 - totalWidth / 2;
+                                            const cx = startX + idxIcono * (iconSize + gap) + iconSize / 2;
+                                            const cy = 85;
+                                            return (
+                                                <g key={clave}>
+                                                    <image
+                                                        href={icono.icono}
+                                                        x={cx - iconSize / 2}
+                                                        y={cy - iconSize / 2}
+                                                        width={iconSize}
+                                                        height={iconSize}
+                                                    />
+                                                </g>
+                                            );
+                                        })}
+                                    </svg>
+                                </div>
+                                {/* Título abajo normal */}
+                                <div className="absolute bottom-20 left-0 right-0 z-10 px-6 text-center">
+                                    <div className="text-[#FFF200] font-bold text-[22px] leading-7">
+                                        {nota.titulo}
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[55%] h-[40px] bg-black rounded-full" />
                             </div>
                         );
                     })}

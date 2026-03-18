@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { imgApi, urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import CancelSubscriptionButton from "./CancelSubscriptionButton";
-import { cuponesGetActivos } from "../../api/cuponesGet";
+import { cuponesGetStatsB2B } from "../../api/cuponesGet";
 import axios from "axios";
 // import FormularioBanner from "./FormularioBanner";
 
@@ -592,32 +592,27 @@ const B2BDashboard = () => {
     obtenerSuscripcion();
   }, [b2bId]);
 
-  // Obtener el cupón del usuario
+  // Obtener stats de cupones — carga inicial + polling cada 30s
   useEffect(() => {
+    if (!usuario || !token) return;
+
     const fetchCupones = async () => {
-      setLoadingCupon(true);
       try {
-        const response = await fetch(`${urlApi}api/tickets/activos`);
-        if (response.ok) {
-          const cuponesActivos = await response.json();
-          const misCupones = cuponesActivos.filter(
-            (c) => c.user_id === usuario.id,
-          );
-          setCupones(misCupones);
-          setCupon(misCupones[0] || null);
-        } else {
-          setCupones([]);
-          setCupon(null);
-        }
-      } catch (err) {
-        setCupones([]);
-        setCupon(null);
+        const data = await cuponesGetStatsB2B(token);
+        setCupones(data.cupones || []);
+        setCupon((data.cupones || [])[0] || null);
+      } catch {
+        // silencioso en polling
       } finally {
         setLoadingCupon(false);
       }
     };
-    if (usuario) fetchCupones();
-  }, [usuario]);
+
+    setLoadingCupon(true);
+    fetchCupones();
+    const interval = setInterval(fetchCupones, 30_000);
+    return () => clearInterval(interval);
+  }, [usuario, token]);
 
   // Obtener stats de notas del usuario
   useEffect(() => {
@@ -1410,13 +1405,13 @@ const B2BDashboard = () => {
               </span>
               <span>{restaurante?.nombre_restaurante}</span>
               {loadingCupon ? (
-                <div>Cargando cupón...</div>
-              ) : cupon ? (
+                <div>Cargando cupones...</div>
+              ) : cupones.length > 0 ? (
                 <>
                   <div>
                     <div className="flex items-start gap-1">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupon.vistas?.toLocaleString("es-MX") || 0}
+                        {cupones.reduce((s, c) => s + (c.views || 0), 0).toLocaleString("es-MX")}
                       </p>
                       <span
                         className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
@@ -1433,13 +1428,13 @@ const B2BDashboard = () => {
                     </div>
                     {/* tooltip cupon-vistas se renderiza como overlay */}
                     <p className="text-sm text-black">
-                      Vistas totales de tu cupón
+                      Vistas totales de tus cupones
                     </p>
                   </div>
                   <div>
                     <div className="flex items-start gap-1">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupon.clicks?.toLocaleString("es-MX") || 0}
+                        {cupones.reduce((s, c) => s + (c.clicks || 0), 0).toLocaleString("es-MX")}
                       </p>
                       <span
                         className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
@@ -1456,12 +1451,42 @@ const B2BDashboard = () => {
                     </div>
                     {/* tooltip cupon-clicks se renderiza como overlay */}
                     <p className="text-sm text-black">
-                      Clicks totales de tu cupón
+                      Clicks totales de tus cupones
                     </p>
+                  </div>
+                  {/* Tabla por cupón */}
+                  <div className="overflow-x-auto mt-3">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-300">
+                          <th className="text-left py-1 pr-3 font-semibold">Cupón</th>
+                          <th className="text-center py-1 px-2 font-semibold">Vistas</th>
+                          <th className="text-center py-1 px-2 font-semibold">Clicks</th>
+                          <th className="text-center py-1 px-2 font-semibold">Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cupones.map((c) => (
+                          <tr key={c.id} className="border-b border-gray-100">
+                            <td className="py-1 pr-3 max-w-[140px] truncate">
+                              {c.es_promovido && <span className="text-yellow-600 mr-1">★</span>}
+                              {c.titulo}
+                            </td>
+                            <td className="text-center py-1 px-2">{(c.views || 0).toLocaleString("es-MX")}</td>
+                            <td className="text-center py-1 px-2">{(c.clicks || 0).toLocaleString("es-MX")}</td>
+                            <td className="text-center py-1 px-2">
+                              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${c.activo_manual ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                {c.activo_manual ? "Activo" : "Inactivo"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </>
               ) : (
-                <div>No tienes cupones activos.</div>
+                <div className="text-gray-400 text-sm mt-2">No tienes cupones registrados.</div>
               )}
             </div>
           </div>
