@@ -177,17 +177,34 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                                     key={clave}
                                                     src={icono.icono}
                                                     alt={icono.nombre}
-                                                    className={`h-8 w-8 rounded-full bg-[#FFF200] ${idxIcono > 0 ? "ml-1" : ""}`}
+                                                    style={{ filter: "brightness(0) saturate(100%) invert(94%) sepia(94%) saturate(1500%) hue-rotate(10deg) brightness(103%)" }}
+                                                    className={`h-8 w-8 rounded-full ${idxIcono > 0 ? "ml-1" : ""}`}
                                                 />
                                             ) : null;
                                         })}
                                     </div>
                                 </div>
-                                {/* Título abajo */}
-                                <div className="absolute bottom-20 left-0 right-0 z-10 px-6 text-center">
-                                    <div className="text-[#FFF200] font-bold text-[22px] leading-7">
-                                        {nota.titulo}
-                                    </div>
+                                {/* Título abajo en arco */}
+                                <div className="absolute bottom-14 left-0 right-0 z-10">
+                                    <svg viewBox="0 0 400 90" className="w-full">
+                                        <defs>
+                                            <path
+                                                id={`arco-${nota.id}`}
+                                                d="M 30,80 Q 200,10 370,80"
+                                            />
+                                        </defs>
+                                        <text
+                                            fill="#FFF200"
+                                            fontSize="20"
+                                            fontWeight="bold"
+                                            textAnchor="middle"
+                                            fontFamily="inherit"
+                                        >
+                                            <textPath href={`#arco-${nota.id}`} startOffset="50%">
+                                                {nota.titulo}
+                                            </textPath>
+                                        </text>
+                                    </svg>
                                 </div>
                                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[55%] h-[40px] bg-black rounded-full" />
                             </div>
