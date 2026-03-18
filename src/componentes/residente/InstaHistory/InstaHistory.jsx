@@ -191,7 +191,7 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                             const totalWidth = totalIconos * iconSize + (totalIconos - 1) * gap;
                                             const startX = 200 - totalWidth / 2;
                                             const cx = startX + idxIcono * (iconSize + gap) + iconSize / 2;
-                                            const cy = 108;
+                                            const cy = 85;
                                             return (
                                                 <g key={clave}>
                                                     <circle cx={cx} cy={cy} r={iconSize / 2} fill="#FFF200" />
