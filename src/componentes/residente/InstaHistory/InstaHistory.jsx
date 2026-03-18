@@ -194,14 +194,12 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                             const cy = 85;
                                             return (
                                                 <g key={clave}>
-                                                    <circle cx={cx} cy={cy} r={iconSize / 2} fill="#FFF200" />
                                                     <image
                                                         href={icono.icono}
                                                         x={cx - iconSize / 2}
                                                         y={cy - iconSize / 2}
                                                         width={iconSize}
                                                         height={iconSize}
-                                                        clipPath={`circle(${iconSize / 2}px at center)`}
                                                     />
                                                 </g>
                                             );
