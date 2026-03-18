@@ -20,12 +20,45 @@ export async function cuponesGetFiltrados(seccion, categoria) {
     return await response.json();
 }
 
-export async function cuponesGetTodas(token) {
-    const response = await fetch(`${urlApi}api/tickets/todas`, {
+export async function cuponesGetTodas(token, { sortBy, sortOrder, estado, page, limit } = {}) {
+    const params = new URLSearchParams();
+    if (sortBy) params.append('sortBy', sortBy);
+    if (sortOrder) params.append('sortOrder', sortOrder);
+    if (estado) params.append('estado', estado);
+    if (page) params.append('page', page);
+    if (limit) params.append('limit', limit);
+
+    const response = await fetch(`${urlApi}api/tickets/todas?${params}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!response.ok) {
         throw new Error('Error al obtener todos los cupones');
+    }
+    return await response.json(); // { cupones, total, page, limit }
+}
+
+export async function cuponesGetStatsB2B(token) {
+    const response = await fetch(`${urlApi}api/tickets/stats-b2b`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+        throw new Error('Error al obtener estadísticas de cupones');
+    }
+    return await response.json();
+}
+
+export async function cuponAsignar(id, { restaurante_id, user_id } = {}, token) {
+    const response = await fetch(`${urlApi}api/tickets/${id}/asignar-usuario`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({ restaurante_id, user_id }),
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Error al asignar cupón');
     }
     return await response.json();
 }
