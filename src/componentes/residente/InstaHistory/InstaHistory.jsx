@@ -119,25 +119,29 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     alt={nota.titulo}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10" />
-                                <div className="relative z-10 w-full flex justify-center mt-6 mb-4">
-                                    {stickersConResidente.map((clave, idxIcono) => {
-                                        const icono = iconosNegros.find(i => i.clave === clave);
-                                        return icono ? (
-                                            <img
-                                                key={clave}
-                                                src={icono.icono}
-                                                alt={icono.nombre}
-                                                className={`h-8 w-8 rounded-full bg-white ${idxIcono > 0 ? "ml-1" : ""}`}
-                                            />
-                                        ) : null;
-                                    })}
-                                </div>
-                                <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 pb-20 text-center">
-                                    <div className="text-white font-semibold tracking-[0.08em] uppercase text-sm mb-3">
-                                        {categoria}
+                                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent" />
+                                {/* Contenido superior */}
+                                <div className="relative z-10 flex flex-col items-center pt-10 px-6 text-center">
+                                    {/* Iconos */}
+                                    <div className="flex justify-center mb-3">
+                                        {stickersConResidente.map((clave, idxIcono) => {
+                                            const icono = iconosNegros.find(i => i.clave === clave);
+                                            return icono ? (
+                                                <img
+                                                    key={clave}
+                                                    src={icono.icono}
+                                                    alt={icono.nombre}
+                                                    className={`h-8 w-8 rounded-full bg-white ${idxIcono > 0 ? "ml-1" : ""}`}
+                                                />
+                                            ) : null;
+                                        })}
                                     </div>
-                                    <div className="text-white text-[20px] leading-7">
+                                    {/* Categoría grande */}
+                                    <div className="text-white font-bold text-[28px] leading-tight mb-3">
+                                        Food&amp;Drink®
+                                    </div>
+                                    {/* Título */}
+                                    <div className="text-white text-[18px] leading-6 font-normal">
                                         {nota.titulo}
                                     </div>
                                 </div>
@@ -158,25 +162,30 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     alt={nota.titulo}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10" />
-                                <div className="relative z-10 w-full flex justify-center mt-6 mb-4">
-                                    {stickersConResidente.map((clave, idxIcono) => {
-                                        const icono = iconosNegros.find(i => i.clave === clave);
-                                        return icono ? (
-                                            <img
-                                                key={clave}
-                                                src={icono.icono}
-                                                alt={icono.nombre}
-                                                className={`h-8 w-8 rounded-full bg-[#FFF200] ${idxIcono > 0 ? "ml-1" : ""}`}
-                                            />
-                                        ) : null;
-                                    })}
-                                </div>
-                                <div className="relative z-10 flex flex-col items-center justify-end h-full px-6 pb-24 text-center">
-                                    <div className="text-[#FFF200] font-semibold tracking-[0.08em] uppercase text-sm mb-3">
-                                        {categoria}
+                                <div className="absolute inset-0 bg-black/40" />
+                                {/* "ANTOJERÍA®" grande arriba */}
+                                <div className="relative z-10 pt-10 px-6 text-center">
+                                    <div className="text-[#FFF200] font-bold text-[42px] leading-none tracking-tight">
+                                        ANTOJERÍA®
                                     </div>
-                                    <div className="text-[#FFF200] text-[20px] leading-7">
+                                    {/* Iconos debajo del título */}
+                                    <div className="flex justify-center mt-3">
+                                        {stickersConResidente.map((clave, idxIcono) => {
+                                            const icono = iconosNegros.find(i => i.clave === clave);
+                                            return icono ? (
+                                                <img
+                                                    key={clave}
+                                                    src={icono.icono}
+                                                    alt={icono.nombre}
+                                                    className={`h-8 w-8 rounded-full bg-[#FFF200] ${idxIcono > 0 ? "ml-1" : ""}`}
+                                                />
+                                            ) : null;
+                                        })}
+                                    </div>
+                                </div>
+                                {/* Título abajo */}
+                                <div className="absolute bottom-20 left-0 right-0 z-10 px-6 text-center">
+                                    <div className="text-[#FFF200] font-bold text-[22px] leading-7">
                                         {nota.titulo}
                                     </div>
                                 </div>
