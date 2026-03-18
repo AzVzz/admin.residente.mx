@@ -119,7 +119,6 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     alt={nota.titulo}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent" />
                                 {/* Contenido superior */}
                                 <div className="relative z-10 flex flex-col items-center pt-10 px-6 text-center">
                                     {/* Iconos */}
@@ -162,7 +161,6 @@ const InstaHistory = ({ posts, filtrarPostsPorTipoNota, handleCardClick }) => {
                                     alt={nota.titulo}
                                     className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40" />
                                 {/* "ANTOJERÍA®" en arco arriba */}
                                 <div className="relative z-10 pt-8">
                                     <svg viewBox="0 0 400 100" className="w-full">
