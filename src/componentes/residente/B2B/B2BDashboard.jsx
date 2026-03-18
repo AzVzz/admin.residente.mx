@@ -14,6 +14,23 @@ import { BENEFICIOS_INFO } from "./beneficiosConfig";
 
 const B2BDashboard = () => {
   const [showModal, setShowModal] = useState(false);
+  const [openTooltip, setOpenTooltip] = useState(null);
+
+  useEffect(() => {
+    if (openTooltip) {
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [openTooltip]);
   const [b2bId, setB2bId] = useState(null);
   const [loadingB2bId, setLoadingB2bId] = useState(true);
   const [subscriptionData, setSubscriptionData] = useState(null);
@@ -1116,7 +1133,7 @@ const B2BDashboard = () => {
                         <span className="text-[25px] leading-[1] pr-1">
                           {pctNL}%
                         </span>
-                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                        <span className="text-sm text-black -mt-1 leading-[1.2] mb-0.5">
                           Lectores de Nuevo León
                         </span>
                       </div>
@@ -1131,7 +1148,7 @@ const B2BDashboard = () => {
                         <span className="text-[25px] leading-[1] pr-1">
                           {pctMH}%
                         </span>
-                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                        <span className="text-sm text-black -mt-1 leading-[1.2] mb-0.5">
                           Mujeres
                         </span>
                       </div>
@@ -1145,8 +1162,53 @@ const B2BDashboard = () => {
                         <span className="text-[25px] leading-[1] pr-1">
                           ABC+
                         </span>
-                        <span className="text-sm text-black -mt-1 leading-[1.2]">
+                        <span className="text-sm text-black -mt-1 leading-[1.2] mb-0.5">
                           Nivel Socioeconomico
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="flex flex-row items-end">
+                        <svg
+                          className="h-4 w-auto pr-1 self-center"
+                          viewBox="0 0 24 24"
+                          fill="black"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="black"
+                            strokeWidth="3"
+                            fill="none"
+                          />
+                          <line
+                            x1="12"
+                            y1="12"
+                            x2="12"
+                            y2="6"
+                            stroke="black"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="12"
+                            y1="12"
+                            x2="16"
+                            y2="12"
+                            stroke="black"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        {/* %78.3 - %82.6 aleatorio por día */}
+                        <span className="text-[25px] leading-[1] pr-1">
+                          {(78.3 + ((seed * 17) % 44) / 10).toFixed(1)}%
+                        </span>
+                        <span className="text-sm text-black -mt-1 leading-[1.2] mb-0.5">
+                          Entre 25 y 55 años de edad
                         </span>
                       </div>
                     </div>
@@ -1189,20 +1251,46 @@ const B2BDashboard = () => {
               </span>
               <span>{restaurante?.nombre_restaurante}</span>
 
-              <p className="text-[40px] font-bold text-black leading-[1]">
-                {(
-                  (restaurante?.views || 0) + (cupon?.views || 0)
-                ).toLocaleString("es-MX")}
-              </p>
+              <div className="flex items-start gap-1">
+                <p className="text-[40px] font-bold text-black leading-[1]">
+                  {(
+                    (restaurante?.views || 0) + (cupon?.views || 0)
+                  ).toLocaleString("es-MX")}
+                </p>
+                <span
+                  className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                  onClick={() =>
+                    setOpenTooltip(
+                      openTooltip === "dir-vistas" ? null : "dir-vistas",
+                    )
+                  }
+                >
+                  ?
+                </span>
+              </div>
+              {/* tooltip dir-vistas se renderiza como overlay */}
               <p className="text-sm text-black -mt-1">
                 Vistas totales en tu restaurante
               </p>
             </div>
             {/* Clicks totales en tu restaurante */}
             <div className="mb-9">
-              <p className="text-[40px] font-bold text-black leading-[1]">
-                {restaurante?.clicks?.toLocaleString("es-MX") || 0}
-              </p>
+              <div className="flex items-start gap-1">
+                <p className="text-[40px] font-bold text-black leading-[1]">
+                  {restaurante?.clicks?.toLocaleString("es-MX") || 0}
+                </p>
+                <span
+                  className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                  onClick={() =>
+                    setOpenTooltip(
+                      openTooltip === "dir-clicks" ? null : "dir-clicks",
+                    )
+                  }
+                >
+                  ?
+                </span>
+              </div>
+              {/* tooltip dir-clicks se renderiza como overlay */}
               <p className="text-sm text-black -mt-1">
                 Clicks totales en tu restaurante
               </p>
@@ -1239,17 +1327,45 @@ const B2BDashboard = () => {
               </span>
               {/* Suma total de vistas de notas */}
               <div className="leading-tight mb-1">
-                <p className="text-[40px] font-bold text-black leading-[1]">
-                  {notasRestaurante?.total_vistas?.toLocaleString("es-MX") || 0}
-                </p>
+                <div className="flex items-start gap-1">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
+                    {notasRestaurante?.total_vistas?.toLocaleString("es-MX") ||
+                      0}
+                  </p>
+                  <span
+                    className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                    onClick={() =>
+                      setOpenTooltip(
+                        openTooltip === "notas-vistas" ? null : "notas-vistas",
+                      )
+                    }
+                  >
+                    ?
+                  </span>
+                </div>
+                {/* tooltip notas-vistas se renderiza como overlay */}
                 <p className="text-sm text-black -mt-1">
                   Suma de vistas de notas etiquetadas
                 </p>
               </div>
               <div className="leading-tight mb-2">
-                <p className="text-[40px] font-bold text-black leading-[1]">
-                  {notasRestaurante?.total_clicks?.toLocaleString("es-MX") || 0}
-                </p>
+                <div className="flex items-start gap-1">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
+                    {notasRestaurante?.total_clicks?.toLocaleString("es-MX") ||
+                      0}
+                  </p>
+                  <span
+                    className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                    onClick={() =>
+                      setOpenTooltip(
+                        openTooltip === "notas-clicks" ? null : "notas-clicks",
+                      )
+                    }
+                  >
+                    ?
+                  </span>
+                </div>
+                {/* tooltip notas-clicks se renderiza como overlay */}
                 <p className="text-sm text-black -mt-1">
                   Suma de clicks de notas etiquetadas
                 </p>
@@ -1298,9 +1414,47 @@ const B2BDashboard = () => {
               ) : cupon ? (
                 <>
                   <div>
-                    <p className="text-[40px] font-bold text-black leading-[1]">
-                      {cupon.clicks?.toLocaleString("es-MX") || 0}
+                    <div className="flex items-start gap-1">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {cupon.vistas?.toLocaleString("es-MX") || 0}
+                      </p>
+                      <span
+                        className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                        onClick={() =>
+                          setOpenTooltip(
+                            openTooltip === "cupon-vistas"
+                              ? null
+                              : "cupon-vistas",
+                          )
+                        }
+                      >
+                        ?
+                      </span>
+                    </div>
+                    {/* tooltip cupon-vistas se renderiza como overlay */}
+                    <p className="text-sm text-black">
+                      Vistas totales de tu cupón
                     </p>
+                  </div>
+                  <div>
+                    <div className="flex items-start gap-1">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {cupon.clicks?.toLocaleString("es-MX") || 0}
+                      </p>
+                      <span
+                        className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
+                        onClick={() =>
+                          setOpenTooltip(
+                            openTooltip === "cupon-clicks"
+                              ? null
+                              : "cupon-clicks",
+                          )
+                        }
+                      >
+                        ?
+                      </span>
+                    </div>
+                    {/* tooltip cupon-clicks se renderiza como overlay */}
                     <p className="text-sm text-black">
                       Clicks totales de tu cupón
                     </p>
@@ -1326,8 +1480,8 @@ const B2BDashboard = () => {
               </div>
               <ol className="list-none pl-0 space-y-2">
                 <img
-                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/Stripe%20Logo%20negro.png"
-                  className="w-25 h-full object-contain"
+                  src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/stripe%20tarjetas.png"
+                  className="w-38 h-full object-contain"
                 />
                 {productos.map((producto, index) => (
                   <li
@@ -1466,7 +1620,7 @@ const B2BDashboard = () => {
           </div>
         </div>
       </div>
-      {/* 📢 Sección de Anuncios B2B */}
+      {/* Sección de Anuncios B2B */}
       <div className="max-w-[1080px] mx-auto mt-8 px-4 mb-8">
         <h2 className="text-6xl font-bold text-black mb-4 text-center tracking-tighter">
           Centro de mensajes
@@ -1600,6 +1754,104 @@ const B2BDashboard = () => {
           </div>,
           document.body,
         )}
+      {/* Overlay de tooltips */}
+      {openTooltip && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[9998] flex items-center justify-center p-4 overflow-hidden"
+          onClick={() => setOpenTooltip(null)}
+        >
+          <div
+            className="relative bg-white rounded-lg px-6 py-5 w-full max-w-[600px] z-[9999] leading-relaxed text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-4 text-2xl leading-none hover:opacity-70"
+              onClick={() => setOpenTooltip(null)}
+            >
+              &times;
+            </button>
+            {["dir-vistas", "notas-vistas", "cupon-vistas"].includes(
+              openTooltip,
+            ) && (
+              <>
+                <img src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png" alt="Club Residente" className="h-10 mx-auto mb-2" />
+                <p className="font-bold mb-1 text-lg">
+                  Este número representa tu Presencia de Marca.
+                </p>
+                <p className="font-roman mb-2 leading-[1.1]">
+                  La presencia de marca es la huella que tu negocio deja en la
+                  mente de las personas antes de que estén listas para comprar.
+                  <br />
+                  Los principales beneficios son:
+                </p>
+                <div className="space-y-1 mt-2">
+                  {[
+                    {
+                      titulo: "Fidelidad del cliente",
+                      desc: "Los consumidores prefieren marcas que ya conocen.",
+                    },
+                    {
+                      titulo: "Poder de fijación de precios",
+                      desc: "Una marca reconocida justifica cobrar más.",
+                    },
+                    {
+                      titulo: "Diferenciación competitiva",
+                      desc: "Te distingue de competidores con productos similares.",
+                    },
+                    {
+                      titulo: "Confianza y credibilidad",
+                      desc: "Genera percepción de solidez y trayectoria.",
+                    },
+                    {
+                      titulo: "Reducción del costo de adquisición",
+                      desc: "Es más fácil convertir a alguien que ya te conoce.",
+                    },
+                    {
+                      titulo: "Recomendación orgánica",
+                      desc: "Las marcas visibles se comparten y recomiendan más.",
+                    },
+                    {
+                      titulo: "Posicionamiento en el top of mind",
+                      desc: "Eres la primera opción cuando surge la necesidad.",
+                    },
+                    {
+                      titulo: "Efecto acumulativo",
+                      desc: "Cada impresión suma y refuerza las anteriores.",
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="flex flex-col leading-[1]">
+                      <strong className="text-xl">
+                        {i + 1}. {item.titulo}
+                      </strong>
+                      <span className="font-roman">{item.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {["dir-clicks", "notas-clicks", "cupon-clicks"].includes(
+              openTooltip,
+            ) && (
+              <>
+                <img src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png" alt="Club Residente" className="h-10 mx-auto mb-2" />
+                <p className="font-bold mb-1 text-2xl">Intención de Compra</p>
+                <p className="font-roman mb-2">
+                  Este número representa la Intención de Compra generada por tu
+                  anuncio.
+                </p>
+                <p className="font-roman leading-[1.1]">
+                  Cuando un usuario hace clic en tu publicidad, da una señal
+                  activa de interés. Plataformas como Google y Meta miden este
+                  comportamiento como un indicador de intención comercial: el
+                  usuario no solo vio tu mensaje, sino que decidió actuar. Este
+                  dato te permite saber cuántas personas pasaron de la
+                  exposición pasiva a un interés real y medible en tu negocio.
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
