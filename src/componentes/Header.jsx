@@ -105,6 +105,18 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
                 </Link>
               )}
 
+              {/* Registro B2B: solo residente con permisos "todos" o vendedor */}
+              {((usuario.rol === "residente" && usuario.permisos === "todos") ||
+                (usuario.rol === "vendedor" && usuario.permisos === "vendedor")) && (
+                <a
+                  href="/admin/registrob2b"
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Registro B2B
+                </a>
+              )}
+
               {/* Opción: Cerrar sesión */}
               <button
                 onClick={handleLogout}
@@ -121,13 +133,6 @@ const ProfileMenu = ({ fondoOscuro = false }) => {
                 onClick={() => setIsOpen(false)}
               >
                 Inicia sesión
-              </a>
-              <a
-                href="/admin/registrob2b"
-                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
-              >
-                Registro B2B
               </a>
               <a
                 href="/admin/registroinvitados"

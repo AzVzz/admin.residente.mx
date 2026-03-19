@@ -389,6 +389,24 @@ const SelectorPlanesB2B = ({
   const [nombreOtro, setNombreOtro] = useState("");
   const [clienteDuplicado, setClienteDuplicado] = useState(null); // cliente que ya existe
 
+  // Anuncios para sellers
+  const [anunciosSeller, setAnunciosSeller] = useState([]);
+
+  useEffect(() => {
+    if (!esSeller) return;
+    const fetchAnunciosSeller = async () => {
+      try {
+        const res = await fetch(`${urlApi}api/anuncios-b2b/seller`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setAnunciosSeller(data.filter((a) => a.activo));
+      } catch {
+        // silencioso
+      }
+    };
+    fetchAnunciosSeller();
+  }, [esSeller]);
+
   // Ref para hacer scroll a los planes
   const planesRef = useRef(null);
 
@@ -653,7 +671,6 @@ const SelectorPlanesB2B = ({
           animation: fadeIn 0.3s ease-in-out;
         }
       `}</style>
-
       {/* Header */}
       <div className="text-center mb-10">
         {/* Dropdown de Clientes Vetados con botón - solo para sellers */}
@@ -822,13 +839,45 @@ const SelectorPlanesB2B = ({
             preload="metadata"
           >
             <source
-              src="https://residente.mx/fotos/videos/7FORMAS.mp4#t=1"
+              src="https://residente.mx/fotos/videos/7FORMAS.mp4"
               type="video/mp4"
             />
             Tu navegador no soporta la reproducción de video.
           </video>
         </div>
       </div>
+
+      {/* Anuncios para sellers */}
+      {esSeller && anunciosSeller.length > 0 && (
+        <div className="max-w-2xl mx-auto mb-6 space-y-3">
+          {anunciosSeller.map((anuncio) => (
+            <div key={anuncio.id} className="bg-white rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-gray-500">
+                  {new Date(
+                    anuncio.created_at || anuncio.createdAt,
+                  ).toLocaleDateString("es-MX", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-black leading-[1]">
+                {anuncio.titulo}
+              </h3>
+              <p className="text-lg text-gray-700 mt-1 leading-[1]">
+                {anuncio.contenido}
+              </p>
+              {anuncio.fecha_fin && (
+                <p className="text-xs text-gray-400 mt-2">
+                  Válido hasta el {new Date(anuncio.fecha_fin).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Cards de planes - 3 tarjetas: 1, 3 y 5+ sucursales */}
       {/* Sellers: toggle con botón "Nuevo Cliente". Clientes: siempre visibles */}
@@ -860,7 +909,6 @@ const SelectorPlanesB2B = ({
           </div>
         )}
       </div>
-
       {/* Modal del PDF */}
       <ModalPDF
         isOpen={isModalOpen}

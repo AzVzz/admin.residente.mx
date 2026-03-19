@@ -6,6 +6,11 @@ const TIPOS = [
   { value: "promo", label: "Promo", color: "bg-yellow-100 text-yellow-700" },
   { value: "alerta", label: "Alerta", color: "bg-red-100 text-red-700" },
   { value: "novedad", label: "Novedad", color: "bg-blue-100 text-blue-700" },
+  {
+    value: "seller",
+    label: "Vendedores",
+    color: "bg-purple-100 text-purple-700",
+  },
 ];
 
 const GestionAnunciosB2B = ({ usuarios = [] }) => {
@@ -18,6 +23,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
   const [tipo, setTipo] = useState("info");
   const [destinatarioMode, setDestinatarioMode] = useState("todos"); // "todos" | "especificos"
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [fechaFin, setFechaFin] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -43,6 +49,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
     setTitulo("");
     setContenido("");
     setTipo("info");
+    setFechaFin("");
     setDestinatarioMode("todos");
     setSelectedUsers([]);
     setEditingId(null);
@@ -52,6 +59,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
     setTitulo(anuncio.titulo);
     setContenido(anuncio.contenido);
     setTipo(anuncio.tipo);
+    setFechaFin(anuncio.fecha_fin ? anuncio.fecha_fin.slice(0, 10) : "");
     if (anuncio.destinatarios && Array.isArray(anuncio.destinatarios)) {
       setDestinatarioMode("especificos");
       setSelectedUsers(anuncio.destinatarios);
@@ -72,6 +80,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
         titulo: titulo.trim(),
         contenido: contenido.trim(),
         tipo,
+        fecha_fin: fechaFin || null,
         destinatarios:
           destinatarioMode === "especificos" && selectedUsers.length > 0
             ? selectedUsers
@@ -138,9 +147,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
 
   return (
     <div className="p-4 h-full flex flex-col">
-      <h3 className="text-lg font-semibold text-gray-700 mb-3">
-        Anuncios B2B
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-3">Anuncios B2B</h3>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit} className="space-y-2 mb-4">
@@ -160,7 +167,7 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
           className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-indigo-500 resize-none"
           required
         />
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col gap-2 items-start">
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
@@ -173,16 +180,35 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
             ))}
           </select>
           <select
-            value={destinatarioMode}
+            value={tipo === "seller" ? "todos" : destinatarioMode}
             onChange={(e) => {
               setDestinatarioMode(e.target.value);
               if (e.target.value === "todos") setSelectedUsers([]);
             }}
-            className="border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
+            disabled={tipo === "seller"}
+            className={`border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-indigo-500 ${tipo === "seller" ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <option value="todos">Todos los B2B</option>
             <option value="especificos">Usuarios especificos</option>
           </select>
+          <div className="flex items-center gap-1">
+            <label className="text-xs text-gray-500">Expira:</label>
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={(e) => setFechaFin(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
+            />
+            {fechaFin && (
+              <button
+                type="button"
+                onClick={() => setFechaFin("")}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                x
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Selector de usuarios específicos */}
@@ -199,7 +225,9 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
                   <input
                     type="checkbox"
                     checked={selectedUsers.includes(user.b2b?.id)}
-                    onChange={() => user.b2b?.id && toggleUserSelection(user.b2b.id)}
+                    onChange={() =>
+                      user.b2b?.id && toggleUserSelection(user.b2b.id)
+                    }
                     disabled={!user.b2b?.id}
                     className="rounded"
                   />
@@ -261,7 +289,8 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
                     <span
                       className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${getTipoStyle(anuncio.tipo)}`}
                     >
-                      {anuncio.tipo}
+                      {TIPOS.find((x) => x.value === anuncio.tipo)?.label ||
+                        anuncio.tipo}
                     </span>
                     {anuncio.destinatarios ? (
                       <span className="text-[10px] text-orange-600 font-medium">
@@ -271,6 +300,17 @@ const GestionAnunciosB2B = ({ usuarios = [] }) => {
                     ) : (
                       <span className="text-[10px] text-green-600 font-medium">
                         Todos
+                      </span>
+                    )}
+                    {anuncio.fecha_fin && (
+                      <span
+                        className={`text-[10px] font-medium ${new Date(anuncio.fecha_fin) < new Date() ? "text-red-500" : "text-gray-400"}`}
+                      >
+                        Exp:{" "}
+                        {new Date(anuncio.fecha_fin).toLocaleDateString(
+                          "es-MX",
+                          { day: "numeric", month: "short" },
+                        )}
                       </span>
                     )}
                   </div>
