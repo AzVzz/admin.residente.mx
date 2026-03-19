@@ -1454,36 +1454,6 @@ const B2BDashboard = () => {
                       Clicks totales de tus cupones
                     </p>
                   </div>
-                  {/* Tabla por cupón */}
-                  <div className="overflow-x-auto mt-3">
-                    <table className="w-full text-xs border-collapse">
-                      <thead>
-                        <tr className="border-b border-gray-300">
-                          <th className="text-left py-1 pr-3 font-semibold">Cupón</th>
-                          <th className="text-center py-1 px-2 font-semibold">Vistas</th>
-                          <th className="text-center py-1 px-2 font-semibold">Clicks</th>
-                          <th className="text-center py-1 px-2 font-semibold">Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cupones.map((c) => (
-                          <tr key={c.id} className="border-b border-gray-100">
-                            <td className="py-1 pr-3 max-w-[140px] truncate">
-                              {c.es_promovido && <span className="text-yellow-600 mr-1">★</span>}
-                              {c.titulo}
-                            </td>
-                            <td className="text-center py-1 px-2">{(c.views || 0).toLocaleString("es-MX")}</td>
-                            <td className="text-center py-1 px-2">{(c.clicks || 0).toLocaleString("es-MX")}</td>
-                            <td className="text-center py-1 px-2">
-                              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${c.activo_manual ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                                {c.activo_manual ? "Activo" : "Inactivo"}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
                 </>
               ) : (
                 <div className="text-gray-400 text-sm mt-2">No tienes cupones registrados.</div>
