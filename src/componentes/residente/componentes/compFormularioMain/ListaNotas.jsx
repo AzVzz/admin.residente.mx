@@ -39,7 +39,7 @@ import FiltroVistas from "./FiltroVistas";
 import SearchNotasLocal from "./SearchNotasLocal";
 
 const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
-const FormularioRevistaBannerNueva = lazy(() => import("./FormularioRevistaBanner.jsx"));
+const BannersDashboard = lazy(() => import("../banners/BannersDashboard.jsx"));
 const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
 const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
 const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
@@ -674,8 +674,8 @@ const ListaNotas = () => {
       icon: <RiQuestionnaireFill className="mr-2" />,
     },
     {
-      key: "revistas",
-      label: "Revistas",
+      key: "banners",
+      label: "Banners",
       icon: <FaBookOpen className="mr-2" />,
     },
     { key: "videos", label: "Videos", icon: <IoMdPlay className="mr-2" /> },
@@ -1253,11 +1253,9 @@ const ListaNotas = () => {
           </Suspense>
         )}
 
-        {vistaActiva === "revistas" && (
+        {vistaActiva === "banners" && (
           <Suspense fallback={<LazyFallback />}>
-            <div className="text-center text-lg">
-              <FormularioRevistaBannerNueva />
-            </div>
+            <BannersDashboard />
           </Suspense>
         )}
 

@@ -197,6 +197,12 @@ const FormularioRevistaBannerNueva = lazy(
 const B2BDashboard = lazy(
   () => import("./componentes/residente/B2B/B2BDashboard"),
 );
+const BannersDashboard = lazy(
+  () => import("./componentes/residente/componentes/banners/BannersDashboard"),
+);
+const ComprarBanner = lazy(
+  () => import("./componentes/residente/componentes/banners/ComprarBanner"),
+);
 
 const ForgotPassword = lazy(() => import("./componentes/ForgotPassword"));
 const ResetPassword = lazy(() => import("./componentes/ResetPassword"));
@@ -763,6 +769,9 @@ function App() {
 
               {/* Admin */}
               <Route path="/infografias" element={<InfografiaForm />} />
+
+              {/* Formulario de compra de banners */}
+              <Route path="/banners" element={<ComprarBanner />} />
 
               <Route
                 path="/admin/uanl"

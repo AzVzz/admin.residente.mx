@@ -16,12 +16,25 @@ const GestionCodigos = () => {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
 
+  // ── Banner Promo Codes state ──
+  const [bannerCodigos, setBannerCodigos] = useState([]);
+  const [bannerLoading, setBannerLoading] = useState(true);
+  const [bannerForm, setBannerForm] = useState({
+    codigo: "",
+    tipo: "un_uso",
+    precio_pesos: "10",
+    expira_en: "",
+  });
+  const [bannerMsg, setBannerMsg] = useState("");
+  const [bannerError, setBannerError] = useState("");
+
   useEffect(() => {
     if (usuario && usuario.rol !== "residente") {
       navigate("/dashboard");
       return;
     }
     fetchCodigos();
+    fetchBannerCodigos();
   }, [token, usuario, navigate]);
 
   const fetchCodigos = async () => {
@@ -91,6 +104,94 @@ const GestionCodigos = () => {
       );
       if (!response.ok) throw new Error("Error al eliminar");
       fetchCodigos();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const fetchBannerCodigos = async () => {
+    setBannerLoading(true);
+    try {
+      const response = await fetch(`${urlApi}api/banner-promo-codigos`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al cargar códigos banner");
+      const data = await response.json();
+      setBannerCodigos(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBannerLoading(false);
+    }
+  };
+
+  const handleBannerCreate = async (e) => {
+    e.preventDefault();
+    setBannerError("");
+    setBannerMsg("");
+
+    const precioPesos = parseFloat(bannerForm.precio_pesos);
+    if (isNaN(precioPesos) || precioPesos < 10) {
+      setBannerError("El precio mínimo es $10 MXN");
+      return;
+    }
+    const precioCentavos = Math.round(precioPesos * 100);
+
+    let codigoFinal = bannerForm.codigo.trim().toUpperCase();
+    if (!codigoFinal) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      codigoFinal = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    }
+
+    try {
+      const response = await fetch(`${urlApi}api/banner-promo-codigos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          codigo: codigoFinal,
+          tipo: bannerForm.tipo,
+          precio_override_centavos: precioCentavos,
+          expira_en: bannerForm.expira_en || null,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Error al crear código");
+
+      setBannerMsg(`Código banner creado: ${data.codigo}`);
+      setBannerForm({ codigo: "", tipo: "un_uso", precio_pesos: "10", expira_en: "" });
+      fetchBannerCodigos();
+    } catch (err) {
+      setBannerError(err.message);
+    }
+  };
+
+  const handleBannerDesactivar = async (id) => {
+    if (!window.confirm("¿Desactivar este código?")) return;
+    try {
+      const response = await fetch(`${urlApi}api/banner-promo-codigos/${id}/desactivar`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al desactivar");
+      fetchBannerCodigos();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleBannerDelete = async (id) => {
+    if (!window.confirm("¿Eliminar código banner?")) return;
+    try {
+      const response = await fetch(`${urlApi}api/banner-promo-codigos/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al eliminar");
+      fetchBannerCodigos();
     } catch (err) {
       alert(err.message);
     }
@@ -235,6 +336,180 @@ const GestionCodigos = () => {
                     >
                       Eliminar
                     </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Divisor ── */}
+      <hr className="my-12 border-gray-300" />
+
+      {/* ── Códigos Banner (Prueba/Descuento) ── */}
+      <h1 className="text-3xl font-bold mb-6">Códigos Banner (Prueba/Descuento)</h1>
+      <p className="text-sm text-gray-500 mb-6">
+        Genera códigos para probar el flujo de pago de banners en Stripe Live. Al usar un código, el precio real se reemplaza por el precio override (mínimo $10 MXN).
+      </p>
+
+      {/* Formulario de Creación Banner */}
+      <div className="bg-gray-100 p-6 rounded-lg mb-8 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4">Generar Código Banner</h2>
+        <form
+          onSubmit={handleBannerCreate}
+          className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
+        >
+          <div>
+            <label className="block text-sm font-bold mb-1">
+              Código (Opcional)
+            </label>
+            <input
+              type="text"
+              placeholder="Dejar vacío para autogenerar"
+              value={bannerForm.codigo}
+              onChange={(e) =>
+                setBannerForm({ ...bannerForm, codigo: e.target.value.toUpperCase() })
+              }
+              className="w-full p-2 border rounded"
+              maxLength={50}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold mb-1">Tipo</label>
+            <select
+              value={bannerForm.tipo}
+              onChange={(e) => setBannerForm({ ...bannerForm, tipo: e.target.value })}
+              className="w-full p-2 border rounded"
+            >
+              <option value="un_uso">Un solo uso</option>
+              <option value="permanente">Permanente</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-bold mb-1">
+              Precio Override (MXN)
+            </label>
+            <input
+              type="number"
+              min="10"
+              step="1"
+              value={bannerForm.precio_pesos}
+              onChange={(e) => setBannerForm({ ...bannerForm, precio_pesos: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="10"
+            />
+            <p className="text-xs text-gray-400 mt-0.5">Mínimo $10 MXN</p>
+          </div>
+          <div>
+            <label className="block text-sm font-bold mb-1">
+              Expiración (Opcional)
+            </label>
+            <input
+              type="date"
+              value={bannerForm.expira_en}
+              onChange={(e) => setBannerForm({ ...bannerForm, expira_en: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-[#fff200] text-black font-bold p-2 rounded hover:bg-[#e6d900]"
+          >
+            Generar Código Banner
+          </button>
+        </form>
+        {bannerMsg && <p className="text-green-600 font-bold mt-2">{bannerMsg}</p>}
+        {bannerError && <p className="text-red-600 font-bold mt-2">{bannerError}</p>}
+      </div>
+
+      {/* Lista de Códigos Banner */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="py-2 px-4 border-b text-left">Código</th>
+              <th className="py-2 px-4 border-b text-left">Tipo</th>
+              <th className="py-2 px-4 border-b text-left">Precio Override</th>
+              <th className="py-2 px-4 border-b text-left">Estado</th>
+              <th className="py-2 px-4 border-b text-left">Expiración</th>
+              <th className="py-2 px-4 border-b text-left">Creado</th>
+              <th className="py-2 px-4 border-b text-left">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bannerLoading ? (
+              <tr>
+                <td colSpan="7" className="text-center py-4">
+                  Cargando...
+                </td>
+              </tr>
+            ) : bannerCodigos.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="text-center py-4 text-gray-400">
+                  No hay códigos banner generados
+                </td>
+              </tr>
+            ) : (
+              bannerCodigos.map((c) => (
+                <tr key={c.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b font-mono font-bold">
+                    {c.codigo}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        c.tipo === "permanente"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {c.tipo}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 border-b text-sm font-semibold text-gray-700">
+                    ${(c.precio_override_centavos / 100).toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        c.estado === "activo"
+                          ? "bg-green-100 text-green-800"
+                          : c.estado === "usado"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {c.estado}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 border-b text-sm text-gray-600">
+                    {c.expira_en
+                      ? new Date(c.expira_en).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td className="py-2 px-4 border-b text-sm text-gray-600">
+                    {c.created_at
+                      ? new Date(c.created_at).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <div className="flex gap-2">
+                      {c.estado === "activo" && (
+                        <button
+                          onClick={() => handleBannerDesactivar(c.id)}
+                          className="text-yellow-600 hover:text-yellow-800 text-sm font-bold"
+                        >
+                          Desactivar
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleBannerDelete(c.id)}
+                        className="text-red-500 hover:text-red-700 text-sm font-bold"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
