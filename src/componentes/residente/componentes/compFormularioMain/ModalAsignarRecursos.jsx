@@ -66,9 +66,9 @@ const ModalAsignarRecursos = ({
 
             if (ticketsResponse.ok) {
                 const data = await ticketsResponse.json();
-                setTodosCupones(data);
-                // Filtrar los asignados al usuario actual
-                setTicketsAsignados(data.filter(t => t.user_id === usuario.id));
+                const arr = Array.isArray(data) ? data : (data.cupones || []);
+                setTodosCupones(arr);
+                setTicketsAsignados(arr.filter(t => t.user_id === usuario.id));
             }
 
             if (usuariosResponse.ok) {
@@ -262,7 +262,7 @@ const ModalAsignarRecursos = ({
     const ticketsParaDropdown = usuario ? todosCupones.filter(t => {
         const noAsignado = t.user_id !== usuario.id;
         const coincideBusqueda = busquedaRecurso === '' ||
-            t.titulo.toLowerCase().includes(busquedaRecurso.toLowerCase()) ||
+            (t.titulo && t.titulo.toLowerCase().includes(busquedaRecurso.toLowerCase())) ||
             (t.nombre_restaurante && t.nombre_restaurante.toLowerCase().includes(busquedaRecurso.toLowerCase()));
         return noAsignado && coincideBusqueda;
     }) : [];
