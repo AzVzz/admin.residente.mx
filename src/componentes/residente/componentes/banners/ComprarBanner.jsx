@@ -555,6 +555,7 @@ const ComprarBanner = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen Desktop *
               </label>
+              <p className="text-xs text-gray-400 mb-1">Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio 5:1)</p>
               <input
                 type="file"
                 accept="image/*"
@@ -575,6 +576,7 @@ const ComprarBanner = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen Mobile
               </label>
+              <p className="text-xs text-gray-400 mb-1">750×150 px · 1000×200 px retina (ratio 5:1)</p>
               <input
                 type="file"
                 accept="image/*"
