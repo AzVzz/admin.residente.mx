@@ -17,9 +17,19 @@ const initialState = {
   es_default_seccion: false,
 };
 
-const FileUpload = ({ label, accept, preview, onChange, onClear }) => (
+const FileUpload = ({ label, accept, preview, onChange, onClear, tooltip }) => (
   <div className="flex flex-col gap-2">
-    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <div className="flex items-center gap-1">
+      <label className="text-sm font-medium text-gray-700">{label}</label>
+      {tooltip && (
+        <div className="relative group">
+          <span className="w-4 h-4 rounded-full bg-gray-300 text-gray-700 text-[10px] font-bold flex items-center justify-center cursor-default select-none">?</span>
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-max max-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10 whitespace-pre-line text-center">
+            {tooltip}
+          </div>
+        </div>
+      )}
+    </div>
     <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
       {preview ? (
         <div className="relative">
@@ -371,12 +381,14 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
               preview={previews.imagen_desktop}
               onChange={handleFile("imagen_desktop")}
               onClear={clearFile("imagen_desktop")}
+              tooltip={"Recomendado:\nBig: 1080 × 216 px\nMedium: 736 × 147 px\nSmall: 680 × 136 px\nRatio 5:1"}
             />
             <FileUpload
               label="Imagen Mobile"
               preview={previews.imagen_mobile}
               onChange={handleFile("imagen_mobile")}
               onClear={clearFile("imagen_mobile")}
+              tooltip={"Recomendado:\n750 × 150 px\n(o 1000 × 200 px retina)\nRatio 5:1"}
             />
             {isRevista && (
               <>
