@@ -10,7 +10,7 @@ import {
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet";
-import { FaUser, FaStore, FaStar, FaMagnifyingGlass } from "react-icons/fa6";
+import { FaUser, FaStore, FaStar, FaMagnifyingGlass, FaCalendarDays } from "react-icons/fa6";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -696,6 +696,11 @@ const ListaNotas = () => {
       label: "Cupones",
       icon: <FaTicketSimple className="mr-2" />,
     },
+    {
+      key: "eventos",
+      label: "Eventos",
+      icon: <FaCalendarDays className="mr-2" />,
+    },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
     {
       key: "restaurante_link",
@@ -746,7 +751,11 @@ const ListaNotas = () => {
 
       // Lógica para Vendedor
       if (usuario?.rol === "vendedor") {
-        return option.key === "mis_restaurantes" || option.key === "cupones";
+        return (
+          option.key === "mis_restaurantes" ||
+          option.key === "cupones" ||
+          option.key === "eventos"
+        );
       }
 
       // Lógica original para otros roles
@@ -754,6 +763,9 @@ const ListaNotas = () => {
         option.key === "notas" ||
         option.key === "recetas" ||
         (option.key === "cupones" &&
+          !esInvitado &&
+          usuario?.rol !== "colaborador") ||
+        (option.key === "eventos" &&
           !esInvitado &&
           usuario?.rol !== "colaborador") ||
         (esResidente && option.key === "restaurante_link") ||
@@ -943,6 +955,8 @@ const ListaNotas = () => {
                       setVistaActiva("mis_restaurantes");
                     } else if (option.key === "cupones") {
                       navigate("/dashboardtickets");
+                    } else if (option.key === "eventos") {
+                      navigate("/dashboardeventos");
                     } else if (option.key === "codigos_admin") {
                       navigate("/admin/codigos");
                     } else if (option.key === "ednl") {

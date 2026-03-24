@@ -164,6 +164,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      "/api/eventos": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
+      },
       "/fotos": {
         target: "https://residente.mx",
         changeOrigin: true,

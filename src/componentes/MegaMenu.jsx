@@ -11,10 +11,15 @@ import { FaYoutube } from "react-icons/fa";
 import { FaWhatsapp } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { urlApi, imgApi } from "./api/url";
+import { useAuth } from "./Context";
 
 const MegaMenu = () => {
+  const { usuario } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
+
+  const rolActual = usuario?.rol?.toLowerCase();
+  const esAdminMenu = rolActual === "residente" || rolActual === "b2b" || rolActual === "vendedor";
 
   const [isMenuSectionsOpen, setIsMenuSectionsOpen] = useState(null);
   const [menuHeader, setMenuHeader] = useState([]);
@@ -221,8 +226,64 @@ const MegaMenu = () => {
                   </div>
                 ))}
 
+                {/* Sección Administración (solo usuarios autorizados) */}
+                {esAdminMenu && (
+                  <div className="space-y-4 secciones-container-computadora">
+                    <h3 className="text-[#FFF200] font-bold text-lg mb-1">Administración</h3>
+                    <ul>
+                      <li>
+                        <Link
+                          to="/dashboardeventos"
+                          className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Eventos
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/evento"
+                          className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Crear Evento
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/dashboardtickets"
+                          className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Cupones
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/promo"
+                          className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Crear Cupón
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
                 {/* Secciones del menú (CELULAR) */}
                 <div className="secciones-container-celular">
+                  {esAdminMenu && (
+                    <div className="mb-4">
+                      <h3 className="text-[#FFF200] text-lg mb-1">Administración</h3>
+                      <div className="pl-2 flex flex-col gap-1">
+                        <Link to="/dashboardeventos" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Dashboard Eventos</Link>
+                        <Link to="/evento" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Crear Evento</Link>
+                        <Link to="/dashboardtickets" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Dashboard Cupones</Link>
+                        <Link to="/promo" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Crear Cupón</Link>
+                      </div>
+                    </div>
+                  )}
                   {menuHeader.map((section, idx) => (
                     <div className="mb-4" key={idx}>
                       <button

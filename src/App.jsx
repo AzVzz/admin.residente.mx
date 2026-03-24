@@ -189,6 +189,8 @@ const FormularioMainPage = lazy(
   () => import("./componentes/formulario100estrellas/FormularioMainPage"),
 );
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
+const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
+const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
 
 const FormularioRevistaBannerNueva = lazy(
   () =>
@@ -788,6 +790,26 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <ListaTickets />
+                  </div>
+                }
+              />
+
+              {/* Admin — Eventos */}
+              <Route
+                path="/evento"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10">
+                    <EventoMain />
+                  </div>
+                }
+              />
+
+              {/* Admin — Dashboard Eventos */}
+              <Route
+                path="/dashboardeventos"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <ListaEventos />
                   </div>
                 }
               />
