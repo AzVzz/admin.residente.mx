@@ -115,6 +115,9 @@ const BannerSlotManager = () => {
     nota: "Interior de Nota",
     seccion: "Secciones",
     global: "Global (todas las páginas)",
+    b2b: "Página B2B",
+    nota_b2b: "Notas B2B",
+    restaurante: "Restaurantes",
   };
 
   if (isLoading) {
