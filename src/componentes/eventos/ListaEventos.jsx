@@ -26,6 +26,11 @@ const ListaEventos = () => {
   const [nuevaFechaFin, setNuevaFechaFin] = useState("");
   const [savingFechas, setSavingFechas] = useState(false);
 
+  // Modal edición completa
+  const [editandoCompleto, setEditandoCompleto] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
+
   // Modal asignación
   const [asignandoEvento, setAsignandoEvento] = useState(null);
   const [restaurantes, setRestaurantes] = useState([]);
@@ -97,12 +102,6 @@ const ListaEventos = () => {
     const evento = eventos.find((e) => e.id === id);
     if (!evento) return;
 
-    if (!currentStatus) {
-      if (evento.fecha_fin_evento && new Date() > new Date(evento.fecha_fin_evento)) {
-        alert("No puedes activar este evento porque su fecha de finalización ya ha pasado.");
-        return;
-      }
-    }
 
     setToggling(id);
     try {
@@ -130,6 +129,52 @@ const ListaEventos = () => {
     setEditingEvento(evento);
     setNuevaFechaInicio(evento.fecha_inicio_evento ? new Date(evento.fecha_inicio_evento).toISOString().slice(0, 16) : "");
     setNuevaFechaFin(evento.fecha_fin_evento ? new Date(evento.fecha_fin_evento).toISOString().slice(0, 16) : "");
+  };
+
+  const handleAbrirEdicion = (evento) => {
+    setEditandoCompleto(evento);
+    setEditForm({
+      titulo: evento.titulo || "",
+      subtitulo: evento.subtitulo || "",
+      descripcion: evento.descripcion || "",
+      lugar_evento: evento.lugar_evento || "",
+      link: evento.link || "",
+      email: evento.email || "",
+      dias_fijos: evento.dias_fijos || [],
+      fecha_inicio_evento: evento.fecha_inicio_evento ? new Date(evento.fecha_inicio_evento).toISOString().slice(0, 10) : "",
+      fecha_fin_evento: evento.fecha_fin_evento ? new Date(evento.fecha_fin_evento).toISOString().slice(0, 10) : "",
+      color_titulo: evento.color_titulo || "#FFFFFF",
+    });
+  };
+
+  const handleGuardarEdicion = async () => {
+    if (!editandoCompleto) return;
+    setSavingEdit(true);
+    try {
+      const datos = {
+        ...editForm,
+        fecha_inicio_evento: editForm.fecha_inicio_evento ? new Date(`${editForm.fecha_inicio_evento}T00:00:00-06:00`).toISOString() : null,
+        fecha_fin_evento: editForm.fecha_fin_evento ? new Date(`${editForm.fecha_fin_evento}T23:59:00-06:00`).toISOString() : null,
+        dias_fijos: editForm.dias_fijos?.length ? editForm.dias_fijos : null,
+      };
+      await eventoEditar(editandoCompleto.id, datos, token);
+      setEventos((prev) => prev.map((e) => e.id === editandoCompleto.id ? { ...e, ...datos } : e));
+      setEditandoCompleto(null);
+    } catch (err) {
+      alert("Error al guardar: " + err.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const toggleDiaFijo = (dia) => {
+    setEditForm((prev) => {
+      const actuales = prev.dias_fijos || [];
+      return {
+        ...prev,
+        dias_fijos: actuales.includes(dia) ? actuales.filter((d) => d !== dia) : [...actuales, dia],
+      };
+    });
   };
 
   const handleSaveFechas = async () => {
@@ -344,10 +389,16 @@ const ListaEventos = () => {
                     </p>
                   )}
 
-                  {/* Fechas */}
+                  {/* Fechas o días fijos */}
                   <div className="mb-2 text-center text-sm text-gray-600 w-full">
-                    <p><span className="font-semibold">Inicio:</span> {formatFecha(evento.fecha_inicio_evento)}</p>
-                    <p><span className="font-semibold">Fin:</span> {formatFecha(evento.fecha_fin_evento)}</p>
+                    {evento.dias_fijos?.length > 0 ? (
+                      <p><span className="font-semibold">Días:</span> {evento.dias_fijos.join(" · ")}</p>
+                    ) : (
+                      <>
+                        <p><span className="font-semibold">Inicio:</span> {formatFecha(evento.fecha_inicio_evento)}</p>
+                        <p><span className="font-semibold">Fin:</span> {formatFecha(evento.fecha_fin_evento)}</p>
+                      </>
+                    )}
                   </div>
 
                   {/* Acciones */}
@@ -362,6 +413,13 @@ const ListaEventos = () => {
                       }`}
                     >
                       {toggling === evento.id ? "Procesando..." : evento.activo_manual ? "Desactivar" : "Activar"}
+                    </button>
+
+                    <button
+                      onClick={() => handleAbrirEdicion(evento)}
+                      className="w-full py-1 bg-blue-500 border-0 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+                    >
+                      ✏️ Editar
                     </button>
 
                     <button
@@ -392,6 +450,85 @@ const ListaEventos = () => {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Modal Edición Completa */}
+      {editandoCompleto && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-800">Editar evento</h3>
+              <button onClick={() => setEditandoCompleto(null)} className="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer">✕</button>
+            </div>
+            <div className="p-6 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-700">Título *</label>
+                <input type="text" value={editForm.titulo} onChange={(e) => setEditForm((p) => ({ ...p, titulo: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-700">Subtítulo</label>
+                <input type="text" value={editForm.subtitulo} onChange={(e) => setEditForm((p) => ({ ...p, subtitulo: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-700">Descripción</label>
+                <textarea value={editForm.descripcion} onChange={(e) => setEditForm((p) => ({ ...p, descripcion: e.target.value }))} rows={3} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-700">Dónde (lugar)</label>
+                <input type="text" value={editForm.lugar_evento} onChange={(e) => setEditForm((p) => ({ ...p, lugar_evento: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-700">URL / Boletos</label>
+                  <input type="text" value={editForm.link} onChange={(e) => setEditForm((p) => ({ ...p, link: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-700">Email</label>
+                  <input type="email" value={editForm.email} onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-700">Días fijos</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map((dia) => (
+                    <button key={dia} type="button" onClick={() => toggleDiaFijo(dia)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${(editForm.dias_fijos || []).includes(dia) ? 'bg-yellow-400 text-black' : 'bg-gray-100 text-gray-700 hover:bg-yellow-100'}`}>
+                      {dia}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-700">Fecha inicio</label>
+                  <input type="date" value={editForm.fecha_inicio_evento} onChange={(e) => setEditForm((p) => ({ ...p, fecha_inicio_evento: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-700">Fecha fin</label>
+                  <input type="date" value={editForm.fecha_fin_evento} onChange={(e) => setEditForm((p) => ({ ...p, fecha_fin_evento: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-700">Color del título (sobre la imagen)</label>
+                <div className="flex gap-3 items-center flex-wrap">
+                  <input type="color" value={editForm.color_titulo || "#FFFFFF"} onChange={(e) => setEditForm((p) => ({ ...p, color_titulo: e.target.value }))} className="w-10 h-10 rounded cursor-pointer border-0" />
+                  <input type="text" value={editForm.color_titulo || "#FFFFFF"} onChange={(e) => setEditForm((p) => ({ ...p, color_titulo: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 w-28 text-base uppercase outline-none" maxLength={7} />
+                  <button type="button" onClick={() => setEditForm((p) => ({ ...p, color_titulo: "#FFFFFF" }))} className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm cursor-pointer">Blanco</button>
+                  <button type="button" onClick={() => setEditForm((p) => ({ ...p, color_titulo: "#000000" }))} className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm cursor-pointer">Negro</button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 italic">La imagen del ticket no se regenera al editar desde aquí.</p>
+            </div>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
+              <button onClick={handleGuardarEdicion} disabled={savingEdit} className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold cursor-pointer disabled:opacity-50">
+                {savingEdit ? "Guardando..." : "Guardar cambios"}
+              </button>
+              <button onClick={() => setEditandoCompleto(null)} className="flex-1 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold cursor-pointer">
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

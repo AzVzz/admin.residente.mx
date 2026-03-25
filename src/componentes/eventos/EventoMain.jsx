@@ -56,7 +56,7 @@ const EventoMain = () => {
     /** Solo admin: color del panel donde se ve la vista previa del ticket */
     colorFondoVistaPrevia: "#3B3B3C",
     colorAmarillo: "#FFF300",
-    fontSizeTituloImagen: 22,
+    fontSizeTituloImagen: 36,
     fontSizeCuerpo: 13,
     seo_alt_text: "",
     seo_title: "",
@@ -65,6 +65,8 @@ const EventoMain = () => {
     smart_tags: [],
     lugarEvento: "",
     flyerPromo: null,
+    diasFijos: [],
+    colorTitulo: "#FFFFFF",
   });
 
   const [selectedStickers, setSelectedStickers] = useState([]);
@@ -97,6 +99,7 @@ const EventoMain = () => {
     const info = restaurantes.find((r) => String(r.id) === String(id));
     setFormData((prev) => ({
       ...prev,
+      restaurantName: info ? info.nombre_restaurante : prev.restaurantName,
       lugarEvento: info ? info.nombre_restaurante : prev.lugarEvento,
     }));
   };
@@ -129,23 +132,28 @@ const EventoMain = () => {
   };
 
   useEffect(() => {
-    const inicio = formatFechaTicket(formData.fechaInicioEvento);
-    const fin = formatFechaTicket(formData.fechaFinEvento);
     let textoFechas = "";
 
-    if (inicio && fin) {
-      textoFechas = `${inicio} - ${fin}`;
-    } else if (inicio) {
-      textoFechas = inicio;
-    } else if (fin) {
-      textoFechas = fin;
+    if (formData.diasFijos?.length > 0) {
+      const dias = formData.diasFijos;
+      const listado =
+        dias.length === 1
+          ? dias[0]
+          : dias.slice(0, -1).join(", ") + " y " + dias[dias.length - 1];
+      textoFechas = `Todos los ${listado.toLowerCase()}`;
+    } else {
+      const inicio = formatFechaTicket(formData.fechaInicioEvento);
+      const fin = formatFechaTicket(formData.fechaFinEvento);
+      if (inicio && fin) textoFechas = `${inicio} - ${fin}`;
+      else if (inicio) textoFechas = inicio;
+      else if (fin) textoFechas = fin;
     }
 
     setFormData((prev) => {
       if (prev.fechaValidez === textoFechas) return prev;
       return { ...prev, fechaValidez: textoFechas };
     });
-  }, [formData.fechaInicioEvento, formData.fechaFinEvento]);
+  }, [formData.fechaInicioEvento, formData.fechaFinEvento, formData.diasFijos]);
 
   const handleStickerSelect = (claves) => setSelectedStickers(claves);
 
@@ -216,6 +224,8 @@ const EventoMain = () => {
       seo_keyword: formData.seo_keyword?.trim() || null,
       meta_description: formData.meta_description?.trim() || null,
       smart_tags: formData.smart_tags?.length ? formData.smart_tags : null,
+      dias_fijos: formData.diasFijos?.length ? formData.diasFijos : null,
+      color_titulo: formData.colorTitulo || "#FFFFFF",
     };
   };
 
@@ -226,8 +236,8 @@ const EventoMain = () => {
 
     try {
       if (!ticketRef.current) throw new Error("No se encontró el ticket para generar la imagen");
-      if (!formData.fechaInicioEvento || !formData.fechaFinEvento) {
-        throw new Error("Debes seleccionar la fecha de inicio y fin del evento");
+      if (!formData.diasFijos?.length && (!formData.fechaInicioEvento || !formData.fechaFinEvento)) {
+        throw new Error("Debes seleccionar la fecha de inicio y fin del evento, o al menos un día fijo");
       }
 
       const dataUrl = await toPng(ticketRef.current, ticketToPngOptions);
@@ -299,6 +309,8 @@ const EventoMain = () => {
             colorTexto={formData.colorTexto}
             fontSizeTituloImagen={formData.fontSizeTituloImagen}
             fontSizeCuerpo={formData.fontSizeCuerpo}
+            diasFijos={formData.diasFijos}
+            colorTitulo={formData.colorTitulo}
           />
 
           <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">

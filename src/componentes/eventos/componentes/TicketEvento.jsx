@@ -11,6 +11,7 @@ const TicketEvento = forwardRef((props, ref) => {
         descripcionPromo = "",
         fechaInicioDisplay = "",
         fechaFinDisplay = "",
+        diasFijos = [],
         emailPromo = "",
         urlPromo = "",
         lugarEvento = "",
@@ -27,6 +28,7 @@ const TicketEvento = forwardRef((props, ref) => {
         fontSizeTituloImagen = 22,
         /** Tamaño del texto del cuerpo en la franja amarilla (px) */
         fontSizeCuerpo = 13,
+        colorTitulo = "#FFFFFF",
     } = props;
 
     const getFontFamily = () => {
@@ -52,7 +54,7 @@ const TicketEvento = forwardRef((props, ref) => {
                 style={{ backgroundColor: colorFondo }}
             >
                 {/* Hero: imagen full-bleed + texto encima (overlay) */}
-                <div className="relative w-full flex-1 overflow-hidden bg-gray-200">
+                <div className="relative w-full flex-1 overflow-hidden bg-gray-200 min-h-[320px]">
                     {flyerImagen ? (
                         <img
                             src={flyerImagen}
@@ -78,15 +80,16 @@ const TicketEvento = forwardRef((props, ref) => {
                     <div className="pointer-events-none absolute inset-0 z-20">
                         <div
                             className="absolute left-0 right-0 px-4"
-                            style={{ bottom: "20%" }}
+                            style={{ bottom: "4%" }}
                         >
                             <h2
-                                className="mx-auto max-w-[95%] text-center font-bold leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+                                className="mx-auto max-w-[95%] text-center font-bold leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
                                 style={{
                                     fontFamily,
                                     fontWeight: tipografiaBold ? 800 : 600,
                                     letterSpacing,
                                     fontSize: `${fontSizeTituloImagen}px`,
+                                    color: colorTitulo,
                                 }}
                             >
                                 {nombrePromo || "Título del evento"}
@@ -97,7 +100,7 @@ const TicketEvento = forwardRef((props, ref) => {
 
                 {/* Franja amarilla (aquí van los datos) */}
                 <div
-                    className="mt-auto shrink-0 px-5 pb-5 pt-3 min-h-[260px]"
+                    className="shrink-0 px-5 pb-5 pt-3 h-[260px] overflow-hidden"
                     style={{ backgroundColor: colorAmarillo }}
                 >
                     {nombreRestaurante?.trim() && (
@@ -125,29 +128,45 @@ const TicketEvento = forwardRef((props, ref) => {
                             </p>
                         )}
 
-                        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 pt-2">
-                            <div className="text-center">
-                                <p className="text-xs font-bold uppercase tracking-wide opacity-75" style={{ color: _colorTexto }}>
-                                    Inicio
-                                </p>
-                                <p
-                                    className="mt-1 text-base font-bold uppercase leading-tight"
-                                    style={{ color: _colorTexto, fontFamily }}
-                                >
-                                    {fechaInicioDisplay || "—"}
-                                </p>
-                            </div>
-                            <div className="text-center pl-2">
-                                <p className="text-xs font-bold uppercase tracking-wide opacity-75" style={{ color: _colorTexto }}>
-                                    Fin
-                                </p>
-                                <p
-                                    className="mt-1 text-base font-bold uppercase leading-tight"
-                                    style={{ color: _colorTexto, fontFamily }}
-                                >
-                                    {fechaFinDisplay || "—"}
-                                </p>
-                            </div>
+                        <div className="mt-4 pt-2">
+                            {diasFijos?.length > 0 ? (
+                                <div className="text-center">
+                                    <p className="text-xs font-bold uppercase tracking-wide opacity-75" style={{ color: _colorTexto }}>
+                                         Los días
+                                    </p>
+                                    <p
+                                        className="mt-1 text-base font-bold uppercase leading-tight"
+                                        style={{ color: _colorTexto, fontFamily }}
+                                    >
+                                        {diasFijos.join(" · ")}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                    <div className="text-center">
+                                        <p className="text-xs font-bold uppercase tracking-wide opacity-75" style={{ color: _colorTexto }}>
+                                            Inicio
+                                        </p>
+                                        <p
+                                            className="mt-1 text-base font-bold uppercase leading-tight"
+                                            style={{ color: _colorTexto, fontFamily }}
+                                        >
+                                            {fechaInicioDisplay || "—"}
+                                        </p>
+                                    </div>
+                                    <div className="text-center pl-2">
+                                        <p className="text-xs font-bold uppercase tracking-wide opacity-75" style={{ color: _colorTexto }}>
+                                            Fin
+                                        </p>
+                                        <p
+                                            className="mt-1 text-base font-bold uppercase leading-tight"
+                                            style={{ color: _colorTexto, fontFamily }}
+                                        >
+                                            {fechaFinDisplay || "—"}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {emailPromo?.trim() && (

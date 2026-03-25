@@ -73,43 +73,36 @@ const FormularioEvento = ({
                     </div>
 
                     {/* Restaurante */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="flex flex-col" ref={restDropdownRef}>
-                            <label className="block text-gray-950 text-xl font-bold mb-1">Selecciona un restaurante</label>
-                            <div className="relative">
-                                <div className="w-full text-xl rounded px-3 py-2 bg-white border-0 flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={() => setRestDropdownOpen(!restDropdownOpen)}>
-                                    <span className={selectedRestauranteId ? 'text-gray-950' : 'text-gray-400'}>
-                                        {selectedRestauranteId ? restaurantes.find(r => String(r.id) === String(selectedRestauranteId))?.nombre_restaurante || '-- Elige uno --' : '-- Elige uno --'}
-                                    </span>
-                                    <svg className={`w-5 h-5 transition-transform ${restDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                                {restDropdownOpen && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
-                                        <div className="p-2 border-b border-gray-100">
-                                            <input type="text" value={restSearchTerm} onChange={(e) => setRestSearchTerm(e.target.value)} placeholder="Buscar restaurante..." className="w-full px-3 py-2 text-lg bg-gray-50 rounded-md border-0 outline-none focus:bg-gray-100 transition-colors" autoFocus />
-                                        </div>
-                                        <div className="max-h-110 overflow-y-auto">
-                                            {restaurantesOrdenados.length > 0 ? restaurantesOrdenados.map(r => (
-                                                <button key={r.id} type="button"
-                                                    onClick={() => { onRestauranteChange({ target: { value: String(r.id) } }); setRestDropdownOpen(false); setRestSearchTerm(''); }}
-                                                    className={`w-full text-left px-3 py-2 text-lg hover:bg-yellow-100 transition-colors ${String(selectedRestauranteId) === String(r.id) ? 'bg-yellow-50 font-medium' : ''}`}
-                                                >
-                                                    {r.nombre_restaurante}
-                                                </button>
-                                            )) : (
-                                                <div className="px-3 py-4 text-gray-400 text-center text-lg">No se encontraron restaurantes</div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                    <div className="flex flex-col" ref={restDropdownRef}>
+                        <label className="block text-gray-950 text-xl font-bold mb-1">Selecciona un restaurante</label>
+                        <div className="relative">
+                            <div className="w-full text-xl rounded px-3 py-2 bg-white border-0 flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={() => setRestDropdownOpen(!restDropdownOpen)}>
+                                <span className={selectedRestauranteId ? 'text-gray-950' : 'text-gray-400'}>
+                                    {selectedRestauranteId ? restaurantes.find(r => String(r.id) === String(selectedRestauranteId))?.nombre_restaurante || '-- Elige uno --' : '-- Elige uno --'}
+                                </span>
+                                <svg className={`w-5 h-5 transition-transform ${restDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label className="block text-xl font-medium text-gray-950 mb-1">Nombre del Evento *</label>
-                            <input type="text" value={formData.restaurantName} onChange={(e) => onFieldChange("restaurantName", e.target.value)} placeholder="" className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg" />
+                            {restDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                                    <div className="p-2 border-b border-gray-100">
+                                        <input type="text" value={restSearchTerm} onChange={(e) => setRestSearchTerm(e.target.value)} placeholder="Buscar restaurante..." className="w-full px-3 py-2 text-lg bg-gray-50 rounded-md border-0 outline-none focus:bg-gray-100 transition-colors" autoFocus />
+                                    </div>
+                                    <div className="max-h-110 overflow-y-auto">
+                                        {restaurantesOrdenados.length > 0 ? restaurantesOrdenados.map(r => (
+                                            <button key={r.id} type="button"
+                                                onClick={() => { onRestauranteChange({ target: { value: String(r.id) } }); setRestDropdownOpen(false); setRestSearchTerm(''); }}
+                                                className={`w-full text-left px-3 py-2 text-lg hover:bg-yellow-100 transition-colors ${String(selectedRestauranteId) === String(r.id) ? 'bg-yellow-50 font-medium' : ''}`}
+                                            >
+                                                {r.nombre_restaurante}
+                                            </button>
+                                        )) : (
+                                            <div className="px-3 py-4 text-gray-400 text-center text-lg">No se encontraron restaurantes</div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -132,6 +125,33 @@ const FormularioEvento = ({
                     <label className="block text-xl font-medium text-gray-950 mb-1">Texto de fecha en el ticket</label>
                     <input type="text" value={formData.fechaValidez} readOnly placeholder="Se llena automáticamente con inicio y fin" className="bg-gray-100 w-full px-3 py-2 border border-gray-200 rounded-lg text-lg text-gray-700" />
                     <span className="text-xs text-gray-600 mt-1">Este texto se genera automáticamente al seleccionar las fechas del evento.</span>
+                </div>
+            </div>
+
+            {/* Días fijos */}
+            <div className="pb-5">
+                <label className="block text-xl font-medium text-gray-950 mb-2">Días fijos del evento</label>
+                <span className="text-xs text-gray-600 mb-3 block">Si el evento ocurre siempre los mismos días (ej. todos los martes), selecciónalos aquí.</span>
+                <div className="flex flex-wrap gap-2">
+                    {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(dia => {
+                        const seleccionado = (formData.diasFijos || []).includes(dia);
+                        return (
+                            <button
+                                key={dia}
+                                type="button"
+                                onClick={() => {
+                                    const actuales = formData.diasFijos || [];
+                                    const nuevos = seleccionado
+                                        ? actuales.filter(d => d !== dia)
+                                        : [...actuales, dia];
+                                    onFieldChange('diasFijos', nuevos);
+                                }}
+                                className={`px-4 py-2 rounded-lg text-base font-medium transition-colors cursor-pointer ${seleccionado ? 'bg-yellow-400 text-black' : 'bg-white text-gray-700 hover:bg-yellow-100'}`}
+                            >
+                                {dia}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -253,16 +273,16 @@ const FormularioEvento = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {/* Color de fondo del boleto (marco exterior del PNG) */}
-                    <div className="flex flex-col">
-                        <label className="block text-xl font-medium text-gray-950 mb-1">Fondo del boleto (marco)</label>
-                        <span className="text-xs text-gray-600 mb-1">Se ve alrededor de la imagen en el ticket final.</span>
-                        <div className="flex gap-3 items-center flex-wrap">
-                            <input type="color" value={formData.colorFondo || "#FFFFFF"} onChange={(e) => onFieldChange("colorFondo", e.target.value)} className="w-12 h-10 rounded cursor-pointer border-0" />
-                            <input type="text" value={formData.colorFondo || "#FFFFFF"} onChange={(e) => onFieldChange("colorFondo", e.target.value)} placeholder="#FFFFFF" className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase" maxLength={7} />
-                            <button type="button" onClick={() => onFieldChange("colorFondo", "#FFFFFF")} className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors">Blanco</button>
-                        </div>
+                    {/* Color del título sobre la imagen */}
+                <div className="flex flex-col pb-4">
+                    <label className="block text-xl font-medium text-gray-950 mb-1">Color del título (sobre la imagen)</label>
+                    <div className="flex gap-3 items-center flex-wrap">
+                        <input type="color" value={formData.colorTitulo || "#FFFFFF"} onChange={(e) => onFieldChange("colorTitulo", e.target.value)} className="w-12 h-10 rounded cursor-pointer border-0" />
+                        <input type="text" value={formData.colorTitulo || "#FFFFFF"} onChange={(e) => onFieldChange("colorTitulo", e.target.value)} placeholder="#FFFFFF" className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase" maxLength={7} />
+                        <button type="button" onClick={() => onFieldChange("colorTitulo", "#FFFFFF")} className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer">Blanco</button>
+                        <button type="button" onClick={() => onFieldChange("colorTitulo", "#000000")} className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer">Negro</button>
                     </div>
+                </div>
 
                     {/* Color del texto */}
                     <div className="flex flex-col">
@@ -282,35 +302,6 @@ const FormularioEvento = ({
                             <input type="text" value={formData.colorAmarillo || "#FFF300"} onChange={(e) => onFieldChange("colorAmarillo", e.target.value)} placeholder="#FFF300" className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase" maxLength={7} />
                             <button type="button" onClick={() => onFieldChange("colorAmarillo", "#FFF300")} className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer">Default</button>
                         </div>
-                    </div>
-                </div>
-
-                {/* Fondo del panel de vista previa (solo en esta pantalla) */}
-                <div className="flex flex-col pt-4 border-t border-gray-200 mt-2">
-                    <label className="block text-xl font-medium text-gray-950 mb-1">Fondo del área de vista previa</label>
-                    <span className="text-xs text-gray-600 mb-1">Solo cambia el panel gris de la derecha al diseñar; no afecta el PNG guardado.</span>
-                    <div className="flex gap-3 items-center flex-wrap">
-                        <input
-                            type="color"
-                            value={formData.colorFondoVistaPrevia || "#3B3B3C"}
-                            onChange={(e) => onFieldChange("colorFondoVistaPrevia", e.target.value)}
-                            className="w-12 h-10 rounded cursor-pointer border-0"
-                        />
-                        <input
-                            type="text"
-                            value={formData.colorFondoVistaPrevia || "#3B3B3C"}
-                            onChange={(e) => onFieldChange("colorFondoVistaPrevia", e.target.value)}
-                            placeholder="#3B3B3C"
-                            className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase"
-                            maxLength={7}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => onFieldChange("colorFondoVistaPrevia", "#3B3B3C")}
-                            className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                            Gris default
-                        </button>
                     </div>
                 </div>
 
@@ -336,24 +327,24 @@ const FormularioEvento = ({
                 {/* Tamaño del título (sobre la imagen) */}
                 <div className="flex flex-col pt-3">
                     <label className="block text-xl font-medium text-gray-950 mb-1">
-                        Tamaño del título (sobre la imagen): <span className="font-bold">{formData.fontSizeTituloImagen ?? 22}px</span>
+                        Tamaño del título (sobre la imagen): <span className="font-bold">{formData.fontSizeTituloImagen ?? 36}px</span>
                     </label>
                     <div className="flex gap-3 items-center flex-wrap">
                         <input
                             type="range"
-                            min="14"
-                            max="36"
+                            min="36"
+                            max="90"
                             step="1"
-                            value={formData.fontSizeTituloImagen ?? 22}
+                            value={formData.fontSizeTituloImagen ?? 36}
                             onChange={(e) => onFieldChange("fontSizeTituloImagen", parseInt(e.target.value, 10))}
                             className="min-w-[180px] flex-1 h-2 bg-white rounded-lg appearance-none cursor-pointer accent-yellow-500"
                         />
                         <button
                             type="button"
-                            onClick={() => onFieldChange("fontSizeTituloImagen", 22)}
+                            onClick={() => onFieldChange("fontSizeTituloImagen", 36)}
                             className="text-sm px-3 py-1.5 bg-white rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
                         >
-                            Predeterminado (22px)
+                            Predeterminado (36px)
                         </button>
                     </div>
                 </div>
@@ -366,8 +357,8 @@ const FormularioEvento = ({
                     <div className="flex gap-3 items-center flex-wrap">
                         <input
                             type="range"
-                            min="9"
-                            max="20"
+                            min="13"
+                            max="40"
                             step="1"
                             value={formData.fontSizeCuerpo ?? 13}
                             onChange={(e) => onFieldChange("fontSizeCuerpo", parseInt(e.target.value, 10))}
