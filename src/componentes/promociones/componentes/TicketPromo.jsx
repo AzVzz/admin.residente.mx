@@ -58,7 +58,8 @@ const TicketPromo = forwardRef((props, ref) => {
         espaciadoLineas = 1,
         logoPersonalizado = null,
         logoEscala = 100,
-        colorTexto = "#000000"
+        colorTexto = "#000000",
+        colorBarra = "#000000"
     } = props;
 
     // Helper para obtener la familia de fuentes
@@ -230,8 +231,8 @@ const TicketPromo = forwardRef((props, ref) => {
                     <div className="flex-grow flex flex-col justify-end">
                         <h1
                             ref={restaurantNameRef}
-                            className="w-full bg-black text-white uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
-                            style={{ fontSize: `${restaurantNameFontSize}px`, fontFamily, fontWeight, letterSpacing }}
+                            className="w-full uppercase px-2 text-center leading-tight whitespace-nowrap overflow-hidden mb-2"
+                            style={{ fontSize: `${restaurantNameFontSize}px`, fontFamily, fontWeight, letterSpacing, backgroundColor: colorBarra, color: "#ffffff" }}
                         >
                             {restaurantNameText}
                         </h1>
@@ -281,7 +282,7 @@ const TicketPromo = forwardRef((props, ref) => {
                 </div>
                 {/* Bottom section */}
                 <div className={`bg-[#FFF300] ${config.padding}  mt-auto relative`}>
-                    <h2 className={`mb-1 bg-black text-white text-center leading-3 ${config.validity}`} style={{ fontFamily, fontWeight: tipografiaBold ? 300 : 200 }}>
+                    <h2 className={`mb-1 text-white text-center leading-3 ${config.validity}`} style={{ fontFamily, fontWeight: tipografiaBold ? 300 : 200, backgroundColor: colorBarra }}>
                         {validezPromo}
                     </h2>
                     <img

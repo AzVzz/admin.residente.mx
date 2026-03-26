@@ -370,6 +370,34 @@ const FormularioPromo = ({
                 </div>
             </div>
 
+            {/* Color de la barra del restaurante */}
+            <div className="flex flex-col pb-0">
+                <label className="block text-xl font-medium text-gray-950 mb-1">Color de la barra del restaurante</label>
+                <div className="flex gap-3 items-center">
+                    <input
+                        type="color"
+                        value={formData.colorBarra || "#000000"}
+                        onChange={(e) => onFieldChange("colorBarra", e.target.value)}
+                        className="w-12 h-10 rounded cursor-pointer border-0"
+                    />
+                    <input
+                        type="text"
+                        value={formData.colorBarra || "#000000"}
+                        onChange={(e) => onFieldChange("colorBarra", e.target.value)}
+                        placeholder="#000000"
+                        className="text-lg rounded px-3 py-2 bg-white border-0 w-32 uppercase"
+                        maxLength={7}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onFieldChange("colorBarra", "#000000")}
+                        className="text-lg px-3 py-2 bg-white rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                        Negro
+                    </button>
+                </div>
+            </div>
+
             {/* Espaciado de líneas */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">

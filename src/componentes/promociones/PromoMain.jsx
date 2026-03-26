@@ -59,6 +59,7 @@ const PromoMain = () => {
     logoPersonalizado: null, // Logo personalizado (base64) o null para usar el default
     logoEscala: 100,
     colorTexto: "#000000",
+    colorBarra: "#000000",
     seo_alt_text: "",
     seo_title: "",
     seo_keyword: "",
@@ -454,6 +455,7 @@ const PromoMain = () => {
             logoPersonalizado={formData.logoPersonalizado}
             logoEscala={formData.logoEscala}
             colorTexto={formData.colorTexto}
+            colorBarra={formData.colorBarra}
           />
           <div className="flex flex-row w-full gap-2 pt-5 pr-11 mt-auto">
             <button
