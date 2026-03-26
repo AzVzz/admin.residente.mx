@@ -27,17 +27,6 @@ const EventoMain = () => {
   const rolActual = usuario?.rol?.toLowerCase();
   const esAutorizado = rolActual === "residente" || rolActual === "b2b" || rolActual === "vendedor";
 
-  if (usuario && !esAutorizado) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
-          <p className="text-gray-600">No tienes permisos para crear eventos.</p>
-        </div>
-      </div>
-    );
-  }
-
   const [formData, setFormData] = useState({
     restaurantName: "",
     promoName: "",
@@ -266,6 +255,17 @@ const EventoMain = () => {
       return () => { clearTimeout(hideTimer); clearTimeout(clearTimer); };
     }
   }, [saveSuccess, saveError]);
+
+  if (usuario && !esAutorizado) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
+          <p className="text-gray-600">No tienes permisos para crear eventos.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

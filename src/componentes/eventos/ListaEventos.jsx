@@ -41,23 +41,7 @@ const ListaEventos = () => {
   const rolActual = usuario?.rol?.toLowerCase();
   const permisosActual = usuario?.permisos?.toLowerCase();
   const esAdmin = rolActual === "residente" || permisosActual === "todos" || permisosActual === "todo";
-  const esAutorizado =
-    esAdmin ||
-    rolActual === "b2b" ||
-    rolActual === "vendedor" ||
-    permisosActual === "residente" ||
-    permisosActual === "b2b";
-
-  if (!usuario || !esAutorizado) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
-          <p className="text-gray-600">No tienes permisos para ver el dashboard de eventos.</p>
-        </div>
-      </div>
-    );
-  }
+  const esAutorizado = esAdmin;
 
   const cargarEventos = useCallback(async () => {
     setLoading(true);
@@ -251,6 +235,17 @@ const ListaEventos = () => {
     if (!fecha) return "—";
     return new Date(fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
   };
+
+  if (!usuario || !esAutorizado) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center p-8 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Acceso Restringido</h2>
+          <p className="text-gray-600">No tienes permisos para ver el dashboard de eventos.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
