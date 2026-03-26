@@ -49,7 +49,14 @@ const ListaEventos = () => {
       const data = await eventosGetTodas(token, { sortBy, sortOrder, estado: estado || undefined });
       const lista = data.eventos ?? data;
       setTotal(data.total ?? lista.length);
-      setEventos(lista);
+      setEventos(lista.map(e => ({
+        ...e,
+        dias_fijos: Array.isArray(e.dias_fijos)
+          ? e.dias_fijos
+          : typeof e.dias_fijos === "string" && e.dias_fijos
+            ? JSON.parse(e.dias_fijos)
+            : [],
+      })));
     } catch (err) {
       setError(err.message);
     } finally {
