@@ -160,9 +160,9 @@ const FormularioEvento = ({
                 <div className="flex flex-col">
                     <div className="flex justify-between items-center">
                         <label className="block text-xl font-medium text-gray-950 mb-1">Descripción del evento *</label>
-                        <span className={`text-sm ${formData.descEvento?.length >= 300 ? 'text-red-500' : 'text-gray-500'}`}>{formData.descEvento?.length || 0}/300</span>
+                        <span className={`text-sm ${formData.descEvento?.length >= 150 ? 'text-red-500' : 'text-gray-500'}`}>{formData.descEvento?.length || 0}/150</span>
                     </div>
-                    <textarea ref={textareaRef} value={formData.descEvento} onChange={(e) => { if (e.target.value.length <= 300) onFieldChange("descEvento", e.target.value); }} placeholder="Ej. Una noche especial con los mejores vinos de la región..." maxLength={300} className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg min-h-[150px] max-h-[330px] overflow-hidden resize-none" />
+                    <textarea ref={textareaRef} value={formData.descEvento} onChange={(e) => { if (e.target.value.length <= 150) onFieldChange("descEvento", e.target.value); }} placeholder="Ej. Una noche especial con los mejores vinos de la región..." maxLength={150} className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg min-h-[150px] max-h-[330px] overflow-hidden resize-none" />
                 </div>
             </div>
 

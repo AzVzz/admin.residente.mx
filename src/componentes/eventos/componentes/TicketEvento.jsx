@@ -50,11 +50,11 @@ const TicketEvento = forwardRef((props, ref) => {
     return (
         <div ref={ref} className={`relative w-90 ${className}`} style={{ background: "transparent" }}>
             <div
-                className="flex w-90 min-h-[670px] flex-col overflow-hidden rounded-sm shadow-lg"
+                className="flex w-90 h-[670px] flex-col overflow-hidden rounded-sm shadow-lg"
                 style={{ backgroundColor: colorFondo }}
             >
                 {/* Hero: imagen full-bleed + texto encima (overlay) */}
-                <div className="relative w-full flex-1 overflow-hidden bg-gray-200 min-h-[320px]">
+                <div className="relative w-full flex-1 overflow-hidden bg-gray-200">
                     {flyerImagen ? (
                         <img
                             src={flyerImagen}
@@ -76,33 +76,27 @@ const TicketEvento = forwardRef((props, ref) => {
                         />
                     )}
 
-                    {/* Título en el centro vertical de la imagen: al partir líneas, el bloque crece hacia arriba (borde inferior fijo en el centro) */}
-                    <div className="pointer-events-none absolute inset-0 z-20">
-                        <div
-                            className="absolute left-0 right-0 px-4"
-                            style={{ bottom: "4%" }}
-                        >
-                            <h2
-                                className="mx-auto max-w-[95%] text-center font-bold leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
-                                style={{
-                                    fontFamily,
-                                    fontWeight: tipografiaBold ? 800 : 600,
-                                    letterSpacing,
-                                    fontSize: `${fontSizeTituloImagen}px`,
-                                    color: colorTitulo,
-                                }}
-                            >
-                                {nombrePromo || "Título del evento"}
-                            </h2>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Franja amarilla (aquí van los datos) */}
                 <div
-                    className="shrink-0 px-5 pb-5 pt-3 h-[260px] overflow-hidden"
+                    className="shrink-0 h-[335px] px-5 pb-5 pt-3 overflow-hidden"
                     style={{ backgroundColor: colorAmarillo }}
                 >
+                    {/* Título del evento */}
+                    <h2
+                        className="mx-auto max-w-[95%] text-center font-bold leading-tight mb-1"
+                        style={{
+                            fontFamily,
+                            fontWeight: tipografiaBold ? 800 : 600,
+                            letterSpacing,
+                            fontSize: `${fontSizeTituloImagen}px`,
+                            color: colorTitulo !== "#FFFFFF" ? colorTitulo : "#000000",
+                        }}
+                    >
+                        {nombrePromo || "Título del evento"}
+                    </h2>
+
                     {nombreRestaurante?.trim() && (
                         <p className="text-center text-[11px] font-bold uppercase tracking-wide text-black">
                             {nombreRestaurante}
@@ -199,7 +193,7 @@ const TicketEvento = forwardRef((props, ref) => {
                     </div>
                 </div>
             </div>
-            
+
         </div>
     );
 });
