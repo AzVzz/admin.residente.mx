@@ -71,7 +71,27 @@ const NuevaCampana = () => {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
-      .then((data) => {
+      .then(async (data) => {
+        let notas = data.notas;
+        if (typeof notas === "string") { try { notas = JSON.parse(notas); } catch { notas = []; } }
+        if (!Array.isArray(notas)) notas = [];
+
+        // Enriquecer notas sin descripción obteniendo el detalle
+        notas = await Promise.all(
+          notas.map(async (nota) => {
+            if (nota.descripcion) return nota;
+            try {
+              const res = await fetch(`${urlApi}api/notas/id/${nota.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const detail = await res.json();
+              return { ...nota, descripcion: detail.descripcion || detail.subtitulo || "" };
+            } catch {
+              return nota;
+            }
+          })
+        );
+
         setForm({
           nombre: data.nombre || "",
           asunto: data.asunto || "",
@@ -79,11 +99,7 @@ const NuevaCampana = () => {
           logo_texto: data.logo_texto || "RESIDENTE",
           intro_texto: data.intro_texto || "",
           footer_texto: data.footer_texto || "",
-          notas: (() => {
-            let n = data.notas;
-            if (typeof n === "string") { try { n = JSON.parse(n); } catch { n = []; } }
-            return Array.isArray(n) ? n : [];
-          })(),
+          notas,
         });
       })
       .catch(() => setError("Error cargando campaña"));
@@ -108,9 +124,20 @@ const NuevaCampana = () => {
     return () => { cancelled = true; };
   }, [debouncedForm]);
 
-  const agregarNota = (nota) => {
+  const agregarNota = async (nota) => {
     if (form.notas.length >= NOTAS_MAX) return;
     if (form.notas.find((n) => String(n.id) === String(nota.id))) return;
+
+    // El endpoint de lista excluye `descripcion`; buscar detalle para obtenerla
+    let descripcion = "";
+    try {
+      const res = await fetch(`${urlApi}api/notas/id/${nota.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const detail = await res.json();
+      descripcion = detail.descripcion || detail.subtitulo || "";
+    } catch {}
+
     setForm((prev) => ({
       ...prev,
       notas: [
@@ -118,7 +145,7 @@ const NuevaCampana = () => {
         {
           id: nota.id,
           titulo: nota.titulo || "",
-          descripcion: nota.resumen || nota.descripcion || nota.subtitulo || "",
+          descripcion,
           imagen: nota.imagen || nota.imagen_mediana || nota.imagen_grande || "",
           slug: nota.slug || "",
         },
@@ -495,9 +522,11 @@ const NuevaCampana = () => {
               <iframe
                 srcDoc={previewHtml}
                 title="Email preview"
-                className="w-full border-none block"
+                className="border-none block"
                 style={{
-                  height: vistaPreview === "mobile" ? "calc(85vh - 80px)" : "85vh",
+                  width: vistaPreview === "mobile" ? "600px" : "100%",
+                  zoom: vistaPreview === "mobile" ? (375 / 600) : 1,
+                  height: vistaPreview === "mobile" ? "1400px" : "85vh",
                   minHeight: "600px",
                   borderRadius: vistaPreview === "mobile" ? "20px" : "0",
                 }}
