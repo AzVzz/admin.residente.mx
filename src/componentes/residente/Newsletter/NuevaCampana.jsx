@@ -79,9 +79,11 @@ const NuevaCampana = () => {
           logo_texto: data.logo_texto || "RESIDENTE",
           intro_texto: data.intro_texto || "",
           footer_texto: data.footer_texto || "",
-          notas: Array.isArray(data.notas)
-            ? data.notas
-            : (typeof data.notas === "string" ? JSON.parse(data.notas) : []),
+          notas: (() => {
+            let n = data.notas;
+            if (typeof n === "string") { try { n = JSON.parse(n); } catch { n = []; } }
+            return Array.isArray(n) ? n : [];
+          })(),
         });
       })
       .catch(() => setError("Error cargando campaña"));
@@ -108,17 +110,17 @@ const NuevaCampana = () => {
 
   const agregarNota = (nota) => {
     if (form.notas.length >= NOTAS_MAX) return;
-    if (form.notas.find((n) => n.id === nota.id)) return;
+    if (form.notas.find((n) => String(n.id) === String(nota.id))) return;
     setForm((prev) => ({
       ...prev,
       notas: [
         ...prev.notas,
         {
           id: nota.id,
-          titulo: nota.titulo,
-          resumen: nota.resumen || nota.descripcion || "",
-          imagen: nota.imagen,
-          slug: nota.slug,
+          titulo: nota.titulo || "",
+          descripcion: nota.resumen || nota.descripcion || nota.subtitulo || "",
+          imagen: nota.imagen || nota.imagen_mediana || nota.imagen_grande || "",
+          slug: nota.slug || "",
         },
       ],
     }));
@@ -150,7 +152,11 @@ const NuevaCampana = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error guardando");
-      navigate("/correos");
+      if (!esEdicion) {
+        navigate(`/correos/editar/${data.id}`);
+      } else {
+        navigate("/correos");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
