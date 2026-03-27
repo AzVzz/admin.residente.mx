@@ -215,6 +215,12 @@ const RegistroInvitados = lazy(
 const GestionCodigos = lazy(
   () => import("./componentes/residente/Admin/GestionCodigos"),
 );
+const CampanasNewsletter = lazy(
+  () => import("./componentes/residente/Newsletter/CampanasNewsletter"),
+);
+const NuevaCampana = lazy(
+  () => import("./componentes/residente/Newsletter/NuevaCampana"),
+);
 const FormularioReceta = lazy(
   () =>
     import("./componentes/residente/componentes/compFormularioMain/FormularioReceta"),
@@ -681,6 +687,20 @@ function App() {
 
               {/* Admin */}
               <Route path="/formnewsletter" element={<FormNewsletter />} />
+
+              {/* Newsletter / Correos */}
+              <Route
+                path="/correos"
+                element={<CampanasNewsletter />}
+              />
+              <Route
+                path="/correos/nueva"
+                element={<NuevaCampana />}
+              />
+              <Route
+                path="/correos/editar/:id"
+                element={<NuevaCampana />}
+              />
 
               {/* Admin */}
               <Route
