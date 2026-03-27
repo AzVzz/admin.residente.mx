@@ -85,7 +85,7 @@ const TicketEvento = forwardRef((props, ref) => {
                 >
                     {/* Título del evento */}
                     <h2
-                        className="mx-auto max-w-[95%] text-center font-bold leading-tight mb-1"
+                        className="mx-auto max-w-[95%] text-center font-bold leading-tight mb-1 line-clamp-3 overflow-hidden"
                         style={{
                             fontFamily,
                             fontWeight: tipografiaBold ? 800 : 600,

@@ -332,8 +332,8 @@ const FormularioEvento = ({
                     <div className="flex gap-3 items-center flex-wrap">
                         <input
                             type="range"
-                            min="36"
-                            max="90"
+                            min="16"
+                            max="60"
                             step="1"
                             value={formData.fontSizeTituloImagen ?? 36}
                             onChange={(e) => onFieldChange("fontSizeTituloImagen", parseInt(e.target.value, 10))}
