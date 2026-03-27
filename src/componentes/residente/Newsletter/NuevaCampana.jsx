@@ -79,7 +79,9 @@ const NuevaCampana = () => {
           logo_texto: data.logo_texto || "RESIDENTE",
           intro_texto: data.intro_texto || "",
           footer_texto: data.footer_texto || "",
-          notas: Array.isArray(data.notas) ? data.notas : [],
+          notas: Array.isArray(data.notas)
+            ? data.notas
+            : (typeof data.notas === "string" ? JSON.parse(data.notas) : []),
         });
       })
       .catch(() => setError("Error cargando campaña"));
