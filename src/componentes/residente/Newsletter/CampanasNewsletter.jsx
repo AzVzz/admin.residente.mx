@@ -51,7 +51,7 @@ const CampanasNewsletter = () => {
   return (
     <div className="max-w-[1080px] mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Campañas de Newsletter</h1>
+        <h1 className="text-2xl font-bold">Correos</h1>
         <Link
           to="/correos/nueva"
           className="bg-[#FFF200] text-black font-bold px-4 py-2 rounded hover:opacity-80 transition-opacity text-sm"

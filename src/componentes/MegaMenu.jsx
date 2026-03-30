@@ -273,7 +273,7 @@ const MegaMenu = () => {
                           className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          Correos
+                          Campañas de correo
                         </Link>
                       </li>
                     </ul>
@@ -290,7 +290,7 @@ const MegaMenu = () => {
                         <Link to="/evento" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Crear Evento</Link>
                         <Link to="/dashboardtickets" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Dashboard Cupones</Link>
                         <Link to="/promo" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Crear Cupón</Link>
-                        <Link to="/correos" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Correos</Link>
+                        <Link to="/correos" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Campañas de correo</Link>
                       </div>
                     </div>
                   )}
