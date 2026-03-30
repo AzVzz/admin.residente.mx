@@ -50,7 +50,7 @@ const TicketEvento = forwardRef((props, ref) => {
     return (
         <div ref={ref} className={`relative w-90 ${className}`} style={{ background: "transparent" }}>
             <div
-                className="flex w-90 h-[670px] flex-col overflow-hidden rounded-sm shadow-lg"
+                className="flex w-90 min-h-[670px] flex-col overflow-hidden rounded-sm shadow-lg"
                 style={{ backgroundColor: colorFondo }}
             >
                 {/* Hero: imagen full-bleed + texto encima (overlay) */}
@@ -80,7 +80,7 @@ const TicketEvento = forwardRef((props, ref) => {
 
                 {/* Franja amarilla (aquí van los datos) */}
                 <div
-                    className="shrink-0 h-[335px] px-5 pb-5 pt-3 overflow-hidden"
+                    className="shrink-0 min-h-[335px] px-5 pb-5 pt-3"
                     style={{ backgroundColor: colorAmarillo }}
                 >
                     {/* Título del evento */}
