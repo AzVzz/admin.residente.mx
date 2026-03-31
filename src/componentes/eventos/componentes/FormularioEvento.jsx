@@ -63,7 +63,7 @@ const FormularioEvento = ({
                     {/* Nombre del evento */}
                     <div className="flex flex-col">
                         <label className="block text-xl font-medium text-gray-950 mb-1">Nombre del evento *</label>
-                        <textarea value={formData.promoName} onChange={(e) => onFieldChange("promoName", e.target.value)} placeholder="Ej. Cata de Vinos&#10;Especial" rows={2} className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg resize-none" style={{ minHeight: 48, maxHeight: 120 }} />
+                        <textarea value={formData.promoName} onChange={(e) => onFieldChange("promoName", e.target.value.replace(/\n+/g, " ").replace(/\s+/g, " "))} placeholder="Ej. Cata de Vinos&#10;Especial" rows={2} className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg resize-none" style={{ minHeight: 48, maxHeight: 120 }} />
                     </div>
 
                     {/* Subtítulo */}
