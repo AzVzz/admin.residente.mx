@@ -39,6 +39,7 @@ import usePageTracking from "./usePageTracking.js";
 // import StripeCheckout from "./componentes/StripeCheckout.jsx"; // Converted to lazy
 // import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"; // Converted to lazy
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
+import ResidenteRoute from "./componentes/rutas/ResidenteRoute.jsx";
 // import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"; // Converted to lazy
 // import Registro from "./componentes/residente/Registro.jsx"; // Converted to lazy
 // import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx"; // Converted to lazy
@@ -691,15 +692,15 @@ function App() {
               {/* Newsletter / Correos */}
               <Route
                 path="/correos"
-                element={<CampanasNewsletter />}
+                element={<ResidenteRoute><CampanasNewsletter /></ResidenteRoute>}
               />
               <Route
                 path="/correos/nueva"
-                element={<NuevaCampana />}
+                element={<ResidenteRoute><NuevaCampana /></ResidenteRoute>}
               />
               <Route
                 path="/correos/editar/:id"
-                element={<NuevaCampana />}
+                element={<ResidenteRoute><NuevaCampana /></ResidenteRoute>}
               />
 
               {/* Admin */}
