@@ -17,9 +17,10 @@ const CampanasNewsletter = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
       setCampanas(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError("Error cargando campañas");
+      setError(err.message || "Error cargando campañas");
     } finally {
       setIsLoading(false);
     }
