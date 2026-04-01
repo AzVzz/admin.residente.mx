@@ -5,7 +5,7 @@ import { urlApi, imgApi } from "../../api/url";
 import { catalogoNotasGet } from "../../api/notasPublicadasGet";
 import { useDebounce } from "../../../hooks/useDebounce";
 
-const BLOQUES_MAX = 8;
+const BLOQUES_MAX = 12;
 
 // ── Iconos SVG ───────────────────────────────────────────────────────────────
 
@@ -59,6 +59,33 @@ const IconTicket = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
     <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
     <path d="M13 5v2M13 17v2M13 11v2"/>
+  </svg>
+);
+
+const IconImage = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="8.5" cy="8.5" r="1.5"/>
+    <path d="M21 15l-5-5L5 21"/>
+  </svg>
+);
+
+const IconText = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
+  </svg>
+);
+
+const IconLink = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+  </svg>
+);
+
+const IconSeparator = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <path d="M3 12h18M12 5v2M12 17v2"/>
   </svg>
 );
 
@@ -140,43 +167,61 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar }) => {
 
 const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
   const [expandido, setExpandido] = useState(true);
+  const [mostrarPicker, setMostrarPicker] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [todos, setTodos] = useState([]);
   const [cargados, setCargados] = useState(false);
   const [cargando, setCargando] = useState(false);
+  const [cargandoId, setCargandoId] = useState(null);
+  const [expandidosItems, setExpandidosItems] = useState({});
+  const toggleExpandItem = (id) => setExpandidosItems((p) => ({ ...p, [id]: !p[id] }));
+
+  const items = bloque.items || [];
 
   useEffect(() => {
-    if (!expandido || cargados) return;
+    if (!mostrarPicker || cargados) return;
     setCargando(true);
     fetch(`${urlApi}api/restaurante/basicos`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((data) => { setTodos(Array.isArray(data) ? data : []); setCargados(true); })
       .catch(() => setTodos([]))
       .finally(() => setCargando(false));
-  }, [expandido, cargados, token]);
+  }, [mostrarPicker, cargados, token]);
 
-  const idsAgregados = new Set((bloque.items || []).map((i) => i.id));
+  const idsAgregados = new Set(items.map((i) => i.id));
 
-  const resultados = busqueda.trim()
-    ? todos.filter((r) => r.nombre_restaurante?.toLowerCase().includes(busqueda.toLowerCase()) && !idsAgregados.has(r.id)).slice(0, 12)
-    : [];
+  const filtrados = busqueda.trim()
+    ? todos.filter((r) => r.nombre_restaurante?.toLowerCase().includes(busqueda.toLowerCase()))
+    : todos;
 
-  const agregarItem = async (r) => {
-    if (idsAgregados.has(r.id)) return;
-    let imagen = "";
+  const toggleItem = async (r) => {
+    if (idsAgregados.has(r.id)) {
+      onChange(idx, "items", items.filter((i) => i.id !== r.id));
+      return;
+    }
+    setCargandoId(r.id);
+    let imagen = "", tipo_lugar = "", comida = "", ticket_promedio = "", zona = "", descripcion = "";
     try {
       const res = await fetch(`${urlApi}api/restaurante/${r.slug || r.id}`);
       const detail = await res.json();
       const imgs = detail.imagenes || [];
       imagen = imgs[0]?.src || imgs[0]?.url_imagen || "";
+      tipo_lugar = detail.tipo_lugar || "";
+      const comidaArr = Array.isArray(detail.comida) ? detail.comida : (typeof detail.comida === "string" ? JSON.parse(detail.comida || "[]") : []);
+      comida = comidaArr.slice(0, 3).join(" · ");
+      ticket_promedio = detail.ticket_promedio || "";
+      const secciones = Array.isArray(detail.secciones_categorias) ? detail.secciones_categorias : [];
+      zona = secciones.find((s) => s.tipo === "zona" || s.categoria === "zona")?.nombre || secciones[0]?.nombre || "";
+      descripcion = detail.meta_description || "";
     } catch {}
-    const items = [...(bloque.items || []), { id: r.id, nombre: r.nombre_restaurante, slug: r.slug || "", imagen, descripcion: "" }];
-    onChange(idx, "items", items);
-    setBusqueda("");
+    onChange(idx, "items", [...items, { id: r.id, nombre: r.nombre_restaurante, slug: r.slug || "", imagen, descripcion: "", tipo_lugar, comida, ticket_promedio, zona, cta_texto: "" }]);
+    setCargandoId(null);
   };
 
-  const quitarItem = (id) => onChange(idx, "items", (bloque.items || []).filter((i) => i.id !== id));
-  const editarItemDesc = (id, val) => onChange(idx, "items", (bloque.items || []).map((i) => i.id === id ? { ...i, descripcion: val } : i));
+  const editarItem = (id, campo, val) =>
+    onChange(idx, "items", items.map((i) => i.id === id ? { ...i, [campo]: val } : i));
+
+  const quitarItem = (id) => onChange(idx, "items", items.filter((i) => i.id !== id));
 
   return (
     <div className="border border-blue-200 rounded-lg overflow-hidden">
@@ -184,14 +229,17 @@ const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
         <span className="text-blue-200"><IconDrag /></span>
         <span className="text-xs text-blue-400 font-bold w-4 shrink-0">{idx + 1}</span>
         <span className="text-blue-400"><IconRestaurant /></span>
-        <span className="flex-1 text-xs font-medium text-blue-900 truncate">{bloque.titulo || "Lista de restaurantes"}</span>
+        <span className="flex-1 text-xs font-medium text-blue-900 truncate">
+          {bloque.titulo || "Lista de restaurantes"}
+          {items.length > 0 && <span className="ml-1 text-blue-400">({items.length})</span>}
+        </span>
         <span className="text-xs bg-blue-200 text-blue-700 px-2 py-0.5 rounded font-semibold shrink-0">Restaurantes</span>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-blue-400 hover:text-blue-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
 
       {expandido && (
-        <div className="px-3 py-3 space-y-2 border-t border-blue-100 bg-white">
+        <div className="px-3 py-3 space-y-3 border-t border-blue-100 bg-white">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Título de la sección</label>
             <input type="text" value={bloque.titulo || ""} onChange={(e) => onChange(idx, "titulo", e.target.value)}
@@ -199,39 +247,131 @@ const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
               className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
           </div>
 
-          {(bloque.items || []).length > 0 && (
-            <div className="space-y-1">
-              {(bloque.items || []).map((item) => (
-                <div key={item.id} className="flex items-center gap-2 bg-gray-50 rounded px-2 py-1">
-                  {item.imagen && (
-                    <img src={item.imagen.startsWith("http") ? item.imagen : `${imgApi}fotos/${item.imagen}`} alt=""
-                      className="w-7 h-7 rounded-full object-cover shrink-0"
-                      onError={(e) => { e.target.style.display = "none"; }} />
-                  )}
-                  <span className="flex-1 text-xs font-medium truncate">{item.nombre}</span>
-                  <input type="text" value={item.descripcion || ""} onChange={(e) => editarItemDesc(item.id, e.target.value)}
-                    placeholder="Nota corta (opcional)"
-                    className="w-28 border border-gray-200 rounded px-1.5 py-0.5 text-xs focus:outline-none" />
-                  <button onClick={() => quitarItem(item.id)} className="text-red-400 hover:text-red-600 text-xs shrink-0">✕</button>
-                </div>
-              ))}
+          {/* ── Restaurantes seleccionados ── */}
+          {items.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Seleccionados ({items.length})</p>
+              {items.map((item) => {
+                const exp = !!expandidosItems[item.id];
+                const imgSrc = item.imagen ? (item.imagen.startsWith("http") ? item.imagen : `${imgApi}fotos/${item.imagen}`) : "";
+                return (
+                  <div key={item.id} className="border border-blue-100 rounded-lg overflow-hidden">
+                    {/* Header del item */}
+                    <div className="flex items-center gap-2 px-2 py-2 bg-blue-50">
+                      {imgSrc ? (
+                        <img src={imgSrc} alt="" className="w-8 h-8 rounded-full object-cover shrink-0"
+                          onError={(e) => { e.target.style.display = "none"; }} />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center text-gray-400"><IconRestaurant /></div>
+                      )}
+                      <span className="flex-1 text-xs font-bold text-blue-900 truncate">{item.nombre}</span>
+                      <button onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleExpandItem(item.id)}
+                        className="text-blue-400 hover:text-blue-700 p-1">{exp ? <IconChevronUp /> : <IconChevronDown />}</button>
+                      <button onPointerDown={(e) => e.stopPropagation()} onClick={() => quitarItem(item.id)}
+                        className="text-red-400 hover:text-red-600 p-1"><IconClose /></button>
+                    </div>
+                    {/* Panel editable */}
+                    {exp && (
+                      <div className="px-3 py-2.5 space-y-2 bg-white border-t border-blue-100">
+                        {/* Toggles */}
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                          {[
+                            ["mostrar_imagen", "Imagen"],
+                            ["mostrar_tipo", "Tipo / Cocina"],
+                            ["mostrar_precio", "Precio promedio"],
+                            ["mostrar_descripcion", "Descripción"],
+                            ["mostrar_cta", "Botón CTA"],
+                          ].map(([campo, label]) => (
+                            <label key={campo} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                              <input type="checkbox" checked={item[campo] !== false}
+                                onChange={(e) => editarItem(item.id, campo, e.target.checked)} className="rounded" />
+                              {label}
+                            </label>
+                          ))}
+                        </div>
+                        {/* Info auto-cargada (solo lectura si no se edita) */}
+                        {(item.tipo_lugar || item.comida) && (
+                          <div className="text-xs text-gray-400 bg-gray-50 rounded px-2 py-1">
+                            {[item.tipo_lugar, item.comida].filter(Boolean).join(" · ")}
+                            {item.ticket_promedio && <span className="ml-2 font-semibold">{item.ticket_promedio}</span>}
+                          </div>
+                        )}
+                        {/* Campos editables */}
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-0.5">Nombre (override)</label>
+                          <input type="text" value={item.nombre || ""}
+                            onChange={(e) => editarItem(item.id, "nombre", e.target.value)}
+                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">Tipo / Cocina</label>
+                            <input type="text" value={item.comida || ""}
+                              onChange={(e) => editarItem(item.id, "comida", e.target.value)}
+                              placeholder={item.tipo_lugar || "Japonesa · Fusión"}
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">Precio promedio</label>
+                            <input type="text" value={item.ticket_promedio || ""}
+                              onChange={(e) => editarItem(item.id, "ticket_promedio", e.target.value)}
+                              placeholder="$200-$500"
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-0.5">Descripción</label>
+                          <textarea value={item.descripcion || ""}
+                            onChange={(e) => editarItem(item.id, "descripcion", e.target.value)}
+                            rows={2} placeholder="Texto que aparece bajo el nombre"
+                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400 resize-none" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-0.5">Texto del botón CTA</label>
+                          <input type="text" value={item.cta_texto || ""}
+                            onChange={(e) => editarItem(item.id, "cta_texto", e.target.value)}
+                            placeholder="Ver restaurante"
+                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          <div className="relative">
-            <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-              placeholder={cargando ? "Cargando..." : "Buscar restaurante..."}
-              disabled={cargando}
-              className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 disabled:opacity-50" />
-            {busqueda.trim() && (
-              <div className="absolute z-10 w-full bg-white border border-gray-200 rounded shadow-md mt-1 max-h-40 overflow-y-auto">
-                {resultados.map((r) => (
-                  <div key={r.id} onClick={() => agregarItem(r)}
-                    className="px-3 py-1.5 text-xs hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
-                    {r.nombre_restaurante}
-                  </div>
-                ))}
-                {resultados.length === 0 && <div className="px-3 py-2 text-xs text-gray-400">Sin resultados</div>}
+          {/* ── Picker ── */}
+          <div>
+            <button onClick={() => setMostrarPicker((v) => !v)}
+              className="flex items-center gap-1.5 text-xs text-blue-700 font-semibold hover:text-blue-900 transition-colors">
+              <IconPlus />
+              {mostrarPicker ? "Ocultar lista" : "Agregar restaurante"}
+            </button>
+            {mostrarPicker && (
+              <div className="mt-2 space-y-1.5">
+                <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder={cargando ? "Cargando..." : `Buscar entre ${todos.length} restaurantes...`}
+                  disabled={cargando}
+                  className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 disabled:opacity-50" />
+                <div className="max-h-48 overflow-y-auto border border-gray-100 rounded">
+                  {cargando && <div className="flex justify-center py-5"><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-400" /></div>}
+                  {!cargando && filtrados.length === 0 && <div className="px-3 py-3 text-xs text-gray-400 text-center">Sin resultados</div>}
+                  {filtrados.map((r) => {
+                    const sel = idsAgregados.has(r.id);
+                    const cargandoEste = cargandoId === r.id;
+                    return (
+                      <div key={r.id} onClick={() => !cargandoEste && toggleItem(r)}
+                        className={`flex items-center gap-2 px-2 py-1.5 cursor-pointer transition-colors ${sel ? "bg-blue-50" : "bg-white hover:bg-gray-50"}`}>
+                        <div className={`w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors ${sel ? "bg-blue-600 border-blue-600" : "border-gray-300"}`}>
+                          {sel && <IconCheck />}
+                          {cargandoEste && <div className="w-2.5 h-2.5 animate-spin rounded-full border-t border-blue-400" />}
+                        </div>
+                        <span className={`flex-1 text-xs truncate ${sel ? "font-semibold text-blue-900" : "text-gray-700"}`}>{r.nombre_restaurante}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -245,47 +385,54 @@ const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
 
 const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
   const [expandido, setExpandido] = useState(true);
+  const [mostrarPicker, setMostrarPicker] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [todos, setTodos] = useState([]);
   const [cargados, setCargados] = useState(false);
   const [cargando, setCargando] = useState(false);
+  const [expandidosItems, setExpandidosItems] = useState({});
+  const toggleExpandItem = (id) => setExpandidosItems((p) => ({ ...p, [id]: !p[id] }));
+
+  const items = bloque.items || [];
 
   useEffect(() => {
-    if (!expandido || cargados) return;
+    if (!mostrarPicker || cargados) return;
     setCargando(true);
     fetch(`${urlApi}api/tickets/`)
       .then((r) => r.json())
       .then((data) => { setTodos(Array.isArray(data) ? data : []); setCargados(true); })
       .catch(() => setTodos([]))
       .finally(() => setCargando(false));
-  }, [expandido, cargados]);
+  }, [mostrarPicker, cargados]);
 
-  const idsAgregados = new Set((bloque.items || []).map((i) => i.id));
+  const idsAgregados = new Set(items.map((i) => i.id));
 
-  const resultados = busqueda.trim()
+  const filtrados = busqueda.trim()
     ? todos.filter((c) => {
         const q = busqueda.toLowerCase();
-        return (c.nombre_restaurante?.toLowerCase().includes(q) || c.titulo?.toLowerCase().includes(q) || c.subtitulo?.toLowerCase().includes(q)) && !idsAgregados.has(c.id);
-      }).slice(0, 12)
-    : [];
+        return c.nombre_restaurante?.toLowerCase().includes(q) || c.titulo?.toLowerCase().includes(q) || c.subtitulo?.toLowerCase().includes(q);
+      })
+    : todos;
 
-  const agregarItem = (c) => {
-    if (idsAgregados.has(c.id)) return;
-    const items = [...(bloque.items || []), {
-      id: c.id,
-      nombre_restaurante: c.nombre_restaurante || "",
-      titulo: c.titulo || "",
-      subtitulo: c.subtitulo || "",
-      descripcion: c.descripcion || "",
-      imagen_url: c.imagen_url || "",
-      link: c.link || "",
-      cta_texto: "",
-    }];
-    onChange(idx, "items", items);
-    setBusqueda("");
+  const toggleItem = (c) => {
+    if (idsAgregados.has(c.id)) {
+      onChange(idx, "items", items.filter((i) => i.id !== c.id));
+    } else {
+      onChange(idx, "items", [...items, {
+        id: c.id,
+        nombre_restaurante: c.nombre_restaurante || "",
+        titulo: c.titulo || "",
+        subtitulo: c.subtitulo || "",
+        descripcion: c.descripcion || "",
+        imagen_url: c.imagen_url || "",
+        link: c.link || "",
+        cta_texto: "",
+      }]);
+    }
   };
 
-  const quitarItem = (id) => onChange(idx, "items", (bloque.items || []).filter((i) => i.id !== id));
+  const editarItem = (id, campo, val) =>
+    onChange(idx, "items", items.map((i) => i.id === id ? { ...i, [campo]: val } : i));
 
   return (
     <div className="border border-amber-200 rounded-lg overflow-hidden">
@@ -293,14 +440,17 @@ const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
         <span className="text-amber-200"><IconDrag /></span>
         <span className="text-xs text-amber-400 font-bold w-4 shrink-0">{idx + 1}</span>
         <span className="text-amber-400"><IconTicket /></span>
-        <span className="flex-1 text-xs font-medium text-amber-900 truncate">{bloque.titulo || "Ofertas especiales"}</span>
+        <span className="flex-1 text-xs font-medium text-amber-900 truncate">
+          {bloque.titulo || "Ofertas especiales"}
+          {items.length > 0 && <span className="ml-1 text-amber-400">({items.length})</span>}
+        </span>
         <span className="text-xs bg-amber-200 text-amber-700 px-2 py-0.5 rounded font-semibold shrink-0">Cupones</span>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-amber-400 hover:text-amber-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
 
       {expandido && (
-        <div className="px-3 py-3 space-y-2 border-t border-amber-100 bg-white">
+        <div className="px-3 py-3 space-y-3 border-t border-amber-100 bg-white">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Título de la sección</label>
@@ -309,54 +459,375 @@ const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
                 className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">CTA global</label>
+              <label className="block text-xs text-gray-500 mb-1">CTA por defecto</label>
               <input type="text" value={bloque.cta_texto || ""} onChange={(e) => onChange(idx, "cta_texto", e.target.value)}
                 placeholder="Ver cupón"
                 className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
             </div>
           </div>
 
-          {(bloque.items || []).length > 0 && (
-            <div className="space-y-1">
-              {(bloque.items || []).map((item) => (
-                <div key={item.id} className="flex items-center gap-2 bg-gray-50 rounded px-2 py-1.5">
-                  {item.imagen_url && (
-                    <img src={item.imagen_url} alt="" className="w-8 h-8 object-cover shrink-0 rounded"
-                      onError={(e) => { e.target.style.display = "none"; }} />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold truncate">{item.titulo} {item.subtitulo}</p>
-                    <p className="text-xs text-gray-400 truncate">{item.nombre_restaurante}</p>
+          {/* ── Cupones seleccionados ── */}
+          {items.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Seleccionados ({items.length})</p>
+              {items.map((item) => {
+                const exp = !!expandidosItems[item.id];
+                return (
+                  <div key={item.id} className="border border-amber-100 rounded-lg overflow-hidden">
+                    {/* Header del item */}
+                    <div className="flex items-center gap-2 px-2 py-2 bg-amber-50">
+                      {item.imagen_url ? (
+                        <img src={item.imagen_url} alt=""
+                          className="w-8 h-auto rounded shrink-0" style={{ maxWidth: "30px" }}
+                          onError={(e) => { e.target.style.display = "none"; }} />
+                      ) : (
+                        <div className="w-8 h-8 bg-gray-200 rounded shrink-0 flex items-center justify-center text-gray-400"><IconTicket /></div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-amber-900 truncate leading-tight">{item.titulo}{item.subtitulo ? ` ${item.subtitulo}` : ""}</p>
+                        {item.nombre_restaurante && <p className="text-xs text-amber-600 truncate">{item.nombre_restaurante}</p>}
+                      </div>
+                      <button onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleExpandItem(item.id)}
+                        className="text-amber-400 hover:text-amber-700 p-1">{exp ? <IconChevronUp /> : <IconChevronDown />}</button>
+                      <button onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleItem({ id: item.id })}
+                        className="text-red-400 hover:text-red-600 p-1"><IconClose /></button>
+                    </div>
+                    {/* Panel editable */}
+                    {exp && (
+                      <div className="px-3 py-2.5 space-y-2 bg-white border-t border-amber-100">
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                            <input type="checkbox" checked={item.mostrar_imagen !== false}
+                              onChange={(e) => editarItem(item.id, "mostrar_imagen", e.target.checked)} className="rounded" />
+                            Imagen
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                            <input type="checkbox" checked={item.mostrar_nombre !== false}
+                              onChange={(e) => editarItem(item.id, "mostrar_nombre", e.target.checked)} className="rounded" />
+                            Nombre restaurante
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                            <input type="checkbox" checked={item.mostrar_titulo !== false}
+                              onChange={(e) => editarItem(item.id, "mostrar_titulo", e.target.checked)} className="rounded" />
+                            Título / precio
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                            <input type="checkbox" checked={item.mostrar_descripcion !== false}
+                              onChange={(e) => editarItem(item.id, "mostrar_descripcion", e.target.checked)} className="rounded" />
+                            Descripción
+                          </label>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">Título (override)</label>
+                            <input type="text" value={item.titulo || ""}
+                              onChange={(e) => editarItem(item.id, "titulo", e.target.value)}
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">Subtítulo (override)</label>
+                            <input type="text" value={item.subtitulo || ""}
+                              onChange={(e) => editarItem(item.id, "subtitulo", e.target.value)}
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-0.5">Descripción (override)</label>
+                          <textarea value={item.descripcion || ""}
+                            onChange={(e) => editarItem(item.id, "descripcion", e.target.value)}
+                            rows={2} placeholder="Descripción del cupón"
+                            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400 resize-none" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">Texto del botón CTA</label>
+                            <input type="text" value={item.cta_texto || ""}
+                              onChange={(e) => editarItem(item.id, "cta_texto", e.target.value)}
+                              placeholder={bloque.cta_texto || "Ver cupón"}
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-0.5">URL destino</label>
+                            <input type="text" value={item.link || ""}
+                              onChange={(e) => editarItem(item.id, "link", e.target.value)}
+                              placeholder="https://..."
+                              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <button onClick={() => quitarItem(item.id)} className="text-red-400 hover:text-red-600 text-xs shrink-0">✕</button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
-          <div className="relative">
-            <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-              placeholder={cargando ? "Cargando cupones..." : "Buscar por restaurante o descuento..."}
-              disabled={cargando}
-              className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 disabled:opacity-50" />
-            {busqueda.trim() && (
-              <div className="absolute z-10 w-full bg-white border border-gray-200 rounded shadow-md mt-1 max-h-48 overflow-y-auto">
-                {resultados.map((c) => (
-                  <div key={c.id} onClick={() => agregarItem(c)}
-                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
-                    {c.imagen_url && <img src={c.imagen_url} alt="" className="w-7 h-7 object-cover rounded shrink-0" onError={(e) => { e.target.style.display = "none"; }} />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold truncate">{c.titulo} {c.subtitulo}</p>
-                      <p className="text-xs text-gray-400 truncate">{c.nombre_restaurante}</p>
-                    </div>
-                  </div>
-                ))}
-                {resultados.length === 0 && <div className="px-3 py-2 text-xs text-gray-400">Sin resultados</div>}
+          {/* ── Picker ── */}
+          <div>
+            <button onClick={() => setMostrarPicker((v) => !v)}
+              className="flex items-center gap-1.5 text-xs text-amber-700 font-semibold hover:text-amber-900 transition-colors">
+              <IconPlus />
+              {mostrarPicker ? "Ocultar lista" : "Agregar cupón"}
+            </button>
+            {mostrarPicker && (
+              <div className="mt-2 space-y-1.5">
+                <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder={cargando ? "Cargando..." : `Buscar entre ${todos.length} cupones...`}
+                  disabled={cargando}
+                  className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 disabled:opacity-50" />
+                <div className="max-h-48 overflow-y-auto border border-gray-100 rounded">
+                  {cargando && <div className="flex justify-center py-5"><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-amber-400" /></div>}
+                  {!cargando && filtrados.length === 0 && <div className="px-3 py-3 text-xs text-gray-400 text-center">Sin resultados</div>}
+                  {filtrados.map((c) => {
+                    const sel = idsAgregados.has(c.id);
+                    return (
+                      <div key={c.id} onClick={() => toggleItem(c)}
+                        className={`flex items-center gap-2 px-2 py-1.5 cursor-pointer transition-colors ${sel ? "bg-amber-50" : "bg-white hover:bg-gray-50"}`}>
+                        <div className={`w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors ${sel ? "bg-amber-500 border-amber-500" : "border-gray-300"}`}>
+                          {sel && <IconCheck />}
+                        </div>
+                        {c.imagen_url && (
+                          <img src={c.imagen_url} alt="" className="w-8 h-auto rounded shrink-0"
+                            style={{ maxWidth: "30px" }} onError={(e) => { e.target.style.display = "none"; }} />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs truncate ${sel ? "font-semibold text-amber-900" : "font-medium text-gray-700"}`}>
+                            {c.titulo}{c.subtitulo ? ` ${c.subtitulo}` : ""}
+                          </p>
+                          <p className="text-xs text-gray-400 truncate">{c.nombre_restaurante}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// ── Componente: Bloque Imagen ────────────────────────────────────────────────
+
+const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
+  const [expandido, setExpandido] = useState(true);
+  const [subiendo, setSubiendo] = useState(false);
+
+  const subirImagen = async (file) => {
+    if (!file) return;
+    setSubiendo(true);
+    try {
+      const formData = new FormData();
+      formData.append("imagen", file);
+      const res = await fetch(`${urlApi}api/uploads/newsletter-image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) onChange(idx, "url", data.url);
+    } catch (e) {
+      console.error("Error subiendo imagen:", e);
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
+  return (
+    <div className="border border-purple-200 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-purple-200"><IconDrag /></span>
+        <span className="text-xs text-purple-400 font-bold w-4 shrink-0">{idx + 1}</span>
+        <span className="text-purple-400"><IconImage /></span>
+        {bloque.url && (
+          <img src={bloque.url} alt="" className="w-7 h-7 object-cover shrink-0 rounded"
+            onError={(e) => { e.target.style.display = "none"; }} />
+        )}
+        <span className="flex-1 text-xs font-medium text-purple-900 truncate">{bloque.caption || "Imagen"}</span>
+        <span className="text-xs bg-purple-200 text-purple-700 px-2 py-0.5 rounded font-semibold shrink-0">Imagen</span>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-purple-400 hover:text-purple-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
+      </div>
+
+      {expandido && (
+        <div className="px-3 py-3 space-y-2 border-t border-purple-100 bg-white">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Imagen</label>
+            <div className="flex gap-2 items-center">
+              <label className={`flex items-center gap-1 text-xs border rounded px-2 py-1.5 cursor-pointer transition-colors ${subiendo ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50 border-gray-200"}`}>
+                <IconImage />
+                {subiendo ? "Subiendo..." : "Subir"}
+                <input type="file" accept="image/*" className="hidden" disabled={subiendo}
+                  onChange={(e) => subirImagen(e.target.files[0])} />
+              </label>
+              <span className="text-xs text-gray-400">o</span>
+              <input type="text" value={bloque.url || ""} onChange={(e) => onChange(idx, "url", e.target.value)}
+                placeholder="https://... URL de imagen"
+                className="flex-1 border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+            </div>
+            {bloque.url && (
+              <img src={bloque.url} alt="" className="mt-2 max-h-20 object-contain rounded border border-gray-100"
+                onError={(e) => { e.target.style.display = "none"; }} />
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Tamaño</label>
+              <select value={bloque.tamanio || "completo"} onChange={(e) => onChange(idx, "tamanio", e.target.value)}
+                className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400">
+                <option value="completo">Completo (540px)</option>
+                <option value="mediano">Mediano (320px)</option>
+                <option value="pequeno">Pequeño (200px)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Alineación</label>
+              <select value={bloque.alineacion || "centro"} onChange={(e) => onChange(idx, "alineacion", e.target.value)}
+                className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400">
+                <option value="izquierda">Izquierda</option>
+                <option value="centro">Centro</option>
+                <option value="derecha">Derecha</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Link al hacer clic (opcional)</label>
+            <input type="text" value={bloque.link || ""} onChange={(e) => onChange(idx, "link", e.target.value)}
+              placeholder="https://residente.mx/..."
+              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Pie de foto (opcional)</label>
+            <input type="text" value={bloque.caption || ""} onChange={(e) => onChange(idx, "caption", e.target.value)}
+              placeholder="Descripción de la imagen"
+              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Componente: Bloque Texto ─────────────────────────────────────────────────
+
+const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
+  const [expandido, setExpandido] = useState(true);
+  const preview = bloque.texto ? bloque.texto.slice(0, 40) + (bloque.texto.length > 40 ? "..." : "") : "Texto libre";
+
+  return (
+    <div className="border border-green-200 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-green-50 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-green-200"><IconDrag /></span>
+        <span className="text-xs text-green-400 font-bold w-4 shrink-0">{idx + 1}</span>
+        <span className="text-green-400"><IconText /></span>
+        <span className="flex-1 text-xs font-medium text-green-900 truncate">{preview}</span>
+        <span className="text-xs bg-green-200 text-green-700 px-2 py-0.5 rounded font-semibold shrink-0">Texto</span>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-green-400 hover:text-green-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
+      </div>
+
+      {expandido && (
+        <div className="px-3 py-3 space-y-2 border-t border-green-100 bg-white">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Texto</label>
+            <textarea value={bloque.texto || ""} onChange={(e) => onChange(idx, "texto", e.target.value)}
+              rows={4} placeholder="Escribe un párrafo, nota de cierre, aviso..."
+              className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 resize-none" />
+            <p className="text-xs text-gray-400 mt-0.5">Doble salto = párrafo nuevo.</p>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Alineación</label>
+            <div className="flex gap-1">
+              {["izquierda", "centro", "derecha"].map((a) => (
+                <button key={a} onClick={() => onChange(idx, "alineacion", a)}
+                  className={`text-xs px-2 py-1 rounded border transition-colors ${(bloque.alineacion || "izquierda") === a ? "border-black bg-black text-white" : "border-gray-200 hover:border-gray-400"}`}>
+                  {a === "izquierda" ? "Izq" : a === "centro" ? "Centro" : "Der"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Componente: Bloque Link ──────────────────────────────────────────────────
+
+const BloqueLink = ({ bloque, idx, onChange, onQuitar }) => {
+  const [expandido, setExpandido] = useState(true);
+
+  return (
+    <div className="border border-sky-200 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-sky-200"><IconDrag /></span>
+        <span className="text-xs text-sky-400 font-bold w-4 shrink-0">{idx + 1}</span>
+        <span className="text-sky-400"><IconLink /></span>
+        <span className="flex-1 text-xs font-medium text-sky-900 truncate">{bloque.texto || "Botón / Enlace"}</span>
+        <span className="text-xs bg-sky-200 text-sky-700 px-2 py-0.5 rounded font-semibold shrink-0">Enlace</span>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-sky-400 hover:text-sky-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
+      </div>
+
+      {expandido && (
+        <div className="px-3 py-3 space-y-2 border-t border-sky-100 bg-white">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Texto del botón</label>
+            <input type="text" value={bloque.texto || ""} onChange={(e) => onChange(idx, "texto", e.target.value)}
+              placeholder="Ver más en Residente"
+              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">URL destino</label>
+            <input type="text" value={bloque.url || ""} onChange={(e) => onChange(idx, "url", e.target.value)}
+              placeholder="https://residente.mx/..."
+              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Alineación</label>
+            <div className="flex gap-1">
+              {["izquierda", "centro", "derecha"].map((a) => (
+                <button key={a} onClick={() => onChange(idx, "alineacion", a)}
+                  className={`text-xs px-2 py-1 rounded border transition-colors ${(bloque.alineacion || "centro") === a ? "border-black bg-black text-white" : "border-gray-200 hover:border-gray-400"}`}>
+                  {a === "izquierda" ? "Izq" : a === "centro" ? "Centro" : "Der"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Componente: Bloque Separador ─────────────────────────────────────────────
+
+const BloqueSeparador = ({ bloque, idx, onChange, onQuitar }) => {
+  const etiquetas = { solido: "Línea sólida", punteado: "Línea punteada", grueso: "Línea gruesa", espacio: "Espacio" };
+
+  return (
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-gray-300"><IconDrag /></span>
+        <span className="text-xs text-gray-400 font-bold w-4 shrink-0">{idx + 1}</span>
+        <span className="text-gray-400"><IconSeparator /></span>
+        <span className="flex-1 text-xs font-medium text-gray-700 truncate">{etiquetas[bloque.estilo || "solido"]}</span>
+        <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded font-semibold shrink-0">Divisor</span>
+        <div className="flex gap-1 ml-1" onPointerDown={(e) => e.stopPropagation()}>
+          {Object.entries(etiquetas).map(([val, label]) => (
+            <button key={val} onClick={() => onChange(idx, "estilo", val)} title={label}
+              className={`text-xs px-1.5 py-0.5 rounded border transition-colors ${(bloque.estilo || "solido") === val ? "border-black bg-black text-white" : "border-gray-200 hover:border-gray-400"}`}>
+              {val === "solido" ? "—" : val === "punteado" ? "···" : val === "grueso" ? "━" : "↕"}
+            </button>
+          ))}
+        </div>
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
+      </div>
     </div>
   );
 };
@@ -417,7 +888,7 @@ const NuevaCampana = () => {
         if (!Array.isArray(bloques)) bloques = [];
 
         bloques = await Promise.all(bloques.map(async (b) => {
-          if (b.tipo === "restaurantes" || b.tipo === "cupones") return b;
+          if (b.tipo === "restaurantes" || b.tipo === "cupones" || b.tipo === "imagen" || b.tipo === "texto" || b.tipo === "link" || b.tipo === "separador") return b;
           // Si ya tiene la clave descripcion (aunque sea vacía), respetarla — el usuario la editó
           if ("descripcion" in b) return b;
           try {
@@ -480,6 +951,26 @@ const NuevaCampana = () => {
   const agregarBloqueCupones = () => {
     if (form.notas.length >= BLOQUES_MAX) return;
     setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "cupones", titulo: "", cta_texto: "", items: [] }] }));
+  };
+
+  const agregarBloqueImagen = () => {
+    if (form.notas.length >= BLOQUES_MAX) return;
+    setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "imagen", url: "", link: "", caption: "", tamanio: "completo", alineacion: "centro" }] }));
+  };
+
+  const agregarBloqueTexto = () => {
+    if (form.notas.length >= BLOQUES_MAX) return;
+    setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "texto", texto: "", alineacion: "izquierda" }] }));
+  };
+
+  const agregarBloqueLink = () => {
+    if (form.notas.length >= BLOQUES_MAX) return;
+    setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "link", texto: "", url: "", alineacion: "centro" }] }));
+  };
+
+  const agregarBloqueSeparador = () => {
+    if (form.notas.length >= BLOQUES_MAX) return;
+    setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "separador", estilo: "solido" }] }));
   };
 
   const actualizarBloque = (idx, campo, valor) => {
@@ -553,7 +1044,8 @@ const NuevaCampana = () => {
     finally { setIsSending(false); }
   };
 
-  const idsNotasSeleccionadas = new Set(form.notas.filter((b) => b.tipo !== "restaurantes" && b.tipo !== "cupones").map((b) => b.id));
+  const TIPOS_NO_NOTA = new Set(["restaurantes", "cupones", "imagen", "texto", "link", "separador"]);
+  const idsNotasSeleccionadas = new Set(form.notas.filter((b) => !TIPOS_NO_NOTA.has(b.tipo)).map((b) => b.id));
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -615,7 +1107,7 @@ const NuevaCampana = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contenido ({form.notas.length}/{BLOQUES_MAX})</label>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 <button onClick={() => setMostrarBuscador((v) => !v)} disabled={form.notas.length >= BLOQUES_MAX}
                   className="flex items-center gap-1 text-xs text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-50 transition-colors disabled:opacity-40">
                   <IconPlus /> Nota
@@ -623,12 +1115,32 @@ const NuevaCampana = () => {
                 <button onClick={agregarBloqueRestaurantes} disabled={form.notas.length >= BLOQUES_MAX}
                   title="Agregar lista de restaurantes"
                   className="flex items-center gap-1 text-xs text-blue-700 border border-blue-200 px-2 py-1 rounded hover:bg-blue-50 transition-colors disabled:opacity-40">
-                  <IconRestaurant /> Restaurantes
+                  <IconRestaurant /> Rest.
                 </button>
                 <button onClick={agregarBloqueCupones} disabled={form.notas.length >= BLOQUES_MAX}
                   title="Agregar bloque de cupones"
                   className="flex items-center gap-1 text-xs text-amber-700 border border-amber-200 px-2 py-1 rounded hover:bg-amber-50 transition-colors disabled:opacity-40">
-                  <IconTicket /> Cupones
+                  <IconTicket /> Cup.
+                </button>
+                <button onClick={agregarBloqueImagen} disabled={form.notas.length >= BLOQUES_MAX}
+                  title="Agregar imagen"
+                  className="flex items-center gap-1 text-xs text-purple-700 border border-purple-200 px-2 py-1 rounded hover:bg-purple-50 transition-colors disabled:opacity-40">
+                  <IconImage /> Img
+                </button>
+                <button onClick={agregarBloqueTexto} disabled={form.notas.length >= BLOQUES_MAX}
+                  title="Agregar bloque de texto libre"
+                  className="flex items-center gap-1 text-xs text-green-700 border border-green-200 px-2 py-1 rounded hover:bg-green-50 transition-colors disabled:opacity-40">
+                  <IconText /> Texto
+                </button>
+                <button onClick={agregarBloqueLink} disabled={form.notas.length >= BLOQUES_MAX}
+                  title="Agregar botón / enlace"
+                  className="flex items-center gap-1 text-xs text-sky-700 border border-sky-200 px-2 py-1 rounded hover:bg-sky-50 transition-colors disabled:opacity-40">
+                  <IconLink /> Enlace
+                </button>
+                <button onClick={agregarBloqueSeparador} disabled={form.notas.length >= BLOQUES_MAX}
+                  title="Agregar separador / divisor"
+                  className="flex items-center gap-1 text-xs text-gray-600 border border-gray-200 px-2 py-1 rounded hover:bg-gray-50 transition-colors disabled:opacity-40">
+                  <IconSeparator /> Divisor
                 </button>
               </div>
             </div>
@@ -639,7 +1151,7 @@ const NuevaCampana = () => {
 
             <div className="space-y-2">
               {form.notas.map((bloque, idx) => {
-                const key = bloque.tipo === "restaurantes" || bloque.tipo === "cupones" ? `${bloque.tipo}-${idx}` : bloque.id;
+                const key = bloque.tipo && bloque.tipo !== "principal" && bloque.tipo !== "secundaria" ? `${bloque.tipo}-${idx}` : bloque.id;
                 const isDragging = dragIdx === idx;
                 const isDragOver = dragOverIdx === idx && dragIdx !== idx;
                 return (
@@ -656,6 +1168,14 @@ const NuevaCampana = () => {
                       <BloqueRestaurantes bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} token={token} />
                     ) : bloque.tipo === "cupones" ? (
                       <BloqueCupones bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                    ) : bloque.tipo === "imagen" ? (
+                      <BloqueImagen bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} token={token} />
+                    ) : bloque.tipo === "texto" ? (
+                      <BloqueTexto bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                    ) : bloque.tipo === "link" ? (
+                      <BloqueLink bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                    ) : bloque.tipo === "separador" ? (
+                      <BloqueSeparador bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
                     ) : (
                       <BloqueNota bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarNota} imgApi={imgApi} />
                     )}

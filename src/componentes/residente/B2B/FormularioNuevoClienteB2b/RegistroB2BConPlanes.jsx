@@ -242,31 +242,6 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         const usuarioId = usuarioRes.usuario.id;
         const b2bId = usuarioRes.usuario.b2b_id || null;
 
-        // Actualizar datos del B2B
-        setMensajeProceso("Configurando tu perfil...");
-        try {
-          await extensionB2bPost({
-            ...(b2bId && { b2b_id: b2bId }),
-            usuario_id: usuarioId,
-            nombre_responsable_restaurante:
-              formData.nombre_restaurante,
-            correo: formData.correo,
-            nombre_responsable: formData.nombre_responsable_restaurante,
-            telefono: formData.telefono,
-            nombre_restaurante: formData.nombre_restaurante,
-            rfc: formData.rfc,
-            direccion_completa: formData.direccion_completa,
-            razon_social: formData.razon_social,
-            terminos_condiciones: true,
-            stripe_session_id: sessionId || undefined,
-          });
-        } catch (extError) {
-          // Si ya tiene registro B2B, no es error fatal
-          if (!extError.message?.includes("ya tiene un registro B2B")) {
-            console.warn("Error actualizando B2B:", extError);
-          }
-        }
-
         // Login automático (con retry porque el webhook puede tardar unos segundos en activar al usuario)
         setMensajeProceso("Iniciando sesión...");
         let loginResp = null;
@@ -292,6 +267,31 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
         if (!loginResp) throw new Error("No se pudo iniciar sesión");
         saveToken(loginResp.token);
         saveUsuario(loginResp.usuario);
+
+        // Actualizar datos del B2B (después del login para tener token)
+        setMensajeProceso("Configurando tu perfil...");
+        try {
+          await extensionB2bPost({
+            ...(b2bId && { b2b_id: b2bId }),
+            usuario_id: usuarioId,
+            nombre_responsable_restaurante:
+              formData.nombre_restaurante,
+            correo: formData.correo,
+            nombre_responsable: formData.nombre_responsable_restaurante,
+            telefono: formData.telefono,
+            nombre_restaurante: formData.nombre_restaurante,
+            rfc: formData.rfc,
+            direccion_completa: formData.direccion_completa,
+            razon_social: formData.razon_social,
+            terminos_condiciones: true,
+            stripe_session_id: sessionId || undefined,
+          }, loginResp.token);
+        } catch (extError) {
+          // Si ya tiene registro B2B, no es error fatal
+          if (!extError.message?.includes("ya tiene un registro B2B")) {
+            console.warn("Error actualizando B2B:", extError);
+          }
+        }
 
         // Guardar credenciales para mostrar en dashboard
         sessionStorage.setItem(

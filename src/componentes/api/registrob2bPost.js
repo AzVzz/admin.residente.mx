@@ -1,10 +1,12 @@
 import { urlApi } from "./url";
 
 
-export const extensionB2bPost = async (formData) => {
+export const extensionB2bPost = async (formData, token) => {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   const response = await fetch(`${urlApi}api/usuariosb2b`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(formData)
   });
   const data = await response.json();
