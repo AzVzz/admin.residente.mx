@@ -80,12 +80,12 @@ const TicketEvento = forwardRef((props, ref) => {
 
                 {/* Franja amarilla (aquí van los datos) */}
                 <div
-                    className="shrink-0 min-h-[335px] px-5 pb-5 pt-3"
+                    className="shrink-0 min-h-[335px] px-5 pb-5 pt-3 leading-tight"
                     style={{ backgroundColor: colorAmarillo }}
                 >
                     {/* Título del evento */}
                     <h2
-                        className="mx-auto max-w-[95%] text-center font-bold leading-tight mb-1 line-clamp-3 overflow-hidden"
+                        className="mx-auto max-w-[95%] text-center font-bold leading-tight mb-1 line-clamp-6 overflow-hidden"
                         style={{
                             fontFamily,
                             fontWeight: tipografiaBold ? 800 : 600,
