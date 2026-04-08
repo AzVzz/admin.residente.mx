@@ -1404,7 +1404,7 @@ const B2BDashboard = () => {
                   {notasRestaurante.notas.map((nota) => (
                     <div
                       key={nota.id}
-                      className="flex justify-between items-center text-xs border-b border-gray-100 pb-0.5"
+                      className="flex justify-between items-center text-xs"
                     >
                       <a
                         href={`https://residente.mx/notas/${nota.slug}`}
@@ -1507,7 +1507,7 @@ const B2BDashboard = () => {
                       return (
                         <div
                           key={c.id}
-                          className="flex justify-between items-center text-xs border-b border-gray-100 pb-0.5"
+                          className="flex justify-between items-center text-xs"
                         >
                           <span className="truncate max-w-[45%] text-black font-medium" title={[c.subtitulo, c.titulo].filter(Boolean).join(" ")}>
                             {[c.subtitulo, c.titulo].filter(Boolean).join(" ") || c.nombre_restaurante}
