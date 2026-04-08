@@ -1240,11 +1240,11 @@ const B2BDashboard = () => {
             </div>
 
             {/* Alcance Total */}
-            <div className="mb-6 pb-4 border-b-2 border-black">
+            <div className="mb-6">
               <p className="text-[25px] leading-[1] underline mb-1">Alcance Total</p>
               <div className="flex gap-8 mt-1">
                 <div>
-                  <p className="text-[48px] font-bold text-black leading-[1]">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {(
                       (restaurante?.views || 0) +
                       (notasRestaurante?.total_vistas || 0) +
@@ -1254,7 +1254,7 @@ const B2BDashboard = () => {
                   <p className="text-sm text-black -mt-1">Vistas totales</p>
                 </div>
                 <div>
-                  <p className="text-[48px] font-bold text-black leading-[1]">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
                     {(
                       (restaurante?.clicks || 0) +
                       (notasRestaurante?.total_clicks || 0) +
@@ -1274,12 +1274,11 @@ const B2BDashboard = () => {
               <span>{restaurante?.nombre_restaurante}</span>
               {restaurante?.created_at && (
                 <p className="text-xs text-gray-400 mt-0.5 mb-1">
-                  Contando desde{" "}
-                  {new Date(restaurante.created_at).toLocaleDateString("es-MX", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {(() => {
+                    const d = new Date(restaurante.created_at);
+                    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+                    return `Publicado desde el ${d.getDate()} de ${meses[d.getMonth()]} del ${d.getFullYear()}`;
+                  })()}
                 </p>
               )}
 
@@ -1354,18 +1353,6 @@ const B2BDashboard = () => {
               <span className="text-sm font-bold text-black">
                 {notasRestaurante ? ` (${notasRestaurante.total_notas})` : ""}
               </span>
-              {notasRestaurante?.notas?.length > 0 && (
-                <p className="text-xs text-gray-400 mt-0.5 mb-1">
-                  Contando desde{" "}
-                  {new Date(
-                    notasRestaurante.notas[notasRestaurante.notas.length - 1].created_at,
-                  ).toLocaleDateString("es-MX", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
-              )}
               {/* Suma total de vistas de notas */}
               <div className="leading-tight mb-1">
                 <div className="flex items-start gap-1">
@@ -1423,7 +1410,7 @@ const B2BDashboard = () => {
                         href={`https://residente.mx/notas/${nota.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="truncate max-w-[45%] text-black underline font-medium hover:text-gray-600"
+                        className="truncate max-w-[45%] text-black font-medium hover:text-gray-600"
                         title={nota.titulo}
                       >
                         {nota.titulo}
@@ -1435,9 +1422,9 @@ const B2BDashboard = () => {
                           <span className="text-gray-400 ml-1">
                             &middot;{" "}
                             {new Date(nota.created_at).toLocaleDateString("es-MX", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
                             })}
                           </span>
                         )}
@@ -1457,18 +1444,6 @@ const B2BDashboard = () => {
                 Cupones
               </span>
               <span>{restaurante?.nombre_restaurante}</span>
-              {cupones.length > 0 && (() => {
-                const oldest = cupones.reduce((min, c) =>
-                  !min || new Date(c.created_at) < new Date(min.created_at) ? c : min, null);
-                return oldest?.created_at ? (
-                  <p className="text-xs text-gray-400 mt-0.5 mb-1">
-                    Contando desde{" "}
-                    {new Date(oldest.created_at).toLocaleDateString("es-MX", {
-                      day: "numeric", month: "short", year: "numeric",
-                    })}
-                  </p>
-                ) : null;
-              })()}
               {loadingCupon ? (
                 <div>Cargando cupones...</div>
               ) : cupones.length > 0 ? (
@@ -1520,30 +1495,31 @@ const B2BDashboard = () => {
                     </p>
                   </div>
                   <div className="space-y-0.5 mt-2">
-                    {cupones.map((c) => (
-                      <div
-                        key={c.id}
-                        className="flex justify-between items-center text-xs border-b border-gray-100 pb-0.5"
-                      >
-                        <span className="truncate max-w-[45%] text-black underline font-medium" title={[c.subtitulo, c.titulo].filter(Boolean).join(" ")}>
-                          {[c.subtitulo, c.titulo].filter(Boolean).join(" ") || c.nombre_restaurante}
-                        </span>
-                        <span className="text-gray-600 whitespace-nowrap text-right">
-                          {(c.views || 0).toLocaleString("es-MX")} v &middot;{" "}
-                          {(c.clicks || 0).toLocaleString("es-MX")} cl
-                          {c.created_at && (
-                            <span className="text-gray-400 ml-1">
-                              &middot;{" "}
-                              {new Date(c.created_at).toLocaleDateString("es-MX", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    ))}
+                    {cupones.map((c) => {
+                      const fmt = (d) => new Date(d).toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "2-digit" });
+                      const periodo = c.created_at
+                        ? c.tiene_caducidad && c.fecha_validez
+                          ? `${fmt(c.created_at)} – ${fmt(c.fecha_validez)}`
+                          : c.activo_manual
+                          ? `${fmt(c.created_at)} – activo`
+                          : `${fmt(c.created_at)} – desactivado`
+                        : null;
+                      return (
+                        <div
+                          key={c.id}
+                          className="flex justify-between items-center text-xs border-b border-gray-100 pb-0.5"
+                        >
+                          <span className="truncate max-w-[45%] text-black font-medium" title={[c.subtitulo, c.titulo].filter(Boolean).join(" ")}>
+                            {[c.subtitulo, c.titulo].filter(Boolean).join(" ") || c.nombre_restaurante}
+                          </span>
+                          <span className="text-gray-600 whitespace-nowrap text-right">
+                            {(c.views || 0).toLocaleString("es-MX")} v &middot;{" "}
+                            {(c.clicks || 0).toLocaleString("es-MX")} cl
+                            {periodo && <span className="text-gray-400 ml-1">&middot; {periodo}</span>}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </>
               ) : (
