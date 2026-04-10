@@ -126,6 +126,7 @@ const FormMainResidente = () => {
       smart_tags: [],
       destacada_invitado: 0,
       restaurantes_ids: [],
+      formato_nota: "",
     },
   });
 
@@ -518,6 +519,7 @@ const FormMainResidente = () => {
             seo_keyword: data.seo_keyword || "",
             meta_description: data.meta_description || "",
             destacada_invitado: data.destacada_invitado || 0,
+            formato_nota: data.formato_nota || "",
             programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
             smart_tags: data.smart_tags || [],
@@ -642,6 +644,7 @@ const FormMainResidente = () => {
         seo_keyword: data.seo_keyword?.trim() || null,
         meta_description: data.meta_description?.trim() || null,
         smart_tags: data.smart_tags?.length ? data.smart_tags : null,
+        formato_nota: data.formato_nota || null,
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"
@@ -792,6 +795,22 @@ const FormMainResidente = () => {
                   opcionesFoodDrink={opcionesFoodDrink}
                   ocultarTipoNota={false}
                 />
+
+                {/* Formato de nota */}
+                <div className="mb-4 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">
+                    Formato de nota
+                  </label>
+                  <select
+                    {...methods.register("formato_nota")}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecciona un formato</option>
+                    <option value="recomendacion">Recomendación</option>
+                    <option value="noticia">Noticia</option>
+                    <option value="reflexion">Reflexión</option>
+                  </select>
+                </div>
 
                 {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
                 {!tipoNotaUsuario && usuario?.permisos !== "todos" && (
