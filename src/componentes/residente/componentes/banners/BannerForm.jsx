@@ -26,7 +26,8 @@ const FileUpload = ({ label, accept, preview, onChange, onClear, hint }) => (
     <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
       {preview ? (
         <div className="relative">
-          {typeof preview === "string" && (preview.endsWith(".pdf") || preview.includes("pdf")) ? (
+          {typeof preview === "string" &&
+          (preview.endsWith(".pdf") || preview.includes("pdf")) ? (
             <p className="text-sm text-gray-600 py-4">PDF seleccionado</p>
           ) : (
             <img
@@ -118,7 +119,10 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleFile = (field) => (e) => {
@@ -252,9 +256,7 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
 
           {/* Estatus */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Estatus
-            </label>
+            <label className="text-sm font-medium text-gray-700">Estatus</label>
             <select
               name="estatus"
               value={form.estatus}
@@ -293,9 +295,17 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
               onChange={handleChange}
               className="w-4 h-4 accent-yellow-500 cursor-pointer"
             />
-            <label htmlFor="es_default_seccion" className="text-sm text-gray-700 cursor-pointer">
-              <span className="font-medium">Banner predeterminado de secciones</span>
-              <span className="block text-xs text-gray-500">Se muestra en todas las páginas de sección que no tengan un banner de pago activo.</span>
+            <label
+              htmlFor="es_default_seccion"
+              className="text-sm text-gray-700 cursor-pointer"
+            >
+              <span className="font-medium">
+                Banner predeterminado de secciones
+              </span>
+              <span className="block text-xs text-gray-500">
+                Se muestra en todas las páginas de sección que no tengan un
+                banner de pago activo.
+              </span>
             </label>
           </div>
 
@@ -381,7 +391,7 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
               preview={previews.imagen_mobile}
               onChange={handleFile("imagen_mobile")}
               onClear={clearFile("imagen_mobile")}
-              hint="750×150 px · 1000×200 px retina (ratio 5:1)"
+              hint="1000×250 px · 2000×500 px retina (ratio 4:1)"
             />
             {isRevista && (
               <>

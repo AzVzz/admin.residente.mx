@@ -239,9 +239,7 @@ const ComprarBanner = () => {
         <div className="bg-white rounded-xl shadow-md p-6 sm:p-8">
           {/* Duration selector */}
           <div className="mb-8">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
-              Duracion
-            </h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Duracion</h3>
             <div className="grid grid-cols-3 gap-3">
               {duraciones.map((d) => (
                 <button
@@ -424,7 +422,8 @@ const ComprarBanner = () => {
                     rel="noopener noreferrer"
                     className="block mt-0.5 text-blue-600 hover:underline font-mono break-all"
                   >
-                    residente.mx/seccion/{selectedSeccion.slug_seccion}/categoria/{selectedSeccion.slug_categoria}
+                    residente.mx/seccion/{selectedSeccion.slug_seccion}
+                    /categoria/{selectedSeccion.slug_categoria}
                   </a>
                 </div>
               )}
@@ -501,7 +500,10 @@ const ComprarBanner = () => {
             </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Link del banner <span className="text-gray-400 font-normal">(al hacer clic en tu banner)</span>
+                Link del banner{" "}
+                <span className="text-gray-400 font-normal">
+                  (al hacer clic en tu banner)
+                </span>
               </label>
               <input
                 type="url"
@@ -510,14 +512,18 @@ const ComprarBanner = () => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 placeholder="https://tu-restaurante.com"
               />
-              <p className="text-xs text-gray-400 mt-1">Los usuarios serán redirigidos a esta URL al hacer clic en tu banner.</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Los usuarios serán redirigidos a esta URL al hacer clic en tu
+                banner.
+              </p>
             </div>
           </div>
 
           {/* Código promocional */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Código promocional <span className="text-gray-400 font-normal">(opcional)</span>
+              Código promocional{" "}
+              <span className="text-gray-400 font-normal">(opcional)</span>
             </label>
             <div className="flex gap-2">
               <input
@@ -541,11 +547,14 @@ const ComprarBanner = () => {
             </div>
             {promoValido === true && (
               <p className="text-xs text-green-600 mt-1 font-medium">
-                ✓ Código aplicado — precio: ${(promoOverride / 100).toLocaleString("es-MX")} MXN
+                ✓ Código aplicado — precio: $
+                {(promoOverride / 100).toLocaleString("es-MX")} MXN
               </p>
             )}
             {promoValido === false && (
-              <p className="text-xs text-red-500 mt-1">Código inválido o ya utilizado</p>
+              <p className="text-xs text-red-500 mt-1">
+                Código inválido o ya utilizado
+              </p>
             )}
           </div>
 
@@ -555,7 +564,10 @@ const ComprarBanner = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen Desktop *
               </label>
-              <p className="text-xs text-gray-400 mb-1">Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio 5:1)</p>
+              <p className="text-xs text-gray-400 mb-1">
+                Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio
+                5:1)
+              </p>
               <input
                 type="file"
                 accept="image/*"
@@ -576,7 +588,9 @@ const ComprarBanner = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen Mobile
               </label>
-              <p className="text-xs text-gray-400 mb-1">750×150 px · 1000×200 px retina (ratio 5:1)</p>
+              <p className="text-xs text-gray-400 mb-1">
+                1000×250 px · 1500×375 px retina (ratio 4:1)
+              </p>
               <input
                 type="file"
                 accept="image/*"
@@ -741,7 +755,9 @@ const SeccionSelector = ({
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-xs">{cat.nombre}</span>
+                        <span className="font-medium text-xs">
+                          {cat.nombre}
+                        </span>
                         {cat.ocupado ? (
                           <span className="text-[10px] bg-red-100 text-red-600 font-medium px-1.5 py-0.5 rounded-full">
                             Ocupado
@@ -754,7 +770,8 @@ const SeccionSelector = ({
                       </div>
                       {!cat.ocupado && (
                         <div className="text-[10px] text-gray-400 truncate">
-                          /seccion/{cat.slug_seccion}/categoria/{cat.slug_categoria}
+                          /seccion/{cat.slug_seccion}/categoria/
+                          {cat.slug_categoria}
                         </div>
                       )}
                     </button>
@@ -793,9 +810,7 @@ const PriceSummary = ({
       </div>
       <div className="flex justify-between mb-1">
         <span className="text-gray-600">IVA ({ivaRate}%)</span>
-        <span className="font-medium">
-          ${iva.toLocaleString("es-MX")} MXN
-        </span>
+        <span className="font-medium">${iva.toLocaleString("es-MX")} MXN</span>
       </div>
       <hr className="my-2 border-gray-200" />
       <div
