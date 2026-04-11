@@ -969,10 +969,13 @@ const B2BDashboard = () => {
             />
 
             <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
-              <p className="text-[30px] font-bold leading-[1] mb-3">
+              <p className="text-[30px] font-bold leading-[1] mb-1">
                 RETORNO DE
                 <br />
                 INVERSIÓN
+              </p>
+              <p className="text-[11px] text-white/80 mb-3">
+                Al {fechaActual.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
               </p>
 
               {/* Conversión — va primero */}
