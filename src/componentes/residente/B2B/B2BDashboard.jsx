@@ -716,7 +716,6 @@ const B2BDashboard = () => {
     navigate("/promo");
   };
 
-
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
   // Imagen por defecto si no hay restaurante o imagen
@@ -969,16 +968,18 @@ const B2BDashboard = () => {
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
 
-
-
             <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
               <p className="text-[30px] font-bold leading-[1] mb-3">
-                RETORNO DE<br />INVERSIÓN
+                RETORNO DE
+                <br />
+                INVERSIÓN
               </p>
 
               {/* Conversión — va primero */}
               <div className="mb-2">
-                <span className="text-[25px] leading-[1] underline">Conversión</span>
+                <span className="text-[25px] leading-[1] underline">
+                  Conversión
+                </span>
                 <div className="flex items-start justify-center gap-1">
                   <p className="text-[36px] font-bold text-white leading-[1]">
                     $
@@ -1009,7 +1010,9 @@ const B2BDashboard = () => {
 
               {/* Fidelización */}
               <div className="mb-1">
-                <span className="text-[25px] leading-[1] underline">Fidelización</span>
+                <span className="text-[25px] leading-[1] underline">
+                  Fidelización
+                </span>
                 <div className="flex items-start justify-center gap-1">
                   <p className="text-[36px] font-bold text-white leading-[1]">
                     $
@@ -2042,14 +2045,16 @@ const B2BDashboard = () => {
                   alt="Club Residente"
                   className="h-10 mx-auto mb-2"
                 />
-                <p className="font-bold mb-2 text-2xl">Fidelización</p>
+                <p className="font-bold mb-2 text-2xl">
+                  Ingresos por fidelización
+                </p>
                 <p className="font-roman leading-[1.4]">
                   Este monto representa el ingreso promedio generado por tu
                   negocio gracias a la conversión de vistas a fidelizacion del
-                  cliente y eventualmente en consumo frecuente. El radio
-                  estimado realista es del .035% que se multiplica por el ticket
-                  promedio de tu negocio y la asistencia promedio por mes de 2.8
-                  personas.
+                  cliente y eventualmente en consumo. El radio de acierto
+                  estimado promedio es del .035% que se multiplica por el ticket
+                  promedio de tu negocio y la asistencia promedio por mesa de
+                  2.8 personas.
                 </p>
                 <p className="text-xs text-gray-500 mt-3 font-roman">
                   Fuente: Nielsen Annual Marketing Report 2023 (para brand lift)
@@ -2063,13 +2068,15 @@ const B2BDashboard = () => {
                   alt="Club Residente"
                   className="h-10 mx-auto mb-2"
                 />
-                <p className="font-bold mb-2 text-2xl">Conversión</p>
+                <p className="font-bold mb-2 text-2xl">
+                  Ingresos por conversión
+                </p>
                 <p className="font-roman leading-[1.4]">
                   Este monto representa el ingreso promedio generado por tu
                   negocio gracias a la conversión de clicks en consumo. El radio
                   estimado realista es del 2% que se multiplica por el ticket
-                  promedio de tu negocio y la asistencia promedio por mes de 2.8
-                  personas.
+                  promedio de tu negocio y la asistencia promedio por mesa de
+                  2.8 personas.
                 </p>
                 <p className="text-xs text-gray-500 mt-3 font-roman">
                   Fuente: Unbounce Conversion Benchmark Report 2024 (para el
