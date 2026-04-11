@@ -345,27 +345,38 @@ const B2BDashboard = () => {
   // Obtener información del usuario B2B
   useEffect(() => {
     const fetchB2BUser = async () => {
+      // Intentar por b2b_id directo (viene en el JWT) antes que por usuario_id
+      const lookupUrl = usuario?.b2b_id
+        ? `${urlApi}api/usuariosb2b/${usuario.b2b_id}`
+        : `${urlApi}api/usuariosb2b/user/${usuario?.id}`;
+
       try {
-        if (usuario?.id) {
+        const response = await fetch(lookupUrl, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setB2bUser(data);
+          return;
+        }
+      } catch (_) {}
+
+      // Fallback: si no tenía b2b_id en token, intentar por usuario_id
+      if (usuario?.b2b_id && usuario?.id) {
+        try {
           const response = await fetch(
             `${urlApi}api/usuariosb2b/user/${usuario.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           );
           if (response.ok) {
             const data = await response.json();
             setB2bUser(data);
           }
-        }
-      } catch (error) {
-        // Error al obtener usuario B2B
+        } catch (_) {}
       }
     };
 
-    if (usuario?.id) {
+    if (usuario?.id || usuario?.b2b_id) {
       fetchB2BUser();
     }
   }, [usuario]);
@@ -705,9 +716,6 @@ const B2BDashboard = () => {
     navigate("/promo");
   };
 
-  const handleClasificado = () => {
-    alert("Próximamente");
-  };
 
   const cuponImg = `${imgApi}fotos/tickets/promo_test_1764265100923.png`;
 
@@ -961,12 +969,75 @@ const B2BDashboard = () => {
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
 
-            <button
-              onClick={handleClasificado}
-              className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 mb-2 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
-            >
-              CLASIFICADO
-            </button>
+
+
+            <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
+              <p className="text-[30px] font-bold leading-[1] mb-3">
+                RETORNO DE<br />INVERSIÓN
+              </p>
+
+              {/* Conversión — va primero */}
+              <div className="mb-2">
+                <span className="text-[25px] leading-[1] underline">Conversión</span>
+                <div className="flex items-start justify-center gap-1">
+                  <p className="text-[36px] font-bold text-white leading-[1]">
+                    $
+                    {(
+                      ((restaurante?.clicks || 0) +
+                        (notasRestaurante?.total_clicks || 0) +
+                        cupones.reduce((s, c) => s + (c.clicks || 0), 0)) *
+                      (restaurante?.ticket_promedio || 0) *
+                      3 *
+                      0.022
+                    ).toLocaleString("es-MX", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                  <span
+                    className="cursor-pointer text-[11px] bg-white text-black rounded-full w-4 h-4 flex items-center justify-center mt-1 flex-shrink-0"
+                    onClick={() =>
+                      setOpenTooltip(
+                        openTooltip === "conversion" ? null : "conversion",
+                      )
+                    }
+                  >
+                    ?
+                  </span>
+                </div>
+              </div>
+
+              {/* Fidelización */}
+              <div className="mb-1">
+                <span className="text-[25px] leading-[1] underline">Fidelización</span>
+                <div className="flex items-start justify-center gap-1">
+                  <p className="text-[36px] font-bold text-white leading-[1]">
+                    $
+                    {(
+                      ((restaurante?.views || 0) +
+                        (notasRestaurante?.total_vistas || 0) +
+                        cupones.reduce((s, c) => s + (c.views || 0), 0)) *
+                      (restaurante?.ticket_promedio || 0) *
+                      3 *
+                      0.0035
+                    ).toLocaleString("es-MX", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                  <span
+                    className="cursor-pointer text-[11px] bg-white text-black rounded-full w-4 h-4 flex items-center justify-center mt-1 flex-shrink-0"
+                    onClick={() =>
+                      setOpenTooltip(
+                        openTooltip === "fidelbench" ? null : "fidelbench",
+                      )
+                    }
+                  >
+                    ?
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
           <address className="flex flex-col mt-auto pt-10">
             <p>Credenciales de Acceso</p>
@@ -1241,7 +1312,9 @@ const B2BDashboard = () => {
 
             {/* Alcance Total */}
             <div className="mb-6">
-              <p className="text-[25px] leading-[1] underline mb-1">Alcance Total</p>
+              <p className="text-[25px] leading-[1] underline mb-1">
+                Alcance Total
+              </p>
               <div className="flex gap-8 mt-1">
                 <div>
                   <p className="text-[40px] font-bold text-black leading-[1]">
@@ -1268,15 +1341,33 @@ const B2BDashboard = () => {
 
             {/* Directorio, JUNTAR ESTO */}
             <div className="mb-0">
-              <span className="text-[25px] leading-[1] underline pr-2">
+              <a
+                href={`https://residente.mx/restaurantes/${restaurante?.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[25px] leading-[1] underline pr-2"
+              >
                 Directorio
-              </span>
+              </a>
               <span>{restaurante?.nombre_restaurante}</span>
               {restaurante?.created_at && (
                 <p className="text-xs text-gray-400 mt-0.5 mb-1">
                   {(() => {
                     const d = new Date(restaurante.created_at);
-                    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+                    const meses = [
+                      "Enero",
+                      "Febrero",
+                      "Marzo",
+                      "Abril",
+                      "Mayo",
+                      "Junio",
+                      "Julio",
+                      "Agosto",
+                      "Septiembre",
+                      "Octubre",
+                      "Noviembre",
+                      "Diciembre",
+                    ];
                     return `Publicado desde el ${d.getDate()} de ${meses[d.getMonth()]} del ${d.getFullYear()}`;
                   })()}
                 </p>
@@ -1421,11 +1512,14 @@ const B2BDashboard = () => {
                         {nota.created_at && (
                           <span className="text-gray-400 ml-1">
                             &middot;{" "}
-                            {new Date(nota.created_at).toLocaleDateString("es-MX", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "2-digit",
-                            })}
+                            {new Date(nota.created_at).toLocaleDateString(
+                              "es-MX",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              },
+                            )}
                           </span>
                         )}
                       </span>
@@ -1451,7 +1545,9 @@ const B2BDashboard = () => {
                   <div>
                     <div className="flex items-start gap-1">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupones.reduce((s, c) => s + (c.views || 0), 0).toLocaleString("es-MX")}
+                        {cupones
+                          .reduce((s, c) => s + (c.views || 0), 0)
+                          .toLocaleString("es-MX")}
                       </p>
                       <span
                         className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
@@ -1474,7 +1570,9 @@ const B2BDashboard = () => {
                   <div>
                     <div className="flex items-start gap-1">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupones.reduce((s, c) => s + (c.clicks || 0), 0).toLocaleString("es-MX")}
+                        {cupones
+                          .reduce((s, c) => s + (c.clicks || 0), 0)
+                          .toLocaleString("es-MX")}
                       </p>
                       <span
                         className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
@@ -1496,26 +1594,42 @@ const B2BDashboard = () => {
                   </div>
                   <div className="space-y-0.5 mt-2">
                     {cupones.map((c) => {
-                      const fmt = (d) => new Date(d).toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "2-digit" });
+                      const fmt = (d) =>
+                        new Date(d).toLocaleDateString("es-MX", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        });
                       const periodo = c.created_at
                         ? c.tiene_caducidad && c.fecha_validez
                           ? `${fmt(c.created_at)} – ${fmt(c.fecha_validez)}`
                           : c.activo_manual
-                          ? `${fmt(c.created_at)} – activo`
-                          : `${fmt(c.created_at)} – desactivado`
+                            ? `${fmt(c.created_at)} – activo`
+                            : `${fmt(c.created_at)} – desactivado`
                         : null;
                       return (
                         <div
                           key={c.id}
                           className="flex justify-between items-center text-xs"
                         >
-                          <span className="truncate max-w-[45%] text-black font-medium" title={[c.subtitulo, c.titulo].filter(Boolean).join(" ")}>
-                            {[c.subtitulo, c.titulo].filter(Boolean).join(" ") || c.nombre_restaurante}
+                          <span
+                            className="truncate max-w-[45%] text-black font-medium"
+                            title={[c.subtitulo, c.titulo]
+                              .filter(Boolean)
+                              .join(" ")}
+                          >
+                            {[c.subtitulo, c.titulo]
+                              .filter(Boolean)
+                              .join(" ") || c.nombre_restaurante}
                           </span>
                           <span className="text-gray-600 whitespace-nowrap text-right">
                             {(c.views || 0).toLocaleString("es-MX")} v &middot;{" "}
                             {(c.clicks || 0).toLocaleString("es-MX")} cl
-                            {periodo && <span className="text-gray-400 ml-1">&middot; {periodo}</span>}
+                            {periodo && (
+                              <span className="text-gray-400 ml-1">
+                                &middot; {periodo}
+                              </span>
+                            )}
                           </span>
                         </div>
                       );
@@ -1523,7 +1637,9 @@ const B2BDashboard = () => {
                   </div>
                 </>
               ) : (
-                <div className="text-gray-400 text-sm mt-2">No tienes cupones registrados.</div>
+                <div className="text-gray-400 text-sm mt-2">
+                  No tienes cupones registrados.
+                </div>
               )}
             </div>
           </div>
@@ -1836,7 +1952,11 @@ const B2BDashboard = () => {
               openTooltip,
             ) && (
               <>
-                <img src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png" alt="Club Residente" className="h-10 mx-auto mb-2" />
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
                 <p className="font-bold mb-1 text-lg">
                   Este número representa tu Presencia de Marca.
                 </p>
@@ -1895,7 +2015,11 @@ const B2BDashboard = () => {
               openTooltip,
             ) && (
               <>
-                <img src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png" alt="Club Residente" className="h-10 mx-auto mb-2" />
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
                 <p className="font-bold mb-1 text-2xl">Intención de Compra</p>
                 <p className="font-roman mb-2">
                   Este número representa la Intención de Compra generada por tu
@@ -1908,6 +2032,49 @@ const B2BDashboard = () => {
                   usuario no solo vio tu mensaje, sino que decidió actuar. Este
                   dato te permite saber cuántas personas pasaron de la
                   exposición pasiva a un interés real y medible en tu negocio.
+                </p>
+              </>
+            )}
+            {openTooltip === "fidelbench" && (
+              <>
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
+                <p className="font-bold mb-2 text-2xl">Fidelización</p>
+                <p className="font-roman leading-[1.4]">
+                  Este monto representa el ingreso promedio generado por tu
+                  negocio gracias a la conversión de vistas a fidelizacion del
+                  cliente y eventualmente en consumo frecuente. El radio
+                  estimado realista es del .035% que se multiplica por el ticket
+                  promedio de tu negocio y la asistencia promedio por mes de 2.8
+                  personas.
+                </p>
+                <p className="text-xs text-gray-500 mt-3 font-roman">
+                  Fuente: Nielsen Annual Marketing Report 2023 (para brand lift)
+                </p>
+              </>
+            )}
+            {openTooltip === "conversion" && (
+              <>
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
+                <p className="font-bold mb-2 text-2xl">Conversión</p>
+                <p className="font-roman leading-[1.4]">
+                  Este monto representa el ingreso promedio generado por tu
+                  negocio gracias a la conversión de clicks en consumo. El radio
+                  estimado realista es del 2% que se multiplica por el ticket
+                  promedio de tu negocio y la asistencia promedio por mes de 2.8
+                  personas.
+                </p>
+                <p className="text-xs text-gray-500 mt-3 font-roman">
+                  Fuente: Unbounce Conversion Benchmark Report 2024 (para el
+                  factor de clics) · TheMissingIngredient — Food &amp; Beverage
+                  Digital Marketing Benchmarks 2024
                 </p>
               </>
             )}
