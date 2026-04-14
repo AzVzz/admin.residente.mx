@@ -1024,7 +1024,7 @@ const B2BDashboard = () => {
                         (notasRestaurante?.total_vistas || 0) +
                         cupones.reduce((s, c) => s + (c.views || 0), 0)) *
                       (restaurante?.ticket_promedio || 0) *
-                      3 *
+                      2.8 *
                       0.0035
                     ).toLocaleString("es-MX", {
                       minimumFractionDigits: 0,
