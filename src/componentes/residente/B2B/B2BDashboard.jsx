@@ -991,8 +991,8 @@ const B2BDashboard = () => {
                         (notasRestaurante?.total_clicks || 0) +
                         cupones.reduce((s, c) => s + (c.clicks || 0), 0)) *
                       (restaurante?.ticket_promedio || 0) *
-                      3 *
-                      0.022
+                      2.8 *
+                      0.02
                     ).toLocaleString("es-MX", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
