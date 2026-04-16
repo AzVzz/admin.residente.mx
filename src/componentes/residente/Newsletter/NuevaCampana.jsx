@@ -4,6 +4,7 @@ import { useAuth } from "../../Context";
 import { urlApi, imgApi } from "../../api/url";
 import { catalogoNotasGet } from "../../api/notasPublicadasGet";
 import { useDebounce } from "../../../hooks/useDebounce";
+import EditorTextoRico from "./EditorTextoRico";
 
 const BLOQUES_MAX = 12;
 
@@ -717,7 +718,8 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
 
 const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
   const [expandido, setExpandido] = useState(true);
-  const preview = bloque.texto ? bloque.texto.slice(0, 40) + (bloque.texto.length > 40 ? "..." : "") : "Texto libre";
+  const textoPlano = (bloque.texto || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const preview = textoPlano ? textoPlano.slice(0, 40) + (textoPlano.length > 40 ? "..." : "") : "Texto libre";
 
   return (
     <div className="border border-green-200 rounded-lg overflow-hidden">
@@ -732,25 +734,13 @@ const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
       </div>
 
       {expandido && (
-        <div className="px-3 py-3 space-y-2 border-t border-green-100 bg-white">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Texto</label>
-            <textarea value={bloque.texto || ""} onChange={(e) => onChange(idx, "texto", e.target.value)}
-              rows={4} placeholder="Escribe un párrafo, nota de cierre, aviso..."
-              className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-gray-400 resize-none" />
-            <p className="text-xs text-gray-400 mt-0.5">Doble salto = párrafo nuevo.</p>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Alineación</label>
-            <div className="flex gap-1">
-              {["izquierda", "centro", "derecha"].map((a) => (
-                <button key={a} onClick={() => onChange(idx, "alineacion", a)}
-                  className={`text-xs px-2 py-1 rounded border transition-colors ${(bloque.alineacion || "izquierda") === a ? "border-black bg-black text-white" : "border-gray-200 hover:border-gray-400"}`}>
-                  {a === "izquierda" ? "Izq" : a === "centro" ? "Centro" : "Der"}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="px-3 py-3 space-y-2 border-t border-green-100 bg-white" onPointerDown={(e) => e.stopPropagation()}>
+          <label className="block text-xs text-gray-500 mb-1">Texto</label>
+          <EditorTextoRico
+            value={bloque.texto || ""}
+            onChange={(html) => onChange(idx, "texto", html)}
+            placeholder="Escribe un párrafo, nota de cierre, aviso..."
+          />
         </div>
       )}
     </div>
@@ -843,6 +833,8 @@ const NuevaCampana = () => {
   const [form, setForm] = useState({
     nombre: "", asunto: "", from_name: "Residente", logo_texto: "RESIDENTE",
     intro_texto: "", footer_texto: "", notas: [],
+    plantilla: "clasica",
+    tema: { color_primario: "#000000", fuente: "helvetica" },
   });
 
   const [notas, setNotas] = useState([]);
@@ -861,6 +853,8 @@ const NuevaCampana = () => {
   // Drag & drop state
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
+  const [plantillasDisponibles, setPlantillasDisponibles] = useState([]);
+  const [fuentesDisponibles, setFuentesDisponibles] = useState([]);
 
   const debouncedForm = useDebounce(form, 400);
 
@@ -877,6 +871,16 @@ const NuevaCampana = () => {
     const q = busqueda.toLowerCase();
     setNotasFiltradas(notas.filter((n) => n.titulo?.toLowerCase().includes(q) || n.resumen?.toLowerCase().includes(q)).slice(0, 20));
   }, [busqueda, notas]);
+
+  useEffect(() => {
+    fetch(`${urlApi}api/newsletter/campanas/plantillas`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((data) => {
+        setPlantillasDisponibles(data.plantillas || []);
+        setFuentesDisponibles(data.fuentes || []);
+      })
+      .catch(() => {});
+  }, [token]);
 
   useEffect(() => {
     if (!esEdicion) return;
@@ -898,11 +902,15 @@ const NuevaCampana = () => {
           } catch { return b; }
         }));
 
+        let temaCargado = data.tema;
+        if (typeof temaCargado === "string") { try { temaCargado = JSON.parse(temaCargado); } catch { temaCargado = null; } }
         setForm({
           nombre: data.nombre || "", asunto: data.asunto || "",
           from_name: data.from_name || "Residente", logo_texto: data.logo_texto || "RESIDENTE",
           intro_texto: data.intro_texto || "", footer_texto: data.footer_texto || "",
           notas: bloques,
+          plantilla: data.plantilla || "clasica",
+          tema: temaCargado || { color_primario: "#000000", fuente: "helvetica" },
         });
       })
       .catch(() => setError("Error cargando campaña"));
@@ -913,7 +921,7 @@ const NuevaCampana = () => {
     fetch(`${urlApi}api/newsletter/campanas/preview-live`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas }),
+      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas, plantilla: debouncedForm.plantilla, tema: debouncedForm.tema }),
     })
       .then((r) => r.text())
       .then((html) => { if (!cancelled) setPreviewHtml(html); })
@@ -1063,10 +1071,75 @@ const NuevaCampana = () => {
         {/* ── Panel izquierdo ──────────────────────────────────────────── */}
         <div className="w-[400px] shrink-0 space-y-3">
 
+          <div className="border border-gray-200 rounded p-3 bg-gray-50 space-y-3">
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Diseño</label>
+
+            <div>
+              <label className="block text-[11px] font-semibold mb-1 text-gray-500 uppercase tracking-wide">Plantilla</label>
+              <div className="grid grid-cols-2 gap-2">
+                {plantillasDisponibles.map((pl) => {
+                  const activa = form.plantilla === pl.id;
+                  return (
+                    <button
+                      key={pl.id}
+                      type="button"
+                      disabled={pl.placeholder}
+                      onClick={() => !pl.placeholder && setForm((p) => ({ ...p, plantilla: pl.id }))}
+                      className={`text-left border rounded p-2 text-xs transition ${
+                        activa ? "border-black bg-white" : "border-gray-300 bg-white hover:border-gray-400"
+                      } ${pl.placeholder ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      title={pl.descripcion}
+                    >
+                      <div className="font-bold">{pl.nombre}</div>
+                      <div className="text-[10px] text-gray-500 leading-tight mt-0.5">
+                        {pl.placeholder ? "Próximamente" : pl.descripcion}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-gray-500 uppercase tracking-wide">Color</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={form.tema?.color_primario || "#000000"}
+                    onChange={(e) => setForm((p) => ({ ...p, tema: { ...p.tema, color_primario: e.target.value } }))}
+                    className="h-9 w-12 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={form.tema?.color_primario || "#000000"}
+                    onChange={(e) => setForm((p) => ({ ...p, tema: { ...p.tema, color_primario: e.target.value } }))}
+                    className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-gray-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-gray-500 uppercase tracking-wide">Fuente</label>
+                <select
+                  value={form.tema?.fuente || "helvetica"}
+                  onChange={(e) => setForm((p) => ({ ...p, tema: { ...p.tema, fuente: e.target.value } }))}
+                  className="w-full border border-gray-300 rounded px-2 py-2 text-xs focus:outline-none focus:border-gray-500 bg-white"
+                >
+                  {fuentesDisponibles.map((f) => (
+                    <option key={f.id} value={f.id}>{f.nombre}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Encabezado</label>
-            <input type="text" value={form.logo_texto} onChange={(e) => setForm((p) => ({ ...p, logo_texto: e.target.value }))}
-              placeholder="RESIDENTE" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-500 uppercase" />
+            <EditorTextoRico
+              value={form.logo_texto || ""}
+              onChange={(html) => setForm((p) => ({ ...p, logo_texto: html }))}
+              placeholder="RESIDENTE"
+            />
           </div>
 
           <div>
@@ -1090,17 +1163,20 @@ const NuevaCampana = () => {
 
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Intro editorial</label>
-            <textarea value={form.intro_texto} onChange={(e) => setForm((p) => ({ ...p, intro_texto: e.target.value }))}
-              rows={4} placeholder={"Esta semana...\n\nTe mandamos las opciones que sí valen la pena."}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-500 resize-none" />
-            <p className="text-xs text-gray-400 mt-1">Doble salto de línea = párrafo nuevo.</p>
+            <EditorTextoRico
+              value={form.intro_texto || ""}
+              onChange={(html) => setForm((p) => ({ ...p, intro_texto: html }))}
+              placeholder="Esta semana... Te mandamos las opciones que sí valen la pena."
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Firma de cierre</label>
-            <textarea value={form.footer_texto} onChange={(e) => setForm((p) => ({ ...p, footer_texto: e.target.value }))}
-              rows={2} placeholder={"Hasta la próxima,\nEquipo Residente"}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-500 resize-none" />
+            <EditorTextoRico
+              value={form.footer_texto || ""}
+              onChange={(html) => setForm((p) => ({ ...p, footer_texto: html }))}
+              placeholder="Hasta la próxima, Equipo Residente"
+            />
           </div>
 
           {/* ── Bloques ───────────────────────────────────────────────── */}
