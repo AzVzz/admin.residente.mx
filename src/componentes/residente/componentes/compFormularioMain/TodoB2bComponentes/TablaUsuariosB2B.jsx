@@ -121,7 +121,7 @@ const TablaUsuariosB2B = ({
                       {user.correo || b2b?.correo || "—"}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap text-gray-600">
-                      {sus
+                      {sus?.fecha_creacion_stripe
                         ? formatFecha(sus.fecha_creacion_stripe)
                         : b2b?.fecha_aceptacion_terminos
                           ? formatFecha(b2b.fecha_aceptacion_terminos)
