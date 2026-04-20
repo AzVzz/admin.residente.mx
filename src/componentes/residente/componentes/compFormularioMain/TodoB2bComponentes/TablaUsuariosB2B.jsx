@@ -125,7 +125,9 @@ const TablaUsuariosB2B = ({
                         ? formatFecha(sus.fecha_creacion_stripe)
                         : b2b?.fecha_aceptacion_terminos
                           ? formatFecha(b2b.fecha_aceptacion_terminos)
-                          : "—"}
+                          : b2b?.primer_pago
+                            ? formatFecha(b2b.primer_pago)
+                            : "—"}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
                       {sus ? formatMonto(sus.monto) : "—"}
