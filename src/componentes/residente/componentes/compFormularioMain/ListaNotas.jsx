@@ -78,6 +78,8 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b"];
+
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
   const location = useLocation();
@@ -593,6 +595,12 @@ const ListaNotas = () => {
       usuario?.permisos === "todos" || usuario?.permisos === "todo";
     const esInvitadoLocal = usuario?.rol?.toLowerCase() === "invitado";
 
+    const esSuperAdminLocal = !!usuario?.es_superadmin;
+    if (VISTAS_SUPERADMIN.includes(vistaActiva) && !esSuperAdminLocal) {
+      setVistaActiva("notas");
+      return;
+    }
+
     if (esAdmin) return; // Admin puede ver todo
 
     // Para invitados, verificar permisos específicos
@@ -752,8 +760,6 @@ const ListaNotas = () => {
   const esSuperAdmin = !!usuario?.es_superadmin;
 
   // Filtrar opciones del menú para invitados según sus permisos específicos
-  const VISTAS_SUPERADMIN = ["usuarios", "todob2b"];
-
   const menuOptions = (esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter((option) => {
