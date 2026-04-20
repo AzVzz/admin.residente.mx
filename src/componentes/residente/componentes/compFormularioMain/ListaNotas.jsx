@@ -749,8 +749,12 @@ const ListaNotas = () => {
   const esB2B = usuario?.permisos === "b2b";
   const esInvitado = usuario?.rol === "invitado";
 
+  const esSuperAdmin = !!usuario?.es_superadmin;
+
   // Filtrar opciones del menú para invitados según sus permisos específicos
-  const menuOptions = esAdmin
+  const VISTAS_SUPERADMIN = ["usuarios", "todob2b"];
+
+  const menuOptions = (esAdmin
     ? todasLasOpciones
     : todasLasOpciones.filter((option) => {
       if (usuario?.rol === "b2b") return false;
@@ -780,7 +784,10 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "buscador") ||
         (usuario?.rol === "residente" && option.key === "correos")
       );
-    });
+    })
+  ).filter((option) =>
+    VISTAS_SUPERADMIN.includes(option.key) ? esSuperAdmin : true
+  );
 
   if (cargando) {
     return (
@@ -1316,11 +1323,13 @@ const ListaNotas = () => {
           </Suspense>
         )}
         {vistaActiva === "usuarios" && (
-          <Suspense fallback={<LazyFallback />}>
-            <div className="text-center text-lg">
-              <ListaNotasUsuarios />
-            </div>
-          </Suspense>
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="text-center text-lg">
+                <ListaNotasUsuarios />
+              </div>
+            </Suspense>
+          ) : null
         )}
         {vistaActiva === "cupones" && (
           <Suspense fallback={<LazyFallback />}>
@@ -1381,11 +1390,13 @@ const ListaNotas = () => {
           </div>
         )}
         {vistaActiva === "todob2b" && (
-          <Suspense fallback={<LazyFallback />}>
-            <div className="w-full">
-              <TodoB2b />
-            </div>
-          </Suspense>
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <TodoB2b />
+              </div>
+            </Suspense>
+          ) : null
         )}
         {vistaActiva === "buscador" && (
           <Suspense fallback={<LazyFallback />}>
