@@ -840,7 +840,7 @@ function App() {
                 path="/dashboardb2b"
                 element={
                   <B2BRoute>
-                    <div className="max-w-[1080px] mx-auto">
+                    <div className="min-w-[1080px] max-w-[1080px] mx-auto">
                       <B2BDashboard />
                     </div>
                   </B2BRoute>
