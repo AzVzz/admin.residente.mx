@@ -69,6 +69,9 @@ const TablaUsuariosB2B = ({
                 Meses pagados
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Pago
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Beneficios
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
@@ -82,7 +85,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {usuarios.length === 0 ? (
               <tr>
-                <td colSpan="10" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -132,6 +135,24 @@ const TablaUsuariosB2B = ({
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap text-gray-600">
                       {b2b?.meses_pagados != null ? `${b2b.meses_pagados} m` : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      {b2b?.ultimo_pago ? (
+                        <div>
+                          <span className="capitalize text-gray-700 font-medium block">
+                            {b2b.ultimo_pago.marca_tarjeta || "—"}
+                          </span>
+                          <span className="text-gray-400 text-[10px] block">
+                            {b2b.ultimo_pago.tipo_tarjeta === "credit"
+                              ? "crédito"
+                              : b2b.ultimo_pago.tipo_tarjeta === "debit"
+                                ? "débito"
+                                : b2b.ultimo_pago.tipo_tarjeta || "—"}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="px-3 py-2">
                       {b2b ? (
