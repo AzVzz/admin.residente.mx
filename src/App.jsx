@@ -338,7 +338,7 @@ function App() {
             </div>
           )}
         <main
-          className={`flex-grow overflow-x-clip w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow ${isB2BDashboard ? "overflow-x-auto" : "overflow-x-clip"} w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
           <Suspense
             fallback={
