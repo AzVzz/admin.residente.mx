@@ -1,25 +1,34 @@
-# Logs
-logs
+# ── Dependencias ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Variables de entorno ──────────────────────────────────────────────────────
+.env
+**/.env
+.env.local
+.env.*.local
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+dist/
+dist-ssr/
+.cache/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Local assets not tracked
+# ── Assets locales ────────────────────────────────────────────────────────────
 /assets
 
-# Editor directories and files
+# ── OS / editores ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
