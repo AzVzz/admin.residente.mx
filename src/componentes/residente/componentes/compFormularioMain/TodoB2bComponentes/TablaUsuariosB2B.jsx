@@ -1,5 +1,5 @@
-import React from "react";
-import { FaCheck, FaTimes, FaBan, FaTrash } from "react-icons/fa";
+import React, { useState, useMemo } from "react";
+import { FaCheck, FaTimes, FaBan, FaTrash, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 const BENEFICIOS = [
   { key: "estudios_mercado", label: "Estudios" },
@@ -27,41 +27,98 @@ const formatFecha = (fecha) => {
   });
 };
 
+const getFecha = (b2b) => {
+  const f = b2b?.suscripcion_datos?.fecha_creacion_stripe
+    || b2b?.fecha_aceptacion_terminos
+    || b2b?.primer_pago;
+  return f ? new Date(f).getTime() : 0;
+};
+
 const TablaUsuariosB2B = ({
   usuarios,
   toggleUserStatus,
   desactivarUsuarioB2B,
   handleDelete,
 }) => {
+  const [sortField, setSortField] = useState("fecha");
+  const [sortDir, setSortDir] = useState("desc");
+
   const contarBeneficios = (b2b) => {
     if (!b2b) return 0;
     return BENEFICIOS.reduce((count, ben) => count + (b2b[ben.key] ? 1 : 0), 0);
   };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("desc");
+    }
+  };
+
+  const sorted = useMemo(() => {
+    return [...usuarios].sort((a, b) => {
+      let valA, valB;
+      switch (sortField) {
+        case "fecha":
+          valA = getFecha(a.b2b);
+          valB = getFecha(b.b2b);
+          break;
+        case "monto":
+          valA = a.b2b?.suscripcion_datos?.monto ?? 0;
+          valB = b.b2b?.suscripcion_datos?.monto ?? 0;
+          break;
+        case "meses_pagados":
+          valA = a.b2b?.meses_pagados ?? 0;
+          valB = b.b2b?.meses_pagados ?? 0;
+          break;
+        case "restaurante":
+          valA = (a.b2b?.nombre_responsable_restaurante || "").toLowerCase();
+          valB = (b.b2b?.nombre_responsable_restaurante || "").toLowerCase();
+          return sortDir === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        default:
+          return 0;
+      }
+      return sortDir === "asc" ? valA - valB : valB - valA;
+    });
+  }, [usuarios, sortField, sortDir]);
+
+  const SortIcon = ({ field }) => {
+    if (sortField !== field) return <FaSort className="inline ml-1 opacity-30" />;
+    return sortDir === "asc"
+      ? <FaSortUp className="inline ml-1 text-indigo-500" />
+      : <FaSortDown className="inline ml-1 text-indigo-500" />;
+  };
+
+  const ThSortable = ({ field, children }) => (
+    <th
+      className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600 select-none"
+      onClick={() => handleSort(field)}
+    >
+      {children}<SortIcon field={field} />
+    </th>
+  );
 
   return (
     <div className="bg-white overflow-hidden h-full">
       <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-3">
         <h3 className="text-white font-semibold">Usuarios B2B</h3>
       </div>
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+      <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50 sticky top-0">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Restaurante
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider w-8">
+                #
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Suscripción
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Monto
-              </th>
+              <ThSortable field="restaurante">Restaurante</ThSortable>
+              <ThSortable field="fecha">Suscripción</ThSortable>
+              <ThSortable field="monto">Monto</ThSortable>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Meses plan
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Meses pagados
-              </th>
+              <ThSortable field="meses_pagados">Meses pagados</ThSortable>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Pago
               </th>
@@ -77,20 +134,23 @@ const TablaUsuariosB2B = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {usuarios.length === 0 ? (
+            {sorted.length === 0 ? (
               <tr>
-                <td colSpan="9" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="10" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
             ) : (
-              usuarios.map((user) => {
+              sorted.map((user, idx) => {
                 const b2b = user.b2b;
                 const numBeneficios = contarBeneficios(b2b);
                 const sus = b2b?.suscripcion_datos;
 
                 return (
                   <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-400 font-mono text-xs">
+                      {idx + 1}
+                    </td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       <span className="font-medium text-gray-900">
                         {b2b?.nombre_responsable_restaurante || "—"}
@@ -177,9 +237,7 @@ const TablaUsuariosB2B = ({
                               ? "text-red-600 hover:text-red-900"
                               : "text-green-600 hover:text-green-900"
                           } cursor-pointer`}
-                          title={
-                            user.estado === "activo" ? "Desactivar" : "Activar"
-                          }
+                          title={user.estado === "activo" ? "Desactivar" : "Activar"}
                         >
                           {user.estado === "activo" ? <FaTimes /> : <FaCheck />}
                         </button>
