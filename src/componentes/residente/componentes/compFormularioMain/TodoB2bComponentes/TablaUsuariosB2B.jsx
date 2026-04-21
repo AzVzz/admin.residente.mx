@@ -44,7 +44,7 @@ const TablaUsuariosB2B = ({
         <h3 className="text-white font-semibold">Usuarios B2B</h3>
       </div>
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-xs">
+        <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50 sticky top-0">
             <tr>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
