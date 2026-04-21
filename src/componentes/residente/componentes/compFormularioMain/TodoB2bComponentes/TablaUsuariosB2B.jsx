@@ -9,6 +9,24 @@ const BENEFICIOS = [
   { key: "suscripcion_extra", label: "2da Membresía gratis" },
 ];
 
+const formatMonto = (centavos) => {
+  if (!centavos) return "—";
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 0,
+  }).format(centavos / 100);
+};
+
+const formatFecha = (fecha) => {
+  if (!fecha) return "—";
+  return new Date(fecha).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const TablaUsuariosB2B = ({
   usuarios,
   toggleUserStatus,
@@ -26,19 +44,40 @@ const TablaUsuariosB2B = ({
         <h3 className="text-white font-semibold">Usuarios B2B</h3>
       </div>
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-gray-200 text-xs">
           <thead className="bg-gray-50 sticky top-0">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Usuario
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Restaurante
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Cliente
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Correo
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Suscripción
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Monto
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Meses plan
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Meses pagados
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Pago
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Beneficios
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Estado
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
@@ -46,7 +85,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {usuarios.length === 0 ? (
               <tr>
-                <td colSpan="4" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -54,44 +93,83 @@ const TablaUsuariosB2B = ({
               usuarios.map((user) => {
                 const b2b = user.b2b;
                 const numBeneficios = contarBeneficios(b2b);
+                const sus = b2b?.suscripcion_datos;
 
                 return (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <FaUser className="h-4 w-4 text-indigo-400 mr-2 flex-shrink-0" />
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <span className="font-medium text-gray-900">
+                        {b2b?.nombre_responsable_restaurante || "—"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <FaUser className="text-indigo-400 flex-shrink-0" />
                         <div>
-                          <span className="text-sm font-medium text-gray-900 block">
+                          <span className="font-medium text-gray-900 block">
                             {user.nombre_usuario}
-                            {b2b?.numero_meses && (
-                              <span className="text-xs text-gray-400 font-normal ml-1">
-                                ({b2b.numero_meses} meses)
-                              </span>
-                            )}
                           </span>
-                          {b2b?.correo && (
-                            <span className="text-xs text-gray-500">
-                              {b2b.correo}
+                          {b2b?.nombre_responsable && (
+                            <span className="text-gray-400 block">
+                              {b2b.nombre_responsable}
                             </span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                      {user.correo || b2b?.correo || "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                      {sus?.fecha_creacion_stripe
+                        ? formatFecha(sus.fecha_creacion_stripe)
+                        : b2b?.fecha_aceptacion_terminos
+                          ? formatFecha(b2b.fecha_aceptacion_terminos)
+                          : b2b?.primer_pago
+                            ? formatFecha(b2b.primer_pago)
+                            : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
+                      {sus ? formatMonto(sus.monto) : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                      {b2b?.numero_meses ? `${b2b.numero_meses} m` : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                      {b2b?.meses_pagados != null ? `${b2b.meses_pagados} m` : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      {b2b?.ultimo_pago ? (
+                        <div>
+                          <span className="capitalize text-gray-700 font-medium block">
+                            {b2b.ultimo_pago.marca_tarjeta || "—"}
+                          </span>
+                          <span className="text-gray-400 text-[10px] block">
+                            {b2b.ultimo_pago.tipo_tarjeta === "credit"
+                              ? "crédito"
+                              : b2b.ultimo_pago.tipo_tarjeta === "debit"
+                                ? "débito"
+                                : b2b.ultimo_pago.tipo_tarjeta || "—"}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
                       {b2b ? (
                         <div>
                           <span
-                            className={`text-xs font-semibold ${numBeneficios === 5 ? "text-green-600" : numBeneficios > 0 ? "text-indigo-600" : "text-gray-400"}`}
+                            className={`font-semibold ${numBeneficios === 5 ? "text-green-600" : numBeneficios > 0 ? "text-indigo-600" : "text-gray-400"}`}
                           >
                             {numBeneficios}/5
                           </span>
-                          <div className="flex flex-wrap gap-1 mt-1">
+                          <div className="flex flex-wrap gap-1 mt-0.5">
                             {BENEFICIOS.map((ben) =>
                               b2b[ben.key] ? (
                                 <span
                                   key={ben.key}
                                   className="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded bg-indigo-100 text-indigo-700"
-                                  title={ben.key}
                                 >
                                   {ben.label}
                                 </span>
@@ -100,12 +178,12 @@ const TablaUsuariosB2B = ({
                           </div>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-gray-400">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        className={`inline-flex px-2 py-1 font-semibold rounded-full ${
                           user.estado === "activo"
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
@@ -114,7 +192,7 @@ const TablaUsuariosB2B = ({
                         {user.estado}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                    <td className="px-3 py-2 whitespace-nowrap font-medium">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => toggleUserStatus(user.id, user.estado)}

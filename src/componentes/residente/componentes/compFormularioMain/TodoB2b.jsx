@@ -57,17 +57,19 @@ const TodoB2b = () => {
         if (b2b.usuario_id) b2bMap[b2b.usuario_id] = b2b;
       });
 
-      // Filtrar solo usuarios B2B y agregar datos de beneficios
-      const usuariosB2B = data
-        .filter(
-          (user) =>
-            user.rol?.toLowerCase() === "b2b" ||
-            user.permisos?.toLowerCase() === "b2b",
-        )
-        .map((user) => ({
-          ...user,
-          b2b: b2bMap[user.id] || null,
-        }));
+      // Construir lista desde datos B2B (ya enriquecidos con usuario, restaurante y suscripción)
+      const usuariosB2B = (Array.isArray(b2bData) ? b2bData : [])
+        .filter((b2b) => b2b.usuario_id)
+        .map((b2b) => {
+          const usuarioBase = data.find((u) => u.id === b2b.usuario_id) || {};
+          return {
+            id: b2b.usuario_id,
+            nombre_usuario: b2b.nombre_usuario || usuarioBase.nombre_usuario,
+            correo: b2b.correo_cuenta || usuarioBase.correo || b2b.correo,
+            estado: b2b.estado_cuenta || usuarioBase.estado || "activo",
+            b2b,
+          };
+        });
       setUsuarios(usuariosB2B);
     } catch (err) {
       setError("Error al cargar usuarios B2B: " + err.message);
