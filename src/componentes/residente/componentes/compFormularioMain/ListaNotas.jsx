@@ -20,7 +20,7 @@ import { FaBookOpen } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa";
 import { FaUtensils } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
-import { IoNewspaper } from "react-icons/io5";
+import { IoNewspaper, IoStorefront } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
@@ -53,6 +53,7 @@ const NoticiasAdmin = lazy(() => import("../NoticiasAdmin.jsx"));
 const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboard.jsx"));
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
+const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
 
@@ -78,7 +79,7 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
-const VISTAS_SUPERADMIN = ["usuarios", "todob2b"];
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b"];
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -736,6 +737,11 @@ const ListaNotas = () => {
       key: "todob2b",
       label: "B2B",
       icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "usuarios_b2b",
+      label: "Usuarios B2B",
+      icon: <IoStorefront className="mr-2" />,
     },
     {
       key: "buscador",
@@ -1400,6 +1406,15 @@ const ListaNotas = () => {
             <Suspense fallback={<LazyFallback />}>
               <div className="w-full">
                 <TodoB2b />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {vistaActiva === "usuarios_b2b" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <UsuariosB2BPanel />
               </div>
             </Suspense>
           ) : null

@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaCheck, FaTimes, FaBan, FaTrash } from "react-icons/fa";
+import { FaCheck, FaTimes, FaBan, FaTrash } from "react-icons/fa";
 
 const BENEFICIOS = [
   { key: "estudios_mercado", label: "Estudios" },
@@ -51,12 +51,6 @@ const TablaUsuariosB2B = ({
                 Restaurante
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Cliente
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Correo
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Suscripción
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
@@ -85,7 +79,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {usuarios.length === 0 ? (
               <tr>
-                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="9" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -101,24 +95,6 @@ const TablaUsuariosB2B = ({
                       <span className="font-medium text-gray-900">
                         {b2b?.nombre_responsable_restaurante || "—"}
                       </span>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <div className="flex items-center gap-1">
-                        <FaUser className="text-indigo-400 flex-shrink-0" />
-                        <div>
-                          <span className="font-medium text-gray-900 block">
-                            {user.nombre_usuario}
-                          </span>
-                          {b2b?.nombre_responsable && (
-                            <span className="text-gray-400 block">
-                              {b2b.nombre_responsable}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
-                      {user.correo || b2b?.correo || "—"}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap text-gray-600">
                       {sus?.fecha_creacion_stripe
