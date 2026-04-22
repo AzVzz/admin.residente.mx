@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { catalogoHeadersGet } from "./api/catalogoSeccionesGet";
 import { urlApi, imgApi } from "./api/url";
+import { revistaGetUltima } from "./api/revistasGet";
 import {
   FaInstagram,
   FaFacebookF,
@@ -164,11 +165,15 @@ const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [ultimaRevista, setUltimaRevista] = useState(null);
 
   useEffect(() => {
     catalogoHeadersGet()
       .then((data) => setMenuHeader(data))
       .catch(() => setMenuHeader([]));
+    revistaGetUltima()
+      .then((data) => setUltimaRevista(data))
+      .catch(() => setUltimaRevista(null));
   }, []);
 
   // Cerrar dropdown al hacer click fuera
@@ -438,19 +443,19 @@ const Header = () => {
                   alt="Banner HeyBanco"
                 />
               </a>
-            ) : (
+            ) : ultimaRevista?.imagen_banner ? (
               <a
-                href="https://residente.mx/fotos/fotos-estaticas/HEROESPARAWEB.pdf"
+                href={ultimaRevista.pdf || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleBannerClick}
               >
                 <img
-                  src="https://residente.mx/fotos/fotos-estaticas/BANNER%20HE%CC%81ROES%20DEL%20SERVCIO%20COCA%20COLA%202025.jpg"
-                  alt="Banner Principal"
+                  src={ultimaRevista.imagen_banner}
+                  alt={ultimaRevista.titulo || "Banner Principal"}
                 />
               </a>
-            )}
+            ) : null}
           </div>
           <div className="flex pb-0 pt-8">
             <div className="flex pr-3">
