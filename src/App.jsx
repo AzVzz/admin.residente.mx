@@ -156,6 +156,9 @@ const CuestionarioB2C = lazy(
 const B2CInterior = lazy(
   () => import("./componentes/residente/B2C/B2CInterior.jsx"),
 );
+const GastroDestinos = lazy(
+  () => import("./componentes/residente/B2C/GastroDestinos.jsx"),
+);
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -454,6 +457,15 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto py-10">
                     <CuestionarioB2C />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/guia-destinos"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <GastroDestinos />
                   </div>
                 }
               />
