@@ -120,9 +120,15 @@ const GastroDestinos = () => {
     <div className="px-4 py-12 max-w-[640px] mx-auto">
       {/* Header */}
       <div className="mb-10 text-center">
-        <h1 className="text-5xl font-bold text-black leading-none mb-4">
+        <h1 className="text-5xl font-haas text-black leading-none mb-4">
           Guías de viaje<br />gastronómico
         </h1>
+        <p className="text-base font-haas text-black tracking-widest uppercase mb-2">
+          Descarga aquí nuestras guías de viaje gratuitas
+        </p>
+        <p className="text-base font-haas text-black tracking-widest uppercase">
+          Consigue aquí tu guía personalizada de viaje gastronómico
+        </p>
       </div>
 
       {enviado && (
@@ -138,7 +144,7 @@ const GastroDestinos = () => {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Nombre            </label>
             <input
               type="text"
@@ -150,7 +156,7 @@ const GastroDestinos = () => {
           </div>
 
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Correo electrónico            </label>
             <input
               type="email"
@@ -163,14 +169,14 @@ const GastroDestinos = () => {
         </div>
 
         <div>
-          <label className="block text-lg font-bold text-black mb-1">
+          <label className="block text-lg font-haas text-black mb-1">
             Destino          </label>
           <DestinoSelect value={formData.destino} onChange={handleChange} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Inicio del viaje
             </label>
             <input
@@ -183,7 +189,7 @@ const GastroDestinos = () => {
             />
           </div>
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Fin del viaje
             </label>
             <input
@@ -199,7 +205,7 @@ const GastroDestinos = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Días
             </label>
             <input
@@ -212,7 +218,7 @@ const GastroDestinos = () => {
             />
           </div>
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Número de personas
             </label>
             <input
@@ -228,7 +234,7 @@ const GastroDestinos = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Edades
             </label>
             <input
@@ -240,7 +246,7 @@ const GastroDestinos = () => {
             />
           </div>
           <div>
-            <label className="block text-lg font-bold text-black mb-1">
+            <label className="block text-lg font-haas text-black mb-1">
               Presupuesto por día (Dolares)
             </label>
             <input
@@ -254,7 +260,7 @@ const GastroDestinos = () => {
         </div>
 
         <div>
-          <label className="block text-lg font-bold text-black mb-1">
+          <label className="block text-lg font-haas text-black mb-1">
             Zona de estancia
           </label>
           <input
