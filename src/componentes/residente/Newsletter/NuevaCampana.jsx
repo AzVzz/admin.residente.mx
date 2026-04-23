@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../Context";
 import { urlApi, imgApi } from "../../api/url";
-import { catalogoNotasGet } from "../../api/notasPublicadasGet";
+import { catalogoNotasGetTodas } from "../../api/notasPublicadasGet";
 import { useDebounce } from "../../../hooks/useDebounce";
 import EditorTextoRico from "./EditorTextoRico";
 
@@ -860,16 +860,16 @@ const NuevaCampana = () => {
 
   useEffect(() => {
     setIsLoadingNotas(true);
-    catalogoNotasGet(1, 100)
+    catalogoNotasGetTodas(100)
       .then((data) => setNotas(Array.isArray(data) ? data : []))
       .catch(() => setNotas([]))
       .finally(() => setIsLoadingNotas(false));
   }, []);
 
   useEffect(() => {
-    if (!busqueda.trim()) { setNotasFiltradas(notas.slice(0, 20)); return; }
+    if (!busqueda.trim()) { setNotasFiltradas(notas.slice(0, 50)); return; }
     const q = busqueda.toLowerCase();
-    setNotasFiltradas(notas.filter((n) => n.titulo?.toLowerCase().includes(q) || n.resumen?.toLowerCase().includes(q)).slice(0, 20));
+    setNotasFiltradas(notas.filter((n) => n.titulo?.toLowerCase().includes(q) || n.resumen?.toLowerCase().includes(q)));
   }, [busqueda, notas]);
 
   useEffect(() => {

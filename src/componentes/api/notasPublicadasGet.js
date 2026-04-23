@@ -25,6 +25,39 @@ export const catalogoNotasGet = async (page = 1, limit = 50) => {
     }
 };
 
+// Trae TODAS las notas publicadas iterando paginas del endpoint /api/notas
+// (backend topea limit a 100 por pagina).
+export const catalogoNotasGetTodas = async (pageSize = 100) => {
+    const limit = Math.min(pageSize, 100);
+    let page = 1;
+    const todas = [];
+    while (true) {
+        const response = await fetch(`${urlApi}api/notas?page=${page}&limit=${limit}`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        const result = await response.json();
+
+        let lote = [];
+        let totalPaginas = null;
+        if (Array.isArray(result)) {
+            lote = result;
+        } else if (result.notas && Array.isArray(result.notas)) {
+            lote = result.notas;
+            totalPaginas = result.paginacion?.paginas ?? null;
+        }
+
+        if (lote.length === 0) break;
+        todas.push(...lote);
+
+        if (totalPaginas !== null) {
+            if (page >= totalPaginas) break;
+        } else if (lote.length < limit) {
+            break;
+        }
+        page += 1;
+    }
+    return todas;
+};
+
 // GET:ID de las notas
 export const notasPublicadasPorId = async (id) => {
     try {
