@@ -102,8 +102,9 @@ function moverBloqueA(arr, from, to) {
 
 // ── Componente: Bloque Nota ──────────────────────────────────────────────────
 
-const BloqueNota = ({ bloque, idx, total, onChange, onQuitar }) => {
+const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, plantilla }) => {
   const [expandido, setExpandido] = useState(false);
+  const esEditorial = plantilla === "editorial";
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -150,8 +151,25 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar }) => {
           </div>
           <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
             <input type="checkbox" checked={bloque.mostrar_imagen !== false} onChange={(e) => onChange(idx, "mostrar_imagen", e.target.checked)} className="rounded" />
-            Mostrar imagen circular
+            {esEditorial ? "Mostrar imagen rectangular" : "Mostrar imagen circular"}
           </label>
+          {esEditorial && bloque.mostrar_imagen !== false && (
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                Ancho de imagen: <span className="font-mono">{bloque.ancho_imagen || 400}px</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input type="range" min="120" max="540" step="20"
+                  value={bloque.ancho_imagen || 400}
+                  onChange={(e) => onChange(idx, "ancho_imagen", Number(e.target.value))}
+                  className="flex-1" />
+                <input type="number" min="120" max="540"
+                  value={bloque.ancho_imagen || 400}
+                  onChange={(e) => onChange(idx, "ancho_imagen", Number(e.target.value) || 400)}
+                  className="w-16 border border-gray-200 rounded px-1.5 py-0.5 text-xs text-center" />
+              </div>
+            </div>
+          )}
           <div>
             <label className="block text-xs text-gray-500 mb-1">Descripción (override)</label>
             <textarea value={bloque.descripcion || ""} onChange={(e) => onChange(idx, "descripcion", e.target.value)}
@@ -677,11 +695,22 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Tamaño</label>
-              <select value={bloque.tamanio || "completo"} onChange={(e) => onChange(idx, "tamanio", e.target.value)}
+              <select
+                value={bloque.ancho_imagen ? "personalizado" : (bloque.tamanio || "completo")}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "personalizado") {
+                    onChange(idx, "ancho_imagen", bloque.ancho_imagen || 400);
+                  } else {
+                    onChange(idx, "ancho_imagen", null);
+                    onChange(idx, "tamanio", v);
+                  }
+                }}
                 className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400">
                 <option value="completo">Completo (540px)</option>
                 <option value="mediano">Mediano (320px)</option>
                 <option value="pequeno">Pequeño (200px)</option>
+                <option value="personalizado">Personalizado…</option>
               </select>
             </div>
             <div>
@@ -694,6 +723,23 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
               </select>
             </div>
           </div>
+          {bloque.ancho_imagen != null && (
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                Ancho: <span className="font-mono">{bloque.ancho_imagen}px</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input type="range" min="80" max="540" step="20"
+                  value={bloque.ancho_imagen}
+                  onChange={(e) => onChange(idx, "ancho_imagen", Number(e.target.value))}
+                  className="flex-1" />
+                <input type="number" min="80" max="540"
+                  value={bloque.ancho_imagen}
+                  onChange={(e) => onChange(idx, "ancho_imagen", Number(e.target.value) || 400)}
+                  className="w-16 border border-gray-200 rounded px-1.5 py-0.5 text-xs text-center" />
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs text-gray-500 mb-1">Link al hacer clic (opcional)</label>
@@ -1268,7 +1314,7 @@ const NuevaCampana = () => {
                     ) : bloque.tipo === "separador" ? (
                       <BloqueSeparador bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
                     ) : (
-                      <BloqueNota bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarNota} imgApi={imgApi} />
+                      <BloqueNota bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarNota} imgApi={imgApi} plantilla={form.plantilla} />
                     )}
                   </div>
                 );
