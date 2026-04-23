@@ -9,25 +9,6 @@ const DESTINOS = [
   "Nueva York",
   "Barcelona",
   "Los Ángeles",
-  "Roma",
-  "Ámsterdam",
-  "Berlín",
-  "Lisboa",
-  "Tokio",
-  "Ciudad de México",
-  "Buenos Aires",
-  "São Paulo",
-  "Bogotá",
-  "Miami",
-  "Chicago",
-  "San Francisco",
-  "Montreal",
-  "Toronto",
-  "Dubái",
-  "Singapur",
-  "Bangkok",
-  "Seúl",
-  "Sydney",
 ];
 
 const DestinoSelect = ({ value, onChange }) => {
@@ -87,7 +68,9 @@ const GastroDestinos = () => {
     nombre: "",
     correo: "",
     destino: "",
-    fecha_viaje: "",
+    fecha_inicio: "",
+    fecha_fin: "",
+    dias: "",
     num_personas: "",
     edades: "",
     presupuesto: "",
@@ -105,8 +88,11 @@ const GastroDestinos = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.nombre.trim() || !formData.correo.trim() || !formData.destino) {
-      setError("Nombre, correo y destino son obligatorios.");
+    if (!formData.nombre.trim() || !formData.correo.trim() || !formData.destino ||
+        !formData.fecha_inicio || !formData.fecha_fin || !formData.dias ||
+        !formData.num_personas || !formData.edades.trim() || !formData.presupuesto.trim() ||
+        !formData.zona_estancia.trim()) {
+      setError("Todos los campos son obligatorios.");
       return;
     }
 
@@ -150,96 +136,125 @@ const GastroDestinos = () => {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Nombre <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Nombre            </label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Correo electrónico            </label>
+            <input
+              type="email"
+              name="correo"
+              value={formData.correo}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Correo electrónico <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="correo"
-            value={formData.correo}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Destino <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-lg font-bold text-black mb-1">
+            Destino          </label>
           <DestinoSelect value={formData.destino} onChange={handleChange} />
         </div>
 
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Fecha del viaje
-          </label>
-          <input
-            type="date"
-            name="fecha_viaje"
-            value={formData.fecha_viaje}
-            onChange={handleChange}
-            onClick={(e) => e.target.showPicker?.()}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white cursor-pointer"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Inicio del viaje
+            </label>
+            <input
+              type="date"
+              name="fecha_inicio"
+              value={formData.fecha_inicio}
+              onChange={handleChange}
+              onClick={(e) => e.target.showPicker?.()}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Fin del viaje
+            </label>
+            <input
+              type="date"
+              name="fecha_fin"
+              value={formData.fecha_fin}
+              onChange={handleChange}
+              onClick={(e) => e.target.showPicker?.()}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Días
+            </label>
+            <input
+              type="number"
+              name="dias"
+              value={formData.dias}
+              onChange={handleChange}
+              min="1"
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Número de personas
+            </label>
+            <input
+              type="number"
+              name="num_personas"
+              value={formData.num_personas}
+              onChange={handleChange}
+              min="1"
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Edades
+            </label>
+            <input
+              type="text"
+              name="edades"
+              value={formData.edades}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-bold text-black mb-1">
+              Presupuesto por día (Dolares)
+            </label>
+            <input
+              type="text"
+              name="presupuesto"
+              value={formData.presupuesto}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Número de personas
-          </label>
-          <input
-            type="number"
-            name="num_personas"
-            value={formData.num_personas}
-            onChange={handleChange}
-            min="1"
-            className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Edades
-          </label>
-          <input
-            type="text"
-            name="edades"
-            value={formData.edades}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            Presupuesto por día 
-          </label>
-          <input
-            type="text"
-            name="presupuesto"
-            value={formData.presupuesto}
-            onChange={handleChange}
-            
-            className="w-full px-4 py-3 border bg-white border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
+          <label className="block text-lg font-bold text-black mb-1">
             Zona de estancia
           </label>
           <input
@@ -260,12 +275,8 @@ const GastroDestinos = () => {
           disabled={isSubmitting}
           className="w-full py-4 bg-black text-white font-bold text-lg rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50 cursor-pointer"
         >
-          {isSubmitting ? "Enviando…" : "Solicitar mi guía — $499/día"}
+          {isSubmitting ? "Redirigiendo al pago…" : "Solicitar mi guía — $499/día"}
         </button>
-
-        <p className="text-center text-xs text-gray-400">
-          Recibirás tu guía personalizada en tu correo electrónico.
-        </p>
       </form>
     </div>
   );
