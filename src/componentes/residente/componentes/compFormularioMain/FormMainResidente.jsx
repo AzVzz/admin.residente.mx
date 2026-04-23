@@ -194,6 +194,20 @@ const FormMainResidente = () => {
         setValue("seo_keyword", seoData.seo_keyword);
         setValue("seo_alt_text", seoData.seo_alt_text);
 
+        // Auto-generar slug desde palabra clave SEO si el slug está vacío
+        if (seoData.seo_keyword && !watch("slug")) {
+          const slugDesdeKeyword = seoData.seo_keyword
+            .toString()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .trim()
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-");
+          setValue("slug", slugDesdeKeyword);
+        }
+
         // Opcional: Mostrar feedback
         setShowSEOComparison(true); // Reutilizamos el modal de comparación si existe o creamos uno simple
       }
@@ -226,6 +240,7 @@ const FormMainResidente = () => {
   // --- Lógica para campos obligatorios ---
   const camposFaltantes = [];
   if (!titulo) camposFaltantes.push("título");
+  if (!watch("slug")) camposFaltantes.push("slug");
   if (!subtitulo) camposFaltantes.push("subtítulo");
   if (!imagen && !imagenActual) camposFaltantes.push("imagen");
   if (isContenidoVacio(contenido)) camposFaltantes.push("contenido");
@@ -553,6 +568,12 @@ const FormMainResidente = () => {
     setIsPosting(true);
     setPostError(null);
     setPostResponse(null);
+
+    if (!data.slug || !data.slug.trim()) {
+      setPostError("El slug es obligatorio. Genera uno desde el título o escríbelo manualmente.");
+      setIsPosting(false);
+      return;
+    }
 
     // Determinar el estado de la nota según los permisos del usuario y si falta imagen
     let estadoFinal;
@@ -908,6 +929,9 @@ const FormMainResidente = () => {
                   <Titulo />
                 </div>
                 <div className="pb-4">
+                  <SlugInput />
+                </div>
+                <div className="pb-4">
                   <Subtitulo />
                 </div>
                 <div className="pb-4">
@@ -915,10 +939,6 @@ const FormMainResidente = () => {
                 </div>
                 <div className="pb-4">
                   <Contenido />
-                </div>
-
-                <div className="pb-4">
-                  <SlugInput />
                 </div>
 
                 <div className="pb-4">

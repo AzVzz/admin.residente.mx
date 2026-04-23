@@ -75,6 +75,7 @@ const SlugInput = () => {
           value={slugValue}
           onChange={handleChange}
           {...register("slug", {
+            required: "El slug es obligatorio",
             maxLength: {
               value: 200,
               message: "El slug solo puede tener 200 caracteres",
@@ -93,9 +94,9 @@ const SlugInput = () => {
           URL final: residente.mx/notas/{slugValue}
         </p>
       )}
-      {!slugValue && !editadoManual && (
-        <p className="text-xs text-gray-400 mt-1">
-          Si lo dejas vacio, se generara automaticamente desde el titulo
+      {!slugValue && (
+        <p className="text-xs text-red-400 mt-1">
+          Obligatorio. Usa "Generar desde titulo" o escribe uno manualmente.
         </p>
       )}
     </div>
