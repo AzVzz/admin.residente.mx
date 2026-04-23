@@ -7,6 +7,7 @@ import Contenido from "./componentes/Contenido";
 import OpcionesPublicacion from "./componentes/OpcionesPublicacion";
 import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
+import SlugInput from "./componentes/SlugInput";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -119,6 +120,7 @@ const FormMainResidente = () => {
       destacada: false,
       tiposDeNotaSeleccionadas: "",
       zonas: [],
+      slug: "",
       seo_alt_text: "",
       seo_title: "",
       seo_keyword: "",
@@ -514,6 +516,7 @@ const FormMainResidente = () => {
                 ? JSON.parse(data.zonas)
                 : data.zonas
               : [],
+            slug: data.slug || "",
             seo_alt_text: data.seo_alt_text || "",
             seo_title: data.seo_title || "",
             seo_keyword: data.seo_keyword || "",
@@ -624,6 +627,7 @@ const FormMainResidente = () => {
 
       const tipoNotaSecundaria = null;
       const datosNota = {
+        slug: data.slug?.trim() || null,
         tipo_nota: tipoNotaFinal,
         tipo_nota2: tipoNotaSecundaria,
         secciones_categorias: seccionesCategorias,
@@ -911,6 +915,10 @@ const FormMainResidente = () => {
                 </div>
                 <div className="pb-4">
                   <Contenido />
+                </div>
+
+                <div className="pb-4">
+                  <SlugInput />
                 </div>
 
                 <div className="pb-4">

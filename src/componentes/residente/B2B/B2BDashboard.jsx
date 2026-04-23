@@ -2055,7 +2055,7 @@ const B2BDashboard = () => {
                   Este monto representa el ingreso promedio generado por tu
                   negocio gracias a la conversión de vistas a fidelizacion del
                   cliente y eventualmente en consumo. El radio de acierto
-                  estimado promedio es del .035% que se multiplica por el ticket
+                  estimado promedio es del .35% que se multiplica por el ticket
                   promedio de tu negocio y la asistencia promedio por mesa de
                   2.8 personas.
                 </p>
