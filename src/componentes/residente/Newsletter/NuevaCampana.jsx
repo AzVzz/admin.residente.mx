@@ -1117,6 +1117,21 @@ const NuevaCampana = () => {
                     className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-gray-500"
                   />
                 </div>
+                {(() => {
+                  const hex = form.tema?.color_primario || "#000000";
+                  const m = hex.match(/^#([0-9a-f]{6})$/i);
+                  if (!m) return null;
+                  const toLin = (c) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                  const lum = 0.2126 * toLin(parseInt(m[1].slice(0,2),16)/255)
+                    + 0.7152 * toLin(parseInt(m[1].slice(2,4),16)/255)
+                    + 0.0722 * toLin(parseInt(m[1].slice(4,6),16)/255);
+                  const bajo = (1.05 / (lum + 0.05)) < 4.5;
+                  return bajo ? (
+                    <p className="text-[10px] text-amber-600 mt-1 leading-tight">
+                      Color claro: se aplicará solo a botones. El texto permanece negro para ser legible.
+                    </p>
+                  ) : null;
+                })()}
               </div>
               <div>
                 <label className="block text-[11px] font-semibold mb-1 text-gray-500 uppercase tracking-wide">Fuente</label>
