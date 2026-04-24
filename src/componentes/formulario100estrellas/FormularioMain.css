@@ -18,6 +18,7 @@ Generales y de Radio
 .categorias fieldset,
 .info fieldset,
 .form-redes-sociales fieldset,
+.form-geolocalizacion fieldset,
 .form-ocasion-ideal fieldset,
 .form-codigo-vestir fieldset,
 .form-sucursales fieldset,
@@ -41,6 +42,7 @@ Generales y de Radio
 .categorias legend,
 .info legend,
 .form-redes-sociales legend,
+.form-geolocalizacion legend,
 .form-ocasion-ideal legend,
 .form-codigo-vestir legend,
 .form-sucursales legend,
@@ -63,6 +65,7 @@ Generales y de Radio
 
 .info label,
 .form-redes-sociales label,
+.form-geolocalizacion label,
 .form-resena label,
 .form-cinco-razones label,
 .form-que-pido label,
@@ -195,6 +198,7 @@ Textos
 
 .info .input-group,
 .form-redes-sociales .input-group,
+.form-geolocalizacion .input-group,
 .form-resena .input-group,
 .form-logros .input-group,
 .form-cinco-razones .input-group,
@@ -207,6 +211,7 @@ Textos
 
 .info label,
 .form-redes-sociales label,
+.form-geolocalizacion label,
 .form-resena label,
 .form-logros label,
 .form-cinco-razones label,
@@ -223,6 +228,7 @@ Textos
 
 .info input,
 .form-redes-sociales input,
+.form-geolocalizacion input,
 .form-resena input,
 .form-logros input,
 .form-cinco-razones input,
@@ -241,6 +247,7 @@ Textos
 
 .info input:focus,
 .form-redes-sociales input:focus,
+.form-geolocalizacion input:focus,
 .form-logros input:focus,
 .form-cinco-razones input:focus,
 .form-que-pido input:focus,
@@ -519,12 +526,216 @@ Acomodar despues
     .input-pair {
         flex-direction: column;
     }
-    
+
     .year-container,
     .titulo-container {
         flex: 1;
         width: 100%;
         min-width: auto;
+    }
+}
+
+/*
+═══════════════════════════════════════════════════
+GEOLOCALIZACION
+═══════════════════════════════════════════════════
+*/
+
+.form-geolocalizacion .geo-url-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.form-geolocalizacion .geo-url-row input {
+    flex: 1;
+    min-width: 260px;
+}
+
+.form-geolocalizacion .geo-latlng {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-geolocalizacion .geo-help {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.form-geolocalizacion .geo-feedback {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-geolocalizacion .geo-feedback.ok {
+    background: #ecfdf5;
+    border: 2px solid #bbf7d0;
+    color: #166534;
+}
+
+.form-geolocalizacion .geo-feedback.err {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    color: #b91c1c;
+}
+
+.form-geolocalizacion .geo-ver-mapa {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 14px;
+    background: #fff7ed;
+    border: 2px solid #ffedd5;
+    border-radius: 8px;
+    color: #c2410c;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-geolocalizacion .geo-ver-mapa:hover {
+    background: #ffedd5;
+    transform: translateY(-1px);
+}
+
+/* Botones pequenos que imitan el .form-button pero mas compactos */
+.form-geolocalizacion .geo-btn {
+    height: 48px;
+    padding: 0 20px;
+    background: #f97316;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.form-geolocalizacion .geo-btn:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+}
+
+.form-geolocalizacion .geo-btn:disabled {
+    background: #ffedd5;
+    color: #fb923c;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.form-geolocalizacion .geo-btn.geo-btn--ghost {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 2px solid #ffedd5;
+}
+
+.form-geolocalizacion .geo-btn.geo-btn--ghost:hover {
+    background: #ffedd5;
+}
+
+.form-geolocalizacion .geo-btn.geo-btn--mapa {
+    width: 100%;
+    height: 56px;
+    margin-top: 8px;
+    font-size: 1.1rem;
+}
+
+/* Modal del mapa */
+.geo-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.geo-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 2px solid #000;
+}
+
+.geo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.geo-modal-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.geo-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #333;
+    padding: 0 8px;
+}
+
+.geo-modal-map {
+    width: 100%;
+    height: 500px;
+    border-radius: 10px;
+    border: 2px solid #ffedd5;
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.geo-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.geo-modal-coords {
+    font-size: 0.95rem;
+    color: #444;
+    padding: 6px 10px;
+    background: #fff7ed;
+    border-radius: 6px;
+    border: 1px solid #ffedd5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.geo-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .form-geolocalizacion .geo-latlng {
+        grid-template-columns: 1fr;
+    }
+    .geo-modal-map {
+        height: 380px;
     }
 }
 

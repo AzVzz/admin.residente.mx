@@ -13,6 +13,7 @@ import TipoRestaurante from "./componentes/TipoRestaurante";
 import Categorias from "./componentes/Categorias";
 import Informacion from "./componentes/Informacion";
 import RedesSociales from "./componentes/RedesSociales";
+import Geolocalizacion from "./componentes/Geolocalizacion";
 import OcasionIdeal from "./componentes/OcasionIdeal";
 import Sucursales from "./componentes/Sucursales";
 import CodigoVestir from "./componentes/CodigoVestir";
@@ -616,6 +617,16 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   facebook: data.facebook,
                   ubereats_link: data.ubereats_link,
                   link_horario: data.link_horario,
+                  direccion: data.direccion?.trim() || null,
+                  lat:
+                    data.lat === "" || data.lat == null || Number.isNaN(Number(data.lat))
+                      ? null
+                      : Number(data.lat),
+                  lng:
+                    data.lng === "" || data.lng == null || Number.isNaN(Number(data.lng))
+                      ? null
+                      : Number(data.lng),
+                  google_place_id: data.google_place_id?.trim() || null,
                   links: data.links,
                   ocasiones_ideales: [
                     data.ocasion_ideal_1,
@@ -901,6 +912,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
+                <Geolocalizacion />
                 {/* Selector de Iconos/Stickers */}
                 <div className="form-iconos">
                   <fieldset>
