@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
 import { IoStorefront } from "react-icons/io5";
+import { IoAddCircleOutline } from "react-icons/io5";
 import TablaUsuariosB2B from "./TodoB2bComponentes/TablaUsuariosB2B";
+import CrearUsuarioB2BModal from "./TodoB2bComponentes/CrearUsuarioB2BModal";
 
 const UsuariosB2BPanel = () => {
   const { token } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   useEffect(() => {
     cargarUsuariosB2B();
@@ -133,9 +136,18 @@ const UsuariosB2BPanel = () => {
           <IoStorefront className="mr-2" />
           Usuarios B2B
         </h2>
-        <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
-          {usuarios.length} usuarios
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
+            {usuarios.length} usuarios
+          </span>
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+          >
+            <IoAddCircleOutline size={18} />
+            Crear B2B
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -155,6 +167,15 @@ const UsuariosB2BPanel = () => {
           toggleUserStatus={toggleUserStatus}
           desactivarUsuarioB2B={desactivarUsuarioB2B}
           handleDelete={handleDelete}
+        />
+      )}
+      {modalAbierto && (
+        <CrearUsuarioB2BModal
+          onCreado={() => {
+            setModalAbierto(false);
+            cargarUsuariosB2B();
+          }}
+          onCerrar={() => setModalAbierto(false)}
         />
       )}
     </div>
