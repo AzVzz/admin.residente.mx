@@ -44,11 +44,20 @@
   src: url('src/fonts/NHaasGroteskDSP W02 Reg.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'BebasRegular';
+  src: url('/fonts/BebasResidente-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-haas: Haas, "sans-serif";
   --font-roman: Roman, "sans-serif";
   --font-grotesk: Grotesk, "sans-serif";
   --font-groteskregular: GroteskRegular, "sans-serif";
+  --font-bebas: "BebasRegular", sans-serif;
   --font-family-haas: "NeueHaasGroteskDisplayW02Bold", sans-serif;
   --font-family-roman: "NeueHaasGroteskDisplayPro55Roman", sans-serif;
   --font-family-grotesk: "NeueHaasGroteskDisplayPro75Bold", sans-serif;
