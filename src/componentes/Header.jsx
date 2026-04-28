@@ -222,7 +222,7 @@ const Header = () => {
   const mainMenu = menuData.filter((s) => s.seccion !== "Anunciate" && s.seccion !== "Banner-Tienda");
   const extraLinks = menuData.filter((s) => s.seccion === "Anunciate" || s.seccion === "Banner-Tienda");
 
-  const isB2B = location.pathname.startsWith("/b2b") || usuario?.rol?.toLowerCase() === "b2b";
+  const isB2B = false;
 
   return (
     <header className="w-full">
