@@ -64,6 +64,8 @@ const B2BDashboard = () => {
 
   // Estado para notas taggeadas al restaurante
   const [notasRestaurante, setNotasRestaurante] = useState(null);
+  const [notasOrden, setNotasOrden] = useState("vistas");
+  const [notasExpandidas, setNotasExpandidas] = useState(false);
 
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
@@ -1497,40 +1499,82 @@ const B2BDashboard = () => {
               </div>
               {/* Lista individual de cada nota con sus vistas */}
               {notasRestaurante && notasRestaurante.notas.length > 0 ? (
-                <div className="space-y-0.5 mt-2">
-                  {notasRestaurante.notas.map((nota) => (
-                    <div
-                      key={nota.id}
-                      className="flex justify-between items-center text-xs"
-                    >
-                      <a
-                        href={`https://residente.mx/notas/${nota.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="truncate max-w-[45%] text-black font-medium hover:text-gray-600"
-                        title={nota.titulo}
+                <div className="mt-3">
+                  {/* Selector de orden */}
+                  <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                    <span className="text-[11px] text-gray-400">Ordenar:</span>
+                    {[
+                      { key: "vistas", label: "Vistas" },
+                      { key: "clicks", label: "Clicks" },
+                      { key: "fecha", label: "Fecha" },
+                    ].map(({ key, label }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setNotasOrden(key)}
+                        className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+                          notasOrden === key
+                            ? "bg-black text-white border-black"
+                            : "bg-white text-gray-500 border-gray-300 hover:border-gray-500"
+                        }`}
                       >
-                        {nota.titulo}
-                      </a>
-                      <span className="text-gray-600 whitespace-nowrap text-right">
-                        {nota.vistas?.toLocaleString("es-MX")} v &middot;{" "}
-                        {nota.clicks?.toLocaleString("es-MX")} cl
-                        {nota.created_at && (
-                          <span className="text-gray-400 ml-1">
-                            &middot;{" "}
-                            {new Date(nota.created_at).toLocaleDateString(
-                              "es-MX",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "2-digit",
-                              },
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Filas de notas */}
+                  <div className="space-y-0.5">
+                    {[...notasRestaurante.notas]
+                      .sort((a, b) => {
+                        if (notasOrden === "vistas") return (b.vistas || 0) - (a.vistas || 0);
+                        if (notasOrden === "clicks") return (b.clicks || 0) - (a.clicks || 0);
+                        if (notasOrden === "fecha") return new Date(b.fecha || 0) - new Date(a.fecha || 0);
+                        if (notasOrden === "created_at") return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                        return 0;
+                      })
+                      .slice(0, notasExpandidas ? undefined : 3)
+                      .map((nota) => (
+                        <div key={nota.id} className="flex justify-between items-center text-xs py-0.5">
+                          <a
+                            href={`https://residente.mx/notas/${nota.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="truncate max-w-[50%] text-black font-medium hover:text-gray-600"
+                            title={nota.titulo}
+                          >
+                            {nota.titulo}
+                          </a>
+                          <span className="text-gray-600 whitespace-nowrap text-right">
+                            {(nota.vistas || 0).toLocaleString("es-MX")} v &middot;{" "}
+                            {(nota.clicks || 0).toLocaleString("es-MX")} cl
+                            {(nota.fecha || nota.created_at) && (
+                              <span className="text-gray-400 ml-1">
+                                &middot;{" "}
+                                {new Date(nota.fecha || nota.created_at).toLocaleDateString("es-MX", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "2-digit",
+                                })}
+                              </span>
                             )}
                           </span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
+                        </div>
+                      ))}
+                  </div>
+
+                  {/* Toggle ver más / ver menos */}
+                  {notasRestaurante.notas.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setNotasExpandidas((v) => !v)}
+                      className="mt-2 text-[11px] text-gray-500 hover:text-black underline"
+                    >
+                      {notasExpandidas
+                        ? "Ver menos"
+                        : `Ver todas (${notasRestaurante.notas.length})`}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <p className="text-xs text-gray-400 mt-2 mb-4">
