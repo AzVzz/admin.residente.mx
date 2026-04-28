@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useAuth } from "../../../../Context";
 import { restaurantesBasicosGet } from "../../../../api/restaurantesBasicosGet";
+import { urlApi } from "../../../../api/url";
 
 const NombreRestaurante = () => {
   const { watch, setValue, register } = useFormContext();
-  const { usuario } = useAuth();
+  const { usuario, token } = useAuth();
   const [restaurantes, setRestaurantes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [autoTagStatus, setAutoTagStatus] = useState(null); // null | "loading" | { added, total }
   const dropdownRef = useRef(null);
 
   const selectedIds = watch("restaurantes_ids") || [];
@@ -55,6 +57,33 @@ const NombreRestaurante = () => {
     setValue("restaurantes_ids", selectedIds.map(Number).filter((rid) => rid !== numId), { shouldDirty: true });
   };
 
+  const autoEtiquetar = async () => {
+    setAutoTagStatus("loading");
+    try {
+      const titulo = watch("titulo") || "";
+      const subtitulo = watch("subtitulo") || "";
+      const descripcion = watch("contenido") || "";
+      const res = await fetch(`${urlApi}api/notas/preview-vincular`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ titulo, subtitulo, descripcion }),
+      });
+      if (!res.ok) throw new Error("Error del servidor");
+      const matches = await res.json();
+      const current = selectedIds.map(Number);
+      const nuevos = matches.map((r) => r.id).filter((id) => !current.includes(id));
+      setValue("restaurantes_ids", [...current, ...nuevos], { shouldDirty: true });
+      setAutoTagStatus({ added: nuevos.length, total: matches.length });
+      setTimeout(() => setAutoTagStatus(null), 4000);
+    } catch {
+      setAutoTagStatus({ error: true });
+      setTimeout(() => setAutoTagStatus(null), 3000);
+    }
+  };
+
   return (
     <div className="mb-4 pb-4" ref={dropdownRef}>
       {/* Input de nombre_restaurante para post_residente_new2 */}
@@ -70,9 +99,31 @@ const NombreRestaurante = () => {
         />
       </div>
 
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Restaurantes etiquetados
-      </label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Restaurantes etiquetados
+        </label>
+        <button
+          type="button"
+          onClick={autoEtiquetar}
+          disabled={autoTagStatus === "loading"}
+          className="text-xs px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {autoTagStatus === "loading" ? "Detectando…" : "✦ Auto-etiquetar"}
+        </button>
+      </div>
+
+      {autoTagStatus && autoTagStatus !== "loading" && (
+        <p className={`text-xs mb-2 ${autoTagStatus.error ? "text-red-500" : "text-green-600"}`}>
+          {autoTagStatus.error
+            ? "Error al detectar menciones."
+            : autoTagStatus.total === 0
+            ? "No se encontraron menciones de restaurantes."
+            : autoTagStatus.added === 0
+            ? `${autoTagStatus.total} ya etiquetados.`
+            : `+${autoTagStatus.added} restaurante${autoTagStatus.added > 1 ? "s" : ""} etiquetado${autoTagStatus.added > 1 ? "s" : ""} (${autoTagStatus.total} en total).`}
+        </p>
+      )}
 
       {/* Chips de restaurantes seleccionados */}
       {selectedIds.length > 0 && (
