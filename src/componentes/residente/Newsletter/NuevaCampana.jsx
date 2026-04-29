@@ -92,6 +92,19 @@ const IconSeparator = () => (
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
+const BotonesMover = ({ idx, total, onMover }) => (
+  <div className="flex" onPointerDown={(e) => e.stopPropagation()}>
+    <button onClick={() => onMover(idx, -1)} disabled={idx === 0}
+      className="text-gray-300 hover:text-gray-600 p-1 disabled:opacity-20 transition-colors" title="Mover arriba">
+      <IconChevronUp />
+    </button>
+    <button onClick={() => onMover(idx, 1)} disabled={idx >= total - 1}
+      className="text-gray-300 hover:text-gray-600 p-1 disabled:opacity-20 transition-colors" title="Mover abajo">
+      <IconChevronDown />
+    </button>
+  </div>
+);
+
 function moverBloqueA(arr, from, to) {
   if (from === to || to < 0 || to >= arr.length) return arr;
   const copia = [...arr];
@@ -102,7 +115,7 @@ function moverBloqueA(arr, from, to) {
 
 // ── Componente: Bloque Nota ──────────────────────────────────────────────────
 
-const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, plantilla }) => {
+const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, onMover, plantilla }) => {
   const [expandido, setExpandido] = useState(false);
   const esEditorial = plantilla === "editorial";
 
@@ -129,6 +142,7 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, plantilla }) => {
         >
           {bloque.tipo === "principal" ? "Principal" : "Secundaria"}
         </button>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-gray-400 hover:text-black p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(bloque.id)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -184,7 +198,7 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, plantilla }) => {
 
 // ── Componente: Bloque Restaurantes ─────────────────────────────────────────
 
-const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
+const BloqueRestaurantes = ({ bloque, idx, total, onChange, onQuitar, onMover, token }) => {
   const [expandido, setExpandido] = useState(true);
   const [mostrarPicker, setMostrarPicker] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -253,6 +267,7 @@ const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
           {items.length > 0 && <span className="ml-1 text-blue-400">({items.length})</span>}
         </span>
         <span className="text-xs bg-blue-200 text-blue-700 px-2 py-0.5 rounded font-semibold shrink-0">Restaurantes</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-blue-400 hover:text-blue-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -402,7 +417,7 @@ const BloqueRestaurantes = ({ bloque, idx, onChange, onQuitar, token }) => {
 
 // ── Componente: Bloque Cupones ───────────────────────────────────────────────
 
-const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
+const BloqueCupones = ({ bloque, idx, total, onChange, onQuitar, onMover }) => {
   const [expandido, setExpandido] = useState(true);
   const [mostrarPicker, setMostrarPicker] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -464,6 +479,7 @@ const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
           {items.length > 0 && <span className="ml-1 text-amber-400">({items.length})</span>}
         </span>
         <span className="text-xs bg-amber-200 text-amber-700 px-2 py-0.5 rounded font-semibold shrink-0">Cupones</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-amber-400 hover:text-amber-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -630,7 +646,7 @@ const BloqueCupones = ({ bloque, idx, onChange, onQuitar }) => {
 
 // ── Componente: Bloque Imagen ────────────────────────────────────────────────
 
-const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
+const BloqueImagen = ({ bloque, idx, total, onChange, onQuitar, onMover, token }) => {
   const [expandido, setExpandido] = useState(true);
   const [subiendo, setSubiendo] = useState(false);
 
@@ -666,6 +682,7 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
         )}
         <span className="flex-1 text-xs font-medium text-purple-900 truncate">{bloque.caption || "Imagen"}</span>
         <span className="text-xs bg-purple-200 text-purple-700 px-2 py-0.5 rounded font-semibold shrink-0">Imagen</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-purple-400 hover:text-purple-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -678,9 +695,10 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
               <label className={`flex items-center gap-1 text-xs border rounded px-2 py-1.5 cursor-pointer transition-colors ${subiendo ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50 border-gray-200"}`}>
                 <IconImage />
                 {subiendo ? "Subiendo..." : "Subir"}
-                <input type="file" accept="image/*" className="hidden" disabled={subiendo}
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" disabled={subiendo}
                   onChange={(e) => subirImagen(e.target.files[0])} />
               </label>
+              <span className="text-xs text-gray-300">PNG · JPG · WEBP · GIF</span>
               <span className="text-xs text-gray-400">o</span>
               <input type="text" value={bloque.url || ""} onChange={(e) => onChange(idx, "url", e.target.value)}
                 placeholder="https://... URL de imagen"
@@ -744,7 +762,7 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
           <div>
             <label className="block text-xs text-gray-500 mb-1">Link al hacer clic (opcional)</label>
             <input type="text" value={bloque.link || ""} onChange={(e) => onChange(idx, "link", e.target.value)}
-              placeholder="https://residente.mx/..."
+              placeholder="https://youtube.com/watch?v=... o cualquier URL"
               className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
           </div>
 
@@ -762,7 +780,7 @@ const BloqueImagen = ({ bloque, idx, onChange, onQuitar, token }) => {
 
 // ── Componente: Bloque Texto ─────────────────────────────────────────────────
 
-const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
+const BloqueTexto = ({ bloque, idx, total, onChange, onQuitar, onMover }) => {
   const [expandido, setExpandido] = useState(true);
   const textoPlano = (bloque.texto || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   const preview = textoPlano ? textoPlano.slice(0, 40) + (textoPlano.length > 40 ? "..." : "") : "Texto libre";
@@ -775,6 +793,7 @@ const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
         <span className="text-green-400"><IconText /></span>
         <span className="flex-1 text-xs font-medium text-green-900 truncate">{preview}</span>
         <span className="text-xs bg-green-200 text-green-700 px-2 py-0.5 rounded font-semibold shrink-0">Texto</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-green-400 hover:text-green-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -795,7 +814,7 @@ const BloqueTexto = ({ bloque, idx, onChange, onQuitar }) => {
 
 // ── Componente: Bloque Link ──────────────────────────────────────────────────
 
-const BloqueLink = ({ bloque, idx, onChange, onQuitar }) => {
+const BloqueLink = ({ bloque, idx, total, onChange, onQuitar, onMover }) => {
   const [expandido, setExpandido] = useState(true);
 
   return (
@@ -806,6 +825,7 @@ const BloqueLink = ({ bloque, idx, onChange, onQuitar }) => {
         <span className="text-sky-400"><IconLink /></span>
         <span className="flex-1 text-xs font-medium text-sky-900 truncate">{bloque.texto || "Botón / Enlace"}</span>
         <span className="text-xs bg-sky-200 text-sky-700 px-2 py-0.5 rounded font-semibold shrink-0">Enlace</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => setExpandido((v) => !v)} className="text-sky-400 hover:text-sky-700 p-1">{expandido ? <IconChevronUp /> : <IconChevronDown />}</button>
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
@@ -843,7 +863,7 @@ const BloqueLink = ({ bloque, idx, onChange, onQuitar }) => {
 
 // ── Componente: Bloque Separador ─────────────────────────────────────────────
 
-const BloqueSeparador = ({ bloque, idx, onChange, onQuitar }) => {
+const BloqueSeparador = ({ bloque, idx, total, onChange, onQuitar, onMover }) => {
   const etiquetas = { solido: "Línea sólida", punteado: "Línea punteada", grueso: "Línea gruesa", espacio: "Espacio" };
 
   return (
@@ -862,6 +882,7 @@ const BloqueSeparador = ({ bloque, idx, onChange, onQuitar }) => {
             </button>
           ))}
         </div>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
         <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
     </div>
@@ -1037,6 +1058,12 @@ const NuevaCampana = () => {
 
   const quitarNota = (id) => setForm((prev) => ({ ...prev, notas: prev.notas.filter((b) => b.id !== id) }));
   const quitarBloqueIdx = (idx) => setForm((prev) => ({ ...prev, notas: prev.notas.filter((_, i) => i !== idx) }));
+
+  const moverBloque = (idx, delta) => {
+    const toIdx = idx + delta;
+    if (toIdx < 0 || toIdx >= form.notas.length) return;
+    setForm((prev) => ({ ...prev, notas: moverBloqueA(prev.notas, idx, toIdx) }));
+  };
 
   // ── Drag & drop ───────────────────────────────────────────────────────────
 
@@ -1302,19 +1329,19 @@ const NuevaCampana = () => {
                     className={`transition-all rounded-lg ${isDragging ? "opacity-40 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-[#FFF200]" : ""}`}
                   >
                     {bloque.tipo === "restaurantes" ? (
-                      <BloqueRestaurantes bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} token={token} />
+                      <BloqueRestaurantes bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} token={token} />
                     ) : bloque.tipo === "cupones" ? (
-                      <BloqueCupones bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                      <BloqueCupones bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} />
                     ) : bloque.tipo === "imagen" ? (
-                      <BloqueImagen bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} token={token} />
+                      <BloqueImagen bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} token={token} />
                     ) : bloque.tipo === "texto" ? (
-                      <BloqueTexto bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                      <BloqueTexto bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} />
                     ) : bloque.tipo === "link" ? (
-                      <BloqueLink bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                      <BloqueLink bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} />
                     ) : bloque.tipo === "separador" ? (
-                      <BloqueSeparador bloque={bloque} idx={idx} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} />
+                      <BloqueSeparador bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} />
                     ) : (
-                      <BloqueNota bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarNota} imgApi={imgApi} plantilla={form.plantilla} />
+                      <BloqueNota bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarNota} onMover={moverBloque} imgApi={imgApi} plantilla={form.plantilla} />
                     )}
                   </div>
                 );
