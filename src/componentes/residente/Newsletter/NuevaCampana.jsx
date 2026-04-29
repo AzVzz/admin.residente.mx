@@ -889,6 +889,58 @@ const BloqueSeparador = ({ bloque, idx, total, onChange, onQuitar, onMover }) =>
   );
 };
 
+// ── Componente: Imagen de portada ────────────────────────────────────────────
+
+const PortadaUploader = ({ url, onChange, token }) => {
+  const [subiendo, setSubiendo] = useState(false);
+
+  const subirImagen = async (file) => {
+    if (!file) return;
+    setSubiendo(true);
+    try {
+      const formData = new FormData();
+      formData.append("imagen", file);
+      const res = await fetch(`${urlApi}api/uploads/newsletter-image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) onChange(data.url);
+    } catch (e) {
+      console.error("Error subiendo portada:", e);
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 items-center">
+        <label className={`flex items-center gap-1 text-xs border rounded px-2 py-1.5 cursor-pointer transition-colors ${subiendo ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50 border-gray-200"}`}>
+          <IconImage />
+          {subiendo ? "Subiendo..." : "Subir imagen"}
+          <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" disabled={subiendo}
+            onChange={(e) => subirImagen(e.target.files[0])} />
+        </label>
+        <span className="text-xs text-gray-400">o</span>
+        <input type="text" value={url} onChange={(e) => onChange(e.target.value)}
+          placeholder="https://... URL de imagen"
+          className="flex-1 border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+        {url && (
+          <button onClick={() => onChange("")} className="text-gray-400 hover:text-red-500 text-xs px-1" title="Quitar imagen">
+            <IconClose />
+          </button>
+        )}
+      </div>
+      {url && (
+        <img src={url} alt="" className="w-full max-h-28 object-cover rounded border border-gray-100"
+          onError={(e) => { e.target.style.display = "none"; }} />
+      )}
+    </div>
+  );
+};
+
 // ── Componente principal ─────────────────────────────────────────────────────
 
 const NuevaCampana = () => {
@@ -899,6 +951,7 @@ const NuevaCampana = () => {
 
   const [form, setForm] = useState({
     nombre: "", asunto: "", from_name: "Residente", logo_texto: "RESIDENTE",
+    imagen_portada: "",
     intro_texto: "", footer_texto: "", notas: [],
     plantilla: "clasica",
     tema: { color_primario: "#000000", fuente: "helvetica" },
@@ -974,6 +1027,7 @@ const NuevaCampana = () => {
         setForm({
           nombre: data.nombre || "", asunto: data.asunto || "",
           from_name: data.from_name || "Residente", logo_texto: data.logo_texto || "RESIDENTE",
+          imagen_portada: data.imagen_portada || "",
           intro_texto: data.intro_texto || "", footer_texto: data.footer_texto || "",
           notas: bloques,
           plantilla: data.plantilla || "clasica",
@@ -988,7 +1042,7 @@ const NuevaCampana = () => {
     fetch(`${urlApi}api/newsletter/campanas/preview-live`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas, plantilla: debouncedForm.plantilla, tema: debouncedForm.tema }),
+      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, imagen_portada: debouncedForm.imagen_portada, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas, plantilla: debouncedForm.plantilla, tema: debouncedForm.tema }),
     })
       .then((r) => r.text())
       .then((html) => { if (!cancelled) setPreviewHtml(html); })
@@ -1219,6 +1273,15 @@ const NuevaCampana = () => {
                 </select>
               </div>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Imagen de portada <span className="text-gray-400 normal-case font-normal">(encima del encabezado, opcional)</span></label>
+            <PortadaUploader
+              url={form.imagen_portada || ""}
+              onChange={(url) => setForm((p) => ({ ...p, imagen_portada: url }))}
+              token={token}
+            />
           </div>
 
           <div>
