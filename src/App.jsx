@@ -233,9 +233,6 @@ const ListaRecetas = lazy(
   () =>
     import("./componentes/residente/componentes/compFormularioMain/ListaRecetas"),
 );
-const ListaMediainc = lazy(
-  () => import("./componentes/mediainc/ListaMediainc"),
-);
 
 const notasPrueba = [
   {
@@ -850,15 +847,6 @@ function App() {
                 }
               />
 
-              {/* Admin — Mediainc Proyectos */}
-              <Route
-                path="/mediainc"
-                element={
-                  <ResidenteRoute>
-                    <ListaMediainc />
-                  </ResidenteRoute>
-                }
-              />
 
               {/* Admin */}
               <Route

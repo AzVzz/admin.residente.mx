@@ -56,6 +56,7 @@ const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
+const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -994,7 +995,7 @@ const ListaNotas = () => {
                     } else if (option.key === "ednl") {
                       navigate("/ednl");
                     } else if (option.key === "mediainc") {
-                      navigate("/mediainc");
+                      setVistaActiva("mediainc");
                     } else {
                       setVistaActiva(option.key);
                     }
@@ -1509,6 +1510,12 @@ const ListaNotas = () => {
               </div>
             )}
           </div>
+        )}
+
+        {vistaActiva === "mediainc" && (
+          <Suspense fallback={<LazyFallback />}>
+            <ListaMediainc />
+          </Suspense>
         )}
 
       </div>

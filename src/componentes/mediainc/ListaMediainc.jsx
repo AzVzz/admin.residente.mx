@@ -8,20 +8,12 @@ import {
 import { imgApi } from "../api/url";
 import FormularioMediainc from "./FormularioMediainc";
 
-const CATEGORIAS = {
-  empresas_mediaticas: "Empresas Mediaticas",
-  proyectos_editoriales: "Proyectos Editoriales",
-  proyectos_digitales: "Proyectos Digitales",
-  inteligencia_negocios: "Inteligencia de Negocios",
-};
-
 const ListaMediainc = () => {
   const { token } = useAuth();
   const [proyectos, setProyectos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editando, setEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [filtroCategoria, setFiltroCategoria] = useState("todas");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -87,11 +79,6 @@ const ListaMediainc = () => {
     setEditando(null);
   };
 
-  const proyectosFiltrados =
-    filtroCategoria === "todas"
-      ? proyectos
-      : proyectos.filter((p) => p.categoria === filtroCategoria);
-
   return (
     <div className="max-w-[1080px] mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -118,43 +105,15 @@ const ListaMediainc = () => {
         </div>
       )}
 
-      {/* Filtros */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <button
-          onClick={() => setFiltroCategoria("todas")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            filtroCategoria === "todas"
-              ? "bg-gray-900 text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          Todas
-        </button>
-        {Object.entries(CATEGORIAS).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setFiltroCategoria(key)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              filtroCategoria === key
-                ? "bg-gray-900 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       {loading ? (
         <div className="text-center py-12 text-gray-500">Cargando...</div>
-      ) : proyectosFiltrados.length === 0 ? (
+      ) : proyectos.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          No hay proyectos{" "}
-          {filtroCategoria !== "todas" && "en esta categoria"}
+          No hay proyectos
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {proyectosFiltrados.map((proyecto) => (
+          {proyectos.map((proyecto) => (
             <div
               key={proyecto.id}
               className={`bg-white rounded-xl overflow-hidden shadow-sm border transition-all ${
@@ -174,9 +133,16 @@ const ListaMediainc = () => {
                 </div>
               )}
               <div className="p-4">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {CATEGORIAS[proyecto.categoria]}
-                </span>
+                {proyecto.categoria && (
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {proyecto.categoria}
+                  </span>
+                )}
+                {proyecto.fecha_proyecto && (
+                  <span className="text-xs text-gray-400 ml-auto">
+                    {new Date(proyecto.fecha_proyecto).toLocaleDateString("es-MX", { year: "numeric", month: "short" })}
+                  </span>
+                )}
                 <h3 className="font-bold text-gray-900 mt-1">
                   {proyecto.titulo}
                 </h3>

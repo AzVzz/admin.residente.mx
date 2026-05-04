@@ -3,24 +3,15 @@ import { useAuth } from "../Context";
 import { mediaincCrear, mediaincEditar } from "../api/mediaincApi";
 import { imgApi } from "../api/url";
 
-const CATEGORIAS = [
-  { value: "empresas_mediaticas", label: "Empresas Mediaticas" },
-  { value: "proyectos_editoriales", label: "Proyectos Editoriales" },
-  { value: "proyectos_digitales", label: "Proyectos Digitales" },
-  { value: "inteligencia_negocios", label: "Inteligencia de Negocios" },
-];
-
 const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
   const { token } = useAuth();
   const esEdicion = !!proyecto;
 
   const [titulo, setTitulo] = useState(proyecto?.titulo || "");
   const [descripcion, setDescripcion] = useState(proyecto?.descripcion || "");
-  const [categoria, setCategoria] = useState(
-    proyecto?.categoria || "empresas_mediaticas"
-  );
+  const [categoria, setCategoria] = useState(proyecto?.categoria || "");
   const [link, setLink] = useState(proyecto?.link || "");
-  const [orden, setOrden] = useState(proyecto?.orden || 0);
+  const [fechaProyecto, setFechaProyecto] = useState(proyecto?.fecha_proyecto || "");
   const [archivo, setArchivo] = useState(null);
   const [preview, setPreview] = useState(
     proyecto?.imagen ? `${imgApi}${proyecto.imagen.replace(/^\//, "")}` : null
@@ -40,8 +31,8 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!titulo.trim() || !categoria) {
-      setError("Titulo y categoria son obligatorios");
+    if (!titulo.trim()) {
+      setError("Titulo es obligatorio");
       return;
     }
 
@@ -52,9 +43,9 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
       const formData = new FormData();
       formData.append("titulo", titulo.trim());
       formData.append("descripcion", descripcion.trim());
-      formData.append("categoria", categoria);
+      formData.append("categoria", categoria.trim());
       formData.append("link", link.trim());
-      formData.append("orden", orden);
+      formData.append("fecha_proyecto", fechaProyecto);
       if (archivo) {
         formData.append("imagen", archivo);
       }
@@ -106,19 +97,15 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
         {/* Categoria */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            Categoria *
+            Categoria
           </label>
-          <select
+          <input
+            type="text"
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-white"
-          >
-            {CATEGORIAS.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
+            placeholder="Ej. Editorial, Digital, Consultoría..."
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+          />
         </div>
 
         {/* Descripcion */}
@@ -149,15 +136,15 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
           />
         </div>
 
-        {/* Orden */}
+        {/* Fecha del proyecto */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            Orden
+            Fecha del proyecto
           </label>
           <input
-            type="number"
-            value={orden}
-            onChange={(e) => setOrden(parseInt(e.target.value, 10) || 0)}
+            type="date"
+            value={fechaProyecto}
+            onChange={(e) => setFechaProyecto(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
           />
         </div>
