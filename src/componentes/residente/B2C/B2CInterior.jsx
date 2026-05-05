@@ -31,6 +31,12 @@ const B2CInterior = () => {
     const sessionId = params.get("session_id");
     const success = params.get("payment_success") === "true";
 
+    if (params.get("checkout") === "true") {
+      setVista("formulario");
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
+
     if (success && sessionId) {
       setVista("exito");
       setLoadingCompras(true);

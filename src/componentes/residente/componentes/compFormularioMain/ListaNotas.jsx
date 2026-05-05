@@ -56,6 +56,7 @@ const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
+const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -753,6 +754,11 @@ const ListaNotas = () => {
       label: "Correos",
       icon: <MdEmail className="mr-2" />,
     },
+    {
+      key: "mediainc",
+      label: "Media Inc",
+      icon: <IoNewspaper className="mr-2" />,
+    },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
@@ -794,7 +800,8 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "ednl") ||
         (usuario?.rol === "residente" && option.key === "codigos_admin") ||
         (usuario?.rol === "residente" && option.key === "buscador") ||
-        (usuario?.rol === "residente" && option.key === "correos")
+        (usuario?.rol === "residente" && option.key === "correos") ||
+        (usuario?.rol === "residente" && option.key === "mediainc")
       );
     })
   ).filter((option) =>
@@ -987,6 +994,8 @@ const ListaNotas = () => {
                       navigate("/admin/codigos");
                     } else if (option.key === "ednl") {
                       navigate("/ednl");
+                    } else if (option.key === "mediainc") {
+                      setVistaActiva("mediainc");
                     } else {
                       setVistaActiva(option.key);
                     }
@@ -1501,6 +1510,12 @@ const ListaNotas = () => {
               </div>
             )}
           </div>
+        )}
+
+        {vistaActiva === "mediainc" && (
+          <Suspense fallback={<LazyFallback />}>
+            <ListaMediainc />
+          </Suspense>
         )}
 
       </div>
