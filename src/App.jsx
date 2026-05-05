@@ -139,6 +139,15 @@ const TerminosyCondiciones = lazy(
     import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"),
 );
 const Registro = lazy(() => import("./componentes/residente/Registro.jsx"));
+const ConversacionesList = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ConversacionesList.jsx"),
+);
+const ChatbotStats = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotStats.jsx"),
+);
+const ChatbotIndexStatus = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotIndexStatus.jsx"),
+);
 const FormularioAnuncioRevista = lazy(
   () => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"),
 );
@@ -476,6 +485,32 @@ function App() {
                   <div className="max-w-[1080px] mx-auto">
                     <B2CInterior />
                   </div>
+                }
+              />
+
+              {/* Chatbot — Auditoría (residente only) — antes del wildcard */}
+              <Route
+                path="/chatbot/conversaciones"
+                element={
+                  <ResidenteRoute>
+                    <ConversacionesList />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/stats"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotStats />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/indice"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotIndexStatus />
+                  </ResidenteRoute>
                 }
               />
 
@@ -836,6 +871,7 @@ function App() {
                   </div>
                 }
               />
+
 
               {/* Admin — Dashboard Eventos */}
               <Route
