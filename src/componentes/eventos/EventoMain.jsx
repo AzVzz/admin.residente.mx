@@ -56,6 +56,9 @@ const EventoMain = () => {
     flyerPromo: null,
     diasFijos: [],
     colorTitulo: "#FFFFFF",
+    chatbot_boost_activo: false,
+    chatbot_boost_weight: 0.20,
+    chatbot_boost_tags: [],
   });
 
   const [selectedStickers, setSelectedStickers] = useState([]);
@@ -215,6 +218,9 @@ const EventoMain = () => {
       smart_tags: formData.smart_tags?.length ? formData.smart_tags : null,
       dias_fijos: formData.diasFijos?.length ? formData.diasFijos : null,
       color_titulo: formData.colorTitulo || "#FFFFFF",
+      chatbot_boost_activo: formData.chatbot_boost_activo || false,
+      chatbot_boost_weight: formData.chatbot_boost_weight ?? 0.20,
+      chatbot_boost_tags: formData.chatbot_boost_tags?.length ? formData.chatbot_boost_tags : null,
     };
   };
 

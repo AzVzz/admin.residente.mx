@@ -31,6 +31,9 @@ const ListaEventos = () => {
   const [editForm, setEditForm] = useState({});
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Boost edit state
+  const [boostTagInput, setBoostTagInput] = useState('');
+
   // Modal asignación
   const [asignandoEvento, setAsignandoEvento] = useState(null);
   const [restaurantes, setRestaurantes] = useState([]);
@@ -135,7 +138,11 @@ const ListaEventos = () => {
       fecha_inicio_evento: evento.fecha_inicio_evento ? new Date(evento.fecha_inicio_evento).toISOString().slice(0, 10) : "",
       fecha_fin_evento: evento.fecha_fin_evento ? new Date(evento.fecha_fin_evento).toISOString().slice(0, 10) : "",
       color_titulo: evento.color_titulo || "#FFFFFF",
+      chatbot_boost_activo: !!evento.chatbot_boost_activo,
+      chatbot_boost_weight: parseFloat(evento.chatbot_boost_weight) || 0.20,
+      chatbot_boost_tags: Array.isArray(evento.chatbot_boost_tags) ? evento.chatbot_boost_tags : [],
     });
+    setBoostTagInput('');
   };
 
   const handleGuardarEdicion = async () => {
@@ -147,6 +154,7 @@ const ListaEventos = () => {
         fecha_inicio_evento: editForm.fecha_inicio_evento ? new Date(`${editForm.fecha_inicio_evento}T00:00:00-06:00`).toISOString() : null,
         fecha_fin_evento: editForm.fecha_fin_evento ? new Date(`${editForm.fecha_fin_evento}T23:59:00-06:00`).toISOString() : null,
         dias_fijos: editForm.dias_fijos?.length ? editForm.dias_fijos : null,
+        chatbot_boost_tags: editForm.chatbot_boost_tags?.length ? editForm.chatbot_boost_tags : null,
       };
       await eventoEditar(editandoCompleto.id, datos, token);
       setEventos((prev) => prev.map((e) => e.id === editandoCompleto.id ? { ...e, ...datos } : e));
@@ -520,6 +528,80 @@ const ListaEventos = () => {
                   <button type="button" onClick={() => setEditForm((p) => ({ ...p, color_titulo: "#000000" }))} className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm cursor-pointer">Negro</button>
                 </div>
               </div>
+
+              {/* Boost chatbot */}
+              <div className="border border-gray-200 rounded-lg p-4 flex flex-col gap-3 bg-gray-50">
+                <p className="text-sm font-semibold text-gray-700">Boost en el chatbot</p>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!editForm.chatbot_boost_activo}
+                    onChange={(e) => setEditForm((p) => ({ ...p, chatbot_boost_activo: e.target.checked }))}
+                    className="w-4 h-4 text-yellow-500 border-gray-300 rounded cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">Activar boost durante este evento</span>
+                </label>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Intensidad: <span className="font-bold">{(editForm.chatbot_boost_weight ?? 0.20).toFixed(2)}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0.05"
+                    max="0.50"
+                    step="0.05"
+                    value={editForm.chatbot_boost_weight ?? 0.20}
+                    onChange={(e) => setEditForm((p) => ({ ...p, chatbot_boost_weight: parseFloat(e.target.value) }))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">Tags que activan el boost</label>
+                  <div className="flex flex-wrap gap-1 mb-1">
+                    {(editForm.chatbot_boost_tags || []).map((tag) => (
+                      <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-900 text-xs rounded-full">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => setEditForm((p) => ({ ...p, chatbot_boost_tags: (p.chatbot_boost_tags || []).filter((t) => t !== tag) }))}
+                          className="ml-0.5 text-yellow-700 hover:text-red-600 font-bold cursor-pointer leading-none"
+                        >×</button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={boostTagInput}
+                      onChange={(e) => setBoostTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const tag = boostTagInput.trim().toLowerCase();
+                          if (tag && !(editForm.chatbot_boost_tags || []).includes(tag)) {
+                            setEditForm((p) => ({ ...p, chatbot_boost_tags: [...(p.chatbot_boost_tags || []), tag] }));
+                          }
+                          setBoostTagInput('');
+                        }
+                      }}
+                      placeholder="Ej: parrilla"
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const tag = boostTagInput.trim().toLowerCase();
+                        if (tag && !(editForm.chatbot_boost_tags || []).includes(tag)) {
+                          setEditForm((p) => ({ ...p, chatbot_boost_tags: [...(p.chatbot_boost_tags || []), tag] }));
+                        }
+                        setBoostTagInput('');
+                      }}
+                      className="px-3 py-1 bg-yellow-400 text-black text-sm font-medium rounded hover:bg-yellow-500 transition-colors cursor-pointer"
+                    >+</button>
+                  </div>
+                </div>
+              </div>
+
               <p className="text-xs text-gray-400 italic">La imagen del ticket no se regenera al editar desde aquí.</p>
             </div>
             <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">

@@ -889,9 +889,9 @@ const BloqueSeparador = ({ bloque, idx, total, onChange, onQuitar, onMover }) =>
   );
 };
 
-// ── Componente: Imagen de portada ────────────────────────────────────────────
+// ── Componente: Bloque Portada ───────────────────────────────────────────────
 
-const PortadaUploader = ({ url, onChange, token }) => {
+const BloquePortada = ({ bloque, idx, total, onChange, onQuitar, onMover, token }) => {
   const [subiendo, setSubiendo] = useState(false);
 
   const subirImagen = async (file) => {
@@ -906,7 +906,7 @@ const PortadaUploader = ({ url, onChange, token }) => {
         body: formData,
       });
       const data = await res.json();
-      if (data.url) onChange(data.url);
+      if (data.url) onChange(idx, "url", data.url);
     } catch (e) {
       console.error("Error subiendo portada:", e);
     } finally {
@@ -915,28 +915,44 @@ const PortadaUploader = ({ url, onChange, token }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2 items-center">
-        <label className={`flex items-center gap-1 text-xs border rounded px-2 py-1.5 cursor-pointer transition-colors ${subiendo ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50 border-gray-200"}`}>
-          <IconImage />
-          {subiendo ? "Subiendo..." : "Subir imagen"}
-          <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" disabled={subiendo}
-            onChange={(e) => subirImagen(e.target.files[0])} />
-        </label>
-        <span className="text-xs text-gray-400">o</span>
-        <input type="text" value={url} onChange={(e) => onChange(e.target.value)}
-          placeholder="https://... URL de imagen"
-          className="flex-1 border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
-        {url && (
-          <button onClick={() => onChange("")} className="text-gray-400 hover:text-red-500 text-xs px-1" title="Quitar imagen">
-            <IconClose />
-          </button>
+    <div className="border border-rose-200 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-rose-50 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-rose-200"><IconDrag /></span>
+        <span className="text-xs text-rose-400 font-bold w-4 shrink-0">{idx + 1}</span>
+        <span className="text-rose-400"><IconImage /></span>
+        {bloque.url && (
+          <img src={bloque.url} alt="" className="w-7 h-7 object-cover shrink-0 rounded"
+            onError={(e) => { e.target.style.display = "none"; }} />
         )}
+        <span className="flex-1 text-xs font-medium text-rose-900 truncate">Portada</span>
+        <span className="text-xs bg-rose-200 text-rose-700 px-2 py-0.5 rounded font-semibold shrink-0">Portada</span>
+        <BotonesMover idx={idx} total={total} onMover={onMover} />
+        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onQuitar(idx)} className="text-red-400 hover:text-red-600 p-1 ml-1"><IconClose /></button>
       </div>
-      {url && (
-        <img src={url} alt="" className="w-full max-h-28 object-cover rounded border border-gray-100"
-          onError={(e) => { e.target.style.display = "none"; }} />
-      )}
+
+      <div className="px-3 py-3 space-y-2 border-t border-rose-100 bg-white">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">
+            Imagen <span className="text-gray-300 font-normal">PNG · JPG · WEBP · GIF</span>
+          </label>
+          <label className={`inline-flex items-center gap-1 text-xs border rounded px-2 py-1.5 cursor-pointer transition-colors ${subiendo ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50 border-gray-200"}`}>
+            <IconImage />
+            {subiendo ? "Subiendo..." : "Subir imagen"}
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" disabled={subiendo}
+              onChange={(e) => subirImagen(e.target.files[0])} />
+          </label>
+          {bloque.url && (
+            <img src={bloque.url} alt="" className="mt-2 w-full max-h-24 object-cover rounded border border-gray-100"
+              onError={(e) => { e.target.style.display = "none"; }} />
+          )}
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Link al hacer clic (opcional)</label>
+          <input type="text" value={bloque.link || ""} onChange={(e) => onChange(idx, "link", e.target.value)}
+            placeholder="https://youtube.com/watch?v=..."
+            className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+        </div>
+      </div>
     </div>
   );
 };
@@ -951,7 +967,6 @@ const NuevaCampana = () => {
 
   const [form, setForm] = useState({
     nombre: "", asunto: "", from_name: "Residente", logo_texto: "RESIDENTE",
-    imagen_portada: "",
     intro_texto: "", footer_texto: "", notas: [],
     plantilla: "clasica",
     tema: { color_primario: "#000000", fuente: "helvetica" },
@@ -1012,7 +1027,7 @@ const NuevaCampana = () => {
         if (!Array.isArray(bloques)) bloques = [];
 
         bloques = await Promise.all(bloques.map(async (b) => {
-          if (b.tipo === "restaurantes" || b.tipo === "cupones" || b.tipo === "imagen" || b.tipo === "texto" || b.tipo === "link" || b.tipo === "separador") return b;
+          if (b.tipo === "restaurantes" || b.tipo === "cupones" || b.tipo === "imagen" || b.tipo === "texto" || b.tipo === "link" || b.tipo === "separador" || b.tipo === "portada") return b;
           // Si ya tiene la clave descripcion (aunque sea vacía), respetarla — el usuario la editó
           if ("descripcion" in b) return b;
           try {
@@ -1027,7 +1042,6 @@ const NuevaCampana = () => {
         setForm({
           nombre: data.nombre || "", asunto: data.asunto || "",
           from_name: data.from_name || "Residente", logo_texto: data.logo_texto || "RESIDENTE",
-          imagen_portada: data.imagen_portada || "",
           intro_texto: data.intro_texto || "", footer_texto: data.footer_texto || "",
           notas: bloques,
           plantilla: data.plantilla || "clasica",
@@ -1042,7 +1056,7 @@ const NuevaCampana = () => {
     fetch(`${urlApi}api/newsletter/campanas/preview-live`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, imagen_portada: debouncedForm.imagen_portada, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas, plantilla: debouncedForm.plantilla, tema: debouncedForm.tema }),
+      body: JSON.stringify({ logo_texto: debouncedForm.logo_texto, intro_texto: debouncedForm.intro_texto, footer_texto: debouncedForm.footer_texto, notas: debouncedForm.notas, plantilla: debouncedForm.plantilla, tema: debouncedForm.tema }),
     })
       .then((r) => r.text())
       .then((html) => { if (!cancelled) setPreviewHtml(html); })
@@ -1100,6 +1114,12 @@ const NuevaCampana = () => {
   const agregarBloqueSeparador = () => {
     if (form.notas.length >= BLOQUES_MAX) return;
     setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "separador", estilo: "solido" }] }));
+  };
+
+  const agregarBloquePortada = () => {
+    if (form.notas.length >= BLOQUES_MAX) return;
+    if (form.notas.some((b) => b.tipo === "portada")) return;
+    setForm((prev) => ({ ...prev, notas: [...prev.notas, { tipo: "portada", url: "", link: "" }] }));
   };
 
   const actualizarBloque = (idx, campo, valor) => {
@@ -1179,7 +1199,7 @@ const NuevaCampana = () => {
     finally { setIsSending(false); }
   };
 
-  const TIPOS_NO_NOTA = new Set(["restaurantes", "cupones", "imagen", "texto", "link", "separador"]);
+  const TIPOS_NO_NOTA = new Set(["restaurantes", "cupones", "imagen", "texto", "link", "separador", "portada"]);
   const idsNotasSeleccionadas = new Set(form.notas.filter((b) => !TIPOS_NO_NOTA.has(b.tipo)).map((b) => b.id));
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -1276,15 +1296,6 @@ const NuevaCampana = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Imagen de portada <span className="text-gray-400 normal-case font-normal">(encima del encabezado, opcional)</span></label>
-            <PortadaUploader
-              url={form.imagen_portada || ""}
-              onChange={(url) => setForm((p) => ({ ...p, imagen_portada: url }))}
-              token={token}
-            />
-          </div>
-
-          <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Encabezado</label>
             <EditorTextoRico
               value={form.logo_texto || ""}
@@ -1335,6 +1346,12 @@ const NuevaCampana = () => {
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contenido ({form.notas.length}/{BLOQUES_MAX})</label>
               <div className="flex flex-wrap gap-1">
+                <button onClick={agregarBloquePortada}
+                  disabled={form.notas.length >= BLOQUES_MAX || form.notas.some((b) => b.tipo === "portada")}
+                  title="Imagen de portada (encima del encabezado)"
+                  className="flex items-center gap-1 text-xs text-rose-700 border border-rose-200 px-2 py-1 rounded hover:bg-rose-50 transition-colors disabled:opacity-40">
+                  <IconImage /> Portada
+                </button>
                 <button onClick={() => setMostrarBuscador((v) => !v)} disabled={form.notas.length >= BLOQUES_MAX}
                   className="flex items-center gap-1 text-xs text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-50 transition-colors disabled:opacity-40">
                   <IconPlus /> Nota
@@ -1391,7 +1408,9 @@ const NuevaCampana = () => {
                     onDragEnd={handleDragEnd}
                     className={`transition-all rounded-lg ${isDragging ? "opacity-40 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-[#FFF200]" : ""}`}
                   >
-                    {bloque.tipo === "restaurantes" ? (
+                    {bloque.tipo === "portada" ? (
+                      <BloquePortada bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} token={token} />
+                    ) : bloque.tipo === "restaurantes" ? (
                       <BloqueRestaurantes bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} token={token} />
                     ) : bloque.tipo === "cupones" ? (
                       <BloqueCupones bloque={bloque} idx={idx} total={form.notas.length} onChange={actualizarBloque} onQuitar={quitarBloqueIdx} onMover={moverBloque} />

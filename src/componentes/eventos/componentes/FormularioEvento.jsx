@@ -36,6 +36,8 @@ const FormularioEvento = ({
     const [restSearchTerm, setRestSearchTerm] = useState('');
     const [restDropdownOpen, setRestDropdownOpen] = useState(false);
     const restDropdownRef = useRef(null);
+    const [boostOpen, setBoostOpen] = useState(false);
+    const [boostTagInput, setBoostTagInput] = useState('');
 
     const restaurantesOrdenados = [...restaurantes]
         .sort((a, b) => (a.nombre_restaurante || '').localeCompare(b.nombre_restaurante || '', 'es'))
@@ -373,6 +375,124 @@ const FormularioEvento = ({
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Boost chatbot */}
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => setBoostOpen((v) => !v)}
+                    className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                    <div>
+                        <span className="text-base font-semibold text-gray-800">Boost en el chatbot</span>
+                        <span className="ml-2 text-xs text-gray-400">(opcional)</span>
+                        {formData.chatbot_boost_activo && (
+                            <span className="ml-2 px-2 py-0.5 bg-yellow-300 text-yellow-900 text-xs font-bold rounded-full">Activo</span>
+                        )}
+                    </div>
+                    <svg className={`w-5 h-5 text-gray-500 transition-transform ${boostOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                {boostOpen && (
+                    <div className="px-5 pb-5 flex flex-col gap-4 border-t border-gray-100 pt-4">
+                        <p className="text-sm text-gray-500">
+                            Mientras este evento esté vigente y activo, el chatbot subirá la relevancia de los restaurantes cuyos <em>smart tags</em> coincidan con los tags que definas aquí.
+                        </p>
+
+                        {/* Activar */}
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={!!formData.chatbot_boost_activo}
+                                onChange={(e) => onFieldChange('chatbot_boost_activo', e.target.checked)}
+                                className="w-5 h-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500 cursor-pointer"
+                            />
+                            <span className="text-base font-medium text-gray-800">Activar boost durante este evento</span>
+                        </label>
+
+                        {/* Intensidad */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Intensidad del boost: <span className="font-bold">{(formData.chatbot_boost_weight ?? 0.20).toFixed(2)}</span>
+                                <span className="ml-1 text-gray-400 text-xs">(0.05 – 0.50)</span>
+                            </label>
+                            <div className="flex gap-3 items-center">
+                                <input
+                                    type="range"
+                                    min="0.05"
+                                    max="0.50"
+                                    step="0.05"
+                                    value={formData.chatbot_boost_weight ?? 0.20}
+                                    onChange={(e) => onFieldChange('chatbot_boost_weight', parseFloat(e.target.value))}
+                                    className="flex-1 h-2 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => onFieldChange('chatbot_boost_weight', 0.20)}
+                                    className="text-sm px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+                                >
+                                    0.20
+                                </button>
+                            </div>
+                            <span className="text-xs text-gray-400">Recomendado: 0.10–0.30. Por encima de 0.40 puede dominar otras señales de relevancia.</span>
+                        </div>
+
+                        {/* Tags */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">Tags que activan el boost</label>
+                            <span className="text-xs text-gray-400 mb-1">Escribe un tag y presiona Enter. Deben coincidir con los smart tags de los restaurantes (ej: parrilla, mariscos, cocina mexicana).</span>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {(formData.chatbot_boost_tags || []).map((tag) => (
+                                    <span key={tag} className="flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-900 text-sm rounded-full">
+                                        {tag}
+                                        <button
+                                            type="button"
+                                            onClick={() => onFieldChange('chatbot_boost_tags', (formData.chatbot_boost_tags || []).filter((t) => t !== tag))}
+                                            className="ml-1 text-yellow-700 hover:text-red-600 font-bold cursor-pointer leading-none"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={boostTagInput}
+                                    onChange={(e) => setBoostTagInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const tag = boostTagInput.trim().toLowerCase();
+                                            if (tag && !(formData.chatbot_boost_tags || []).includes(tag)) {
+                                                onFieldChange('chatbot_boost_tags', [...(formData.chatbot_boost_tags || []), tag]);
+                                            }
+                                            setBoostTagInput('');
+                                        }
+                                    }}
+                                    placeholder="Ej: parrilla"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const tag = boostTagInput.trim().toLowerCase();
+                                        if (tag && !(formData.chatbot_boost_tags || []).includes(tag)) {
+                                            onFieldChange('chatbot_boost_tags', [...(formData.chatbot_boost_tags || []), tag]);
+                                        }
+                                        setBoostTagInput('');
+                                    }}
+                                    className="px-4 py-2 bg-yellow-400 text-black text-sm font-medium rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer"
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
