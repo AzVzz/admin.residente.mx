@@ -276,6 +276,15 @@ const MegaMenu = () => {
                           Campañas de correo
                         </Link>
                       </li>
+                      <li>
+                        <Link
+                          to="/tematicas"
+                          className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Temáticas
+                        </Link>
+                      </li>
                       {rolActual === "residente" && (
                         <>
                           <li>
@@ -322,6 +331,7 @@ const MegaMenu = () => {
                         <Link to="/dashboardtickets" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Dashboard Cupones</Link>
                         <Link to="/promo" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Crear Cupón</Link>
                         <Link to="/correos" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Campañas de correo</Link>
+                        <Link to="/tematicas" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Temáticas</Link>
                         {rolActual === "residente" && (
                           <>
                             <Link to="/chatbot/conversaciones" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Chatbot — Conversaciones</Link>

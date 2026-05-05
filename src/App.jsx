@@ -204,6 +204,12 @@ const FormularioMainPage = lazy(
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
 const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
 const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
+const ListaTematicas = lazy(
+  () => import("./componentes/residente/componentes/compFormularioMain/ListaTematicas")
+);
+const FormTematica = lazy(
+  () => import("./componentes/residente/componentes/compFormularioMain/FormTematica")
+);
 
 const FormularioRevistaBannerNueva = lazy(
   () =>
