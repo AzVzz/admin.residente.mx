@@ -148,6 +148,9 @@ const ChatbotStats = lazy(
 const ChatbotIndexStatus = lazy(
   () => import("./componentes/residente/ChatbotAudit/ChatbotIndexStatus.jsx"),
 );
+const ChatbotFeedback = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotFeedback.jsx"),
+);
 const FormularioAnuncioRevista = lazy(
   () => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"),
 );
@@ -516,6 +519,14 @@ function App() {
                 element={
                   <ResidenteRoute>
                     <ChatbotIndexStatus />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/feedback"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotFeedback />
                   </ResidenteRoute>
                 }
               />

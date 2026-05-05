@@ -314,6 +314,15 @@ const MegaMenu = () => {
                               Chatbot — Índice Vectorial
                             </Link>
                           </li>
+                          <li>
+                            <Link
+                              to="/chatbot/feedback"
+                              className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              Chatbot — Feedback
+                            </Link>
+                          </li>
                         </>
                       )}
                     </ul>
@@ -337,6 +346,7 @@ const MegaMenu = () => {
                             <Link to="/chatbot/conversaciones" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Chatbot — Conversaciones</Link>
                             <Link to="/chatbot/stats" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Chatbot — Estadísticas</Link>
                             <Link to="/chatbot/indice" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Chatbot — Índice Vectorial</Link>
+                            <Link to="/chatbot/feedback" className="font-roman text-white hover:text-[#FFF200] text-base block py-1" onClick={() => setIsMenuOpen(false)}>Chatbot — Feedback</Link>
                           </>
                         )}
                       </div>
