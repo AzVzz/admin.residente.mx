@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 
@@ -103,8 +103,8 @@ function JobProgressBar({ job, total }) {
       <div className="mt-2">
         <ProgressBar pct={100} color="bg-green-500" />
         <p className="text-xs text-blue-600 mt-1">
-          {job.procesados} indexados{job.errores ? ` Â· ${job.errores} errores` : ""}
-          {job.elapsed_ms ? ` Â· ${(job.elapsed_ms / 1000).toFixed(1)}s` : ""}
+          {job.procesados} indexados{job.errores ? ` · ${job.errores} errores` : ""}
+          {job.elapsed_ms ? ` · ${(job.elapsed_ms / 1000).toFixed(1)}s` : ""}
         </p>
       </div>
     );
@@ -115,8 +115,8 @@ function JobProgressBar({ job, total }) {
       <ProgressBar pct={pct} color="bg-blue-400" />
       <p className="text-xs text-gray-500 mt-1">
         {job.procesados} / {job.total} indexados
-        {job.errores > 0 ? ` Â· ${job.errores} errores` : ""}
-        {job.status?.startsWith("running:") ? ` Â· ${job.status.replace("running:", "")}` : ""}
+        {job.errores > 0 ? ` · ${job.errores} errores` : ""}
+        {job.status?.startsWith("running:") ? ` · ${job.status.replace("running:", "")}` : ""}
       </p>
     </div>
   );
@@ -137,7 +137,7 @@ function EntityCard({ entity, token, onRefresh }) {
     setMissingMsg(
       done.procesados === 0 && done.errores === 0
         ? "Nada pendiente"
-        : `${done.procesados} indexados${done.errores ? ` Â· ${done.errores} errores` : ""} Â· ${(done.elapsed_ms / 1000).toFixed(1)}s`
+        : `${done.procesados} indexados${done.errores ? ` · ${done.errores} errores` : ""} · ${(done.elapsed_ms / 1000).toFixed(1)}s`
     );
     onRefresh();
   });
@@ -145,7 +145,7 @@ function EntityCard({ entity, token, onRefresh }) {
   const reindexJob = useJobPoller(reindexJobId, token, (done) => {
     setReindexJobId(null);
     setReindexMsg(
-      `${done.re_embebidos ?? 0} reembebidos Â· ${done.procesados ?? 0} revisados Â· ${(done.elapsed_ms / 1000).toFixed(1)}s`
+      `${done.re_embebidos ?? 0} reembebidos · ${done.procesados ?? 0} revisados · ${(done.elapsed_ms / 1000).toFixed(1)}s`
     );
     onRefresh();
   });
@@ -165,7 +165,7 @@ function EntityCard({ entity, token, onRefresh }) {
       if (data.jobId === null) { setMissingMsg("Nada pendiente"); return; }
       setMissingJobId(data.jobId);
     } catch {
-      setMissingMsg("Error de conexiÃ³n");
+      setMissingMsg("Error de conexión");
     }
   }
 
@@ -180,7 +180,7 @@ function EntityCard({ entity, token, onRefresh }) {
       if (!data.ok) { setReindexMsg(data.error || "Error"); return; }
       setReindexJobId(data.jobId);
     } catch {
-      setReindexMsg("Error de conexiÃ³n");
+      setReindexMsg("Error de conexión");
     }
   }
 
@@ -213,7 +213,7 @@ function EntityCard({ entity, token, onRefresh }) {
           <p className="text-xs text-gray-400 mt-0.5">
             {entity.indexados.toLocaleString()} / {entity.total.toLocaleString()} indexados
             {["nota", "receta"].includes(entity.entity_type) && entity.chunks > 0 && (
-              <span className="ml-1">Â· {entity.chunks.toLocaleString()} chunks</span>
+              <span className="ml-1">· {entity.chunks.toLocaleString()} chunks</span>
             )}
           </p>
         </div>
@@ -230,7 +230,7 @@ function EntityCard({ entity, token, onRefresh }) {
 
       {entity.ultimo_embed && (
         <p className="text-xs text-gray-400 mt-1">
-          Ãšltimo embed:{" "}
+          Último embed:{" "}
           {new Date(entity.ultimo_embed).toLocaleString("es-MX", {
             timeZone: "America/Mexico_City",
             dateStyle: "short",
@@ -339,8 +339,8 @@ export default function ChatbotIndexStatus() {
     <div className="max-w-[1080px] mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold">Ãndice Vectorial</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Estado de embeddings en Qdrant Â· lotes de mÃ¡x 50</p>
+          <h1 className="text-2xl font-bold">Índice Vectorial</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Estado de embeddings en Qdrant · lotes de máx 50</p>
         </div>
         <button
           onClick={fetchStatus}
