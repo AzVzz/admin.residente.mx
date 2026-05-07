@@ -120,18 +120,34 @@ const ListaMediainc = () => {
                 !proyecto.activo ? "opacity-50" : ""
               }`}
             >
-              {proyecto.imagen && (
-                <img
-                  src={`${imgApi}${proyecto.imagen.replace(/^\//, "")}`}
-                  alt={proyecto.titulo}
-                  className="w-full h-40 object-cover"
-                />
-              )}
-              {!proyecto.imagen && (
-                <div className="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-400">
-                  Sin imagen
-                </div>
-              )}
+              {(() => {
+                const galeria = Array.isArray(proyecto.imagenes)
+                  ? [...proyecto.imagenes].sort(
+                      (a, b) => (a.orden ?? 0) - (b.orden ?? 0)
+                    )
+                  : [];
+                const thumb = proyecto.imagen || galeria[0]?.url || null;
+                return (
+                  <div className="relative">
+                    {thumb ? (
+                      <img
+                        src={`${imgApi}${thumb.replace(/^\//, "")}`}
+                        alt={proyecto.titulo}
+                        className="w-full h-40 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-400">
+                        Sin imagen
+                      </div>
+                    )}
+                    {galeria.length > 0 && (
+                      <span className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        {galeria.length} imagen{galeria.length === 1 ? "" : "es"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               <div className="p-4">
                 {proyecto.categoria && (
                   <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
