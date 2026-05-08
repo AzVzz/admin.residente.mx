@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { FaCheck, FaTimes, FaBan, FaTrash, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaCheck, FaTimes, FaBan, FaTrash, FaSort, FaSortUp, FaSortDown, FaChartLine } from "react-icons/fa";
 
 const BENEFICIOS = [
   { key: "estudios_mercado", label: "Estudios" },
@@ -296,6 +297,17 @@ const TablaUsuariosB2B = ({
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap font-medium">
                       <div className="flex space-x-2">
+                        {user.id && (
+                          <Link
+                            to={`/dashboardb2b/cliente/${user.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                            title="Ver Dashboard como admin"
+                          >
+                            <FaChartLine />
+                          </Link>
+                        )}
                         <button
                           onClick={() => toggleUserStatus(user.id, user.estado)}
                           className={`${

@@ -40,6 +40,7 @@ import usePageTracking from "./usePageTracking.js";
 // import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"; // Converted to lazy
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import ResidenteRoute from "./componentes/rutas/ResidenteRoute.jsx";
+import SuperadminRoute from "./componentes/rutas/SuperadminRoute.jsx";
 // import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"; // Converted to lazy
 // import Registro from "./componentes/residente/Registro.jsx"; // Converted to lazy
 // import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx"; // Converted to lazy
@@ -220,6 +221,9 @@ const FormularioRevistaBannerNueva = lazy(
 );
 const B2BDashboard = lazy(
   () => import("./componentes/residente/B2B/B2BDashboard"),
+);
+const B2BDashboardAdminView = lazy(
+  () => import("./componentes/residente/B2B/B2BDashboardAdminView"),
 );
 const BannersDashboard = lazy(
   () => import("./componentes/residente/componentes/banners/BannersDashboard"),
@@ -910,6 +914,18 @@ function App() {
                       <B2BDashboard />
                     </div>
                   </B2BRoute>
+                }
+              />
+
+              {/* Vista de superadmin para inspeccionar el dashboard de un cliente B2B */}
+              <Route
+                path="/dashboardb2b/cliente/:userId"
+                element={
+                  <SuperadminRoute>
+                    <div className="min-w-[1080px] max-w-[1080px] mx-auto">
+                      <B2BDashboardAdminView />
+                    </div>
+                  </SuperadminRoute>
                 }
               />
 

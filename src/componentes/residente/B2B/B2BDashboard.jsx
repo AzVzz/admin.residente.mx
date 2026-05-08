@@ -11,8 +11,13 @@ import axios from "axios";
 import CheckoutCliente from "./FormularioNuevoClienteB2b/TiendaClientes/CheckoutCliente";
 import { FaFilePdf } from "react-icons/fa";
 import { BENEFICIOS_INFO } from "./beneficiosConfig";
+import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
+import CarruselRestaurantes from "./CarruselRestaurantes";
 
-const B2BDashboard = () => {
+// `viewAsUserId`: cuando un residente con es_superadmin entra a ver el dashboard
+// de un cliente B2B específico, el id se pasa por prop (vía ruta /admin-b2b/:userId).
+// Las llamadas a APIs filtran por ese usuario en lugar de por el del JWT.
+const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [showModal, setShowModal] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(null);
 
@@ -38,9 +43,20 @@ const B2BDashboard = () => {
   const [subscriptionError, setSubscriptionError] = useState(null);
   const { saveToken, saveUsuario, usuario, token } = useAuth();
   const navigate = useNavigate();
-  const [restaurante, setRestaurante] = useState(null);
-  const [restaurante2, setRestaurante2] = useState(null);
-  const [loadingRestaurante, setLoadingRestaurante] = useState(true);
+
+  // Hook que carga TODOS los restaurantes del B2B con notas-stats por restaurante.
+  const { restaurantes, loading: loadingRestaurante } = useRestaurantesB2B(
+    token,
+    viewAsUserId,
+  );
+  // Índice del slide del carrusel: 0 = TOTAL, 1..N = restaurante[i-1].
+  const [slideActivo, setSlideActivo] = useState(0);
+  const restauranteActivo =
+    slideActivo === 0 ? null : restaurantes[slideActivo - 1] || null;
+  // Alias para botones de la columna 1 y modales (siempre apunta al primer restaurante en TOTAL).
+  const restaurante = restauranteActivo || restaurantes[0] || null;
+  const restaurante2 = restaurantes[1] || null;
+
   const [b2bUser, setB2bUser] = useState(null);
   const [showFormularioPromo, setShowFormularioPromo] = useState(false);
 
@@ -59,13 +75,8 @@ const B2BDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
-  // Estado para stats de notas del usuario
+  // Estado para stats de notas del usuario (autor)
   const [notaStats, setNotaStats] = useState(null);
-
-  // Estado para notas taggeadas al restaurante
-  const [notasRestaurante, setNotasRestaurante] = useState(null);
-  const [notasOrden, setNotasOrden] = useState("vistas");
-  const [notasExpandidas, setNotasExpandidas] = useState(false);
 
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
@@ -296,61 +307,15 @@ const B2BDashboard = () => {
     }
   };
 
-  // Obtener restaurante
-  useEffect(() => {
-    const fetchRestaurante = async () => {
-      try {
-        if (!token) return;
+  // Los restaurantes se cargan vía useRestaurantesB2B (incluye notas-stats por restaurante).
 
-        const response = await fetch(`${urlApi}api/restaurante/basicos`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            // Primer restaurante
-            const detailResponse = await fetch(
-              `${urlApi}api/restaurante/${data[0].slug}`,
-            );
-            if (detailResponse.ok) {
-              const detailData = await detailResponse.json();
-              setRestaurante(detailData);
-            }
-
-            // Segundo restaurante (si existe)
-            if (data.length > 1) {
-              const detail2Response = await fetch(
-                `${urlApi}api/restaurante/${data[1].slug}`,
-              );
-              if (detail2Response.ok) {
-                const detail2Data = await detail2Response.json();
-                setRestaurante2(detail2Data);
-              }
-            }
-          }
-        }
-      } catch (error) {
-        // Error al obtener restaurante
-      } finally {
-        setLoadingRestaurante(false);
-      }
-    };
-
-    if (token) {
-      fetchRestaurante();
-    }
-  }, [token]);
-
-  // Obtener información del usuario B2B
+  // Obtener información del usuario B2B (en modo admin, busca por viewAsUserId).
   useEffect(() => {
     const fetchB2BUser = async () => {
-      // Intentar por b2b_id directo (viene en el JWT) antes que por usuario_id
-      const lookupUrl = usuario?.b2b_id
+      const userIdEfectivo = viewAsUserId || usuario?.id;
+      const lookupUrl = !viewAsUserId && usuario?.b2b_id
         ? `${urlApi}api/usuariosb2b/${usuario.b2b_id}`
-        : `${urlApi}api/usuariosb2b/user/${usuario?.id}`;
+        : `${urlApi}api/usuariosb2b/user/${userIdEfectivo}`;
 
       try {
         const response = await fetch(lookupUrl, {
@@ -378,10 +343,10 @@ const B2BDashboard = () => {
       }
     };
 
-    if (usuario?.id || usuario?.b2b_id) {
+    if (viewAsUserId || usuario?.id || usuario?.b2b_id) {
       fetchB2BUser();
     }
-  }, [usuario]);
+  }, [usuario, viewAsUserId]);
 
   // Obtener el b2b_id del usuario
   useEffect(() => {
@@ -611,7 +576,7 @@ const B2BDashboard = () => {
 
     const fetchCupones = async () => {
       try {
-        const data = await cuponesGetStatsB2B(token);
+        const data = await cuponesGetStatsB2B(token, viewAsUserId);
         setCupones(data.cupones || []);
         setCupon((data.cupones || [])[0] || null);
       } catch {
@@ -625,15 +590,16 @@ const B2BDashboard = () => {
     fetchCupones();
     const interval = setInterval(fetchCupones, 30_000);
     return () => clearInterval(interval);
-  }, [usuario, token]);
+  }, [usuario, token, viewAsUserId]);
 
-  // Obtener stats de notas del usuario
+  // Obtener stats de notas del usuario (autor). En modo admin usa viewAsUserId.
   useEffect(() => {
     const fetchNotaStats = async () => {
-      if (!usuario?.id) return;
+      const userIdEfectivo = viewAsUserId || usuario?.id;
+      if (!userIdEfectivo) return;
       try {
         const response = await fetch(
-          `${urlApi}api/notas/usuario/${usuario.id}/stats`,
+          `${urlApi}api/notas/usuario/${userIdEfectivo}/stats`,
         );
         if (response.ok) {
           const data = await response.json();
@@ -644,26 +610,9 @@ const B2BDashboard = () => {
       }
     };
     fetchNotaStats();
-  }, [usuario]);
+  }, [usuario, viewAsUserId]);
 
-  // Obtener notas taggeadas al restaurante
-  useEffect(() => {
-    const fetchNotasRestaurante = async () => {
-      if (!restaurante?.id) return;
-      try {
-        const response = await fetch(
-          `${urlApi}api/notas/restaurante/${restaurante.id}/stats`,
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setNotasRestaurante(data);
-        }
-      } catch (error) {
-        console.error("Error al obtener notas del restaurante:", error);
-      }
-    };
-    fetchNotasRestaurante();
-  }, [restaurante]);
+  // Las notas etiquetadas se cargan dentro del hook useRestaurantesB2B.
 
   // 🆕 Obtener datos de Google Analytics
   useEffect(() => {
@@ -728,8 +677,9 @@ const B2BDashboard = () => {
     : `${imgApi}/fotos/platillos/default.webp`;
 
   // Calcular total de interacciones de  cupones del usuario
+  const userIdEfectivo = viewAsUserId || usuario?.id;
   const totalInteraccionesCupones = cupones
-    .filter((c) => c.user_id === usuario.id)
+    .filter((c) => c.user_id === userIdEfectivo)
     .reduce((suma, c) => suma + (c.total_interacciones || 0), 0);
 
   const totalViewsCupones = cupones.reduce(
@@ -740,6 +690,49 @@ const B2BDashboard = () => {
     (suma, c) => suma + (c.clicks || 0),
     0,
   );
+
+  // ROI por slide del carrusel. En TOTAL, cada restaurante calcula con su propio
+  // ticket_promedio y se suman; así ningún restaurante con ticket alto infla el
+  // valor por usar un promedio sobre los clicks/views agregados.
+  const roiDeRestaurante = (r) => {
+    const ticket = r?.ticket_promedio || 0;
+    const cuponesR = cupones.filter(
+      (c) => Number(c?.restaurante_id) === Number(r?.id),
+    );
+    const clicks =
+      (r?.clicks || 0) +
+      (r?.notasStats?.total_clicks || 0) +
+      cuponesR.reduce((s, c) => s + (c.clicks || 0), 0);
+    const views =
+      (r?.views || 0) +
+      (r?.notasStats?.total_vistas || 0) +
+      cuponesR.reduce((s, c) => s + (c.views || 0), 0);
+    return {
+      conversion: clicks * ticket * 2.8 * 0.02,
+      fidelizacion: views * ticket * 2.8 * 0.0035,
+    };
+  };
+
+  let conversionROI;
+  let fidelizacionROI;
+  if (restauranteActivo) {
+    const r = roiDeRestaurante(restauranteActivo);
+    conversionROI = r.conversion;
+    fidelizacionROI = r.fidelizacion;
+  } else {
+    const totales = restaurantes.reduce(
+      (acc, r) => {
+        const x = roiDeRestaurante(r);
+        return {
+          conversion: acc.conversion + x.conversion,
+          fidelizacion: acc.fidelizacion + x.fidelizacion,
+        };
+      },
+      { conversion: 0, fidelizacion: 0 },
+    );
+    conversionROI = totales.conversion;
+    fidelizacionROI = totales.fidelizacion;
+  }
 
   // Estado para credenciales nuevas (modal)
   const [credencialesNuevas, setCredencialesNuevas] = useState(null);
@@ -865,25 +858,111 @@ const B2BDashboard = () => {
   return (
     <div>
       {/* Barra superior del usuario */}
-      <div className="w-full h-10 flex items-center justify-end mt-1 pr-1">
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
-        >
-          Cerrar Sesión
-        </button>
+      <div className="w-full h-10 flex items-center justify-end mt-1 pr-1 gap-3">
+        {viewAsUserId && (
+          <span className="text-[11px] text-gray-700 italic">
+            Modo admin — viendo a{" "}
+            <span className="font-semibold">
+              {b2bUser?.nombre_responsable_restaurante ||
+                b2bUser?.nombre_responsable ||
+                `usuario #${viewAsUserId}`}
+            </span>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="ml-2 underline hover:text-black"
+            >
+              Volver
+            </button>
+          </span>
+        )}
+        {!viewAsUserId && (
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded transition-colors"
+          >
+            Cerrar Sesión
+          </button>
+        )}
       </div>
-      {/* Logo Club Residente + Nombre del restaurante centrado */}
-      {restaurante?.nombre_restaurante && (
+      {/* Logo Club Residente + Nombre del restaurante centrado.
+          Cuando hay 2+ restaurantes, el header funciona como switcher
+          (flechas + dots) que controla TODO el dashboard. */}
+      {(restauranteActivo?.nombre_restaurante ||
+        restaurante?.nombre_restaurante) && (
         <div className="w-full flex flex-col justify-center items-center py-0.5 mb-6">
           <img
             src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
             alt="Club Residente Facil"
             className="h-12 w-auto object-contain mb-0"
           />
-          <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
-            {restaurante.nombre_restaurante}
-          </h1>
+          {restaurantes.length >= 2 ? (
+            <div className="w-full flex items-center justify-center gap-4">
+              <button
+                type="button"
+                onClick={() =>
+                  setSlideActivo((i) => Math.max(0, i - 1))
+                }
+                disabled={slideActivo === 0}
+                aria-label="Restaurante anterior"
+                className="text-5xl text-black hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none px-3"
+              >
+                &#8249;
+              </button>
+              <h1 className="text-[80px] font-bold text-black text-center leading-[1] truncate max-w-[70%]">
+                {restauranteActivo
+                  ? restauranteActivo.nombre_restaurante
+                  : "Tus Restaurantes"}
+              </h1>
+              <button
+                type="button"
+                onClick={() =>
+                  setSlideActivo((i) =>
+                    Math.min(restaurantes.length, i + 1),
+                  )
+                }
+                disabled={slideActivo === restaurantes.length}
+                aria-label="Siguiente restaurante"
+                className="text-5xl text-black hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none px-3"
+              >
+                &#8250;
+              </button>
+            </div>
+          ) : (
+            <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
+              {restaurante.nombre_restaurante}
+            </h1>
+          )}
+          {restaurantes.length >= 2 && (
+            <div className="flex items-center justify-center gap-2 mt-1">
+              {[{ esTotal: true }, ...restaurantes].map((s, i) => {
+                const label = s.esTotal
+                  ? "Total"
+                  : s.nombre_restaurante || `Restaurante ${i}`;
+                const activo = i === slideActivo;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setSlideActivo(i)}
+                    aria-label={`Ir a ${label}`}
+                    className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+                      activo
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-500 border-gray-300 hover:border-gray-500"
+                    }`}
+                  >
+                    <span
+                      className={`block w-2 h-2 rounded-full ${
+                        activo ? "bg-white" : "bg-gray-400"
+                      }`}
+                    />
+                    <span className="truncate max-w-[120px]">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <p className="text-sm text-black">
             {fechaActual.toLocaleDateString("es-MX", {
               weekday: "long",
@@ -988,14 +1067,7 @@ const B2BDashboard = () => {
                 <div className="flex items-start justify-center gap-1">
                   <p className="text-[36px] font-bold text-white leading-[1]">
                     $
-                    {(
-                      ((restaurante?.clicks || 0) +
-                        (notasRestaurante?.total_clicks || 0) +
-                        cupones.reduce((s, c) => s + (c.clicks || 0), 0)) *
-                      (restaurante?.ticket_promedio || 0) *
-                      2.8 *
-                      0.02
-                    ).toLocaleString("es-MX", {
+                    {conversionROI.toLocaleString("es-MX", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     })}
@@ -1021,14 +1093,7 @@ const B2BDashboard = () => {
                 <div className="flex items-start justify-center gap-1">
                   <p className="text-[36px] font-bold text-white leading-[1]">
                     $
-                    {(
-                      ((restaurante?.views || 0) +
-                        (notasRestaurante?.total_vistas || 0) +
-                        cupones.reduce((s, c) => s + (c.views || 0), 0)) *
-                      (restaurante?.ticket_promedio || 0) *
-                      2.8 *
-                      0.0035
-                    ).toLocaleString("es-MX", {
+                    {fidelizacionROI.toLocaleString("es-MX", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     })}
@@ -1318,380 +1383,33 @@ const B2BDashboard = () => {
               </div>
             </div>
 
-            {/* Alcance Total */}
-            <div className="mb-6">
-              <p className="text-[25px] leading-[1] underline mb-1">
-                Alcance Total
-              </p>
-              <div className="flex gap-8 mt-1">
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-[1]">
-                    {(
-                      (restaurante?.views || 0) +
-                      (notasRestaurante?.total_vistas || 0) +
-                      cupones.reduce((s, c) => s + (c.views || 0), 0)
-                    ).toLocaleString("es-MX")}
-                  </p>
-                  <p className="text-sm text-black -mt-1">Vistas totales</p>
-                </div>
-                <div>
-                  <p className="text-[40px] font-bold text-black leading-[1]">
-                    {(
-                      (restaurante?.clicks || 0) +
-                      (notasRestaurante?.total_clicks || 0) +
-                      cupones.reduce((s, c) => s + (c.clicks || 0), 0)
-                    ).toLocaleString("es-MX")}
-                  </p>
-                  <p className="text-sm text-black -mt-1">Clicks totales</p>
-                </div>
-              </div>
-            </div>
+            {/* Carrusel de métricas por restaurante (slide 0 = TOTAL agregado).
+                El padre controla el índice activo desde el header. */}
+            <CarruselRestaurantes
+              restaurantes={restaurantes}
+              cupones={cupones}
+              activeIndex={slideActivo}
+              onSlideChange={setSlideActivo}
+            />
 
-            {/* Directorio, JUNTAR ESTO */}
-            <div className="mb-0">
-              <a
-                href={`https://residente.mx/restaurantes/${restaurante?.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[25px] leading-[1] underline pr-2"
-              >
-                Directorio
-              </a>
-              <span>{restaurante?.nombre_restaurante}</span>
-              {restaurante?.created_at && (
-                <p className="text-xs text-gray-400 mt-0.5 mb-1">
-                  {(() => {
-                    const d = new Date(restaurante.created_at);
-                    const meses = [
-                      "Enero",
-                      "Febrero",
-                      "Marzo",
-                      "Abril",
-                      "Mayo",
-                      "Junio",
-                      "Julio",
-                      "Agosto",
-                      "Septiembre",
-                      "Octubre",
-                      "Noviembre",
-                      "Diciembre",
-                    ];
-                    return `Publicado desde el ${d.getDate()} de ${meses[d.getMonth()]} del ${d.getFullYear()}`;
-                  })()}
-                </p>
-              )}
-
-              <div className="flex items-start gap-1">
-                <p className="text-[40px] font-bold text-black leading-[1]">
-                  {(restaurante?.views || 0).toLocaleString("es-MX")}
-                </p>
-                <span
-                  className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                  onClick={() =>
-                    setOpenTooltip(
-                      openTooltip === "dir-vistas" ? null : "dir-vistas",
-                    )
-                  }
-                >
-                  ?
-                </span>
-              </div>
-              {/* tooltip dir-vistas se renderiza como overlay */}
-              <p className="text-sm text-black -mt-1">
-                Vistas totales en tu restaurante
-              </p>
-            </div>
-            {/* Clicks totales en tu restaurante */}
-            <div className="mb-9">
-              <div className="flex items-start gap-1">
-                <p className="text-[40px] font-bold text-black leading-[1]">
-                  {restaurante?.clicks?.toLocaleString("es-MX") || 0}
-                </p>
-                <span
-                  className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                  onClick={() =>
-                    setOpenTooltip(
-                      openTooltip === "dir-clicks" ? null : "dir-clicks",
-                    )
-                  }
-                >
-                  ?
-                </span>
-              </div>
-              {/* tooltip dir-clicks se renderiza como overlay */}
-              <p className="text-sm text-black -mt-1">
-                Clicks totales en tu restaurante
-              </p>
-            </div>
+            {/* Notas individuales del usuario (autor de notas, no etiquetadas a restaurante). */}
             {notaStats && notaStats.total > 0 && (
-              <>
+              <div className="mt-2 mb-6">
                 <div>
                   <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.views?.toLocaleString("es-MX") || 0}
                   </p>
-                  <p className="text-sm text-black">
-                    Vistas totales de tus notas
-                  </p>
+                  <p className="text-sm text-black">Vistas totales de tus notas</p>
                 </div>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.clicks?.toLocaleString("es-MX") || 0}
                   </p>
-                  <p className="text-sm text-black">
-                    Clicks totales de tus notas
-                  </p>
+                  <p className="text-sm text-black">Clicks totales de tus notas</p>
                 </div>
-              </>
+              </div>
             )}
-            {/* Notas  */}
-            <div className="mb-9">
-              <span className="text-[25px] leading-[1] underline pr-2">
-                Notas
-              </span>
-              <span>{restaurante?.nombre_restaurante}</span>
-              <span className="text-sm font-bold text-black">
-                {notasRestaurante ? ` (${notasRestaurante.total_notas})` : ""}
-              </span>
-              {/* Suma total de vistas de notas */}
-              <div className="leading-tight mb-1">
-                <div className="flex items-start gap-1">
-                  <p className="text-[40px] font-bold text-black leading-[1]">
-                    {notasRestaurante?.total_vistas?.toLocaleString("es-MX") ||
-                      0}
-                  </p>
-                  <span
-                    className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                    onClick={() =>
-                      setOpenTooltip(
-                        openTooltip === "notas-vistas" ? null : "notas-vistas",
-                      )
-                    }
-                  >
-                    ?
-                  </span>
-                </div>
-                {/* tooltip notas-vistas se renderiza como overlay */}
-                <p className="text-sm text-black -mt-1">
-                  Suma de vistas de notas etiquetadas
-                </p>
-              </div>
-              <div className="leading-tight mb-2">
-                <div className="flex items-start gap-1">
-                  <p className="text-[40px] font-bold text-black leading-[1]">
-                    {notasRestaurante?.total_clicks?.toLocaleString("es-MX") ||
-                      0}
-                  </p>
-                  <span
-                    className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                    onClick={() =>
-                      setOpenTooltip(
-                        openTooltip === "notas-clicks" ? null : "notas-clicks",
-                      )
-                    }
-                  >
-                    ?
-                  </span>
-                </div>
-                {/* tooltip notas-clicks se renderiza como overlay */}
-                <p className="text-sm text-black -mt-1">
-                  Suma de clicks de notas etiquetadas
-                </p>
-              </div>
-              {/* Lista individual de cada nota con sus vistas */}
-              {notasRestaurante && notasRestaurante.notas.length > 0 ? (
-                <div className="mt-3">
-                  {/* Selector de orden */}
-                  <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                    <span className="text-[11px] text-gray-400">Ordenar:</span>
-                    {[
-                      { key: "vistas", label: "Vistas" },
-                      { key: "clicks", label: "Clicks" },
-                      { key: "fecha", label: "Fecha" },
-                    ].map(({ key, label }) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setNotasOrden(key)}
-                        className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
-                          notasOrden === key
-                            ? "bg-black text-white border-black"
-                            : "bg-white text-gray-500 border-gray-300 hover:border-gray-500"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
 
-                  {/* Filas de notas */}
-                  <div className="space-y-0.5">
-                    {[...notasRestaurante.notas]
-                      .sort((a, b) => {
-                        if (notasOrden === "vistas") return (b.vistas || 0) - (a.vistas || 0);
-                        if (notasOrden === "clicks") return (b.clicks || 0) - (a.clicks || 0);
-                        if (notasOrden === "fecha") return new Date(b.fecha || 0) - new Date(a.fecha || 0);
-                        if (notasOrden === "created_at") return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-                        return 0;
-                      })
-                      .slice(0, notasExpandidas ? undefined : 3)
-                      .map((nota) => (
-                        <div key={nota.id} className="flex justify-between items-center text-xs py-0.5">
-                          <a
-                            href={`https://residente.mx/notas/${nota.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="truncate max-w-[50%] text-black font-medium hover:text-gray-600"
-                            title={nota.titulo}
-                          >
-                            {nota.titulo}
-                          </a>
-                          <span className="text-gray-600 whitespace-nowrap text-right">
-                            {(nota.vistas || 0).toLocaleString("es-MX")} v &middot;{" "}
-                            {(nota.clicks || 0).toLocaleString("es-MX")} cl
-                            {(nota.fecha || nota.created_at) && (
-                              <span className="text-gray-400 ml-1">
-                                &middot;{" "}
-                                {new Date(nota.fecha || nota.created_at).toLocaleDateString("es-MX", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "2-digit",
-                                })}
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-
-                  {/* Toggle ver más / ver menos */}
-                  {notasRestaurante.notas.length > 3 && (
-                    <button
-                      type="button"
-                      onClick={() => setNotasExpandidas((v) => !v)}
-                      className="mt-2 text-[11px] text-gray-500 hover:text-black underline"
-                    >
-                      {notasExpandidas
-                        ? "Ver menos"
-                        : `Ver todas (${notasRestaurante.notas.length})`}
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400 mt-2 mb-4">
-                  Aún no hay notas etiquetadas a tu restaurante.
-                </p>
-              )}
-            </div>
-            {/* Cupones */}
-            <div className="mb-9">
-              <span className="text-[25px] leading-[1] underline pr-2">
-                Cupones
-              </span>
-              <span>{restaurante?.nombre_restaurante}</span>
-              {loadingCupon ? (
-                <div>Cargando cupones...</div>
-              ) : cupones.length > 0 ? (
-                <>
-                  <div>
-                    <div className="flex items-start gap-1">
-                      <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupones
-                          .reduce((s, c) => s + (c.views || 0), 0)
-                          .toLocaleString("es-MX")}
-                      </p>
-                      <span
-                        className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                        onClick={() =>
-                          setOpenTooltip(
-                            openTooltip === "cupon-vistas"
-                              ? null
-                              : "cupon-vistas",
-                          )
-                        }
-                      >
-                        ?
-                      </span>
-                    </div>
-                    {/* tooltip cupon-vistas se renderiza como overlay */}
-                    <p className="text-sm text-black">
-                      Vistas totales de tus cupones
-                    </p>
-                  </div>
-                  <div>
-                    <div className="flex items-start gap-1">
-                      <p className="text-[40px] font-bold text-black leading-[1]">
-                        {cupones
-                          .reduce((s, c) => s + (c.clicks || 0), 0)
-                          .toLocaleString("es-MX")}
-                      </p>
-                      <span
-                        className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-                        onClick={() =>
-                          setOpenTooltip(
-                            openTooltip === "cupon-clicks"
-                              ? null
-                              : "cupon-clicks",
-                          )
-                        }
-                      >
-                        ?
-                      </span>
-                    </div>
-                    {/* tooltip cupon-clicks se renderiza como overlay */}
-                    <p className="text-sm text-black">
-                      Clicks totales de tus cupones
-                    </p>
-                  </div>
-                  <div className="space-y-0.5 mt-2">
-                    {cupones.map((c) => {
-                      const fmt = (d) =>
-                        new Date(d).toLocaleDateString("es-MX", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "2-digit",
-                        });
-                      const periodo = c.created_at
-                        ? c.tiene_caducidad && c.fecha_validez
-                          ? `${fmt(c.created_at)} – ${fmt(c.fecha_validez)}`
-                          : c.activo_manual
-                            ? `${fmt(c.created_at)} – activo`
-                            : `${fmt(c.created_at)} – desactivado`
-                        : null;
-                      return (
-                        <div
-                          key={c.id}
-                          className="flex justify-between items-center text-xs"
-                        >
-                          <span
-                            className="truncate max-w-[45%] text-black font-medium"
-                            title={[c.subtitulo, c.titulo]
-                              .filter(Boolean)
-                              .join(" ")}
-                          >
-                            {[c.subtitulo, c.titulo]
-                              .filter(Boolean)
-                              .join(" ") || c.nombre_restaurante}
-                          </span>
-                          <span className="text-gray-600 whitespace-nowrap text-right">
-                            {(c.views || 0).toLocaleString("es-MX")} v &middot;{" "}
-                            {(c.clicks || 0).toLocaleString("es-MX")} cl
-                            {periodo && (
-                              <span className="text-gray-400 ml-1">
-                                &middot; {periodo}
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <div className="text-gray-400 text-sm mt-2">
-                  No tienes cupones registrados.
-                </div>
-              )}
-            </div>
           </div>
         </div>
         {/* Columna roja */}
