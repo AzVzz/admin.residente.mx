@@ -88,7 +88,7 @@ export const notaInstafotoDelete = async (id, token) => {
         //console.log('Eliminando instafoto con ID:', id);
         //console.log('URL de la API:', `${urlApi}api/notas/${id}/insta_imagen`);
         
-        const response = await fetch(`${urlApi}api/notas/${id}/insta_imagen`, {
+        const response = await fetch(`${urlApi}api/notas/imagen/${id}/insta-imagen`, {
             method: 'DELETE',
             headers: {
                 ...(token && { Authorization: `Bearer ${token}` })

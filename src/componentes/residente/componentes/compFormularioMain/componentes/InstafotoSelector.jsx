@@ -10,10 +10,9 @@ const InstafotoSelector = ({
   instafotoActual,
   notaId,
   onInstafotoEliminada,
-  token,
 }) => {
   const { control, setValue, watch, register } = useFormContext();
-  const { usuario } = useAuth();
+  const { usuario, token } = useAuth();
   const instafotoSeleccionada = watch("instafoto");
   const programarInstafoto = watch("programarInstafoto");
   const [previewUrl, setPreviewUrl] = useState(null);
