@@ -24,7 +24,7 @@ import { IoNewspaper, IoStorefront } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
-import { MdAdminPanelSettings, MdEmail } from "react-icons/md"; // Added icon for admin codes
+import { MdAdminPanelSettings, MdEmail, MdCampaign } from "react-icons/md"; // Added icon for admin codes
 import MenuIcon from "@mui/icons-material/Menu";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -56,6 +56,8 @@ const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
+const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
+const TematicasDashboard = lazy(() => import("./TematicasDashboard.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -753,6 +755,16 @@ const ListaNotas = () => {
       label: "Correos",
       icon: <MdEmail className="mr-2" />,
     },
+    {
+      key: "mediainc",
+      label: "Media Inc",
+      icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "tematicas",
+      label: "Temáticas",
+      icon: <MdCampaign className="mr-2" />,
+    },
   ];
 
   // Filtrar opciones del menú según permisos del usuario
@@ -794,7 +806,9 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "ednl") ||
         (usuario?.rol === "residente" && option.key === "codigos_admin") ||
         (usuario?.rol === "residente" && option.key === "buscador") ||
-        (usuario?.rol === "residente" && option.key === "correos")
+        (usuario?.rol === "residente" && option.key === "correos") ||
+        (usuario?.rol === "residente" && option.key === "mediainc") ||
+        (usuario?.rol === "residente" && option.key === "tematicas")
       );
     })
   ).filter((option) =>
@@ -983,10 +997,14 @@ const ListaNotas = () => {
                       navigate("/dashboardtickets");
                     } else if (option.key === "eventos") {
                       navigate("/dashboardeventos");
+                    } else if (option.key === "tematicas") {
+                      setVistaActiva("tematicas");
                     } else if (option.key === "codigos_admin") {
                       navigate("/admin/codigos");
                     } else if (option.key === "ednl") {
                       navigate("/ednl");
+                    } else if (option.key === "mediainc") {
+                      setVistaActiva("mediainc");
                     } else {
                       setVistaActiva(option.key);
                     }
@@ -1427,6 +1445,12 @@ const ListaNotas = () => {
           </Suspense>
         )}
 
+        {vistaActiva === "tematicas" && (
+          <Suspense fallback={<LazyFallback />}>
+            <TematicasDashboard />
+          </Suspense>
+        )}
+
         {vistaActiva === "mis_restaurantes" && (
           <div className="w-full">
             <div className="flex justify-between items-center mb-6">
@@ -1501,6 +1525,12 @@ const ListaNotas = () => {
               </div>
             )}
           </div>
+        )}
+
+        {vistaActiva === "mediainc" && (
+          <Suspense fallback={<LazyFallback />}>
+            <ListaMediainc />
+          </Suspense>
         )}
 
       </div>

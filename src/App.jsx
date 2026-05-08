@@ -40,6 +40,7 @@ import usePageTracking from "./usePageTracking.js";
 // import FormMain from "./componentes/residente/B2B/FormularioNuevoClienteB2b/FormMain.jsx"; // Converted to lazy
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import ResidenteRoute from "./componentes/rutas/ResidenteRoute.jsx";
+import SuperadminRoute from "./componentes/rutas/SuperadminRoute.jsx";
 // import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"; // Converted to lazy
 // import Registro from "./componentes/residente/Registro.jsx"; // Converted to lazy
 // import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx"; // Converted to lazy
@@ -139,6 +140,18 @@ const TerminosyCondiciones = lazy(
     import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"),
 );
 const Registro = lazy(() => import("./componentes/residente/Registro.jsx"));
+const ConversacionesList = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ConversacionesList.jsx"),
+);
+const ChatbotStats = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotStats.jsx"),
+);
+const ChatbotIndexStatus = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotIndexStatus.jsx"),
+);
+const ChatbotFeedback = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotFeedback.jsx"),
+);
 const FormularioAnuncioRevista = lazy(
   () => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"),
 );
@@ -195,6 +208,12 @@ const FormularioMainPage = lazy(
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
 const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
 const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
+const ListaTematicas = lazy(
+  () => import("./componentes/residente/componentes/compFormularioMain/ListaTematicas")
+);
+const FormTematica = lazy(
+  () => import("./componentes/residente/componentes/compFormularioMain/FormTematica")
+);
 
 const FormularioRevistaBannerNueva = lazy(
   () =>
@@ -202,6 +221,9 @@ const FormularioRevistaBannerNueva = lazy(
 );
 const B2BDashboard = lazy(
   () => import("./componentes/residente/B2B/B2BDashboard"),
+);
+const B2BDashboardAdminView = lazy(
+  () => import("./componentes/residente/B2B/B2BDashboardAdminView"),
 );
 const BannersDashboard = lazy(
   () => import("./componentes/residente/componentes/banners/BannersDashboard"),
@@ -476,6 +498,40 @@ function App() {
                   <div className="max-w-[1080px] mx-auto">
                     <B2CInterior />
                   </div>
+                }
+              />
+
+              {/* Chatbot — Auditoría (residente only) — antes del wildcard */}
+              <Route
+                path="/chatbot/conversaciones"
+                element={
+                  <ResidenteRoute>
+                    <ConversacionesList />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/stats"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotStats />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/indice"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotIndexStatus />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/feedback"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotFeedback />
+                  </ResidenteRoute>
                 }
               />
 
@@ -837,6 +893,7 @@ function App() {
                 }
               />
 
+
               {/* Admin — Dashboard Eventos */}
               <Route
                 path="/dashboardeventos"
@@ -847,6 +904,7 @@ function App() {
                 }
               />
 
+
               {/* Admin */}
               <Route
                 path="/dashboardb2b"
@@ -856,6 +914,18 @@ function App() {
                       <B2BDashboard />
                     </div>
                   </B2BRoute>
+                }
+              />
+
+              {/* Vista de superadmin para inspeccionar el dashboard de un cliente B2B */}
+              <Route
+                path="/dashboardb2b/cliente/:userId"
+                element={
+                  <SuperadminRoute>
+                    <div className="min-w-[1080px] max-w-[1080px] mx-auto">
+                      <B2BDashboardAdminView />
+                    </div>
+                  </SuperadminRoute>
                 }
               />
 

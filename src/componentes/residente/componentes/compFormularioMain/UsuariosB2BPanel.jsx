@@ -15,6 +15,18 @@ const UsuariosB2BPanel = () => {
 
   useEffect(() => {
     cargarUsuariosB2B();
+    const onFocus = () => cargarUsuariosB2B();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") cargarUsuariosB2B();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    const interval = setInterval(cargarUsuariosB2B, 60_000);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+      clearInterval(interval);
+    };
   }, []);
 
   const cargarUsuariosB2B = async () => {

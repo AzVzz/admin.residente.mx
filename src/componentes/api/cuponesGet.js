@@ -37,8 +37,9 @@ export async function cuponesGetTodas(token, { sortBy, sortOrder, estado, page, 
     return await response.json(); // { cupones, total, page, limit }
 }
 
-export async function cuponesGetStatsB2B(token) {
-    const response = await fetch(`${urlApi}api/tickets/stats-b2b`, {
+export async function cuponesGetStatsB2B(token, viewAsUserId = null) {
+    const qs = viewAsUserId ? `?usuario_id=${viewAsUserId}` : '';
+    const response = await fetch(`${urlApi}api/tickets/stats-b2b${qs}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) {

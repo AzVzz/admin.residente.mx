@@ -37,6 +37,7 @@ import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
 import SmartTagsInput from "../SmartTagsInput.jsx";
+import TematicaSelector from "./componentes/TematicaSelector.jsx";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -129,6 +130,7 @@ const FormMainResidente = () => {
       destacada_invitado: 0,
       restaurantes_ids: [],
       formato_nota: "",
+      tematica_id: "",
     },
   });
 
@@ -538,6 +540,7 @@ const FormMainResidente = () => {
             meta_description: data.meta_description || "",
             destacada_invitado: data.destacada_invitado || 0,
             formato_nota: data.formato_nota || "",
+            tematica_id: data.tematica_id != null ? String(data.tematica_id) : "",
             programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
             smart_tags: data.smart_tags || [],
@@ -670,6 +673,7 @@ const FormMainResidente = () => {
         meta_description: data.meta_description?.trim() || null,
         smart_tags: data.smart_tags?.length ? data.smart_tags : null,
         formato_nota: data.formato_nota || null,
+        tematica_id: data.tematica_id ? parseInt(data.tematica_id, 10) : null,
       };
 
       // Solo incluir fechaProgramada si es guardado "actualizada"
@@ -924,6 +928,9 @@ const FormMainResidente = () => {
 
                 <div>
                   <NombreRestaurante />
+                </div>
+                <div className="pb-4">
+                  <TematicaSelector />
                 </div>
                 <div className="pb-4">
                   <Titulo />

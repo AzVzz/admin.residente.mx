@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { FaCheck, FaTimes, FaBan, FaTrash, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaCheck, FaTimes, FaBan, FaTrash, FaSort, FaSortUp, FaSortDown, FaChartLine } from "react-icons/fa";
 
 const BENEFICIOS = [
   { key: "estudios_mercado", label: "Estudios" },
@@ -32,6 +33,32 @@ const getFecha = (b2b) => {
     || b2b?.fecha_aceptacion_terminos
     || b2b?.primer_pago;
   return f ? new Date(f).getTime() : 0;
+};
+
+const ESTADO_CONFIG = {
+  active:              { label: "Al día",       cls: "bg-green-100 text-green-800" },
+  trialing:            { label: "Periodo prueba", cls: "bg-blue-100 text-blue-800" },
+  past_due:            { label: "Atrasada",     cls: "bg-amber-100 text-amber-800" },
+  unpaid:              { label: "Sin pagar",    cls: "bg-red-100 text-red-800" },
+  incomplete:          { label: "Incompleta",   cls: "bg-gray-100 text-gray-700" },
+  incomplete_expired:  { label: "Expirada",     cls: "bg-gray-200 text-gray-700" },
+  paused:              { label: "Pausada",      cls: "bg-gray-100 text-gray-700" },
+  canceled:            { label: "Cancelada",    cls: "bg-red-100 text-red-800" },
+};
+
+const getEstadoSuscripcion = (sus) => {
+  if (!sus || !sus.estado) return null;
+  return ESTADO_CONFIG[sus.estado] || { label: sus.estado, cls: "bg-gray-100 text-gray-700" };
+};
+
+const formatIntervalo = (facturas) => {
+  switch (facturas) {
+    case "month": return "Mensual";
+    case "year":  return "Anual";
+    case "week":  return "Semanal";
+    case "day":   return "Diaria";
+    default:      return null;
+  }
 };
 
 const TablaUsuariosB2B = ({
@@ -114,6 +141,9 @@ const TablaUsuariosB2B = ({
               </th>
               <ThSortable field="restaurante">Restaurante</ThSortable>
               <ThSortable field="fecha">Suscripción</ThSortable>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Suscripción
+              </th>
               <ThSortable field="monto">Monto</ThSortable>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Meses plan
@@ -126,7 +156,7 @@ const TablaUsuariosB2B = ({
                 Beneficios
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Estado
+                Cuenta
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
@@ -136,7 +166,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan="10" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -165,6 +195,30 @@ const TablaUsuariosB2B = ({
                             ? formatFecha(b2b.primer_pago)
                             : "—"}
                     </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      {(() => {
+                        const estado = getEstadoSuscripcion(sus);
+                        const intervalo = formatIntervalo(sus?.facturas);
+                        if (!estado) return <span className="text-gray-400">—</span>;
+                        return (
+                          <div>
+                            <span className={`inline-flex px-2 py-1 font-semibold rounded-full ${estado.cls}`}>
+                              {estado.label}
+                            </span>
+                            {sus?.fecha_fin_periodo_actual &&
+                              sus.estado !== "canceled" &&
+                              new Date(sus.fecha_fin_periodo_actual).getTime() > Date.now() && (
+                                <div className="text-[10px] text-gray-500 mt-0.5">
+                                  Próx: {formatFecha(sus.fecha_fin_periodo_actual)}
+                                </div>
+                              )}
+                            {intervalo && (
+                              <div className="text-[10px] text-gray-400">{intervalo}</div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </td>
                     <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
                       {sus ? formatMonto(sus.monto) : "—"}
                     </td>
@@ -175,22 +229,35 @@ const TablaUsuariosB2B = ({
                       {b2b?.meses_pagados != null ? `${b2b.meses_pagados} m` : "—"}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {b2b?.ultimo_pago ? (
-                        <div>
-                          <span className="capitalize text-gray-700 font-medium block">
-                            {b2b.ultimo_pago.marca_tarjeta || "—"}
-                          </span>
-                          <span className="text-gray-400 text-[10px] block">
-                            {b2b.ultimo_pago.tipo_tarjeta === "credit"
-                              ? "crédito"
-                              : b2b.ultimo_pago.tipo_tarjeta === "debit"
-                                ? "débito"
-                                : b2b.ultimo_pago.tipo_tarjeta || "—"}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
+                      {(() => {
+                        const marca = b2b?.ultimo_pago?.marca_tarjeta || b2b?.marca_tarjeta;
+                        const tipo = b2b?.ultimo_pago?.tipo_tarjeta || b2b?.tipo_tarjeta;
+                        if (!marca && !tipo) return <span className="text-gray-400">—</span>;
+                        const tipoLabel =
+                          tipo === "credit"
+                            ? "Crédito"
+                            : tipo === "debit"
+                              ? "Débito"
+                              : tipo === "prepaid"
+                                ? "Prepago"
+                                : tipo || "—";
+                        const tipoCls =
+                          tipo === "credit"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : tipo === "debit"
+                              ? "bg-rose-100 text-rose-700"
+                              : "bg-gray-100 text-gray-600";
+                        return (
+                          <div>
+                            <span className="capitalize text-gray-800 font-medium block">
+                              {marca || "—"}
+                            </span>
+                            <span className={`inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded ${tipoCls}`}>
+                              {tipoLabel}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-3 py-2">
                       {b2b ? (
@@ -230,6 +297,17 @@ const TablaUsuariosB2B = ({
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap font-medium">
                       <div className="flex space-x-2">
+                        {user.id && (
+                          <Link
+                            to={`/dashboardb2b/cliente/${user.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                            title="Ver Dashboard como admin"
+                          >
+                            <FaChartLine />
+                          </Link>
+                        )}
                         <button
                           onClick={() => toggleUserStatus(user.id, user.estado)}
                           className={`${
