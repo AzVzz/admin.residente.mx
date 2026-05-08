@@ -47,14 +47,7 @@ const ESTADO_CONFIG = {
 
 const getEstadoSuscripcion = (sus) => {
   if (!sus || !sus.estado) return null;
-  const base = ESTADO_CONFIG[sus.estado] || { label: sus.estado, cls: "bg-gray-100 text-gray-700" };
-  if (sus.estado === "active" && sus.fecha_fin_periodo_actual) {
-    const fin = new Date(sus.fecha_fin_periodo_actual).getTime();
-    if (fin < Date.now()) {
-      return { label: "Vencida", cls: "bg-amber-100 text-amber-800" };
-    }
-  }
-  return base;
+  return ESTADO_CONFIG[sus.estado] || { label: sus.estado, cls: "bg-gray-100 text-gray-700" };
 };
 
 const formatIntervalo = (facturas) => {
@@ -211,11 +204,13 @@ const TablaUsuariosB2B = ({
                             <span className={`inline-flex px-2 py-1 font-semibold rounded-full ${estado.cls}`}>
                               {estado.label}
                             </span>
-                            {sus?.fecha_fin_periodo_actual && sus.estado !== "canceled" && (
-                              <div className="text-[10px] text-gray-500 mt-0.5">
-                                Próx: {formatFecha(sus.fecha_fin_periodo_actual)}
-                              </div>
-                            )}
+                            {sus?.fecha_fin_periodo_actual &&
+                              sus.estado !== "canceled" &&
+                              new Date(sus.fecha_fin_periodo_actual).getTime() > Date.now() && (
+                                <div className="text-[10px] text-gray-500 mt-0.5">
+                                  Próx: {formatFecha(sus.fecha_fin_periodo_actual)}
+                                </div>
+                              )}
                             {intervalo && (
                               <div className="text-[10px] text-gray-400">{intervalo}</div>
                             )}
