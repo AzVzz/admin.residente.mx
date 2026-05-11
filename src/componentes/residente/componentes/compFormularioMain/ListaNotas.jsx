@@ -782,12 +782,15 @@ const ListaNotas = () => {
   if (cargando) {
     // Skeleton grid: muestra el shell del layout sin esperar datos. Reduce
     // perceived loading time vs un spinner generico.
+    // Solo 6 cards (no notasPorPagina=15) para no ahogar la CPU/GPU con
+    // animaciones simultaneas en hardware viejo. motion-reduce:animate-none
+    // respeta la preferencia del SO para usuarios sensibles a animaciones.
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {Array.from({ length: notasPorPagina || 6 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-lg overflow-hidden bg-white border border-gray-200 animate-pulse"
+            className="rounded-lg overflow-hidden bg-white border border-gray-200 animate-pulse motion-reduce:animate-none"
           >
             <div className="aspect-[16/10] bg-gray-200" />
             <div className="p-3 space-y-2">

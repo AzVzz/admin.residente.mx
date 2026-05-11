@@ -2,6 +2,10 @@ import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp, FaEnvelope, FaLinkedin
 import { FaXTwitter } from "react-icons/fa6";
 import { imgApi } from "./api/url";
 
+// Nota: todos los <img> del footer tienen width/height HTML como hint del
+// aspect ratio para evitar CLS al cargar. Las clases Tailwind controlan el
+// render visual. loading="lazy" + decoding="async" porque el footer es
+// always below-the-fold.
 const FooterPrincipal = () => {
   return (
     <>
@@ -11,6 +15,10 @@ const FooterPrincipal = () => {
           <img
             src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/fooddrinkmedia-logo-blanco.webp`}
             alt="FoodDrinkMedia"
+            width="160"
+            height="24"
+            loading="lazy"
+            decoding="async"
             className="h-6 w-auto object-contain"
           />
           <div className="flex gap-4 items-center">
@@ -35,6 +43,10 @@ const FooterPrincipal = () => {
               <img
                 src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/fooddrinkmedia-logo-blanco.webp`}
                 alt="FoodDrinkMedia"
+                width="240"
+                height="40"
+                loading="lazy"
+                decoding="async"
                 className="w-full sm:h-10 object-contain"
               />
               <span className="w-20 text-white font-roman text-[9px] font-bold leading-none uppercase tracking-tighter pt-3">EST. 2015</span>
@@ -62,10 +74,10 @@ const FooterPrincipal = () => {
               </h3>
               <div className="flex flex-col gap-5 items-center">
                 <a href="https://residente.mx" aria-label="residente.mx">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/logo%20residente.mx-99-100.png`} alt="residente.mx" className="sm:w-22 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/logo%20residente.mx-99-100.png`} alt="residente.mx" width="88" height="44" loading="lazy" decoding="async" className="sm:w-22 w-8 h-auto object-contain" />
                 </a>
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/newsletter-logo-blanco.webp`} alt="Residente Restaurante Newsletter" className="sm:w-18 w-8 h-auto object-contain" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/residente-video-logo-blanco.webp`} alt="Residente Restaurante Video" className="sm:w-18 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/newsletter-logo-blanco.webp`} alt="Residente Restaurante Newsletter" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/residente-video-logo-blanco.webp`} alt="Residente Restaurante Video" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain" />
               </div>
             </div>
 
@@ -76,11 +88,11 @@ const FooterPrincipal = () => {
               </h3>
               <div className="flex flex-col gap-5 items-center">
                 <a href="https://residente.mx/seccion/niveldegasto/categoria/finedining" aria-label="Guia NL Directorio">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} alt="Guia NL Directorio" className="sm:w-20 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/guia-logo-blanco.webp`} alt="Guia NL Directorio" width="80" height="40" loading="lazy" decoding="async" className="sm:w-20 w-8 h-auto object-contain" />
                 </a>
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/magazine-logo-blanco.webp`} alt="Residente Restaurante Magazine" className="sm:w-18 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/magazine-logo-blanco.webp`} alt="Residente Restaurante Magazine" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain" />
                 <a href="https://residente.mx/magazine-historia" aria-label="Residente Restaurante Books">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/books-logo-blanco.webp`} alt="Residente Restaurante Books" className="sm:w-18 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/books-logo-blanco.webp`} alt="Residente Restaurante Books" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain" />
                 </a>
               </div>
             </div>
@@ -91,11 +103,11 @@ const FooterPrincipal = () => {
                 Proyectos culturales
               </h3>
               <div className="flex flex-col gap-5 items-center">
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/logo-estrellas-de-nl.webp`} alt="Estrellas de Nuevo León" className="sm:w-19 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/logo-estrellas-de-nl.webp`} alt="Estrellas de Nuevo León" width="76" height="38" loading="lazy" decoding="async" className="sm:w-19 w-8 h-auto object-contain" />
                 <a href="https://residente.mx/platillos" aria-label="Platillos icónicos de Nuevo León">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/platillos-logo-blanco.webp`} alt="Platillos icónicos de Nuevo León" className="sm:w-15 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/platillos-logo-blanco.webp`} alt="Platillos icónicos de Nuevo León" width="60" height="30" loading="lazy" decoding="async" className="sm:w-15 w-8 h-auto object-contain" />
                 </a>
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/rostros-logo-blanco.webp`} alt="Los Rostros detrás del sabor" className="sm:w-14 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/rostros-logo-blanco.webp`} alt="Los Rostros detrás del sabor" width="56" height="28" loading="lazy" decoding="async" className="sm:w-14 w-8 h-auto object-contain" />
               </div>
             </div>
 
@@ -106,28 +118,28 @@ const FooterPrincipal = () => {
               </h3>
               <div className="flex flex-col items-center justify-center gap-3.5">
                 <a href="https://residente.mx/seccion/zona/categoria/zonatec" aria-label="Zona Tec">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/ZONA%20TEC%20.png`} alt="Zona Tec" className="sm:w-14 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/ZONA%20TEC%20.png`} alt="Zona Tec" width="56" height="28" loading="lazy" decoding="async" className="sm:w-14 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/cumbres" aria-label="Cumbres">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/CUMBRES.png`} alt="Cumbres" className="sm:w-14 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/CUMBRES.png`} alt="Cumbres" width="56" height="28" loading="lazy" decoding="async" className="sm:w-14 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/sanpedro" aria-label="San Pedro">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/SAN%20PEDRO.png`} alt="San Pedro" className="sm:w-15 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/SAN%20PEDRO.png`} alt="San Pedro" width="60" height="30" loading="lazy" decoding="async" className="sm:w-15 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/guadalupe" aria-label="Guadalupe">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/GUADALUPE.png`} alt="Guadalupe" className="sm:w-16 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/GUADALUPE.png`} alt="Guadalupe" width="64" height="32" loading="lazy" decoding="async" className="sm:w-16 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/monterreycentro" aria-label="Monterrey Centro">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/MONTERREY.png`} alt="Monterrey Centro" className="sm:w-17 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/MONTERREY.png`} alt="Monterrey Centro" width="68" height="34" loading="lazy" decoding="async" className="sm:w-17 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/norte" aria-label="Norte">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/NORTE.png`} alt="Norte" className="sm:w-9 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/NORTE.png`} alt="Norte" width="36" height="18" loading="lazy" decoding="async" className="sm:w-9 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/carretera" aria-label="Carretera">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/CARRETERA.png`} alt="Carretera" className="sm:w-16 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/CARRETERA.png`} alt="Carretera" width="64" height="32" loading="lazy" decoding="async" className="sm:w-16 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/seccion/zona/categoria/sannicolas" aria-label="San Nicolas">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/SAN%20NICOLA%CC%81S.png`} alt="San Nicolas" className="sm:w-19 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/SAN%20NICOLA%CC%81S.png`} alt="San Nicolas" width="76" height="38" loading="lazy" decoding="async" className="sm:w-19 w-8 h-auto object-contain" />
                 </a>
               </div>
             </div>
@@ -153,18 +165,18 @@ const FooterPrincipal = () => {
                 Soluciones para la industria
               </h3>
               <div className="flex flex-col gap-4 items-center">
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Club%20residente%20blanco.png`} alt="Club Residente Facil" className="sm:w-40 w-30 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Club%20residente%20blanco.png`} alt="Club Residente Facil" width="160" height="60" loading="lazy" decoding="async" className="sm:w-40 w-30 h-auto object-contain" />
                 <a href="https://residente.mx/admin/banners" aria-label="Banner Facil">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/BANNER%20FA%CC%81CIL%20POR%20RESIDENTE-94.png`} alt="Banner Facil" className="sm:w-18 w-8 h-auto object-contain pb-1" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/BANNER%20FA%CC%81CIL%20POR%20RESIDENTE-94.png`} alt="Banner Facil" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain pb-1" />
                 </a>
                 <a href="https://residente.mx/residente-restaurant-research" aria-label="Residente Restaurante Research&Data">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/researchdata-logo-blanco.webp`} alt="Residente Restaurante Research&Data" className="sm:w-20 w-8 h-auto object-contain pb-1" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/researchdata-logo-blanco.webp`} alt="Residente Restaurante Research&Data" width="80" height="40" loading="lazy" decoding="async" className="sm:w-20 w-8 h-auto object-contain pb-1" />
                 </a>
                 <a href="https://residente.mx/soluciones-para-la-industria" aria-label="Residente Restaurante Networking">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/residente-restauranat-networking.webp`} alt="Residente Restaurante Networking" className="sm:w-19 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/residente-restauranat-networking.webp`} alt="Residente Restaurante Networking" width="76" height="38" loading="lazy" decoding="async" className="sm:w-19 w-8 h-auto object-contain" />
                 </a>
                 <a href="https://residente.mx/admin/B2C" aria-label="Etiqueta Restaurantera">
-                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Logo%20de%20etiqueta%20restaurantera%20blanco.png`} alt="Etiqueta Restaurantera" className="sm:w-19 w-8 h-auto object-contain" />
+                  <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Logo%20de%20etiqueta%20restaurantera%20blanco.png`} alt="Etiqueta Restaurantera" width="76" height="38" loading="lazy" decoding="async" className="sm:w-19 w-8 h-auto object-contain" />
                 </a>
               </div>
             </div>
@@ -175,8 +187,8 @@ const FooterPrincipal = () => {
                 Aliados institucionales
               </h3>
               <div className="flex flex-col gap-5 items-center">
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/canirac-logo.webp`} alt="Canirac" className="sm:w-18 w-8 h-auto object-contain" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/usda-blanco.webp`} alt="USDA" className="sm:w-13 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/canirac-logo.webp`} alt="Canirac" width="72" height="36" loading="lazy" decoding="async" className="sm:w-18 w-8 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/usda-blanco.webp`} alt="USDA" width="52" height="26" loading="lazy" decoding="async" className="sm:w-13 w-8 h-auto object-contain" />
               </div>
             </div>
 
@@ -186,20 +198,20 @@ const FooterPrincipal = () => {
                 Infraestructura tecnologica
               </h3>
               <div className="flex flex-col items-center">
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/google-analytics%20logo%20blanco.png`} alt="Google Analytics" className="sm:w-12 w-13 h-auto object-contain mb-5" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/META%20BUSINESS%20SUITE%20BLANCO%20%281%29.png`} alt="Meta Business" className="sm:w-20 w-10 h-auto object-contain mb-4" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/mailchimp%20logo%20blanco.png`} alt="Mailchimp" className="sm:w-15 w-13 h-auto object-contain mb-3" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/GOOGLE%20TAG%20MANAGER%20BLANCO%20%281%29.png`} alt="Google Tag Manager" className="sm:w-22 w-13 h-auto object-contain mb-3" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Stripe%20Logo%20blanco.png`} alt="Stripe" className="sm:w-10 w-13 h-auto object-contain mb-5" />
-                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/LOGO_IONOS_White_RGB.png`} alt="IONOS" className="sm:w-10 w-10 h-auto object-contain" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/google-analytics%20logo%20blanco.png`} alt="Google Analytics" width="48" height="24" loading="lazy" decoding="async" className="sm:w-12 w-13 h-auto object-contain mb-5" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/META%20BUSINESS%20SUITE%20BLANCO%20%281%29.png`} alt="Meta Business" width="80" height="40" loading="lazy" decoding="async" className="sm:w-20 w-10 h-auto object-contain mb-4" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/mailchimp%20logo%20blanco.png`} alt="Mailchimp" width="60" height="30" loading="lazy" decoding="async" className="sm:w-15 w-13 h-auto object-contain mb-3" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/GOOGLE%20TAG%20MANAGER%20BLANCO%20%281%29.png`} alt="Google Tag Manager" width="88" height="32" loading="lazy" decoding="async" className="sm:w-22 w-13 h-auto object-contain mb-3" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/Stripe%20Logo%20blanco.png`} alt="Stripe" width="40" height="20" loading="lazy" decoding="async" className="sm:w-10 w-13 h-auto object-contain mb-5" />
+                <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/LOGO_IONOS_White_RGB.png`} alt="IONOS" width="40" height="20" loading="lazy" decoding="async" className="sm:w-10 w-10 h-auto object-contain" />
               </div>
             </div>
           </div>
 
           {/* Pie de página */}
           <div className="flex justify-center items-center gap-5 mb-4">
-            <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/relevant-logo-blanco.webp`} alt="RELEVANT Media Company Builder" className="sm:w-25 w-10 h-auto object-contain" />
-            <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/endeavor-logo-blanco.webp`} alt="Endeavor" className="sm:w-25 w-10 h-auto object-contain" />
+            <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/relevant-logo-blanco.webp`} alt="RELEVANT Media Company Builder" width="100" height="40" loading="lazy" decoding="async" className="sm:w-25 w-10 h-auto object-contain" />
+            <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/blancos/endeavor-logo-blanco.webp`} alt="Endeavor" width="100" height="40" loading="lazy" decoding="async" className="sm:w-25 w-10 h-auto object-contain" />
           </div>
           <div className="text-center text-[14px] text-gray-300 mb-4 font-medium">
             Residente: Periodismo Gastronómico y la mejor guía de Restaurantes en Monterrey.

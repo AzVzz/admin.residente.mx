@@ -209,6 +209,10 @@ const ResidenteHome = () => {
                     <img
                       src={revistaActual.imagen_banner}
                       alt="Banner Revista"
+                      width="1200"
+                      height="200"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full mb-4 cursor-pointer"
                       title="Descargar Revista"
                     />
@@ -217,6 +221,10 @@ const ResidenteHome = () => {
                   <img
                     src={revistaActual?.imagen_banner}
                     alt="Banner Revista"
+                    width="1200"
+                    height="200"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full mb-4"
                   />
                 )}
