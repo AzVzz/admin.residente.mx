@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 
 // Función para obtener el icono según el tipo de nota
@@ -147,14 +148,13 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
       }}
     >
       {/* Imagen de fondo con zoom al hover */}
-      <div
-        className="absolute inset-0 w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
-        style={{
-          backgroundImage: `url(${nota.imagen})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: 0,
-        }}
+      <img
+        src={nota.imagen}
+        alt={nota.titulo}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+        style={{ zIndex: 0 }}
       />
       {/* Contenido encima de la imagen */}
       <div className="flex flex-col justify-between items-end h-full relative z-10">
@@ -302,4 +302,4 @@ const esProgramadaFutura = (fechaStr) => {
   return fecha > new Date();
 };
 
-export default NotaCard;
+export default memo(NotaCard);

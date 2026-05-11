@@ -7,6 +7,10 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { catalogoTipoNotaGet } from "../../../api/catalogoSeccionesGet";
 import { useClientesValidos } from "../../../../hooks/useClientesValidos";
 
+let _tipoNotaCache = null;
+let _tipoNotaCacheTime = 0;
+const _TIPO_NOTA_TTL = 15 * 60 * 1000;
+
 // Opciones por defecto (fallback)
 const opcionesDefault = [
   { value: "", label: "Todas las tipos de notas" },
@@ -53,7 +57,14 @@ export default function FiltroTipoCliente({ tipoCliente, setTipoCliente }) {
     const cargarTiposCliente = async () => {
       try {
         setCargando(true);
-        const data = await catalogoTipoNotaGet();
+        let data;
+        if (_tipoNotaCache && Date.now() - _tipoNotaCacheTime < _TIPO_NOTA_TTL) {
+          data = _tipoNotaCache;
+        } else {
+          data = await catalogoTipoNotaGet();
+          _tipoNotaCache = data;
+          _tipoNotaCacheTime = Date.now();
+        }
 
         // Crear opciones base con las opciones por defecto
         let opcionesDinamicas = [...opcionesDefault];

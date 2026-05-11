@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, lazy, Suspense, useRef, useCallback } from "react";
+import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import {
@@ -69,6 +69,14 @@ const LazyFallback = () => (
   </div>
 );
 
+const _notasCache = new Map();
+const _notasCacheTime = new Map();
+const NOTAS_TTL = 5 * 60 * 1000;
+const _isNotasCacheValid = (key) => {
+  const t = _notasCacheTime.get(key);
+  return !!(t && Date.now() - t < NOTAS_TTL);
+};
+
 const mapeoPermisosATipoNota = {
   "mama-de-rocco": "Mamá de Rocco",
   "barrio-antiguo": "Barrio Antiguo",
@@ -125,7 +133,6 @@ const ListaNotas = () => {
   const [vistas, setVistas] = useState("");
   const [ordenVistas, setOrdenVistas] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
-  const [todasLasNotas, setTodasLasNotas] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [recetaKey, setRecetaKey] = useState(0);
   const [mostrarFormularioReceta, setMostrarFormularioReceta] = useState(false);
@@ -201,10 +208,6 @@ const ListaNotas = () => {
     setSearchParams(newParams, { replace: true });
   }, [paginaActual, searchParams, setSearchParams]);
 
-  // 🚀 CACHE: Almacena las páginas ya cargadas
-  const cacheRef = useRef(new Map());
-  const prefetchingRef = useRef(false);
-  const isFirstRun = useRef(true);
 
   // Función para generar clave de caché
   const getCacheKey = useCallback((page, filtros) => {
@@ -349,7 +352,6 @@ const ListaNotas = () => {
             "No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.",
           status: 403,
         });
-        setTodasLasNotas([]);
         setNotas([]);
         setCargando(false);
         return; // Salir sin hacer la llamada a la API
@@ -360,10 +362,9 @@ const ListaNotas = () => {
       const cacheKey = getCacheKey(paginaActual, filtros);
 
       // Si está en caché y podemos usarla, retornar inmediatamente
-      if (usarCache && cacheRef.current.has(cacheKey)) {
-        const cached = cacheRef.current.get(cacheKey);
+      if (usarCache && _isNotasCacheValid(cacheKey)) {
+        const cached = _notasCache.get(cacheKey);
         setNotas(cached.notas);
-        setTodasLasNotas(cached.notas);
         setTotalNotas(cached.total);
         setTotalPaginas(cached.totalPages);
         setCargando(false);
@@ -418,9 +419,9 @@ const ListaNotas = () => {
         total: data.total || notasFiltradas.length,
         totalPages: data.totalPages || Math.ceil((data.total || notasFiltradas.length) / notasPorPagina)
       };
-      cacheRef.current.set(cacheKey, resultadoCache);
+      _notasCache.set(cacheKey, resultadoCache);
+      _notasCacheTime.set(cacheKey, Date.now());
 
-      setTodasLasNotas(notasFiltradas);
       setNotas(notasFiltradas);
       setTotalNotas(resultadoCache.total);
       setTotalPaginas(resultadoCache.totalPages);
@@ -450,7 +451,6 @@ const ListaNotas = () => {
               "No tienes permisos para ver todas las notas, pero puedes crear nuevas notas y recetas usando los botones del menú.",
             status: 403,
           });
-          setTodasLasNotas([]);
           setNotas([]);
           return;
         }
@@ -505,34 +505,6 @@ const ListaNotas = () => {
   const inicioIndice = (paginaActual - 1) * notasPorPagina;
   const finIndice = Math.min(inicioIndice + notasPorPagina, totalNotasFiltradas);
 
-  // 🚀 PREFETCH: Cargar la siguiente página en segundo plano
-  const prefetchNextPage = useCallback(async (currentPage, filtros, maxPages) => {
-    if (prefetchingRef.current) return;
-    if (currentPage >= maxPages) return;
-
-    const nextPage = currentPage + 1;
-    const cacheKey = getCacheKey(nextPage, filtros);
-
-    // Si ya está en caché, no prefetch
-    if (cacheRef.current.has(cacheKey)) return;
-
-    prefetchingRef.current = true;
-    try {
-      const data = await notasTodasGet(token, nextPage, notasPorPagina, "", filtros);
-      if (data && Array.isArray(data.notas)) {
-        cacheRef.current.set(cacheKey, {
-          notas: data.notas,
-          total: data.total || data.notas.length,
-          totalPages: data.totalPages || Math.ceil((data.total || data.notas.length) / notasPorPagina)
-        });
-      }
-    } catch (err) {
-      // Silently handle prefetch errors
-    } finally {
-      prefetchingRef.current = false;
-    }
-  }, [token, notasPorPagina, getCacheKey]);
-
   // Recargar notas cuando cambien los filtros, búsqueda o página
   useEffect(() => {
     if (!token) return;
@@ -544,44 +516,36 @@ const ListaNotas = () => {
   // Wrappers para setters que resetean la página y el caché al cambiar filtros
   const handleSetEstado = useCallback((val) => {
     setEstado(val);
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetTipoCliente = useCallback((val) => {
     setTipoCliente(val);
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetAutor = useCallback((val) => {
     setAutor(val);
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetSearchTerm = useCallback((val) => {
     setSearchTerm(val);
-    // Solo si hay cambio real y no está vacío (opcional)
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetFechaRange = useCallback(({ desde, hasta }) => {
     setFechaRange({ desde, hasta });
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetVistas = useCallback((val) => {
     setVistas(val);
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
   const handleSetOrdenVistas = useCallback((val) => {
     setOrdenVistas(val);
-    cacheRef.current.clear();
     setPaginaActual(1);
   }, []);
 
