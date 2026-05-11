@@ -363,8 +363,12 @@ function App() {
             </div>
           )}
         <main
-          className={`flex-grow ${isB2BDashboard ? "overflow-x-auto" : "overflow-x-clip"} w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow min-h-[70vh] ${isB2BDashboard ? "overflow-x-auto" : "overflow-x-clip"} w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
         >
+          {/* min-h-[70vh] reserva altura para que el footer no shiftee
+              cuando Suspense pasa del fallback "Cargando..." al contenido
+              real de la ruta (que suele ser mas alto). Reduce CLS del SPA
+              en desktop sin afectar paginas grandes (siguen creciendo). */}
           <Suspense
             fallback={
               <div className="max-w-[1080px] mx-auto py-8">Cargando...</div>
