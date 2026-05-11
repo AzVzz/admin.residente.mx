@@ -147,13 +147,18 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
         position: "relative",
       }}
     >
-      {/* Imagen de fondo con zoom al hover */}
+      {/* Imagen de fondo con zoom al hover.
+          width/height HTML como hint del aspect ratio (no afectan render).
+          motion-reduce: deshabilita animacion en hardware lento que pide
+          reduced motion en el OS, evita freezes en Macs 2011/4GB. */}
       <img
         src={nota.imagen}
         alt={nota.titulo}
+        width="400"
+        height="240"
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         style={{ zIndex: 0 }}
       />
       {/* Contenido encima de la imagen */}
