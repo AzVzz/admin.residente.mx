@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { urlApi } from "../../../api/url";
 
+// Cache a nivel de modulo para sobrevivir a navegaciones SPA. Mismo patron
+// que ListaNotas.jsx (commit 36678ad). TTL 5 min: los restaurantes B2B
+// cambian poco entre navegaciones, no se justifica refetch en cada mount.
+const _restCache = new Map();
+const _restCacheTime = new Map();
+const REST_TTL = 5 * 60 * 1000;
+const _isRestCacheValid = (key) => {
+  const t = _restCacheTime.get(key);
+  return !!(t && Date.now() - t < REST_TTL);
+};
+
 // Carga todos los restaurantes que pertenecen al usuario B2B autenticado,
 // o a otro usuario cuando el solicitante es residente con es_superadmin
 // (modo admin: se pasa `viewAsUserId`).
@@ -8,12 +19,22 @@ import { urlApi } from "../../../api/url";
 // y de las stats de notas etiquetadas (/api/notas/restaurante/:id/stats),
 // y devuelve un array N estable: [{ ...detalle, notasStats }, ...].
 export function useRestaurantesB2B(token, viewAsUserId = null) {
-  const [restaurantes, setRestaurantes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Hidratacion sincronica desde cache de modulo para skip render con loading=true.
+  const cacheKey = `${token || ""}|${viewAsUserId || ""}`;
+  const cachedInicial = _isRestCacheValid(cacheKey) ? _restCache.get(cacheKey) : null;
+  const [restaurantes, setRestaurantes] = useState(cachedInicial ?? []);
+  const [loading, setLoading] = useState(!cachedInicial);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    // Cache hit: hidratar inmediatamente sin red.
+    if (_isRestCacheValid(cacheKey)) {
+      setRestaurantes(_restCache.get(cacheKey));
       setLoading(false);
       return;
     }
@@ -33,7 +54,11 @@ export function useRestaurantesB2B(token, viewAsUserId = null) {
         const basicos = await resBasicos.json();
 
         if (!Array.isArray(basicos) || basicos.length === 0) {
-          if (!cancelado) setRestaurantes([]);
+          if (!cancelado) {
+            setRestaurantes([]);
+            _restCache.set(cacheKey, []);
+            _restCacheTime.set(cacheKey, Date.now());
+          }
           return;
         }
 
@@ -57,8 +82,12 @@ export function useRestaurantesB2B(token, viewAsUserId = null) {
           }),
         );
 
+        const resultado = detalles.filter(Boolean);
+        _restCache.set(cacheKey, resultado);
+        _restCacheTime.set(cacheKey, Date.now());
+
         if (!cancelado) {
-          setRestaurantes(detalles.filter(Boolean));
+          setRestaurantes(resultado);
         }
       } catch (e) {
         if (!cancelado) setError(e);
@@ -71,7 +100,7 @@ export function useRestaurantesB2B(token, viewAsUserId = null) {
     return () => {
       cancelado = true;
     };
-  }, [token, viewAsUserId]);
+  }, [token, viewAsUserId, cacheKey]);
 
   return { restaurantes, loading, error };
 }

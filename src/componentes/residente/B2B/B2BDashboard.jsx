@@ -14,6 +14,19 @@ import { BENEFICIOS_INFO } from "./beneficiosConfig";
 import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
 import CarruselRestaurantes from "./CarruselRestaurantes";
 
+// Cache de modulo (TTL 10min) para suscripcion y datos del usuario B2B.
+// Estos datos cambian raramente (suscripcion solo al pagar, b2bUser al perfil).
+// Mismo patron que ListaNotas.jsx (commit 36678ad) y useRestaurantesB2B.
+const _subCache = new Map();
+const _subCacheTime = new Map();
+const _b2bUserCache = new Map();
+const _b2bUserCacheTime = new Map();
+const B2B_TTL = 10 * 60 * 1000;
+const _isB2bCacheValid = (map, key) => {
+  const t = map.get(key);
+  return !!(t && Date.now() - t < B2B_TTL);
+};
+
 // `viewAsUserId`: cuando un residente con es_superadmin entra a ver el dashboard
 // de un cliente B2B específico, el id se pasa por prop (vía ruta /admin-b2b/:userId).
 // Las llamadas a APIs filtran por ese usuario en lugar de por el del JWT.
@@ -316,8 +329,17 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
   // Obtener información del usuario B2B (en modo admin, busca por viewAsUserId).
   useEffect(() => {
+    const userIdEfectivo = viewAsUserId || usuario?.id;
+    if (!userIdEfectivo && !usuario?.b2b_id) return;
+
+    // Cache hit: hidratar sin red.
+    const userCacheKey = `b2bUser-${viewAsUserId || usuario?.b2b_id || usuario?.id || ""}`;
+    if (_isB2bCacheValid(_b2bUserCacheTime, userCacheKey)) {
+      setB2bUser(_b2bUserCache.get(userCacheKey));
+      return;
+    }
+
     const fetchB2BUser = async () => {
-      const userIdEfectivo = viewAsUserId || usuario?.id;
       const lookupUrl = !viewAsUserId && usuario?.b2b_id
         ? `${urlApi}api/usuariosb2b/${usuario.b2b_id}`
         : `${urlApi}api/usuariosb2b/user/${userIdEfectivo}`;
@@ -329,6 +351,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
         if (response.ok) {
           const data = await response.json();
           setB2bUser(data);
+          _b2bUserCache.set(userCacheKey, data);
+          _b2bUserCacheTime.set(userCacheKey, Date.now());
           return;
         }
       } catch (_) {}
@@ -343,15 +367,15 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
           if (response.ok) {
             const data = await response.json();
             setB2bUser(data);
+            _b2bUserCache.set(userCacheKey, data);
+            _b2bUserCacheTime.set(userCacheKey, Date.now());
           }
         } catch (_) {}
       }
     };
 
-    if (viewAsUserId || usuario?.id || usuario?.b2b_id) {
-      fetchB2BUser();
-    }
-  }, [usuario, viewAsUserId]);
+    fetchB2BUser();
+  }, [usuario, viewAsUserId, token]);
 
   // Obtener el b2b_id del usuario
   useEffect(() => {
@@ -481,6 +505,15 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
       return;
     }
 
+    // Cache hit: hidratar sin red.
+    const cacheKey = `sub-${b2bId}`;
+    if (_isB2bCacheValid(_subCacheTime, cacheKey)) {
+      setSubscriptionData(_subCache.get(cacheKey));
+      setSubscriptionError(null);
+      setLoadingSubscription(false);
+      return;
+    }
+
     setLoadingSubscription(true);
     setSubscriptionError(null);
 
@@ -526,6 +559,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
       ) {
         setSubscriptionData(data);
         setSubscriptionError(null);
+        // Cachear respuesta exitosa
+        _subCache.set(`sub-${b2bId}`, data);
+        _subCacheTime.set(`sub-${b2bId}`, Date.now());
       } else {
         if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
           setSubscriptionData({
