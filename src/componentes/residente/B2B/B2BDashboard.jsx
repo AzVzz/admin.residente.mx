@@ -49,11 +49,16 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     token,
     viewAsUserId,
   );
-  // Índice del slide del carrusel: 0 = TOTAL, 1..N = restaurante[i-1].
+  // Con 2+ restaurantes el carrusel tiene el slide 0 = TOTAL agregado.
+  // Con 1 (o ninguno) no hay TOTAL y los slides son únicamente individuales.
+  const tieneTotal = restaurantes.length >= 2;
   const [slideActivo, setSlideActivo] = useState(0);
-  const restauranteActivo =
-    slideActivo === 0 ? null : restaurantes[slideActivo - 1] || null;
-  // Alias para botones de la columna 1 y modales (siempre apunta al primer restaurante en TOTAL).
+  const restauranteActivo = tieneTotal
+    ? slideActivo === 0
+      ? null
+      : restaurantes[slideActivo - 1] || null
+    : restaurantes[slideActivo] || null;
+  // Alias para botones de la columna 1 y modales (en TOTAL apunta al primero).
   const restaurante = restauranteActivo || restaurantes[0] || null;
   const restaurante2 = restaurantes[1] || null;
 
@@ -896,7 +901,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             alt="Club Residente Facil"
             className="h-12 w-auto object-contain mb-0"
           />
-          {restaurantes.length >= 2 ? (
+          {tieneTotal ? (
             <div className="w-full flex items-center justify-center gap-4">
               <button
                 type="button"
@@ -933,7 +938,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               {restaurante.nombre_restaurante}
             </h1>
           )}
-          {restaurantes.length >= 2 && (
+          {tieneTotal && (
             <div className="flex items-center justify-center gap-2 mt-1">
               {[{ esTotal: true }, ...restaurantes].map((s, i) => {
                 const label = s.esTotal

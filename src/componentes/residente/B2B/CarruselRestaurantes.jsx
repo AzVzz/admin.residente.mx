@@ -19,11 +19,15 @@ const CarruselRestaurantes = ({
   const startXRef = useRef(null);
   const trackRef = useRef(null);
 
-  // Slides: 0 = TOTAL, después uno por restaurante. Si solo hay 1, igual mostramos TOTAL primero.
-  const slides = [
-    { esTotal: true },
-    ...restaurantes.map((r) => ({ esTotal: false, restaurante: r })),
-  ];
+  // Con 2+ restaurantes el slide 0 es TOTAL agregado. Con 1 solo (o ninguno)
+  // no tiene sentido la vista TOTAL: los slides son únicamente individuales.
+  const tieneTotal = restaurantes.length >= 2;
+  const slides = tieneTotal
+    ? [
+        { esTotal: true },
+        ...restaurantes.map((r) => ({ esTotal: false, restaurante: r })),
+      ]
+    : restaurantes.map((r) => ({ esTotal: false, restaurante: r }));
 
   const totalSlides = slides.length;
 
