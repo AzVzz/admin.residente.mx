@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { recetasGetTodas, recetaBorrar } from "../../../api/recetasApi";
 import { FaTrash, FaEdit, FaCopy, FaEllipsisV, FaSearch } from "react-icons/fa";
 import { urlApi, imgApi } from "../../../api/url";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 import { useAuth } from "../../../Context";
 import useDebounce from "../../../../hooks/useDebounce";
@@ -340,9 +341,13 @@ const ListaRecetas = ({ onEditar, onCopiar, onRecetaEliminada }) => {
               >
                 {/* Imagen */}
                 <div className="relative h-64 overflow-hidden bg-gray-200">
-                  <img
+                  <ResponsiveImg
                     src={construirUrlImagen(receta)}
                     alt={receta.titulo}
+                    width={400}
+                    height={256}
+                    widths={[200, 400]}
+                    sizes="400px"
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       if (e.target.src.includes("SinFoto")) {

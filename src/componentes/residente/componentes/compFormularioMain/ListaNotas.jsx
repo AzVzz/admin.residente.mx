@@ -11,6 +11,7 @@ import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet";
 import { FaUser, FaStore, FaStar, FaMagnifyingGlass, FaCalendarDays } from "react-icons/fa6";
+import ResponsiveImg from "../../../ResponsiveImg";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
 import NotaCard from "./componentesListaNotas/NotaCard";
@@ -1106,9 +1107,15 @@ const ListaNotas = () => {
                             <div className="relative w-full aspect-[16/9] max-h-[400px] rounded-xl overflow-hidden shadow-xl group">
                               {/* Imagen de fondo */}
                               <Link to={`/dashboard/nota/editar/${notaActual?.id}`}>
-                                <img
+                                <ResponsiveImg
                                   src={notaActual?.imagen}
                                   alt={notaActual?.titulo}
+                                  width={1200}
+                                  height={675}
+                                  widths={[400, 800, 1200]}
+                                  sizes="(max-width: 768px) 100vw, 1080px"
+                                  loading="eager"
+                                  fetchPriority="high"
                                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
 
@@ -1169,9 +1176,13 @@ const ListaNotas = () => {
                                       : 'opacity-60 hover:opacity-100'
                                       }`}
                                   >
-                                    <img
+                                    <ResponsiveImg
                                       src={nota.imagen}
                                       alt={nota.titulo}
+                                      width={64}
+                                      height={40}
+                                      widths={[200]}
+                                      sizes="64px"
                                       className="w-full h-full object-cover"
                                     />
                                   </button>
@@ -1463,9 +1474,13 @@ const ListaNotas = () => {
                   <div key={restaurante.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
                     <div className="h-32 bg-gray-200 relative">
                       {restaurante.imagen_portada || restaurante.logo ? (
-                        <img
+                        <ResponsiveImg
                           src={restaurante.imagen_portada || restaurante.logo}
                           alt={restaurante.nombre}
+                          width={400}
+                          height={128}
+                          widths={[200, 400]}
+                          sizes="(max-width: 768px) 100vw, 400px"
                           className="w-full h-full object-cover"
                         />
                       ) : (
