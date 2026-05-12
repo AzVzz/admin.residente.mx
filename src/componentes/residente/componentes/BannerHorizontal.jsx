@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Skeleton from "@mui/material/Skeleton";
 import { revistaGetUltima } from "../../api/revistasGet";
 import { useData } from "../../DataContext";
+import ResponsiveImg from "../../ResponsiveImg";
 
 const BannerHorizontal = ({ size = "big", customImage = null, customPdf = null }) => {
   const { revistaActual, loadingRevista, updateRevistaData } = useData();
@@ -90,9 +91,14 @@ const BannerHorizontal = ({ size = "big", customImage = null, customPdf = null }
           rel="noopener noreferrer"
           className="block w-full h-full object-cover"
         >
-          <img
+          <ResponsiveImg
             src={revistaActual.imagen_banner}
             alt="Banner Revista"
+            width={1200}
+            height={200}
+            widths={[400, 800, 1200]}
+            sizes="(max-width: 768px) 100vw, 1200px"
+            loading="eager"
             className={`w-full h-full object-cover transition-opacity duration-300 ${
               bannerLoaded ? "opacity-100" : "opacity-0"
             }`}
@@ -100,9 +106,14 @@ const BannerHorizontal = ({ size = "big", customImage = null, customPdf = null }
           />
         </a>
       ) : (
-        <img
+        <ResponsiveImg
           src={revistaActual?.imagen_banner}
           alt="Banner Revista"
+          width={1200}
+          height={200}
+          widths={[400, 800, 1200]}
+          sizes="(max-width: 768px) 100vw, 1200px"
+          loading="eager"
           className={`w-full h-full object-cover transition-opacity duration-300 ${
             bannerLoaded ? "opacity-100" : "opacity-0"
           }`}

@@ -34,6 +34,7 @@ function ResponsiveImg({
   style,
   onError,
   onClick,
+  onLoad,
   draggable,
 }) {
   const set = imgSrcset(src, { widths, sizes, defaultWidth: width });
@@ -51,6 +52,7 @@ function ResponsiveImg({
   if (fetchPriority) imgProps.fetchPriority = fetchPriority;
   if (onError) imgProps.onError = onError;
   if (onClick) imgProps.onClick = onClick;
+  if (onLoad) imgProps.onLoad = onLoad;
   if (draggable !== undefined) imgProps.draggable = draggable;
 
   if (!set.isOptimized) {
