@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { urlApi, imgApi } from "../../../api/url";
 import { Link } from "react-router-dom";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 const INTERVAL_MS = 4000; // tiempo entre slides
 const SLIDE_MS = 600;     // duración de transición
@@ -16,7 +17,16 @@ const CarruselPosts = ({ restaurantes = [] }) => {
       : "https://via.placeholder.com/800x440?text=Sin+Imagen";
     return (
       <Link to={`/restaurantes/${rest.slug}`} className="block h-[400px] relative">
-        <img src={src} alt={rest?.nombre_restaurante ?? "Restaurante"} className="w-full h-full object-cover" />
+        <ResponsiveImg
+          src={src}
+          alt={rest?.nombre_restaurante ?? "Restaurante"}
+          width={800}
+          height={500}
+          widths={[400, 600, 800, 1200]}
+          sizes="(max-width: 768px) 100vw, 800px"
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
       </Link>
     );
   }
@@ -117,9 +127,13 @@ const CarruselPosts = ({ restaurantes = [] }) => {
           {slides.map((rest, i) => (
             <div key={(rest?.id ?? `s-${i}`) + "-" + i} className="min-w-full flex-none h-full relative">
               <Link to={`/restaurantes/${rest.slug}`} className="block h-full w-full">
-                <img
+                <ResponsiveImg
                   src={getSrc(rest)}
                   alt={getName(rest)}
+                  width={800}
+                  height={500}
+                  widths={[400, 600, 800, 1200]}
+                  sizes="(max-width: 768px) 100vw, 800px"
                   className="h-full w-full object-cover block"
                   loading={i === index ? "eager" : "lazy"}
                 />

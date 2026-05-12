@@ -9,6 +9,7 @@ import {
 } from "../../../api/bannersApi";
 import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye } from "react-icons/fa";
 import BannerForm from "./BannerForm";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 const estatusBadge = {
   activo: "bg-green-100 text-green-800 border-green-200",
@@ -240,20 +241,30 @@ const BannersList = () => {
                   /* Revista: solo portada */
                   <div className="bg-gray-100 flex justify-center py-3">
                     <div className="aspect-[3/4] w-28 relative rounded-md overflow-hidden shadow-md">
-                      <img
+                      <ResponsiveImg
                         src={b.imagen_portada}
                         alt="Portada"
+                        width={400}
+                        height={533}
+                        widths={[200, 400]}
+                        sizes="112px"
                         className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   </div>
                 ) : b.imagen_desktop ? (
                   /* Imagen/Newsletter: solo desktop */
                   <div className="aspect-[16/9] relative bg-gray-100">
-                    <img
+                    <ResponsiveImg
                       src={b.imagen_desktop}
                       alt={b.alt_text || b.nombre}
+                      width={600}
+                      height={338}
+                      widths={[400, 600, 800]}
+                      sizes="(max-width: 768px) 100vw, 400px"
                       className="absolute inset-0 w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                 ) : (
@@ -283,10 +294,15 @@ const BannersList = () => {
                             <FaDesktop className="text-[9px]" /> Banner
                           </p>
                           <div className="aspect-[4/1] relative rounded-lg overflow-hidden border border-gray-200">
-                            <img
+                            <ResponsiveImg
                               src={b.imagen_desktop}
                               alt="Banner"
+                              width={800}
+                              height={200}
+                              widths={[400, 600, 800]}
+                              sizes="(max-width: 768px) 100vw, 400px"
                               className="absolute inset-0 w-full h-full object-cover"
+                              loading="lazy"
                             />
                           </div>
                         </div>
@@ -325,10 +341,15 @@ const BannersList = () => {
                             <FaMobileAlt className="text-[9px]" /> Version mobile
                           </p>
                           <div className="aspect-[16/9] relative rounded-lg overflow-hidden border border-gray-200 max-w-[200px]">
-                            <img
+                            <ResponsiveImg
                               src={b.imagen_mobile}
                               alt="Mobile"
+                              width={400}
+                              height={225}
+                              widths={[200, 400]}
+                              sizes="200px"
                               className="absolute inset-0 w-full h-full object-cover"
+                              loading="lazy"
                             />
                           </div>
                         </div>

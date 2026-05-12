@@ -21,6 +21,7 @@ import BannerChevrolet from "./BannerChevrolet.jsx";
 import GiveawayDescuentos from "./componentesColumna2/GiveawayDescuentos.jsx";
 import { giveawayDescuentosGet } from '../../../componentes/api/giveawayDescuentosGet.js';
 import Colaboradores from "./componentesColumna2/Colaboradores.jsx";
+import ResponsiveImg from "../../ResponsiveImg";
 
 const ListadoBannerRevista = ({
     tiposNotas,
@@ -91,34 +92,48 @@ const ListadoBannerRevista = ({
                                                             download
                                                             className="inline-block"
                                                         >
-                                                            <img
+                                                            <ResponsiveImg
                                                                 src={revistaActual.imagen_banner}
                                                                 alt="Banner Revista"
+                                                                width={800}
+                                                                height={500}
+                                                                widths={[400, 600, 800, 1200]}
+                                                                sizes="(max-width: 768px) 100vw, 800px"
                                                                 className="w-full cursor-pointer"
-                                                                title="Descargar Revista"
+                                                                loading="lazy"
                                                             />
                                                         </a>
                                                     </div>
                                                 ) : (
-                                                    <img
+                                                    <ResponsiveImg
                                                         src={revistaActual?.imagen_banner}
                                                         alt="Banner Revista"
+                                                        width={800}
+                                                        height={500}
+                                                        widths={[400, 600, 800, 1200]}
+                                                        sizes="(max-width: 768px) 100vw, 800px"
                                                         className="w-full mb-11"
+                                                        loading="lazy"
                                                     />
                                                 )
                                             )}
                                         </div>
                                         <div className="flex items-center justify-center">
                                             {tipoLogo ? (
-                                                <img
+                                                <ResponsiveImg
                                                     src={tipoLogo}
                                                     alt={tipoLabel}
+                                                    width={600}
+                                                    height={200}
+                                                    widths={[400, 600, 800]}
+                                                    sizes="380px"
                                                     className={
                                                         tipo === "Antojos" ? "h-auto w-70 object-contain" :
                                                             tipo === "Gastro-Destinos" ? "h-auto w-95 object-contain" :
                                                                 tipo === "Food & Drink" ? "h-auto w-80 object-contain" :
                                                                     tipo === "Restaurantes" ? "h-auto w-85 object-contain" :
                                                                         "h-auto w-60 object-contain"}
+                                                    loading="lazy"
                                                 />
                                             ) : (
                                                 <span

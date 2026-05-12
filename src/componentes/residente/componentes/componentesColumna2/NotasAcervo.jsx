@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { urlApi, imgApi } from "../../../api/url.js";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 const CANTIDAD_NOTAS = 4;
 
@@ -366,10 +367,15 @@ const NotasAcervo = ({ onCardClick }) => {
                                             style={{ scrollSnapAlign: "start", width: `${itemWidth}px` }}
                                             onClick={() => onCardClick && onCardClick(nota)}
                                         >
-                                            <img
+                                            <ResponsiveImg
                                                 src={nota.imagen}
                                                 alt="Portada Revista"
+                                                width={400}
+                                                height={200}
+                                                widths={[200, 400]}
+                                                sizes="160px"
                                                 className="w-full h-28 object-cover"
+                                                loading="lazy"
                                             />
                                             <div className="flex flex-col mt-2 text-right">
                                                 <h2 className="text-black text-[14px] leading-4.5 text-wrap">

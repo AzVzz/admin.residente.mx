@@ -7,6 +7,7 @@ import StarIcon from "../../../iconos/StarIcon";
 import "./PlatilloEstrellaCarrusel.css";
 import useFitText from 'use-fit-text';
 import { urlApi, imgApi } from '../../api/url'
+import ResponsiveImg from "../../ResponsiveImg";
 
 // Componente de flecha personalizada
 function CustomArrow({ direction, onClick, modal = false }) {
@@ -114,10 +115,15 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
         <Slider {...settings}>
           {imagenes.map((img, index) => (
             <div key={index} onClick={() => openModal(index)} style={{ cursor: 'pointer' }}>
-              <img
+              <ResponsiveImg
                 src={img ? (img.startsWith('http') ? img : `${imgApi}${img}`) : "/placeholder.svg"}
                 alt={`Slide ${index + 1}`}
+                width={800}
+                height={600}
+                widths={[400, 800, 1200]}
+                sizes="(max-width: 768px) 100vw, 800px"
                 className="imagen-principal"
+                loading="lazy"
               />
             </div>
           ))}
@@ -185,10 +191,15 @@ const PlatilloEstrellaCarrusel = ({ imagenes = [], estrella, nombrePlatillo }) =
               {imagenes.map((img, index) => (
                 <div key={`modal-${index}`} className="flex items-center justify-center h-full">
                   <div className="flex items-center justify-center w-full h-full">
-                    <img
+                    <ResponsiveImg
                       src={img ? (img.startsWith('http') ? img : `${imgApi}${img}`) : "/placeholder.svg"}
                       alt={`Platillo ampliado ${index + 1}`}
+                      width={1200}
+                      height={900}
+                      widths={[600, 800, 1200, 1600]}
+                      sizes="(max-width: 768px) 100vw, 1200px"
                       className="max-w-full max-h-full object-contain"
+                      loading="lazy"
                     />
                   </div>
                 </div>

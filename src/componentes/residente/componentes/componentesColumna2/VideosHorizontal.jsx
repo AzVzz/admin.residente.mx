@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { urlApi, imgApi } from "../../../api/url";
 import { obtenerVideos } from "../../../api/videosApi";
 import { useAuth } from "../../../Context";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 const VIDEOS_POR_VISTA_DESKTOP = 7;
 const GAP_PX = 24;
@@ -17,9 +18,13 @@ const VideoCard = ({ video, onClick }) => (
         }}
     >
         <div className="aspect-[7/13] w-full overflow-hidden">
-            <img
+            <ResponsiveImg
                 src={video.imagen || `${urlApi}fotos/fotos-estaticas/fotodeprueba.png`}
                 alt={video.url || "video"}
+                width={400}
+                height={743}
+                widths={[200, 400, 600]}
+                sizes="(max-width: 768px) 50vw, 200px"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
             />

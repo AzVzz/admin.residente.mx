@@ -7,6 +7,7 @@ import {
   bannersGet,
 } from "../../../api/bannersApi";
 import { FaTimes, FaPlus, FaDesktop, FaMobileAlt, FaSearch, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 /* ── Aspect ratios por posición para mockup visual ── */
 const slotAspect = {
@@ -248,10 +249,15 @@ const BannerSlotManager = () => {
                                     {b.imagen_portada && (
                                       <div className="w-20 flex-shrink-0">
                                         <div className="aspect-[3/4] relative rounded-md overflow-hidden border border-gray-200 shadow-sm">
-                                          <img
+                                          <ResponsiveImg
                                             src={b.imagen_portada}
                                             alt="Portada"
+                                            width={400}
+                                            height={533}
+                                            widths={[200, 400]}
+                                            sizes="80px"
                                             className="absolute inset-0 w-full h-full object-cover"
+                                            loading="lazy"
                                           />
                                         </div>
                                         <p className="text-[9px] text-gray-400 text-center mt-1">Portada</p>
@@ -261,10 +267,15 @@ const BannerSlotManager = () => {
                                     <div className="flex-1 min-w-0">
                                       <div className={`relative ${aspect} w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200`}>
                                         {b.imagen_desktop ? (
-                                          <img
+                                          <ResponsiveImg
                                             src={b.imagen_desktop}
                                             alt={b.alt_text || b.nombre}
+                                            width={800}
+                                            height={400}
+                                            widths={[400, 600, 800]}
+                                            sizes="(max-width: 768px) 100vw, 400px"
                                             className="absolute inset-0 w-full h-full object-cover"
+                                            loading="lazy"
                                           />
                                         ) : (
                                           <div className="absolute inset-0 flex items-center justify-center text-gray-300 text-xs">
@@ -288,10 +299,15 @@ const BannerSlotManager = () => {
                                   /* Imagen/Newsletter: solo banner en aspect ratio del slot */
                                   <div className={`relative ${aspect} w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200`}>
                                     {b.imagen_desktop ? (
-                                      <img
+                                      <ResponsiveImg
                                         src={b.imagen_desktop}
                                         alt={b.alt_text || b.nombre}
+                                        width={800}
+                                        height={400}
+                                        widths={[400, 600, 800]}
+                                        sizes="(max-width: 768px) 100vw, 400px"
                                         className="absolute inset-0 w-full h-full object-cover"
+                                        loading="lazy"
                                       />
                                     ) : (
                                       <div className="absolute inset-0 flex items-center justify-center text-gray-300 text-xs">

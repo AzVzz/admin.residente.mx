@@ -1,4 +1,5 @@
 import { urlApi, imgApi } from '../../componentes/api/url.js'
+import ResponsiveImg from '../../../../ResponsiveImg'
 
 const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, fecha, nombreRestaurante }) => {
     return (
@@ -9,9 +10,15 @@ const PostPrincipal = ({ titulo, subtitulo, autor, contenido, imagen, tipoNota, 
                         <div className="absolute top-8 left-7 z-10 bg-gradient-to-r bg-[#FFF300] text-gray-900 text-[11px] font-semibold px-3 py-0.5 shadow-md font-serif uppercase">
                             {fecha || "Fecha"}
                         </div>
-                        <img
+                        <ResponsiveImg
                             src={imagen || "https://residente.mx/fotos/fotos-estaticas/residente-columna1/SinFoto.webp"}
+                            alt={titulo || "Sin titulo"}
+                            width={800}
+                            height={500}
+                            widths={[400, 600, 800, 1200]}
+                            sizes="(max-width: 768px) 100vw, 720px"
                             className="w-full h-full object-cover"
+                            loading="lazy"
                         />
                     </div>
                 </div>

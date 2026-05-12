@@ -34,12 +34,24 @@ export default defineConfig({
       // Sin manifest - solo cache
       manifest: false,
       workbox: {
+        // Forzar activacion inmediata del SW nuevo (sin esperar reload).
+        // Sin esto, despues de un deploy los users siguen con el SW viejo
+        // hasta que reinicien el browser.
+        skipWaiting: true,
+        clientsClaim: true,
         // Archivos a precachear
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
         // Ruta correcta para SPA fallback con base /admin/
         navigateFallback: "/admin/index.html",
-        // No interceptar rutas de API
-        navigateFallbackDenylist: [/^\/api\//],
+        // CRITICO: NO interceptar archivos con extension. Sin esto, despues
+        // de un deploy nuevo, el browser pide chunks viejos (.js con hash
+        // antiguo) que ya no existen -> SW sirve index.html (text/html) ->
+        // "Failed to load module script" + pagina en blanco.
+        // Solo el / (root) y rutas SPA deben caer en el fallback.
+        navigateFallbackDenylist: [
+          /^\/api\//,
+          /\.(js|css|map|json|webp|avif|jpg|jpeg|png|gif|svg|woff2?|ttf|ico)(\?.*)?$/i,
+        ],
         // 🚀 Estrategias de cache en runtime
         runtimeCaching: [
           // Assets estáticos - CacheFirst (sirve del cache, muy rápido)

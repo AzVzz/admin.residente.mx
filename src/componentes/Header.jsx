@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { useAuth } from "./Context";
+import ResponsiveImg from "./ResponsiveImg";
 
 const MEGAMENU_COLUMNAS = [
   "minmax(min-content, 135px)",
@@ -329,7 +330,15 @@ const Header = () => {
               </a>
             ) : ultimaRevista?.imagen_banner ? (
               <a href={ultimaRevista.pdf || "#"} target="_blank" rel="noopener noreferrer" onClick={handleBannerClick}>
-                <img src={ultimaRevista.imagen_banner} alt={ultimaRevista.titulo || "Banner Principal"} />
+                <ResponsiveImg
+                  src={ultimaRevista.imagen_banner}
+                  alt={ultimaRevista.titulo || "Banner Principal"}
+                  width={1200}
+                  height={200}
+                  widths={[400, 800, 1200]}
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  loading="eager"
+                />
               </a>
             ) : null}
           </div>
