@@ -34,6 +34,10 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
     : [];
   const [galeria, setGaleria] = useState(inicialesGaleria);
   const [imagenesBorrar, setImagenesBorrar] = useState([]);
+  const [logoArchivo, setLogoArchivo] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(
+    proyecto?.logo ? `${imgApi}${proyecto.logo.replace(/^\//, "")}` : null
+  );
 
   const [isPosting, setIsPosting] = useState(false);
   const [error, setError] = useState(null);
@@ -89,6 +93,16 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
     });
   };
 
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoArchivo(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setLogoPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) {
@@ -129,6 +143,9 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
 
       if (imagenesBorrar.length > 0) {
         formData.append("imagenes_borrar", JSON.stringify(imagenesBorrar));
+      }
+      if (logoArchivo) {
+        formData.append("logo", logoArchivo);
       }
 
       if (esEdicion) {
@@ -322,6 +339,31 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Logo */}
+        <div className="flex flex-col sm:col-span-2">
+          <label className="text-sm font-medium text-gray-700 mb-1">
+            Logo
+          </label>
+          <div className="flex items-center gap-4">
+            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoChange}
+              />
+              {logoPreview ? "Cambiar logo" : "Subir logo"}
+            </label>
+            {logoPreview && (
+              <img
+                src={logoPreview}
+                alt="logo preview"
+                className="h-20 w-auto rounded-lg border bg-white object-contain p-2"
+              />
+            )}
+          </div>
         </div>
       </div>
 

@@ -140,6 +140,13 @@ const ListaMediainc = () => {
                         Sin imagen
                       </div>
                     )}
+                    {proyecto.logo && (
+                      <img
+                        src={`${imgApi}${proyecto.logo.replace(/^\//, "")}`}
+                        alt={`${proyecto.titulo} logo`}
+                        className="absolute top-2 left-2 h-10 w-auto bg-white rounded-md shadow p-1 object-contain"
+                      />
+                    )}
                     {galeria.length > 0 && (
                       <span className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                         {galeria.length} imagen{galeria.length === 1 ? "" : "es"}
