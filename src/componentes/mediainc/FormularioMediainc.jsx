@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../Context";
 import { mediaincCrear, mediaincEditar } from "../api/mediaincApi";
 import { imgApi } from "../api/url";
@@ -41,6 +41,20 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
 
   const [isPosting, setIsPosting] = useState(false);
   const [error, setError] = useState(null);
+
+  // Snapshot de los valores con los que se abrió el form. Lo usamos para que
+  // en edición solo se envíen los campos que el usuario realmente modificó.
+  // Previene que dos personas editando al mismo tiempo se pisen entre sí los
+  // cambios: si tu form tiene datos viejos y solo cambias la descripción,
+  // únicamente la descripción viaja al backend.
+  const valoresIniciales = useRef({
+    titulo: (proyecto?.titulo || "").trim(),
+    descripcion: (proyecto?.descripcion || "").trim(),
+    categoria: (proyecto?.categoria || "").trim(),
+    link: (proyecto?.link || "").trim(),
+    fechaProyecto: proyecto?.fecha_proyecto || "",
+    galeriaRefs: inicialesGaleria.map((g) => `id:${g.id}`).join("|"),
+  });
 
   const handlePortadaChange = (e) => {
     const file = e.target.files?.[0];
@@ -115,42 +129,74 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
 
     try {
       const formData = new FormData();
-      formData.append("titulo", titulo.trim());
-      formData.append("descripcion", descripcion.trim());
-      formData.append("categoria", categoria.trim());
-      formData.append("link", link.trim());
-      formData.append("fecha_proyecto", fechaProyecto);
+      const tituloLimpio = titulo.trim();
+      const descripcionLimpia = descripcion.trim();
+      const categoriaLimpia = categoria.trim();
+      const linkLimpio = link.trim();
 
-      if (archivoPortada) {
-        formData.append("imagen", archivoPortada);
-      }
+      // Construye la representación actual de la galería para comparar contra
+      // la inicial: detecta agregados (item.file), removidos o reordenados.
+      const refsActuales = galeria
+        .map((item) => (item.id ? `id:${item.id}` : item.ref))
+        .join("|");
+      const ini = valoresIniciales.current;
+      const galeriaCambio =
+        refsActuales !== ini.galeriaRefs ||
+        galeria.some((g) => g.file) ||
+        imagenesBorrar.length > 0;
 
-      // Adjuntar archivos nuevos en orden y construir array de orden final.
-      // Para nuevas, usamos "nueva:<idx>" donde idx es la posición en el FormData.
-      const ordenFinal = [];
-      let idxNueva = 0;
-      galeria.forEach((item) => {
-        if (item.file) {
-          formData.append("imagenes", item.file);
-          ordenFinal.push(`nueva:${idxNueva}`);
-          idxNueva += 1;
-        } else if (item.id) {
-          ordenFinal.push(item.id);
+      const appendGaleria = () => {
+        const ordenFinal = [];
+        let idxNueva = 0;
+        galeria.forEach((item) => {
+          if (item.file) {
+            formData.append("imagenes", item.file);
+            ordenFinal.push(`nueva:${idxNueva}`);
+            idxNueva += 1;
+          } else if (item.id) {
+            ordenFinal.push(item.id);
+          }
+        });
+        formData.append("imagenes_orden", JSON.stringify(ordenFinal));
+        if (imagenesBorrar.length > 0) {
+          formData.append("imagenes_borrar", JSON.stringify(imagenesBorrar));
         }
-      });
-
-      formData.append("imagenes_orden", JSON.stringify(ordenFinal));
-
-      if (imagenesBorrar.length > 0) {
-        formData.append("imagenes_borrar", JSON.stringify(imagenesBorrar));
-      }
-      if (logoArchivo) {
-        formData.append("logo", logoArchivo);
-      }
+      };
 
       if (esEdicion) {
+        // Solo enviar los campos que realmente cambiaron, así no pisamos
+        // los cambios que otra persona haya hecho en paralelo a este proyecto.
+        if (tituloLimpio !== ini.titulo)
+          formData.append("titulo", tituloLimpio);
+        if (descripcionLimpia !== ini.descripcion)
+          formData.append("descripcion", descripcionLimpia);
+        if (categoriaLimpia !== ini.categoria)
+          formData.append("categoria", categoriaLimpia);
+        if (linkLimpio !== ini.link) formData.append("link", linkLimpio);
+        if (fechaProyecto !== ini.fechaProyecto)
+          formData.append("fecha_proyecto", fechaProyecto);
+        if (archivoPortada) formData.append("imagen", archivoPortada);
+        if (logoArchivo) formData.append("logo", logoArchivo);
+        if (galeriaCambio) appendGaleria();
+
+        const sinCambios = [...formData.keys()].length === 0;
+        if (sinCambios) {
+          onGuardado();
+          return;
+        }
+
         await mediaincEditar(proyecto.id, formData, token);
       } else {
+        // Creación: enviar todo
+        formData.append("titulo", tituloLimpio);
+        formData.append("descripcion", descripcionLimpia);
+        formData.append("categoria", categoriaLimpia);
+        formData.append("link", linkLimpio);
+        formData.append("fecha_proyecto", fechaProyecto);
+        if (archivoPortada) formData.append("imagen", archivoPortada);
+        if (logoArchivo) formData.append("logo", logoArchivo);
+        appendGaleria();
+
         await mediaincCrear(formData, token);
       }
 
