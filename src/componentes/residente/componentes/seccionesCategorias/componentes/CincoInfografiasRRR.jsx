@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { infografiasGet } from "../../../../../componentes/api/infografiasGet.js";
 import { urlApi, imgApi } from "../../../../../componentes/api/url.js";
 import { HiArrowDownTray, HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
+import ResponsiveImg from "../../../../../componentes/ResponsiveImg";
 
 const INFOGRAFIAS_POR_VISTA_DESKTOP = 5; // como la foto 2
 const GAP_PX = 20; // Tailwind gap-5 ≈ 20px
@@ -22,10 +23,15 @@ const TarjetaVerticalInfografia = ({ infografia, onClick }) => (
       
       {/* Imagen de la infografía */}
       <div className="h-804w-full flex justify-center items-center bg-gray-55 rounded-lg p-1">
-        <img
+        <ResponsiveImg
           src={infografia.info_imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
           alt="Infografía"
+          width={400}
+          height={600}
+          widths={[200, 400, 600]}
+          sizes="(max-width: 768px) 33vw, 200px"
           className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 shadow-[3px_3px_6px_rgba(0,0,0,0.2)]"
+          loading="lazy"
         />
       </div>
     </div>
@@ -250,10 +256,15 @@ const CincoInfografiasRRR = () => {
               </div>
             </div>
             <div className="p-4 overflow-auto max-h-[70vh]">
-              <img
+              <ResponsiveImg
                 src={infografiaExpandida.info_imagen}
                 alt={infografiaExpandida.titulo || "Infografía expandida"}
+                width={1200}
+                height={1600}
+                widths={[600, 800, 1200, 1600]}
+                sizes="(max-width: 768px) 100vw, 1000px"
                 className="w-full h-auto"
+                loading="lazy"
               />
             </div>
           </div>

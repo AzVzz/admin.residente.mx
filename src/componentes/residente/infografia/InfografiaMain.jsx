@@ -11,6 +11,7 @@ import { infografiasGet } from '../../api/infografiasGet.js';
 import './InfografiaMain.css';
 import Infografia from '../componentes/componentesColumna1/Infografia';
 import { urlApi, imgApi } from '../../api/url.js';
+import ResponsiveImg from '../../ResponsiveImg';
 
 const InfografiaMain = () => {
   const { revistaActual } = useData();
@@ -236,10 +237,15 @@ const InfografiaMain = () => {
                 <HiArrowDownTray />
               </button>
             </div>
-            <img
+            <ResponsiveImg
               src={infografiaExpandida.info_imagen}
               alt="Infografía expandida"
+              width={1200}
+              height={1600}
+              widths={[600, 800, 1200, 1600]}
+              sizes="(max-width: 768px) 100vw, 1000px"
               className="infografia-modal-image"
+              loading="lazy"
             />
           </div>
         </div>

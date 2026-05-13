@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { notasResidenteGet } from "../../../api/notasPublicadasGet";
 import { urlApi, imgApi } from "../../../api/url.js";
 import { useData } from "../../../DataContext";
+import ResponsiveImg from "../../../ResponsiveImg";
 
 const apodaca = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/apo.webp`;
 const escobedo = `${urlApi}fotos/fotos-estaticas/componente-iconos/iconos-negros/esc.webp`;
@@ -70,11 +71,15 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                             <div className="flex-shrink-0 w-[180px] h-full flex items-center justify-center">
                                 {revistaActual && revistaActual.pdf ? (
                                     <a href={revistaActual.pdf} target="_blank" rel="noopener noreferrer" download>
-                                        <img
+                                        <ResponsiveImg
                                             src={revistaActual.imagen_portada}
                                             alt="Portada Revista"
+                                            width={400}
+                                            height={500}
+                                            widths={[200, 400, 600]}
+                                            sizes="180px"
                                             className="w-full h-full object-cover cursor-pointer shadow-[4px_3px_2px_rgba(0,0,0,0.3)]"
-                                            title="Descargar PDF"
+                                            loading="lazy"
                                         />
                                     </a>
                                 ) : (
@@ -114,7 +119,16 @@ const EnPortada = ({ notasResidenteGet, onCardClick }) => {
                                 className="relative w-40 cursor-pointer"
                                 onClick={() => onCardClick && onCardClick(nota)}
                             >
-                                <img src={nota.imagen} alt="Portada Revista" className="w-full h-28 object-cover " />
+                                <ResponsiveImg
+                                    src={nota.imagen}
+                                    alt="Portada Revista"
+                                    width={400}
+                                    height={200}
+                                    widths={[200, 400]}
+                                    sizes="160px"
+                                    className="w-full h-28 object-cover "
+                                    loading="lazy"
+                                />
                                 <div className="flex flex-col mt-2 text-right">
                                     <h2 className="text-black text-[14px] leading-4.5 text-wrap">{nota.titulo}</h2>
                                 </div>

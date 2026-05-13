@@ -3,6 +3,7 @@ import MainLateralPostTarjetas from './componentesColumna2/MainLateralPostTarjet
 import BotonesAnunciateSuscribirme from './componentesColumna1/BotonesAnunciateSuscribirme';
 import DirectorioVertical from './componentesColumna2/DirectorioVertical';
 import { urlApi, imgApi } from '../../api/url.js';
+import ResponsiveImg from '../../ResponsiveImg';
 import BarraMarquee from './seccionesCategorias/componentes/BarraMarquee.jsx';
 import CincoNotasRRR from './seccionesCategorias/componentes/CincoNotasRRR.jsx';
 import EnPortada from './componentesColumna2/EnPortada';
@@ -53,10 +54,15 @@ const DetalleBannerRevista = ({
                                 <div className="relative flex justify-center items-center mb-6">
                                     <div className="absolute left-0 right-0 top-1/2 border-t-4 border-transparent opacity-100 z-0" aria-hidden="true" />
                                     <div className="relative z-10 px-4">
-                                        <img
+                                        <ResponsiveImg
                                             src={tipoLogo}
                                             alt={tipo}
+                                            width={400}
+                                            height={120}
+                                            widths={[200, 400, 600]}
+                                            sizes="240px"
                                             className={tipo === "Antojos" ? "h-auto w-60 object-contain" : "h-auto w-60 object-contain"}
+                                            loading="lazy"
                                         />
                                     </div>
                                 </div>

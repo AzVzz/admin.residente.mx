@@ -5,6 +5,7 @@ import DirectorioVertical from "../componentes/componentesColumna2/DirectorioVer
 import PortadaRevista from "../componentes/componentesColumna2/PortadaRevista";
 import BotonesAnunciateSuscribirme from "../componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "../componentes/componentesColumna1/Infografia";
+import ResponsiveImg from "../../ResponsiveImg";
 
 const DetalleColaborador = () => {
     const { id } = useParams();
@@ -61,10 +62,15 @@ const DetalleColaborador = () => {
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
                             {/* Foto circular */}
                             <div className="w-[220px] h-[220px] rounded-full overflow-hidden border-4 border-[#fff300] flex-shrink-0 shadow-lg bg-white">
-                                <img
+                                <ResponsiveImg
                                     src={colaborador.fotografia}
                                     alt={colaborador.nombre}
+                                    width={400}
+                                    height={400}
+                                    widths={[200, 400, 600]}
+                                    sizes="220px"
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                 />
                             </div>
                             {/* Nombre y curriculum */}
@@ -95,10 +101,15 @@ const DetalleColaborador = () => {
                                                 {pub.imagen && (
                                                     <div className="h-[450px] overflow-hidden">
                                                         <div className="relative h-full">
-                                                            <img
+                                                            <ResponsiveImg
                                                                 src={pub.imagen}
                                                                 alt={pub.titulo}
+                                                                width={800}
+                                                                height={500}
+                                                                widths={[400, 600, 800, 1200]}
+                                                                sizes="(max-width: 768px) 100vw, 720px"
                                                                 className="w-full h-full object-cover"
+                                                                loading="lazy"
                                                             />
                                                         </div>
                                                     </div>
