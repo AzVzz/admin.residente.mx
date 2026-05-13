@@ -281,9 +281,11 @@ const FormularioMediainc = ({ proyecto, onGuardado, onCancelar }) => {
             Fecha del proyecto
           </label>
           <input
-            type="date"
+            type="text"
             value={fechaProyecto}
             onChange={(e) => setFechaProyecto(e.target.value)}
+            placeholder='Ej. "Febrero 2026", "2025 - 2026"...'
+            maxLength={100}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
           />
         </div>
