@@ -1014,6 +1014,36 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
           </p>
         </div>
       )}
+      {/* Centro de mensajes B2B */}
+      <div className="w-full mt-4 px-3 mb-8">
+        {loadingAnuncios ? (
+          <p className="text-gray-500 text-sm">Cargando anuncios...</p>
+        ) : anuncios.length === 0 ? (
+          <p className="text-gray-400 text-sm">
+            No hay anuncios por el momento.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {anuncios.map((anuncio) => (
+              <div
+                key={anuncio.id}
+                className={`border p-4 ${
+                  anuncio.tipo === "alerta" || anuncio.tipo === "promo"
+                    ? "border-yellow-300 bg-yellow-50"
+                    : "border-gray-300 bg-gray-50"
+                }`}
+              >
+                <h3 className="text-2xl font-bold text-black font-roman">
+                  {anuncio.titulo}
+                </h3>
+                <p className="text-md text-gray-700 mt-1">
+                  {anuncio.contenido}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       {/* Grid de 3 columnas */}
       <div className="w-full grid grid-cols-3 mb-10 relative items-stretch">
         {/* Línea divisoria izquierda - empieza más abajo */}
@@ -1606,57 +1636,6 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             </div>
           </div>
         </div>
-      </div>
-      {/* Sección de Anuncios B2B */}
-      <div className="max-w-[1080px] mx-auto mt-8 px-4 mb-8">
-        <h2 className="text-6xl font-bold text-black mb-4 text-center tracking-tighter">
-          Centro de mensajes
-        </h2>
-        {loadingAnuncios ? (
-          <p className="text-gray-500 text-sm">Cargando anuncios...</p>
-        ) : anuncios.length === 0 ? (
-          <p className="text-gray-400 text-sm">
-            No hay anuncios por el momento.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {anuncios.map((anuncio) => (
-              <div
-                key={anuncio.id}
-                className={`border p-4 ${
-                  anuncio.tipo === "alerta"
-                    ? "border-red-300 bg-red-50"
-                    : anuncio.tipo === "promo"
-                      ? "border-yellow-300 bg-yellow-50"
-                      : anuncio.tipo === "novedad"
-                        ? "border-blue-300 bg-blue-50"
-                        : "border-gray-200 bg-white"
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-md font-bold uppercase tracking-wide text-gray-800">
-                    {anuncio.tipo}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {new Date(
-                      anuncio.created_at || anuncio.createdAt,
-                    ).toLocaleDateString("es-MX", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-bold text-black font-roman">
-                  {anuncio.titulo}
-                </h3>
-                <p className="text-md text-gray-700 mt-1">
-                  {anuncio.contenido}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Modal para cupon ampliado */}

@@ -18,7 +18,6 @@ const MetricasRestaurante = ({
   todosLosRestaurantes = [],
   todosLosCupones = [],
 }) => {
-  const [openTooltip, setOpenTooltip] = useState(null);
   const [notasOrden, setNotasOrden] = useState("vistas");
   const [notasExpandidas, setNotasExpandidas] = useState(false);
 
@@ -148,19 +147,9 @@ const MetricasRestaurante = ({
           </p>
         )}
 
-        <div className="flex items-start gap-1">
-          <p className="text-[40px] font-bold text-black leading-[1]">
-            {sumViewsRestaurante.toLocaleString("es-MX")}
-          </p>
-          <span
-            className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-            onClick={() =>
-              setOpenTooltip(openTooltip === "dir-vistas" ? null : "dir-vistas")
-            }
-          >
-            ?
-          </span>
-        </div>
+        <p className="text-[40px] font-bold text-black leading-[1]">
+          {sumViewsRestaurante.toLocaleString("es-MX")}
+        </p>
         <p className="text-sm text-black -mt-1">
           {esTotal
             ? "Vistas combinadas de tus restaurantes"
@@ -169,19 +158,9 @@ const MetricasRestaurante = ({
       </div>
 
       <div className="mb-9">
-        <div className="flex items-start gap-1">
-          <p className="text-[40px] font-bold text-black leading-[1]">
-            {sumClicksRestaurante.toLocaleString("es-MX")}
-          </p>
-          <span
-            className="relative cursor-pointer text-[11px] bg-black text-white rounded-full w-4 h-4 flex items-center justify-center mt-1"
-            onClick={() =>
-              setOpenTooltip(openTooltip === "dir-clicks" ? null : "dir-clicks")
-            }
-          >
-            ?
-          </span>
-        </div>
+        <p className="text-[40px] font-bold text-black leading-[1]">
+          {sumClicksRestaurante.toLocaleString("es-MX")}
+        </p>
         <p className="text-sm text-black -mt-1">
           {esTotal
             ? "Clicks combinados de tus restaurantes"

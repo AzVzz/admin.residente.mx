@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   FaChartBar,
-  FaBookOpen,
   FaVideo,
   FaGift,
   FaCalendarAlt,
@@ -29,12 +28,6 @@ const BENEFICIOS_INFO = [
     Icono: FaVideo,
   },
   {
-    key: "revista_residente",
-    label: "Revista Residente",
-    descripcion: "1 Pagina en Revista Residente. A escoger en 1 de 12 meses",
-    Icono: FaBookOpen,
-  },
-  {
     key: "suscripcion_extra",
     label: "2da Membresia gratis",
     descripcion: "Inscribe gratis a otra marca perteneciente a tu mismo grupo de negocios",
@@ -53,7 +46,7 @@ const SelectorBeneficiosB2B = ({
 
   const meses = parseInt(numMeses, 10) || numMeses;
   const maxSeleccion = todosIncluidos
-    ? 5
+    ? 4
     : meses === 6
       ? 1
       : meses === 12
@@ -105,7 +98,7 @@ const SelectorBeneficiosB2B = ({
             </h1>
             <p className="text-gray-600 text-center">
               Tu plan anual de {numMeses} meses incluye los{" "}
-              <span className="font-bold">5 beneficios adicionales</span> sin
+              <span className="font-bold">4 beneficios adicionales</span> sin
               costo extra.
             </p>
             <p className="text-sm text-green-600 text-center mt-2 font-medium">
