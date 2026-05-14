@@ -1,6 +1,27 @@
 import { useFormContext } from "react-hook-form";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { urlApi } from "../../api/url";
+import { useAuth } from "../../Context";
+
+function formatOpeningHoursForDisplay(oh) {
+  if (!oh) return "";
+  let parsed = oh;
+  if (typeof oh === "string") {
+    try { parsed = JSON.parse(oh); } catch { return oh; }
+  }
+  if (Array.isArray(parsed?.weekday_text)) return parsed.weekday_text.join("\n");
+  if (parsed?.summary) return parsed.summary;
+  if (parsed?.raw_osm) return parsed.raw_osm;
+  return "";
+}
+
+const PLACES_FIELD_LABELS = {
+  formatted_phone_number: "Teléfono",
+  opening_hours: "Horarios",
+  website: "Sitio web",
+  google_rating: "Calificación Google",
+  google_user_ratings_total: "Reseñas Google",
+};
 
 // Las URLs de Google Maps pueden anidar varios POIs en el query "data=".
 // Cada "place cluster" viene como: !1s<place_id>!2s<name>!8m2!3d<lat>!4d<lng>.
@@ -304,18 +325,74 @@ function loadLeaflet() {
 
 const Geolocalizacion = () => {
   const { register, watch, setValue, formState: { errors } } = useFormContext();
+  const { token } = useAuth();
   const [pastedUrl, setPastedUrl] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [mapaAbierto, setMapaAbierto] = useState(false);
   const [autollenandoDir, setAutollenandoDir] = useState(false);
   const [buscandoNombre, setBuscandoNombre] = useState(false);
   const [ubicandoDir, setUbicandoDir] = useState(false);
+  const [placesLoading, setPlacesLoading] = useState(false);
+  const [placesError, setPlacesError] = useState(null);
+  const [placesPreview, setPlacesPreview] = useState(null);
+  const [placesFieldsSelected, setPlacesFieldsSelected] = useState({});
 
   const lat = watch("lat");
   const lng = watch("lng");
   const direccionActual = watch("direccion");
   const nombreRestaurante = watch("nombre_restaurante");
   const sucursales = watch("sucursales");
+  const restauranteId = watch("id");
+  const placesSyncedAt = watch("places_synced_at");
+  const placesSource = watch("places_source");
+
+  const refrescarPlaces = async (force = false) => {
+    if (!restauranteId) return;
+    setPlacesLoading(true);
+    setPlacesError(null);
+    setPlacesPreview(null);
+    try {
+      const url = `${urlApi}api/restaurante/${restauranteId}/places-refresh${force ? "?force=1" : ""}`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (!res.ok) {
+        setPlacesError(data.error || `HTTP ${res.status}`);
+        return;
+      }
+      setPlacesPreview(data);
+      const checked = {};
+      for (const k of Object.keys(data.data || {})) {
+        if (data.data[k] != null) checked[k] = true;
+      }
+      setPlacesFieldsSelected(checked);
+    } catch (e) {
+      setPlacesError(e.message);
+    } finally {
+      setPlacesLoading(false);
+    }
+  };
+
+  const aplicarPlaces = () => {
+    if (!placesPreview?.data) return;
+    const d = placesPreview.data;
+    if (placesFieldsSelected.formatted_phone_number && d.formatted_phone_number) {
+      setValue("formatted_phone_number", d.formatted_phone_number, { shouldDirty: true });
+    }
+    if (placesFieldsSelected.opening_hours && d.opening_hours) {
+      setValue("opening_hours", JSON.stringify(d.opening_hours), { shouldDirty: true });
+    }
+    if (placesFieldsSelected.website && d.website) {
+      setValue("sitio_web", d.website, { shouldDirty: true });
+    }
+    if (placesFieldsSelected.google_rating && d.google_rating != null) {
+      setValue("google_rating", d.google_rating, { shouldDirty: true });
+    }
+    if (placesFieldsSelected.google_user_ratings_total && d.google_user_ratings_total != null) {
+      setValue("google_user_ratings_total", d.google_user_ratings_total, { shouldDirty: true });
+    }
+    setPlacesPreview(null);
+    setPlacesFieldsSelected({});
+  };
 
   const construirQueriesNombre = useCallback(() => {
     const n = (nombreRestaurante || "").trim();
@@ -760,6 +837,160 @@ const Geolocalizacion = () => {
             Ver {lat}, {lng} en Google Maps →
           </a>
         )}
+
+        <div className="input-group">
+          <label>Información de Google Places</label>
+          <div className="geo-url-row">
+            <button
+              type="button"
+              className="geo-btn"
+              onClick={() => refrescarPlaces(false)}
+              disabled={!restauranteId || placesLoading}
+              title={
+                !restauranteId
+                  ? "Guarda el restaurante primero"
+                  : "Trae teléfono, horarios, rating y servicios desde Google Maps"
+              }
+            >
+              {placesLoading ? "Cargando…" : "Refrescar desde Google"}
+            </button>
+            {placesSyncedAt && (
+              <small className="geo-help" style={{ alignSelf: "center" }}>
+                Última sync:{" "}
+                {new Date(placesSyncedAt).toLocaleString("es-MX", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
+                {placesSource && ` · ${placesSource}`}
+              </small>
+            )}
+          </div>
+          {!restauranteId && (
+            <small className="geo-help">
+              Guarda el restaurante primero. Después podrás traer datos desde Google.
+            </small>
+          )}
+          {placesError && (
+            <div className="geo-feedback err">
+              {placesError}
+              {/\bdias\b/i.test(placesError) && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="geo-btn geo-btn--ghost"
+                    onClick={() => refrescarPlaces(true)}
+                  >
+                    Forzar
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+          {placesPreview && (
+            <div className="geo-feedback ok">
+              <div style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
+                Preview {placesPreview.source && `(fuente: ${placesPreview.source})`}
+                {placesPreview.matched_name && ` · matched: ${placesPreview.matched_name}`}
+                {placesPreview.low_confidence && " · ⚠ baja confianza"}
+              </div>
+              {Object.keys(placesPreview.data || {}).length === 0 ? (
+                <small className="geo-help">Google no devolvió datos para este lugar.</small>
+              ) : (
+                <>
+                  <table style={{ width: "100%", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
+                    <tbody>
+                      {Object.entries(placesPreview.data).map(([key, value]) => (
+                        <tr key={key}>
+                          <td style={{ width: "30px", verticalAlign: "top", padding: "0.25rem 0" }}>
+                            <input
+                              type="checkbox"
+                              checked={!!placesFieldsSelected[key]}
+                              onChange={(e) =>
+                                setPlacesFieldsSelected((s) => ({ ...s, [key]: e.target.checked }))
+                              }
+                            />
+                          </td>
+                          <td style={{ width: "160px", verticalAlign: "top", padding: "0.25rem 0.5rem", fontWeight: 500 }}>
+                            {PLACES_FIELD_LABELS[key] || key}
+                          </td>
+                          <td style={{ verticalAlign: "top", padding: "0.25rem 0", whiteSpace: "pre-wrap" }}>
+                            {key === "opening_hours"
+                              ? formatOpeningHoursForDisplay(value)
+                              : typeof value === "object"
+                                ? JSON.stringify(value)
+                                : String(value)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="geo-url-row">
+                    <button type="button" className="geo-btn" onClick={aplicarPlaces}>
+                      Aplicar seleccionados
+                    </button>
+                    <button
+                      type="button"
+                      className="geo-btn geo-btn--ghost"
+                      onClick={() => {
+                        setPlacesPreview(null);
+                        setPlacesFieldsSelected({});
+                      }}
+                    >
+                      Descartar
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="formatted_phone_number">Teléfono formateado (Google)</label>
+          <input
+            id="formatted_phone_number"
+            type="text"
+            placeholder="81 1234 5678"
+            {...register("formatted_phone_number", { maxLength: 40 })}
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="opening_hours">Horarios</label>
+          <textarea
+            id="opening_hours"
+            rows={4}
+            placeholder='{"weekday_text":["lunes: 10 a.m. – 10 p.m.", ...]} o texto libre'
+            {...register("opening_hours")}
+          />
+          <small className="geo-help">
+            JSON con weekday_text por día, o resumen tipo "Cierra a las 11 p.m."
+          </small>
+        </div>
+
+        <div className="geo-latlng">
+          <div className="input-group">
+            <label htmlFor="google_rating">Calificación Google (0–5)</label>
+            <input
+              id="google_rating"
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              {...register("google_rating", { valueAsNumber: true })}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="google_user_ratings_total">Reseñas Google</label>
+            <input
+              id="google_user_ratings_total"
+              type="number"
+              min="0"
+              {...register("google_user_ratings_total", { valueAsNumber: true })}
+            />
+          </div>
+        </div>
       </fieldset>
 
       {mapaAbierto && (

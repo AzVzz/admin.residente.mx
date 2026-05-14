@@ -62,6 +62,43 @@ function MissingTable({ missing }) {
   );
 }
 
+function formatShort(date) {
+  if (!date) return "—";
+  return new Date(date).toLocaleString("es-MX", {
+    timeZone: "America/Mexico_City",
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function StaleTable({ stale }) {
+  if (!stale || stale.length === 0) return <p className="text-xs text-green-600">Sin desfasados</p>;
+  return (
+    <div className="overflow-y-auto max-h-52 rounded-lg border border-gray-100">
+      <table className="w-full text-xs">
+        <thead className="bg-gray-50 sticky top-0">
+          <tr>
+            <th className="px-3 py-2 text-left text-gray-500 font-medium">ID</th>
+            <th className="px-3 py-2 text-left text-gray-500 font-medium">Nombre</th>
+            <th className="px-3 py-2 text-left text-gray-500 font-medium">Editado</th>
+            <th className="px-3 py-2 text-left text-gray-500 font-medium">Último embed</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {stale.map((r) => (
+            <tr key={r.id} className="hover:bg-gray-50">
+              <td className="px-3 py-1.5 text-gray-400 font-mono">{r.id}</td>
+              <td className="px-3 py-1.5 text-gray-700">{r.nombre}</td>
+              <td className="px-3 py-1.5 text-amber-600">{formatShort(r.updated_at)}</td>
+              <td className="px-3 py-1.5 text-gray-400">{formatShort(r.indexed_at)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function useJobPoller(jobId, token, onDone) {
   const [job, setJob] = useState(null);
   const intervalRef = useRef(null);
@@ -125,11 +162,16 @@ function JobProgressBar({ job, total }) {
 function EntityCard({ entity, token, onRefresh }) {
   const [missingJobId, setMissingJobId] = useState(null);
   const [reindexJobId, setReindexJobId] = useState(null);
+  const [staleJobId, setStaleJobId] = useState(null);
   const [missingMsg, setMissingMsg] = useState(null);
   const [reindexMsg, setReindexMsg] = useState(null);
+  const [staleMsg, setStaleMsg] = useState(null);
   const [showMissing, setShowMissing] = useState(false);
+  const [showStale, setShowStale] = useState(false);
   const [missing, setMissing] = useState(null);
+  const [stale, setStale] = useState(null);
   const [loadingMissing, setLoadingMissing] = useState(false);
+  const [loadingStale, setLoadingStale] = useState(false);
 
   const missingJob = useJobPoller(missingJobId, token, (done) => {
     setMissingJobId(null);
@@ -138,6 +180,17 @@ function EntityCard({ entity, token, onRefresh }) {
       done.procesados === 0 && done.errores === 0
         ? "Nada pendiente"
         : `${done.procesados} indexados${done.errores ? ` · ${done.errores} errores` : ""} · ${(done.elapsed_ms / 1000).toFixed(1)}s`
+    );
+    onRefresh();
+  });
+
+  const staleJob = useJobPoller(staleJobId, token, (done) => {
+    setStaleJobId(null);
+    setStale(null);
+    setStaleMsg(
+      done.procesados === 0 && done.errores === 0
+        ? "Nada pendiente"
+        : `${done.procesados} reindexados${done.errores ? ` · ${done.errores} errores` : ""} · ${(done.elapsed_ms / 1000).toFixed(1)}s`
     );
     onRefresh();
   });
@@ -151,7 +204,9 @@ function EntityCard({ entity, token, onRefresh }) {
   });
 
   const isIndexingMissing = !!missingJobId;
+  const isIndexingStale = !!staleJobId;
   const isReindexing = !!reindexJobId;
+  const anyJobRunning = isIndexingMissing || isIndexingStale || isReindexing;
 
   async function handleIndexMissing() {
     setMissingMsg(null);
@@ -203,6 +258,41 @@ function EntityCard({ entity, token, onRefresh }) {
     }
   }
 
+  async function handleReindexStale() {
+    setStaleMsg(null);
+    try {
+      const res = await fetch(
+        `${urlApi}api/chatbot/admin/reindex-stale?only=${entity.entity_type}`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      if (!data.ok) { setStaleMsg(data.error || "Error"); return; }
+      if (data.jobId === null) { setStaleMsg("Nada pendiente"); return; }
+      setStaleJobId(data.jobId);
+    } catch {
+      setStaleMsg("Error de conexión");
+    }
+  }
+
+  async function handleShowStale() {
+    if (showStale) { setShowStale(false); return; }
+    setShowStale(true);
+    if (stale !== null) return;
+    setLoadingStale(true);
+    try {
+      const res = await fetch(
+        `${urlApi}api/chatbot/admin/index-status?stale=${entity.entity_type}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      setStale(data.stale || []);
+    } catch {
+      setStale([]);
+    } finally {
+      setLoadingStale(false);
+    }
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -228,14 +318,21 @@ function EntityCard({ entity, token, onRefresh }) {
         </p>
       )}
 
+      {entity.desfasados > 0 && (
+        <p className="text-xs text-amber-600 mt-1">
+          {entity.desfasados.toLocaleString()} {entity.desfasados === 1 ? "desfasado" : "desfasados"} — editados después del embed
+        </p>
+      )}
+
       {entity.ultimo_embed && (
         <p className="text-xs text-gray-400 mt-1">
-          Último embed:{" "}
-          {new Date(entity.ultimo_embed).toLocaleString("es-MX", {
-            timeZone: "America/Mexico_City",
-            dateStyle: "short",
-            timeStyle: "short",
-          })}
+          Último embed: {formatShort(entity.ultimo_embed)}
+        </p>
+      )}
+
+      {entity.entidad_actualizada_max && (
+        <p className="text-xs text-gray-400">
+          Última edición: {formatShort(entity.entidad_actualizada_max)}
         </p>
       )}
 
@@ -243,7 +340,7 @@ function EntityCard({ entity, token, onRefresh }) {
         {entity.faltantes > 0 && (
           <button
             onClick={handleIndexMissing}
-            disabled={isIndexingMissing || isReindexing}
+            disabled={anyJobRunning}
             className="px-3 py-1.5 text-xs font-medium bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
             {isIndexingMissing
@@ -251,9 +348,20 @@ function EntityCard({ entity, token, onRefresh }) {
               : `Indexar ${entity.faltantes > 50 ? "50 de " + entity.faltantes.toLocaleString() : entity.faltantes} faltantes`}
           </button>
         )}
+        {entity.desfasados > 0 && (
+          <button
+            onClick={handleReindexStale}
+            disabled={anyJobRunning}
+            className="px-3 py-1.5 text-xs font-medium bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+          >
+            {isIndexingStale
+              ? `Reindexandoâ€¦ (${staleJob?.procesados ?? 0}/${staleJob?.total ?? entity.desfasados > 50 ? 50 : entity.desfasados})`
+              : `Reindexar ${entity.desfasados > 50 ? "50 de " + entity.desfasados.toLocaleString() : entity.desfasados} desfasados`}
+          </button>
+        )}
         <button
           onClick={handleReindex}
-          disabled={isIndexingMissing || isReindexing}
+          disabled={anyJobRunning}
           className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           {isReindexing ? "Reindexandoâ€¦" : "Reindexar todo"}
@@ -261,10 +369,19 @@ function EntityCard({ entity, token, onRefresh }) {
         {entity.faltantes > 0 && (
           <button
             onClick={handleShowMissing}
-            disabled={isIndexingMissing}
+            disabled={anyJobRunning}
             className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            {showMissing ? "Ocultar lista" : "Ver faltantes"}
+            {showMissing ? "Ocultar faltantes" : "Ver faltantes"}
+          </button>
+        )}
+        {entity.desfasados > 0 && (
+          <button
+            onClick={handleShowStale}
+            disabled={anyJobRunning}
+            className="px-3 py-1.5 text-xs font-medium border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors disabled:opacity-50"
+          >
+            {showStale ? "Ocultar desfasados" : "Ver desfasados"}
           </button>
         )}
       </div>
@@ -274,9 +391,19 @@ function EntityCard({ entity, token, onRefresh }) {
         <JobProgressBar job={missingJob} total={entity.faltantes > 50 ? 50 : entity.faltantes} />
       )}
 
+      {/* Barra de progreso para reindexar desfasados */}
+      {(isIndexingStale || (staleJob && staleJob.status === "done")) && (
+        <JobProgressBar job={staleJob} total={entity.desfasados > 50 ? 50 : entity.desfasados} />
+      )}
+
       {/* Resultado de indexar faltantes (sin job activo) */}
       {missingMsg && !isIndexingMissing && (
         <p className="text-xs mt-2 text-blue-600">{missingMsg}</p>
+      )}
+
+      {/* Resultado de reindexar desfasados (sin job activo) */}
+      {staleMsg && !isIndexingStale && (
+        <p className="text-xs mt-2 text-amber-700">{staleMsg}</p>
       )}
 
       {/* Estado del reindex completo */}
@@ -295,6 +422,16 @@ function EntityCard({ entity, token, onRefresh }) {
             <p className="text-xs text-gray-400">Cargandoâ€¦</p>
           ) : (
             <MissingTable missing={missing} />
+          )}
+        </div>
+      )}
+
+      {showStale && entity.desfasados > 0 && (
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          {loadingStale ? (
+            <p className="text-xs text-gray-400">Cargandoâ€¦</p>
+          ) : (
+            <StaleTable stale={stale} />
           )}
         </div>
       )}
