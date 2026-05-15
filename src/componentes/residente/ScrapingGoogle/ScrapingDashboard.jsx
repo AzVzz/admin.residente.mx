@@ -35,40 +35,212 @@ function CoverageBar({ label, value, total }) {
   );
 }
 
-function RowRest({ r, onRescrape }) {
+function DetailPanel({ id, token }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/detail/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (!cancelled) { setData(json); setLoading(false); }
+      } catch (e) {
+        if (!cancelled) { setError(e.message); setLoading(false); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, token]);
+
+  if (loading) return <div className="p-4 text-xs text-gray-500">Cargando detalle...</div>;
+  if (error) return <div className="p-4 text-xs text-red-600">Error: {error}</div>;
+  if (!data) return null;
+
+  const extra = data.google_extra || {};
+  const items = data.menu_items_normalizados || [];
+  const horariosDb = data.opening_hours_db?.weekday_text || extra.horarios || [];
+
+  // Agrupar items por categoría
+  const itemsPorCategoria = items.reduce((acc, it) => {
+    const cat = it.categoria || "Sin categoría";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(it);
+    return acc;
+  }, {});
+
+  return (
+    <div className="bg-gray-50 border-t-2 border-black p-4">
+      <div className="grid md:grid-cols-3 gap-4 mb-4">
+        <div className="bg-white rounded-lg p-3 border border-gray-200">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500 mb-1">Sitio web</p>
+          {extra.sitio_web ? (
+            <a href={extra.sitio_web} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline break-all">{extra.sitio_web}</a>
+          ) : <span className="text-xs text-gray-400">—</span>}
+        </div>
+        <div className="bg-white rounded-lg p-3 border border-gray-200">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500 mb-1">Teléfono</p>
+          <span className="text-xs font-mono">{extra.telefono || data.restaurante.formatted_phone_number || "—"}</span>
+        </div>
+        <div className="bg-white rounded-lg p-3 border border-gray-200">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500 mb-1">Rating Google</p>
+          <span className="text-xs">
+            {data.restaurante.google_rating ? `${data.restaurante.google_rating}★ (${data.restaurante.google_user_ratings_total || 0} reviews)` : "—"}
+          </span>
+        </div>
+      </div>
+
+      {extra.direccion && (
+        <div className="bg-white rounded-lg p-3 border border-gray-200 mb-4">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500 mb-1">Dirección</p>
+          <p className="text-xs">{extra.direccion}</p>
+        </div>
+      )}
+
+      {horariosDb.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4" open>
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">🕐 Horarios ({horariosDb.length} días)</summary>
+          <div className="p-3 grid grid-cols-2 md:grid-cols-3 gap-1.5">
+            {horariosDb.map((h, i) => <div key={i} className="text-xs">{h}</div>)}
+          </div>
+        </details>
+      )}
+
+      {extra.about_text && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">📝 Acerca de ({extra.about_text.length} chars)</summary>
+          <pre className="p-3 text-[11px] whitespace-pre-wrap font-sans text-gray-700 max-h-64 overflow-y-auto">{extra.about_text}</pre>
+        </details>
+      )}
+
+      {extra.amenities?.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">✅ Amenidades ({extra.amenities.length})</summary>
+          <div className="p-3 flex flex-wrap gap-1.5">
+            {extra.amenities.map((a, i) => <span key={i} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">{a}</span>)}
+          </div>
+        </details>
+      )}
+
+      {extra.destacadas?.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">⭐ Destacadas ({extra.destacadas.length})</summary>
+          <div className="p-3 flex flex-wrap gap-1.5">
+            {extra.destacadas.map((d, i) => <span key={i} className="text-[10px] bg-yellow-50 text-yellow-800 px-2 py-0.5 rounded border border-yellow-200">{d}</span>)}
+          </div>
+        </details>
+      )}
+
+      {items.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4" open>
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">🍽️ Menú ({items.length} items en {Object.keys(itemsPorCategoria).length} categorías)</summary>
+          <div className="p-3 space-y-3">
+            {Object.entries(itemsPorCategoria).map(([cat, list]) => (
+              <div key={cat}>
+                <p className="text-[11px] font-semibold text-gray-700 mb-1.5 border-b border-gray-200 pb-1">{cat} <span className="text-gray-400 font-normal">({list.length})</span></p>
+                <div className="space-y-1.5">
+                  {list.map((it) => (
+                    <div key={it.id} className="flex items-start justify-between gap-3 text-xs">
+                      <div className="flex-1">
+                        <p className="font-medium">{it.nombre}</p>
+                        {it.descripcion && <p className="text-[11px] text-gray-500 mt-0.5">{it.descripcion}</p>}
+                      </div>
+                      <span className="text-emerald-700 font-mono whitespace-nowrap text-[11px]">{it.precio_raw}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+
+      {extra.reviews_top?.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200 mb-4">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">💬 Reviews ({extra.reviews_top.length})</summary>
+          <div className="p-3 space-y-3">
+            {extra.reviews_top.map((rv, i) => (
+              <div key={i} className="border-b border-gray-100 pb-2 last:border-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold">{rv.autor || "Anónimo"}</span>
+                  {rv.stars && <span className="text-[10px] text-yellow-700">{rv.stars}</span>}
+                  {rv.fecha && <span className="text-[10px] text-gray-400">{rv.fecha}</span>}
+                </div>
+                {rv.texto && <p className="text-[11px] text-gray-700 whitespace-pre-wrap">{rv.texto}</p>}
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+
+      {data.scrape_logs?.length > 0 && (
+        <details className="bg-white rounded-lg border border-gray-200">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-gray-700">📋 Últimos {data.scrape_logs.length} intentos de scrape</summary>
+          <div className="p-3 space-y-1">
+            {data.scrape_logs.map((l, i) => (
+              <div key={i} className="text-[11px] flex items-center gap-2">
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${l.status === "ok" ? "bg-emerald-100 text-emerald-700" : l.status === "captcha" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"}`}>{l.status}</span>
+                <span className="text-gray-400">{new Date(l.created_at).toLocaleString("es-MX")}</span>
+                <span className="text-gray-500">{l.items_extraidos || 0} items · {l.duracion_ms}ms</span>
+                {l.error_msg && <span className="text-red-600 truncate">{l.error_msg}</span>}
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function RowRest({ r, onRescrape, expanded, onToggle, token }) {
   const ok = (n) => (Number(n) > 0 ? "text-emerald-700 font-semibold" : "text-gray-300");
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
-      <td className="px-2 py-2 text-xs">
-        <div className="flex items-center gap-1.5">
-          {r.es_promovido === 1 && <span className="text-[9px] bg-yellow-100 text-yellow-800 px-1 rounded">B2B</span>}
-          <span className="font-mono text-gray-400">#{r.id}</span>
-        </div>
-      </td>
-      <td className="px-2 py-2 text-xs font-medium">{r.nombre_restaurante}</td>
-      <td className={`px-2 py-2 text-xs text-center ${ok(r.menu_items)}`}>{r.menu_items || 0}</td>
-      <td className={`px-2 py-2 text-xs text-center ${ok(r.amenities)}`}>{r.amenities || 0}</td>
-      <td className={`px-2 py-2 text-xs text-center ${ok(r.reviews_top)}`}>{r.reviews_top || 0}</td>
-      <td className={`px-2 py-2 text-xs text-center ${ok(r.destacadas)}`}>{r.destacadas || 0}</td>
-      <td className={`px-2 py-2 text-xs text-center ${ok(r.about_chars)}`}>{r.about_chars || 0}</td>
-      <td className="px-2 py-2 text-xs text-center">
-        {r.has_horarios ? <span className="text-emerald-700">✓</span> : <span className="text-gray-300">—</span>}
-      </td>
-      <td className="px-2 py-2 text-xs text-center">
-        {r.has_link ? <span className="text-emerald-700">✓</span> : <span className="text-red-400">×</span>}
-      </td>
-      <td className="px-2 py-2 text-[10px] text-gray-400">
-        {r.google_extra_at ? new Date(r.google_extra_at).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : "—"}
-      </td>
-      <td className="px-2 py-2 text-xs">
-        <button
-          onClick={() => onRescrape(r.id)}
-          className="text-[10px] px-2 py-0.5 border border-gray-300 rounded hover:bg-black hover:text-white transition-colors"
-        >
-          Re-scrape
-        </button>
-      </td>
-    </tr>
+    <>
+      <tr className="border-t border-gray-100 hover:bg-gray-50">
+        <td className="px-2 py-2 text-xs">
+          <div className="flex items-center gap-1.5">
+            {r.es_promovido === 1 && <span className="text-[9px] bg-yellow-100 text-yellow-800 px-1 rounded">B2B</span>}
+            <span className="font-mono text-gray-400">#{r.id}</span>
+          </div>
+        </td>
+        <td className="px-2 py-2 text-xs font-medium">
+          <button onClick={onToggle} className="text-left hover:underline">
+            {expanded ? "▼" : "▶"} {r.nombre_restaurante}
+          </button>
+        </td>
+        <td className={`px-2 py-2 text-xs text-center ${ok(r.menu_items)}`}>{r.menu_items || 0}</td>
+        <td className={`px-2 py-2 text-xs text-center ${ok(r.amenities)}`}>{r.amenities || 0}</td>
+        <td className={`px-2 py-2 text-xs text-center ${ok(r.reviews_top)}`}>{r.reviews_top || 0}</td>
+        <td className={`px-2 py-2 text-xs text-center ${ok(r.destacadas)}`}>{r.destacadas || 0}</td>
+        <td className={`px-2 py-2 text-xs text-center ${ok(r.about_chars)}`}>{r.about_chars || 0}</td>
+        <td className="px-2 py-2 text-xs text-center">
+          {r.has_horarios ? <span className="text-emerald-700">✓</span> : <span className="text-gray-300">—</span>}
+        </td>
+        <td className="px-2 py-2 text-xs text-center">
+          {r.has_link ? <span className="text-emerald-700">✓</span> : <span className="text-red-400">×</span>}
+        </td>
+        <td className="px-2 py-2 text-[10px] text-gray-400">
+          {r.google_extra_at ? new Date(r.google_extra_at).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : "—"}
+        </td>
+        <td className="px-2 py-2 text-xs">
+          <button
+            onClick={() => onRescrape(r.id)}
+            className="text-[10px] px-2 py-0.5 border border-gray-300 rounded hover:bg-black hover:text-white transition-colors"
+          >
+            Re-scrape
+          </button>
+        </td>
+      </tr>
+      {expanded && (
+        <tr>
+          <td colSpan={11} className="p-0">
+            <DetailPanel id={r.id} token={token} />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -84,6 +256,9 @@ export default function ScrapingDashboard() {
   // Launch config
   const [opts, setOpts] = useState({ all: false, skipDone: true, limit: 500, delay: 180, jitter: 30, warmupEvery: 10 });
   const [isLaunching, setIsLaunching] = useState(false);
+
+  // Fila expandida (detalle)
+  const [expandedId, setExpandedId] = useState(null);
 
   // Jobs / log
   const [jobs, setJobs] = useState([]);
@@ -310,7 +485,16 @@ export default function ScrapingDashboard() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => <RowRest key={r.id} r={r} onRescrape={(id) => launch({ ids: [id], all: false, skipDone: false, limit: 1, delay: 5, jitter: 0, warmupEvery: 100 })} />)}
+              {rows.map((r) => (
+                <RowRest
+                  key={r.id}
+                  r={r}
+                  token={token}
+                  expanded={expandedId === r.id}
+                  onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                  onRescrape={(id) => launch({ ids: [id], all: false, skipDone: false, limit: 1, delay: 5, jitter: 0, warmupEvery: 100 })}
+                />
+              ))}
             </tbody>
           </table>
           {rows.length === 0 && !isLoading && (
