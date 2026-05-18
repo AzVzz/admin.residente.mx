@@ -163,9 +163,11 @@ function EntityCard({ entity, token, onRefresh }) {
   const [missingJobId, setMissingJobId] = useState(null);
   const [reindexJobId, setReindexJobId] = useState(null);
   const [staleJobId, setStaleJobId] = useState(null);
+  const [purgeJobId, setPurgeJobId] = useState(null);
   const [missingMsg, setMissingMsg] = useState(null);
   const [reindexMsg, setReindexMsg] = useState(null);
   const [staleMsg, setStaleMsg] = useState(null);
+  const [purgeMsg, setPurgeMsg] = useState(null);
   const [showMissing, setShowMissing] = useState(false);
   const [showStale, setShowStale] = useState(false);
   const [missing, setMissing] = useState(null);
@@ -203,10 +205,21 @@ function EntityCard({ entity, token, onRefresh }) {
     onRefresh();
   });
 
+  const purgeJob = useJobPoller(purgeJobId, token, (done) => {
+    setPurgeJobId(null);
+    setPurgeMsg(
+      done.error
+        ? `Error: ${done.error}`
+        : `Limpio + ${done.re_embebidos ?? 0} reembebidos · ${(done.elapsed_ms / 1000).toFixed(1)}s`
+    );
+    onRefresh();
+  });
+
   const isIndexingMissing = !!missingJobId;
   const isIndexingStale = !!staleJobId;
   const isReindexing = !!reindexJobId;
-  const anyJobRunning = isIndexingMissing || isIndexingStale || isReindexing;
+  const isPurging = !!purgeJobId;
+  const anyJobRunning = isIndexingMissing || isIndexingStale || isReindexing || isPurging;
 
   async function handleIndexMissing() {
     setMissingMsg(null);
@@ -255,6 +268,25 @@ function EntityCard({ entity, token, onRefresh }) {
       setMissing([]);
     } finally {
       setLoadingMissing(false);
+    }
+  }
+
+  async function handlePurgeAndRebuild() {
+    const ok = window.confirm(
+      `Esto borra TODO el índice de ${ENTITY_LABELS[entity.entity_type] ?? entity.entity_type} en Qdrant y SQL, y lo reconstruye desde cero. ¿Continuar?`
+    );
+    if (!ok) return;
+    setPurgeMsg(null);
+    try {
+      const res = await fetch(
+        `${urlApi}api/chatbot/admin/purge?only=${entity.entity_type}&reindex=1`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      if (!data.ok) { setPurgeMsg(data.error || "Error"); return; }
+      setPurgeJobId(data.jobId);
+    } catch {
+      setPurgeMsg("Error de conexión");
     }
   }
 
@@ -364,7 +396,17 @@ function EntityCard({ entity, token, onRefresh }) {
           disabled={anyJobRunning}
           className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
-          {isReindexing ? "Reindexandoâ€¦" : "Reindexar todo"}
+          {isReindexing ? "Reindexando…" : "Reindexar todo"}
+        </button>
+        <button
+          onClick={handlePurgeAndRebuild}
+          disabled={anyJobRunning}
+          className="px-3 py-1.5 text-xs font-medium border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+          title="Borra todo el índice de este tipo y lo reconstruye desde cero"
+        >
+          {isPurging
+            ? `Limpiando + reindexando${purgeJob?.status ? ` — ${purgeJob.status.replace(/^running:/, "")}` : "…"}`
+            : "Limpiar y rehacer todo"}
         </button>
         {entity.faltantes > 0 && (
           <button
@@ -414,6 +456,17 @@ function EntityCard({ entity, token, onRefresh }) {
       )}
       {reindexMsg && !isReindexing && (
         <p className="text-xs mt-2 text-gray-500">{reindexMsg}</p>
+      )}
+
+      {isPurging && (
+        <p className="text-xs mt-2 text-red-600">
+          Limpiando + reindexando{purgeJob?.status ? ` — ${purgeJob.status.replace(/^running:/, "")}` : "…"}
+        </p>
+      )}
+      {purgeMsg && !isPurging && (
+        <p className={`text-xs mt-2 ${purgeMsg.startsWith("Error") ? "text-red-600" : "text-green-600"}`}>
+          {purgeMsg}
+        </p>
       )}
 
       {showMissing && entity.faltantes > 0 && (
