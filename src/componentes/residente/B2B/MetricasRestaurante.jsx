@@ -17,6 +17,7 @@ const MetricasRestaurante = ({
   cupones = [],
   todosLosRestaurantes = [],
   todosLosCupones = [],
+  chatbotStats = null,
 }) => {
   const [notasOrden, setNotasOrden] = useState("vistas");
   const [notasExpandidas, setNotasExpandidas] = useState(false);
@@ -56,6 +57,37 @@ const MetricasRestaurante = ({
 
   const alcanceVistas = sumViewsRestaurante + sumNotasVistas + sumCuponesViews;
   const alcanceClicks = sumClicksRestaurante + sumNotasClicks + sumCuponesClicks;
+
+  // ─── Chatbot Resi: views/clicks últimos 30 días desde /b2b/metrics ───
+  // Se renderizan como una mini-línea (text-[10px] gris) bajo cada subtítulo,
+  // SOLO cuando el conteo > 0 — así no agrega altura cuando no hay actividad.
+  const cbRest = (id) => chatbotStats?.restaurantes?.[id] || { impressions: 0, clicks: 0 };
+  const cbNota = (id) => chatbotStats?.notas?.[id] || { impressions: 0, clicks: 0 };
+  const cbCupon = (id) => chatbotStats?.cupones?.[id] || { impressions: 0, clicks: 0 };
+
+  const sumChatbotRestVistas = restaurantesParaSumar.reduce((s, r) => s + cbRest(r?.id).impressions, 0);
+  const sumChatbotRestClicks = restaurantesParaSumar.reduce((s, r) => s + cbRest(r?.id).clicks, 0);
+
+  const notasIdsParaSumar = esTotal
+    ? todosLosRestaurantes.flatMap((r) => (r?.notasStats?.notas || []).map((n) => n.id))
+    : (notasStats?.notas || []).map((n) => n.id);
+  const sumChatbotNotasVistas = notasIdsParaSumar.reduce((s, id) => s + cbNota(id).impressions, 0);
+  const sumChatbotNotasClicks = notasIdsParaSumar.reduce((s, id) => s + cbNota(id).clicks, 0);
+
+  const sumChatbotCuponesVistas = cuponesParaSumar.reduce((s, c) => s + cbCupon(c?.id).impressions, 0);
+  const sumChatbotCuponesClicks = cuponesParaSumar.reduce((s, c) => s + cbCupon(c?.id).clicks, 0);
+
+  const chatbotAlcanceVistas = sumChatbotRestVistas + sumChatbotNotasVistas + sumChatbotCuponesVistas;
+  const chatbotAlcanceClicks = sumChatbotRestClicks + sumChatbotNotasClicks + sumChatbotCuponesClicks;
+
+  // Mini-línea de actividad del chatbot. Devuelve null cuando n=0 para no
+  // ocupar altura ni desbalancear los bloques en flex.
+  const ChatbotMini = ({ n }) =>
+    n > 0 ? (
+      <p className="text-[10px] text-gray-400 leading-tight mt-0.5">
+        +{n.toLocaleString("es-MX")} desde chatbot
+      </p>
+    ) : null;
 
   const totalNotasCount = esTotal
     ? todosLosRestaurantes.reduce(
@@ -97,12 +129,14 @@ const MetricasRestaurante = ({
               {alcanceVistas.toLocaleString("es-MX")}
             </p>
             <p className="text-sm text-black -mt-1">Vistas totales</p>
+            <ChatbotMini n={chatbotAlcanceVistas} />
           </div>
           <div>
             <p className="text-[40px] font-bold text-black leading-[1]">
               {alcanceClicks.toLocaleString("es-MX")}
             </p>
             <p className="text-sm text-black -mt-1">Clicks totales</p>
+            <ChatbotMini n={chatbotAlcanceClicks} />
           </div>
         </div>
       </div>
@@ -155,6 +189,7 @@ const MetricasRestaurante = ({
             ? "Vistas combinadas de tus restaurantes"
             : "Vistas totales en tu restaurante"}
         </p>
+        <ChatbotMini n={sumChatbotRestVistas} />
       </div>
 
       <div className="mb-9">
@@ -166,6 +201,7 @@ const MetricasRestaurante = ({
             ? "Clicks combinados de tus restaurantes"
             : "Clicks totales en tu restaurante"}
         </p>
+        <ChatbotMini n={sumChatbotRestClicks} />
       </div>
 
       {/* Notas etiquetadas */}
@@ -185,6 +221,7 @@ const MetricasRestaurante = ({
           <p className="text-sm text-black -mt-1">
             Suma de vistas de notas etiquetadas
           </p>
+          <ChatbotMini n={sumChatbotNotasVistas} />
         </div>
         <div className="leading-tight mb-2">
           <div className="flex items-start gap-1">
@@ -195,6 +232,7 @@ const MetricasRestaurante = ({
           <p className="text-sm text-black -mt-1">
             Suma de clicks de notas etiquetadas
           </p>
+          <ChatbotMini n={sumChatbotNotasClicks} />
         </div>
 
         {notasParaListar.length > 0 ? (
@@ -298,6 +336,7 @@ const MetricasRestaurante = ({
                 </p>
               </div>
               <p className="text-sm text-black">Vistas totales de tus cupones</p>
+              <ChatbotMini n={sumChatbotCuponesVistas} />
             </div>
             <div>
               <div className="flex items-start gap-1">
@@ -306,6 +345,7 @@ const MetricasRestaurante = ({
                 </p>
               </div>
               <p className="text-sm text-black">Clicks totales de tus cupones</p>
+              <ChatbotMini n={sumChatbotCuponesClicks} />
             </div>
             <div className="space-y-0.5 mt-2">
               {cuponesParaSumar.map((c) => {
