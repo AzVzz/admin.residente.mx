@@ -15,18 +15,11 @@ const UsuariosB2BPanel = () => {
 
   useEffect(() => {
     cargarUsuariosB2B();
-    const onFocus = () => cargarUsuariosB2B();
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") cargarUsuariosB2B();
-    };
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisibility);
+    // Auto-refresh cada 60s. NO usar window.focus/visibilitychange:
+    // F3 (find-in-page) y click derecho hacen perder/recuperar focus,
+    // disparando un refetch que parpadea la tabla y se siente como recarga.
     const interval = setInterval(cargarUsuariosB2B, 60_000);
-    return () => {
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisibility);
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const cargarUsuariosB2B = async () => {
