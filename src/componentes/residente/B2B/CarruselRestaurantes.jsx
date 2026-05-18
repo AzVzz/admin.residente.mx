@@ -13,6 +13,7 @@ const CarruselRestaurantes = ({
   cupones = [],
   activeIndex = 0,
   onSlideChange,
+  chatbotStats = null,
 }) => {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -99,6 +100,7 @@ const CarruselRestaurantes = ({
                 }
                 todosLosRestaurantes={restaurantes}
                 todosLosCupones={cupones}
+                chatbotStats={chatbotStats}
               />
             </div>
           ))}

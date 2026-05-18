@@ -34,6 +34,10 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [showModal, setShowModal] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(null);
 
+  // Métricas del chatbot Resi (impressions/clicks por restaurante, nota, cupón).
+  // Se carga una sola vez y se pasa por prop al carrusel para evitar N fetches.
+  const [chatbotStats, setChatbotStats] = useState(null);
+
   useEffect(() => {
     if (openTooltip) {
       const scrollbarWidth =
@@ -56,6 +60,37 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [subscriptionError, setSubscriptionError] = useState(null);
   const { saveToken, saveUsuario, usuario, token } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch métricas del chatbot (impressions/clicks por entidad).
+  // Se monta una sola vez con cache 5min.
+  useEffect(() => {
+    if (!token) return;
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(`${urlApi}api/chatbot/b2b/metrics?days=30`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: ctrl.signal,
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        // Reducir a maps por id para lookup O(1) desde MetricasRestaurante
+        const map = (arr) => Object.fromEntries(
+          (arr || []).map((it) => [it.id, { impressions: it.impressions || 0, clicks: it.clicks || 0 }])
+        );
+        setChatbotStats({
+          totales: data.totales || { impressions: 0, clicks: 0 },
+          restaurantes: map(data.restaurantes),
+          notas: map(data.notas),
+          cupones: map(data.cupones),
+          eventos: map(data.eventos),
+        });
+      } catch (e) {
+        if (e.name !== "AbortError") console.warn("[chatbot metrics]", e.message);
+      }
+    })();
+    return () => ctrl.abort();
+  }, [token]);
 
   // Hook que carga TODOS los restaurantes del B2B con notas-stats por restaurante.
   const { restaurantes, loading: loadingRestaurante } = useRestaurantesB2B(
@@ -1461,7 +1496,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               cupones={cupones}
               activeIndex={slideActivo}
               onSlideChange={setSlideActivo}
+              chatbotStats={chatbotStats}
             />
+
 
             {/* Notas individuales del usuario (autor de notas, no etiquetadas a restaurante). */}
             {notaStats && notaStats.total > 0 && (

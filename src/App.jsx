@@ -152,6 +152,9 @@ const ChatbotIndexStatus = lazy(
 const ChatbotFeedback = lazy(
   () => import("./componentes/residente/ChatbotAudit/ChatbotFeedback.jsx"),
 );
+const ChatbotMetrics = lazy(
+  () => import("./componentes/residente/ChatbotAudit/ChatbotMetrics.jsx"),
+);
 const ScrapingDashboard = lazy(
   () => import("./componentes/residente/ScrapingGoogle/ScrapingDashboard.jsx"),
 );
@@ -538,6 +541,14 @@ function App() {
                 element={
                   <ResidenteRoute>
                     <ChatbotFeedback />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/chatbot/metrics"
+                element={
+                  <ResidenteRoute>
+                    <ChatbotMetrics />
                   </ResidenteRoute>
                 }
               />
