@@ -194,7 +194,7 @@ function DetailPanel({ id, token }) {
   );
 }
 
-function RowRest({ r, onRescrape, expanded, onToggle, token }) {
+function RowRest({ r, onRescrape, onClean, expanded, onToggle, token }) {
   const ok = (n) => (Number(n) > 0 ? "text-emerald-700 font-semibold" : "text-gray-300");
   return (
     <>
@@ -225,12 +225,24 @@ function RowRest({ r, onRescrape, expanded, onToggle, token }) {
           {r.google_extra_at ? new Date(r.google_extra_at).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : "—"}
         </td>
         <td className="px-2 py-2 text-xs">
-          <button
-            onClick={() => onRescrape(r.id)}
-            className="text-[10px] px-2 py-0.5 border border-gray-300 rounded hover:bg-black hover:text-white transition-colors"
-          >
-            Re-scrape
-          </button>
+          <div className="flex gap-1">
+            <button
+              onClick={() => onRescrape(r.id)}
+              className="text-[10px] px-2 py-0.5 border border-gray-300 rounded hover:bg-black hover:text-white transition-colors"
+              title="Borra cookies, hace warmup y vuelve a scrapear este restaurante"
+            >
+              Re-scrape
+            </button>
+            {r.google_extra_at && (
+              <button
+                onClick={() => onClean(r.id)}
+                className="text-[10px] px-2 py-0.5 border border-red-300 text-red-700 rounded hover:bg-red-50"
+                title="Borra el scraping de este restaurante (no lo vuelve a scrapear)"
+              >
+                Limpiar
+              </button>
+            )}
+          </div>
         </td>
       </tr>
       {expanded && (
@@ -366,6 +378,20 @@ export default function ScrapingDashboard() {
       alert(`Error: ${e.message}`);
     } finally {
       setIsResetting(false);
+    }
+  }
+
+  async function cleanOne(id) {
+    if (!confirm(`¿Limpiar el scraping del restaurante #${id}?`)) return;
+    try {
+      await fetch(`${API_BASE}/reset`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [id] }),
+      });
+      await fetchStatus();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
     }
   }
 
@@ -541,7 +567,8 @@ export default function ScrapingDashboard() {
                   token={token}
                   expanded={expandedId === r.id}
                   onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
-                  onRescrape={(id) => launch({ ids: [id], all: false, skipDone: false, limit: 1, delay: 5, jitter: 0, warmupEvery: 100 })}
+                  onRescrape={(id) => launch({ ids: [id], all: false, skipDone: false, limit: 1, delay: 5, jitter: 0, warmupEvery: 100, freshEach: true })}
+                  onClean={cleanOne}
                 />
               ))}
             </tbody>
