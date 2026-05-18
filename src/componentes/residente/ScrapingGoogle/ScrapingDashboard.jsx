@@ -254,8 +254,9 @@ export default function ScrapingDashboard() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Launch config
-  const [opts, setOpts] = useState({ all: false, skipDone: true, limit: 500, delay: 180, jitter: 30, warmupEvery: 10 });
+  const [opts, setOpts] = useState({ all: false, skipDone: true, limit: 500, delay: 180, jitter: 30, warmupEvery: 10, freshEach: true });
   const [isLaunching, setIsLaunching] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Fila expandida (detalle)
   const [expandedId, setExpandedId] = useState(null);
@@ -348,6 +349,26 @@ export default function ScrapingDashboard() {
     await fetchJobs();
   }
 
+  async function resetAll(scope) {
+    const labels = { all: "TODOS los restaurantes (empezar desde cero)", lite: "los que están con vista lite", english: "los que están en inglés" };
+    if (!confirm(`⚠ Vas a borrar el scraping de ${labels[scope]}. ¿Continuar?`)) return;
+    setIsResetting(true);
+    try {
+      const res = await fetch(`${API_BASE}/reset`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ scope }),
+      });
+      const data = await res.json();
+      alert(`Borrado: ${data.restaurantes_afectados ?? "?"} restaurantes afectados (scope=${scope}).`);
+      await fetchStatus();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setIsResetting(false);
+    }
+  }
+
   return (
     <div className="max-w-[1200px] mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-1">Scraping de Google Maps</h1>
@@ -409,15 +430,43 @@ export default function ScrapingDashboard() {
               <input type="checkbox" checked={opts.skipDone} onChange={(e) => setOpts({ ...opts, skipDone: e.target.checked })} />
               <span>Saltar ya hechos</span>
             </label>
+            <label className="flex items-center gap-1.5" title="Borra cookies y hace warmup antes de cada restaurante. +15s por scrape pero garantiza vista completa.">
+              <input type="checkbox" checked={opts.freshEach} onChange={(e) => setOpts({ ...opts, freshEach: e.target.checked })} />
+              <span>Sesión fresca por restaurante (recomendado)</span>
+            </label>
           </div>
         </div>
-        <button
-          onClick={() => launch()}
-          disabled={isLaunching}
-          className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50"
-        >
-          {isLaunching ? "Iniciando…" : "▶ Lanzar batch"}
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => launch()}
+            disabled={isLaunching}
+            className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          >
+            {isLaunching ? "Iniciando…" : "▶ Lanzar batch"}
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={() => resetAll("lite")}
+            disabled={isResetting}
+            className="px-3 py-2 text-xs border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-lg hover:bg-yellow-100 disabled:opacity-50"
+          >
+            🧹 Limpiar vista lite
+          </button>
+          <button
+            onClick={() => resetAll("english")}
+            disabled={isResetting}
+            className="px-3 py-2 text-xs border border-blue-300 bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 disabled:opacity-50"
+          >
+            🌐 Limpiar UI en inglés
+          </button>
+          <button
+            onClick={() => resetAll("all")}
+            disabled={isResetting}
+            className="px-3 py-2 text-xs border border-red-400 bg-red-50 text-red-800 rounded-lg hover:bg-red-100 disabled:opacity-50"
+          >
+            🗑 Borrar TODO (empezar de cero)
+          </button>
+        </div>
       </div>
 
       {/* Jobs activos */}
