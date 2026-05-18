@@ -300,10 +300,8 @@ const TablaUsuariosB2B = ({
                         {user.id && (
                           <Link
                             to={`/dashboardb2b/cliente/${user.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                            title="Ver Dashboard como admin"
+                            title="Ver Dashboard como admin (Ctrl/Cmd+Click para nueva pestaña)"
                           >
                             <FaChartLine />
                           </Link>
