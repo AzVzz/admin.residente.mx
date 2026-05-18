@@ -17,7 +17,6 @@ const MetricasRestaurante = ({
   cupones = [],
   todosLosRestaurantes = [],
   todosLosCupones = [],
-  chatbotStats = null,
 }) => {
   const [notasOrden, setNotasOrden] = useState("vistas");
   const [notasExpandidas, setNotasExpandidas] = useState(false);
@@ -58,27 +57,6 @@ const MetricasRestaurante = ({
   const alcanceVistas = sumViewsRestaurante + sumNotasVistas + sumCuponesViews;
   const alcanceClicks = sumClicksRestaurante + sumNotasClicks + sumCuponesClicks;
 
-  // ─── Chatbot Resi: views/clicks últimos 30 días desde /b2b/metrics ───
-  // Lookups O(1) por id desde el blob `chatbotStats` que llega del padre.
-  const cbRest = (id) => chatbotStats?.restaurantes?.[id] || { impressions: 0, clicks: 0 };
-  const cbNota = (id) => chatbotStats?.notas?.[id] || { impressions: 0, clicks: 0 };
-  const cbCupon = (id) => chatbotStats?.cupones?.[id] || { impressions: 0, clicks: 0 };
-
-  const sumChatbotRestVistas = restaurantesParaSumar.reduce((s, r) => s + cbRest(r?.id).impressions, 0);
-  const sumChatbotRestClicks = restaurantesParaSumar.reduce((s, r) => s + cbRest(r?.id).clicks, 0);
-
-  const notasIdsParaSumar = esTotal
-    ? todosLosRestaurantes.flatMap((r) => (r?.notasStats?.notas || []).map((n) => n.id))
-    : (notasStats?.notas || []).map((n) => n.id);
-  const sumChatbotNotasVistas = notasIdsParaSumar.reduce((s, id) => s + cbNota(id).impressions, 0);
-  const sumChatbotNotasClicks = notasIdsParaSumar.reduce((s, id) => s + cbNota(id).clicks, 0);
-
-  const sumChatbotCuponesVistas = cuponesParaSumar.reduce((s, c) => s + cbCupon(c?.id).impressions, 0);
-  const sumChatbotCuponesClicks = cuponesParaSumar.reduce((s, c) => s + cbCupon(c?.id).clicks, 0);
-
-  const chatbotAlcanceVistas = sumChatbotRestVistas + sumChatbotNotasVistas + sumChatbotCuponesVistas;
-  const chatbotAlcanceClicks = sumChatbotRestClicks + sumChatbotNotasClicks + sumChatbotCuponesClicks;
-
   const totalNotasCount = esTotal
     ? todosLosRestaurantes.reduce(
         (s, r) => s + (r?.notasStats?.total_notas || 0),
@@ -113,28 +91,18 @@ const MetricasRestaurante = ({
       {/* Alcance Total */}
       <div className="mb-6">
         <p className="text-[25px] leading-[1] underline mb-1">Alcance Total</p>
-        <div className="flex gap-8 mt-1 flex-wrap">
+        <div className="flex gap-8 mt-1">
           <div>
             <p className="text-[40px] font-bold text-black leading-[1]">
               {alcanceVistas.toLocaleString("es-MX")}
             </p>
-            <p className="text-sm text-black -mt-1">
-              Vistas totales
-              <span className="text-gray-400 ml-1">
-                · {chatbotAlcanceVistas.toLocaleString("es-MX")} chatbot
-              </span>
-            </p>
+            <p className="text-sm text-black -mt-1">Vistas totales</p>
           </div>
           <div>
             <p className="text-[40px] font-bold text-black leading-[1]">
               {alcanceClicks.toLocaleString("es-MX")}
             </p>
-            <p className="text-sm text-black -mt-1">
-              Clicks totales
-              <span className="text-gray-400 ml-1">
-                · {chatbotAlcanceClicks.toLocaleString("es-MX")} chatbot
-              </span>
-            </p>
+            <p className="text-sm text-black -mt-1">Clicks totales</p>
           </div>
         </div>
       </div>
@@ -179,39 +147,25 @@ const MetricasRestaurante = ({
           </p>
         )}
 
-        <div className="flex gap-8 flex-wrap">
-          <div>
-            <p className="text-[40px] font-bold text-black leading-[1]">
-              {sumViewsRestaurante.toLocaleString("es-MX")}
-            </p>
-            <p className="text-sm text-black -mt-1">
-              {esTotal
-                ? "Vistas combinadas de tus restaurantes"
-                : "Vistas totales en tu restaurante"}
-              <span className="text-gray-400 ml-1">
-                · {sumChatbotRestVistas.toLocaleString("es-MX")} chatbot
-              </span>
-            </p>
-          </div>
-        </div>
+        <p className="text-[40px] font-bold text-black leading-[1]">
+          {sumViewsRestaurante.toLocaleString("es-MX")}
+        </p>
+        <p className="text-sm text-black -mt-1">
+          {esTotal
+            ? "Vistas combinadas de tus restaurantes"
+            : "Vistas totales en tu restaurante"}
+        </p>
       </div>
 
       <div className="mb-9">
-        <div className="flex gap-8 flex-wrap">
-          <div>
-            <p className="text-[40px] font-bold text-black leading-[1]">
-              {sumClicksRestaurante.toLocaleString("es-MX")}
-            </p>
-            <p className="text-sm text-black -mt-1">
-              {esTotal
-                ? "Clicks combinados de tus restaurantes"
-                : "Clicks totales en tu restaurante"}
-              <span className="text-gray-400 ml-1">
-                · {sumChatbotRestClicks.toLocaleString("es-MX")} chatbot
-              </span>
-            </p>
-          </div>
-        </div>
+        <p className="text-[40px] font-bold text-black leading-[1]">
+          {sumClicksRestaurante.toLocaleString("es-MX")}
+        </p>
+        <p className="text-sm text-black -mt-1">
+          {esTotal
+            ? "Clicks combinados de tus restaurantes"
+            : "Clicks totales en tu restaurante"}
+        </p>
       </div>
 
       {/* Notas etiquetadas */}
@@ -223,25 +177,23 @@ const MetricasRestaurante = ({
         </span>
 
         <div className="leading-tight mb-1">
-          <p className="text-[40px] font-bold text-black leading-[1]">
-            {sumNotasVistas.toLocaleString("es-MX")}
-          </p>
+          <div className="flex items-start gap-1">
+            <p className="text-[40px] font-bold text-black leading-[1]">
+              {sumNotasVistas.toLocaleString("es-MX")}
+            </p>
+          </div>
           <p className="text-sm text-black -mt-1">
             Suma de vistas de notas etiquetadas
-            <span className="text-gray-400 ml-1">
-              · {sumChatbotNotasVistas.toLocaleString("es-MX")} chatbot
-            </span>
           </p>
         </div>
         <div className="leading-tight mb-2">
-          <p className="text-[40px] font-bold text-black leading-[1]">
-            {sumNotasClicks.toLocaleString("es-MX")}
-          </p>
+          <div className="flex items-start gap-1">
+            <p className="text-[40px] font-bold text-black leading-[1]">
+              {sumNotasClicks.toLocaleString("es-MX")}
+            </p>
+          </div>
           <p className="text-sm text-black -mt-1">
             Suma de clicks de notas etiquetadas
-            <span className="text-gray-400 ml-1">
-              · {sumChatbotNotasClicks.toLocaleString("es-MX")} chatbot
-            </span>
           </p>
         </div>
 
@@ -340,26 +292,20 @@ const MetricasRestaurante = ({
         {cuponesParaSumar.length > 0 ? (
           <>
             <div>
-              <p className="text-[40px] font-bold text-black leading-[1]">
-                {sumCuponesViews.toLocaleString("es-MX")}
-              </p>
-              <p className="text-sm text-black">
-                Vistas totales de tus cupones
-                <span className="text-gray-400 ml-1">
-                  · {sumChatbotCuponesVistas.toLocaleString("es-MX")} chatbot
-                </span>
-              </p>
+              <div className="flex items-start gap-1">
+                <p className="text-[40px] font-bold text-black leading-[1]">
+                  {sumCuponesViews.toLocaleString("es-MX")}
+                </p>
+              </div>
+              <p className="text-sm text-black">Vistas totales de tus cupones</p>
             </div>
             <div>
-              <p className="text-[40px] font-bold text-black leading-[1]">
-                {sumCuponesClicks.toLocaleString("es-MX")}
-              </p>
-              <p className="text-sm text-black">
-                Clicks totales de tus cupones
-                <span className="text-gray-400 ml-1">
-                  · {sumChatbotCuponesClicks.toLocaleString("es-MX")} chatbot
-                </span>
-              </p>
+              <div className="flex items-start gap-1">
+                <p className="text-[40px] font-bold text-black leading-[1]">
+                  {sumCuponesClicks.toLocaleString("es-MX")}
+                </p>
+              </div>
+              <p className="text-sm text-black">Clicks totales de tus cupones</p>
             </div>
             <div className="space-y-0.5 mt-2">
               {cuponesParaSumar.map((c) => {
