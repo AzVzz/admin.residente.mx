@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { cuponesGetTodas, cuponBorrar, cuponEditar, cuponAsignar } from "../../../api/cuponesGet";
 import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet.js";
@@ -10,6 +10,11 @@ const ListaTickets = () => {
   const [cupones, setCupones] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const sentinelRef = useRef(null);
+  const PAGE_SIZE = 500;
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [toggling, setToggling] = useState(null);
@@ -53,14 +58,21 @@ const ListaTickets = () => {
     );
   }
 
-  const cargarCupones = useCallback(async () => {
-    setLoading(true);
+  const cargarCupones = useCallback(async (pageToLoad, append) => {
+    if (append) setLoadingMore(true);
+    else setLoading(true);
     try {
-      const data = await cuponesGetTodas(token, { sortBy, sortOrder, estado: estado || undefined });
-      const lista = data.cupones ?? data; // compatibilidad si es array plano
-      setTotal(data.total ?? lista.length);
+      const data = await cuponesGetTodas(token, {
+        sortBy,
+        sortOrder,
+        estado: estado || undefined,
+        page: pageToLoad,
+        limit: PAGE_SIZE,
+      });
+      const lista = data.cupones ?? data;
+      const totalServidor = data.total ?? lista.length;
+      setTotal(totalServidor);
 
-      // Lazy deactivation de expirados
       const now = new Date();
       const expirados = lista.filter((c) => {
         if (!c.activo_manual) return false;
@@ -73,20 +85,50 @@ const ListaTickets = () => {
         await Promise.allSettled(
           expirados.map((c) => cuponEditar(c.id, { activo_manual: false }, token))
         );
-        setCupones(lista.map((c) => (expirados.find((e) => e.id === c.id) ? { ...c, activo_manual: false } : c)));
-      } else {
-        setCupones(lista);
       }
+      const listaFinal = expirados.length
+        ? lista.map((c) => (expirados.find((e) => e.id === c.id) ? { ...c, activo_manual: false } : c))
+        : lista;
+
+      setCupones((prev) => {
+        const acumulado = append ? [...prev, ...listaFinal] : listaFinal;
+        setHasMore(acumulado.length < totalServidor && listaFinal.length === PAGE_SIZE);
+        return acumulado;
+      });
     } catch (err) {
       setError(err.message);
+      setHasMore(false);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [token, sortBy, sortOrder, estado]);
 
+  // Reset al cambiar filtros/orden
   useEffect(() => {
-    cargarCupones();
+    setPage(1);
+    setHasMore(true);
+    cargarCupones(1, false);
   }, [cargarCupones]);
+
+  // IntersectionObserver: carga siguiente página cuando el sentinel entra al viewport
+  useEffect(() => {
+    if (!hasMore || loading || loadingMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const next = page + 1;
+          setPage(next);
+          cargarCupones(next, true);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, page, cargarCupones]);
 
   // Cargar restaurantes para el modal de asignación (solo admin)
   useEffect(() => {
@@ -200,8 +242,9 @@ const ListaTickets = () => {
         )
       );
       setAsignandoCupon(null);
-      // Recargar para obtener es_promovido actualizado
-      cargarCupones();
+      setPage(1);
+      setHasMore(true);
+      cargarCupones(1, false);
     } catch (err) {
       alert("Error al asignar: " + err.message);
     } finally {
@@ -440,6 +483,17 @@ const ListaTickets = () => {
               );
             })
           )}
+        </div>
+      )}
+
+      {!loading && hasMore && !busqueda.trim() && (
+        <div ref={sentinelRef} className="py-6 text-center text-sm text-gray-500">
+          {loadingMore ? "Cargando más cupones..." : ""}
+        </div>
+      )}
+      {!loading && !hasMore && cupones.length > 0 && !busqueda.trim() && (
+        <div className="py-6 text-center text-xs text-gray-400">
+          Mostrando {cupones.length} de {total} cupones
         </div>
       )}
 
