@@ -6,6 +6,7 @@ import TablaUsuariosB2B from "./TodoB2bComponentes/TablaUsuariosB2B";
 import FormGoogleAnalytics from "./TodoB2bComponentes/FormGoogleAnalytics";
 import HistorialGoogleAnalytics from "./TodoB2bComponentes/HistorialGoogleAnalytics";
 import GestionAnunciosB2B from "./TodoB2bComponentes/GestionAnunciosB2B";
+import SesionesChatbotDiarias from "./SesionesChatbotDiarias";
 
 const TodoB2b = () => {
   const { token } = useAuth();
@@ -265,6 +266,11 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                 handleDelete={handleDelete}
               />
             </div>
+          </div>
+
+          {/* Contador de sesiones diarias del chatbot Resi */}
+          <div className="mt-6">
+            <SesionesChatbotDiarias days={30} />
           </div>
         </div>
       )}
