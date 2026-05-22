@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { urlApi } from "../../../api/url";
-import { useAuth } from "../../../Context";
+import { urlApi } from "../../api/url";
+import { useAuth } from "../../Context";
 
 // "2026-05-18" → "18 may". Split manual para evitar corrimiento de zona horaria.
 function fmtDay(d) {
@@ -9,11 +9,8 @@ function fmtDay(d) {
   return `${parseInt(day, 10)} ${meses[parseInt(m, 10) - 1] || ""}`;
 }
 
-// Tarjeta administrativa: personas reales y sesiones del chatbot. La gráfica
-// de línea muestra PERSONAS por día; debajo de cada punto, las SESIONES de
-// ese día.
-// El endpoint /admin/sessions-daily está gated al rol residente; si lo monta
-// otro rol, la petición falla y el componente no renderiza nada (silencioso).
+// Gráfica de uso del chatbot: personas reales y sesiones, con una línea de
+// PERSONAS por día y las SESIONES de cada día debajo de su punto.
 const SesionesChatbotDiarias = ({ days = 30 }) => {
   const { token } = useAuth();
   const [data, setData] = useState(null);
@@ -126,7 +123,6 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
               strokeLinecap="round"
             />
           )}
-          {/* Etiqueta de la fila de sesiones */}
           {showValues && (
             <text x={padL} y={sesRowY} textAnchor="start" fontSize="7.5" fill="#d1d5db">
               ses.
@@ -137,7 +133,6 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
               <circle cx={p.x} cy={p.y} r="3.5" fill="#FFF200" stroke="#a89800" strokeWidth="1">
                 <title>{`${fmtDay(p.dia)}: ${p.personas} personas · ${p.sesiones} sesiones`}</title>
               </circle>
-              {/* Personas: número sobre el punto (la línea) */}
               {showValues && (
                 <text
                   x={p.x}
@@ -150,7 +145,6 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
                   {p.personas}
                 </text>
               )}
-              {/* Sesiones del día: debajo */}
               {showValues && (
                 <text x={p.x} y={sesRowY} textAnchor="middle" fontSize="9.5" fill="#9ca3af">
                   {p.sesiones}

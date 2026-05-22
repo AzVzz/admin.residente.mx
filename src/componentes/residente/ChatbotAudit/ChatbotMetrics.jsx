@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
+import SesionesChatbotDiarias from "./SesionesChatbotDiarias";
 
 const API = `${urlApi}api/chatbot`;
 
@@ -79,6 +80,11 @@ export default function ChatbotMetrics() {
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
+      {/* Gráfico de uso: personas y sesiones por día */}
+      <div className="mb-9">
+        <SesionesChatbotDiarias days={days} />
+      </div>
+
       {/* Números grandes (estilo dashboard) */}
       <div className="mb-9 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-5">
         <div>
@@ -110,11 +116,12 @@ export default function ChatbotMetrics() {
             {g.impressions_totales > 0 ? `${Math.round((g.clicks_totales / g.impressions_totales) * 1000) / 10}%` : "—"}
           </p>
           <p className="text-sm text-black -mt-1">CTR global</p>
+          <p className="text-[10px] text-gray-400 -mt-0.5">clicks ÷ impresiones</p>
         </div>
         <div>
           <p className="text-[40px] font-bold text-black leading-[1]">{g.csat_promedio ?? "—"}</p>
           <p className="text-sm text-black -mt-1">CSAT promedio</p>
-          <p className="text-[10px] text-gray-400 -mt-0.5">{g.sesiones_con_rating || 0} rateadas</p>
+          <p className="text-[10px] text-gray-400 -mt-0.5">satisfacción 1-5 · {g.sesiones_con_rating || 0} rateadas</p>
         </div>
         <div>
           <p className="text-[40px] font-bold text-black leading-[1]">{fmtDuration(g.promedio_duracion_seg)}</p>

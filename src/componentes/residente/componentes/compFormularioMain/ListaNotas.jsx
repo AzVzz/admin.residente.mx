@@ -21,7 +21,7 @@ import { FaBookOpen } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa";
 import { FaUtensils } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
-import { IoNewspaper, IoStorefront } from "react-icons/io5";
+import { IoNewspaper, IoStorefront, IoStatsChart } from "react-icons/io5";
 import { FaTicketSimple } from "react-icons/fa6";
 import { RiStickyNoteFill } from "react-icons/ri";
 import { LuUnderline } from "react-icons/lu";
@@ -55,6 +55,7 @@ const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboard.jsx"));
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
+const ChatbotPanel = lazy(() => import("../../ChatbotAudit/ChatbotPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
 const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
@@ -90,7 +91,7 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
-const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b"];
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "chatbot"];
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -709,6 +710,11 @@ const ListaNotas = () => {
       key: "usuarios_b2b",
       label: "Usuarios B2B",
       icon: <IoStorefront className="mr-2" />,
+    },
+    {
+      key: "chatbot",
+      label: "Chatbot",
+      icon: <IoStatsChart className="mr-2" />,
     },
     {
       key: "buscador",
@@ -1425,6 +1431,15 @@ const ListaNotas = () => {
             <Suspense fallback={<LazyFallback />}>
               <div className="w-full">
                 <UsuariosB2BPanel />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {vistaActiva === "chatbot" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <ChatbotPanel />
               </div>
             </Suspense>
           ) : null
