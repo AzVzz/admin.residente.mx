@@ -307,6 +307,7 @@ const TablaUsuariosB2B = ({
                           </Link>
                         )}
                         <button
+                          type="button"
                           onClick={() => toggleUserStatus(user.id, user.estado)}
                           className={`${
                             user.estado === "activo"
@@ -319,6 +320,7 @@ const TablaUsuariosB2B = ({
                         </button>
                         {user.estado === "activo" && (
                           <button
+                            type="button"
                             onClick={() => desactivarUsuarioB2B(user)}
                             className="text-orange-600 hover:text-orange-900 cursor-pointer"
                             title="Desactivar B2B Completo"
@@ -327,6 +329,7 @@ const TablaUsuariosB2B = ({
                           </button>
                         )}
                         <button
+                          type="button"
                           onClick={() => handleDelete(user.id)}
                           className="text-red-600 hover:text-red-900 cursor-pointer"
                           title="Eliminar"

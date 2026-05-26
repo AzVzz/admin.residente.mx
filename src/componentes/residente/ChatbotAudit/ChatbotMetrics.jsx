@@ -24,6 +24,9 @@ export default function ChatbotMetrics() {
   const { token } = useAuth();
   // Default: histórico (toda la actividad desde el primer día).
   const [days, setDays] = useState("all");
+  // Rango personalizado (cuando days === "custom").
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [metrics, setMetrics] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [sessionsTotal, setSessionsTotal] = useState(0);
@@ -37,12 +40,25 @@ export default function ChatbotMetrics() {
     setIsLoading(true);
     setError(null);
     try {
-      // Para histórico, mandamos una fecha muy antigua como 'from' para que el
-      // endpoint /admin/metrics (que filtra por BETWEEN from AND to) incluya todo.
-      const from = days === "all"
-        ? new Date("1970-01-01T00:00:00.000Z").toISOString()
-        : new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
-      const to = new Date().toISOString();
+      // from/to para /admin/metrics:
+      //   - custom: rango seleccionado por el usuario.
+      //   - all (histórico): epoch → ahora.
+      //   - numérico: now - N días → ahora.
+      let from, to;
+      if (days === "custom") {
+        if (!customFrom || !customTo || customFrom > customTo) {
+          setIsLoading(false);
+          return;
+        }
+        from = new Date(`${customFrom}T00:00:00.000Z`).toISOString();
+        to = new Date(`${customTo}T23:59:59.999Z`).toISOString();
+      } else if (days === "all") {
+        from = new Date("1970-01-01T00:00:00.000Z").toISOString();
+        to = new Date().toISOString();
+      } else {
+        from = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
+        to = new Date().toISOString();
+      }
       const [mRes, sRes] = await Promise.all([
         fetch(`${API}/admin/metrics?from=${from}&to=${to}`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${API}/admin/sessions?page=${page}&limit=30${onlyRated ? "&only_rated=1" : ""}`, {
@@ -60,7 +76,7 @@ export default function ChatbotMetrics() {
     } finally {
       setIsLoading(false);
     }
-  }, [token, days, page, onlyRated]);
+  }, [token, days, page, onlyRated, customFrom, customTo]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -75,16 +91,48 @@ export default function ChatbotMetrics() {
             value={days}
             onChange={(e) => {
               const v = e.target.value;
-              setDays(v === "all" ? "all" : Number(v));
+              if (v === "custom") {
+                if (!customFrom || !customTo) {
+                  // Default: últimos 7 días.
+                  const t = new Date();
+                  const today = t.toISOString().slice(0, 10);
+                  t.setDate(t.getDate() - 6);
+                  setCustomFrom(t.toISOString().slice(0, 10));
+                  setCustomTo(today);
+                }
+                setDays("custom");
+              } else {
+                setDays(v === "all" ? "all" : Number(v));
+              }
             }}
             className="border-b border-gray-300 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
           >
             <option value="all">Histórico</option>
+            <option value="custom">Personalizado</option>
             <option value={1}>Hoy</option>
             <option value={7}>últimos 7 días</option>
             <option value={30}>últimos 30 días</option>
             <option value={90}>últimos 90 días</option>
           </select>
+          {days === "custom" && (
+            <>
+              <input
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                max={customTo || undefined}
+                className="border-b border-gray-300 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
+              />
+              <span className="text-gray-400">a</span>
+              <input
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                min={customFrom || undefined}
+                className="border-b border-gray-300 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
+              />
+            </>
+          )}
           <button onClick={fetchAll} disabled={isLoading} className="text-xs underline text-gray-500 hover:text-black disabled:opacity-50">
             {isLoading ? "..." : "actualizar"}
           </button>
@@ -95,7 +143,7 @@ export default function ChatbotMetrics() {
 
       {/* Gráfico de uso: personas y sesiones por día */}
       <div className="mb-9">
-        <SesionesChatbotDiarias days={days} />
+        <SesionesChatbotDiarias days={days} customFrom={customFrom} customTo={customTo} />
       </div>
 
       {/* Números grandes (estilo dashboard) */}

@@ -61,20 +61,22 @@ function trimLeadingEmpty(porDia, windowDays = 7) {
 
 // Gráfica de uso del chatbot: personas reales y sesiones, con una línea de
 // PERSONAS por día y las SESIONES de cada día debajo de su punto.
-const SesionesChatbotDiarias = ({ days = 30 }) => {
+const SesionesChatbotDiarias = ({ days = 30, customFrom = "", customTo = "" }) => {
   const { token } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!token) return;
+    // En modo custom, no consultamos hasta que ambas fechas estén definidas.
+    if (days === "custom" && (!customFrom || !customTo)) return;
     let cancelado = false;
     (async () => {
       try {
-        const res = await fetch(
-          `${urlApi}api/chatbot/admin/sessions-daily?days=${days}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const url = days === "custom"
+          ? `${urlApi}api/chatbot/admin/sessions-daily?from=${customFrom}&to=${customTo}`
+          : `${urlApi}api/chatbot/admin/sessions-daily?days=${days}`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (!cancelado) setData(json);
@@ -83,23 +85,28 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
       }
     })();
     return () => { cancelado = true; };
-  }, [token, days]);
+  }, [token, days, customFrom, customTo]);
 
   if (error || !data) return null;
 
   // Determinar rango y rellenar días sin actividad con 0.
   const today = todayMTY();
-  let startYMD;
-  if (data.days === "all") {
+  let startYMD, endYMD;
+  if (data.days === "custom") {
+    startYMD = data.from ? String(data.from).slice(0, 10) : today;
+    endYMD = data.to ? String(data.to).slice(0, 10) : today;
+  } else if (data.days === "all") {
     startYMD = data.first_day ? String(data.first_day).slice(0, 10) : today;
+    endYMD = today;
   } else {
     const dnum = Number(data.days) || 30;
     startYMD = shiftDay(today, -(dnum - 1));
+    endYMD = today;
   }
   // Llenar todos los días + recortar el "calentamiento" del inicio:
   // si hubo un día aislado (ej. 27 abr) seguido de semanas en cero, no lo
   // mostramos. La gráfica arranca desde el primer día con actividad continua.
-  const porDia = trimLeadingEmpty(fillMissingDays(data.por_dia || [], startYMD, today));
+  const porDia = trimLeadingEmpty(fillMissingDays(data.por_dia || [], startYMD, endYMD));
   const personasTotal = Number(data.total_personas) || 0;
   const sesionesTotal = Number(data.total_sesiones) || 0;
   const n = porDia.length;
@@ -145,7 +152,11 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
           Uso del chatbot
         </h3>
         <span className="text-xs text-gray-400">
-          {data.days === "all" ? "histórico" : `últimos ${data.days} días`}
+          {data.days === "custom"
+            ? `${fmtDay(data.from)} – ${fmtDay(data.to)}`
+            : data.days === "all"
+            ? "histórico"
+            : `últimos ${data.days} días`}
         </span>
       </div>
 
