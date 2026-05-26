@@ -22,7 +22,8 @@ const ENTITY_LABELS = { restaurante: "Restaurante", nota: "Nota", cupon: "Cupón
 
 export default function ChatbotMetrics() {
   const { token } = useAuth();
-  const [days, setDays] = useState(7);
+  // Default: histórico (toda la actividad desde el primer día).
+  const [days, setDays] = useState("all");
   const [metrics, setMetrics] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [sessionsTotal, setSessionsTotal] = useState(0);
@@ -36,7 +37,11 @@ export default function ChatbotMetrics() {
     setIsLoading(true);
     setError(null);
     try {
-      const from = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
+      // Para histórico, mandamos una fecha muy antigua como 'from' para que el
+      // endpoint /admin/metrics (que filtra por BETWEEN from AND to) incluya todo.
+      const from = days === "all"
+        ? new Date("1970-01-01T00:00:00.000Z").toISOString()
+        : new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
       const to = new Date().toISOString();
       const [mRes, sRes] = await Promise.all([
         fetch(`${API}/admin/metrics?from=${from}&to=${to}`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -66,7 +71,15 @@ export default function ChatbotMetrics() {
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <h1 className="text-2xl font-bold">Métricas del chatbot</h1>
         <div className="flex gap-2 items-center text-xs">
-          <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="border-b border-gray-300 bg-transparent px-1 py-0.5 text-sm focus:outline-none">
+          <select
+            value={days}
+            onChange={(e) => {
+              const v = e.target.value;
+              setDays(v === "all" ? "all" : Number(v));
+            }}
+            className="border-b border-gray-300 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
+          >
+            <option value="all">Histórico</option>
             <option value={1}>Hoy</option>
             <option value={7}>últimos 7 días</option>
             <option value={30}>últimos 30 días</option>
@@ -86,46 +99,46 @@ export default function ChatbotMetrics() {
       </div>
 
       {/* Números grandes (estilo dashboard) */}
-      <div className="mb-9 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-5">
+      <div className="mb-9 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-8">
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.sesiones_totales ?? "—"}</p>
-          <p className="text-sm text-black -mt-1">Sesiones</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.sesiones_totales ?? "—"}</p>
+          <p className="text-sm text-black mt-2">Sesiones</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.usuarios_logueados_distintos ?? "—"}</p>
-          <p className="text-sm text-black -mt-1">Usuarios logueados</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.usuarios_logueados_distintos ?? "—"}</p>
+          <p className="text-sm text-black mt-2">Usuarios logueados</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.ips_distintas ?? "—"}</p>
-          <p className="text-sm text-black -mt-1">IPs únicas</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.ips_distintas ?? "—"}</p>
+          <p className="text-sm text-black mt-2">IPs únicas</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.promedio_mensajes ?? "—"}</p>
-          <p className="text-sm text-black -mt-1">Mensajes / sesión</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.promedio_mensajes ?? "—"}</p>
+          <p className="text-sm text-black mt-2">Mensajes / sesión</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.impressions_totales ?? "0"}</p>
-          <p className="text-sm text-black -mt-1">Impressions</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.impressions_totales ?? "0"}</p>
+          <p className="text-sm text-black mt-2">Impressions</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.clicks_totales ?? "0"}</p>
-          <p className="text-sm text-black -mt-1">Clicks</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.clicks_totales ?? "0"}</p>
+          <p className="text-sm text-black mt-2">Clicks</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">
+          <p className="text-[56px] font-bold text-black leading-none">
             {g.impressions_totales > 0 ? `${Math.round((g.clicks_totales / g.impressions_totales) * 1000) / 10}%` : "—"}
           </p>
-          <p className="text-sm text-black -mt-1">CTR global</p>
-          <p className="text-[10px] text-gray-400 -mt-0.5">clicks ÷ impresiones</p>
+          <p className="text-sm text-black mt-2">CTR global</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">clicks ÷ impresiones</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{g.csat_promedio ?? "—"}</p>
-          <p className="text-sm text-black -mt-1">CSAT promedio</p>
-          <p className="text-[10px] text-gray-400 -mt-0.5">satisfacción 1-5 · {g.sesiones_con_rating || 0} rateadas</p>
+          <p className="text-[56px] font-bold text-black leading-none">{g.csat_promedio ?? "—"}</p>
+          <p className="text-sm text-black mt-2">CSAT promedio</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">satisfacción 1-5 · {g.sesiones_con_rating || 0} rateadas</p>
         </div>
         <div>
-          <p className="text-[40px] font-bold text-black leading-[1]">{fmtDuration(g.promedio_duracion_seg)}</p>
-          <p className="text-sm text-black -mt-1">Duración promedio</p>
+          <p className="text-[56px] font-bold text-black leading-none">{fmtDuration(g.promedio_duracion_seg)}</p>
+          <p className="text-sm text-black mt-2">Duración promedio</p>
         </div>
       </div>
 

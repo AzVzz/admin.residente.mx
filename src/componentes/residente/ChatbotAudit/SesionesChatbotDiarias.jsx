@@ -9,6 +9,56 @@ function fmtDay(d) {
   return `${parseInt(day, 10)} ${meses[parseInt(m, 10) - 1] || ""}`;
 }
 
+// Hoy en zona horaria de Monterrey → "YYYY-MM-DD".
+function todayMTY() {
+  const parts = new Intl.DateTimeFormat("es-MX", {
+    timeZone: "America/Monterrey",
+    year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (t) => parts.find((p) => p.type === t).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+// "YYYY-MM-DD" + n días (puede ser negativo).
+function shiftDay(s, n) {
+  const [y, m, d] = s.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + n);
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+
+// Rellena días sin actividad con 0 entre startYMD y endYMD inclusive.
+function fillMissingDays(porDia, startYMD, endYMD) {
+  if (!startYMD || !endYMD || startYMD > endYMD) return porDia;
+  const map = new Map(porDia.map((d) => [String(d.dia).slice(0, 10), d]));
+  const out = [];
+  for (let cur = startYMD; cur <= endYMD; cur = shiftDay(cur, 1)) {
+    out.push(map.get(cur) || { dia: cur, sesiones: 0, personas: 0 });
+  }
+  return out;
+}
+
+// Recorta días sin actividad al inicio, incluyendo registros aislados (un día
+// con actividad seguido de muchos días en cero). Devuelve desde el primer día
+// activo que tenga algún seguimiento dentro de los siguientes 7 días.
+function trimLeadingEmpty(porDia, windowDays = 7) {
+  let i = 0;
+  while (i < porDia.length) {
+    const has = (Number(porDia[i].sesiones) || 0) > 0 || (Number(porDia[i].personas) || 0) > 0;
+    if (!has) { i++; continue; }
+    const end = Math.min(i + windowDays + 1, porDia.length);
+    const followup = porDia.slice(i + 1, end).some(
+      (x) => (Number(x.sesiones) || 0) > 0 || (Number(x.personas) || 0) > 0
+    );
+    if (followup) return porDia.slice(i);
+    i++; // día aislado: lo descartamos también
+  }
+  return [];
+}
+
 // Gráfica de uso del chatbot: personas reales y sesiones, con una línea de
 // PERSONAS por día y las SESIONES de cada día debajo de su punto.
 const SesionesChatbotDiarias = ({ days = 30 }) => {
@@ -37,20 +87,32 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
 
   if (error || !data) return null;
 
-  const porDia = data.por_dia || [];
+  // Determinar rango y rellenar días sin actividad con 0.
+  const today = todayMTY();
+  let startYMD;
+  if (data.days === "all") {
+    startYMD = data.first_day ? String(data.first_day).slice(0, 10) : today;
+  } else {
+    const dnum = Number(data.days) || 30;
+    startYMD = shiftDay(today, -(dnum - 1));
+  }
+  // Llenar todos los días + recortar el "calentamiento" del inicio:
+  // si hubo un día aislado (ej. 27 abr) seguido de semanas en cero, no lo
+  // mostramos. La gráfica arranca desde el primer día con actividad continua.
+  const porDia = trimLeadingEmpty(fillMissingDays(data.por_dia || [], startYMD, today));
   const personasTotal = Number(data.total_personas) || 0;
   const sesionesTotal = Number(data.total_sesiones) || 0;
   const n = porDia.length;
   // La línea grafica PERSONAS por día.
   const max = Math.max(1, ...porDia.map((d) => Number(d.personas) || 0));
 
-  // Geometría de la gráfica.
+  // Geometría de la gráfica (más alta que antes para ver bien la curva).
   const W = 560;
-  const H = 146;
+  const H = 240;
   const padL = 14;
   const padR = 14;
-  const padT = 20;
-  const padB = 48;
+  const padT = 24;
+  const padB = 52;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
   const baseY = padT + chartH;
@@ -68,8 +130,10 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
   });
   const linePts = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   const areaPts = `${padL},${baseY} ${linePts} ${padL + chartW},${baseY}`;
-  // Valores por punto solo si caben (pocos días).
-  const showValues = n <= 14;
+  // Tamaño del texto por punto: se reduce cuando hay muchos días para no
+  // saturar. Se muestra siempre en días con actividad (skip los días con 0).
+  const isDense = n > 30;
+  const valSize = isDense ? 7.5 : n > 14 ? 8.5 : 10;
   const labelEvery = Math.max(1, Math.ceil(n / 8));
   const sesRowY = H - 28; // fila de "sesiones del día"
   const dateRowY = H - 10; // fila de fechas
@@ -80,23 +144,25 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
           Uso del chatbot
         </h3>
-        <span className="text-xs text-gray-400">últimos {data.days} días</span>
+        <span className="text-xs text-gray-400">
+          {data.days === "all" ? "histórico" : `últimos ${data.days} días`}
+        </span>
       </div>
 
-      <div className="flex items-end gap-10 mb-1">
+      <div className="flex flex-wrap items-end gap-12 mb-3">
         <div>
-          <p className="text-4xl font-bold text-gray-900 leading-none">
+          <p className="text-6xl font-bold text-gray-900 leading-none">
             {personasTotal.toLocaleString("es-MX")}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
-            {personasTotal === 1 ? "persona" : "personas"}
+          <p className="text-base font-semibold text-gray-800 mt-2">
+            {personasTotal === 1 ? "usuario único" : "usuarios únicos"}
           </p>
         </div>
         <div>
-          <p className="text-4xl font-bold text-gray-400 leading-none">
+          <p className="text-6xl font-bold text-gray-900 leading-none">
             {sesionesTotal.toLocaleString("es-MX")}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-base font-semibold text-gray-800 mt-2">
             {sesionesTotal === 1 ? "sesión" : "sesiones"}
           </p>
         </div>
@@ -108,7 +174,7 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="w-full mt-2"
-          style={{ maxHeight: 175 }}
+          style={{ maxHeight: 320 }}
           role="img"
           aria-label="Personas por día en el chatbot"
         >
@@ -123,40 +189,45 @@ const SesionesChatbotDiarias = ({ days = 30 }) => {
               strokeLinecap="round"
             />
           )}
-          {showValues && (
-            <text x={padL} y={sesRowY} textAnchor="start" fontSize="7.5" fill="#d1d5db">
-              ses.
-            </text>
-          )}
-          {pts.map((p, i) => (
-            <g key={p.dia}>
-              <circle cx={p.x} cy={p.y} r="3.5" fill="#FFF200" stroke="#a89800" strokeWidth="1">
-                <title>{`${fmtDay(p.dia)}: ${p.personas} personas · ${p.sesiones} sesiones`}</title>
-              </circle>
-              {showValues && (
-                <text
-                  x={p.x}
-                  y={p.y - 8}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="bold"
-                  fill="#111827"
-                >
-                  {p.personas}
-                </text>
-              )}
-              {showValues && (
-                <text x={p.x} y={sesRowY} textAnchor="middle" fontSize="9.5" fill="#9ca3af">
-                  {p.sesiones}
-                </text>
-              )}
-              {(showValues || i % labelEvery === 0 || i === n - 1) && (
-                <text x={p.x} y={dateRowY} textAnchor="middle" fontSize="9" fill="#9ca3af">
-                  {fmtDay(p.dia)}
-                </text>
-              )}
-            </g>
-          ))}
+          {pts.map((p, i) => {
+            const hasActivity = p.personas > 0 || p.sesiones > 0;
+            return (
+              <g key={p.dia}>
+                <circle cx={p.x} cy={p.y} r="3.5" fill="#FFF200" stroke="#a89800" strokeWidth="1">
+                  <title>{`${fmtDay(p.dia)}: ${p.personas} personas · ${p.sesiones} sesiones`}</title>
+                </circle>
+                {hasActivity && (
+                  <text
+                    x={p.x}
+                    y={p.y - 8}
+                    textAnchor="middle"
+                    fontSize={valSize}
+                    fontWeight="bold"
+                    fill="#111827"
+                  >
+                    {p.personas}
+                  </text>
+                )}
+                {hasActivity && (
+                  <text
+                    x={p.x}
+                    y={sesRowY}
+                    textAnchor="middle"
+                    fontSize={valSize}
+                    fontWeight="bold"
+                    fill="#374151"
+                  >
+                    {p.sesiones}
+                  </text>
+                )}
+                {i % labelEvery === 0 && (
+                  <text x={p.x} y={dateRowY} textAnchor="middle" fontSize="9" fill="#9ca3af">
+                    {fmtDay(p.dia)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
         </svg>
       )}
     </div>
