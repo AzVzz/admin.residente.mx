@@ -1405,7 +1405,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             Día del mes para el cobro recurrente (opcional)
           </label>
           <p className="text-sm text-gray-600 mb-2">
-            Si no eliges, el cobro mensual se hará cada mes el mismo día en que pagaste hoy.
+            Elige tu día de cobro ideal a partir del segundo mes.
           </p>
           <select
             name="dia_cobro"
@@ -1413,7 +1413,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             onChange={handleChange}
             className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
           >
-            <option value="">Mismo día del pago</option>
+            <option value="" disabled hidden>Selecciona un día</option>
             {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
               <option key={d} value={d}>
                 Día {d} de cada mes
