@@ -44,6 +44,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
     nombre_usuario: "",
     password: "",
     confirm_password: "", // <-- nuevo campo
+    dia_cobro: "", // opcional: día del mes (1-28) para cobro recurrente. "" = mismo día del pago.
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
@@ -886,6 +887,10 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         ...(esClienteRestringidoAprobado && precioSeleccionado?.precioMensual && {
           precioOverride: precioSeleccionado.precioMensual,
         }),
+        // Día del mes elegido para el cobro recurrente (1-28). Omitir si "".
+        ...(formData.dia_cobro && {
+          diaCobro: parseInt(formData.dia_cobro, 10),
+        }),
       };
 
       const res = await fetch(apiUrl, {
@@ -1181,6 +1186,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         nombre_usuario: "",
         password: "",
         confirm_password: "",
+        dia_cobro: "",
       });
       // Limpiar el estado de pago después de crear la cuenta exitosamente
       setPaymentCompleted(false);
@@ -1391,6 +1397,29 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             formData.correo.includes("@") && (
               <p className="text-green-500 text-xs mt-1">✓ Correo disponible</p>
             )}
+        </div>
+
+        {/* Día del mes para cobro recurrente (opcional) */}
+        <div className="mt-4">
+          <label className="block mb-1 sm:mb-0 sm:space-y-2 font-roman font-bold text-base sm:text-xl">
+            Día del mes para el cobro recurrente (opcional)
+          </label>
+          <p className="text-sm text-gray-600 mb-2">
+            Si no eliges, el cobro mensual se hará cada mes el mismo día en que pagaste hoy.
+          </p>
+          <select
+            name="dia_cobro"
+            value={formData.dia_cobro}
+            onChange={handleChange}
+            className="bg-white w-full px-4 sm:px-3 py-4 sm:py-2 border border-gray-300 rounded-lg sm:rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-family-roman text-lg sm:text-sm"
+          >
+            <option value="">Mismo día del pago</option>
+            {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+              <option key={d} value={d}>
+                Día {d} de cada mes
+              </option>
+            ))}
+          </select>
         </div>
 
       </div>

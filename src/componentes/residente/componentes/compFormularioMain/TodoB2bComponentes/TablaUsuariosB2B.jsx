@@ -150,6 +150,9 @@ const TablaUsuariosB2B = ({
               </th>
               <ThSortable field="meses_pagados">Meses pagados</ThSortable>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                Día cobro
+              </th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Pago
               </th>
               <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
@@ -166,7 +169,7 @@ const TablaUsuariosB2B = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="12" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -227,6 +230,15 @@ const TablaUsuariosB2B = ({
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap text-gray-600">
                       {b2b?.meses_pagados != null ? `${b2b.meses_pagados} m` : "—"}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                      {b2b?.dia_cobro != null ? (
+                        <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-indigo-100 text-indigo-700">
+                          Día {b2b.dia_cobro}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Mismo día pago</span>
+                      )}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       {(() => {
