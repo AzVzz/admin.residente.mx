@@ -120,7 +120,7 @@ const TablaUsuariosB2B = ({
 
   const ThSortable = ({ field, children }) => (
     <th
-      className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600 select-none"
+      className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600 select-none text-xs"
       onClick={() => handleSort(field)}
     >
       {children}<SortIcon field={field} />
@@ -132,44 +132,54 @@ const TablaUsuariosB2B = ({
       <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-3">
         <h3 className="text-white font-semibold">Usuarios B2B</h3>
       </div>
-      <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
+      <div className="max-h-[calc(100vh-180px)] overflow-y-auto overflow-x-hidden">
+        <table className="w-full table-fixed divide-y divide-gray-200 text-sm">
+          <colgroup>
+            <col className="w-10" />
+            <col className="w-[15%]" />
+            <col className="w-[9%]" />
+            <col className="w-[15%]" />
+            <col className="w-[10%]" />
+            <col className="w-[7%]" />
+            <col className="w-[8%]" />
+            <col className="w-[10%]" />
+            <col className="w-[7%]" />
+            <col className="w-[8%]" />
+            <col className="w-[11%]" />
+          </colgroup>
           <thead className="bg-gray-50 sticky top-0">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider w-8">
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
                 #
               </th>
               <ThSortable field="restaurante">Restaurante</ThSortable>
-              <ThSortable field="fecha">Suscripción</ThSortable>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Suscripción
+              <ThSortable field="fecha">Susc.</ThSortable>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
+                Estado
               </th>
               <ThSortable field="monto">Monto</ThSortable>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Meses plan
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
+                Plan
               </th>
-              <ThSortable field="meses_pagados">Meses pagados</ThSortable>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Día cobro
-              </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+              <ThSortable field="meses_pagados">Pagados</ThSortable>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
                 Pago
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Beneficios
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
+                Benef.
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
                 Cuenta
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
+              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
+                Acc.
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan="12" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="11" className="px-4 py-4 text-center text-gray-500">
                   No hay usuarios B2B registrados
                 </td>
               </tr>
@@ -181,15 +191,15 @@ const TablaUsuariosB2B = ({
 
                 return (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-400 font-mono text-xs">
+                    <td className="px-3 py-2 text-gray-400 font-mono text-xs align-top">
                       {idx + 1}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <span className="font-medium text-gray-900">
+                    <td className="px-3 py-2 align-top break-words">
+                      <span className="font-medium text-gray-900 leading-tight">
                         {b2b?.nombre_responsable_restaurante || "—"}
                       </span>
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                    <td className="px-3 py-2 text-gray-600 text-xs align-top">
                       {sus?.fecha_creacion_stripe
                         ? formatFecha(sus.fecha_creacion_stripe)
                         : b2b?.fecha_aceptacion_terminos
@@ -198,49 +208,55 @@ const TablaUsuariosB2B = ({
                             ? formatFecha(b2b.primer_pago)
                             : "—"}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-3 py-2 align-top">
                       {(() => {
                         const estado = getEstadoSuscripcion(sus);
                         const intervalo = formatIntervalo(sus?.facturas);
-                        if (!estado) return <span className="text-gray-400">—</span>;
+                        // Día de cobro: si el cliente eligió uno, mostrar ese.
+                        // Si no, derivar del próximo periodo (fecha_fin_periodo_actual).
+                        let diaCobroLabel = null;
+                        if (b2b?.dia_cobro != null) {
+                          diaCobroLabel = `Día ${b2b.dia_cobro}`;
+                        } else if (
+                          sus?.fecha_fin_periodo_actual &&
+                          sus.estado !== "canceled" &&
+                          new Date(sus.fecha_fin_periodo_actual).getTime() > Date.now()
+                        ) {
+                          diaCobroLabel = `Día ${new Date(sus.fecha_fin_periodo_actual).getDate()}`;
+                        }
+                        if (!estado && !diaCobroLabel) return <span className="text-gray-400">—</span>;
                         return (
-                          <div>
-                            <span className={`inline-flex px-2 py-1 font-semibold rounded-full ${estado.cls}`}>
-                              {estado.label}
-                            </span>
-                            {sus?.fecha_fin_periodo_actual &&
-                              sus.estado !== "canceled" &&
-                              new Date(sus.fecha_fin_periodo_actual).getTime() > Date.now() && (
-                                <div className="text-[10px] text-gray-500 mt-0.5">
-                                  Próx: {formatFecha(sus.fecha_fin_periodo_actual)}
-                                </div>
-                              )}
+                          <div className="space-y-1">
+                            {estado && (
+                              <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${estado.cls}`}>
+                                {estado.label}
+                              </span>
+                            )}
+                            {diaCobroLabel && (
+                              <div className="text-xs leading-tight">
+                                <span className="text-gray-500">Cobro:</span>{" "}
+                                <span className="font-semibold text-indigo-700">
+                                  {diaCobroLabel}
+                                </span>
+                              </div>
+                            )}
                             {intervalo && (
-                              <div className="text-[10px] text-gray-400">{intervalo}</div>
+                              <div className="text-xs text-gray-400">{intervalo}</div>
                             )}
                           </div>
                         );
                       })()}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
+                    <td className="px-3 py-2 font-semibold text-gray-800 align-top">
                       {sus ? formatMonto(sus.monto) : "—"}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
-                      {b2b?.numero_meses ? `${b2b.numero_meses} m` : "—"}
+                    <td className="px-3 py-2 text-gray-600 align-top text-center">
+                      {b2b?.numero_meses ? `${b2b.numero_meses}m` : "—"}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
-                      {b2b?.meses_pagados != null ? `${b2b.meses_pagados} m` : "—"}
+                    <td className="px-3 py-2 text-gray-600 align-top text-center">
+                      {b2b?.meses_pagados != null ? `${b2b.meses_pagados}m` : "—"}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-gray-600">
-                      {b2b?.dia_cobro != null ? (
-                        <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-indigo-100 text-indigo-700">
-                          Día {b2b.dia_cobro}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400 text-xs">Mismo día pago</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-3 py-2 align-top">
                       {(() => {
                         const marca = b2b?.ultimo_pago?.marca_tarjeta || b2b?.marca_tarjeta;
                         const tipo = b2b?.ultimo_pago?.tipo_tarjeta || b2b?.tipo_tarjeta;
@@ -261,44 +277,31 @@ const TablaUsuariosB2B = ({
                               : "bg-gray-100 text-gray-600";
                         return (
                           <div>
-                            <span className="capitalize text-gray-800 font-medium block">
+                            <span className="capitalize text-gray-800 font-medium block text-sm leading-tight">
                               {marca || "—"}
                             </span>
-                            <span className={`inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded ${tipoCls}`}>
+                            <span className={`inline-block mt-0.5 px-1.5 py-0.5 text-xs font-semibold rounded ${tipoCls}`}>
                               {tipoLabel}
                             </span>
                           </div>
                         );
                       })()}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 align-top text-center">
                       {b2b ? (
-                        <div>
-                          <span
-                            className={`font-semibold ${numBeneficios === 5 ? "text-green-600" : numBeneficios > 0 ? "text-indigo-600" : "text-gray-400"}`}
-                          >
-                            {numBeneficios}/5
-                          </span>
-                          <div className="flex flex-wrap gap-1 mt-0.5">
-                            {BENEFICIOS.map((ben) =>
-                              b2b[ben.key] ? (
-                                <span
-                                  key={ben.key}
-                                  className="inline-block px-1.5 py-0.5 text-[10px] font-medium rounded bg-indigo-100 text-indigo-700"
-                                >
-                                  {ben.label}
-                                </span>
-                              ) : null,
-                            )}
-                          </div>
-                        </div>
+                        <span
+                          className={`font-semibold text-base ${numBeneficios === 5 ? "text-green-600" : numBeneficios > 0 ? "text-indigo-600" : "text-gray-400"}`}
+                          title={BENEFICIOS.filter((ben) => b2b[ben.key]).map((ben) => ben.label).join(", ") || "Sin beneficios"}
+                        >
+                          {numBeneficios}/5
+                        </span>
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-3 py-2 align-top">
                       <span
-                        className={`inline-flex px-2 py-1 font-semibold rounded-full ${
+                        className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
                           user.estado === "activo"
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
@@ -307,8 +310,8 @@ const TablaUsuariosB2B = ({
                         {user.estado}
                       </span>
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-3 py-2 font-medium align-top">
+                      <div className="flex gap-2 items-center flex-wrap">
                         {user.id && (
                           <Link
                             to={`/dashboardb2b/cliente/${user.id}`}
