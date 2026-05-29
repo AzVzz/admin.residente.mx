@@ -106,8 +106,42 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   const [restauranteRestringidoId, setRestauranteRestringidoId] =
     useState(null);
 
+  // Suscripción editorial con precio dinámico (link propio del restaurante)
+  const editorialToken = searchParams.get("editorial_token");
+  const [editorialData, setEditorialData] = useState(null);
+
   // Código maestro para desbloquear restaurantes vetados
   const CODIGO_MAESTRO = "RESIDENTE";
+
+  // Cargar datos del cliente editorial desde el link propio y precargar precio/restaurante
+  useEffect(() => {
+    if (!editorialToken) return;
+    (async () => {
+      try {
+        const r = await fetch(
+          `${urlApi}api/clientes-editorial/por-enlace/${editorialToken}`,
+        );
+        if (!r.ok) return;
+        const d = await r.json();
+        setEditorialData(d);
+        setFormData((prev) => ({
+          ...prev,
+          nombre_restaurante: d.restaurante || prev.nombre_restaurante,
+        }));
+        setCodigoValido(true); // bypass del gating de restaurante restringido
+        setPrecioSeleccionado({
+          nombre: d.nombrePlan,
+          mesesTexto: `${d.mesesCompromiso} meses`,
+          precioMensual: d.precio.monto,
+          precioMensualConIVA: d.precio.montoConIVA,
+          sucursales: 1,
+          priceId: "editorial_dinamico",
+        });
+      } catch (e) {
+        console.error("Error cargando datos editoriales:", e);
+      }
+    })();
+  }, [editorialToken]);
 
   // Obtener precios desde el backend al cargar el componente
   useEffect(() => {
@@ -890,6 +924,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         // Día del mes elegido para el cobro recurrente (1-28). Omitir si "".
         ...(formData.dia_cobro && {
           diaCobro: parseInt(formData.dia_cobro, 10),
+        }),
+        // Suscripción editorial: precio dinámico desde clientes_editorial
+        ...((editorialData?.clienteEditorialId || planInicial?.clienteEditorialId) && {
+          clienteEditorialId:
+            editorialData?.clienteEditorialId || planInicial?.clienteEditorialId,
         }),
       };
 
