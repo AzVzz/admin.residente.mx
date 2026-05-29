@@ -599,6 +599,12 @@ const ListaNotas = () => {
       return;
     }
 
+    // Editorial (precios dinámicos): permitido a vendedor y residente
+    const rolLc = usuario?.rol?.toLowerCase();
+    if (vistaActiva === "vetados" && (rolLc === "vendedor" || rolLc === "residente")) {
+      return;
+    }
+
     // Para otros usuarios no admin
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
@@ -759,7 +765,8 @@ const ListaNotas = () => {
         return (
           option.key === "mis_restaurantes" ||
           option.key === "cupones" ||
-          option.key === "eventos"
+          option.key === "eventos" ||
+          option.key === "vetados"
         );
       }
 
@@ -779,7 +786,8 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "buscador") ||
         (usuario?.rol === "residente" && option.key === "correos") ||
         (usuario?.rol === "residente" && option.key === "mediainc") ||
-        (usuario?.rol === "residente" && option.key === "tematicas")
+        (usuario?.rol === "residente" && option.key === "tematicas") ||
+        (usuario?.rol === "residente" && option.key === "vetados")
       );
     })
   ).filter((option) =>

@@ -78,6 +78,8 @@ const PlanCard = ({
   esSeller,
   nombreRestauranteParaLink,
   esClienteRestringido,
+  clienteDinamico,
+  enlaceToken,
 }) => {
   const [copiado, setCopiado] = useState(false);
   const IconoComponent = plan.icono;
@@ -236,11 +238,17 @@ const PlanCard = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            const restauranteSuffix = nombreRestauranteParaLink
-              ? `&restaurante=${encodeURIComponent(nombreRestauranteParaLink)}`
-              : "";
-            const tipoSuffix = esClienteRestringido ? "&tipo=restringido" : "";
-            const link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}${restauranteSuffix}${tipoSuffix}&tienda=RESIDENTE`;
+            // Cliente con precio dinámico → link editorial propio (usa price_data por-restaurante)
+            let link;
+            if (clienteDinamico && enlaceToken) {
+              link = `${window.location.origin}/admin/registrob2b?editorial_token=${enlaceToken}`;
+            } else {
+              const restauranteSuffix = nombreRestauranteParaLink
+                ? `&restaurante=${encodeURIComponent(nombreRestauranteParaLink)}`
+                : "";
+              const tipoSuffix = esClienteRestringido ? "&tipo=restringido" : "";
+              link = `${window.location.origin}/admin/registrob2b?plan=${plan.priceId}${restauranteSuffix}${tipoSuffix}&tienda=RESIDENTE`;
+            }
             navigator.clipboard.writeText(link).then(() => {
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
@@ -558,13 +566,17 @@ const SelectorPlanesB2B = ({
 
   const handleSelectPlan = (plan) => {
     if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
+      const cli = clientesVetados.find(
+        (c) => c.id === parseInt(clienteSeleccionado),
+      );
+      const dinamico = !!(cli?.precio_dinamico_activo && cli?.precio_mensual_centavos);
       const planConCliente = {
         ...plan,
         clienteRestringidoId: clienteSeleccionado,
         esClienteRestringido: true,
-        nombreCliente: clientesVetados.find(
-          (c) => c.id === parseInt(clienteSeleccionado),
-        )?.restaurante,
+        nombreCliente: cli?.restaurante,
+        // Precio dinámico editorial: el backend usará price_data desde clientes_editorial
+        ...(dinamico && { clienteEditorialId: parseInt(clienteSeleccionado) }),
       };
       onSelectPlan(planConCliente);
     } else if (mostrarInputOtro && nombreOtro.trim()) {
@@ -596,12 +608,20 @@ const SelectorPlanesB2B = ({
           .map((plan, index) => {
             const mesesNum = parseInt(plan.meses);
             // Determinar qué precio usar:
-            // - Cliente del dropdown → precio caro ($4,399)
+            // - Cliente del dropdown con precio dinámico → ese precio por-restaurante
+            // - Cliente del dropdown sin dinámico → precio caro ($4,399)
             // - "Otro" (cliente nuevo) → precio barato ($2,199)
             // - Sin seller / visitante con link → precio original de Stripe
             let precioOverride = null;
             if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
-              precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
+              const cli = clientesVetados.find(
+                (c) => c.id === parseInt(clienteSeleccionado),
+              );
+              if (cli?.precio_dinamico_activo && cli?.precio_mensual_centavos) {
+                precioOverride = Math.round(cli.precio_mensual_centavos / 100);
+              } else {
+                precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
+              }
             } else if (mostrarInputOtro || !esSeller) {
               precioOverride = PRECIOS_CLIENTE_NUEVO[mesesNum];
             }
@@ -902,6 +922,17 @@ const SelectorPlanesB2B = ({
                   }
                   esClienteRestringido={
                     !!clienteSeleccionado && clienteSeleccionado !== "__otro__"
+                  }
+                  clienteDinamico={(() => {
+                    const c = clientesVetados.find(
+                      (x) => x.id === parseInt(clienteSeleccionado),
+                    );
+                    return !!(c?.precio_dinamico_activo && c?.precio_mensual_centavos);
+                  })()}
+                  enlaceToken={
+                    clientesVetados.find(
+                      (x) => x.id === parseInt(clienteSeleccionado),
+                    )?.enlace_token
                   }
                 />
               ))}

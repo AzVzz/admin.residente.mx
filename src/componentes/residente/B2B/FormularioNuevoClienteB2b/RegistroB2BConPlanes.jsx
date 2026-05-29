@@ -44,6 +44,7 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   const planParam = searchParams.get("plan");
   const restauranteParam = searchParams.get("restaurante");
   const tipoParam = searchParams.get("tipo");
+  const editorialToken = searchParams.get("editorial_token");
 
   const [planSeleccionado, setPlanSeleccionado] = useState(
     modoPrueba ? PLAN_PRUEBA_12_MESES : null,
@@ -87,7 +88,42 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
   );
 
   // Gate de acceso: sin sesion de seller, sin ?plan= y sin payment_success -> bloquear
-  const accesoRestringido = !modoPrueba && !esSeller && !planParam && !paymentSuccess;
+  // El link editorial propio (editorial_token) también da acceso.
+  const accesoRestringido =
+    !modoPrueba && !esSeller && !planParam && !paymentSuccess && !editorialToken;
+
+  // Link editorial propio: cargar precio dinámico, inyectar plan y saltar selector
+  useEffect(() => {
+    if (!editorialToken) return;
+    (async () => {
+      try {
+        const r = await fetch(
+          `${urlApi}api/clientes-editorial/por-enlace/${editorialToken}`,
+        );
+        if (!r.ok) return;
+        const d = await r.json();
+        const planFinal = {
+          meses: d.mesesCompromiso || 12,
+          mesesTexto: `${d.mesesCompromiso || 12} meses`,
+          nombre: d.nombrePlan || "Suscripción Editorial",
+          descripcion: "Suscripción editorial",
+          moneda: "MXN",
+          intervalo: "month",
+          priceId: "editorial_dinamico",
+          precioMensual: d.precio.monto,
+          precioMensualConIVA: d.precio.montoConIVA,
+          esClienteRestringido: true,
+          clienteEditorialId: d.clienteEditorialId,
+          sucursales: 1,
+        };
+        setNombreRestauranteOtro(d.restaurante || "");
+        setPlanSeleccionado(planFinal);
+        setMostrarFormulario(true);
+      } catch (e) {
+        console.error("Error cargando plan editorial:", e);
+      }
+    })();
+  }, [editorialToken]);
 
   // Obtener precios desde el backend
   useEffect(() => {
