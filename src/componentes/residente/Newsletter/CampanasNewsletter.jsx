@@ -9,6 +9,7 @@ const CampanasNewsletter = () => {
   const [campanas, setCampanas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notificandoId, setNotificandoId] = useState(null);
 
   const fetchCampanas = async () => {
     setIsLoading(true);
@@ -40,6 +41,25 @@ const CampanasNewsletter = () => {
       setCampanas((prev) => prev.filter((c) => c.id !== id));
     } catch {
       alert("Error eliminando campaña");
+    }
+  };
+
+  const notificarClientes = async (id) => {
+    if (!confirm("¿Enviar notificaciones a los clientes B2B cuyo restaurante, nota o cupón aparece en esta campaña? (Se puede repetir sin duplicar.)")) return;
+    setNotificandoId(id);
+    try {
+      const res = await fetch(`${urlApi}api/newsletter/campanas/${id}/notificar-clientes`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: "{}",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+      alert(data.mensaje || "Notificaciones enviadas.");
+    } catch (err) {
+      alert(err.message || "Error enviando notificaciones");
+    } finally {
+      setNotificandoId(null);
     }
   };
 
@@ -109,6 +129,14 @@ const CampanasNewsletter = () => {
                 className="text-xs text-blue-600 border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50 transition-colors"
               >
                 Preview
+              </button>
+              <button
+                onClick={() => notificarClientes(c.id)}
+                disabled={notificandoId === c.id}
+                title="Avisar a los clientes B2B mencionados en esta campaña"
+                className="text-xs text-green-700 border border-green-200 px-3 py-1.5 rounded hover:bg-green-50 transition-colors disabled:opacity-50"
+              >
+                {notificandoId === c.id ? "Enviando…" : "Enviar notificaciones"}
               </button>
               {c.estado !== "enviada" && (
                 <button
