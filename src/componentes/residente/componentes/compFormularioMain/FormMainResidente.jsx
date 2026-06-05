@@ -115,6 +115,7 @@ const FormMainResidente = () => {
       tipoDeNotaSeleccionada: tipoNotaUsuario || "",
       categoriasSeleccionadas: {},
       imagen: null,
+      imagen_recorte: null,
       instafoto: null,
       programarInstafoto: false,
       fechaProgramadaInstafoto: "",
@@ -706,7 +707,12 @@ const FormMainResidente = () => {
       }
 
       if (data.imagen && (notaId || resultado.id)) {
-        await notaImagenPut(notaId || resultado.id, data.imagen, token);
+        await notaImagenPut(
+          notaId || resultado.id,
+          data.imagen,
+          token,
+          data.imagen_recorte,
+        );
       }
 
       if (data.instafoto && (notaId || resultado.id)) {
