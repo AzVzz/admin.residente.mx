@@ -1,5 +1,5 @@
 # === Dev stage (hot reload con Vite) ===
-FROM node:20-alpine AS dev
+FROM node:22-alpine AS dev
 WORKDIR /app
 RUN corepack enable pnpm
 COPY package.json pnpm-lock.yaml ./
@@ -9,7 +9,7 @@ EXPOSE 5173
 CMD ["pnpm", "vite", "--host", "0.0.0.0"]
 
 # === Prod build ===
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 RUN corepack enable pnpm
 COPY package.json pnpm-lock.yaml ./
