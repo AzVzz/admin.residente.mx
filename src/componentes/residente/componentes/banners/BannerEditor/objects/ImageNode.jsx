@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Image as KonvaImage } from "react-konva";
+import { localImgSrc } from "../sceneSchema.js";
 
 const ImageNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
   const ref = useRef(null);
@@ -8,9 +9,9 @@ const ImageNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
   useEffect(() => {
     if (!obj.src) return;
     const img = new window.Image();
-    // crossOrigin required to avoid tainted canvas on export
+    // same-origin src + crossOrigin avoids a tainted canvas on export
     img.crossOrigin = "anonymous";
-    img.src = obj.src;
+    img.src = localImgSrc(obj.src);
     img.onload = () => setImgEl(img);
     img.onerror = () => setImgEl(null);
   }, [obj.src]);

@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Image as KonvaImage } from "react-konva";
+import { localImgSrc } from "../sceneSchema.js";
 
-// Stickers are brand icons from the Residente CDN (confirmed CORS-enabled).
+// Brand stickers from the Residente CDN, loaded same-origin so export doesn't taint.
 const StickerNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
   const ref = useRef(null);
   const [imgEl, setImgEl] = useState(null);
@@ -10,7 +11,7 @@ const StickerNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
     if (!obj.src) return;
     const img = new window.Image();
     img.crossOrigin = "anonymous";
-    img.src = obj.src;
+    img.src = localImgSrc(obj.src);
     img.onload = () => setImgEl(img);
     img.onerror = () => setImgEl(null);
   }, [obj.src]);

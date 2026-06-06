@@ -106,16 +106,15 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
             if (resolved.hidden) return null;
 
             const sharedProps = {
-              key: obj.id,
               obj: resolved,
               onSelect: handleSelect,
               onDragEnd: handleDragEnd,
               onTransformEnd: handleTransformEnd,
             };
 
-            if (resolved.type === "text") return <TextNode {...sharedProps} />;
-            if (resolved.type === "image") return <ImageNode {...sharedProps} />;
-            if (resolved.type === "sticker") return <StickerNode {...sharedProps} />;
+            if (resolved.type === "text") return <TextNode key={obj.id} {...sharedProps} />;
+            if (resolved.type === "image") return <ImageNode key={obj.id} {...sharedProps} />;
+            if (resolved.type === "sticker") return <StickerNode key={obj.id} {...sharedProps} />;
             return null;
           })}
 

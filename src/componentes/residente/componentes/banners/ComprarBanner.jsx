@@ -160,7 +160,8 @@ const ComprarBanner = () => {
     setImagenMobile(mobileFile);
     setPreviewDesktop(URL.createObjectURL(desktopFile));
     setPreviewMobile(URL.createObjectURL(mobileFile));
-    setSceneJson(sj); // serialized JSON string
+    setSceneJson(sj); // serialized JSON string sent on submit
+    setInitialSceneJson(sj); // keep scene so reopening the editor restores the design
     setIsEditorOpen(false);
   };
 

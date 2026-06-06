@@ -38,3 +38,10 @@ export const deserializeScene = (raw) => {
 
 export const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+
+// Route residente.mx asset URLs through a same-origin path (Vite /fotos proxy in dev,
+// nginx in prod) so Konva can read them for export without a CORS-tainted canvas.
+export const localImgSrc = (src) => {
+  if (typeof src !== "string") return src;
+  return src.replace(/^https?:\/\/(www\.)?residente\.mx/i, "");
+};

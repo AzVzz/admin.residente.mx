@@ -39,7 +39,7 @@ export const bannerSceneUpdateByToken = async (editToken, formData) => {
 // Uploads a single asset image for use inside the scene; returns { url }.
 export const bannerAssetUpload = async (file) => {
   const form = new FormData();
-  form.append("imagen", file);
+  form.append("file", file);
   const res = await fetch(`${urlApi}api/banners/public/asset-upload`, {
     method: "POST",
     body: form,
