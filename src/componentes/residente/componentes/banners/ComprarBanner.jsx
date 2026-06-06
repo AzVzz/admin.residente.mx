@@ -5,6 +5,8 @@ import { bannerSceneLoadByToken } from "../../../api/bannerSceneApi.js";
 // Konva stays out of the main bundle — loaded only when editor opens.
 const BannerEditorModal = lazy(() => import("./BannerEditor/BannerEditorModal.jsx"));
 
+const DRAFT_KEY = "banner_editor_draft_v1";
+
 const API_BASE = urlApi;
 
 const DURACION_LABELS = {
@@ -87,6 +89,31 @@ const ComprarBanner = () => {
       });
   // Only run once on mount.
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("token") || params.get("edit_token")) return; // token re-edit wins over local draft
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft.sceneJson) return;
+      setSceneJson(draft.sceneJson);
+      setInitialSceneJson(draft.sceneJson);
+      if (draft.nombre) setNombre(draft.nombre);
+      if (draft.urlDestino) setUrlDestino(draft.urlDestino);
+      setEditorMode("editor");
+      setReEditNotice("Recuperamos tu diseño sin guardar. Abre el editor y vuelve a guardar el diseño para generar las imágenes antes de pagar.");
+      setStep(2);
+    } catch { /* corrupt draft */ }
+  }, []);
+
+  useEffect(() => {
+    if (!sceneJson) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ sceneJson, nombre, urlDestino }));
+    } catch { /* storage unavailable */ }
+  }, [sceneJson, nombre, urlDestino]);
 
   // Derived values
   const ivaRate = config ? config.iva_porcentaje / 100 : 0.16;
@@ -223,6 +250,8 @@ const ComprarBanner = () => {
         // Store token for potential re-edit (soft re-use).
         if (banner.edit_token) setEditToken(banner.edit_token);
       }
+
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
 
       // Stripe checkout — unchanged flow.
       let endpoint;
