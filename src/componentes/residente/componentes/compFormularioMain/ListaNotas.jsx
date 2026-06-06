@@ -18,6 +18,7 @@ import NotaCard from "./componentesListaNotas/NotaCard";
 import { RiQuestionnaireFill } from "react-icons/ri";
 import { IoMdPlay } from "react-icons/io";
 import { FaBookOpen } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa";
 import { FaUtensils } from "react-icons/fa";
 import { GoNote } from "react-icons/go";
@@ -41,6 +42,7 @@ import SearchNotasLocal from "./SearchNotasLocal";
 
 const PreguntasSemanales = lazy(() => import("./componentesPrincipales/PreguntasSemanales.jsx"));
 const BannersDashboard = lazy(() => import("../banners/BannersDashboard.jsx"));
+const SubidorGeneral = lazy(() => import("../subidor/SubidorGeneral.jsx"));
 const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
 const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
 const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
@@ -661,6 +663,11 @@ const ListaNotas = () => {
       key: "banners",
       label: "Banners",
       icon: <FaBookOpen className="mr-2" />,
+    },
+    {
+      key: "subidor",
+      label: "Subidor",
+      icon: <FaUpload className="mr-2" />,
     },
     { key: "videos", label: "Videos", icon: <IoMdPlay className="mr-2" /> },
     {
@@ -1320,6 +1327,12 @@ const ListaNotas = () => {
         {vistaActiva === "banners" && (
           <Suspense fallback={<LazyFallback />}>
             <BannersDashboard />
+          </Suspense>
+        )}
+
+        {vistaActiva === "subidor" && (
+          <Suspense fallback={<LazyFallback />}>
+            <SubidorGeneral />
           </Suspense>
         )}
 

@@ -43,9 +43,11 @@ export const notaEditar = async (id, notaData, token) => {
     }
 };
 
-export const notaImagenPut = async (id, file, token) => {
+export const notaImagenPut = async (id, file, token, recorte = null) => {
     const formData = new FormData();
-    formData.append('imagen', file); // 'imagen' debe coincidir con la key que espera tu backend
+    formData.append('imagen', file); // 'imagen' = archivo ORIGINAL
+    // 'recorte' = versión 680x418 ya recortada en el navegador (opcional).
+    if (recorte) formData.append('recorte', recorte, 'recorte.webp');
 
     try {
         const response = await fetch(`${urlApi}api/notas/imagen/${id}`, {
