@@ -5,7 +5,7 @@ import { useEditor } from "./useEditor.js";
 import KonvaFrame from "./KonvaFrame.jsx";
 import VariantSwitcher from "./VariantSwitcher.jsx";
 import Toolbar from "./Toolbar.jsx";
-import StickerPicker from "./StickerPicker.jsx";
+import AssetPanel from "./AssetPanel.jsx";
 import TemplatesPicker from "./TemplatesPicker.jsx";
 import { useSceneExport, preloadFonts } from "./useSceneExport.js";
 import { deserializeScene, serializeScene, CANVAS_SIZES } from "./sceneSchema.js";
@@ -21,7 +21,7 @@ const EditorInner = ({ onSave, onCancel }) => {
 
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState(null);
-  const [activePanel, setActivePanel] = useState("stickers"); // stickers | templates
+  const [activePanel, setActivePanel] = useState("assets"); // assets | templates
 
   // Preload fonts whenever text objects change.
   useEffect(() => {
@@ -131,7 +131,7 @@ const EditorInner = ({ onSave, onCancel }) => {
 
           {/* Panel tabs */}
           <div className="flex border-b border-gray-100">
-            {["stickers", "templates"].map((p) => (
+            {["assets", "templates"].map((p) => (
               <button
                 key={p}
                 onClick={() => setActivePanel(p)}
@@ -145,7 +145,7 @@ const EditorInner = ({ onSave, onCancel }) => {
           </div>
 
           <div className="p-3 overflow-y-auto flex-1">
-            {activePanel === "stickers" && <StickerPicker />}
+            {activePanel === "assets" && <AssetPanel />}
             {activePanel === "templates" && <TemplatesPicker />}
           </div>
         </div>

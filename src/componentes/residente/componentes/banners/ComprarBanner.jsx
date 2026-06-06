@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { urlApi } from "../../../api/url";
-import { useAuth } from "../../../Context";
+import { bannerSceneLoadByToken } from "../../../api/bannerSceneApi.js";
+
+// Konva stays out of the main bundle — loaded only when editor opens.
+const BannerEditorModal = lazy(() => import("./BannerEditor/BannerEditorModal.jsx"));
 
 const API_BASE = urlApi;
 
@@ -17,8 +20,6 @@ const DURACION_DESC = {
 };
 
 const ComprarBanner = () => {
-  const { token } = useAuth();
-
   const [config, setConfig] = useState(null);
   const [tab, setTab] = useState("pagina_principal");
   const [duracion, setDuracion] = useState("mensual");
@@ -39,8 +40,17 @@ const ComprarBanner = () => {
   const [previewDesktop, setPreviewDesktop] = useState("");
   const [previewMobile, setPreviewMobile] = useState("");
 
+  // Editor state
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState("upload"); // "upload" | "editor"
+  const [sceneJson, setSceneJson] = useState(null); // serialized scene string to send on submit
+  const [editToken, setEditToken] = useState(null); // token from previous draft (re-edit)
+  const [initialSceneJson, setInitialSceneJson] = useState(null); // scene loaded for re-edit
+  const [reEditNotice, setReEditNotice] = useState(null); // user-visible message for ?token= flow
+  const isReEditRef = useRef(false); // true when in re-edit mode (submit → PUT instead of create)
+
   const [promoCode, setPromoCode] = useState("");
-  const [promoValido, setPromoValido] = useState(null);
+  const [isPromoValido, setPromoValido] = useState(null);
   const [promoOverride, setPromoOverride] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +62,30 @@ const ComprarBanner = () => {
       .then((r) => r.json())
       .then(setConfig)
       .catch(() => setError("No se pudo cargar la configuracion de precios"));
+  }, []);
+
+  // Re-edit via ?token= or ?edit_token= query param.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token_ = params.get("token") || params.get("edit_token");
+    if (!token_) return;
+
+    bannerSceneLoadByToken(token_)
+      .then((data) => {
+        // scene_json is already a parsed object from the backend GET handler.
+        setInitialSceneJson(data.scene_json ?? null);
+        if (data.nombre) setNombre(data.nombre.replace(/^Banner /, ""));
+        if (data.url_destino) setUrlDestino(data.url_destino);
+        setEditToken(token_);
+        isReEditRef.current = true;
+        setEditorMode("editor");
+        setReEditNotice("Retomaste un diseño guardado. Cuando termines, haz clic en Diseñar con editor para abrirlo.");
+        setStep(2);
+      })
+      .catch(() => {
+        setReEditNotice("El enlace de re-edición no es válido o ya expiró. Puedes crear un diseño nuevo.");
+      });
+  // Only run once on mount.
   }, []);
 
   // Derived values
@@ -120,6 +154,16 @@ const ComprarBanner = () => {
     }
   };
 
+  // Called when editor saves a design.
+  const handleEditorSave = ({ desktopFile, mobileFile, sceneJson: sj }) => {
+    setImagenDesktop(desktopFile);
+    setImagenMobile(mobileFile);
+    setPreviewDesktop(URL.createObjectURL(desktopFile));
+    setPreviewMobile(URL.createObjectURL(mobileFile));
+    setSceneJson(sj); // serialized JSON string
+    setIsEditorOpen(false);
+  };
+
   const canContinue = () => {
     if (isSlotTab) return selectedSlot && !selectedSlot.ocupado;
     if (isSeccionTab) return selectedSeccion && !selectedSeccion.ocupado;
@@ -136,24 +180,50 @@ const ComprarBanner = () => {
     setError("");
 
     try {
-      // Step 1: Create banner (upload images)
-      const formData = new FormData();
-      formData.append("nombre", `Banner ${nombre}`);
-      if (urlDestino) formData.append("url_destino", urlDestino);
-      formData.append("imagen_desktop", imagenDesktop);
-      if (imagenMobile) formData.append("imagen_mobile", imagenMobile);
+      let banner;
 
-      const bannerRes = await fetch(`${API_BASE}api/banners/public/crear`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!bannerRes.ok) {
-        const err = await bannerRes.json();
-        throw new Error(err.error || "Error al crear el banner");
+      if (isReEditRef.current && editToken) {
+        // Re-edit: update existing draft via PUT.
+        const formData = new FormData();
+        formData.append("nombre", `Banner ${nombre}`);
+        if (urlDestino) formData.append("url_destino", urlDestino);
+        formData.append("imagen_desktop", imagenDesktop);
+        if (imagenMobile) formData.append("imagen_mobile", imagenMobile);
+        if (sceneJson) formData.append("scene_json", sceneJson);
+
+        const putRes = await fetch(`${API_BASE}api/banners/public/edit/${encodeURIComponent(editToken)}`, {
+          method: "PUT",
+          body: formData,
+        });
+        if (!putRes.ok) {
+          const err = await putRes.json().catch(() => ({}));
+          throw new Error(err.error || "Error al actualizar el banner");
+        }
+        banner = await putRes.json();
+        // PUT returns updated banner; we already have editToken.
+      } else {
+        // New banner: POST create.
+        const formData = new FormData();
+        formData.append("nombre", `Banner ${nombre}`);
+        if (urlDestino) formData.append("url_destino", urlDestino);
+        formData.append("imagen_desktop", imagenDesktop);
+        if (imagenMobile) formData.append("imagen_mobile", imagenMobile);
+        if (sceneJson) formData.append("scene_json", sceneJson);
+
+        const bannerRes = await fetch(`${API_BASE}api/banners/public/crear`, {
+          method: "POST",
+          body: formData,
+        });
+        if (!bannerRes.ok) {
+          const err = await bannerRes.json().catch(() => ({}));
+          throw new Error(err.error || "Error al crear el banner");
+        }
+        banner = await bannerRes.json();
+        // Store token for potential re-edit (soft re-use).
+        if (banner.edit_token) setEditToken(banner.edit_token);
       }
-      const banner = await bannerRes.json();
 
-      // Step 2: Create Stripe checkout session
+      // Stripe checkout — unchanged flow.
       let endpoint;
       const body = {
         banner_id: banner.id,
@@ -186,7 +256,7 @@ const ComprarBanner = () => {
         },
       );
       if (!checkoutRes.ok) {
-        const err = await checkoutRes.json();
+        const err = await checkoutRes.json().catch(() => ({}));
         throw new Error(err.error || "Error al crear la sesion de pago");
       }
 
@@ -202,7 +272,7 @@ const ComprarBanner = () => {
   if (!config) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#fff200]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amarillo" />
       </div>
     );
   }
@@ -221,6 +291,13 @@ const ComprarBanner = () => {
           className="max-w-[320px] w-full h-auto"
         />
       </div>
+
+      {/* Re-edit notice */}
+      {reEditNotice && (
+        <div className="mb-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+          {reEditNotice}
+        </div>
+      )}
 
       {/* Step indicator */}
       <div className="flex items-center justify-center gap-4 mb-8">
@@ -247,8 +324,8 @@ const ComprarBanner = () => {
                   onClick={() => setDuracion(d)}
                   className={`py-3 px-4 rounded-xl text-center border-2 transition-all cursor-pointer ${
                     duracion === d
-                      ? "border-[#fff200] bg-[#fffde6]"
-                      : "border-gray-200 hover:border-[#fff200] bg-white"
+                      ? "border-amarillo bg-amarillo/10"
+                      : "border-gray-200 hover:border-amarillo bg-white"
                   }`}
                 >
                   <div className="font-bold text-sm">
@@ -326,8 +403,8 @@ const ComprarBanner = () => {
                         isOcupado
                           ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
                           : isSelected
-                            ? "border-[#fff200] bg-[#fffde6] cursor-pointer"
-                            : "border-gray-200 hover:border-[#fff200] bg-white cursor-pointer"
+                            ? "border-amarillo bg-amarillo/10 cursor-pointer"
+                            : "border-gray-200 hover:border-amarillo bg-white cursor-pointer"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -389,8 +466,8 @@ const ComprarBanner = () => {
                       }}
                       className={`text-left p-4 rounded-xl border-2 transition-all cursor-pointer ${
                         isSelected
-                          ? "border-[#fff200] bg-[#fffde6]"
-                          : "border-gray-200 hover:border-[#fff200] bg-white"
+                          ? "border-amarillo bg-amarillo/10"
+                          : "border-gray-200 hover:border-amarillo bg-white"
                       }`}
                     >
                       <div className="font-semibold text-sm">{paq.nombre}</div>
@@ -448,7 +525,7 @@ const ComprarBanner = () => {
           <button
             onClick={() => setStep(2)}
             disabled={!canContinue()}
-            className="w-full bg-[#fff200] hover:bg-[#e6da00] disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg text-lg transition-colors cursor-pointer"
+            className="w-full bg-amarillo hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg text-lg transition-colors cursor-pointer"
           >
             Continuar
           </button>
@@ -545,69 +622,140 @@ const ComprarBanner = () => {
                 Aplicar
               </button>
             </div>
-            {promoValido === true && (
+            {isPromoValido === true && (
               <p className="text-xs text-green-600 mt-1 font-medium">
                 ✓ Código aplicado — precio: $
                 {(promoOverride / 100).toLocaleString("es-MX")} MXN
               </p>
             )}
-            {promoValido === false && (
+            {isPromoValido === false && (
               <p className="text-xs text-red-500 mt-1">
                 Código inválido o ya utilizado
               </p>
             )}
           </div>
 
-          {/* Image uploads */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Imagen Desktop *
-              </label>
-              <p className="text-xs text-gray-400 mb-1">
-                Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio
-                5:1)
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleFileChange(e, setImagenDesktop, setPreviewDesktop)
-                }
-                className="w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#fff200] file:text-black hover:file:bg-[#e6da00] file:cursor-pointer"
-              />
-              {previewDesktop && (
-                <img
-                  src={previewDesktop}
-                  alt="Preview desktop"
-                  className="mt-2 rounded-lg border border-gray-200 max-h-24 w-full object-contain"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Imagen Mobile
-              </label>
-              <p className="text-xs text-gray-400 mb-1">
-                1000×250 px · 1500×375 px retina (ratio 4:1)
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleFileChange(e, setImagenMobile, setPreviewMobile)
-                }
-                className="w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#fff200] file:text-black hover:file:bg-[#e6da00] file:cursor-pointer"
-              />
-              {previewMobile && (
-                <img
-                  src={previewMobile}
-                  alt="Preview mobile"
-                  className="mt-2 rounded-lg border border-gray-200 max-h-24 w-full object-contain"
-                />
-              )}
+          {/* Banner source: upload vs. editor */}
+          <div className="mb-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">¿Cómo quieres crear tu banner?</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setEditorMode("upload")}
+                className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all cursor-pointer ${
+                  editorMode === "upload"
+                    ? "border-amarillo bg-amarillo/10 text-gray-900"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                Subir banner
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorMode("editor")}
+                className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all cursor-pointer ${
+                  editorMode === "editor"
+                    ? "border-amarillo bg-amarillo/10 text-gray-900"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                Crear con editor
+              </button>
             </div>
           </div>
+
+          {/* Upload path (unchanged) */}
+          {editorMode === "upload" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Imagen Desktop *
+                </label>
+                <p className="text-xs text-gray-400 mb-1">
+                  Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio
+                  5:1)
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleFileChange(e, setImagenDesktop, setPreviewDesktop)
+                  }
+                  className="w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amarillo file:text-black hover:file:bg-yellow-300 file:cursor-pointer"
+                />
+                {previewDesktop && (
+                  <img
+                    src={previewDesktop}
+                    alt="Preview desktop"
+                    className="mt-2 rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                  />
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Imagen Mobile
+                </label>
+                <p className="text-xs text-gray-400 mb-1">
+                  1000×250 px · 1500×375 px retina (ratio 4:1)
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleFileChange(e, setImagenMobile, setPreviewMobile)
+                  }
+                  className="w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amarillo file:text-black hover:file:bg-yellow-300 file:cursor-pointer"
+                />
+                {previewMobile && (
+                  <img
+                    src={previewMobile}
+                    alt="Preview mobile"
+                    className="mt-2 rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Editor path */}
+          {editorMode === "editor" && (
+            <div className="mb-6">
+              <button
+                type="button"
+                onClick={() => setIsEditorOpen(true)}
+                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-amarillo bg-amarillo/10 hover:bg-amarillo/20 text-gray-800 font-medium text-sm transition-colors cursor-pointer"
+              >
+                {imagenDesktop ? "Editar diseño" : "Diseñar con editor"}
+              </button>
+              {previewDesktop && (
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Desktop preview</p>
+                    <img
+                      src={previewDesktop}
+                      alt="Preview desktop"
+                      className="rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                    />
+                  </div>
+                  {previewMobile && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Mobile preview</p>
+                      <img
+                        src={previewMobile}
+                        alt="Preview mobile"
+                        className="rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+              {!imagenDesktop && (
+                <p className="text-xs text-gray-400 mt-2">
+                  Abre el editor para diseñar tu banner. El diseño se guardará automáticamente al confirmar.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Price summary */}
           <PriceSummary
@@ -646,7 +794,7 @@ const ComprarBanner = () => {
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="flex-1 bg-[#fff200] hover:bg-[#e6da00] disabled:opacity-50 text-black font-bold py-3 px-6 rounded-lg text-lg transition-colors cursor-pointer"
+              className="flex-1 bg-amarillo hover:bg-yellow-300 disabled:opacity-50 text-black font-bold py-3 px-6 rounded-lg text-lg transition-colors cursor-pointer"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -660,6 +808,16 @@ const ComprarBanner = () => {
           </div>
         </div>
       )}
+
+      {/* Editor modal — lazy-loaded; konva not in main bundle */}
+      <Suspense fallback={null}>
+        <BannerEditorModal
+          isOpen={isEditorOpen}
+          initialSceneJson={initialSceneJson}
+          onSave={handleEditorSave}
+          onClose={() => setIsEditorOpen(false)}
+        />
+      </Suspense>
     </div>
   );
 };
@@ -672,7 +830,7 @@ const StepBadge = ({ n, label, active, onClick }) => (
     onClick={onClick}
   >
     <span
-      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${active ? "bg-[#fff200] text-black" : "bg-gray-200 text-gray-500"}`}
+      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${active ? "bg-amarillo text-black" : "bg-gray-200 text-gray-500"}`}
     >
       {n}
     </span>
@@ -685,7 +843,7 @@ const TabButton = ({ active, onClick, label }) => (
     onClick={onClick}
     className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
       active
-        ? "border-[#fff200] text-black"
+        ? "border-amarillo text-black"
         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
     }`}
   >
@@ -750,8 +908,8 @@ const SeccionSelector = ({
                         cat.ocupado
                           ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
                           : isSelected
-                            ? "border-[#fff200] bg-[#fffde6] cursor-pointer"
-                            : "border-gray-200 hover:border-[#fff200] bg-white cursor-pointer"
+                            ? "border-amarillo bg-amarillo/10 cursor-pointer"
+                            : "border-gray-200 hover:border-amarillo bg-white cursor-pointer"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
