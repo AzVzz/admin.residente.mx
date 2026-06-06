@@ -1,6 +1,6 @@
 // Starter scene templates — static JSON in repo.
 // Each template conforms to the scene schema (schemaVersion 1).
-// Sized for the thin banner canvases: desktop 1080×114, mobile 328×66.
+// Sized for the thin banner canvases: desktop 1080×114, mobile 656×132.
 
 const templates = [
   {
@@ -9,7 +9,7 @@ const templates = [
     thumbnail: null,
     scene: {
       schemaVersion: 1,
-      canvas: { desktop: { w: 1080, h: 114 }, mobile: { w: 328, h: 66 } },
+      canvas: { desktop: { w: 1080, h: 114 }, mobile: { w: 656, h: 132 } },
       background: { fill: "#FFF200", imageSrc: null },
       objects: [
         {
@@ -19,7 +19,7 @@ const templates = [
           text: "Tu anuncio aquí",
           fontFamily: "NeueHaasGroteskDisplayPro75Bold, sans-serif",
           fontSize: 40, fill: "#111111", align: "left",
-          variants: { mobile: { x: 12, y: 8, width: 220, fontSize: 18 } },
+          variants: { mobile: { x: 24, y: 16, width: 440, fontSize: 36 } },
         },
         {
           id: "t2", type: "text",
@@ -28,7 +28,7 @@ const templates = [
           text: "Subtítulo o información de contacto",
           fontFamily: "NeueHaasGroteskDisplayPro55Roman, sans-serif",
           fontSize: 18, fill: "#333333", align: "left",
-          variants: { mobile: { x: 12, y: 40, width: 220, fontSize: 10 } },
+          variants: { mobile: { x: 24, y: 80, width: 440, fontSize: 20 } },
         },
       ],
     },
@@ -39,7 +39,7 @@ const templates = [
     thumbnail: null,
     scene: {
       schemaVersion: 1,
-      canvas: { desktop: { w: 1080, h: 114 }, mobile: { w: 328, h: 66 } },
+      canvas: { desktop: { w: 1080, h: 114 }, mobile: { w: 656, h: 132 } },
       background: { fill: "#111111", imageSrc: null },
       objects: [
         {
@@ -49,7 +49,7 @@ const templates = [
           text: "Experiencias únicas",
           fontFamily: "BebasRegular, sans-serif",
           fontSize: 48, fill: "#FFF200", align: "left",
-          variants: { mobile: { x: 14, y: 8, width: 250, fontSize: 22 } },
+          variants: { mobile: { x: 28, y: 16, width: 500, fontSize: 44 } },
         },
         {
           id: "t2", type: "text",
@@ -58,7 +58,7 @@ const templates = [
           text: "residente.mx",
           fontFamily: "NeueHaasGroteskDisplayPro55Roman, sans-serif",
           fontSize: 16, fill: "#FFFFFF", align: "left",
-          variants: { mobile: { x: 14, y: 44, fontSize: 10 } },
+          variants: { mobile: { x: 28, y: 88, fontSize: 20 } },
         },
       ],
     },

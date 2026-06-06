@@ -2,9 +2,6 @@ import { useCallback } from "react";
 import Konva from "konva";
 import { CANVAS_SIZES, resolveObject } from "./sceneSchema.js";
 
-// Export multiplier per variant — mobile at 2× so it stays sharp on retina screens.
-const EXPORT_SCALE = { desktop: 1, mobile: 2 };
-
 export const preloadFonts = async (scene) => {
   const families = [
     ...new Set(
@@ -40,8 +37,8 @@ export const exportVariant = async (scene, variant, stageRef) => {
 
     const displayW = stage.width();
     const fit = displayW / w;
-    // 1/fit gives native size; × EXPORT_SCALE bumps resolution without changing aspect.
-    const dataURL = stage.toDataURL({ pixelRatio: (EXPORT_SCALE[variant] ?? 1) / fit, mimeType: "image/png" });
+    // pixelRatio 1/fit renders at the native canvas size (already the target export resolution).
+    const dataURL = stage.toDataURL({ pixelRatio: 1 / fit, mimeType: "image/png" });
     const blob = await (await fetch(dataURL)).blob();
     return new File([blob], `banner-${variant}.png`, { type: "image/png" });
   }
@@ -111,7 +108,7 @@ const exportOffscreen = async (scene, variant, w, h) => {
     }
 
     layer.draw();
-    const dataURL = stage.toDataURL({ mimeType: "image/png", pixelRatio: EXPORT_SCALE[variant] ?? 1 });
+    const dataURL = stage.toDataURL({ mimeType: "image/png" });
     stage.destroy();
     const blob = await (await fetch(dataURL)).blob();
     return new File([blob], `banner-${variant}.png`, { type: "image/png" });

@@ -5,7 +5,7 @@ const SCHEMA_VERSION = 1;
 // image at natural size). Desktop ~9.5:1, mobile ~5:1 — different ratios by design.
 export const CANVAS_SIZES = {
   desktop: { w: 1080, h: 114 },
-  mobile: { w: 328, h: 66 },
+  mobile: { w: 656, h: 132 }, // 2× the rendered 328×66 so the exported PNG is retina-sharp
 };
 
 export const emptyScene = () => ({
