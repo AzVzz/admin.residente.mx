@@ -22,6 +22,7 @@ const EditorInner = ({ onSave, onCancel }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState(null);
   const [activePanel, setActivePanel] = useState("assets"); // assets | templates
+  const [zoom, setZoom] = useState(1);
 
   // Preload fonts whenever text objects change.
   useEffect(() => {
@@ -50,13 +51,13 @@ const EditorInner = ({ onSave, onCancel }) => {
     const { w, h } = CANVAS_SIZES[activeVariant];
     addObject({
       type: "text",
-      x: Math.round(w * 0.1),
-      y: Math.round(h * 0.35),
+      x: Math.round(w * 0.08),
+      y: Math.round(h * 0.28),
       width: Math.round(w * 0.5),
-      height: 60,
+      height: Math.round(h * 0.4),
       text: "New text",
       fontFamily: "NeueHaasGroteskDisplayW02Bold, sans-serif",
-      fontSize: 32,
+      fontSize: Math.round(h * 0.32),
       fill: "#111111",
       align: "left",
     });
@@ -72,6 +73,24 @@ const EditorInner = ({ onSave, onCancel }) => {
         <div className="flex items-center gap-3">
           <span className="font-medium text-gray-800 text-sm">Banner Editor</span>
           <VariantSwitcher />
+          <div className="flex items-center gap-1 text-gray-600">
+            <button
+              onClick={() => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
+              className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-sm"
+              title="Zoom out"
+            >−</button>
+            <span className="text-xs w-10 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+            <button
+              onClick={() => setZoom((z) => Math.min(4, +(z + 0.25).toFixed(2)))}
+              className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-sm"
+              title="Zoom in"
+            >+</button>
+            <button
+              onClick={() => setZoom(1)}
+              className="px-2 h-6 rounded bg-gray-100 hover:bg-gray-200 text-xs"
+              title="Reset zoom"
+            >Reset</button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -154,11 +173,11 @@ const EditorInner = ({ onSave, onCancel }) => {
         <div className="flex-1 overflow-auto bg-gray-100 flex flex-col items-center justify-start py-8 gap-6">
           <div className="flex flex-col items-center gap-1">
             <span className="text-xs text-gray-400 mb-1">Desktop · {CANVAS_SIZES.desktop.w}×{CANVAS_SIZES.desktop.h}</span>
-            <KonvaFrame variant="desktop" displayWidth={DISPLAY_W} stageRef={desktopRef} />
+            <KonvaFrame variant="desktop" displayWidth={DISPLAY_W * zoom} stageRef={desktopRef} />
           </div>
           <div className="flex flex-col items-center gap-1">
             <span className="text-xs text-gray-400 mb-1">Mobile · {CANVAS_SIZES.mobile.w}×{CANVAS_SIZES.mobile.h}</span>
-            <KonvaFrame variant="mobile" displayWidth={DISPLAY_W_MOBILE} stageRef={mobileRef} />
+            <KonvaFrame variant="mobile" displayWidth={DISPLAY_W_MOBILE * zoom} stageRef={mobileRef} />
           </div>
         </div>
       </div>

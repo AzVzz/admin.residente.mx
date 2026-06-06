@@ -15,13 +15,14 @@ const StickerPicker = () => {
   const { w, h } = CANVAS_SIZES[activeVariant];
 
   const handleAdd = (sticker) => {
+    const size = Math.round(h * 0.6); // fit the thin banner canvas
     addObject({
       type: "sticker",
       src: sticker.icono,
-      x: Math.round(w / 2 - 32),
-      y: Math.round(h / 2 - 32),
-      width: 64,
-      height: 64,
+      x: Math.round(w / 2 - size / 2),
+      y: Math.round(h / 2 - size / 2),
+      width: size,
+      height: size,
       rotation: 0,
       opacity: 1,
     });
