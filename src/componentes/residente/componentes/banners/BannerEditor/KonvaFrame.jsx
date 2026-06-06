@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import { Stage, Layer, Line } from "react-konva";
 import { useEditor } from "./useEditor.js";
 import { resolveObject, CANVAS_SIZES } from "./sceneSchema.js";
@@ -37,6 +37,16 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
   const displayH = nativeH * scale;
 
   const isActiveVariant = activeVariant === variant;
+
+  // Inline text editing (double-click a text node) — Canva-style.
+  const [editingId, setEditingId] = useState(null);
+  const handleEdit = useCallback((id) => {
+    if (isActiveVariant) setEditingId(id);
+  }, [isActiveVariant]);
+  const commitEdit = useCallback((value) => {
+    if (editingId) updateObject(editingId, activeVariant, { text: value });
+    setEditingId(null);
+  }, [editingId, activeVariant, updateObject]);
 
   const sorted = [...scene.objects].sort((a, b) => a.zIndex - b.zIndex);
 
@@ -83,6 +93,10 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
 
   const stageGuides = isActiveVariant && selectedId ? getStageGuides(nativeW, nativeH) : [];
 
+  const editingObj = isActiveVariant && editingId
+    ? resolveObject(scene.objects.find((o) => o.id === editingId) || {}, variant)
+    : null;
+
   return (
     <div className="relative border border-gray-200 shadow-sm overflow-hidden" style={{ width: displayWidth, height: displayH }}>
       <Stage
@@ -112,7 +126,7 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
               onTransformEnd: handleTransformEnd,
             };
 
-            if (resolved.type === "text") return <TextNode key={obj.id} {...sharedProps} />;
+            if (resolved.type === "text") return <TextNode key={obj.id} {...sharedProps} onEdit={handleEdit} isEditing={isActiveVariant && editingId === obj.id} />;
             if (resolved.type === "image") return <ImageNode key={obj.id} {...sharedProps} />;
             if (resolved.type === "sticker") return <StickerNode key={obj.id} {...sharedProps} />;
             return null;
@@ -126,6 +140,38 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
           {isActiveVariant && <SelectionTransformer stageRef={stageRef} />}
         </Layer>
       </Stage>
+
+      {editingObj && editingObj.id && (
+        <textarea
+          autoFocus
+          defaultValue={editingObj.text ?? ""}
+          onBlur={(e) => commitEdit(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commitEdit(e.target.value); }
+            if (e.key === "Escape") setEditingId(null);
+          }}
+          style={{
+            position: "absolute",
+            left: (editingObj.x ?? 0) * scale,
+            top: (editingObj.y ?? 0) * scale,
+            width: (editingObj.width ?? 200) * scale,
+            height: (editingObj.height ?? 60) * scale,
+            fontSize: (editingObj.fontSize ?? 24) * scale,
+            fontFamily: editingObj.fontFamily ?? "sans-serif",
+            color: editingObj.fill ?? "#111111",
+            textAlign: editingObj.align ?? "left",
+            lineHeight: 1,
+            margin: 0,
+            padding: 0,
+            border: "1px solid #0099ff",
+            outline: "none",
+            background: "rgba(255,255,255,0.9)",
+            resize: "none",
+            overflow: "hidden",
+            boxSizing: "border-box",
+          }}
+        />
+      )}
     </div>
   );
 };

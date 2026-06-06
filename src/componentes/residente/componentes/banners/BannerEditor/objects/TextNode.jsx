@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Text } from "react-konva";
 import { useEditor } from "../useEditor.js";
 
-const TextNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
+const TextNode = ({ obj, onSelect, onDragEnd, onTransformEnd, onEdit, isEditing }) => {
   const { selectedId } = useEditor();
   const ref = useRef(null);
   const isSelected = selectedId === obj.id;
@@ -17,6 +17,7 @@ const TextNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
       height={obj.height}
       rotation={obj.rotation ?? 0}
       opacity={obj.opacity ?? 1}
+      visible={!isEditing}
       text={obj.text ?? ""}
       fontSize={obj.fontSize ?? 24}
       fontFamily={obj.fontFamily ?? "NeueHaasGroteskDisplayW02Bold, sans-serif"}
@@ -25,6 +26,8 @@ const TextNode = ({ obj, onSelect, onDragEnd, onTransformEnd }) => {
       draggable
       onClick={() => onSelect(obj.id)}
       onTap={() => onSelect(obj.id)}
+      onDblClick={() => onEdit?.(obj.id)}
+      onDblTap={() => onEdit?.(obj.id)}
       onDragEnd={(e) => onDragEnd(obj.id, e)}
       onTransformEnd={(e) => onTransformEnd(obj.id, e, ref)}
       stroke={isSelected ? "transparent" : undefined}

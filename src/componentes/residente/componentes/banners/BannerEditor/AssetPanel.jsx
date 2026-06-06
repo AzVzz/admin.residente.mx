@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useEditor } from "./useEditor.js";
 import { CANVAS_SIZES } from "./sceneSchema.js";
 import { bannerAssetUpload } from "../../../../api/bannerSceneApi.js";
+import { assetPreviewCache } from "./assetPreview.js";
 import StickerPicker from "./StickerPicker.jsx";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB client guard
@@ -28,6 +29,7 @@ const AssetPanel = () => {
     setUploadError(null);
     try {
       const { url } = await bannerAssetUpload(file);
+      assetPreviewCache.set(url, URL.createObjectURL(file));
       addObject({
         type: "image",
         src: url,
