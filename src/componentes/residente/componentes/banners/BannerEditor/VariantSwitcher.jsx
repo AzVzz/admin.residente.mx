@@ -46,7 +46,9 @@ const VariantSwitcher = ({ onBeforeSwitch }) => {
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          {v === "desktop" ? "Desktop 1080×216" : "Mobile 1000×250"}
+          {v === "desktop"
+            ? `Desktop ${CANVAS_SIZES.desktop.w}×${CANVAS_SIZES.desktop.h}`
+            : `Mobile ${CANVAS_SIZES.mobile.w}×${CANVAS_SIZES.mobile.h}`}
         </button>
       ))}
     </div>

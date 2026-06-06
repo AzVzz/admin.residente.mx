@@ -1,9 +1,11 @@
 // schema version bump required when the shape changes.
 const SCHEMA_VERSION = 1;
 
+// Match the real rendered banner sizes (autoHeight on the public site renders the
+// image at natural size). Desktop ~9.5:1, mobile ~5:1 — different ratios by design.
 export const CANVAS_SIZES = {
-  desktop: { w: 1080, h: 216 },
-  mobile: { w: 1000, h: 250 },
+  desktop: { w: 1080, h: 114 },
+  mobile: { w: 328, h: 66 },
 };
 
 export const emptyScene = () => ({

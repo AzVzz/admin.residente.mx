@@ -153,11 +153,11 @@ const EditorInner = ({ onSave, onCancel }) => {
         {/* Canvas area */}
         <div className="flex-1 overflow-auto bg-gray-100 flex flex-col items-center justify-start py-8 gap-6">
           <div className="flex flex-col items-center gap-1">
-            <span className="text-xs text-gray-400 mb-1">Desktop · 1080×216</span>
+            <span className="text-xs text-gray-400 mb-1">Desktop · {CANVAS_SIZES.desktop.w}×{CANVAS_SIZES.desktop.h}</span>
             <KonvaFrame variant="desktop" displayWidth={DISPLAY_W} stageRef={desktopRef} />
           </div>
           <div className="flex flex-col items-center gap-1">
-            <span className="text-xs text-gray-400 mb-1">Mobile · 1000×250</span>
+            <span className="text-xs text-gray-400 mb-1">Mobile · {CANVAS_SIZES.mobile.w}×{CANVAS_SIZES.mobile.h}</span>
             <KonvaFrame variant="mobile" displayWidth={DISPLAY_W_MOBILE} stageRef={mobileRef} />
           </div>
         </div>
