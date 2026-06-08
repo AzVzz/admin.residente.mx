@@ -22,6 +22,7 @@ import Reconocimientos from "./componentes/Reconocimientos";
 import Resenas from "./componentes/Resenas";
 import CincoRazones from "./componentes/CincoRazones";
 import QuePido from "./componentes/QuePido";
+import MenuEditor from "./componentes/MenuEditor";
 import Testimonios from "./componentes/Testimonios";
 import Imagenes from "./componentes/Imagenes";
 import Logo from "./componentes/Logo";
@@ -189,6 +190,39 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     for (let i = 1; i <= 6; i++) {
       defaults[`platillo_${i}`] = restaurante?.platillos?.[i - 1] || "";
     }
+
+    // Menú editable: derivar secciones desde menu_data.items (agrupado por categoría)
+    defaults.menu_sections = (() => {
+      let md = restaurante?.menu_data;
+      if (typeof md === "string") {
+        try {
+          md = JSON.parse(md);
+        } catch {
+          md = null;
+        }
+      }
+      const items = Array.isArray(md?.items) ? md.items : [];
+      if (!items.length) return [];
+      const orden = [];
+      const map = {};
+      items.forEach((it) => {
+        const cat = (it?.categoria || "Menú").trim();
+        if (!map[cat]) {
+          map[cat] = [];
+          orden.push(cat);
+        }
+        const precio =
+          it?.precio_centavos != null
+            ? (it.precio_centavos / 100).toString()
+            : (it?.precio_raw || "").replace(/[^0-9.]/g, "");
+        map[cat].push({
+          nombre: it?.nombre || "",
+          precio,
+          descripcion: it?.descripcion || "",
+        });
+      });
+      return orden.map((cat) => ({ nombre: cat, platillos: map[cat] }));
+    })();
 
     // Inicializar campos de testimonios
     for (let i = 1; i <= 3; i++) {
@@ -689,6 +723,38 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   }
                 }
 
+                // Menú manual: secciones -> menu_data { source:"manual", items[] }.
+                // Solo se envía si hay platillos cargados (manual gana; si está vacío
+                // el scraper puede rellenar).
+                const menuItems = [];
+                (data.menu_sections || []).forEach((sec) => {
+                  const categoria = (sec?.nombre || "").trim() || "Menú";
+                  (sec?.platillos || []).forEach((p) => {
+                    const nombre = (p?.nombre || "").trim();
+                    if (!nombre) return;
+                    const num = parseFloat(
+                      String(p?.precio ?? "").replace(/[^0-9.]/g, ""),
+                    );
+                    const precio_centavos = Number.isFinite(num)
+                      ? Math.round(num * 100)
+                      : null;
+                    menuItems.push({
+                      nombre,
+                      descripcion: (p?.descripcion || "").trim() || null,
+                      precio_raw:
+                        precio_centavos != null
+                          ? `$${(precio_centavos / 100).toFixed(2)} MXN`
+                          : null,
+                      precio_centavos,
+                      categoria,
+                    });
+                  });
+                });
+                if (menuItems.length) {
+                  payload.menu_data = { source: "manual", items: menuItems };
+                  payload.menu_source = "manual";
+                }
+
                 for (let i = 1; i <= 3; i++) {
                   const descripcion = data[`testimonio_descripcion_${i}`];
                   const persona = data[`testimonio_persona_${i}`];
@@ -902,6 +968,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     ))}
                   </fieldset>
                 </div>
+                <MenuEditor />
                 <ExpertosOpinan />
                 <div className="form-testimonios">
                   <fieldset>
