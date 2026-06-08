@@ -1,5 +1,6 @@
 import React from "react";
 import { useEditor } from "./useEditor.js";
+import { resolveObject } from "./sceneSchema.js";
 
 // Font families available in the repo (from index.css @font-face declarations).
 const FONT_OPTIONS = [
@@ -17,6 +18,7 @@ const Toolbar = () => {
   const { scene, selectedId, activeVariant, updateObject, removeObject, reorderObject, setBackground } = useEditor();
 
   const selected = selectedId ? scene.objects.find((o) => o.id === selectedId) : null;
+  const resolved = selected ? resolveObject(selected, activeVariant) : null;
 
   const update = (changes) => {
     if (!selectedId) return;
@@ -105,7 +107,7 @@ const Toolbar = () => {
           ))}
         </div>
 
-        <ToolbarShared selected={selected} removeObject={removeObject} reorderObject={reorderObject} />
+        <ToolbarShared selected={selected} resolved={resolved} removeObject={removeObject} reorderObject={reorderObject} />
       </div>
     );
   }
@@ -126,7 +128,7 @@ const Toolbar = () => {
           <span>{Math.round((selected.opacity ?? 1) * 100)}%</span>
         </label>
 
-        <ToolbarShared selected={selected} removeObject={removeObject} reorderObject={reorderObject} />
+        <ToolbarShared selected={selected} resolved={resolved} removeObject={removeObject} reorderObject={reorderObject} />
       </div>
     );
   }
@@ -134,8 +136,13 @@ const Toolbar = () => {
   return null;
 };
 
-const ToolbarShared = ({ selected, removeObject, reorderObject }) => (
+const ToolbarShared = ({ selected, resolved, removeObject, reorderObject }) => (
   <>
+    {resolved && (
+      <span className="text-[11px] text-gray-400 tabular-nums" title="Tamaño en píxeles">
+        {Math.round(resolved.width ?? 0)}×{Math.round(resolved.height ?? 0)} px
+      </span>
+    )}
     <button
       onClick={() => reorderObject(selected.id, 1)}
       className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"

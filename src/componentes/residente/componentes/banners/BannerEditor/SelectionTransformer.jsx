@@ -45,6 +45,11 @@ const SelectionTransformer = ({ stageRef }) => {
       }}
       rotateEnabled
       keepRatio={false}
+      borderStroke="#0099ff"
+      borderStrokeWidth={1.5}
+      anchorStroke="#0099ff"
+      anchorFill="#ffffff"
+      anchorSize={8}
     />
   );
 };
