@@ -97,6 +97,11 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
     ? resolveObject(scene.objects.find((o) => o.id === editingId) || {}, variant)
     : null;
 
+  // Size badge for the selected object (not while inline-editing text).
+  const selectedObj = isActiveVariant && selectedId && editingId !== selectedId
+    ? resolveObject(scene.objects.find((o) => o.id === selectedId) || {}, variant)
+    : null;
+
   return (
     <div className="relative border border-gray-200 shadow-sm overflow-hidden" style={{ width: displayWidth, height: displayH }}>
       <Stage
@@ -171,6 +176,18 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
             boxSizing: "border-box",
           }}
         />
+      )}
+
+      {selectedObj && selectedObj.id && (
+        <div
+          className="absolute z-10 bg-[#0099ff] text-white text-[10px] leading-[14px] px-1.5 py-px rounded-[3px] pointer-events-none whitespace-nowrap"
+          style={{
+            left: Math.max(0, (selectedObj.x ?? 0) * scale),
+            top: Math.max(0, (selectedObj.y ?? 0) * scale - 18),
+          }}
+        >
+          {Math.round(selectedObj.width ?? 0)} × {Math.round(selectedObj.height ?? 0)} px
+        </div>
       )}
     </div>
   );
