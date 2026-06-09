@@ -315,7 +315,7 @@ const PromoMain = () => {
       descripcion: formData.descPromo,
       icon: stickerClave,
       email: formData.emailPromos || "",
-      tipo: "promo",
+      tipo: "promocion",
       link: formData.urlPromo || "",
       fecha_validez: formData.tiene_caducidad
         ? formatWithTimezone(formData.fecha_caducidad, zonaHoraria)
