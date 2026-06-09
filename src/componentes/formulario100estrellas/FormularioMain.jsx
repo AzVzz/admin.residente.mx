@@ -23,6 +23,8 @@ import Resenas from "./componentes/Resenas";
 import CincoRazones from "./componentes/CincoRazones";
 import QuePido from "./componentes/QuePido";
 import MenuEditor from "./componentes/MenuEditor";
+import FaqEditor from "./componentes/FaqEditor";
+import ScorePerfilForm from "./componentes/ScorePerfilForm";
 import Testimonios from "./componentes/Testimonios";
 import Imagenes from "./componentes/Imagenes";
 import Logo from "./componentes/Logo";
@@ -224,6 +226,19 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       return orden.map((cat) => ({ nombre: cat, platillos: map[cat] }));
     })();
 
+    // FAQs editables: [{ q, a }] (puede llegar como string JSON)
+    defaults.faqs = (() => {
+      let f = restaurante?.faqs;
+      if (typeof f === "string") {
+        try {
+          f = JSON.parse(f);
+        } catch {
+          f = null;
+        }
+      }
+      return Array.isArray(f) ? f.filter((x) => x && (x.q || x.a)) : [];
+    })();
+
     // Inicializar campos de testimonios
     for (let i = 1; i <= 3; i++) {
       defaults[`testimonio_descripcion_${i}`] =
@@ -406,6 +421,20 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
       setLoadingRestauranteCheck(false);
     }
   }, [usuario, token, esEdicion]);
+
+  // --- Scroll a la sección indicada en el hash (#seccion-x) al llegar desde el dashboard ---
+  useEffect(() => {
+    const hash = window.location.hash?.replace("#", "");
+    if (!hash) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (!el) return;
+      // Abrir <details> si la sección es colapsable (ej: menú)
+      el.querySelectorAll("details").forEach((d) => (d.open = true));
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // --- SINCRONIZAR "Tipo de comida" con "tipo_restaurante" ---
   const tipoComida = watch("secciones_categorias.Tipo de comida");
@@ -755,6 +784,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   payload.menu_source = "manual";
                 }
 
+                // FAQs manuales: solo pares completos (pregunta + respuesta)
+                payload.faqs = (data.faqs || [])
+                  .map((f) => ({ q: (f?.q || "").trim(), a: (f?.a || "").trim() }))
+                  .filter((f) => f.q && f.a);
+
                 for (let i = 1; i <= 3; i++) {
                   const descripcion = data[`testimonio_descripcion_${i}`];
                   const persona = data[`testimonio_persona_${i}`];
@@ -914,24 +948,37 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
 
             return (
               <form onSubmit={methods.handleSubmit(onSubmit)}>
+                <ScorePerfilForm />
                 <TipoLugar />
-                <NuevasSeccionesCategorias />
-                <Informacion />
+                <div id="seccion-secciones">
+                  <NuevasSeccionesCategorias />
+                </div>
+                <div id="seccion-informacion">
+                  <Informacion />
+                </div>
                 {/* <Logo existingLogo={restaurante?.logo} /> */}
-                <Imagenes
-                  slug={restaurante?.slug}
-                  existingImages={restaurante?.imagenes}
-                />
-                <FotosLugar
-                  existingFotos={restaurante?.fotos_lugar || []}
-                  restaurantId={idNegocio || restaurante?.id}
-                />
+                <div id="seccion-imagenes">
+                  <Imagenes
+                    slug={restaurante?.slug}
+                    existingImages={restaurante?.imagenes}
+                  />
+                </div>
+                <div id="seccion-fotos-lugar">
+                  <FotosLugar
+                    existingFotos={restaurante?.fotos_lugar || []}
+                    restaurantId={idNegocio || restaurante?.id}
+                  />
+                </div>
                 {/* <TipoRestaurante /> */}
                 <Categorias />
-                <RedesSociales />
+                <div id="seccion-redes">
+                  <RedesSociales />
+                </div>
                 <OcasionIdeal />
                 <Sucursales />
-                <CodigoVestir />
+                <div id="seccion-vestir">
+                  <CodigoVestir />
+                </div>
                 <UbicacionPrincipal />{" "}
                 {[1, 2, 3, 4, 5].map((num) => (
                   <Reconocimientos key={num} numero={num} />
@@ -945,8 +992,10 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     ))}
                   </fieldset>
                 </div>
-                <Historia />
-                <div className="form-cinco-razones">
+                <div id="seccion-historia">
+                  <Historia />
+                </div>
+                <div id="seccion-razones" className="form-cinco-razones">
                   <fieldset>
                     <legend>
                       Describe 5 razones por las que alguién debe asistir a tu
@@ -957,7 +1006,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     ))}
                   </fieldset>
                 </div>
-                <div className="form-que-pido">
+                <div id="seccion-platillos" className="form-que-pido">
                   <fieldset>
                     <legend>
                       Que pido cuando asisto la primera vez *<br />
@@ -968,7 +1017,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     ))}
                   </fieldset>
                 </div>
-                <MenuEditor />
+                <div id="seccion-menu">
+                  <MenuEditor />
+                </div>
+                <div id="seccion-faqs">
+                  <FaqEditor />
+                </div>
                 <ExpertosOpinan />
                 <div className="form-testimonios">
                   <fieldset>
@@ -979,7 +1033,9 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   </fieldset>
                 </div>
                 <Colaboraciones />
-                <Geolocalizacion />
+                <div id="seccion-geolocalizacion">
+                  <Geolocalizacion />
+                </div>
                 {/* Selector de Iconos/Stickers */}
                 <div className="form-iconos">
                   <fieldset>

@@ -13,6 +13,7 @@ import { FaFilePdf } from "react-icons/fa";
 import { BENEFICIOS_INFO } from "./beneficiosConfig";
 import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
 import CarruselRestaurantes from "./CarruselRestaurantes";
+import ScorePerfilCard from "./ScorePerfilCard";
 
 // Cache de modulo (TTL 10min) para suscripcion y datos del usuario B2B.
 // Estos datos cambian raramente (suscripcion solo al pagar, b2bUser al perfil).
@@ -75,9 +76,13 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
         if (!res.ok) return;
         const data = await res.json();
         // Reducir a maps por id para lookup O(1) desde MetricasRestaurante
-        const map = (arr) => Object.fromEntries(
-          (arr || []).map((it) => [it.id, { impressions: it.impressions || 0, clicks: it.clicks || 0 }])
-        );
+        const map = (arr) =>
+          Object.fromEntries(
+            (arr || []).map((it) => [
+              it.id,
+              { impressions: it.impressions || 0, clicks: it.clicks || 0 },
+            ]),
+          );
         setChatbotStats({
           totales: data.totales || { impressions: 0, clicks: 0 },
           restaurantes: map(data.restaurantes),
@@ -86,7 +91,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
           eventos: map(data.eventos),
         });
       } catch (e) {
-        if (e.name !== "AbortError") console.warn("[chatbot metrics]", e.message);
+        if (e.name !== "AbortError")
+          console.warn("[chatbot metrics]", e.message);
       }
     })();
     return () => ctrl.abort();
@@ -375,9 +381,10 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     }
 
     const fetchB2BUser = async () => {
-      const lookupUrl = !viewAsUserId && usuario?.b2b_id
-        ? `${urlApi}api/usuariosb2b/${usuario.b2b_id}`
-        : `${urlApi}api/usuariosb2b/user/${userIdEfectivo}`;
+      const lookupUrl =
+        !viewAsUserId && usuario?.b2b_id
+          ? `${urlApi}api/usuariosb2b/${usuario.b2b_id}`
+          : `${urlApi}api/usuariosb2b/user/${userIdEfectivo}`;
 
       try {
         const response = await fetch(lookupUrl, {
@@ -976,9 +983,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             <div className="w-full flex items-center justify-center gap-4">
               <button
                 type="button"
-                onClick={() =>
-                  setSlideActivo((i) => Math.max(0, i - 1))
-                }
+                onClick={() => setSlideActivo((i) => Math.max(0, i - 1))}
                 disabled={slideActivo === 0}
                 aria-label="Restaurante anterior"
                 className="text-5xl text-black hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none px-3"
@@ -993,9 +998,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               <button
                 type="button"
                 onClick={() =>
-                  setSlideActivo((i) =>
-                    Math.min(restaurantes.length, i + 1),
-                  )
+                  setSlideActivo((i) => Math.min(restaurantes.length, i + 1))
                 }
                 disabled={slideActivo === restaurantes.length}
                 aria-label="Siguiente restaurante"
@@ -1140,6 +1143,14 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               preload="metadata"
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
+
+            {/* Completitud del perfil del restaurante activo (o resumen en TOTAL) */}
+            <ScorePerfilCard
+              restaurante={restauranteActivo}
+              restaurantes={restaurantes}
+              onAyuda={() => setOpenTooltip("score-perfil")}
+              onAyudaGeo={() => setOpenTooltip("geo-info")}
+            />
             <button
               onClick={handleCupones}
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
@@ -1162,7 +1173,12 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 INVERSIÓN
               </p>
               <p className="text-[11px] text-white/80 mb-3">
-                Al {fechaActual.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+                Al{" "}
+                {fechaActual.toLocaleDateString("es-MX", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </p>
 
               {/* Conversión — va primero */}
@@ -1499,7 +1515,6 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               chatbotStats={chatbotStats}
             />
 
-
             {/* Notas individuales del usuario (autor de notas, no etiquetadas a restaurante). */}
             {notaStats && notaStats.total > 0 && (
               <div className="mt-2 mb-6">
@@ -1507,17 +1522,20 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                   <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.views?.toLocaleString("es-MX") || 0}
                   </p>
-                  <p className="text-sm text-black">Vistas totales de tus notas</p>
+                  <p className="text-sm text-black">
+                    Vistas totales de tus notas
+                  </p>
                 </div>
                 <div>
                   <p className="text-[40px] font-bold text-black leading-[1]">
                     {notaStats.clicks?.toLocaleString("es-MX") || 0}
                   </p>
-                  <p className="text-sm text-black">Clicks totales de tus notas</p>
+                  <p className="text-sm text-black">
+                    Clicks totales de tus notas
+                  </p>
                 </div>
               </div>
             )}
-
           </div>
         </div>
         {/* Columna roja */}
@@ -1857,6 +1875,134 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                   usuario no solo vio tu mensaje, sino que decidió actuar. Este
                   dato te permite saber cuántas personas pasaron de la
                   exposición pasiva a un interés real y medible en tu negocio.
+                </p>
+              </>
+            )}
+            {openTooltip === "geo-info" && (
+              <div className="max-h-[75vh] overflow-y-auto pr-1">
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
+                <p className="font-bold mb-2 text-2xl">
+                  ¿Por qué Residente aparece en las IAs?
+                </p>
+                <p className="font-roman mb-2 leading-[1.2]">
+                  Cuando alguien le pregunta a ChatGPT, Google Gemini o
+                  cualquier IA "¿a dónde ir a cenar en Monterrey?", esa IA no
+                  googlea en tiempo real. Consulta lo que ya aprendió:
+                  información organizada, verificable y conectada entre sí.
+                </p>
+                <p className="font-roman mb-3 leading-[1.2]">
+                  Residente puede aparecer en esas respuestas porque es el unico
+                  sistema de información gastronómica local que tiene todas sus
+                  piezas en orden. No son datos sueltos. Son datos conectados.
+                  Esto es lo que tuvimos que construir para lograrlo:
+                </p>
+                <div className="space-y-1.5 text-left">
+                  {[
+                    {
+                      titulo: "01 · Dirección fija para cada restaurante",
+                      desc: "URL permanente. Nunca cambia. La IA siempre sabe dónde encontrarlo.",
+                    },
+                    {
+                      titulo: "02 · Ficha de identidad completa",
+                      desc: "Nombre, cocina, horarios, ubicación, precio. En formato que las máquinas leen sin ambigüedad.",
+                    },
+                    {
+                      titulo: "03 · Mapa de todo el sitio",
+                      desc: "Índice automático y actualizado de todos los restaurantes. Sin mapa, muchas páginas no se encuentran.",
+                    },
+                    {
+                      titulo: "04 · Puertas abiertas para los robots de IA",
+                      desc: "ChatGPT, Google, Bing, Perplexity: todos tienen permiso explícito de entrar. Muchos sitios los bloquean sin saberlo.",
+                    },
+                    {
+                      titulo: "05 · Sin páginas duplicadas",
+                      desc: "Cada restaurante tiene una sola versión oficial. Si hay varias, la IA no sabe cuál creerle.",
+                    },
+                    {
+                      titulo: "06 · Descripciones para humanos y máquinas",
+                      desc: "Título, descripción y etiquetas optimizados para personas y para algoritmos al mismo tiempo.",
+                    },
+                    {
+                      titulo: "07 · Ventanilla oficial para consultas externas",
+                      desc: "Cualquier agente de IA puede consultar nuestra base de datos de forma ordenada y obtener respuestas limpias.",
+                    },
+                    {
+                      titulo: "08 · Menús en texto, no en imagen",
+                      desc: "Las IAs no pueden leer fotos ni PDFs de menús. Los nuestros están en texto estructurado.",
+                    },
+                    {
+                      titulo:
+                        "09 · Relaciones entre restaurante, chef, colonia y cocina",
+                      desc: "No son datos sueltos. Están conectados entre sí. Las IAs entienden relaciones, no solo listas.",
+                    },
+                    {
+                      titulo: "10 · Contenido visible desde el primer segundo",
+                      desc: "La información existe en la página desde que carga. Las IAs no esperan a que el navegador ejecute código.",
+                    },
+                  ].map((item) => (
+                    <div key={item.titulo} className="leading-[1.2]">
+                      <span className="font-bold">{item.titulo}: </span>
+                      <span className="font-roman">{item.desc}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="font-roman mt-3 leading-[1.2]">
+                  Ninguna plataforma puede garantizar indexación en IAs. Lo que
+                  sí puede controlarse es la calidad técnica de la información.{" "}
+                  <span className="font-bold">
+                    Residente está en el nivel más alto posible hoy.
+                  </span>
+                </p>
+              </div>
+            )}
+            {openTooltip === "score-perfil" && (
+              <>
+                <img
+                  src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
+                  alt="Club Residente"
+                  className="h-10 mx-auto mb-2"
+                />
+                <p className="font-bold mb-1 text-2xl">
+                  ¿Por qué completar tu perfil al 100%?
+                </p>
+                <p className="font-roman mb-2 leading-[1.2]">
+                  Tu micrositio no solo lo ven personas: también lo leen Google
+                  y las inteligencias artificiales (ChatGPT, Gemini,
+                  Perplexity). Cada campo que llenas alimenta los datos
+                  estructurados de tu página:
+                </p>
+                <div className="space-y-1 mt-2 text-left">
+                  {[
+                    {
+                      titulo: "Menú con precios",
+                      desc: "Aparece en resultados de búsqueda y en respuestas de IA cuando alguien pregunta qué comer.",
+                    },
+                    {
+                      titulo: "Preguntas frecuentes",
+                      desc: "Las IAs las usan para responder sobre tu restaurante: reservas, horarios, costos.",
+                    },
+                    {
+                      titulo: "Historia, imágenes y categorías",
+                      desc: "Mejor posicionamiento en Google y en el directorio de Residente.",
+                    },
+                    {
+                      titulo: "Teléfono, ubicación y redes",
+                      desc: "Contacto directo desde buscadores y asistentes.",
+                    },
+                  ].map((item) => (
+                    <div key={item.titulo} className="leading-[1.2]">
+                      <span className="font-bold">{item.titulo}: </span>
+                      <span className="font-roman">{item.desc}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="font-bold mt-3 leading-[1.2]">
+                  Perfil al 100% = máxima probabilidad de que buscadores y
+                  asistentes de IA recomienden tu restaurante.
                 </p>
               </>
             )}
