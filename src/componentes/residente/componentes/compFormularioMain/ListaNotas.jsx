@@ -611,6 +611,7 @@ const ListaNotas = () => {
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
       if (usuario?.rol?.toLowerCase() === 'vendedor') {
+        if (esSuperAdminLocal && (vistaActiva === "todob2b" || vistaActiva === "usuarios_b2b")) return;
         setVistaActiva("mis_restaurantes");
       } else {
         setVistaActiva("notas");
@@ -768,13 +769,17 @@ const ListaNotas = () => {
       if (usuario?.rol === "b2b") return false;
 
       // Lógica para Vendedor
-      if (usuario?.rol === "vendedor") {
-        return (
+      if (usuario?.rol?.toLowerCase() === "vendedor") {
+        const baseVendedor =
           option.key === "mis_restaurantes" ||
           option.key === "cupones" ||
           option.key === "eventos" ||
-          option.key === "vetados"
-        );
+          option.key === "vetados";
+        // Superadmin vendedores also get the B2B admin views
+        const superadminVendedor =
+          esSuperAdmin &&
+          (option.key === "todob2b" || option.key === "usuarios_b2b");
+        return baseVendedor || superadminVendedor;
       }
 
       // Lógica original para otros roles

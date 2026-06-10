@@ -3,15 +3,15 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../Context";
 import { urlApi } from "../api/url";
 
-// Guard para rutas que solo pueden ver usuarios con rol=residente y es_superadmin=true.
-// El JWT actual no incluye es_superadmin, así que se consulta a /api/usuarios/:id.
+// Guard for rol residente|vendedor with es_superadmin=true; the JWT lacks the flag, so we query /api/usuarios/:id.
 const SuperadminRoute = ({ children }) => {
   const { usuario, token } = useAuth();
   const [estado, setEstado] = useState({ loading: true, esSuperadmin: false });
 
   useEffect(() => {
     const verificar = async () => {
-      if (!token || !usuario || usuario.rol?.toLowerCase() !== "residente") {
+      const rolLc = usuario?.rol?.toLowerCase();
+      if (!token || !usuario || (rolLc !== "residente" && rolLc !== "vendedor")) {
         setEstado({ loading: false, esSuperadmin: false });
         return;
       }
