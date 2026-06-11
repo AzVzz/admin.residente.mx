@@ -844,6 +844,7 @@ const FormMainResidente = () => {
                     <option value="recomendacion">Recomendación</option>
                     <option value="noticia">Noticia</option>
                     <option value="reflexion">Reflexión</option>
+                    <option value="favoritos">Favoritos</option>
                   </select>
                 </div>
 
