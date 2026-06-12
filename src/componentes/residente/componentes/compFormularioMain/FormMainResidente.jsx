@@ -128,6 +128,7 @@ const FormMainResidente = () => {
       seo_keyword: "",
       meta_description: "",
       smart_tags: [],
+      etiquetas: [],
       destacada_invitado: 0,
       restaurantes_ids: [],
       formato_nota: "",
@@ -545,6 +546,7 @@ const FormMainResidente = () => {
             programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
             smart_tags: data.smart_tags || [],
+            etiquetas: data.etiquetas || [],
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
@@ -673,6 +675,7 @@ const FormMainResidente = () => {
         seo_keyword: data.seo_keyword?.trim() || null,
         meta_description: data.meta_description?.trim() || null,
         smart_tags: data.smart_tags?.length ? data.smart_tags : null,
+        etiquetas: data.etiquetas?.length ? data.etiquetas : null,
         formato_nota: data.formato_nota || null,
         tematica_id: data.tematica_id ? parseInt(data.tematica_id, 10) : null,
       };
@@ -830,6 +833,19 @@ const FormMainResidente = () => {
                   opcionesFoodDrink={opcionesFoodDrink}
                   ocultarTipoNota={false}
                 />
+
+                {/* ★ Etiquetas editoriales (curaduría manual de portada).
+                    Campo 100% manual: la IA del SEO NO lo toca (eso es smart_tags).
+                    El front las consume vía /api/notas/por-etiqueta/:etiqueta */}
+                <div className="mb-4">
+                  <SmartTagsInput
+                    value={watch("etiquetas")}
+                    onChange={(tags) => setValue("etiquetas", tags)}
+                    hideGenerationButton={true}
+                    label="# Etiquetas (curaduría manual)"
+                    helpText='Hashtags para controlar a mano qué notas salen en bloques especiales de portada (ej. "5razones"). Solo aparecen las notas que tengan la etiqueta exacta.'
+                  />
+                </div>
 
                 {/* Formato de nota */}
                 <div className="mb-4 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">

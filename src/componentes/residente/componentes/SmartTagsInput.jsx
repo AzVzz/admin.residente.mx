@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { FaRobot, FaTimes, FaPlus, FaMagic } from "react-icons/fa";
 
-const SmartTagsInput = ({ value = [], onChange, onGenerateAI, isGenerating, hideGenerationButton = false }) => {
+const SmartTagsInput = ({
+    value = [],
+    onChange,
+    onGenerateAI,
+    isGenerating,
+    hideGenerationButton = false,
+    label = "🏷️ Smart Tags (IA)",
+    helpText = "Etiquetas conceptuales para relacionar contenido automáticamente. Generadas por IA o agregadas manualmente.",
+}) => {
     const [inputValue, setInputValue] = useState("");
     const [localTags, setLocalTags] = useState([]);
 
@@ -50,7 +58,7 @@ const SmartTagsInput = ({ value = [], onChange, onGenerateAI, isGenerating, hide
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="flex justify-between items-center mb-3">
                 <label className="block text-sm font-medium text-gray-700">
-                    🏷️ Smart Tags (IA)
+                    {label}
                 </label>
                 {onGenerateAI && !hideGenerationButton && (
                     <button
@@ -75,7 +83,7 @@ const SmartTagsInput = ({ value = [], onChange, onGenerateAI, isGenerating, hide
             </div>
 
             <p className="text-xs text-gray-500 mb-3">
-                Etiquetas conceptuales para relacionar contenido automáticamente. Generadas por IA o agregadas manualmente.
+                {helpText}
             </p>
 
             {/* Input Area */}
