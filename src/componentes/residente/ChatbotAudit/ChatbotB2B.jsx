@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { urlApi } from "../../api/url";
 import { useAuth } from "../../Context";
 import DenueAdmin from "./DenueAdmin";
@@ -78,6 +78,31 @@ function groupEntities(entities) {
   return groups;
 }
 
+// --- Documentos helpers ---
+
+function estadoBadge(estado, errorMsg) {
+  if (estado === "procesando")
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full animate-pulse">
+        Procesando
+      </span>
+    );
+  if (estado === "listo")
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+        Listo
+      </span>
+    );
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-xs font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded-full cursor-help"
+      title={errorMsg || "Error desconocido"}
+    >
+      Error
+    </span>
+  );
+}
+
 // --- Component ---
 
 export default function ChatbotB2B() {
@@ -94,6 +119,16 @@ export default function ChatbotB2B() {
   const [auditError, setAuditError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
   const [expandedInteraction, setExpandedInteraction] = useState(null);
+
+  // Documentos management
+  const [documentos, setDocumentos] = useState([]);
+  const [isDocLoading, setIsDocLoading] = useState(false);
+  const [docError, setDocError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const fileInputRef = useRef(null);
+  const pollTimerRef = useRef(null);
 
   const fetchStatus = useCallback(async () => {
     if (!token) return;
@@ -134,8 +169,112 @@ export default function ChatbotB2B() {
     }
   }, [token]);
 
+  const fetchDocumentos = useCallback(async () => {
+    if (!token) return;
+    setIsDocLoading(true);
+    setDocError(null);
+    try {
+      const res = await fetch(`${urlApi}api/chatbot/admin/b2b-documentos`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setDocumentos(json.documentos ?? []);
+    } catch (e) {
+      setDocError(e.message);
+    } finally {
+      setIsDocLoading(false);
+    }
+  }, [token]);
+
+  const handleUpload = useCallback(async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setUploadError(null);
+    try {
+      const body = new FormData();
+      body.append("archivo", file);
+      const res = await fetch(`${urlApi}api/chatbot/admin/b2b-documentos`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      // optimistically add the new doc so polling can track it
+      setDocumentos((prev) => [
+        { id: json.id, archivo: file.name, estado: json.estado ?? "procesando" },
+        ...prev,
+      ]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (e) {
+      setUploadError(e.message);
+    } finally {
+      setIsUploading(false);
+    }
+  }, [token]);
+
+  const handleDelete = useCallback(async (id) => {
+    setDocError(null);
+    try {
+      const res = await fetch(`${urlApi}api/chatbot/admin/b2b-documentos/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setDocumentos((prev) => prev.filter((d) => d.id !== id));
+    } catch (e) {
+      setDocError(e.message);
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  }, [token]);
+
+  const handleReindex = useCallback(async (id) => {
+    setDocError(null);
+    try {
+      const res = await fetch(`${urlApi}api/chatbot/admin/b2b-documentos/${id}/reindex`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // mark as procesando locally; poll will update
+      setDocumentos((prev) =>
+        prev.map((d) => (d.id === id ? { ...d, estado: "procesando" } : d))
+      );
+    } catch (e) {
+      setDocError(e.message);
+    }
+  }, [token]);
+
+  // poll every 5s while any doc is still procesando
+  useEffect(() => {
+    const hasPending = documentos.some((d) => d.estado === "procesando");
+    if (hasPending && !pollTimerRef.current) {
+      pollTimerRef.current = setInterval(fetchDocumentos, 5000);
+    } else if (!hasPending && pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+    return () => {
+      if (!hasPending && pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+  }, [documentos, fetchDocumentos]);
+
+  // cleanup poll on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    };
+  }, []);
+
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
   useEffect(() => { fetchAudit(); }, [fetchAudit]);
+  useEffect(() => { fetchDocumentos(); }, [fetchDocumentos]);
 
   const handleSessionClick = useCallback((sesion) => {
     setExpandedInteraction(null);
@@ -220,6 +359,123 @@ export default function ChatbotB2B() {
           </StatCard>
         </div>
       )}
+
+      {/* Documentos management */}
+      <div className="border-t border-gray-200 pt-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">Documentos</h2>
+          <button
+            onClick={fetchDocumentos}
+            disabled={isDocLoading}
+            className="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            {isDocLoading ? "Cargando…" : "Refrescar"}
+          </button>
+        </div>
+
+        {/* Upload row */}
+        <div className="flex items-center gap-3 mb-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.xlsx"
+            disabled={isUploading}
+            className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-gray-50 disabled:opacity-50"
+          />
+          <button
+            onClick={handleUpload}
+            disabled={isUploading}
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+          >
+            {isUploading && (
+              <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            )}
+            Subir documento
+          </button>
+        </div>
+
+        {uploadError && <p className="text-red-500 text-sm mb-3">{uploadError}</p>}
+        {docError && <p className="text-red-500 text-sm mb-3">{docError}</p>}
+
+        {isDocLoading && documentos.length === 0 ? (
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-gray-50 rounded-xl h-10 animate-pulse" />
+            ))}
+          </div>
+        ) : documentos.length === 0 ? (
+          <p className="text-sm text-gray-400">Sin documentos.</p>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-medium">Archivo</th>
+                  <th className="px-4 py-2.5 font-medium">Tipo</th>
+                  <th className="px-4 py-2.5 font-medium">Fecha estudio</th>
+                  <th className="px-4 py-2.5 font-medium text-right">Chunks</th>
+                  <th className="px-4 py-2.5 font-medium">Estado</th>
+                  <th className="px-4 py-2.5 font-medium">Actualizado</th>
+                  <th className="px-4 py-2.5 font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {documentos.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-2.5 text-gray-800 font-medium max-w-[200px] truncate" title={doc.archivo}>
+                      {doc.archivo || "—"}
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-600">{doc.tipo || "—"}</td>
+                    <td className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{formatShort(doc.fecha_estudio)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-600">
+                      {doc.chunks_total != null ? doc.chunks_total.toLocaleString() : "—"}
+                    </td>
+                    <td className="px-4 py-2.5">{estadoBadge(doc.estado, doc.error_msg)}</td>
+                    <td className="px-4 py-2.5 text-gray-500 whitespace-nowrap">{formatShort(doc.updated_at)}</td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleReindex(doc.id)}
+                          disabled={doc.estado === "procesando"}
+                          className="text-xs text-blue-600 hover:underline disabled:opacity-40 disabled:no-underline whitespace-nowrap"
+                        >
+                          Reindexar
+                        </button>
+                        {confirmDeleteId === doc.id ? (
+                          <>
+                            <button
+                              onClick={() => handleDelete(doc.id)}
+                              className="text-xs text-red-600 font-semibold hover:underline whitespace-nowrap"
+                            >
+                              ¿Seguro? Eliminar
+                            </button>
+                            <button
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="text-xs text-gray-400 hover:underline"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDeleteId(doc.id)}
+                            className="text-xs text-red-500 hover:underline whitespace-nowrap"
+                          >
+                            Eliminar
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Conversation audit */}
       <div className="border-t border-gray-200 pt-6 mb-8">
