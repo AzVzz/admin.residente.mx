@@ -497,6 +497,14 @@ export default function ChatbotIndexStatus() {
   const [entities, setEntities] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [denueJobId, setDenueJobId] = useState(null);
+  const [denueJob, setDenueJob] = useState(null);
+  const [denueMsg, setDenueMsg] = useState(null);
+  const denueIntervalRef = useRef(null);
+  const [denueIndexJobId, setDenueIndexJobId] = useState(null);
+  const [denueIndexJob, setDenueIndexJob] = useState(null);
+  const [denueIndexMsg, setDenueIndexMsg] = useState(null);
+  const denueIndexIntervalRef = useRef(null);
 
   const fetchStatus = useCallback(async () => {
     if (!token) return;
@@ -520,6 +528,126 @@ export default function ChatbotIndexStatus() {
   }, [token]);
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
+
+  useEffect(() => {
+    if (!denueJobId) { setDenueJob(null); return; }
+    const poll = async () => {
+      try {
+        const res = await fetch(`${urlApi}api/restaurante/admin/denue/jobs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const { jobs } = await res.json();
+        const job = jobs?.find((j) => j.jobId === denueJobId);
+        if (!job) return;
+        setDenueJob(job);
+        if (job.status !== "running") {
+          clearInterval(denueIntervalRef.current);
+          setDenueJobId(null);
+          const secs = job.ended_at
+            ? ((new Date(job.ended_at) - new Date(job.started_at)) / 1000).toFixed(0)
+            : "?";
+          setDenueMsg(
+            job.status === "done"
+              ? `Scraping completado · ${secs}s`
+              : `Scraping ${job.status}`
+          );
+        }
+      } catch {}
+    };
+    poll();
+    denueIntervalRef.current = setInterval(poll, 3000);
+    return () => clearInterval(denueIntervalRef.current);
+  }, [denueJobId, token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleScrapeDenue() {
+    setDenueMsg(null);
+    try {
+      const res = await fetch(`${urlApi}api/restaurante/admin/denue/scrape`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!data.ok) { setDenueMsg(data.error || "Error"); return; }
+      setDenueJobId(data.jobId);
+    } catch {
+      setDenueMsg("Error de conexión");
+    }
+  }
+
+  async function handleStopDenue() {
+    if (!denueJobId) return;
+    try {
+      await fetch(`${urlApi}api/restaurante/admin/denue/stop/${denueJobId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {}
+    clearInterval(denueIntervalRef.current);
+    setDenueJobId(null);
+    setDenueMsg("Scraping detenido");
+  }
+
+  useEffect(() => {
+    if (!denueIndexJobId) { setDenueIndexJob(null); return; }
+    const poll = async () => {
+      try {
+        const res = await fetch(`${urlApi}api/restaurante/admin/denue/jobs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const { jobs } = await res.json();
+        const job = jobs?.find((j) => j.jobId === denueIndexJobId);
+        if (!job) return;
+        setDenueIndexJob(job);
+        if (job.status !== "running") {
+          clearInterval(denueIndexIntervalRef.current);
+          setDenueIndexJobId(null);
+          const secs = job.ended_at
+            ? ((new Date(job.ended_at) - new Date(job.started_at)) / 1000).toFixed(0)
+            : "?";
+          setDenueIndexMsg(
+            job.status === "done"
+              ? `Indexación completada · ${secs}s`
+              : `Indexación ${job.status}`
+          );
+        }
+      } catch {}
+    };
+    poll();
+    denueIndexIntervalRef.current = setInterval(poll, 3000);
+    return () => clearInterval(denueIndexIntervalRef.current);
+  }, [denueIndexJobId, token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleIndexDenue() {
+    setDenueIndexMsg(null);
+    try {
+      const res = await fetch(`${urlApi}api/restaurante/admin/denue/index`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!data.ok) { setDenueIndexMsg(data.error || "Error"); return; }
+      setDenueIndexJobId(data.jobId);
+    } catch {
+      setDenueIndexMsg("Error de conexión");
+    }
+  }
+
+  async function handleStopDenueIndex() {
+    if (!denueIndexJobId) return;
+    try {
+      await fetch(`${urlApi}api/restaurante/admin/denue/stop/${denueIndexJobId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {}
+    clearInterval(denueIndexIntervalRef.current);
+    setDenueIndexJobId(null);
+    setDenueIndexMsg("Indexación detenida");
+  }
 
   const total = entities?.reduce((s, e) => s + e.total, 0) ?? 0;
   const indexed = entities?.reduce((s, e) => s + e.indexados, 0) ?? 0;
@@ -552,6 +680,67 @@ export default function ChatbotIndexStatus() {
           <ProgressBar pct={globalPct} />
         </div>
       )}
+
+      <div className="mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-gray-700">DENUE</p>
+            <p className="text-xs text-gray-400 mt-0.5">Importar restaurantes del directorio DENUE (AMM)</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+            {denueJobId && (
+              <button
+                onClick={handleStopDenue}
+                className="px-3 py-1.5 text-xs font-medium border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Detener scrape
+              </button>
+            )}
+            <button
+              onClick={handleScrapeDenue}
+              disabled={!!denueJobId || !!denueIndexJobId}
+              className="px-3 py-1.5 text-xs font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50"
+            >
+              {denueJobId ? "Scrapeando…" : "Scrapear"}
+            </button>
+            {denueIndexJobId && (
+              <button
+                onClick={handleStopDenueIndex}
+                className="px-3 py-1.5 text-xs font-medium border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Detener índice
+              </button>
+            )}
+            <button
+              onClick={handleIndexDenue}
+              disabled={!!denueJobId || !!denueIndexJobId}
+              className="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            >
+              {denueIndexJobId ? "Indexando…" : "Indexar en Qdrant"}
+            </button>
+          </div>
+        </div>
+        {denueJobId && denueJob && (
+          <p className="text-xs text-gray-400 mt-2">
+            Scrape corriendo · iniciado {formatShort(denueJob.started_at)}
+          </p>
+        )}
+        {denueMsg && (
+          <p className={`text-xs mt-2 ${denueMsg.startsWith("Error") || denueMsg.includes("failed") ? "text-red-600" : "text-gray-500"}`}>
+            {denueMsg}
+          </p>
+        )}
+        {denueIndexJobId && denueIndexJob && (
+          <p className="text-xs text-gray-400 mt-1">
+            Indexación corriendo · iniciada {formatShort(denueIndexJob.started_at)}
+          </p>
+        )}
+        {denueIndexMsg && (
+          <p className={`text-xs mt-1 ${denueIndexMsg.startsWith("Error") || denueIndexMsg.includes("failed") ? "text-red-600" : "text-gray-500"}`}>
+            {denueIndexMsg}
+          </p>
+        )}
+      </div>
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
