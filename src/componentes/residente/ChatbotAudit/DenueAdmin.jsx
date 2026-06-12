@@ -140,8 +140,14 @@ export default function DenueAdmin({ isEmbedded = false }) {
       });
       if (!res.ok) return;
       const data = await res.json();
-      const jobs = data.jobs || data || [];
-      setActiveJobs(jobs);
+      // Only running jobs count as active; finished jobs linger in the backend map
+      const all = data.jobs || data || [];
+      const jobs = all.filter((j) => j.status === "running");
+      setActiveJobs((prev) => {
+        // Refresh status when the last running job finishes
+        if (prev.length > 0 && jobs.length === 0) fetchStatus();
+        return jobs;
+      });
       if (jobs.length > 0 && !activeLogJobRef.current) {
         setActiveLogJob(jobs[0].jobId);
       }
@@ -149,7 +155,7 @@ export default function DenueAdmin({ isEmbedded = false }) {
         setActiveLogJob(null);
       }
     } catch (e) { console.error("[denue jobs]", e.message); }
-  }, [token]);
+  }, [token, fetchStatus]);
 
   useEffect(() => {
     fetchStatus();
