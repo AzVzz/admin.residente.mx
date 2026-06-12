@@ -37,6 +37,7 @@ import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
 import SEOComparison from "./SEOComparison.jsx";
 import { FaRobot } from "react-icons/fa";
 import SmartTagsInput from "../SmartTagsInput.jsx";
+import { urlApi } from "../../../../componentes/api/url";
 import TematicaSelector from "./componentes/TematicaSelector.jsx";
 
 const tipoNotaPorPermiso = {
@@ -152,6 +153,19 @@ const FormMainResidente = () => {
   const [instafotoActual, setInstafotoActual] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
   const imagenPreviewUrlRef = useRef(null);
+
+  // ★ Etiquetas editoriales ya usadas en otras notas (api/notas/etiquetas).
+  // Se muestran como sugerencias clickeables en el campo "# Etiquetas" para
+  // reutilizarlas con un clic y no escribirlas a mano (evita typos).
+  const [etiquetasExistentes, setEtiquetasExistentes] = useState([]);
+  useEffect(() => {
+    fetch(`${urlApi}api/notas/etiquetas`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setEtiquetasExistentes(data);
+      })
+      .catch(() => {});
+  }, []);
 
   // Estados para Gemini AI
   const { optimizarNota, loading: geminiLoading } = useGeminiSEO();
@@ -843,7 +857,8 @@ const FormMainResidente = () => {
                     onChange={(tags) => setValue("etiquetas", tags)}
                     hideGenerationButton={true}
                     label="# Etiquetas (curaduría manual)"
-                    helpText='Hashtags para controlar a mano qué notas salen en bloques especiales de portada (ej. "5razones"). Solo aparecen las notas que tengan la etiqueta exacta.'
+                    helpText='Hashtags para controlar a mano qué notas salen en bloques especiales de portada (ej. "5 razones"). Solo aparecen las notas que tengan la etiqueta exacta.'
+                    suggestions={etiquetasExistentes}
                   />
                 </div>
 

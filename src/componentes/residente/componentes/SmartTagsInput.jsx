@@ -9,6 +9,9 @@ const SmartTagsInput = ({
     hideGenerationButton = false,
     label = "🏷️ Smart Tags (IA)",
     helpText = "Etiquetas conceptuales para relacionar contenido automáticamente. Generadas por IA o agregadas manualmente.",
+    // ★ Etiquetas ya existentes (ej. desde api/notas/etiquetas): se muestran
+    // como chips clickeables para reutilizarlas sin escribirlas a mano.
+    suggestions = [],
 }) => {
     const [inputValue, setInputValue] = useState("");
     const [localTags, setLocalTags] = useState([]);
@@ -53,6 +56,19 @@ const SmartTagsInput = ({
         setLocalTags(newTags);
         onChange(newTags);
     };
+
+    // ★ Agrega una sugerencia con un clic (mismo flujo que escribirla)
+    const handleAddSuggestion = (tag) => {
+        if (!localTags.includes(tag)) {
+            const newTags = [...localTags, tag];
+            setLocalTags(newTags);
+            onChange(newTags);
+        }
+    };
+
+    // Solo sugerir las que aún no están puestas en la nota
+    const sugerenciasDisponibles = (Array.isArray(suggestions) ? suggestions : [])
+        .filter((tag) => !localTags.includes(tag));
 
     return (
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
@@ -106,6 +122,28 @@ const SmartTagsInput = ({
                     </button>
                 </div>
             </div>
+
+            {/* ★ Sugerencias: etiquetas ya usadas en otras notas (clic para agregar) */}
+            {sugerenciasDisponibles.length > 0 && (
+                <div className="mb-3">
+                    <p className="text-xs text-gray-500 mb-1.5">
+                        Etiquetas existentes (clic para agregar):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {sugerenciasDisponibles.map((tag) => (
+                            <button
+                                key={tag}
+                                type="button"
+                                onClick={() => handleAddSuggestion(tag)}
+                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-300 border-dashed hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition-colors"
+                            >
+                                <FaPlus size={8} />
+                                {tag}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Tags Cloud */}
             <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-gray-50 rounded-md border border-gray-100">
