@@ -161,6 +161,9 @@ const ChatbotB2B = lazy(
 const ScrapingDashboard = lazy(
   () => import("./componentes/residente/ScrapingGoogle/ScrapingDashboard.jsx"),
 );
+const PortadaEtiquetasDashboard = lazy(
+  () => import("./componentes/residente/PortadaEtiquetas/PortadaEtiquetasDashboard.jsx"),
+);
 const FormularioAnuncioRevista = lazy(
   () => import("./componentes/residente/B2B/FormularioAnuncioRevista.jsx"),
 );
@@ -568,6 +571,14 @@ function App() {
                 element={
                   <ResidenteRoute>
                     <ScrapingDashboard />
+                  </ResidenteRoute>
+                }
+              />
+              <Route
+                path="/portada-etiquetas"
+                element={
+                  <ResidenteRoute>
+                    <PortadaEtiquetasDashboard />
                   </ResidenteRoute>
                 }
               />
