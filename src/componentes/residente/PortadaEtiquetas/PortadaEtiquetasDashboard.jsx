@@ -319,8 +319,10 @@ const iconoDeNota = (nota) => {
 
 const ColaTaqueriasPreview = () => {
   const ETIQUETA = "taquerias iconicas";
-  const VENTANA = 4;
-  const url = `${urlApi}api/notas/cola-etiqueta/${ENC(ETIQUETA)}?ventana=${VENTANA}`;
+  const VENTANA = 4; // las 4 visibles en la portada (0 grande + 1·2·3 chicas)
+  // Pedimos una ventana grande para traer TODA la cola restante de la ronda y
+  // poder listar las "próximas a aparecer". Las primeras 4 son las que salen ya.
+  const url = `${urlApi}api/notas/cola-etiqueta/${ENC(ETIQUETA)}?ventana=500`;
 
   const [ventana, setVentana] = useState([]);
   const [error, setError] = useState(null);
@@ -463,6 +465,83 @@ const ColaTaqueriasPreview = () => {
               })}
             </div>
           </div>
+        )}
+
+        {/* ── Detalle expandible: toda la cola en orden (tabla con scroll) ── */}
+        {ventana.length > 0 && (
+          <details className="mt-6 w-full border-t border-gray-100 pt-4">
+            <summary className="cursor-pointer select-none text-[13px] font-semibold text-gray-700 hover:text-gray-900">
+              Próximas notas en la cola ({ventana.length}) — orden en que irán
+              apareciendo
+            </summary>
+
+            <div className="mt-3 max-h-[360px] overflow-y-auto rounded-lg border border-gray-200">
+              <table className="w-full border-collapse text-left text-[12px]">
+                <thead className="sticky top-0 z-10 bg-gray-50 text-[10px] uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-3 py-2 font-bold">#</th>
+                    <th className="px-3 py-2 font-bold">Foto</th>
+                    <th className="px-3 py-2 font-bold">Restaurante</th>
+                    <th className="px-3 py-2 font-bold">Título</th>
+                    <th className="px-3 py-2 font-bold">ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ventana.map((nota, idx) => {
+                    const visible = idx < VENTANA; // las 4 que se ven ahora
+                    return (
+                      <tr
+                        key={nota.id}
+                        className={`border-t border-gray-100 ${
+                          visible ? "bg-amber-50" : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <td className="px-3 py-2 align-middle font-mono text-gray-500">
+                          {idx}
+                          {visible && (
+                            <span className="ml-1 rounded bg-amber-200 px-1 text-[9px] font-bold text-amber-800">
+                              {idx === 0 ? "GRANDE" : "VISIBLE"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          <img
+                            src={nota.imagen || FALLBACK_IMG}
+                            alt=""
+                            width={36}
+                            height={36}
+                            loading="lazy"
+                            className="h-9 w-9 rounded-full object-cover"
+                          />
+                        </td>
+                        <td className="px-3 py-2 align-middle font-bebas text-[13px] uppercase leading-tight">
+                          {nota.nombre_restaurante || "—"}
+                        </td>
+                        <td className="px-3 py-2 align-middle leading-snug text-gray-800">
+                          <a
+                            href={`https://residente.mx/notas/${nota.slug ?? nota.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:underline"
+                          >
+                            {nota.titulo}
+                          </a>
+                        </td>
+                        <td className="px-3 py-2 align-middle font-mono text-gray-400">
+                          {nota.id}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-[10px] text-gray-400">
+              En amarillo, las {VENTANA} que se muestran ahora en la portada (la #0
+              es la nota grande). Cada minuto el cursor avanza 1 y entra la
+              siguiente; al terminar la fila, rebaraja.
+            </p>
+          </details>
         )}
 
         {actualizado && (
