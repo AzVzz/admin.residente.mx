@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { urlApi } from "../../api/url";
+import { urlApi, imgApi } from "../../api/url";
+import { Iconografia } from "../../utils/Iconografia";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Dashboard "¿Qué se muestra en la portada y de dónde sale?"
@@ -289,6 +290,192 @@ const BloqueCard = ({ bloque }) => {
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────
+// Vista previa EN VIVO de la cola "taquerias iconicas" (mismo diseño que la
+// portada pública). La cola por tiempo (endpoint cola-etiqueta) entrega una
+// ventana de 4: índice 0 = nota grande (izquierda), índices 1·2·3 = notas
+// chicas (derecha). Avanza 1 nota por minuto; el botón "Actualizar" la repuebla.
+// ─────────────────────────────────────────────────────────────────────────
+
+const FALLBACK_IMG = `${imgApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`;
+
+// sticker (clave) -> URL del icono, igual que en el sitio público.
+const getIconoUrl = (clave) => {
+  const found =
+    Iconografia.categorias.find((i) => i.clave === clave)?.icono ||
+    Iconografia.ocasiones.find((i) => i.clave === clave)?.icono ||
+    Iconografia.zonas.find((i) => i.clave === clave)?.icono;
+  return found || null;
+};
+
+const iconoDeNota = (nota) => {
+  const stickers = Array.isArray(nota?.sticker)
+    ? nota.sticker
+    : nota?.sticker
+      ? [nota.sticker]
+      : [];
+  return stickers[0] ? getIconoUrl(stickers[0]) : null;
+};
+
+const ColaTaqueriasPreview = () => {
+  const ETIQUETA = "taquerias iconicas";
+  const VENTANA = 4;
+  const url = `${urlApi}api/notas/cola-etiqueta/${ENC(ETIQUETA)}?ventana=${VENTANA}`;
+
+  const [ventana, setVentana] = useState([]);
+  const [error, setError] = useState(null);
+  const [cargando, setCargando] = useState(false);
+  const [actualizado, setActualizado] = useState(null);
+
+  const cargar = async () => {
+    setCargando(true);
+    setError(null);
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setVentana(Array.isArray(data) ? data : []);
+      setActualizado(new Date());
+    } catch (e) {
+      setError(e.message || "Error");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
+    cargar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const notaGrande = ventana[0] ?? null;
+  const notasChicas = ventana.slice(1, 4);
+
+  return (
+    <section className="mt-12">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-gray-700">
+            ⑦ Vista previa en vivo · Cola Taquerías icónicas
+          </h2>
+          <p className="mt-1 text-[11px] leading-snug text-gray-500">
+            Endpoint <code className="rounded bg-gray-100 px-1">cola-etiqueta</code>{" "}
+            (ventana = {VENTANA}). Índice 0 = nota grande, 1·2·3 = notas chicas.
+            Avanza 1 nota por minuto y al agotarse la fila rebaraja.
+          </p>
+        </div>
+        <button
+          onClick={cargar}
+          disabled={cargando}
+          className="shrink-0 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        >
+          {cargando ? "Cargando…" : "↻ Actualizar"}
+        </button>
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        {error && (
+          <p className="text-[12px] text-red-500">No se pudo cargar ({error})</p>
+        )}
+        {!error && ventana.length === 0 && !cargando && (
+          <p className="text-[12px] text-amber-600">
+            0 notas en la cola. Verifica que las notas tengan la etiqueta{" "}
+            <code className="rounded bg-gray-100 px-1">taquerias iconicas</code>{" "}
+            aplicada en la base de datos de producción.
+          </p>
+        )}
+
+        {ventana.length > 0 && (
+          <div className="mx-auto grid max-w-[1000px] grid-cols-2 items-center gap-x-16">
+            {/* ── Izquierda: nota grande (índice 0) ── */}
+            <div>
+              <a
+                href="https://residente.mx/taquerias-iconicas"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                <h3 className="block text-center font-bebas text-[24px] font-medium uppercase leading-[1] tracking-[-0.04em]">
+                  Taquerías icónicas de Nuevo León
+                </h3>
+              </a>
+              <p className="my-2 text-center text-[10px] font-black uppercase text-gray-400">
+                #0 · nota grande
+              </p>
+              {notaGrande && (
+                <a
+                  href={`https://residente.mx/notas/${notaGrande.slug ?? notaGrande.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group"
+                >
+                  <p className="text-center text-[28px] leading-[1.1] group-hover:underline">
+                    {notaGrande.titulo}
+                  </p>
+                </a>
+              )}
+            </div>
+
+            {/* ── Derecha: 3 notas chicas (índices 1·2·3) ── */}
+            <div className="flex flex-col gap-3">
+              {notasChicas.map((nota, idx) => {
+                const iconoUrl = iconoDeNota(nota);
+                return (
+                  <a
+                    key={nota.id}
+                    href={`https://residente.mx/notas/${nota.slug ?? nota.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex flex-row items-center gap-3"
+                  >
+                    <div className="relative h-[100px] w-[100px] flex-shrink-0">
+                      <div className="h-full w-full overflow-hidden rounded-full bg-gray-100">
+                        <img
+                          src={nota.imagen || FALLBACK_IMG}
+                          alt={nota.nombre_restaurante || nota.titulo || ""}
+                          width={200}
+                          height={200}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      {iconoUrl && (
+                        <img
+                          src={iconoUrl}
+                          alt=""
+                          className="absolute -left-1 -top-2 z-10 h-8 w-8 object-contain"
+                        />
+                      )}
+                      <span className="absolute -bottom-1 -right-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-[11px] font-bold text-white">
+                        {idx + 1}
+                      </span>
+                    </div>
+                    <div className="flex min-w-0 flex-col">
+                      <span className="font-bebas text-[14px] uppercase leading-[1.1]">
+                        {nota.nombre_restaurante || "Sin nombre"}
+                      </span>
+                      <h3 className="font-roman text-[14px] leading-[1.2] text-gray-900 group-hover:underline">
+                        {nota.titulo}
+                      </h3>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {actualizado && (
+          <p className="mt-4 text-right text-[10px] text-gray-400">
+            Actualizado {actualizado.toLocaleTimeString("es-MX")} · la cola avanza
+            cada minuto
+          </p>
+        )}
+      </div>
+    </section>
+  );
+};
+
 const PortadaEtiquetasDashboard = () => {
   return (
     <div className="max-w-[1080px] mx-auto py-8">
@@ -332,6 +519,9 @@ const PortadaEtiquetasDashboard = () => {
           </section>
         ))}
       </div>
+
+      {/* Vista previa visual de la cola taquerías icónicas (hasta el final) */}
+      <ColaTaqueriasPreview />
     </div>
   );
 };
