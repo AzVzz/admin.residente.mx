@@ -317,12 +317,13 @@ const iconoDeNota = (nota) => {
   return stickers[0] ? getIconoUrl(stickers[0]) : null;
 };
 
-const ColaTaqueriasPreview = () => {
-  const ETIQUETA = "taquerias iconicas";
+// Preview genérico de la cola por etiqueta. Reutilizable para cada ruta
+// (taquerías, reposterías, …) cambiando props.
+const ColaPreview = ({ numero, nombre, etiqueta, tituloPortada, interiorUrl }) => {
   const VENTANA = 4; // las 4 visibles en la portada (0 grande + 1·2·3 chicas)
   // Pedimos una ventana grande para traer TODA la cola restante de la ronda y
   // poder listar las "próximas a aparecer". Las primeras 4 son las que salen ya.
-  const url = `${urlApi}api/notas/cola-etiqueta/${ENC(ETIQUETA)}?ventana=500`;
+  const url = `${urlApi}api/notas/cola-etiqueta/${ENC(etiqueta)}?ventana=500`;
 
   const [ventana, setVentana] = useState([]);
   const [error, setError] = useState(null);
@@ -358,7 +359,7 @@ const ColaTaqueriasPreview = () => {
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold uppercase tracking-wide text-gray-700">
-            ⑦ Vista previa en vivo · Cola Taquerías icónicas
+            {numero} Vista previa en vivo · Cola {nombre}
           </h2>
           <p className="mt-1 text-[11px] leading-snug text-gray-500">
             Endpoint <code className="rounded bg-gray-100 px-1">cola-etiqueta</code>{" "}
@@ -382,7 +383,7 @@ const ColaTaqueriasPreview = () => {
         {!error && ventana.length === 0 && !cargando && (
           <p className="text-[12px] text-amber-600">
             0 notas en la cola. Verifica que las notas tengan la etiqueta{" "}
-            <code className="rounded bg-gray-100 px-1">taquerias iconicas</code>{" "}
+            <code className="rounded bg-gray-100 px-1">{etiqueta}</code>{" "}
             aplicada en la base de datos de producción.
           </p>
         )}
@@ -392,13 +393,13 @@ const ColaTaqueriasPreview = () => {
             {/* ── Izquierda: nota grande (índice 0) ── */}
             <div>
               <a
-                href="https://residente.mx/taquerias-iconicas"
+                href={interiorUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="hover:underline"
               >
                 <h3 className="block text-center font-bebas text-[24px] font-medium uppercase leading-[1] tracking-[-0.04em]">
-                  Taquerías icónicas de Nuevo León
+                  {tituloPortada}
                 </h3>
               </a>
               <p className="my-2 text-center text-[10px] font-black uppercase text-gray-400">
@@ -599,8 +600,21 @@ const PortadaEtiquetasDashboard = () => {
         ))}
       </div>
 
-      {/* Vista previa visual de la cola taquerías icónicas (hasta el final) */}
-      <ColaTaqueriasPreview />
+      {/* Vista previa visual de las colas por etiqueta (hasta el final) */}
+      <ColaPreview
+        numero="⑦"
+        nombre="Taquerías icónicas"
+        etiqueta="taquerias iconicas"
+        tituloPortada="Taquerías icónicas de Nuevo León"
+        interiorUrl="https://residente.mx/taquerias-iconicas"
+      />
+      <ColaPreview
+        numero="⑧"
+        nombre="Reposterías icónicas"
+        etiqueta="reposterias"
+        tituloPortada="Reposterías icónicas de Nuevo León"
+        interiorUrl="https://residente.mx/reposterias"
+      />
     </div>
   );
 };
