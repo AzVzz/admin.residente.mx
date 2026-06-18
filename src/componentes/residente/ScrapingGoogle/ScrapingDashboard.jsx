@@ -256,6 +256,227 @@ function RowRest({ r, onRescrape, onClean, expanded, onToggle, token }) {
   );
 }
 
+function SinWebPanel({ token }) {
+  const [sinWebData, setSinWebData] = useState({ total: 0, pages: 1, restaurantes: [] });
+  const [sinWebPage, setSinWebPage] = useState(1);
+  const [soloActivos, setSoloActivos] = useState(false);
+  const [isLoadingSinWeb, setIsLoadingSinWeb] = useState(false);
+  const [isCheckingWeb, setIsCheckingWeb] = useState(false);
+  const [isActivatingB2b, setIsActivatingB2b] = useState(false);
+  const [checkWebJobId, setCheckWebJobId] = useState(null);
+  const [checkWebLog, setCheckWebLog] = useState("");
+  const [toggling, setToggling] = useState({});
+  const logPollRef = useRef(null);
+  const logBoxRef = useRef(null);
+
+  const fetchSinWeb = useCallback(async (page = 1) => {
+    if (!token) return;
+    setIsLoadingSinWeb(true);
+    try {
+      const params = new URLSearchParams({ page, limit: 50 });
+      if (soloActivos) params.set("solo_activos", "1");
+      const res = await fetch(`${API_BASE}/sin-web?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setSinWebData(data);
+      setSinWebPage(page);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingSinWeb(false);
+    }
+  }, [token, soloActivos]);
+
+  useEffect(() => { fetchSinWeb(1); }, [fetchSinWeb]);
+
+  useEffect(() => {
+    if (!checkWebJobId) {
+      if (logPollRef.current) { clearInterval(logPollRef.current); logPollRef.current = null; }
+      return;
+    }
+    const tick = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/log/${checkWebJobId}?lines=200`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json();
+        setCheckWebLog(data.tail || "");
+        if (logBoxRef.current) logBoxRef.current.scrollTop = logBoxRef.current.scrollHeight;
+        if (data.status !== "running") {
+          setIsCheckingWeb(false);
+          fetchSinWeb(1);
+        }
+      } catch {}
+    };
+    tick();
+    logPollRef.current = setInterval(tick, 3000);
+    return () => { if (logPollRef.current) clearInterval(logPollRef.current); };
+  }, [checkWebJobId, token, fetchSinWeb]);
+
+  async function launchCheckWeb() {
+    if (!token) return;
+    setIsCheckingWeb(true);
+    setCheckWebLog("");
+    try {
+      const res = await fetch(`${API_BASE}/check-web`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ activar_micrositio: false }),
+      });
+      const data = await res.json();
+      if (data.jobId) setCheckWebJobId(data.jobId);
+    } catch (e) {
+      console.error(e);
+      setIsCheckingWeb(false);
+    }
+  }
+
+  async function activarMicrositiosB2b() {
+    if (!confirm("¿Activar micrositio de Residente como sitio web para todos los B2B sin web propia?")) return;
+    setIsActivatingB2b(true);
+    try {
+      const res = await fetch(`${API_BASE}/activar-micrositios-b2b`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      alert(`Listo — ${data.afectados} restaurante(s) B2B actualizados con micrositio.`);
+      fetchSinWeb(1);
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setIsActivatingB2b(false);
+    }
+  }
+
+  async function toggleMicrositio(id, currentVal) {
+    setToggling((p) => ({ ...p, [id]: true }));
+    try {
+      await fetch(`${API_BASE}/micrositio/${id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ micrositio_activo: !currentVal }),
+      });
+      setSinWebData((prev) => ({
+        ...prev,
+        restaurantes: prev.restaurantes.map((r) =>
+          r.id === id ? { ...r, micrositio_activo: currentVal ? 0 : 1 } : r
+        ),
+      }));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setToggling((p) => ({ ...p, [id]: false }));
+    }
+  }
+
+  const activados = sinWebData.restaurantes.filter((r) => r.micrositio_activo).length;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-4 mt-6">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <h2 className="text-base font-semibold">Restaurantes sin sitio web</h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {sinWebData.total} sin web confirmado · {activados} activados para SEO (en esta página)
+          </p>
+        </div>
+        <div className="flex gap-2 items-center flex-wrap">
+          <label className="flex items-center gap-1.5 text-xs">
+            <input type="checkbox" checked={soloActivos} onChange={(e) => setSoloActivos(e.target.checked)} />
+            Solo activados
+          </label>
+          <button
+            onClick={() => fetchSinWeb(sinWebPage)}
+            disabled={isLoadingSinWeb}
+            className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+          >
+            {isLoadingSinWeb ? "..." : "Actualizar"}
+          </button>
+          <button
+            onClick={activarMicrositiosB2b}
+            disabled={isActivatingB2b}
+            className="px-4 py-1.5 bg-yellow-400 text-black text-xs font-semibold rounded-lg hover:bg-yellow-300 disabled:opacity-50"
+          >
+            {isActivatingB2b ? "Activando…" : "Activar micrositios B2B"}
+          </button>
+          <button
+            onClick={launchCheckWeb}
+            disabled={isCheckingWeb}
+            className="px-4 py-1.5 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          >
+            {isCheckingWeb ? "Detectando…" : "Detectar sin web"}
+          </button>
+        </div>
+      </div>
+
+      {checkWebLog && (
+        <pre ref={logBoxRef} className="mb-4 bg-black text-emerald-300 text-[11px] font-mono p-3 rounded max-h-48 overflow-y-auto whitespace-pre-wrap">
+          {checkWebLog}
+        </pre>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead className="bg-gray-50 text-gray-500">
+            <tr>
+              <th className="px-2 py-2 text-left">ID</th>
+              <th className="px-2 py-2 text-left">Restaurante</th>
+              <th className="px-2 py-2 text-left">Micrositio</th>
+              <th className="px-2 py-2">Scrapeado</th>
+              <th className="px-2 py-2">SEO activo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sinWebData.restaurantes.map((r) => (
+              <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <td className="px-2 py-2 text-gray-400 font-mono">{r.id}</td>
+                <td className="px-2 py-2">
+                  <span className="font-medium">{r.nombre_restaurante}</span>
+                  {r.es_promovido ? <span className="ml-1.5 text-[10px] bg-yellow-100 text-yellow-700 px-1 rounded">B2B</span> : null}
+                  {r.categoria ? <span className="ml-1 text-gray-400">{r.categoria}</span> : null}
+                </td>
+                <td className="px-2 py-2">
+                  <a href={r.micrositio_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline break-all">
+                    {r.micrositio_url}
+                  </a>
+                </td>
+                <td className="px-2 py-2 text-center text-gray-400">
+                  {r.google_extra_at ? new Date(r.google_extra_at).toLocaleDateString("es-MX") : "—"}
+                </td>
+                <td className="px-2 py-2 text-center">
+                  <button
+                    onClick={() => toggleMicrositio(r.id, r.micrositio_activo)}
+                    disabled={toggling[r.id]}
+                    className={`w-10 h-5 rounded-full transition-colors ${r.micrositio_activo ? "bg-emerald-500" : "bg-gray-300"} disabled:opacity-50`}
+                    title={r.micrositio_activo ? "Desactivar" : "Activar para SEO"}
+                  >
+                    <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-0.5 ${r.micrositio_activo ? "translate-x-5" : "translate-x-0"}`} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {sinWebData.restaurantes.length === 0 && !isLoadingSinWeb && (
+          <p className="text-center text-gray-400 py-8 text-sm">
+            {sinWebData.total === 0 ? "Sin resultados — corre 'Detectar sin web' primero" : "Sin resultados con estos filtros"}
+          </p>
+        )}
+      </div>
+
+      {sinWebData.pages > 1 && (
+        <div className="flex gap-2 justify-center mt-4 text-xs">
+          <button onClick={() => fetchSinWeb(sinWebPage - 1)} disabled={sinWebPage <= 1 || isLoadingSinWeb}
+            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40">← Anterior</button>
+          <span className="py-1 text-gray-500">Pág. {sinWebPage} / {sinWebData.pages}</span>
+          <button onClick={() => fetchSinWeb(sinWebPage + 1)} disabled={sinWebPage >= sinWebData.pages || isLoadingSinWeb}
+            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40">Siguiente →</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ScrapingDashboard() {
   const { token } = useAuth();
   const [stats, setStats] = useState(null);
@@ -528,8 +749,11 @@ export default function ScrapingDashboard() {
         </div>
       )}
 
+      {/* Sin Web + Micrositios */}
+      <SinWebPanel token={token} />
+
       {/* Filtros + tabla */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 mt-6">
         <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <h2 className="text-base font-semibold">Restaurantes ({rows.length})</h2>
           <div className="flex gap-2 items-center text-xs">
