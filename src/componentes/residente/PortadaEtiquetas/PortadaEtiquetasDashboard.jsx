@@ -636,6 +636,13 @@ const PortadaEtiquetasDashboard = () => {
         tituloPortada="Panaderías de Colonia de Nuevo León"
         interiorUrl="https://residente.mx/panaderias-colonia"
       />
+      <ColaPreview
+        numero="⑫"
+        nombre="Ruta de Mercados"
+        etiqueta="mercados"
+        tituloPortada="Ruta de Mercados de Nuevo León"
+        interiorUrl="https://residente.mx/mercados"
+      />
     </div>
   );
 };
