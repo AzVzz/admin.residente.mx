@@ -629,6 +629,13 @@ const PortadaEtiquetasDashboard = () => {
         tituloPortada="Cafés Independientes de Nuevo León"
         interiorUrl="https://residente.mx/cafes"
       />
+      <ColaPreview
+        numero="⑪"
+        nombre="Panaderías de colonia"
+        etiqueta="panaderias de colonia"
+        tituloPortada="Panaderías de Colonia de Nuevo León"
+        interiorUrl="https://residente.mx/panaderias-colonia"
+      />
     </div>
   );
 };
