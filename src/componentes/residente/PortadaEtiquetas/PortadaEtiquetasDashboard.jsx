@@ -622,6 +622,13 @@ const PortadaEtiquetasDashboard = () => {
         tituloPortada="Reposterías icónicas de Nuevo León"
         interiorUrl="https://residente.mx/reposterias"
       />
+      <ColaPreview
+        numero="⑩"
+        nombre="Cafés independientes"
+        etiqueta="cafes"
+        tituloPortada="Cafés Independientes de Nuevo León"
+        interiorUrl="https://residente.mx/cafes"
+      />
     </div>
   );
 };
