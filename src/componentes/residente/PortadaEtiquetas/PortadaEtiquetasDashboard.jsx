@@ -16,6 +16,30 @@ import { Iconografia } from "../../utils/Iconografia";
 
 const ENC = (s) => encodeURIComponent(s);
 
+// Token de sesión (localStorage o cookie compartida .residente.mx). Se manda en
+// los fetches de preview para que el backend exente al editor del rate limit de
+// portada (el límite es solo para tráfico anónimo / scrapers).
+const getAuthToken = () => {
+  try {
+    const ls = localStorage.getItem("residente_token");
+    if (ls) return ls;
+  } catch (e) {
+    /* localStorage no disponible */
+  }
+  const m =
+    typeof document !== "undefined" &&
+    document.cookie.match(/(?:^|;\s*)residente_auth_token=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : "";
+};
+
+const authHeaders = () => {
+  const token = getAuthToken();
+  return {
+    Accept: "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
 // Construye la URL pública de preview (los mismos endpoints que consume el sitio).
 const fetchUrlEtiqueta = (etq, limit) =>
   `${urlApi}api/notas/por-etiqueta/${ENC(etq)}?limit=${limit}`;
@@ -194,7 +218,7 @@ const BloqueCard = ({ bloque }) => {
     (async () => {
       try {
         const res = await fetch(bloque.fetchUrl, {
-          headers: { Accept: "application/json" },
+          headers: authHeaders(),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
@@ -334,7 +358,7 @@ const ColaPreview = ({ numero, nombre, etiqueta, tituloPortada, interiorUrl }) =
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: authHeaders() });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setVentana(Array.isArray(data) ? data : []);
