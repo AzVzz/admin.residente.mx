@@ -610,6 +610,13 @@ const PortadaEtiquetasDashboard = () => {
       />
       <ColaPreview
         numero="⑧"
+        nombre="Ruta de Cantinas"
+        etiqueta="cantinas"
+        tituloPortada="Ruta de Cantinas de Nuevo León"
+        interiorUrl="https://residente.mx/cantinas"
+      />
+      <ColaPreview
+        numero="⑨"
         nombre="Reposterías icónicas"
         etiqueta="reposterias"
         tituloPortada="Reposterías icónicas de Nuevo León"
