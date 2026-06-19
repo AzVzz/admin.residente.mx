@@ -1,19 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useAuth } from "../../../../Context";
 
 const Autor = () => {
   const { usuario } = useAuth();
-  const { register, watch, setValue } = useFormContext();
-  const autorActual = watch("autor");
+  const { register, getValues, setValue } = useFormContext();
+  const yaPrellenado = useRef(false);
 
-  // Prellenar con el usuario logueado solo si el campo está vacío (nota nueva).
-  // Al editar, el valor ya viene del reset() y no se sobreescribe.
+  // Prellenar con el usuario logueado SOLO una vez al montar y solo si el campo
+  // está vacío (nota nueva). Después no se vuelve a tocar, así puedes borrar todo
+  // y escribir el autor que quieras sin que se reescriba.
   useEffect(() => {
-    if (!autorActual && usuario?.nombre_usuario) {
+    if (yaPrellenado.current) return;
+    if (!usuario?.nombre_usuario) return; // esperar a que cargue el usuario
+    if (!getValues("autor")) {
       setValue("autor", usuario.nombre_usuario);
     }
-  }, [autorActual, usuario, setValue]);
+    yaPrellenado.current = true;
+  }, [usuario, getValues, setValue]);
 
   return (
     <div className="space-y-2">
