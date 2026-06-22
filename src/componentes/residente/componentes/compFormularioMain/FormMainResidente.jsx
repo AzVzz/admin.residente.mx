@@ -878,12 +878,22 @@ const FormMainResidente = () => {
                           // Al elegir "recomendacion", agregar automáticamente la
                           // etiqueta "recomendaciones" (la que consume la portada),
                           // para que el editor no tenga que ponerla a mano.
+                          const actuales = Array.isArray(watch("etiquetas"))
+                            ? watch("etiquetas")
+                            : [];
                           if (e.target.value === "recomendacion") {
-                            const actuales = Array.isArray(watch("etiquetas"))
-                              ? watch("etiquetas")
-                              : [];
                             if (!actuales.includes("recomendaciones")) {
                               setValue("etiquetas", [...actuales, "recomendaciones"]);
+                            }
+                          } else {
+                            // Si cambian a otro formato (o lo deseleccionan),
+                            // quitar SOLO la etiqueta automática "recomendaciones".
+                            // Las demás etiquetas se respetan y no se agrega ninguna.
+                            if (actuales.includes("recomendaciones")) {
+                              setValue(
+                                "etiquetas",
+                                actuales.filter((t) => t !== "recomendaciones")
+                              );
                             }
                           }
                         }}
