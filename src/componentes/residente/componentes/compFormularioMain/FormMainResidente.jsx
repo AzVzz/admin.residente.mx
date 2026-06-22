@@ -867,16 +867,36 @@ const FormMainResidente = () => {
                   <label className="block text-sm font-medium text-gray-800 mb-2">
                     Formato de nota
                   </label>
-                  <select
-                    {...methods.register("formato_nota")}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Selecciona un formato</option>
-                    <option value="recomendacion">Recomendación</option>
-                    <option value="noticia">Noticia</option>
-                    <option value="reflexion">Reflexión</option>
-                    <option value="favoritos">Favoritos</option>
-                  </select>
+                  {(() => {
+                    const formatoReg = methods.register("formato_nota");
+                    return (
+                      <select
+                        {...formatoReg}
+                        onChange={(e) => {
+                          // Mantener react-hook-form sincronizado.
+                          formatoReg.onChange(e);
+                          // Al elegir "recomendacion", agregar automáticamente la
+                          // etiqueta "recomendaciones" (la que consume la portada),
+                          // para que el editor no tenga que ponerla a mano.
+                          if (e.target.value === "recomendacion") {
+                            const actuales = Array.isArray(watch("etiquetas"))
+                              ? watch("etiquetas")
+                              : [];
+                            if (!actuales.includes("recomendaciones")) {
+                              setValue("etiquetas", [...actuales, "recomendaciones"]);
+                            }
+                          }
+                        }}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Selecciona un formato</option>
+                        <option value="recomendacion">Recomendación</option>
+                        <option value="noticia">Noticia</option>
+                        <option value="reflexion">Reflexión</option>
+                        <option value="favoritos">Favoritos</option>
+                      </select>
+                    );
+                  })()}
                 </div>
 
                 {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
