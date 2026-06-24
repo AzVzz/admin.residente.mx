@@ -680,6 +680,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                   facebook: data.facebook,
                   ubereats_link: data.ubereats_link,
                   link_horario: data.link_horario,
+                  opening_hours: data.opening_hours || null,
                   direccion: data.direccion?.trim() || null,
                   lat:
                     data.lat === "" || data.lat == null || Number.isNaN(Number(data.lat))
