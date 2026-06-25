@@ -733,6 +733,12 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   };
 
   const handleVer = () => {
+    // Proveedores que no son restaurante (ej: LIYPE) tienen una URL de
+    // micrositio externa guardada en usuarios_b2b.micrositio_url.
+    if (b2bUser?.micrositio_url) {
+      window.open(b2bUser.micrositio_url, "_blank");
+      return;
+    }
     if (restaurante) {
       // Abrir el micrositio en residente.mx en una nueva pestaña
       window.open(
@@ -1101,7 +1107,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
           {loadingRestaurante ? (
             <div className="text-center py-2">Cargando restaurante...</div>
-          ) : restaurante ? (
+          ) : restaurante || b2bUser?.micrositio_url ? (
             <div className="flex items-center gap-3"></div>
           ) : (
             <div className="py-2 text-gray-500 leading-[1.2] text-left font-roman">
@@ -1116,11 +1122,19 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
           <div className="flex flex-col gap-2 mt-3 items-start">
             <button
               onClick={
-                restaurante ? handleEditar : () => navigate("/formulario")
+                b2bUser?.micrositio_url
+                  ? handleVer
+                  : restaurante
+                    ? handleEditar
+                    : () => navigate("/formulario")
               }
               className="bg-black hover:bg-black text-white text-[30px] font-bold px-3 py-1 rounded shadow-[0_4px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all cursor-pointer w-60"
             >
-              {restaurante ? "MICROSITIO" : "CREAR SITIO"}
+              {b2bUser?.micrositio_url
+                ? "VER MICROSITIO"
+                : restaurante
+                  ? "MICROSITIO"
+                  : "CREAR SITIO"}
             </button>
 
             {b2bUser?.suscripcion_extra && (
