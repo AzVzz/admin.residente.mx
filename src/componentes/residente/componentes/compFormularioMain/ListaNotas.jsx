@@ -656,6 +656,11 @@ const ListaNotas = () => {
       icon: <RiStickyNoteFill className="mr-2" />,
     },
     {
+      key: "tematicas",
+      label: "Revista Digital",
+      icon: <MdCampaign className="mr-2" />,
+    },
+    {
       key: "preguntas",
       label: "Preguntas",
       icon: <RiQuestionnaireFill className="mr-2" />,
@@ -744,11 +749,6 @@ const ListaNotas = () => {
       key: "mediainc",
       label: "Media Inc",
       icon: <IoNewspaper className="mr-2" />,
-    },
-    {
-      key: "tematicas",
-      label: "Temáticas",
-      icon: <MdCampaign className="mr-2" />,
     },
   ];
 

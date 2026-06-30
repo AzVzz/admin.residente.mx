@@ -29,7 +29,7 @@ const TematicaSelector = () => {
           <select
             {...field}
             value={field.value ?? ""}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
             disabled={isLoading}
           >
             <option value="">Sin temática</option>

@@ -16,6 +16,30 @@ export const tematicaGetById = async (id, token) => {
   return res.json();
 };
 
+export const tematicaNotasAdmin = async (id, token) => {
+  const res = await fetch(`${urlApi}api/tematicas/${id}/notas-admin`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+  return res.json();
+};
+
+export const tematicaSetRestaurantes = async (id, restaurantes_ids, token) => {
+  const res = await fetch(`${urlApi}api/tematicas/${id}/restaurantes`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ restaurantes_ids }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error HTTP: ${res.status}`);
+  }
+  return res.json();
+};
+
 export const tematicaCrear = async (data, token) => {
   const res = await fetch(`${urlApi}api/tematicas`, {
     method: "POST",

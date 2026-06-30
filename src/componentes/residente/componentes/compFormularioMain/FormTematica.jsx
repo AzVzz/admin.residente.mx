@@ -86,7 +86,7 @@ const FormTematica = () => {
   if (isLoading) return <div className="py-10 text-center text-gray-500">Cargando…</div>;
 
   return (
-    <div className="max-w-[600px] mx-auto py-8 px-4">
+    <div className="max-w-[1080px] mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">
         {esEdicion ? "Editar Temática" : "Nueva Temática"}
       </h1>
@@ -97,118 +97,126 @@ const FormTematica = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Nombre */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Nombre <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            placeholder="Ej: Día de las Madres"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
-            required
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
+        <div className="flex gap-6 items-start">
+          {/* Columna izquierda (chica) — configuración */}
+          <aside className="w-72 shrink-0">
+            {/* Estatus */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
+              <div className="flex gap-4">
+                {["borrador", "publicada"].map((op) => (
+                  <label key={op} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="estatus"
+                      value={op}
+                      checked={form.estatus === op}
+                      onChange={handleChange}
+                      className="accent-yellow-400"
+                    />
+                    <span className="capitalize text-sm">{op}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Solo las temáticas <strong>publicadas</strong> aparecen en el carrusel del sitio.
+              </p>
+            </div>
 
-        {/* Descripción */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea
-            name="descripcion"
-            value={form.descripcion}
-            onChange={handleChange}
-            rows={3}
-            placeholder="Descripción interna de la temática"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300 resize-none"
-          />
-        </div>
+            {/* Inicio */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Inicio</label>
+              <input
+                type="datetime-local"
+                name="fecha_inicio"
+                value={form.fecha_inicio}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              />
+              <p className="text-xs text-gray-400 mt-1">Vacío = activa de inmediato</p>
+            </div>
 
-        {/* Estatus */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
-          <div className="flex gap-4">
-            {["borrador", "publicada"].map((op) => (
-              <label key={op} className="flex items-center gap-2 cursor-pointer">
+            {/* Fin */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Fin</label>
+              <input
+                type="datetime-local"
+                name="fecha_fin"
+                value={form.fecha_fin}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              />
+              <p className="text-xs text-gray-400 mt-1">Vacío = sin expiración</p>
+            </div>
+
+            {/* Color */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Color del carrusel</label>
+              <div className="flex items-center gap-3">
                 <input
-                  type="radio"
-                  name="estatus"
-                  value={op}
-                  checked={form.estatus === op}
+                  type="color"
+                  name="color"
+                  value={form.color}
                   onChange={handleChange}
-                  className="accent-yellow-400"
+                  className="w-10 h-10 rounded border border-gray-300 cursor-pointer p-0.5"
                 />
-                <span className="capitalize text-sm">{op}</span>
+                <input
+                  type="text"
+                  name="color"
+                  value={form.color}
+                  onChange={handleChange}
+                  placeholder="#FFF200"
+                  className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                />
+              </div>
+            </div>
+
+            {/* Ícono */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">URL del ícono (opcional)</label>
+              <input
+                type="text"
+                name="icon"
+                value={form.icon}
+                onChange={handleChange}
+                placeholder="https://residente.mx/fotos/…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              />
+            </div>
+          </aside>
+
+          {/* Columna derecha (grande, principal) — contenido */}
+          <div className="flex-1 min-w-0">
+            {/* Nombre */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Nombre <span className="text-red-500">*</span>
               </label>
-            ))}
-          </div>
-          <p className="text-xs text-gray-400 mt-1">
-            Solo las temáticas <strong>publicadas</strong> aparecen en el carrusel del sitio.
-          </p>
-        </div>
+              <input
+                type="text"
+                name="nombre"
+                value={form.nombre}
+                onChange={handleChange}
+                placeholder="Ej: Día de las Madres"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                required
+              />
+            </div>
 
-        {/* Fechas */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Inicio</label>
-            <input
-              type="datetime-local"
-              name="fecha_inicio"
-              value={form.fecha_inicio}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
-            />
-            <p className="text-xs text-gray-400 mt-1">Vacío = activa de inmediato</p>
+            {/* Descripción */}
+            <div className="pb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+              <textarea
+                name="descripcion"
+                value={form.descripcion}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Descripción interna de la temática"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300 resize-none"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Fin</label>
-            <input
-              type="datetime-local"
-              name="fecha_fin"
-              value={form.fecha_fin}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
-            />
-            <p className="text-xs text-gray-400 mt-1">Vacío = sin expiración</p>
-          </div>
-        </div>
-
-        {/* Color */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Color del carrusel</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              name="color"
-              value={form.color}
-              onChange={handleChange}
-              className="w-10 h-10 rounded border border-gray-300 cursor-pointer p-0.5"
-            />
-            <input
-              type="text"
-              name="color"
-              value={form.color}
-              onChange={handleChange}
-              placeholder="#FFF200"
-              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
-            />
-          </div>
-        </div>
-
-        {/* Ícono */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">URL del ícono (opcional)</label>
-          <input
-            type="text"
-            name="icon"
-            value={form.icon}
-            onChange={handleChange}
-            placeholder="https://residente.mx/fotos/…"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300"
-          />
         </div>
 
         {/* Botones */}
