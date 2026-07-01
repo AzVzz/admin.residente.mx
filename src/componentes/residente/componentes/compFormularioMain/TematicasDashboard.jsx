@@ -815,9 +815,16 @@ const TematicasDashboard = () => {
                               <span className="text-xs text-gray-400 font-mono shrink-0">
                                 #{nota.id}
                               </span>
-                              <h3 className="flex-1 min-w-0 text-sm font-semibold text-gray-900 line-clamp-2">
-                                {nota.titulo}
-                              </h3>
+                              <div className="flex-1 min-w-0">
+                                {nota.nombre_restaurante && (
+                                  <span className="block text-xs font-semibold uppercase tracking-wide text-blue-600 truncate">
+                                    {nota.nombre_restaurante}
+                                  </span>
+                                )}
+                                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                                  {nota.titulo}
+                                </h3>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => handleToggleDestacada(t, nota.id)}
