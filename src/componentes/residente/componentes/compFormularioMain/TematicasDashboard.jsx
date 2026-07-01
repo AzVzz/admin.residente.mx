@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import { useAuth } from "../../../Context";
 import {
   tematicasGet,
@@ -9,6 +10,7 @@ import {
   tematicaGetById,
   tematicaNotasAdmin,
   tematicaSetRestaurantes,
+  tematicaSetNotaDestacada,
 } from "../../../../componentes/api/tematicasApi.js";
 import { restaurantesBasicosGet } from "../../../../componentes/api/restaurantesBasicosGet.js";
 import { imgApi } from "../../../../componentes/api/url.js";
@@ -501,12 +503,30 @@ const TematicasDashboard = () => {
   const [notasCache, setNotasCache] = useState({}); // { [tematicaId]: nota[] }
   const [cargandoNotas, setCargandoNotas] = useState(null);
   const [restaurantes, setRestaurantes] = useState([]);
+  const [destacando, setDestacando] = useState(null);
 
   useEffect(() => {
     restaurantesBasicosGet()
       .then((data) => setRestaurantes(Array.isArray(data) ? data : []))
       .catch(() => setRestaurantes([]));
   }, []);
+
+  const handleToggleDestacada = async (tematica, notaId) => {
+    const nuevo = tematica.nota_destacada_id === notaId ? null : notaId;
+    setDestacando(notaId);
+    try {
+      await tematicaSetNotaDestacada(tematica.id, nuevo, token);
+      setItems((prev) =>
+        prev.map((x) =>
+          x.id === tematica.id ? { ...x, nota_destacada_id: nuevo } : x
+        )
+      );
+    } catch (e) {
+      alert(e.message || "Error al destacar la nota");
+    } finally {
+      setDestacando(null);
+    }
+  };
 
   const toggleExpandir = async (id) => {
     if (expandidaId === id) {
@@ -765,10 +785,20 @@ const TematicasDashboard = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col gap-2 max-h-[560px] overflow-y-auto pr-1">
-                          {(notasCache[t.id] || []).map((nota) => (
+                          {[...(notasCache[t.id] || [])]
+                            .sort(
+                              (a, b) =>
+                                (b.id === t.nota_destacada_id ? 1 : 0) -
+                                (a.id === t.nota_destacada_id ? 1 : 0)
+                            )
+                            .map((nota) => {
+                            const esDestacada = t.nota_destacada_id === nota.id;
+                            return (
                             <div
                               key={nota.id}
-                              className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg p-2 hover:shadow-sm transition-shadow"
+                              className={`flex items-center gap-4 bg-white border rounded-lg p-2 hover:shadow-sm transition-shadow ${
+                                esDestacada ? "border-yellow-300 ring-1 ring-yellow-200" : "border-gray-200"
+                              }`}
                             >
                               {nota.imagen ? (
                                 <img
@@ -788,6 +818,19 @@ const TematicasDashboard = () => {
                               <h3 className="flex-1 min-w-0 text-sm font-semibold text-gray-900 line-clamp-2">
                                 {nota.titulo}
                               </h3>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleDestacada(t, nota.id)}
+                                disabled={destacando === nota.id}
+                                className="shrink-0 disabled:opacity-40"
+                                title={esDestacada ? "Quitar destacada" : "Marcar como destacada"}
+                              >
+                                {esDestacada ? (
+                                  <FaStar className="w-4 h-4 text-yellow-400" />
+                                ) : (
+                                  <FaRegStar className="w-4 h-4 text-gray-400 hover:text-yellow-400" />
+                                )}
+                              </button>
                               <span
                                 className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${ESTATUS_COLOR[nota.estatus] || "bg-gray-100 text-gray-600"}`}
                               >
@@ -800,7 +843,8 @@ const TematicasDashboard = () => {
                                 Editar
                               </Link>
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
 

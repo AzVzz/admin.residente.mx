@@ -40,6 +40,22 @@ export const tematicaSetRestaurantes = async (id, restaurantes_ids, token) => {
   return res.json();
 };
 
+export const tematicaSetNotaDestacada = async (id, nota_id, token) => {
+  const res = await fetch(`${urlApi}api/tematicas/${id}/nota-destacada`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ nota_id }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error HTTP: ${res.status}`);
+  }
+  return res.json();
+};
+
 export const tematicaCrear = async (data, token) => {
   const res = await fetch(`${urlApi}api/tematicas`, {
     method: "POST",
