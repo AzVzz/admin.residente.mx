@@ -48,9 +48,24 @@ function logoUrl(r) {
 
 // ── Restaurantes de una temática (cuadros + agregar) ─────────────────────────
 
+// La API puede devolver restaurantes_ids como array [12] o como string "[12]"
+// (columna JSON que llega serializada). Normalizamos a array de números.
+function parseRestaurantesIds(valor) {
+  if (Array.isArray(valor)) return valor.map((n) => Number(n)).filter((n) => !isNaN(n));
+  if (typeof valor === "string" && valor.trim()) {
+    try {
+      const arr = JSON.parse(valor);
+      if (Array.isArray(arr)) return arr.map((n) => Number(n)).filter((n) => !isNaN(n));
+    } catch {
+      /* string no parseable */
+    }
+  }
+  return [];
+}
+
 const RestaurantesRow = ({ tematica, restaurantes, token, onChange }) => {
-  const [ids, setIds] = useState(
-    Array.isArray(tematica.restaurantes_ids) ? tematica.restaurantes_ids : []
+  const [ids, setIds] = useState(() =>
+    parseRestaurantesIds(tematica.restaurantes_ids)
   );
   const [abierto, setAbierto] = useState(false);
   const [query, setQuery] = useState("");
