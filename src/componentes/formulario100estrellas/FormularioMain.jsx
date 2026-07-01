@@ -957,7 +957,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                 <div id="seccion-informacion">
                   <Informacion />
                 </div>
-                {/* <Logo existingLogo={restaurante?.logo} /> */}
+                <Logo existingLogo={restaurante?.url_logo ? { src: restaurante.url_logo } : null} />
                 <div id="seccion-imagenes">
                   <Imagenes
                     slug={restaurante?.slug}
