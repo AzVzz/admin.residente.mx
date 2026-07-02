@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaStar, FaRegStar } from "react-icons/fa";
+import { FaStar, FaRegStar, FaGripVertical } from "react-icons/fa";
 import { useAuth } from "../../../Context";
 import {
   tematicasGet,
@@ -11,6 +11,7 @@ import {
   tematicaNotasAdmin,
   tematicaSetRestaurantes,
   tematicaSetNotaDestacada,
+  tematicaSetNotasOrden,
 } from "../../../../componentes/api/tematicasApi.js";
 import { restaurantesBasicosGet } from "../../../../componentes/api/restaurantesBasicosGet.js";
 import { imgApi } from "../../../../componentes/api/url.js";
@@ -519,6 +520,8 @@ const TematicasDashboard = () => {
   const [cargandoNotas, setCargandoNotas] = useState(null);
   const [restaurantes, setRestaurantes] = useState([]);
   const [destacando, setDestacando] = useState(null);
+  const [guardandoOrden, setGuardandoOrden] = useState(null); // tematicaId
+  const dragIndexRef = useRef(null); // índice arrastrado dentro de las 5 ordenables
 
   useEffect(() => {
     restaurantesBasicosGet()
@@ -540,6 +543,39 @@ const TematicasDashboard = () => {
       alert(e.message || "Error al destacar la nota");
     } finally {
       setDestacando(null);
+    }
+  };
+
+  // Máximo de notas reordenables manualmente (coincide con la lista "Además" del front)
+  const MAX_ORDENABLES = 5;
+
+  // Reordena las primeras 5 notas no-destacadas y guarda el orden en el backend.
+  const handleReordenarNotas = async (tematica, fromIdx, toIdx) => {
+    if (fromIdx == null || toIdx == null || fromIdx === toIdx) return;
+    const notas = notasCache[tematica.id] || [];
+    const destacadas = notas.filter((n) => n.id === tematica.nota_destacada_id);
+    const resto = notas.filter((n) => n.id !== tematica.nota_destacada_id);
+    const ordenables = resto.slice(0, MAX_ORDENABLES);
+    if (fromIdx >= ordenables.length || toIdx >= ordenables.length) return;
+
+    const nuevo = [...ordenables];
+    const [movido] = nuevo.splice(fromIdx, 1);
+    nuevo.splice(toIdx, 0, movido);
+
+    const nuevaCache = [...destacadas, ...nuevo, ...resto.slice(MAX_ORDENABLES)];
+    setNotasCache((prev) => ({ ...prev, [tematica.id]: nuevaCache }));
+
+    const idsOrden = nuevo.map((n) => n.id);
+    setGuardandoOrden(tematica.id);
+    try {
+      await tematicaSetNotasOrden(tematica.id, idsOrden, token);
+      setItems((prev) =>
+        prev.map((x) => (x.id === tematica.id ? { ...x, notas_orden: idsOrden } : x))
+      );
+    } catch (e) {
+      alert(e.message || "Error al guardar el orden");
+    } finally {
+      setGuardandoOrden(null);
     }
   };
 
@@ -800,73 +836,140 @@ const TematicasDashboard = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col gap-2 max-h-[560px] overflow-y-auto pr-1">
-                          {[...(notasCache[t.id] || [])]
-                            .sort(
-                              (a, b) =>
-                                (b.id === t.nota_destacada_id ? 1 : 0) -
-                                (a.id === t.nota_destacada_id ? 1 : 0)
-                            )
-                            .map((nota) => {
-                            const esDestacada = t.nota_destacada_id === nota.id;
-                            return (
-                            <div
-                              key={nota.id}
-                              className={`flex items-center gap-4 bg-white border rounded-lg p-2 hover:shadow-sm transition-shadow ${
-                                esDestacada ? "border-yellow-300 ring-1 ring-yellow-200" : "border-gray-200"
-                              }`}
-                            >
-                              {nota.imagen ? (
-                                <img
-                                  src={nota.imagen}
-                                  alt={nota.titulo}
-                                  className="w-20 h-14 object-cover rounded-md shrink-0"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <div className="w-20 h-14 rounded-md bg-gray-100 flex items-center justify-center text-gray-300 text-xs shrink-0">
-                                  Sin foto
-                                </div>
-                              )}
-                              <span className="text-xs text-gray-400 font-mono shrink-0">
-                                #{nota.id}
-                              </span>
-                              <div className="flex-1 min-w-0">
-                                {nota.nombre_restaurante && (
-                                  <span className="block text-xs font-semibold uppercase tracking-wide text-blue-600 truncate">
-                                    {nota.nombre_restaurante}
-                                  </span>
-                                )}
-                                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
-                                  {nota.titulo}
-                                </h3>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleToggleDestacada(t, nota.id)}
-                                disabled={destacando === nota.id}
-                                className="shrink-0 disabled:opacity-40"
-                                title={esDestacada ? "Quitar destacada" : "Marcar como destacada"}
-                              >
-                                {esDestacada ? (
-                                  <FaStar className="w-4 h-4 text-yellow-400" />
-                                ) : (
-                                  <FaRegStar className="w-4 h-4 text-gray-400 hover:text-yellow-400" />
-                                )}
-                              </button>
-                              <span
-                                className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${ESTATUS_COLOR[nota.estatus] || "bg-gray-100 text-gray-600"}`}
-                              >
-                                {nota.estatus === "publicada" ? "Publicada" : "Borrador"}
-                              </span>
-                              <Link
-                                to={`/dashboard/nota/editar/${nota.id}`}
-                                className="text-blue-600 hover:text-blue-800 font-medium text-sm shrink-0"
-                              >
-                                Editar
-                              </Link>
-                            </div>
+                          <p className="text-xs text-gray-400">
+                            La destacada (★) es la foto grande. Arrastra ⠿ para
+                            reordenar las primeras {MAX_ORDENABLES} notas.
+                            {guardandoOrden === t.id && (
+                              <span className="ml-2 text-blue-500">Guardando…</span>
+                            )}
+                          </p>
+                          {(() => {
+                            const notas = notasCache[t.id] || [];
+                            const destacadas = notas.filter(
+                              (n) => n.id === t.nota_destacada_id
                             );
-                          })}
+                            const resto = notas.filter(
+                              (n) => n.id !== t.nota_destacada_id
+                            );
+
+                            const renderFila = (nota, esDestacada, ordenable, idx) => (
+                              <div
+                                key={nota.id}
+                                draggable={ordenable}
+                                onDragStart={
+                                  ordenable
+                                    ? () => {
+                                        dragIndexRef.current = idx;
+                                      }
+                                    : undefined
+                                }
+                                onDragOver={
+                                  ordenable ? (e) => e.preventDefault() : undefined
+                                }
+                                onDrop={
+                                  ordenable
+                                    ? (e) => {
+                                        e.preventDefault();
+                                        handleReordenarNotas(
+                                          t,
+                                          dragIndexRef.current,
+                                          idx
+                                        );
+                                        dragIndexRef.current = null;
+                                      }
+                                    : undefined
+                                }
+                                className={`flex items-center gap-3 bg-white border rounded-lg p-2 hover:shadow-sm transition-shadow ${
+                                  esDestacada
+                                    ? "border-yellow-300 ring-1 ring-yellow-200"
+                                    : "border-gray-200"
+                                } ${ordenable ? "cursor-move" : ""}`}
+                              >
+                                {ordenable ? (
+                                  <FaGripVertical
+                                    className="w-3.5 h-3.5 text-gray-300 shrink-0"
+                                    title="Arrastra para reordenar"
+                                  />
+                                ) : (
+                                  <span className="w-3.5 shrink-0" />
+                                )}
+                                {nota.imagen ? (
+                                  <img
+                                    src={nota.imagen}
+                                    alt={nota.titulo}
+                                    className="w-20 h-14 object-cover rounded-md shrink-0"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="w-20 h-14 rounded-md bg-gray-100 flex items-center justify-center text-gray-300 text-xs shrink-0">
+                                    Sin foto
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  {nota.nombre_restaurante && (
+                                    <span className="block text-xs font-semibold uppercase tracking-wide text-blue-600 truncate">
+                                      {nota.nombre_restaurante}
+                                    </span>
+                                  )}
+                                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                                    {nota.titulo}
+                                  </h3>
+                                </div>
+                                <span className="text-xs text-gray-400 font-mono shrink-0">
+                                  #{nota.id}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleDestacada(t, nota.id)}
+                                  disabled={destacando === nota.id}
+                                  className="shrink-0 disabled:opacity-40"
+                                  title={
+                                    esDestacada
+                                      ? "Quitar destacada"
+                                      : "Marcar como destacada"
+                                  }
+                                >
+                                  {esDestacada ? (
+                                    <FaStar className="w-4 h-4 text-yellow-400" />
+                                  ) : (
+                                    <FaRegStar className="w-4 h-4 text-gray-400 hover:text-yellow-400" />
+                                  )}
+                                </button>
+                                <span
+                                  className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                                    ESTATUS_COLOR[nota.estatus] ||
+                                    "bg-gray-100 text-gray-600"
+                                  }`}
+                                >
+                                  {nota.estatus === "publicada"
+                                    ? "Publicada"
+                                    : "Borrador"}
+                                </span>
+                                <Link
+                                  to={`/dashboard/nota/editar/${nota.id}`}
+                                  className="text-blue-600 hover:text-blue-800 font-medium text-sm shrink-0"
+                                >
+                                  Editar
+                                </Link>
+                              </div>
+                            );
+
+                            return (
+                              <>
+                                {destacadas.map((nota) =>
+                                  renderFila(nota, true, false, -1)
+                                )}
+                                {resto.map((nota, i) =>
+                                  renderFila(
+                                    nota,
+                                    false,
+                                    i < MAX_ORDENABLES,
+                                    i
+                                  )
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       )}
 

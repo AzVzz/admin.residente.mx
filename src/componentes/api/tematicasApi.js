@@ -56,6 +56,22 @@ export const tematicaSetNotaDestacada = async (id, nota_id, token) => {
   return res.json();
 };
 
+export const tematicaSetNotasOrden = async (id, notas_orden, token) => {
+  const res = await fetch(`${urlApi}api/tematicas/${id}/notas-orden`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ notas_orden }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error HTTP: ${res.status}`);
+  }
+  return res.json();
+};
+
 export const tematicaCrear = async (data, token) => {
   const res = await fetch(`${urlApi}api/tematicas`, {
     method: "POST",
