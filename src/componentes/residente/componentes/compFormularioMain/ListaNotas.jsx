@@ -62,6 +62,7 @@ const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx")
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
 const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
 const TematicasDashboard = lazy(() => import("./TematicasDashboard.jsx"));
+const CentroNoticiasDashboard = lazy(() => import("./CentroNoticiasDashboard.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -607,6 +608,11 @@ const ListaNotas = () => {
       return;
     }
 
+    // "Centro" (noticias del formulario público): permitido a residente
+    if (vistaActiva === "centro" && rolLc === "residente") {
+      return;
+    }
+
     // Para otros usuarios no admin
     if (!esAdmin && vistaActiva !== "notas" && vistaActiva !== "recetas") {
       // Si el cliente intenta acceder a una vista restringida, redirigir a "notas"
@@ -654,6 +660,11 @@ const ListaNotas = () => {
       key: "notas",
       label: "Notas",
       icon: <RiStickyNoteFill className="mr-2" />,
+    },
+    {
+      key: "centro",
+      label: "Centro",
+      icon: <IoNewspaper className="mr-2" />,
     },
     {
       key: "tematicas",
@@ -799,6 +810,7 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "correos") ||
         (usuario?.rol === "residente" && option.key === "mediainc") ||
         (usuario?.rol === "residente" && option.key === "tematicas") ||
+        (usuario?.rol === "residente" && option.key === "centro") ||
         (usuario?.rol === "residente" && option.key === "vetados")
       );
     })
@@ -1481,6 +1493,12 @@ const ListaNotas = () => {
         {vistaActiva === "tematicas" && (
           <Suspense fallback={<LazyFallback />}>
             <TematicasDashboard />
+          </Suspense>
+        )}
+
+        {vistaActiva === "centro" && (
+          <Suspense fallback={<LazyFallback />}>
+            <CentroNoticiasDashboard />
           </Suspense>
         )}
 
