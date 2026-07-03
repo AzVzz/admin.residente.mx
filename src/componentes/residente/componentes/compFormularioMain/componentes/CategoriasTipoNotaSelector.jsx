@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useAuth } from "../../../../Context";
 
@@ -9,6 +10,17 @@ const CategoriasTipoNotaSelector = ({
 }) => {
   const { control, watch } = useFormContext();
   const { usuario } = useAuth();
+
+  // Tipos de nota secundarios: se ocultan tras "Mostrar más" para no saturar.
+  const TIPOS_SECUNDARIOS = [
+    "B2B",
+    "Gastro Destinos",
+    "Residente",
+    "Acervo",
+    "Giveaway",
+    "Uanl",
+  ];
+  const [mostrarMasTipos, setMostrarMasTipos] = useState(false);
 
   // Detectar tipo de nota seleccionada
   const tipoNotaSeleccionada = watch("tiposDeNotaSeleccionadas");
@@ -88,38 +100,70 @@ const CategoriasTipoNotaSelector = ({
               name="tiposDeNotaSeleccionadas"
               control={control}
               defaultValue=""
-              render={({ field }) => (
-                <>
-                  {tipoDeNota.map((opcion, idx) => (
-                    <label
-                      key={idx}
-                      className="block mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded text-sm"
-                    >
-                      <input
-                        type="radio"
-                        value={opcion.nombre}
-                        checked={field.value === opcion.nombre}
-                        onClick={() => {
-                          // Si ya está seleccionado, deselecciona
-                          if (field.value === opcion.nombre) {
-                            field.onChange("");
-                          }
-                        }}
-                        onChange={() => {
-                          if (field.value !== opcion.nombre) {
-                            field.onChange(opcion.nombre);
-                          }
-                        }}
-                        className="mr-1.5 align-middle"
-                      />
-                      <span className="align-middle">{opcion.nombre}</span>
-                    </label>
-                  ))}
-                  <div className="text-xs text-gray-400 mt-2 italic text-center">
-                    Selecciona una.
-                  </div>
-                </>
-              )}
+              render={({ field }) => {
+                const esSecundario = (nombre) =>
+                  TIPOS_SECUNDARIOS.includes(nombre);
+                const principales = tipoDeNota.filter(
+                  (o) => !esSecundario(o.nombre),
+                );
+                const secundarios = tipoDeNota.filter((o) =>
+                  esSecundario(o.nombre),
+                );
+                // Si hay uno secundario ya seleccionado (al editar), se sigue
+                // mostrando aunque el dropdown esté colapsado.
+                const secundariosVisibles = mostrarMasTipos
+                  ? secundarios
+                  : secundarios.filter((o) => o.nombre === field.value);
+
+                const renderOpcion = (opcion, idx) => (
+                  <label
+                    key={`tipo-${opcion.nombre}-${idx}`}
+                    className="block mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded text-sm"
+                  >
+                    <input
+                      type="radio"
+                      value={opcion.nombre}
+                      checked={field.value === opcion.nombre}
+                      onClick={() => {
+                        // Si ya está seleccionado, deselecciona
+                        if (field.value === opcion.nombre) {
+                          field.onChange("");
+                        }
+                      }}
+                      onChange={() => {
+                        if (field.value !== opcion.nombre) {
+                          field.onChange(opcion.nombre);
+                        }
+                      }}
+                      className="mr-1.5 align-middle"
+                    />
+                    <span className="align-middle">{opcion.nombre}</span>
+                  </label>
+                );
+
+                return (
+                  <>
+                    {principales.map((opcion, idx) => renderOpcion(opcion, idx))}
+                    {secundariosVisibles.map((opcion, idx) =>
+                      renderOpcion(opcion, idx),
+                    )}
+
+                    {secundarios.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setMostrarMasTipos((v) => !v)}
+                        className="w-full mt-1 mb-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-gray-50 rounded p-1 cursor-pointer text-center"
+                      >
+                        {mostrarMasTipos ? "▲ Mostrar menos" : "▼ Mostrar más"}
+                      </button>
+                    )}
+
+                    <div className="text-xs text-gray-400 mt-2 italic text-center">
+                      Selecciona una.
+                    </div>
+                  </>
+                );
+              }}
             />
           </div>
         </div>

@@ -1,12 +1,20 @@
 import { useFormContext } from 'react-hook-form';
 
 const Subtitulo = () => {
-    const { register, formState: { errors } } = useFormContext();
+    const { register, watch, formState: { errors } } = useFormContext();
+    const subtituloValue = watch('subtitulo') || '';
+    const texto = subtituloValue.trim();
+    const numPalabras = texto ? texto.split(/\s+/).length : 0;
     return (
         <div className="space-y-2">
-            <label htmlFor="subtitulo" className="block text-sm font-medium text-gray-700">
-                Subtítulo
-            </label>
+            <div className="flex items-center justify-between">
+                <label htmlFor="subtitulo" className="block text-sm font-medium text-gray-700">
+                    Subtítulo
+                </label>
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                    {`${numPalabras} ${numPalabras === 1 ? 'palabra' : 'palabras'}`}
+                </span>
+            </div>
             <textarea
                 id="subtitulo"
                 placeholder="Agrega un subtítulo"

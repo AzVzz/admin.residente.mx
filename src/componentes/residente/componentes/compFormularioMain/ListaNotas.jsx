@@ -661,6 +661,11 @@ const ListaNotas = () => {
       icon: <MdCampaign className="mr-2" />,
     },
     {
+      key: "correos",
+      label: "Correos",
+      icon: <MdEmail className="mr-2" />,
+    },
+    {
       key: "preguntas",
       label: "Preguntas",
       icon: <RiQuestionnaireFill className="mr-2" />,
@@ -739,11 +744,6 @@ const ListaNotas = () => {
       key: "buscador",
       label: "Buscador",
       icon: <FaMagnifyingGlass className="mr-2" />,
-    },
-    {
-      key: "correos",
-      label: "Correos",
-      icon: <MdEmail className="mr-2" />,
     },
     {
       key: "mediainc",

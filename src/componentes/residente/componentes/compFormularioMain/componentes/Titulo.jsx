@@ -35,8 +35,8 @@ const Titulo = () => {
           {tituloValue.length}/165
         </span>
       </div>
-      <input
-        type="text"
+      <textarea
+        rows={2}
         placeholder="Agrega el título"
         maxLength={165}
         value={tituloValue}
@@ -47,7 +47,7 @@ const Titulo = () => {
             message: "El título solo puede tener 165 caracteres",
           },
         })}
-        className={`w-full px-3 py-2 border rounded-md bg-white ${
+        className={`w-full px-3 py-2 border rounded-md bg-white resize-none ${
           errors.titulo ? "border-red-500" : "border-gray-300"
         }`}
       />

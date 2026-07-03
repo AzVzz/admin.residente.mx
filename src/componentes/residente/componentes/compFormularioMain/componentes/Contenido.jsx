@@ -59,6 +59,9 @@ const Contenido = () => {
     const contenidoValue = watch('contenido');
     const fileInputRef = useRef(null);
     const restaurantesRef = useRef([]);
+    // Marca los cambios originados por el propio editor (al escribir) para no
+    // re-inyectar el contenido en cada tecla (eso causaba lag al escribir).
+    const isSelfUpdate = useRef(false);
 
     // Fetch restaurantes for @ mentions
     useEffect(() => {
@@ -110,6 +113,7 @@ const Contenido = () => {
             let html = editor.getHTML();
             // Convertir saltos de línea a <br> para mejor preservación
             html = html.replace(/\n/g, '<br>');
+            isSelfUpdate.current = true;
             setValue('contenido', html);
 
             // Extraer IDs numéricos de menciones y agregarlos a restaurantes_ids
@@ -130,8 +134,16 @@ const Contenido = () => {
     });
 
     useEffect(() => {
-        if (editor && contenidoValue !== editor.getHTML()) {
-            editor.commands.setContent(contenidoValue || '');
+        if (!editor) return;
+        // Si el cambio vino del propio editor (al escribir), no re-inyectamos el
+        // contenido: solo limpiamos la marca. Esto evita reconstruir el documento
+        // ProseMirror en cada tecla (que causaba el lag).
+        if (isSelfUpdate.current) {
+            isSelfUpdate.current = false;
+            return;
+        }
+        if (contenidoValue !== editor.getHTML()) {
+            editor.commands.setContent(contenidoValue || '', false);
         }
     }, [contenidoValue, editor]);
 
@@ -282,6 +294,13 @@ const Contenido = () => {
                             </button>
                             <span className="text-xs text-gray-400 ml-2">
                                 Escribe @ para mencionar un restaurante
+                            </span>
+                            <span className="text-xs text-gray-500 ml-auto whitespace-nowrap">
+                                {(() => {
+                                    const texto = editor?.getText()?.trim() || '';
+                                    const n = texto ? texto.split(/\s+/).length : 0;
+                                    return `${n} ${n === 1 ? 'palabra' : 'palabras'}`;
+                                })()}
                             </span>
                         </div>
                         {/* Input oculto para seleccionar imágenes */}

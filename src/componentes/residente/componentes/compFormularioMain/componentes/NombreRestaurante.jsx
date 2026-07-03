@@ -4,7 +4,12 @@ import { useAuth } from "../../../../Context";
 import { restaurantesBasicosGet } from "../../../../api/restaurantesBasicosGet";
 import { urlApi } from "../../../../api/url";
 
-const NombreRestaurante = () => {
+// `seccion` controla qué parte se renderiza para poder colocarlas en columnas
+// distintas del formulario:
+//   - "nombre"      → solo el input "Nombre del restaurante"
+//   - "etiquetados" → solo la UI de restaurantes etiquetados (chips + búsqueda)
+//   - "ambos"       → todo (por defecto)
+const NombreRestaurante = ({ seccion = "ambos" }) => {
   const { watch, setValue, register } = useFormContext();
   const { usuario, token } = useAuth();
   const [restaurantes, setRestaurantes] = useState([]);
@@ -13,14 +18,18 @@ const NombreRestaurante = () => {
   const [autoTagStatus, setAutoTagStatus] = useState(null); // null | "loading" | { added, total }
   const dropdownRef = useRef(null);
 
+  const mostrarNombre = seccion === "nombre" || seccion === "ambos";
+  const mostrarEtiquetados = seccion === "etiquetados" || seccion === "ambos";
+
   const selectedIds = watch("restaurantes_ids") || [];
 
-  // Fetch restaurantes al montar
+  // Fetch restaurantes al montar (solo si se muestran los etiquetados)
   useEffect(() => {
+    if (!mostrarEtiquetados) return;
     restaurantesBasicosGet()
       .then((data) => setRestaurantes(Array.isArray(data) ? data : []))
       .catch(() => setRestaurantes([]));
-  }, []);
+  }, [mostrarEtiquetados]);
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -85,20 +94,24 @@ const NombreRestaurante = () => {
   };
 
   return (
-    <div className="mb-4 pb-4" ref={dropdownRef}>
+    <div ref={dropdownRef}>
       {/* Input de nombre_restaurante para post_residente_new2 */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre del restaurante
-        </label>
-        <input
-          type="text"
-          {...register("nombre_restaurante")}
-          placeholder="Nombre del restaurante..."
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 bg-white text-sm"
-        />
-      </div>
+      {mostrarNombre && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Nombre del restaurante
+          </label>
+          <input
+            type="text"
+            {...register("nombre_restaurante")}
+            placeholder="Nombre del restaurante..."
+            className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 bg-white text-sm"
+          />
+        </div>
+      )}
 
+      {mostrarEtiquetados && (
+      <>
       <div className="flex items-center justify-between mb-1">
         <label className="block text-sm font-medium text-gray-700">
           Restaurantes etiquetados
@@ -196,6 +209,8 @@ const NombreRestaurante = () => {
       <p className="text-xs text-gray-500 mt-1">
         Etiqueta uno o varios restaurantes para vincular esta nota con sus dashboards B2B.
       </p>
+      </>
+      )}
     </div>
   );
 };

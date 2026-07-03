@@ -30,7 +30,7 @@ import ImagenNotaSelector from "./componentes/ImagenNotaSelector.jsx";
 import InstafotoSelector from "./componentes/InstafotoSelector.jsx";
 import BotonSubmitNota from "./componentes/BotonSubmitNota.jsx";
 import AlertaNota from "./componentes/AlertaNota.jsx";
-import FormularioPromoExt from "../../../promociones/componentes/FormularioPromoExt.jsx";
+import StickersNotaSelector from "./componentes/StickersNotaSelector.jsx";
 import NombreRestaurante from "./componentes/NombreRestaurante.jsx";
 import DetallePost from "../DetallePost.jsx";
 import { useGeminiSEO } from "../../../../hooks/useGeminiSEO.js";
@@ -794,7 +794,7 @@ const FormMainResidente = () => {
 
   return (
     <div className="py-8">
-      <div className="mx-auto max-w-[1080px]">
+      <div className="mx-auto max-w-[1800px]">
         <FormProvider {...methods}>
           {/* Cambiar el form para usar el handleSubmit genérico */}
           <form onSubmit={(e) => e.preventDefault()}>
@@ -810,13 +810,128 @@ const FormMainResidente = () => {
                 </p>
               </div>
 
-              <div className="">
+              <div className="flex gap-6 items-start">
+                {/* Columna izquierda (chica) */}
+                <aside className="w-72 shrink-0">
+                  {/* Formato de nota */}
+                  <div className="pb-4">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                      Formato de nota
+                    </label>
+                    {(() => {
+                      const formatoReg = methods.register("formato_nota");
+                      return (
+                        <select
+                          {...formatoReg}
+                          onChange={(e) => {
+                            // Mantener react-hook-form sincronizado.
+                            formatoReg.onChange(e);
+                            // Al elegir "recomendacion", agregar automáticamente la
+                            // etiqueta "recomendaciones" (la que consume la portada),
+                            // para que el editor no tenga que ponerla a mano.
+                            const actuales = Array.isArray(watch("etiquetas"))
+                              ? watch("etiquetas")
+                              : [];
+                            if (e.target.value === "recomendacion") {
+                              if (!actuales.includes("recomendaciones")) {
+                                setValue("etiquetas", [...actuales, "recomendaciones"]);
+                              }
+                            } else {
+                              // Si cambian a otro formato (o lo deseleccionan),
+                              // quitar SOLO la etiqueta automática "recomendaciones".
+                              // Las demás etiquetas se respetan y no se agrega ninguna.
+                              if (actuales.includes("recomendaciones")) {
+                                setValue(
+                                  "etiquetas",
+                                  actuales.filter((t) => t !== "recomendaciones")
+                                );
+                              }
+                            }
+                          }}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Selecciona un formato</option>
+                          <option value="recomendacion">Recomendación</option>
+                          <option value="noticia">Noticia</option>
+                          <option value="reflexion">Reflexión</option>
+                          <option value="favoritos">Favoritos</option>
+                        </select>
+                      );
+                    })()}
+                  </div>
+                  <div className="pb-4">
+                    <Autor />
+                  </div>
+                  <div className="pb-4">
+                    <TematicaSelector />
+                  </div>
+                  <div className="pb-4">
+                    <NombreRestaurante seccion="etiquetados" />
+                  </div>
+                  <div className="pb-4">
+                    <NombreRestaurante seccion="nombre" />
+                  </div>
+                  {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
+                  {(() => {
+                    const tipoNota = watch("tiposDeNotaSeleccionadas");
+                    const esDestacada = watch("destacada");
+                    let textoDestacada = "Marcar como destacada";
+                    if (tipoNota === "Restaurantes")
+                      textoDestacada = "Marcar como restaurante recomendado";
+                    if (tipoNota === "Food & Drink")
+                      textoDestacada = "Marcar como platillo icónico";
+
+                    if (
+                      tipoNota === "Restaurantes" ||
+                      tipoNota === "Food & Drink"
+                    ) {
+                      return (
+                        <div className="pb-4 flex flex-col gap-3">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              {...methods.register("destacada")}
+                              className="form-checkbox h-5 w-5 text-yellow-500"
+                            />
+                            <span className="ml-2 text-gray-700 font-medium">
+                              {textoDestacada}
+                            </span>
+                          </label>
+                          {esDestacada && (
+                            <label className="inline-flex items-center">
+                              <input
+                                type="checkbox"
+                                {...methods.register("destacada_normal")}
+                                className="form-checkbox h-5 w-5 text-blue-500"
+                              />
+                              <span className="ml-2 text-gray-700 font-medium">
+                                También mostrar como destacada normal
+                              </span>
+                            </label>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                </aside>
+
+                {/* Columna derecha (grande, principal) — todo el contenido actual */}
+                <div className="flex-1 min-w-0">
+                <AlertaNota
+                  postResponse={postResponse}
+                  postError={postError}
+                  notaId={notaId}
+                />
+
                 <div className="pb-4">
-                  <AlertaNota
-                    postResponse={postResponse}
-                    postError={postError}
-                    notaId={notaId}
-                  />
+                  <Titulo />
+                </div>
+                <div className="pb-4">
+                  <Subtitulo />
+                </div>
+                <div className="pb-4">
+                  <Contenido />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pb-4">
@@ -862,53 +977,6 @@ const FormMainResidente = () => {
                   />
                 </div>
 
-                {/* Formato de nota */}
-                <div className="mb-4 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">
-                    Formato de nota
-                  </label>
-                  {(() => {
-                    const formatoReg = methods.register("formato_nota");
-                    return (
-                      <select
-                        {...formatoReg}
-                        onChange={(e) => {
-                          // Mantener react-hook-form sincronizado.
-                          formatoReg.onChange(e);
-                          // Al elegir "recomendacion", agregar automáticamente la
-                          // etiqueta "recomendaciones" (la que consume la portada),
-                          // para que el editor no tenga que ponerla a mano.
-                          const actuales = Array.isArray(watch("etiquetas"))
-                            ? watch("etiquetas")
-                            : [];
-                          if (e.target.value === "recomendacion") {
-                            if (!actuales.includes("recomendaciones")) {
-                              setValue("etiquetas", [...actuales, "recomendaciones"]);
-                            }
-                          } else {
-                            // Si cambian a otro formato (o lo deseleccionan),
-                            // quitar SOLO la etiqueta automática "recomendaciones".
-                            // Las demás etiquetas se respetan y no se agrega ninguna.
-                            if (actuales.includes("recomendaciones")) {
-                              setValue(
-                                "etiquetas",
-                                actuales.filter((t) => t !== "recomendaciones")
-                              );
-                            }
-                          }
-                        }}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">Selecciona un formato</option>
-                        <option value="recomendacion">Recomendación</option>
-                        <option value="noticia">Noticia</option>
-                        <option value="reflexion">Reflexión</option>
-                        <option value="favoritos">Favoritos</option>
-                      </select>
-                    );
-                  })()}
-                </div>
-
                 {/* Mostrar tipo de nota para usuarios sin permisos específicos */}
                 {!tipoNotaUsuario && usuario?.permisos !== "todos" && (
                   <div className="mb-6 pb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -920,50 +988,6 @@ const FormMainResidente = () => {
                     </div>
                   </div>
                 )}
-
-                {/* Checkbox para destacar, solo si tipo_nota es Restaurantes */}
-                {(() => {
-                  const tipoNota = watch("tiposDeNotaSeleccionadas");
-                  const esDestacada = watch("destacada");
-                  let textoDestacada = "Marcar como destacada";
-                  if (tipoNota === "Restaurantes")
-                    textoDestacada = "Marcar como restaurante recomendado";
-                  if (tipoNota === "Food & Drink")
-                    textoDestacada = "Marcar como platillo icónico";
-
-                  if (
-                    tipoNota === "Restaurantes" ||
-                    tipoNota === "Food & Drink"
-                  ) {
-                    return (
-                      <div className="mb-4 pb-4 flex gap-6">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            {...methods.register("destacada")}
-                            className="form-checkbox h-5 w-5 text-yellow-500"
-                          />
-                          <span className="ml-2 text-gray-700 font-medium">
-                            {textoDestacada}
-                          </span>
-                        </label>
-                        {esDestacada && (
-                          <label className="inline-flex items-center">
-                            <input
-                              type="checkbox"
-                              {...methods.register("destacada_normal")}
-                              className="form-checkbox h-5 w-5 text-blue-500"
-                            />
-                            <span className="ml-2 text-gray-700 font-medium">
-                              También mostrar como destacada normal
-                            </span>
-                          </label>
-                        )}
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
 
                 {/* Checkbox para destacada_invitado - solo visible para usuarios con rol invitado */}
                 {(usuario?.rol?.toLowerCase() === "invitado" ||
@@ -994,30 +1018,12 @@ const FormMainResidente = () => {
                   </div>
                 )}
 
-                <div>
-                  <NombreRestaurante />
-                </div>
-                <div className="pb-4">
-                  <TematicaSelector />
-                </div>
-                <div className="pb-4">
-                  <Titulo />
-                </div>
                 <div className="pb-4">
                   <SlugInput />
                 </div>
-                <div className="pb-4">
-                  <Subtitulo />
-                </div>
-                <div className="pb-4">
-                  <Autor />
-                </div>
-                <div className="pb-4">
-                  <Contenido />
-                </div>
 
                 <div className="pb-4">
-                  <FormularioPromoExt
+                  <StickersNotaSelector
                     onStickerSelect={(clave) => setValue("sticker", clave)}
                     stickerSeleccionado={watch("sticker")}
                     maxStickers={2}
@@ -1060,7 +1066,7 @@ const FormMainResidente = () => {
                               : ""
                           }`}
                         >
-                          Publicar ahora
+                          Publicada
                         </label>
                       </div>
 
@@ -1081,7 +1087,7 @@ const FormMainResidente = () => {
                               : ""
                           }`}
                         >
-                          Programar publicación
+                          Programar
                         </label>
                       </div>
 
@@ -1115,7 +1121,7 @@ const FormMainResidente = () => {
                           htmlFor="borrador"
                           className="text-sm text-yellow-800 cursor-pointer"
                         >
-                          Guardar como borrador
+                          Borrador
                         </label>
                       </div>
                     </div>
@@ -1338,6 +1344,7 @@ const FormMainResidente = () => {
                     disabled={isPosting}
                   />
                 </div>
+                </div>
               </div>
             </div>
           </form>
@@ -1352,7 +1359,7 @@ const FormMainResidente = () => {
         {titulo || subtitulo || autor || contenido || imagen || instafoto ? (
           <div className="flex justify-center">
             <div className="flex w-[680px]">
-              <div>
+              <div className="w-full">
                 <DetallePost
                   post={{
                     titulo,

@@ -39,6 +39,31 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
         return sinHora;
     };
 
+    // Fecha en formato largo "28 de junio de 2026" (igual que la nota publicada).
+    const formatearFechaLarga = (fechaStr) => {
+        if (!fechaStr) return '';
+        const mesesLargos = [
+            'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+        ];
+        // ISO con hora
+        if (typeof fechaStr === 'string' && fechaStr.includes('T')) {
+            const d = new Date(fechaStr);
+            if (!isNaN(d)) {
+                return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        }
+        // Formato "JUNIO 29, 2026"
+        const m = String(fechaStr).match(/^([A-Za-zÁÉÍÓÚáéíóúÑñ]+)\s+(\d{1,2}),?\s+(\d{4})/);
+        if (m) {
+            const idx = mesesLargos.findIndex((mes) => mes === m[1].toLowerCase());
+            if (idx >= 0) {
+                return `${parseInt(m[2], 10)} de ${mesesLargos[idx]} de ${m[3]}`;
+            }
+        }
+        return formatearFechaSinHora(fechaStr);
+    };
+
     useEffect(() => {
         if (postProp) {
             setPost(postProp);
@@ -180,44 +205,64 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
             : [];
 
     return (
-        <>
+        <article className="w-full max-w-none">
             <div className="flex flex-col">
+                {/* Logo Residente */}
+                <div className="relative flex justify-center items-center mb-2 mt-0">
+                    <img
+                        src={`${imgApi}fotos/fotos-estaticas/residente-logos/negros/crlogo2-02.webp`}
+                        alt="Residente"
+                        width={340}
+                        height={68}
+                        className="h-auto sm:w-85 object-contain max-w-full"
+                        loading="eager"
+                        decoding="async"
+                    />
+                </div>
+
                 <div className="flex flex-col max-h-[900px] overflow-hidden mb-4">
-                    <div className="h-[450px] overflow-hidden">
+                    <div className="h-[418px] overflow-hidden">
                         <div className="relative h-full">
-                            <img
-                                src={post.imagen || `${urlApi}fotos/fotos-estaticas/residente-columna1/SinFoto.webp`}
-                                className="w-full h-full object-cover"
-                                alt={post.titulo}
-                            />
-                            <div className="absolute top-5 right-3 flex gap-0 z-10">
-								{stickers.map((clave, idx) => {
+                            {post.imagen ? (
+                                <img
+                                    src={post.imagen}
+                                    className="w-full h-full object-cover"
+                                    alt={post.titulo}
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <span className="text-gray-400 text-sm font-roman uppercase tracking-wide">
+                                        Sin imagen
+                                    </span>
+                                </div>
+                            )}
+                            {/* Badge de tipo de nota */}
+                            {post.tipo_nota && (
+                                <span className="inline-block bg-[#fff200] text-black uppercase text-[12px] md:text-[14px] font-semibold px-2 py-0.5 tracking-wide leading-tight absolute top-4 left-4 z-10">
+                                    {post.tipo_nota}
+                                </span>
+                            )}
+                            {/* Stickers */}
+                            <div className="absolute top-7 right-9 flex gap-1 z-10">
+                                {stickers.map((clave) => {
                                     const icono = iconosDisponibles.find(i => i.clave === clave);
                                     return icono ? (
-											<div key={clave} className={`relative ${idx > 0 ? '-ml-5' : ''}`}>
-                                            <div className="w-20 h-20 rounded-full flex items-center justify-center">
-                                                <img
-                                                    src={icono.icono}
-                                                    alt={icono.nombre}
-                                                    className="h-15 w-15"
-                                                />
-                                            </div>
-                                        </div>
+                                        <img
+                                            key={clave}
+                                            src={icono.icono}
+                                            alt={icono.nombre}
+                                            className="h-[60px] w-[60px] rounded-full shadow"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
                                     ) : null;
                                 })}
                             </div>
                         </div>
                     </div>
-                    <div className="bg-transparent flex flex-col max-h-[420px] relative min-h-[120]">
-                        {!sinFecha && (
-                            <div className="flex justify-center items-center pt-4">
-                                <div className="z-10 bg-gradient-to-r bg-transparent text-black text-[14px] font-black px-6 py-0.5 font-roman uppercase w-fit flex">
-                                    {formatearFechaSinHora(post.fecha)}
-                                </div>
-                            </div>
-                        )}
-						<h1
-                            className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight"
+                    <div className="bg-transparent flex flex-col max-h-[400px] relative min-h-[120px]">
+                        <h1
+                            className="text-black text-[47px] leading-[1.05] font-black flex-1 overflow-hidden text-center p-2 my-0 tracking-tight pt-7"
                             style={{
                                 whiteSpace: 'pre-line',
                                 wordBreak: 'break-word',
@@ -225,49 +270,54 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                         >
                             {post.titulo}
                         </h1>
-						{/* Share actions under title */}
-						<div className="self-center flex items-center justify-center gap-3 mt-4 mb-2">
-							<button
-								type="button"
-								onClick={handleShareWhatsApp}
-								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
-								aria-label="Compartir en WhatsApp"
-								title="Compartir en WhatsApp"
-							>
-								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-									<FaWhatsapp size={24} color="white" />
-								</div>
-							</button>
-							<button
-								type="button"
-								onClick={handleShareInstagram}
-								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
-								aria-label="Abrir Instagram"
-								title="Abrir Instagram"
-							>
-								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-									<FaInstagram size={24} color="white" />
-								</div>
-							</button>
-							<button
-								type="button"
-								onClick={handleCopyUrl}
-								className="text-sm font-roman underline cursor-pointer flex items-center justify-center gap-1"
-								aria-label="Copiar URL"
-								title="Copiar URL"
-							>
-								<div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-									<FaLink size={20} color="white" />
-								</div>
-                                
-								
-							</button>
-						</div>
+                        {!sinFecha && (
+                            <div className="flex items-center justify-center gap-1 text-[14px] text-black/60 font-roman pt-2">
+                                {post.autor && (
+                                    <>
+                                        <span>Por {post.autor}</span>
+                                        <span>·</span>
+                                    </>
+                                )}
+                                <span>{formatearFechaLarga(post.fecha)}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Acciones de compartir */}
+            <div className="flex justify-center gap-2 py-4">
+                <button
+                    type="button"
+                    onClick={handleShareWhatsApp}
+                    className="bg-black rounded-full p-4 hover:bg-black transition-colors cursor-pointer"
+                    aria-label="Compartir en WhatsApp"
+                    title="Compartir en WhatsApp"
+                >
+                    <FaWhatsapp size={24} color="white" />
+                </button>
+                <button
+                    type="button"
+                    onClick={handleShareInstagram}
+                    className="bg-black rounded-full p-4 hover:bg-black transition-colors cursor-pointer"
+                    aria-label="Abrir Instagram"
+                    title="Abrir Instagram"
+                >
+                    <FaInstagram size={24} color="white" />
+                </button>
+                <button
+                    type="button"
+                    onClick={handleCopyUrl}
+                    className="bg-black rounded-full p-4 hover:bg-black transition-colors cursor-pointer"
+                    aria-label="Copiar URL"
+                    title="Copiar URL"
+                >
+                    <FaLink size={20} color="white" />
+                </button>
+            </div>
+
             {/* Contenido adicional */}
-            <div className="flex flex-col gap-5 px-10 pt-0 pb-6">
+            <div className="flex flex-col gap-5 px-10 py-6">
                 <h2 className="text-3xl font-roman">{post.subtitulo}</h2>
                 <div
                     className="text-xl font-roman leading-relaxed"
@@ -283,7 +333,7 @@ const DetallePost = ({ post: postProp, onVolver, sinFecha = false, barraMarquee,
                     ← Volver al listado
                 </button>
             </div>
-        </>
+        </article>
     );
 };
 
