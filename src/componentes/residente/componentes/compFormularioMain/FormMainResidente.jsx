@@ -1146,7 +1146,7 @@ const FormMainResidente = () => {
                   </div>
                 )}
 
-                <div className="flex w-full gap-5 mb-8">
+                <div className="flex w-full gap-5 pb-8 mb-8 border-b-2 border-black/50">
                   <BotonSubmitNota
                     isPosting={isPosting}
                     notaId={notaId}
@@ -1164,68 +1164,18 @@ const FormMainResidente = () => {
                   />
                 </div>
 
-                {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
+                {/* Smart Tags (IA) - Solo para usuarios con permisos */}
                 {(usuario?.permisos === "todos" ||
                   usuario?.rol?.toLowerCase() === "residente") && (
-                  <>
-                    <div className="mb-6 pb-4">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (!titulo || !contenido) {
-                            alert(
-                              "Necesitas al menos un título y contenido para optimizar con IA",
-                            );
-                            return;
-                          }
-
-                          try {
-                            const optimizado = await optimizarNota({
-                              titulo,
-                              subtitulo,
-                              descripcion: contenido,
-                              autor,
-                              tipo_nota:
-                                watch("tiposDeNotaSeleccionadas") || tipoNotaUsuario,
-                              nombre_restaurante: nombreRestaurante,
-                            });
-
-                            setSeoOptimizado(optimizado);
-                            setShowSEOComparison(true);
-                          } catch (error) {
-                            console.error("Error:", error);
-                            alert(
-                              "Error al optimizar con IA: " + error.message,
-                            );
-                          }
-                        }}
-                        disabled={geminiLoading || !titulo || !contenido}
-                        className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                      >
-                        <FaRobot className="text-2xl" />
-                        <span className="text-lg">
-                          {geminiLoading
-                            ? "Optimizando con Gemini..."
-                            : "Optimizar Contenido y SEO con Gemini"}
-                        </span>
-                      </button>
-                      <p className="text-sm text-gray-500 mt-2 text-center">
-                        La IA mejorará tu título, subtítulo, descripción, campos
-                        SEO y generará Smart Tags automáticamente
-                      </p>
-                    </div>
-
-                    {/* Smart Tags Input (Debajo del botón) */}
-                    <div className="mb-6 pb-4">
-                      <SmartTagsInput
-                        value={watch("smart_tags")}
-                        onChange={(tags) => setValue("smart_tags", tags)}
-                        onGenerateAI={handleGenerateAI} // Fallback, but hidden
-                        isGenerating={geminiLoading}
-                        hideGenerationButton={true}
-                      />
-                    </div>
-                  </>
+                  <div className="mb-6">
+                    <SmartTagsInput
+                      value={watch("smart_tags")}
+                      onChange={(tags) => setValue("smart_tags", tags)}
+                      onGenerateAI={handleGenerateAI} // Fallback, but hidden
+                      isGenerating={geminiLoading}
+                      hideGenerationButton={true}
+                    />
+                  </div>
                 )}
 
                 {/* Sección SEO Metadata */}
@@ -1344,6 +1294,57 @@ const FormMainResidente = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
+                {(usuario?.permisos === "todos" ||
+                  usuario?.rol?.toLowerCase() === "residente") && (
+                  <div className="mb-6 pb-4">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!titulo || !contenido) {
+                          alert(
+                            "Necesitas al menos un título y contenido para optimizar con IA",
+                          );
+                          return;
+                        }
+
+                        try {
+                          const optimizado = await optimizarNota({
+                            titulo,
+                            subtitulo,
+                            descripcion: contenido,
+                            autor,
+                            tipo_nota:
+                              watch("tiposDeNotaSeleccionadas") || tipoNotaUsuario,
+                            nombre_restaurante: nombreRestaurante,
+                          });
+
+                          setSeoOptimizado(optimizado);
+                          setShowSEOComparison(true);
+                        } catch (error) {
+                          console.error("Error:", error);
+                          alert(
+                            "Error al optimizar con IA: " + error.message,
+                          );
+                        }
+                      }}
+                      disabled={geminiLoading || !titulo || !contenido}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      <FaRobot className="text-2xl" />
+                      <span className="text-lg">
+                        {geminiLoading
+                          ? "Optimizando con Gemini..."
+                          : "Optimizar Contenido y SEO con Gemini"}
+                      </span>
+                    </button>
+                    <p className="text-sm text-gray-500 mt-2 text-center">
+                      La IA mejorará tu título, subtítulo, descripción, campos
+                      SEO y generará Smart Tags automáticamente
+                    </p>
+                  </div>
+                )}
                 </div>
               </div>
             </div>
