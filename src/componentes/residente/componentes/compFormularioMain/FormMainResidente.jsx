@@ -1128,6 +1128,42 @@ const FormMainResidente = () => {
                   </div>
                 </div>
 
+                {/* Botón para eliminar la nota */}
+                {notaId && (
+                  <div className="flex justify-end pb-4">
+                    <button
+                      type="button"
+                      onClick={eliminarNota}
+                      disabled={eliminando}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                        eliminando
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
+                    >
+                      {eliminando ? "Eliminando..." : "Eliminar Nota"}
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex w-full gap-5 mb-8">
+                  <BotonSubmitNota
+                    isPosting={isPosting}
+                    notaId={notaId}
+                    guardarComo="actualizada"
+                    onClick={submitActualizada}
+                    disabled={isPosting}
+                  />
+
+                  <BotonSubmitNota
+                    isPosting={isPosting}
+                    notaId={notaId}
+                    guardarComo="cambios"
+                    onClick={submitCambios}
+                    disabled={isPosting}
+                  />
+                </div>
+
                 {/* Botón para optimizar con IA - Solo para usuarios con permisos */}
                 {(usuario?.permisos === "todos" ||
                   usuario?.rol?.toLowerCase() === "residente") && (
@@ -1307,42 +1343,6 @@ const FormMainResidente = () => {
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Botón para eliminar la nota */}
-                {notaId && (
-                  <div className="flex justify-end pb-4">
-                    <button
-                      type="button"
-                      onClick={eliminarNota}
-                      disabled={eliminando}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                        eliminando
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-red-600 text-white hover:bg-red-700"
-                      }`}
-                    >
-                      {eliminando ? "Eliminando..." : "Eliminar Nota"}
-                    </button>
-                  </div>
-                )}
-
-                <div className="flex w-full gap-5">
-                  <BotonSubmitNota
-                    isPosting={isPosting}
-                    notaId={notaId}
-                    guardarComo="actualizada"
-                    onClick={submitActualizada}
-                    disabled={isPosting}
-                  />
-
-                  <BotonSubmitNota
-                    isPosting={isPosting}
-                    notaId={notaId}
-                    guardarComo="cambios"
-                    onClick={submitCambios}
-                    disabled={isPosting}
-                  />
                 </div>
                 </div>
               </div>
