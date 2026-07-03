@@ -151,11 +151,7 @@ const CentroNoticias = () => {
   return (
     <div className="max-w-[680px] mx-auto py-10 px-4">
       <header className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Centro de Noticias</h1>
-        <p className="text-black/60">
-          Comparte la novedad de tu negocio con Residente. Nuestro equipo la
-          revisará antes de publicarla.
-        </p>
+        <h1 className="text-[70px] font-bold mb-2">Centro de Noticias</h1>
       </header>
 
       <form
