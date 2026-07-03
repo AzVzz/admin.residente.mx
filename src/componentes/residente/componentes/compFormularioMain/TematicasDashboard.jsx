@@ -546,23 +546,19 @@ const TematicasDashboard = () => {
     }
   };
 
-  // Máximo de notas reordenables manualmente (coincide con la lista "Además" del front)
-  const MAX_ORDENABLES = 5;
-
-  // Reordena las primeras 5 notas no-destacadas y guarda el orden en el backend.
+  // Reordena TODAS las notas no-destacadas y guarda el orden en el backend.
   const handleReordenarNotas = async (tematica, fromIdx, toIdx) => {
     if (fromIdx == null || toIdx == null || fromIdx === toIdx) return;
     const notas = notasCache[tematica.id] || [];
     const destacadas = notas.filter((n) => n.id === tematica.nota_destacada_id);
     const resto = notas.filter((n) => n.id !== tematica.nota_destacada_id);
-    const ordenables = resto.slice(0, MAX_ORDENABLES);
-    if (fromIdx >= ordenables.length || toIdx >= ordenables.length) return;
+    if (fromIdx >= resto.length || toIdx >= resto.length) return;
 
-    const nuevo = [...ordenables];
+    const nuevo = [...resto];
     const [movido] = nuevo.splice(fromIdx, 1);
     nuevo.splice(toIdx, 0, movido);
 
-    const nuevaCache = [...destacadas, ...nuevo, ...resto.slice(MAX_ORDENABLES)];
+    const nuevaCache = [...destacadas, ...nuevo];
     setNotasCache((prev) => ({ ...prev, [tematica.id]: nuevaCache }));
 
     const idsOrden = nuevo.map((n) => n.id);
@@ -838,7 +834,7 @@ const TematicasDashboard = () => {
                         <div className="flex flex-col gap-2 max-h-[560px] overflow-y-auto pr-1">
                           <p className="text-xs text-gray-400">
                             La destacada (★) es la foto grande. Arrastra ⠿ para
-                            reordenar las primeras {MAX_ORDENABLES} notas.
+                            reordenar las notas en el orden que quieras.
                             {guardandoOrden === t.id && (
                               <span className="ml-2 text-blue-500">Guardando…</span>
                             )}
@@ -962,12 +958,7 @@ const TematicasDashboard = () => {
                                   renderFila(nota, true, false, -1)
                                 )}
                                 {resto.map((nota, i) =>
-                                  renderFila(
-                                    nota,
-                                    false,
-                                    i < MAX_ORDENABLES,
-                                    i
-                                  )
+                                  renderFila(nota, false, true, i)
                                 )}
                               </>
                             );
