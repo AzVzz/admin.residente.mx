@@ -253,6 +253,9 @@ const RegistroInvitados = lazy(
 const GestionCodigos = lazy(
   () => import("./componentes/residente/Admin/GestionCodigos"),
 );
+const CentroNoticias = lazy(
+  () => import("./componentes/residente/CentroNoticias/CentroNoticias"),
+);
 const CampanasNewsletter = lazy(
   () => import("./componentes/residente/Newsletter/CampanasNewsletter"),
 );
@@ -736,6 +739,16 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <RegistroInvitados />
+                  </div>
+                }
+              />
+
+              {/* Centro de Noticias — formulario público (sin login) */}
+              <Route
+                path="/centro-de-noticias"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <CentroNoticias />
                   </div>
                 }
               />
