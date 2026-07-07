@@ -472,6 +472,10 @@ const RegistroB2BConPlanes = ({ modoPrueba = false }) => {
             todosIncluidos={false}
             onConfirmBeneficios={handleConfirmBeneficios}
             onVolver={handleVolverAPlanes}
+            esSeller={esSeller}
+            nombreCliente={nombreRestauranteOtro}
+            plan={planSeleccionado}
+            clienteEditorialId={planSeleccionado?.clienteRestringidoId}
           />
         </div>
       </Transition>

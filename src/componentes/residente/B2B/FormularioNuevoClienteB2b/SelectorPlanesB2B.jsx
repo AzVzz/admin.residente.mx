@@ -9,6 +9,7 @@ import {
 import { IoClose } from "react-icons/io5";
 import { urlApi } from "../../../api/url.js";
 import { useAuth } from "../../../Context";
+import AgendarCitaB2B from "./AgendarCitaB2B.jsx";
 
 const NOMBRES_MEMBRESIAS = {
   12: "Membresía Anual",
@@ -80,11 +81,15 @@ const PlanCard = ({
   esClienteRestringido,
   clienteDinamico,
   enlaceToken,
+  clienteEditorialId,
 }) => {
   const [copiado, setCopiado] = useState(false);
+  const [citaOpen, setCitaOpen] = useState(false);
   const IconoComponent = plan.icono;
 
   return (
+    <div className="relative">
+    {/* Recuadro del plan (termina despues de los beneficios) */}
     <div
       className={`group relative rounded-2xl p-6 cursor-pointer transform transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:z-10
         ${
@@ -157,7 +162,7 @@ const PlanCard = ({
         </div>
       </div>
       {/* Características */}
-      <ul className="space-y-3 mb-11">
+      <ul className="space-y-3 mb-2">
         {(() => {
           let currentNumber = 0;
           const total = plan.caracteristicas?.length ?? 0;
@@ -204,10 +209,10 @@ const PlanCard = ({
           });
         })()}
       </ul>
+    </div>
+    {/* --- Fuera del recuadro: raya + botones, abajo --- */}
 
-      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-7 border-t-3 mx-4 border-black">
-        Incrementa los beneficios de <br /> tu suscripción si decides
-        inscribirte durante la cita
+      <span className="text-xl text-gray-500 font-roman leading-[1] text-center block mb-4 pt-5 mt-4 mx-4 border-black">
       </span>
 
       {/* Botón de selección */}
@@ -223,12 +228,25 @@ const PlanCard = ({
         }
         }`}
       >
-        Más beneficios
+        Suscribirse
       </button>
+
+      {/* Botón Agendar cita: abre el formulario de la cita (solo vendedores) */}
+      {esSeller && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setCitaOpen(true);
+          }}
+          className="text-2xl w-full py-3 px-4 mt-2 rounded-xl font-bold  text-gray-900 bg-white hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          Agendar Suscripcion
+        </button>
+      )}
 
       {/* Beneficios por plan */}
       <p className="text-xl text-center font-bold transition-all duration-300 group-hover:text-black mt-2">
-        {parseInt(plan.meses) === 12 && "Incluye 3 beneficios extra"}
+        {parseInt(plan.meses) === 12 && ""}
         {/*parseInt(plan.meses) === 6 && "Escoge 1 beneficio extra"*/}
         {/*parseInt(plan.meses) === 9 && "Escoge 2 beneficios extra"*/}
       </p>
@@ -254,10 +272,43 @@ const PlanCard = ({
               setTimeout(() => setCopiado(false), 2000);
             });
           }}
-          className="w-full py-2 px-4 mt-2 rounded-xl font-medium text-sm border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+          className="w-full py-2 px-4 mt-2 rounded-xl font-medium text-sm border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer bg-white "
         >
           {copiado ? "Enlace copiado!" : "Copiar enlace del plan"}
         </button>
+      )}
+
+      {/* Modal: formulario de agendar cita (se abre con el botón "Agendar cita") */}
+      {citaOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            setCitaOpen(false);
+          }}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setCitaOpen(false)}
+              className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-700 cursor-pointer"
+              aria-label="Cerrar"
+            >
+              <IoClose className="text-2xl" />
+            </button>
+            <h3 className="text-2xl font-bold text-gray-900 text-center mb-1 pr-6">
+              Agendar cita
+            </h3>
+            <AgendarCitaB2B
+              nombre={nombreRestauranteParaLink}
+              plan={plan}
+              esSeller={esSeller}
+              clienteEditorialId={clienteEditorialId}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
@@ -933,6 +984,11 @@ const SelectorPlanesB2B = ({
                     clientesVetados.find(
                       (x) => x.id === parseInt(clienteSeleccionado),
                     )?.enlace_token
+                  }
+                  clienteEditorialId={
+                    clienteSeleccionado && clienteSeleccionado !== "__otro__"
+                      ? parseInt(clienteSeleccionado)
+                      : null
                   }
                 />
               ))}

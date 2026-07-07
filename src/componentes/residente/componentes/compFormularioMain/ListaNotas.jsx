@@ -57,6 +57,7 @@ const ClientesVetados = lazy(() => import("../ClientesVetados.jsx"));
 const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboard.jsx"));
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
+const CitasB2B = lazy(() => import("./CitasB2B.jsx"));
 const ChatbotPanel = lazy(() => import("../../ChatbotAudit/ChatbotPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
@@ -94,7 +95,7 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
-const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "chatbot"];
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "citas_b2b", "chatbot"];
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -663,7 +664,7 @@ const ListaNotas = () => {
     },
     {
       key: "centro",
-      label: "Centro",
+      label: "Noticia",
       icon: <IoNewspaper className="mr-2" />,
     },
     {
@@ -745,6 +746,11 @@ const ListaNotas = () => {
       key: "usuarios_b2b",
       label: "Usuarios B2B",
       icon: <IoStorefront className="mr-2" />,
+    },
+    {
+      key: "citas_b2b",
+      label: "Citas B2B",
+      icon: <FaCalendarDays className="mr-2" />,
     },
     {
       key: "chatbot",
@@ -1469,6 +1475,15 @@ const ListaNotas = () => {
             <Suspense fallback={<LazyFallback />}>
               <div className="w-full">
                 <UsuariosB2BPanel />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {vistaActiva === "citas_b2b" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <CitasB2B />
               </div>
             </Suspense>
           ) : null

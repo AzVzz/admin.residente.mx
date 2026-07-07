@@ -7,6 +7,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import { HiOutlineCheckCircle } from "react-icons/hi";
+import AgendarCitaB2B from "./AgendarCitaB2B.jsx";
 
 const BENEFICIOS_INFO = [
   {
@@ -41,6 +42,10 @@ const SelectorBeneficiosB2B = ({
   todosIncluidos = false,
   onConfirmBeneficios,
   onVolver,
+  esSeller = false,
+  nombreCliente = "",
+  plan = null,
+  clienteEditorialId = null,
 }) => {
   const [seleccionados, setSeleccionados] = useState(beneficiosIniciales);
 
@@ -206,6 +211,25 @@ const SelectorBeneficiosB2B = ({
           );
         })}
       </div>
+
+      {/* Agendar cita: solo en modo vendedor */}
+      {esSeller && (
+        <div className="max-w-md mx-auto mb-2">
+          <h3 className="text-[35px] font-bold text-black text-center mb-1">
+            Agenda de cita para cierre
+          </h3>
+          <AgendarCitaB2B
+            nombre={nombreCliente}
+            plan={plan}
+            esSeller={esSeller}
+            clienteEditorialId={clienteEditorialId}
+            beneficios={todosIncluidos ? BENEFICIOS_INFO.map((b) => b.key) : seleccionados}
+          />
+        </div>
+      )}
+      <p className="text-[18px] text-black text-center mb-3">
+            Al cumplir con esta cita se activarán tus 3 beneficios
+          </p>
 
       {/* Boton Continuar */}
       <div className="flex justify-center">
