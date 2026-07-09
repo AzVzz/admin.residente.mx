@@ -148,7 +148,9 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
               {data?.nombre || cliente.nombre || "Cliente B2B"}
             </h3>
             <p className="text-indigo-100 text-xs mt-0.5">
-              Historial desde la inscripción
+              {cliente.es_compartida
+                ? `Cuenta compartida · ${cliente.num_restaurantes} marcas`
+                : "Historial desde la inscripción"}
             </p>
           </div>
           <button
@@ -177,11 +179,15 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
             </p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs">ROI generado</p>
+            <p className="text-gray-400 text-xs">
+              ROI generado{cliente.es_compartida ? " (esta marca)" : ""}
+            </p>
             <p className="font-semibold text-blue-700">{formatMoneda(roi)}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs">Ganancia</p>
+            <p className="text-gray-400 text-xs">
+              Ganancia{cliente.es_compartida ? " (esta marca)" : ""}
+            </p>
             <p
               className={`font-semibold ${
                 cliente.ganancia == null
@@ -195,6 +201,16 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
             </p>
           </div>
         </div>
+
+        {cliente.es_compartida && (
+          <div className="mx-5 mt-3 -mb-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded px-3 py-2">
+            Esta cuenta tiene {cliente.num_restaurantes} marcas con una sola
+            suscripción. El <strong>precio mensual</strong> y los{" "}
+            <strong>cobros de Stripe</strong> de abajo son de la cuenta completa;
+            el ROI y la ganancia de arriba son solo de esta marca (inversión
+            prorrateada).
+          </div>
+        )}
 
         {/* Cuerpo */}
         <div className="overflow-y-auto">

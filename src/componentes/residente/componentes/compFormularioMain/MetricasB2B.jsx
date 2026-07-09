@@ -66,7 +66,8 @@ const MetricasB2B = () => {
           Métricas B2B
         </h2>
         <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
-          {filas.length} clientes
+          {new Set(filas.map((f) => f.b2b_id)).size} clientes · {filas.length}{" "}
+          marcas
         </span>
       </div>
 
@@ -122,7 +123,11 @@ const MetricasB2B = () => {
                 ) : (
                   ordenadas.map((f, idx) => (
                     <tr
-                      key={f.b2b_id}
+                      key={
+                        f.restaurante_id
+                          ? `${f.b2b_id}-${f.restaurante_id}`
+                          : f.b2b_id
+                      }
                       onClick={() => setClienteHistorial(f)}
                       className="hover:bg-indigo-50 cursor-pointer"
                       title="Ver historial del cliente"
@@ -134,11 +139,24 @@ const MetricasB2B = () => {
                         <span className="font-medium text-gray-900 leading-tight">
                           {f.nombre || "—"}
                         </span>
+                        {f.es_compartida && (
+                          <span className="block text-[11px] text-amber-600 font-normal">
+                            cuenta compartida · {f.num_restaurantes} marcas
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2 align-top whitespace-nowrap">
                         <span className="font-semibold text-gray-800">
                           {formatMoneda(f.precio)}
                         </span>
+                        {f.es_compartida && (
+                          <span className="block text-[11px] text-gray-400 font-normal">
+                            {f.num_restaurantes === 2
+                              ? "½"
+                              : `1/${f.num_restaurantes}`}{" "}
+                            de {formatMoneda(f.precio_cuenta)}
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2 align-top whitespace-nowrap">
                         <span className="font-semibold text-green-700">

@@ -845,11 +845,18 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
   // Inversión del cliente y ganancia (misma lógica del panel Métricas B2B):
   // inversión = meses realmente pagados × precio mensual; ganancia = ROI − inversión.
+  // La suscripción es UNA por cuenta; si el cliente tiene 2+ restaurantes se
+  // reparte en partes iguales (reparto 50/50) al ver un restaurante individual.
+  // En el slide TOTAL se usa la inversión completa de la cuenta.
   const precioMensual = subscriptionData?.suscripcionDB?.monto
     ? Number(subscriptionData.suscripcionDB.monto) / 100
     : 0;
   const mesesPagados = Number(subscriptionData?.meses_pagados || 0);
-  const inversionTotal = precioMensual * mesesPagados;
+  const inversionCuenta = precioMensual * mesesPagados;
+  const numRestaurantes = Math.max(restaurantes.length, 1);
+  const inversionTotal = restauranteActivo
+    ? inversionCuenta / numRestaurantes
+    : inversionCuenta;
   const gananciaROI = conversionROI + fidelizacionROI - inversionTotal;
 
   // Fecha de inscripción (alta de la suscripción Stripe) para mostrar el rango
