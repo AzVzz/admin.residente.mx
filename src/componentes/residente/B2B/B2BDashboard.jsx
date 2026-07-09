@@ -427,6 +427,26 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
         return;
       }
 
+      // Modo admin: si se está viendo el dashboard de OTRO cliente (viewAsUserId),
+      // el b2bId debe ser el de ESE cliente, no el del admin logueado. Sin esto,
+      // la suscripción (y por tanto la inversión) se resolvía con el b2bId del admin.
+      if (viewAsUserId) {
+        try {
+          const resp = await fetch(
+            `${urlApi}api/usuariosb2b/user/${viewAsUserId}`,
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data?.id) {
+              setB2bId(data.id);
+              setLoadingB2bId(false);
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+
       if (usuario.b2b_id) {
         setB2bId(usuario.b2b_id);
         setLoadingB2bId(false);
@@ -538,7 +558,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     };
 
     obtenerB2bId();
-  }, [usuario]);
+  }, [usuario, viewAsUserId, token]);
 
   // Función para obtener información de suscripción
   const obtenerSuscripcion = async () => {
@@ -822,6 +842,21 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     conversionROI = totales.conversion;
     fidelizacionROI = totales.fidelizacion;
   }
+
+  // Inversión del cliente y ganancia (misma lógica del panel Métricas B2B):
+  // inversión = meses realmente pagados × precio mensual; ganancia = ROI − inversión.
+  const precioMensual = subscriptionData?.suscripcionDB?.monto
+    ? Number(subscriptionData.suscripcionDB.monto) / 100
+    : 0;
+  const mesesPagados = Number(subscriptionData?.meses_pagados || 0);
+  const inversionTotal = precioMensual * mesesPagados;
+  const gananciaROI = conversionROI + fidelizacionROI - inversionTotal;
+
+  // Fecha de inscripción (alta de la suscripción Stripe) para mostrar el rango
+  // "Del <inscripción> al <hoy>". fechaActual se actualiza sola cada minuto.
+  const fechaInscripcion = subscriptionData?.suscripcionDB?.fecha_creacion_stripe
+    ? new Date(subscriptionData.suscripcionDB.fecha_creacion_stripe)
+    : null;
 
   // Estado para credenciales nuevas (modal)
   const [credencialesNuevas, setCredencialesNuevas] = useState(null);
@@ -1181,18 +1216,54 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             />
 
             <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
-              <p className="text-[30px] font-bold leading-[1] mb-1">
+              {/* Rango de fechas: desde la inscripción hasta hoy (hoy se actualiza solo) */}
+              <p className="text-[13px] font-roman text-white/85 leading-tight mb-3">
+                {fechaInscripcion ? (
+                  <>
+                    Del{" "}
+                    {fechaInscripcion.toLocaleDateString(
+                      "es-MX",
+                      fechaInscripcion.getFullYear() === fechaActual.getFullYear()
+                        ? { day: "numeric", month: "long" }
+                        : { day: "numeric", month: "long", year: "numeric" },
+                    )}{" "}
+                    al{" "}
+                    {fechaActual.toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </>
+                ) : (
+                  <>
+                    Al{" "}
+                    {fechaActual.toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </>
+                )}
+              </p>
+
+              {/* Inversión — lo que ha pagado el cliente (meses pagados × precio) */}
+              <div className="mb-8">
+                <span className="text-[30px] leading-[1] ">
+                  INVERSIÓN
+                </span>
+                <p className="text-[36px] font-bold text-white leading-[1]">
+                  $
+                  {inversionTotal.toLocaleString("es-MX", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+
+              <p className="text-[30px] font-bold leading-[1] mb-3">
                 RETORNO DE
                 <br />
                 INVERSIÓN
-              </p>
-              <p className="text-[11px] text-white/80 mb-3">
-                Al{" "}
-                {fechaActual.toLocaleDateString("es-MX", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
               </p>
 
               {/* Conversión — va primero */}
@@ -1246,6 +1317,23 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                   </span>
                 </div>
               </div>
+
+              {/* Ganancias — Conversión + Fidelización − Inversión.
+                  Solo se muestra al cliente cuando es POSITIVA (nunca en rojo). */}
+              {gananciaROI > 0 && (
+                <div className="mt-5 pt-5 border-t border-white/20">
+                  <span className="text-[25px] leading-[1]  ">
+                    GANANCIAS
+                  </span>
+                  <p className="text-[36px] font-bold leading-[1] text-whait">
+                    $
+                    {gananciaROI.toLocaleString("es-MX", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           <address className="flex flex-col mt-auto pt-10">

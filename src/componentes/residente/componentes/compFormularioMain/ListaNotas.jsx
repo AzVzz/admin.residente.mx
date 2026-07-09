@@ -10,7 +10,7 @@ import {
 import { notasTodasGet } from "../../../api/notasCompletasGet";
 import { notaDelete } from "../../../api/notaDelete";
 import { restaurantesBasicosGet } from "../../../api/restaurantesBasicosGet";
-import { FaUser, FaStore, FaStar, FaMagnifyingGlass, FaCalendarDays } from "react-icons/fa6";
+import { FaUser, FaStore, FaStar, FaMagnifyingGlass, FaCalendarDays, FaChartLine } from "react-icons/fa6";
 import ResponsiveImg from "../../../ResponsiveImg";
 import SinNotas from "./componentesListaNotas/SinNotas";
 import ErrorNotas from "./componentesListaNotas/ErrorNotas";
@@ -58,6 +58,7 @@ const MenuColaboradoresDashboard = lazy(() => import("./MenuColaboradoresDashboa
 const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const CitasB2B = lazy(() => import("./CitasB2B.jsx"));
+const MetricasB2B = lazy(() => import("./MetricasB2B.jsx"));
 const ChatbotPanel = lazy(() => import("../../ChatbotAudit/ChatbotPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
@@ -95,7 +96,7 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
-const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "citas_b2b", "chatbot"];
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "citas_b2b", "metricas_b2b", "chatbot"];
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -751,6 +752,11 @@ const ListaNotas = () => {
       key: "citas_b2b",
       label: "Citas B2B",
       icon: <FaCalendarDays className="mr-2" />,
+    },
+    {
+      key: "metricas_b2b",
+      label: "Métricas B2B",
+      icon: <FaChartLine className="mr-2" />,
     },
     {
       key: "chatbot",
@@ -1484,6 +1490,15 @@ const ListaNotas = () => {
             <Suspense fallback={<LazyFallback />}>
               <div className="w-full">
                 <CitasB2B />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {vistaActiva === "metricas_b2b" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <MetricasB2B />
               </div>
             </Suspense>
           ) : null
