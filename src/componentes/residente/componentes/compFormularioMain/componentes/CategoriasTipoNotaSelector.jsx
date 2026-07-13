@@ -26,14 +26,6 @@ const CategoriasTipoNotaSelector = ({
   const tipoNotaSeleccionada = watch("tiposDeNotaSeleccionadas");
   const esFoodDrink = tipoNotaSeleccionada === "Food & Drink";
 
-  // Mueve la definición de seleccionados y bloquearOtros aquí
-  const seleccionados = watch("tiposDeNotaSeleccionadas");
-  const seleccionadosStr =
-    typeof seleccionados === "string" ? seleccionados : "";
-  const bloquearOtros =
-    seleccionadosStr.toLowerCase().replace(/[\s\-]/g, "") ===
-    "gastro-destinos".replace(/[\s\-]/g, "").toLowerCase();
-
   // Ocultar si el usuario es invitado
   const esInvitado = usuario?.rol === "invitado";
 
@@ -229,7 +221,6 @@ const CategoriasTipoNotaSelector = ({
                           type="radio"
                           value={categoria.nombre}
                           checked={field.value === categoria.nombre}
-                          disabled={bloquearOtros}
                           onClick={() => {
                             if (field.value === categoria.nombre) {
                               field.onChange("");
