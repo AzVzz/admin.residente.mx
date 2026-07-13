@@ -28,6 +28,7 @@ const Login = () => {
 
   const getFallbackByRole = (rol, permisos) => {
     const r = rol?.toLowerCase();
+    if (r === "colaborador_eventos") return "/dashboard-eventos-colab";
     if (r === "b2b") return "/dashboardb2b";
     if (r === "vendedor") return "/dashboard";
     // Para usuarios "residente", "invitado" o "colaborador", redirigir a /notas
@@ -38,6 +39,10 @@ const Login = () => {
   const rutaPermitidaParaRol = (rol, path, permisos) => {
     const r = rol?.toLowerCase();
     if (!path) return false;
+
+    if (r === "colaborador_eventos") {
+      return path.startsWith("/dashboard-eventos-colab");
+    }
 
     if (r === "b2b") {
       return path.startsWith("/dashboardb2b");

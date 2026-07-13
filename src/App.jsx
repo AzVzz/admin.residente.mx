@@ -41,6 +41,7 @@ import usePageTracking from "./usePageTracking.js";
 import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import ResidenteRoute from "./componentes/rutas/ResidenteRoute.jsx";
 import SuperadminRoute from "./componentes/rutas/SuperadminRoute.jsx";
+import EventosColaboradoresRoute from "./componentes/rutas/EventosColaboradoresRoute.jsx";
 // import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"; // Converted to lazy
 // import Registro from "./componentes/residente/Registro.jsx"; // Converted to lazy
 // import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx"; // Converted to lazy
@@ -220,6 +221,8 @@ const FormularioMainPage = lazy(
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
 const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
 const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
+const EventoColaboradorMain = lazy(() => import("./componentes/eventos-colaboradores/EventoColaboradorMain"));
+const ListaEventosColaboradores = lazy(() => import("./componentes/eventos-colaboradores/ListaEventosColaboradores"));
 const ListaTematicas = lazy(
   () => import("./componentes/residente/componentes/compFormularioMain/ListaTematicas")
 );
@@ -962,6 +965,34 @@ function App() {
                   <div className="max-w-[1080px] mx-auto">
                     <ListaEventos />
                   </div>
+                }
+              />
+
+              {/* Dashboard separado — Eventos de colaboradores (rol "colaborador_eventos"; Ticketpolis es el primero, cada colaborador ve solo lo suyo) */}
+              <Route
+                path="/dashboard-eventos-colab"
+                element={
+                  <EventosColaboradoresRoute>
+                    <div className="max-w-[1080px] mx-auto">
+                      <ListaEventosColaboradores />
+                    </div>
+                  </EventosColaboradoresRoute>
+                }
+              />
+              <Route
+                path="/dashboard-eventos-colab/nuevo"
+                element={
+                  <EventosColaboradoresRoute>
+                    <EventoColaboradorMain />
+                  </EventosColaboradoresRoute>
+                }
+              />
+              <Route
+                path="/dashboard-eventos-colab/editar/:id"
+                element={
+                  <EventosColaboradoresRoute>
+                    <EventoColaboradorMain />
+                  </EventosColaboradoresRoute>
                 }
               />
 

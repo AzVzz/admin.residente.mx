@@ -43,7 +43,9 @@ const Registro = () => {
   const handleLoginSuccess = (respuesta) => {
     const rol = respuesta.usuario?.rol?.toLowerCase();
 
-    if (rol === "b2b") {
+    if (rol === "colaborador_eventos") {
+      navigate("/dashboard-eventos-colab");
+    } else if (rol === "b2b") {
       navigate("/dashboardb2b");
     } else if (rol === "colaborador") {
       navigate("/dashboard");
