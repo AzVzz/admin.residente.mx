@@ -54,7 +54,7 @@ const TicketEvento = forwardRef((props, ref) => {
                 style={{ backgroundColor: colorFondo }}
             >
                 {/* Hero: imagen full-bleed + texto encima (overlay) */}
-                <div className="relative w-full h-[320px] shrink-0 overflow-hidden bg-gray-200">
+                <div className="relative w-full h-[320px] shrink-0 overflow-hidden bg-gray-200" data-ticket-flyer>
                     {flyerImagen ? (
                         <img
                             src={flyerImagen}

@@ -239,6 +239,20 @@ const EventoMain = () => {
       const base64Image = dataUrl.split(",")[1];
       const apiData = prepareApiData();
       apiData.imagen_base64 = base64Image;
+      // Foto/flyer del formulario (o hero del ticket) → flyer_url para el feed
+      if (formData.flyerPromo) {
+        apiData.flyer_base64 = formData.flyerPromo;
+      } else {
+        const heroEl = ticketRef.current.querySelector("[data-ticket-flyer]");
+        if (heroEl) {
+          try {
+            const flyerDataUrl = await toPng(heroEl, ticketToPngOptions);
+            apiData.flyer_base64 = flyerDataUrl;
+          } catch (e) {
+            console.warn("No se pudo exportar el hero del ticket como flyer:", e);
+          }
+        }
+      }
 
       const response = await eventoCrear(apiData, token);
       console.log("✅ Evento creado:", response);
