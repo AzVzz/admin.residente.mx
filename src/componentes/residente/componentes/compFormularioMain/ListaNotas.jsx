@@ -1040,7 +1040,7 @@ const ListaNotas = () => {
                     } else if (option.key === "codigos_admin") {
                       navigate("/admin/codigos");
                     } else if (option.key === "descargas_b2c") {
-                      navigate("/admin/reporte-descargas-b2c");
+                      navigate("/reporte-descargas-b2c");
                     } else if (option.key === "ednl") {
                       navigate("/ednl");
                     } else if (option.key === "mediainc") {
