@@ -1,14 +1,12 @@
 <!doctype html>
-<html lang="en">
-
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/residente.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Etiqueta Restaurantera® | Residente</title>
   <meta name="description" content="Entra al link y descarga el video de Etiqueta Restaurantera. Ingresa nombre, restaurante, correo y código de promoción." />
 
-  <!-- Open Graph: preview al compartir /admin/B2C (WhatsApp y otras redes) -->
+  <!-- Open Graph (WhatsApp, Facebook, LinkedIn, etc.) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Residente" />
   <meta property="og:locale" content="es_MX" />
@@ -22,42 +20,20 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Etiqueta Restaurantera — descarga el video" />
 
+  <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Etiqueta Restaurantera®" />
   <meta name="twitter:description" content="Entra al link y descarga el video de Etiqueta Restaurantera." />
   <meta name="twitter:image" content="https://residente.mx/admin/og-etiqueta-restaurantera.png" />
 
-  <!-- Google Fonts para tipografías de tickets -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;700;900&family=Outfit:wght@400;700;900&family=Playfair+Display:wght@400;700;900&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+  <!-- Humanos: ir a la app -->
+  <meta http-equiv="refresh" content="0;url=/admin/B2C" />
+  <link rel="canonical" href="https://residente.mx/admin/B2C" />
+  <script>
+    window.location.replace("/admin/B2C");
+  </script>
 </head>
-
-<body>
-  <div id="root"></div>
-
-  <!-- Mensaje para usuarios sin JS -->
-  <noscript>
-    <style>
-      .noscript-wrap {
-        max-width: 680px;
-        margin: 3rem auto;
-        padding: 1rem;
-        font-family: system-ui
-      }
-
-      .noscript-wrap h1 {
-        font-size: 1.25rem;
-        margin: 0 0 .5rem
-      }
-    </style>
-    <div class="noscript-wrap">
-      <h1>Activa JavaScript para ver este sitio</h1>
-      <p>Este sitio usa React. Sin JavaScript no puede renderizar la interfaz.</p>
-    </div>
-  </noscript>
-
-  <script type="module" src="/src/main.jsx"></script>
+<body style="font-family: system-ui, sans-serif; padding: 2rem;">
+  <p>Abriendo <a href="/admin/B2C">Etiqueta Restaurantera</a>…</p>
 </body>
-
 </html>
