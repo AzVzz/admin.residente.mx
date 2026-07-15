@@ -3,6 +3,7 @@ import { useAuth } from "../../Context";
 import {
   descargasB2cGet,
   redencionesPromoB2cGet,
+  syncDescargasB2c,
 } from "../../api/descargasB2cGet";
 
 const formatMonto = (monto) => {
@@ -38,9 +39,11 @@ const ReporteDescargasB2C = () => {
   const [descargas, setDescargas] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState("");
+  const [syncMsg, setSyncMsg] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [fuente, setFuente] = useState("stripe"); // stripe = cupón TRABAJO | db = tabla local
+  const [fuente, setFuente] = useState("db");
 
   const cargar = async () => {
     if (!token) return;
@@ -59,6 +62,30 @@ const ReporteDescargasB2C = () => {
       setTotal(0);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sincronizarDesdeStripe = async () => {
+    if (!token) return;
+    setSyncing(true);
+    setSyncMsg("");
+    setError("");
+    try {
+      const sync = await syncDescargasB2c(token, "");
+      setSyncMsg(
+        `Sincronizado: ${sync.creadas || 0} nuevos, ${sync.existentes || 0} ya existían.`,
+      );
+      setFuente("db");
+      const result = await descargasB2cGet(token);
+      setDescargas(result.data);
+      setTotal(result.total);
+    } catch (err) {
+      setError(
+        err.message ||
+          "No se pudo sincronizar. Espera el deploy de pagos o corre el backfill en el servidor.",
+      );
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -128,41 +155,23 @@ const ReporteDescargasB2C = () => {
             Descargas Etiqueta Restaurantera
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            {fuente === "stripe"
-              ? "Quienes usaron el cupón TRABAJO (desde Stripe)"
-              : "Compras guardadas en base de datos"}
+            Nombre, restaurante y correo para imprimir
           </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
-          <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setFuente("stripe")}
-              className={`px-3 py-2 text-sm font-medium cursor-pointer ${
-                fuente === "stripe"
-                  ? "bg-black text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              Cupón TRABAJO
-            </button>
-            <button
-              type="button"
-              onClick={() => setFuente("db")}
-              className={`px-3 py-2 text-sm font-medium cursor-pointer ${
-                fuente === "db"
-                  ? "bg-black text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              Todas (DB)
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={sincronizarDesdeStripe}
+            disabled={syncing || loading}
+            className="px-4 py-2 rounded-lg bg-yellow-300 text-black text-sm font-bold hover:bg-yellow-400 disabled:opacity-50 cursor-pointer"
+          >
+            {syncing ? "Trayendo de Stripe…" : "Traer los de Stripe"}
+          </button>
           <button
             type="button"
             onClick={cargar}
             disabled={loading}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer print:hidden"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
           >
             Actualizar
           </button>
@@ -170,7 +179,7 @@ const ReporteDescargasB2C = () => {
             type="button"
             onClick={() => window.print()}
             disabled={filtradas.length === 0}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer print:hidden"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
           >
             Imprimir
           </button>
@@ -178,7 +187,7 @@ const ReporteDescargasB2C = () => {
             type="button"
             onClick={exportarCsv}
             disabled={filtradas.length === 0}
-            className="px-4 py-2 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 cursor-pointer print:hidden"
+            className="px-4 py-2 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
           >
             Exportar CSV
           </button>
@@ -190,97 +199,108 @@ const ReporteDescargasB2C = () => {
           body * { visibility: hidden; }
           .print-area, .print-area * { visibility: visible; }
           .print-area { position: absolute; left: 0; top: 0; width: 100%; }
-          .print:hidden { display: none !important; }
         }
       `}</style>
 
+      {syncMsg && (
+        <div className="mb-4 rounded-lg bg-green-50 text-green-800 px-4 py-3 text-sm print:hidden">
+          {syncMsg}
+        </div>
+      )}
+
       <div className="print-area">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 print:hidden">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">
-            Total
-          </p>
-          <p className="text-3xl font-bold mt-1">{total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 print:hidden">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-xs uppercase tracking-wide text-gray-500">
+              Total
+            </p>
+            <p className="text-3xl font-bold mt-1">{total}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-xs uppercase tracking-wide text-gray-500">
+              Mostrando
+            </p>
+            <p className="text-3xl font-bold mt-1">{filtradas.length}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-xs uppercase tracking-wide text-gray-500">
+              Monto
+            </p>
+            <p className="text-3xl font-bold mt-1">{formatMonto(totalMonto)}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">
-            Mostrando
-          </p>
-          <p className="text-3xl font-bold mt-1">{filtradas.length}</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">
-            Monto filtrado
-          </p>
-          <p className="text-3xl font-bold mt-1">{formatMonto(totalMonto)}</p>
-        </div>
-      </div>
 
-      <div className="mb-4 print:hidden">
-        <input
-          type="search"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar por nombre, restaurante, correo o código…"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20"
-        />
-      </div>
-
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm print:hidden">
-          {error}
+        <div className="mb-4 print:hidden">
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre, restaurante, correo…"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20"
+          />
         </div>
-      )}
 
-      {loading ? (
-        <p className="text-gray-500 text-sm print:hidden">Cargando…</p>
-      ) : filtradas.length === 0 ? (
-        <p className="text-gray-500 text-sm">
-          No hay registros todavía.
-        </p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-              <tr>
-                <th className="px-4 py-3 font-semibold">#</th>
-                <th className="px-4 py-3 font-semibold">Nombre</th>
-                <th className="px-4 py-3 font-semibold">Restaurante</th>
-                <th className="px-4 py-3 font-semibold">Correo</th>
-                <th className="px-4 py-3 font-semibold print:hidden">Código</th>
-                <th className="px-4 py-3 font-semibold print:hidden">Monto</th>
-                <th className="px-4 py-3 font-semibold print:hidden">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtradas.map((d, i) => (
-                <tr
-                  key={d.id || d.stripe_session_id || `${d.correo}-${i}`}
-                  className="border-t border-gray-100 hover:bg-gray-50"
-                >
-                  <td className="px-4 py-3 text-gray-500">{i + 1}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    {d.nombre || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {d.nombre_restaurante || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{d.correo || "—"}</td>
-                  <td className="px-4 py-3 text-gray-700 print:hidden">
-                    {d.codigo_promocion || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-900 whitespace-nowrap print:hidden">
-                    {formatMonto(d.monto)}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap print:hidden">
-                    {formatFecha(d.created_at)}
-                  </td>
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm print:hidden">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <p className="text-gray-500 text-sm print:hidden">Cargando…</p>
+        ) : filtradas.length === 0 ? (
+          <div className="text-gray-500 text-sm space-y-2">
+            <p>No hay registros todavía (la base está vacía).</p>
+            <p className="print:hidden">
+              Pulsa <strong>Traer los de Stripe</strong> para cargar los 7 del
+              cupón.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">#</th>
+                  <th className="px-4 py-3 font-semibold">Nombre</th>
+                  <th className="px-4 py-3 font-semibold">Restaurante</th>
+                  <th className="px-4 py-3 font-semibold">Correo</th>
+                  <th className="px-4 py-3 font-semibold print:hidden">
+                    Código
+                  </th>
+                  <th className="px-4 py-3 font-semibold print:hidden">
+                    Fecha
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {filtradas.map((d, i) => (
+                  <tr
+                    key={d.id || d.stripe_session_id || `${d.correo}-${i}`}
+                    className="border-t border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="px-4 py-3 text-gray-500">{i + 1}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {d.nombre || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {d.nombre_restaurante || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {d.correo || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700 print:hidden">
+                      {d.codigo_promocion || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap print:hidden">
+                      {formatFecha(d.created_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

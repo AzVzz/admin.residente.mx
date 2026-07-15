@@ -25,6 +25,28 @@ export const descargasB2cGet = async (token) => {
 };
 
 /**
+ * Trae de Stripe las compras B2C a la tabla descargas_b2c.
+ * @param {string} token
+ * @param {string} [promo] - ej. "TRABAJO". Vacío = todas las B2C pagadas.
+ */
+export const syncDescargasB2c = async (token, promo = "") => {
+  const response = await fetch(`${urlApi}api/tienda-b2c/sync-descargas`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(promo ? { promo } : {}),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error HTTP: ${response.status}`);
+  }
+  return data;
+};
+
+/**
  * Lista redenciones del cupón B2C directo desde Stripe (p.ej. TRABAJO).
  * @param {string} token
  * @param {string} [promo="TRABAJO"]
