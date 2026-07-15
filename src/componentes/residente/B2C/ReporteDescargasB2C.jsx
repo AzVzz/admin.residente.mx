@@ -225,8 +225,8 @@ const ReporteDescargasB2C = () => {
         <p className="no-print text-gray-500 text-sm">Cargando…</p>
       ) : filtradas.length === 0 ? (
         <p className="no-print text-gray-500 text-sm">
-          No hay registros. Usa &quot;Traer de Stripe&quot; si ya hubo
-          descargas.
+          No hay registros todavía. Cuando alguien complete el pago o el cupón
+          en B2C, aparecerá aquí.
         </p>
       ) : (
         <div className="no-print overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
