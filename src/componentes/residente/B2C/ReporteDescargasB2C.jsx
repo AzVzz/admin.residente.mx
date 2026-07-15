@@ -16,14 +16,6 @@ const formatFecha = (fecha) => {
   });
 };
 
-const escapeCsv = (value) => {
-  const str = value == null ? "" : String(value);
-  if (/[",\n]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-};
-
 /** Ficha imprimible (1 página = 1 registro) */
 const FichaPdf = ({ d, index }) => (
   <div className="ficha-pdf break-after-page border-2 border-black bg-white p-8 mb-6 last:mb-0">
@@ -176,32 +168,6 @@ const ReporteDescargasB2C = () => {
     return [printMode];
   }, [printMode, filtradas]);
 
-  const exportarCsv = () => {
-    const headers = [
-      "nombre",
-      "nombre_restaurante",
-      "correo",
-      "codigo_promocion",
-      "producto",
-      "created_at",
-    ];
-    const rows = filtradas.map((d) =>
-      headers.map((h) => escapeCsv(d[h])).join(","),
-    );
-    const csv = [headers.join(","), ...rows].join("\n");
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `descargas-b2c-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="px-4 py-8 max-w-[1080px] mx-auto">
       <style>{`
@@ -266,14 +232,6 @@ const ReporteDescargasB2C = () => {
             className="px-4 py-2 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
           >
             PDF todos ({filtradas.length})
-          </button>
-          <button
-            type="button"
-            onClick={exportarCsv}
-            disabled={filtradas.length === 0}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
-          >
-            Exportar CSV
           </button>
         </div>
       </div>
