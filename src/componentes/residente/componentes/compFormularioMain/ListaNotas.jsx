@@ -769,6 +769,11 @@ const ListaNotas = () => {
       icon: <FaMagnifyingGlass className="mr-2" />,
     },
     {
+      key: "descargas_b2c",
+      label: "Etiqueta Restaurantera",
+      icon: <IoMdPlay className="mr-2" />,
+    },
+    {
       key: "mediainc",
       label: "Media Inc",
       icon: <IoNewspaper className="mr-2" />,
@@ -823,7 +828,8 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "mediainc") ||
         (usuario?.rol === "residente" && option.key === "tematicas") ||
         (usuario?.rol === "residente" && option.key === "centro") ||
-        (usuario?.rol === "residente" && option.key === "vetados")
+        (usuario?.rol === "residente" && option.key === "vetados") ||
+        (usuario?.rol === "residente" && option.key === "descargas_b2c")
       );
     })
   ).filter((option) =>
@@ -1033,6 +1039,8 @@ const ListaNotas = () => {
                       setVistaActiva("tematicas");
                     } else if (option.key === "codigos_admin") {
                       navigate("/admin/codigos");
+                    } else if (option.key === "descargas_b2c") {
+                      navigate("/admin/reporte-descargas-b2c");
                     } else if (option.key === "ednl") {
                       navigate("/ednl");
                     } else if (option.key === "mediainc") {

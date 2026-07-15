@@ -55,8 +55,15 @@ const B2CInterior = () => {
 
   const handlePagar = async (e) => {
     e.preventDefault();
-    if (!formData.correo?.trim() || !formData.nombre_persona?.trim()) {
-      setMessage({ type: "error", text: "Completa nombre y correo." });
+    if (
+      !formData.correo?.trim() ||
+      !formData.nombre_persona?.trim() ||
+      !formData.nombre_restaurante?.trim()
+    ) {
+      setMessage({
+        type: "error",
+        text: "Completa nombre, restaurante y correo.",
+      });
       return;
     }
 
@@ -230,7 +237,7 @@ const B2CInterior = () => {
             />
           </div>
           <div>
-            <label className="block font-bold text-sm mb-1">Restaurante</label>
+            <label className="block font-bold text-sm mb-1">Restaurante *</label>
             <input
               type="text"
               name="nombre_restaurante"
@@ -238,6 +245,7 @@ const B2CInterior = () => {
               onChange={handleInputChange}
               placeholder="Restaurante"
               className="w-full px-4 py-3 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              required
             />
           </div>
           <div>
