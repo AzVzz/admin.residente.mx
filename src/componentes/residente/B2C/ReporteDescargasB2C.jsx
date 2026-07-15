@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../Context";
-import {
-  descargasB2cGet,
-  syncDescargasB2c,
-} from "../../api/descargasB2cGet";
+import { descargasB2cGet } from "../../api/descargasB2cGet";
 
 const formatFecha = (fecha) => {
   if (!fecha) return "—";
@@ -83,9 +80,7 @@ const ReporteDescargasB2C = () => {
   const [descargas, setDescargas] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState("");
-  const [syncMsg, setSyncMsg] = useState("");
   const [busqueda, setBusqueda] = useState("");
   /** null = no print mode; 'all' = todas; object = una sola */
   const [printMode, setPrintMode] = useState(null);
@@ -104,29 +99,6 @@ const ReporteDescargasB2C = () => {
       setTotal(0);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const sincronizarDesdeStripe = async () => {
-    if (!token) return;
-    setSyncing(true);
-    setSyncMsg("");
-    setError("");
-    try {
-      const sync = await syncDescargasB2c(token, "");
-      setSyncMsg(
-        `Sincronizado: ${sync.creadas || 0} nuevos, ${sync.existentes || 0} ya existían.`,
-      );
-      const result = await descargasB2cGet(token);
-      setDescargas(result.data);
-      setTotal(result.total);
-    } catch (err) {
-      setError(
-        err.message ||
-          "No se pudo sincronizar. Espera el deploy de pagos o corre el backfill en el servidor.",
-      );
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -211,14 +183,6 @@ const ReporteDescargasB2C = () => {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={sincronizarDesdeStripe}
-            disabled={syncing || loading}
-            className="px-4 py-2 rounded-lg bg-yellow-300 text-black text-sm font-bold hover:bg-yellow-400 disabled:opacity-50 cursor-pointer"
-          >
-            {syncing ? "Trayendo…" : "Traer de Stripe"}
-          </button>
-          <button
-            type="button"
             onClick={cargar}
             disabled={loading}
             className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
@@ -235,12 +199,6 @@ const ReporteDescargasB2C = () => {
           </button>
         </div>
       </div>
-
-      {syncMsg && (
-        <div className="no-print mb-4 rounded-lg bg-green-50 text-green-800 px-4 py-3 text-sm">
-          {syncMsg}
-        </div>
-      )}
 
       <div className="no-print mb-4">
         <input
