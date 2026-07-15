@@ -182,6 +182,9 @@ const CuestionarioB2C = lazy(
 const B2CInterior = lazy(
   () => import("./componentes/residente/B2C/B2CInterior.jsx"),
 );
+const ReporteDescargasB2C = lazy(
+  () => import("./componentes/residente/B2C/ReporteDescargasB2C.jsx"),
+);
 const GastroDestinos = lazy(
   () => import("./componentes/residente/B2C/GastroDestinos.jsx"),
 );
@@ -520,6 +523,15 @@ function App() {
                   <div className="max-w-[1080px] mx-auto">
                     <B2CInterior />
                   </div>
+                }
+              />
+
+              <Route
+                path="/reporte-descargas-b2c"
+                element={
+                  <ResidenteRoute>
+                    <ReporteDescargasB2C />
+                  </ResidenteRoute>
                 }
               />
 

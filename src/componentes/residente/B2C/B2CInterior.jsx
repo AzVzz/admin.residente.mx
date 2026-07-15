@@ -96,6 +96,7 @@ const B2CInterior = () => {
           items: [{ productId: String(productoVideo.id), quantity: 1 }],
           customerEmail: formData.correo.trim(),
           customerName: formData.nombre_persona.trim(),
+          customerRestaurant: formData.nombre_restaurante?.trim() || "",
           promoCode: formData.codigo_promocion?.trim() || "",
           successUrl: `${base}/admin/B2C?payment_success=true&session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${base}/admin/B2C?payment_canceled=true`,
