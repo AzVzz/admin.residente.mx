@@ -3,8 +3,9 @@ import { Transformer } from "react-konva";
 import { useEditor } from "./useEditor.js";
 
 const SelectionTransformer = ({ stageRef }) => {
-  const { selectedId, removeObject } = useEditor();
+  const { scene, selectedId, removeObject } = useEditor();
   const trRef = useRef(null);
+  const selected = selectedId ? scene.objects.find((o) => o.id === selectedId) : null;
 
   // Attach transformer to the selected node.
   useEffect(() => {
@@ -44,7 +45,7 @@ const SelectionTransformer = ({ stageRef }) => {
         return newBox;
       }}
       rotateEnabled
-      keepRatio={false}
+      keepRatio={selected?.type === "image" || selected?.type === "sticker"}
       borderStroke="#0099ff"
       borderStrokeWidth={1.5}
       anchorStroke="#0099ff"

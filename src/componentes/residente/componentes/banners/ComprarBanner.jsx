@@ -189,6 +189,7 @@ const ComprarBanner = () => {
     setPreviewMobile(URL.createObjectURL(mobileFile));
     setSceneJson(sj); // serialized JSON string sent on submit
     setInitialSceneJson(sj); // keep scene so reopening the editor restores the design
+    if (editToken) isReEditRef.current = true;
     setIsEditorOpen(false);
   };
 
@@ -214,7 +215,7 @@ const ComprarBanner = () => {
         // Re-edit: update existing draft via PUT.
         const formData = new FormData();
         formData.append("nombre", `Banner ${nombre}`);
-        if (urlDestino) formData.append("url_destino", urlDestino);
+        formData.append("url_destino", urlDestino);
         formData.append("imagen_desktop", imagenDesktop);
         if (imagenMobile) formData.append("imagen_mobile", imagenMobile);
         if (sceneJson) formData.append("scene_json", sceneJson);
@@ -248,7 +249,10 @@ const ComprarBanner = () => {
         }
         banner = await bannerRes.json();
         // Store token for potential re-edit (soft re-use).
-        if (banner.edit_token) setEditToken(banner.edit_token);
+        if (banner.edit_token) {
+          setEditToken(banner.edit_token);
+          isReEditRef.current = true;
+        }
       }
 
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }

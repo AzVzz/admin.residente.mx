@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useEditor } from "./useEditor.js";
 import { resolveObject } from "./sceneSchema.js";
+import { bannerAssetUpload } from "../../../../api/bannerSceneApi.js";
+import { assetPreviewCache } from "./assetPreview.js";
 
 // Font families available in the repo (from index.css @font-face declarations).
 const FONT_OPTIONS = [
@@ -13,9 +15,13 @@ const FONT_OPTIONS = [
 ];
 
 const ALIGN_OPTIONS = ["left", "center", "right"];
+const MAX_BACKGROUND_BYTES = 5 * 1024 * 1024;
 
 const Toolbar = () => {
   const { scene, selectedId, activeVariant, updateObject, removeObject, reorderObject, setBackground } = useEditor();
+  const backgroundInputRef = useRef(null);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [backgroundError, setBackgroundError] = useState(null);
 
   const selected = selectedId ? scene.objects.find((o) => o.id === selectedId) : null;
   const resolved = selected ? resolveObject(selected, activeVariant) : null;
@@ -23,6 +29,30 @@ const Toolbar = () => {
   const update = (changes) => {
     if (!selectedId) return;
     updateObject(selectedId, activeVariant, changes);
+  };
+
+  const handleBackgroundUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+
+    if (file.size > MAX_BACKGROUND_BYTES) {
+      setBackgroundError("El fondo supera el límite de 5 MB.");
+      return;
+    }
+
+    setIsUploadingBackground(true);
+    setBackgroundError(null);
+    try {
+      const previewUrl = URL.createObjectURL(file);
+      const { url } = await bannerAssetUpload(file);
+      assetPreviewCache.set(url, previewUrl);
+      setBackground({ imageSrc: url });
+    } catch (err) {
+      setBackgroundError(err.message || "Error al subir fondo.");
+    } finally {
+      setIsUploadingBackground(false);
+    }
   };
 
   if (!selected) {
@@ -40,8 +70,9 @@ const Toolbar = () => {
           />
         </label>
         <label className="flex items-center gap-1.5 text-xs text-gray-600">
-          Image URL
+          Imagen URL
           <input
+            key={scene.background.imageSrc ?? "empty-background-url"}
             type="text"
             placeholder="https://..."
             defaultValue={scene.background.imageSrc ?? ""}
@@ -49,6 +80,31 @@ const Toolbar = () => {
             className="border border-gray-200 rounded px-2 py-0.5 text-xs w-52"
           />
         </label>
+        <button
+          type="button"
+          onClick={() => backgroundInputRef.current?.click()}
+          disabled={isUploadingBackground}
+          className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50"
+        >
+          {isUploadingBackground ? "Subiendo..." : "Subir fondo"}
+        </button>
+        <input
+          ref={backgroundInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleBackgroundUpload}
+        />
+        {scene.background.imageSrc && (
+          <button
+            type="button"
+            onClick={() => setBackground({ imageSrc: null })}
+            className="px-2 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded"
+          >
+            Quitar fondo
+          </button>
+        )}
+        {backgroundError && <span className="text-xs text-red-600">{backgroundError}</span>}
       </div>
     );
   }
@@ -60,14 +116,14 @@ const Toolbar = () => {
 
         <input
           type="text"
-          value={selected.text ?? ""}
+          value={resolved.text ?? ""}
           onChange={(e) => update({ text: e.target.value })}
           className="border border-gray-200 rounded px-2 py-0.5 text-sm w-40"
           placeholder="Text content"
         />
 
         <select
-          value={selected.fontFamily ?? FONT_OPTIONS[0].value}
+          value={resolved.fontFamily ?? FONT_OPTIONS[0].value}
           onChange={(e) => update({ fontFamily: e.target.value })}
           className="border border-gray-200 rounded px-2 py-0.5 text-xs"
         >
@@ -78,7 +134,7 @@ const Toolbar = () => {
 
         <input
           type="number"
-          value={selected.fontSize ?? 24}
+          value={resolved.fontSize ?? 24}
           min={8} max={200}
           onChange={(e) => update({ fontSize: Number(e.target.value) })}
           className="border border-gray-200 rounded px-2 py-0.5 text-xs w-16"
@@ -89,7 +145,7 @@ const Toolbar = () => {
           Color
           <input
             type="color"
-            value={selected.fill ?? "#111111"}
+            value={resolved.fill ?? "#111111"}
             onChange={(e) => update({ fill: e.target.value })}
             className="w-7 h-7 rounded border border-gray-200 cursor-pointer"
           />
@@ -100,7 +156,7 @@ const Toolbar = () => {
             <button
               key={a}
               onClick={() => update({ align: a })}
-              className={`px-2 py-1 text-xs rounded ${selected.align === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`px-2 py-1 text-xs rounded ${resolved.align === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
             >
               {a[0].toUpperCase()}
             </button>
@@ -121,11 +177,11 @@ const Toolbar = () => {
           Opacity
           <input
             type="range" min={0} max={1} step={0.05}
-            value={selected.opacity ?? 1}
+            value={resolved.opacity ?? 1}
             onChange={(e) => update({ opacity: Number(e.target.value) })}
             className="w-20"
           />
-          <span>{Math.round((selected.opacity ?? 1) * 100)}%</span>
+          <span>{Math.round((resolved.opacity ?? 1) * 100)}%</span>
         </label>
 
         <ToolbarShared selected={selected} resolved={resolved} removeObject={removeObject} reorderObject={reorderObject} />

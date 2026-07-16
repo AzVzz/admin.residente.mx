@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import Konva from "konva";
 import { CANVAS_SIZES, resolveObject } from "./sceneSchema.js";
+import { assetPreviewCache } from "./assetPreview.js";
 
 export const preloadFonts = async (scene) => {
   const families = [
@@ -25,6 +26,29 @@ const waitForImage = (konvaImgNode) =>
     img.addEventListener("error", resolve, { once: true });
   });
 
+const loadImageElement = (src) =>
+  new Promise((resolve) => {
+    const imgEl = new Image();
+    imgEl.crossOrigin = "anonymous";
+    imgEl.onload = () => resolve(imgEl);
+    imgEl.onerror = () => resolve(null);
+    imgEl.src = assetPreviewCache.get(src) || src || "";
+  });
+
+// Hide editor chrome (selection handles + snap guides) so it never lands in the PNG.
+const hideExportUi = (stage) => {
+  const nodes = [...stage.find("Transformer"), ...stage.find(".export-ui-guide")];
+  const wasVisible = nodes.map((n) => n.visible());
+  nodes.forEach((n) => n.hide());
+  stage.batchDraw();
+  return () => {
+    nodes.forEach((n, i) => {
+      if (wasVisible[i]) n.show();
+    });
+    stage.batchDraw();
+  };
+};
+
 // Falls back to offscreen Stage if stageRef is unavailable (mobile reliability).
 export const exportVariant = async (scene, variant, stageRef) => {
   const { w, h } = CANVAS_SIZES[variant];
@@ -35,12 +59,17 @@ export const exportVariant = async (scene, variant, stageRef) => {
     const imgNodes = stage.find("Image");
     await Promise.all(imgNodes.map(waitForImage));
 
-    const displayW = stage.width();
-    const fit = displayW / w;
-    // pixelRatio 1/fit renders at the native canvas size (already the target export resolution).
-    const dataURL = stage.toDataURL({ pixelRatio: 1 / fit, mimeType: "image/png" });
-    const blob = await (await fetch(dataURL)).blob();
-    return new File([blob], `banner-${variant}.png`, { type: "image/png" });
+    const restoreUi = hideExportUi(stage);
+    try {
+      const displayW = stage.width();
+      const fit = displayW / w;
+      // pixelRatio 1/fit renders at the native canvas size (already the target export resolution).
+      const dataURL = stage.toDataURL({ pixelRatio: 1 / fit, mimeType: "image/png" });
+      const blob = await (await fetch(dataURL)).blob();
+      return new File([blob], `banner-${variant}.png`, { type: "image/png" });
+    } finally {
+      restoreUi();
+    }
   }
 
   // Offscreen fallback: build a minimal Stage in memory.
@@ -62,10 +91,15 @@ const exportOffscreen = async (scene, variant, w, h) => {
     if (bg.fill) {
       layer.add(new Konva.Rect({ x: 0, y: 0, width: w, height: h, fill: bg.fill }));
     }
+    if (bg.imageSrc) {
+      const bgImg = await loadImageElement(bg.imageSrc);
+      if (bgImg) {
+        layer.add(new Konva.Image({ x: 0, y: 0, width: w, height: h, image: bgImg }));
+      }
+    }
 
     // Objects sorted by zIndex
     const sorted = [...scene.objects].sort((a, b) => a.zIndex - b.zIndex);
-    const imageLoads = [];
 
     for (const obj of sorted) {
       const resolved = resolveObject(obj, variant);
@@ -86,15 +120,8 @@ const exportOffscreen = async (scene, variant, w, h) => {
           })
         );
       } else if (resolved.type === "image" || resolved.type === "sticker") {
-        const imgEl = new Image();
-        imgEl.crossOrigin = "anonymous";
-        const load = new Promise((res) => {
-          imgEl.onload = res;
-          imgEl.onerror = res;
-          imgEl.src = resolved.src ?? "";
-        });
-        imageLoads.push(load);
-        await load;
+        const imgEl = await loadImageElement(resolved.src);
+        if (!imgEl) continue;
         layer.add(
           new Konva.Image({
             x: resolved.x, y: resolved.y,

@@ -137,9 +137,18 @@ const KonvaFrame = ({ variant, displayWidth, stageRef: externalRef }) => {
             return null;
           })}
 
-          {/* Smart guide overlays */}
+          {/* Smart guide overlays — named so export can hide them from the PNG */}
           {stageGuides.map((g, i) => (
-            <Line key={i} points={g.points} stroke="#0099ff" strokeWidth={1 / scale} dash={[4 / scale, 4 / scale]} opacity={0.5} listening={false} />
+            <Line
+              key={i}
+              name="export-ui-guide"
+              points={g.points}
+              stroke="#0099ff"
+              strokeWidth={1 / scale}
+              dash={[4 / scale, 4 / scale]}
+              opacity={0.5}
+              listening={false}
+            />
           ))}
 
           {isActiveVariant && <SelectionTransformer stageRef={stageRef} />}

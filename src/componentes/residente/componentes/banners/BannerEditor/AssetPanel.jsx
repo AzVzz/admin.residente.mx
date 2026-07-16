@@ -7,6 +7,26 @@ import StickerPicker from "./StickerPicker.jsx";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB client guard
 
+const getImageDimensions = (file) =>
+  new Promise((resolve, reject) => {
+    const previewUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight, previewUrl });
+    img.onerror = () => {
+      URL.revokeObjectURL(previewUrl);
+      reject(new Error("No se pudo leer la imagen."));
+    };
+    img.src = previewUrl;
+  });
+
+const fitInside = (naturalW, naturalH, maxW, maxH) => {
+  const ratio = Math.min(maxW / naturalW, maxH / naturalH, 1);
+  return {
+    width: Math.max(5, Math.round(naturalW * ratio)),
+    height: Math.max(5, Math.round(naturalH * ratio)),
+  };
+};
+
 const AssetPanel = () => {
   const { addObject, activeVariant } = useEditor();
   const { w, h } = CANVAS_SIZES[activeVariant];
@@ -28,15 +48,17 @@ const AssetPanel = () => {
     setIsUploading(true);
     setUploadError(null);
     try {
+      const dimensions = await getImageDimensions(file);
       const { url } = await bannerAssetUpload(file);
-      assetPreviewCache.set(url, URL.createObjectURL(file));
+      assetPreviewCache.set(url, dimensions.previewUrl);
+      const fitted = fitInside(dimensions.width, dimensions.height, w * 0.35, h * 0.75);
       addObject({
         type: "image",
         src: url,
-        x: Math.round(w * 0.1),
-        y: Math.round(h * 0.1),
-        width: Math.round(w * 0.3),
-        height: Math.round(h * 0.6),
+        x: Math.round((w - fitted.width) / 2),
+        y: Math.round((h - fitted.height) / 2),
+        width: fitted.width,
+        height: fitted.height,
         rotation: 0,
         opacity: 1,
       });

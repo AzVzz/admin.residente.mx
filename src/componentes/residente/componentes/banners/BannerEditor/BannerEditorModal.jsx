@@ -12,7 +12,7 @@ import { deserializeScene, serializeScene, CANVAS_SIZES } from "./sceneSchema.js
 
 // Inner editor tree — has access to EditorContext.
 const EditorInner = ({ onSave, onCancel }) => {
-  const { scene, activeVariant, addObject, undo, redo, isUndoable, isRedoable, isFontsReady, setIsFontsReady } = useEditor();
+  const { scene, activeVariant, addObject, undo, redo, isUndoable, isRedoable, isFontsReady, setIsFontsReady, deselect } = useEditor();
 
   const desktopRef = useRef(null);
   const mobileRef = useRef(null);
@@ -36,7 +36,11 @@ const EditorInner = ({ onSave, onCancel }) => {
     if (!isFontsReady) return;
     setIsExporting(true);
     setExportError(null);
+    // Drop selection so HTML size badge disappears; export also hides Konva chrome.
+    deselect();
     try {
+      // Let React unmount selection overlays before capturing stages.
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const { desktopFile, mobileFile } = await exportAll();
       onSave({ desktopFile, mobileFile, sceneJson: serializeScene(scene) });
     } catch (err) {
@@ -45,7 +49,12 @@ const EditorInner = ({ onSave, onCancel }) => {
     } finally {
       setIsExporting(false);
     }
-  }, [isFontsReady, exportAll, onSave, scene]);
+  }, [isFontsReady, exportAll, onSave, scene, deselect]);
+
+  const handleCancel = useCallback(() => {
+    if (isUndoable && !window.confirm("Hay cambios sin guardar. ¿Quieres cerrar el editor?")) return;
+    onCancel();
+  }, [isUndoable, onCancel]);
 
   const handleAddText = () => {
     const { w, h } = CANVAS_SIZES[activeVariant];
@@ -108,7 +117,7 @@ const EditorInner = ({ onSave, onCancel }) => {
           >↪ Redo</button>
 
           <button
-            onClick={onCancel}
+            onClick={handleCancel}
             className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg"
           >
             Cancel
