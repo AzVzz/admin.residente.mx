@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "../../../Context";
 import { bannerCreate, bannerUpdate } from "../../../api/bannersApi";
 import { FaUpload, FaArrowLeft, FaTimes } from "react-icons/fa";
+
+const BannerEditorModal = lazy(() => import("./BannerEditor/BannerEditorModal.jsx"));
 
 const initialState = {
   nombre: "",
@@ -88,6 +90,9 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editorMode, setEditorMode] = useState("upload");
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [sceneJson, setSceneJson] = useState(null);
 
   const isEdit = Boolean(banner);
 
@@ -114,6 +119,10 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
         imagen_portada: banner.imagen_portada || null,
         pdf: banner.pdf || null,
       });
+      if (banner.scene_json) {
+        setSceneJson(banner.scene_json);
+        setEditorMode("editor");
+      }
     }
   }, [banner]);
 
@@ -145,6 +154,17 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
     setPreviews((prev) => ({ ...prev, [field]: null }));
   };
 
+  const handleEditorSave = ({ desktopFile, mobileFile, sceneJson: sj }) => {
+    setFiles((prev) => ({ ...prev, imagen_desktop: desktopFile, imagen_mobile: mobileFile || null }));
+    setPreviews((prev) => ({
+      ...prev,
+      imagen_desktop: URL.createObjectURL(desktopFile),
+      imagen_mobile: mobileFile ? URL.createObjectURL(mobileFile) : null,
+    }));
+    setSceneJson(sj);
+    setIsEditorOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -160,6 +180,9 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
       Object.entries(files).forEach(([key, file]) => {
         if (file) formData.append(key, file);
       });
+      if (editorMode === "editor" && sceneJson) {
+        formData.append("scene_json", sceneJson);
+      }
 
       if (isEdit) {
         await bannerUpdate(token, banner.id, formData);
@@ -378,21 +401,99 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">
             Archivos
           </h3>
+
+          {/* Toggle upload / editor solo para imagen y newsletter */}
+          {!isRevista && (
+            <div className="mb-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">¿Cómo quieres subir las imágenes?</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditorMode("upload")}
+                  className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all cursor-pointer ${
+                    editorMode === "upload"
+                      ? "border-blue-600 bg-blue-50 text-blue-800"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  Subir archivos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditorMode("editor")}
+                  className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all cursor-pointer ${
+                    editorMode === "editor"
+                      ? "border-blue-600 bg-blue-50 text-blue-800"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  Diseñar con editor
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FileUpload
-              label="Imagen Desktop"
-              preview={previews.imagen_desktop}
-              onChange={handleFile("imagen_desktop")}
-              onClear={clearFile("imagen_desktop")}
-              hint="Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio 5:1)"
-            />
-            <FileUpload
-              label="Imagen Mobile"
-              preview={previews.imagen_mobile}
-              onChange={handleFile("imagen_mobile")}
-              onClear={clearFile("imagen_mobile")}
-              hint="1000×250 px · 2000×500 px retina (ratio 4:1)"
-            />
+            {/* Modo upload */}
+            {(isRevista || editorMode === "upload") && (
+              <>
+                <FileUpload
+                  label="Imagen Desktop"
+                  preview={previews.imagen_desktop}
+                  onChange={handleFile("imagen_desktop")}
+                  onClear={clearFile("imagen_desktop")}
+                  hint="Big: 1080×216 px · Medium: 736×147 px · Small: 680×136 px (ratio 5:1)"
+                />
+                <FileUpload
+                  label="Imagen Mobile"
+                  preview={previews.imagen_mobile}
+                  onChange={handleFile("imagen_mobile")}
+                  onClear={clearFile("imagen_mobile")}
+                  hint="1000×250 px · 2000×500 px retina (ratio 4:1)"
+                />
+              </>
+            )}
+
+            {/* Modo editor visual */}
+            {!isRevista && editorMode === "editor" && (
+              <div className="md:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditorOpen(true)}
+                  className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50 hover:bg-blue-100 text-gray-800 font-medium text-sm transition-colors cursor-pointer"
+                >
+                  {previews.imagen_desktop ? "Editar diseño" : "Abrir editor visual"}
+                </button>
+                {previews.imagen_desktop && (
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Desktop preview</p>
+                      <img
+                        src={previews.imagen_desktop}
+                        alt="Preview desktop"
+                        className="rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                      />
+                    </div>
+                    {previews.imagen_mobile && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Mobile preview</p>
+                        <img
+                          src={previews.imagen_mobile}
+                          alt="Preview mobile"
+                          className="rounded-lg border border-gray-200 max-h-24 w-full object-contain"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!previews.imagen_desktop && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    Abre el editor para diseñar el banner. Las imágenes se generan al guardar el diseño.
+                  </p>
+                )}
+              </div>
+            )}
+
             {isRevista && (
               <>
                 <FileUpload
@@ -431,6 +532,15 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
           </button>
         </div>
       </form>
+
+      <Suspense fallback={null}>
+        <BannerEditorModal
+          isOpen={isEditorOpen}
+          initialSceneJson={sceneJson}
+          onSave={handleEditorSave}
+          onClose={() => setIsEditorOpen(false)}
+        />
+      </Suspense>
     </div>
   );
 };

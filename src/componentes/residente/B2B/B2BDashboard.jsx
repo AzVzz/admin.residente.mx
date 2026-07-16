@@ -1747,6 +1747,21 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 Ir a pagar
               </button>
 
+              <a
+                href="https://trebol21.mx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full mt-2 overflow-hidden hover:opacity-95 transition-opacity"
+                aria-label="Trebol21 - Dark Kitchens"
+              >
+                <img
+                  src={`${imgApi}fotos/revistas/banners/trebol.png`}
+                  alt="Trebol21"
+                  className="w-full h-auto object-contain"
+                  loading="lazy"
+                />
+              </a>
+
               {beneficiosMembresia.length > 0 && (
                 <div className="mb-7 mt-1">
                   <div className="mb-2">
