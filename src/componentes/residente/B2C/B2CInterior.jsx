@@ -66,6 +66,13 @@ const B2CInterior = () => {
       });
       return;
     }
+    if (formData.codigo_promocion.trim().toUpperCase() !== "TRABAJO") {
+      setMessage({
+        type: "error",
+        text: "Ingresa el código correcto para continuar.",
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     setMessage({ type: "", text: "" });
@@ -139,6 +146,9 @@ const B2CInterior = () => {
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const codigoTrabajoValido =
+    formData.codigo_promocion.trim().toUpperCase() === "TRABAJO";
 
   // Vista: después del pago — video + ver/descargar
   if (vista === "exito") {
@@ -262,7 +272,7 @@ const B2CInterior = () => {
           </div>
           <div>
             <label className="block font-bold text-sm mb-1">
-              Código promoción
+              Código *
             </label>
             <input
               type="text"
@@ -271,6 +281,8 @@ const B2CInterior = () => {
               onChange={handleInputChange}
               placeholder="Código"
               className="w-full px-4 py-3 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              required
+              autoComplete="off"
             />
           </div>
           {message.text && (
@@ -282,13 +294,15 @@ const B2CInterior = () => {
               {message.text}
             </p>
           )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 disabled:opacity-50"
-          >
-            {isSubmitting ? "Redirigiendo a pagar…" : "Pagar y ver video"}
-          </button>
+          {codigoTrabajoValido ? (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 disabled:opacity-50"
+            >
+              {isSubmitting ? "Redirigiendo…" : "Ver video"}
+            </button>
+          ) : null}
         </form>
       </div>
     );
@@ -366,32 +380,67 @@ const B2CInterior = () => {
           </ul>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setVista("formulario")}
-          className="w-full mt-8 focus:outline-none rounded-xl overflow-hidden shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-black"
-        >
-          <div
-            className="relative w-full"
-            style={{
-              paddingBottom: "56.25%",
-              height: 0,
-              overflow: "hidden",
-              borderRadius: "12px",
-            }}
+        <div className="mt-8 space-y-3">
+          <label className="block font-bold text-sm text-center mb-1">
+            Código
+          </label>
+          <input
+            type="text"
+            name="codigo_promocion"
+            value={formData.codigo_promocion}
+            onChange={handleInputChange}
+            placeholder="Código"
+            className="w-full max-w-md mx-auto block px-4 py-3 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-black"
+            autoComplete="off"
+          />
+        </div>
+
+        {codigoTrabajoValido ? (
+          <button
+            type="button"
+            onClick={() => setVista("formulario")}
+            className="w-full mt-4 focus:outline-none rounded-xl overflow-hidden focus:ring-2 focus:ring-offset-2 focus:ring-black"
           >
-            <img
-              src="https://residente.mx/fotos/videos/miniaturas/etiqueta.jpg.jpeg"
-              alt="Miniatura del video"
-              className="absolute top-0 left-0 w-full h-full object-cover border-0"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
-              <span className="bg-white/90 text-black px-6 py-3 rounded-full font-semibold text-lg shadow">
-                Pagar y ver video →
-              </span>
+            <div
+              className="relative w-full"
+              style={{
+                paddingBottom: "56.25%",
+                height: 0,
+                overflow: "hidden",
+                borderRadius: "12px",
+              }}
+            >
+              <img
+                src="https://residente.mx/fotos/videos/miniaturas/etiqueta.jpg.jpeg"
+                alt="Miniatura del video"
+                className="absolute top-0 left-0 w-full h-full object-cover border-0"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
+                <span className="bg-black text-white px-6 py-3 rounded-full font-semibold text-lg">
+                  Ver video →
+                </span>
+              </div>
+            </div>
+          </button>
+        ) : (
+          <div className="w-full mt-4 rounded-xl overflow-hidden">
+            <div
+              className="relative w-full"
+              style={{
+                paddingBottom: "56.25%",
+                height: 0,
+                overflow: "hidden",
+                borderRadius: "12px",
+              }}
+            >
+              <img
+                src="https://residente.mx/fotos/videos/miniaturas/etiqueta.jpg.jpeg"
+                alt="Miniatura del video"
+                className="absolute top-0 left-0 w-full h-full object-cover border-0"
+              />
             </div>
           </div>
-        </button>
+        )}
 
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           <div className="  p-7 md:p-8 transition-colors duration-300 ">
