@@ -94,6 +94,9 @@ const LinkInBio = lazy(
 const InfografiaForm = lazy(
   () => import("./componentes/residente/infografia/InfografiaForm.jsx"),
 );
+const ComunidadAutores = lazy(
+  () => import("./componentes/residente/Comunidad/ComunidadAutores.jsx"),
+);
 const UanlPage = lazy(
   () => import("./componentes/residente/Uanl/UanlPage.jsx"),
 );
@@ -936,6 +939,9 @@ function App() {
 
               {/* Admin */}
               <Route path="/infografias" element={<InfografiaForm />} />
+
+              {/* Admin — Comunidad (avatares editables) */}
+              <Route path="/comunidad" element={<ComunidadAutores />} />
 
               {/* Formulario de compra de banners */}
               <Route path="/banners" element={<ComprarBanner />} />

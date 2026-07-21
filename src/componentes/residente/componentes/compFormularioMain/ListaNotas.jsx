@@ -46,6 +46,7 @@ const SubidorGeneral = lazy(() => import("../subidor/SubidorGeneral.jsx"));
 const VideosDashboard = lazy(() => import("./VideosDashboard.jsx"));
 const FormNewsletter = lazy(() => import("./FormNewsletter.jsx"));
 const InfografiaForm = lazy(() => import("../../infografia/InfografiaForm.jsx"));
+const ComunidadAutores = lazy(() => import("../../Comunidad/ComunidadAutores.jsx"));
 const ListaNotasUanl = lazy(() => import("./ListaNotasUanl.jsx"));
 const ListaNotasUsuarios = lazy(() => import("./ListaNotasUsuarios.jsx"));
 const ListaTickets = lazy(() => import("./ListaTickets"));
@@ -703,6 +704,11 @@ const ListaNotas = () => {
       key: "infografias",
       label: "Infografías",
       icon: <FaLightbulb className="mr-2" />,
+    },
+    {
+      key: "comunidad",
+      label: "Comunidad",
+      icon: <FaUser className="mr-2" />,
     },
     { key: "uanl", label: "UANL", icon: <LuUnderline className="mr-2" /> },
     { key: "usuarios", label: "Usuarios", icon: <FaUser className="mr-2" /> },
@@ -1398,6 +1404,13 @@ const ListaNotas = () => {
           <Suspense fallback={<LazyFallback />}>
             <div className="text-center text-lg">
               <InfografiaForm />
+            </div>
+          </Suspense>
+        )}
+        {vistaActiva === "comunidad" && (
+          <Suspense fallback={<LazyFallback />}>
+            <div className="text-center text-lg">
+              <ComunidadAutores />
             </div>
           </Suspense>
         )}
