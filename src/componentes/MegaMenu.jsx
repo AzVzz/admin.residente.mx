@@ -289,6 +289,15 @@ const MegaMenu = () => {
                         <>
                           <li>
                             <Link
+                              to="/reportes-correos-micrositios"
+                              className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              Reportes Correos Micrositios
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
                               to="/chatbot/conversaciones"
                               className="text-white hover:text-[#FFF200] transition-colors text-base block py-[2px] font-roman"
                               onClick={() => setIsMenuOpen(false)}

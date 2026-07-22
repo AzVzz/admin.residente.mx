@@ -271,6 +271,9 @@ const CampanasNewsletter = lazy(
 const NuevaCampana = lazy(
   () => import("./componentes/residente/Newsletter/NuevaCampana"),
 );
+const ReportesCorreosMicrositios = lazy(
+  () => import("./componentes/residente/Newsletter/ReportesCorreosMicrositios"),
+);
 const FormularioReceta = lazy(
   () =>
     import("./componentes/residente/componentes/compFormularioMain/FormularioReceta"),
@@ -848,6 +851,10 @@ function App() {
               <Route
                 path="/correos/editar/:id"
                 element={<ResidenteRoute><NuevaCampana /></ResidenteRoute>}
+              />
+              <Route
+                path="/reportes-correos-micrositios"
+                element={<ResidenteRoute><ReportesCorreosMicrositios /></ResidenteRoute>}
               />
 
               {/* Admin */}
