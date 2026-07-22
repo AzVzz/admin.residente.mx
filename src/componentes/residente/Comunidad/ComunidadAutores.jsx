@@ -8,9 +8,9 @@ import {
 } from "../../api/comunidadAutoresApi";
 
 // Pantalla de administración de la sección COMUNIDAD de la portada.
-// Cada registro es un autor: nombre + foto (avatar). El avatar aparece en la
-// portada junto a sus notas SIEMPRE que el "nombre" aquí coincida con el
-// campo "autor" de sus notas (etiqueta "comunidad"). No liga por FK.
+// Cada registro es un autor: nombre + tag (rol) + foto (avatar). El avatar
+// aparece en la portada junto a sus notas SIEMPRE que el "nombre" aquí
+// coincida con el campo "autor" de sus notas (etiqueta "comunidad"). No liga por FK.
 const ComunidadAutores = () => {
   const { token } = useAuth();
 
@@ -23,6 +23,7 @@ const ComunidadAutores = () => {
   // Estado del formulario (sirve para crear y editar)
   const [editandoId, setEditandoId] = useState(null); // null = creando
   const [nombre, setNombre] = useState("");
+  const [tag, setTag] = useState("");
   const [orden, setOrden] = useState(0);
   const [activo, setActivo] = useState(true);
   const [foto, setFoto] = useState(null);
@@ -43,6 +44,7 @@ const ComunidadAutores = () => {
   const limpiarFormulario = () => {
     setEditandoId(null);
     setNombre("");
+    setTag("");
     setOrden(0);
     setActivo(true);
     setFoto(null);
@@ -66,6 +68,7 @@ const ComunidadAutores = () => {
   const handleEditar = (autor) => {
     setEditandoId(autor.id);
     setNombre(autor.nombre || "");
+    setTag(autor.tag || "");
     setOrden(autor.orden ?? 0);
     setActivo(autor.activo ?? true);
     setFoto(null);
@@ -81,6 +84,7 @@ const ComunidadAutores = () => {
     try {
       const formData = new FormData();
       formData.append("nombre", nombre);
+      formData.append("tag", tag);
       formData.append("orden", String(orden || 0));
       formData.append("activo", String(activo));
       if (foto) formData.append("foto", foto);
@@ -150,49 +154,6 @@ const ComunidadAutores = () => {
               </div>
             )}
 
-            {/* Nombre */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre del autor *
-              </label>
-              <input
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder='Ej: Carlos "Sosofróstico" Solares'
-                className="w-full px-3 py-2 border rounded-md border-gray-300"
-                required
-              />
-            </div>
-
-            {/* Orden + Activo */}
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Orden
-                </label>
-                <input
-                  type="number"
-                  value={orden}
-                  onChange={(e) => setOrden(parseInt(e.target.value, 10) || 0)}
-                  className="w-full px-3 py-2 border rounded-md border-gray-300"
-                />
-                <span className="text-xs text-gray-500">Menor = aparece primero</span>
-              </div>
-              <div className="flex items-center gap-2 pt-6">
-                <input
-                  id="activo-comunidad"
-                  type="checkbox"
-                  checked={activo}
-                  onChange={(e) => setActivo(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <label htmlFor="activo-comunidad" className="text-sm text-gray-700">
-                  Activo
-                </label>
-              </div>
-            </div>
-
             {/* Foto */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -256,6 +217,67 @@ const ComunidadAutores = () => {
               </div>
             </div>
 
+            {/* Tag (rol/ocupación) — en portada va entre la foto y el nombre */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tag (qué es)
+              </label>
+              <input
+                type="text"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="Ej: Chef, Sommelier, Periodista…"
+                maxLength={100}
+                className="w-full px-3 py-2 border rounded-md border-gray-300"
+              />
+              <span className="text-xs text-gray-500">
+                Se muestra en la portada debajo de la foto y arriba del nombre
+              </span>
+            </div>
+
+            {/* Nombre */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre del autor *
+              </label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder='Ej: Carlos "Sosofróstico" Solares'
+                className="w-full px-3 py-2 border rounded-md border-gray-300"
+                required
+              />
+            </div>
+
+            {/* Orden + Activo */}
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Orden
+                </label>
+                <input
+                  type="number"
+                  value={orden}
+                  onChange={(e) => setOrden(parseInt(e.target.value, 10) || 0)}
+                  className="w-full px-3 py-2 border rounded-md border-gray-300"
+                />
+                <span className="text-xs text-gray-500">Menor = aparece primero</span>
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <input
+                  id="activo-comunidad"
+                  type="checkbox"
+                  checked={activo}
+                  onChange={(e) => setActivo(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="activo-comunidad" className="text-sm text-gray-700">
+                  Activo
+                </label>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <button
                 type="submit"
@@ -311,6 +333,11 @@ const ComunidadAutores = () => {
                     <p className="text-sm font-medium text-gray-800 truncate">
                       {autor.nombre}
                     </p>
+                    {autor.tag && (
+                      <p className="text-xs text-gray-600 truncate uppercase tracking-wide">
+                        {autor.tag}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500">
                       Orden: {autor.orden ?? 0}
                       {" · "}

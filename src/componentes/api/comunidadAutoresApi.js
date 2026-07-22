@@ -5,13 +5,13 @@ import { urlApi } from "./url.js";
 // GET es público; crear/editar/eliminar requieren el token del admin.
 const BASE_URL = `${urlApi}api/comunidad-autores`;
 
-// Lista de autores de comunidad (nombre + foto absoluta + activo + orden)
+// Lista de autores de comunidad (nombre + tag + foto absoluta + activo + orden)
 export const getComunidadAutores = async () => {
   const res = await axios.get(BASE_URL);
   return res.data;
 };
 
-// Crear (formData: nombre, foto, activo, orden)
+// Crear (formData: nombre, tag, foto, activo, orden)
 export const crearComunidadAutor = async (formData, token) => {
   const res = await axios.post(BASE_URL, formData, {
     headers: {
