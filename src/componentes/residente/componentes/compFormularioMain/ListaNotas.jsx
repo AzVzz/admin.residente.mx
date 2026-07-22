@@ -683,6 +683,11 @@ const ListaNotas = () => {
       icon: <MdEmail className="mr-2" />,
     },
     {
+      key: "reportes_correos",
+      label: "Reportes Correos",
+      icon: <MdEmail className="mr-2" />,
+    },
+    {
       key: "preguntas",
       label: "Preguntas",
       icon: <RiQuestionnaireFill className="mr-2" />,
@@ -839,6 +844,7 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "codigos_admin") ||
         (usuario?.rol === "residente" && option.key === "buscador") ||
         (usuario?.rol === "residente" && option.key === "correos") ||
+        (usuario?.rol === "residente" && option.key === "reportes_correos") ||
         (usuario?.rol === "residente" && option.key === "mediainc") ||
         (usuario?.rol === "residente" && option.key === "tematicas") ||
         (usuario?.rol === "residente" && option.key === "centro") ||
@@ -1053,6 +1059,8 @@ const ListaNotas = () => {
                       setVistaActiva("tematicas");
                     } else if (option.key === "codigos_admin") {
                       navigate("/admin/codigos");
+                    } else if (option.key === "reportes_correos") {
+                      navigate("/reportes-correos-micrositios");
                     } else if (option.key === "descargas_b2c") {
                       navigate("/reporte-descargas-b2c");
                     } else if (option.key === "ednl") {
