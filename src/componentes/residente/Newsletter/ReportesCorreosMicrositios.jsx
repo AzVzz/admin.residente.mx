@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../../Context";
 import {
   listarClientesB2B,
-  historialReportes,
+  estadoMesReportes,
   enviarCorte,
 } from "../../api/reportesCorreosApi";
 import PreviewCorreoModal from "../componentes/compFormularioMain/PreviewCorreoModal";
@@ -14,7 +14,8 @@ import {
   IoTime,
   IoRefresh,
   IoSearch,
-  IoCalendarNumber,
+  IoChevronBack,
+  IoChevronForward,
 } from "react-icons/io5";
 
 const fmtFecha = (v) => {
@@ -23,20 +24,69 @@ const fmtFecha = (v) => {
   return isNaN(d) ? "—" : d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
 };
 
+const MESES = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
+
+// YYYYMM -> "julio 2026".
+const mesLargo = (periodo) => {
+  const mes = periodo % 100;
+  const anio = Math.floor(periodo / 100);
+  return `${MESES[mes - 1] || "?"} ${anio}`;
+};
+
+// Periodo (YYYYMM) del mes actual.
+const periodoActual = () => {
+  const n = new Date();
+  return n.getFullYear() * 100 + (n.getMonth() + 1);
+};
+
+// Clave YYYYMMDD para comparar fechas por día (sin hora).
+const dayKey = (d) =>
+  d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+
 const nombreCliente = (c) =>
   c.nombre_responsable_restaurante ||
   c.razon_social ||
   c.nombre_responsable ||
   `Cliente #${c.id}`;
 
+// Estado de envío por (cliente, periodo). Deriva el badge del registro en
+// email_eventos_b2b (si existe) y, si no, de la fecha de envío vs hoy.
+const badgeDe = (estado, fechaEnvio, hoyKey) => {
+  const s = estado?.estado_envio;
+  if (s === "enviado")
+    return { grupo: "enviado", icon: "🟢", txt: "Enviado", cls: "bg-green-100 text-green-700", detalle: fmtFecha(estado.enviado_en) };
+  if (s === "fallo")
+    return { grupo: "fallo", icon: "🔴", txt: "Falló", cls: "bg-red-100 text-red-700", detalle: `${estado.intentos || 0} intento(s)`, title: estado.error_envio || "" };
+  if (s === "omitido")
+    return { grupo: "omitido", icon: "⚪", txt: "Omitido", cls: "bg-gray-100 text-gray-600", detalle: "sin actividad en el periodo" };
+  if (s === "pendiente" || s === "enviando" || s === "incierto")
+    return { grupo: "proceso", icon: "🔵", txt: "En proceso", cls: "bg-blue-100 text-blue-700" };
+  // Sin registro en el periodo: se deriva de la fecha de envío programada.
+  if (fechaEnvio) {
+    const k = dayKey(fechaEnvio);
+    if (k > hoyKey)
+      return { grupo: "programado", icon: "🟡", txt: "Programado", cls: "bg-yellow-100 text-yellow-700", detalle: `Se envía el ${fmtFecha(fechaEnvio)}` };
+    if (k === hoyKey)
+      return { grupo: "programado", icon: "🟠", txt: "Se envía hoy", cls: "bg-orange-100 text-orange-700" };
+    return { grupo: "atrasado", icon: "⚠️", txt: "Pendiente", cls: "bg-amber-100 text-amber-800", title: "Debió enviarse; revisar el cron." };
+  }
+  return { grupo: "sin", icon: "", txt: "—", cls: "bg-gray-100 text-gray-500" };
+};
+
 // Dashboard de gestión de los reportes mensuales enviados a los micrositios B2B.
-// Muestra cada cliente con su fecha de corte (próximo cobro Stripe), el estado de
-// los reportes enviados, y permite previsualizar el correo, mandar una prueba y
-// ver el historial. El envío real se adelanta un día al corte (lo hace el cron).
+// Muestra, por cada ciclo mensual, el estado de envío del reporte "Checa tus
+// resultados" de cada cliente (log leído de email_eventos_b2b), con navegación
+// entre meses. Permite previsualizar el correo, mandar una prueba, ver el
+// historial y disparar el envío de corte. El envío real lo hace el cron un día
+// antes de la fecha de cobro de cada cliente.
 const ReportesCorreosMicrositios = () => {
   const { token } = useAuth();
   const [clientes, setClientes] = useState([]);
-  const [resumen, setResumen] = useState({}); // b2b_id -> { total, ultimo_envio }
+  const [estadoPorCliente, setEstadoPorCliente] = useState({}); // b2b_id -> registro del periodo
+  const [periodo, setPeriodo] = useState(periodoActual);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busqueda, setBusqueda] = useState("");
@@ -53,54 +103,59 @@ const ReportesCorreosMicrositios = () => {
     setLoading(true);
     setError("");
     try {
-      const [lista, hist] = await Promise.all([
+      const [lista, res] = await Promise.all([
         listarClientesB2B(token),
-        historialReportes(token),
+        estadoMesReportes(token, [periodo]),
       ]);
       setClientes(Array.isArray(lista) ? lista : []);
-      // Solo reportes mensuales para el estado por cliente.
+      // Un registro por cliente para el periodo seleccionado.
       const map = {};
-      (Array.isArray(hist) ? hist : [])
-        .filter((r) => r.tipo_evento === "reporte_mensual")
-        .forEach((r) => {
-          map[r.b2b_id] = { total: r.total, ultimo_envio: r.ultimo_envio };
-        });
-      setResumen(map);
+      (res?.rows || []).forEach((r) => {
+        map[r.b2b_id] = r;
+      });
+      setEstadoPorCliente(map);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, periodo]);
 
   useEffect(() => {
     cargar();
   }, [cargar]);
 
-  // Día de mañana: el cron envía a quienes su corte cae mañana (un día antes del cobro).
-  const diaManana = useMemo(() => {
-    const m = new Date();
-    m.setDate(m.getDate() + 1);
-    return m.getDate();
-  }, []);
+  const hoyKey = useMemo(() => dayKey(new Date()), []);
 
   const filas = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     return clientes
       .map((c) => {
         const corte = c.suscripcion_datos?.fecha_fin_periodo_actual || null;
-        const diaCorte = corte ? new Date(corte).getDate() : null;
+        let fechaEnvio = null;
+        let periodoEnvio = null;
+        if (corte) {
+          const d = new Date(corte);
+          d.setDate(d.getDate() - 1); // un día antes del corte (maneja fin de mes)
+          fechaEnvio = d;
+          periodoEnvio = d.getFullYear() * 100 + (d.getMonth() + 1);
+        }
+        const estado = estadoPorCliente[c.id] || null;
         return {
           c,
           nombre: nombreCliente(c),
           correo: c.correo,
           estadoSub: c.suscripcion_datos?.estado || null,
           corte,
-          diaCorte,
-          seEnviaHoy: diaCorte != null && diaCorte === diaManana,
-          rep: resumen[c.id] || null,
+          fechaEnvio,
+          periodoEnvio,
+          estado,
+          badge: badgeDe(estado, periodoEnvio === periodo ? fechaEnvio : null, hoyKey),
         };
       })
+      // Clientes cuyo envío cae en el mes seleccionado ∪ los que tengan registro
+      // en el periodo (cubre meses pasados / envíos manuales).
+      .filter((f) => f.periodoEnvio === periodo || f.estado)
       .filter((f) => (soloConCorte ? f.corte : true))
       .filter((f) => {
         if (!q) return true;
@@ -110,11 +165,41 @@ const ReportesCorreosMicrositios = () => {
         );
       })
       .sort((a, b) => {
-        // Primero los que se envían hoy, luego por día de corte.
-        if (a.seEnviaHoy !== b.seEnviaHoy) return a.seEnviaHoy ? -1 : 1;
-        return (a.diaCorte ?? 99) - (b.diaCorte ?? 99);
+        const ka = a.fechaEnvio ? dayKey(a.fechaEnvio) : Infinity;
+        const kb = b.fechaEnvio ? dayKey(b.fechaEnvio) : Infinity;
+        return ka - kb;
       });
-  }, [clientes, resumen, busqueda, soloConCorte, diaManana]);
+  }, [clientes, estadoPorCliente, busqueda, soloConCorte, periodo, hoyKey]);
+
+  const contadores = useMemo(() => {
+    let enviados = 0;
+    let programados = 0;
+    let fallidos = 0;
+    filas.forEach((f) => {
+      if (f.badge.grupo === "enviado") enviados += 1;
+      else if (f.badge.grupo === "programado") programados += 1;
+      else if (f.badge.grupo === "fallo") fallidos += 1;
+    });
+    return { enviados, programados, fallidos };
+  }, [filas]);
+
+  const cambiarMes = (delta) => {
+    setPeriodo((p) => {
+      let mes = p % 100;
+      let anio = Math.floor(p / 100);
+      mes += delta;
+      if (mes > 12) {
+        mes = 1;
+        anio += 1;
+      } else if (mes < 1) {
+        mes = 12;
+        anio -= 1;
+      }
+      return anio * 100 + mes;
+    });
+  };
+
+  const esMesActual = periodo === periodoActual();
 
   const disparaCorte = async () => {
     if (
@@ -136,8 +221,6 @@ const ReportesCorreosMicrositios = () => {
       setDisparando(false);
     }
   };
-
-  const totalHoy = filas.filter((f) => f.seEnviaHoy).length;
 
   return (
     <div className="max-w-[1080px] mx-auto py-8 px-3">
@@ -180,12 +263,48 @@ const ReportesCorreosMicrositios = () => {
         </div>
       )}
 
-      {/* Resumen + filtros */}
+      {/* Navegación de mes */}
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="flex items-center gap-1 bg-white border border-gray-300 rounded-lg overflow-hidden">
+          <button
+            onClick={() => cambiarMes(-1)}
+            className="px-2 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
+            title="Mes anterior"
+          >
+            <IoChevronBack />
+          </button>
+          <span className="px-3 py-2 text-sm font-semibold text-gray-800 capitalize min-w-[140px] text-center">
+            {mesLargo(periodo)}
+          </span>
+          <button
+            onClick={() => cambiarMes(1)}
+            className="px-2 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
+            title="Mes siguiente"
+          >
+            <IoChevronForward />
+          </button>
+        </div>
+        {!esMesActual && (
+          <button
+            onClick={() => setPeriodo(periodoActual())}
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-indigo-600 border border-indigo-300 hover:bg-indigo-50 cursor-pointer"
+          >
+            Mes actual
+          </button>
+        )}
+      </div>
+
+      {/* Contadores + filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-800 px-3 py-1.5 rounded-lg text-sm">
-          <IoCalendarNumber />
-          <span>
-            <b>{totalHoy}</b> cliente(s) se envían hoy (corte mañana, día {diaManana})
+        <div className="flex items-center gap-2 text-sm">
+          <span className="flex items-center gap-1 bg-green-50 border border-green-300 text-green-800 px-3 py-1.5 rounded-lg">
+            🟢 <b>{contadores.enviados}</b> enviados
+          </span>
+          <span className="flex items-center gap-1 bg-yellow-50 border border-yellow-300 text-yellow-800 px-3 py-1.5 rounded-lg">
+            🟡 <b>{contadores.programados}</b> programados
+          </span>
+          <span className="flex items-center gap-1 bg-red-50 border border-red-300 text-red-800 px-3 py-1.5 rounded-lg">
+            🔴 <b>{contadores.fallidos}</b> fallidos
           </span>
         </div>
         <label className="relative flex-1 min-w-[200px] max-w-xs">
@@ -220,7 +339,7 @@ const ReportesCorreosMicrositios = () => {
         </div>
       ) : filas.length === 0 ? (
         <div className="p-12 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg">
-          No hay clientes que coincidan.
+          No hay clientes en {mesLargo(periodo)}.
         </div>
       ) : (
         <div className="overflow-auto border border-gray-200 rounded-lg">
@@ -230,8 +349,8 @@ const ReportesCorreosMicrositios = () => {
                 <th className="px-4 py-2 font-semibold">Cliente</th>
                 <th className="px-4 py-2 font-semibold">Correo</th>
                 <th className="px-4 py-2 font-semibold">Corte</th>
-                <th className="px-4 py-2 font-semibold">Próximo cobro</th>
-                <th className="px-4 py-2 font-semibold">Último reporte</th>
+                <th className="px-4 py-2 font-semibold">Se envía el</th>
+                <th className="px-4 py-2 font-semibold">Estado</th>
                 <th className="px-4 py-2 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
@@ -239,14 +358,7 @@ const ReportesCorreosMicrositios = () => {
               {filas.map((f) => (
                 <tr key={f.c.id} className="hover:bg-gray-50 align-middle">
                   <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-800">{f.nombre}</span>
-                      {f.seEnviaHoy && (
-                        <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-200 text-amber-800">
-                          se envía hoy
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-medium text-gray-800">{f.nombre}</span>
                     {f.estadoSub && (
                       <span className="block text-xs text-gray-400">
                         sub: {f.estadoSub}
@@ -256,20 +368,23 @@ const ReportesCorreosMicrositios = () => {
                   <td className="px-4 py-2 text-gray-600 max-w-[190px] truncate" title={f.correo}>
                     {f.correo || "—"}
                   </td>
-                  <td className="px-4 py-2 text-gray-700">
-                    {f.diaCorte ? `día ${f.diaCorte}` : "—"}
+                  <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                    {f.corte ? `día ${new Date(f.corte).getDate()}` : "—"}
                   </td>
                   <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
-                    {fmtFecha(f.corte)}
+                    {fmtFecha(f.fechaEnvio)}
                   </td>
-                  <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
-                    {f.rep ? (
-                      <span>
-                        {fmtFecha(f.rep.ultimo_envio)}
-                        <span className="text-xs text-gray-400"> ({f.rep.total})</span>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${f.badge.cls}`}
+                      title={f.badge.title || ""}
+                    >
+                      {f.badge.icon} {f.badge.txt}
+                    </span>
+                    {f.badge.detalle && (
+                      <span className="block text-xs text-gray-400 mt-0.5">
+                        {f.badge.detalle}
                       </span>
-                    ) : (
-                      <span className="text-gray-400">nunca</span>
                     )}
                   </td>
                   <td className="px-4 py-2">

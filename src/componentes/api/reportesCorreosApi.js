@@ -34,6 +34,16 @@ export const historialReportes = async (token) => {
   return parse(res);
 };
 
+// Estado de envío del reporte mensual por (cliente, periodo). periodos: array YYYYMM.
+export const estadoMesReportes = async (token, periodos) => {
+  const qs = periodos && periodos.length ? `?periodos=${periodos.join(",")}` : "";
+  const res = await fetch(`${urlApi}api/newsletter/reportes/estado-mes${qs}`, {
+    method: "GET",
+    headers: authHeaders(token),
+  });
+  return parse(res); // { periodos, rows: [{ b2b_id, entidad_id, estado_envio, enviado_en, error_envio, intentos }] }
+};
+
 // Detalle de todos los correos enviados a un cliente (últimos 300).
 export const historialClienteB2B = async (token, b2bId) => {
   const res = await fetch(
