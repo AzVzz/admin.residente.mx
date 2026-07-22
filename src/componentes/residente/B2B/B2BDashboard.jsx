@@ -14,6 +14,10 @@ import { BENEFICIOS_INFO } from "./beneficiosConfig";
 import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
 import CarruselRestaurantes from "./CarruselRestaurantes";
 import ScorePerfilCard from "./ScorePerfilCard";
+import {
+  bannerTrack,
+  getBannerBySlotPublic,
+} from "../../api/bannersApi";
 
 // Cache de modulo (TTL 10min) para suscripcion y datos del usuario B2B.
 // Estos datos cambian raramente (suscripcion solo al pagar, b2bUser al perfil).
@@ -38,6 +42,22 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // Métricas del chatbot Resi (impressions/clicks por restaurante, nota, cupón).
   // Se carga una sola vez y se pasa por prop al carrusel para evitar N fetches.
   const [chatbotStats, setChatbotStats] = useState(null);
+
+  // Banner Trebol21 del sidebar derecho (slot trebol_admin_b2b) — tracking views/clicks
+  const [trebolBannerId, setTrebolBannerId] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const banner = await getBannerBySlotPublic("trebol_admin_b2b");
+      if (cancelled || !banner?.id) return;
+      setTrebolBannerId(banner.id);
+      bannerTrack(banner.id, "impresion");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (openTooltip) {
@@ -1753,6 +1773,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 rel="noopener noreferrer"
                 className="block w-full mt-2 overflow-hidden hover:opacity-95 transition-opacity"
                 aria-label="Trebol21 - Dark Kitchens"
+                onClick={() => {
+                  if (trebolBannerId) bannerTrack(trebolBannerId, "click");
+                }}
               >
                 <img
                   src={`${imgApi}fotos/revistas/banners/trebol.png`}

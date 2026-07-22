@@ -96,6 +96,51 @@ export const bannerGetStats = async (token, id) => {
   return await res.json();
 };
 
+/** Lista de clientes con banners comerciales (slug "{cliente}-{ubicacion}") */
+export const getBannersClientes = async (token) => {
+  const res = await fetch(`${urlApi}api/banners/stats/clientes`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Error al obtener clientes de banners");
+  return await res.json();
+};
+
+/** Stats de un cliente: banners + total views/clicks */
+export const getBannersClienteStats = async (token, clienteKey) => {
+  const res = await fetch(
+    `${urlApi}api/banners/stats/clientes/${encodeURIComponent(clienteKey)}`,
+    { headers: authHeaders(token) },
+  );
+  if (!res.ok) throw new Error("Error al obtener estadísticas del cliente");
+  return await res.json();
+};
+
+/** @deprecated usar getBannersClienteStats(token, 'trebol21') */
+export const getTrebolStats = async (token) => getBannersClienteStats(token, "trebol21");
+
+/** Registra impresión o click de un banner (endpoint público) */
+export const bannerTrack = async (bannerId, tipo = "impresion") => {
+  if (!bannerId) return;
+  try {
+    await fetch(`${urlApi}api/banners/tracking`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ banner_id: bannerId, slot_id: null, tipo }),
+      keepalive: true,
+    });
+  } catch {
+    // silencioso: el tracking no debe romper la UX
+  }
+};
+
+/** Obtiene el primer banner activo de un slot público (sin auth) */
+export const getBannerBySlotPublic = async (slotKey) => {
+  const res = await fetch(`${urlApi}api/banners/public/slot/${encodeURIComponent(slotKey)}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return Array.isArray(data) && data.length > 0 ? data[0] : null;
+};
+
 // --- Slots ---
 
 export const slotsGet = async (token, { pagina, dispositivo } = {}) => {

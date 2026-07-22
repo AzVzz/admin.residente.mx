@@ -60,6 +60,9 @@ const TodoB2b = lazy(() => import("./TodoB2b.jsx"));
 const UsuariosB2BPanel = lazy(() => import("./UsuariosB2BPanel.jsx"));
 const CitasB2B = lazy(() => import("./CitasB2B.jsx"));
 const MetricasB2B = lazy(() => import("./MetricasB2B.jsx"));
+const BannersClientesDashboard = lazy(() =>
+  import("../../B2B/BannersClientesDashboard.jsx"),
+);
 const ChatbotPanel = lazy(() => import("../../ChatbotAudit/ChatbotPanel.jsx"));
 const BuscadorDashboard = lazy(() => import("../../Admin/BuscadorDashboard.jsx"));
 const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewsletter.jsx"));
@@ -97,7 +100,7 @@ const esDestacada = (nota) => {
   return destacada || destacadaInvitado;
 };
 
-const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "citas_b2b", "metricas_b2b", "chatbot"];
+const VISTAS_SUPERADMIN = ["usuarios", "todob2b", "usuarios_b2b", "citas_b2b", "metricas_b2b", "banners_clientes", "trebol21", "chatbot"];
 
 const ListaNotas = () => {
   const { token, usuario, saveToken, saveUsuario } = useAuth();
@@ -762,6 +765,11 @@ const ListaNotas = () => {
     {
       key: "metricas_b2b",
       label: "Métricas B2B",
+      icon: <FaChartLine className="mr-2" />,
+    },
+    {
+      key: "banners_clientes",
+      label: "Banners clientes",
       icon: <FaChartLine className="mr-2" />,
     },
     {
@@ -1520,6 +1528,25 @@ const ListaNotas = () => {
             <Suspense fallback={<LazyFallback />}>
               <div className="w-full">
                 <MetricasB2B />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {vistaActiva === "banners_clientes" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <BannersClientesDashboard />
+              </div>
+            </Suspense>
+          ) : null
+        )}
+        {/* Compat URL antigua ?vista=trebol21 */}
+        {vistaActiva === "trebol21" && (
+          esSuperAdmin ? (
+            <Suspense fallback={<LazyFallback />}>
+              <div className="w-full">
+                <BannersClientesDashboard />
               </div>
             </Suspense>
           ) : null
