@@ -4,6 +4,7 @@ import {
   listarClientesB2B,
   estadoMesReportes,
   enviarCorte,
+  enviarReporteCliente,
 } from "../../api/reportesCorreosApi";
 import PreviewCorreoModal from "../componentes/compFormularioMain/PreviewCorreoModal";
 import EnviarPruebaModal from "./EnviarPruebaModal";
@@ -16,6 +17,7 @@ import {
   IoSearch,
   IoChevronBack,
   IoChevronForward,
+  IoRocket,
 } from "react-icons/io5";
 
 const fmtFecha = (v) => {
@@ -92,6 +94,7 @@ const ReportesCorreosMicrositios = () => {
   const [busqueda, setBusqueda] = useState("");
   const [soloConCorte, setSoloConCorte] = useState(true);
   const [disparando, setDisparando] = useState(false);
+  const [enviandoId, setEnviandoId] = useState(null);
   const [aviso, setAviso] = useState("");
 
   // Modales activos.
@@ -147,15 +150,15 @@ const ReportesCorreosMicrositios = () => {
           correo: c.correo,
           estadoSub: c.suscripcion_datos?.estado || null,
           corte,
+          diaCorte: corte ? new Date(corte).getDate() : null,
           fechaEnvio,
           periodoEnvio,
           estado,
-          badge: badgeDe(estado, periodoEnvio === periodo ? fechaEnvio : null, hoyKey),
+          badge: badgeDe(estado, fechaEnvio, hoyKey),
         };
       })
-      // Clientes cuyo envío cae en el mes seleccionado ∪ los que tengan registro
-      // en el periodo (cubre meses pasados / envíos manuales).
-      .filter((f) => f.periodoEnvio === periodo || f.estado)
+      // Se muestran TODOS los clientes con corte (no se filtran por mes). El mes
+      // seleccionado solo cambia qué estado de envío se lee de email_eventos_b2b.
       .filter((f) => (soloConCorte ? f.corte : true))
       .filter((f) => {
         if (!q) return true;
@@ -164,12 +167,9 @@ const ReportesCorreosMicrositios = () => {
           (f.correo || "").toLowerCase().includes(q)
         );
       })
-      .sort((a, b) => {
-        const ka = a.fechaEnvio ? dayKey(a.fechaEnvio) : Infinity;
-        const kb = b.fechaEnvio ? dayKey(b.fechaEnvio) : Infinity;
-        return ka - kb;
-      });
-  }, [clientes, estadoPorCliente, busqueda, soloConCorte, periodo, hoyKey]);
+      // Del día de corte menor al mayor (los sin corte, al final).
+      .sort((a, b) => (a.diaCorte ?? 99) - (b.diaCorte ?? 99));
+  }, [clientes, estadoPorCliente, busqueda, soloConCorte, hoyKey]);
 
   const contadores = useMemo(() => {
     let enviados = 0;
@@ -200,6 +200,29 @@ const ReportesCorreosMicrositios = () => {
   };
 
   const esMesActual = periodo === periodoActual();
+
+  // Envía el reporte REAL de un cliente para el mes en pantalla y lo marca como
+  // enviado (mismo periodo que el cron). Idempotente: si ya está enviado, no reenvía.
+  const enviarReal = async (fila) => {
+    if (
+      !window.confirm(
+        `Esto ENVÍA el reporte REAL a ${fila.correo || fila.nombre} correspondiente a ${mesLargo(periodo)} y lo marcará como enviado. ¿Continuar?`,
+      )
+    ) {
+      return;
+    }
+    setEnviandoId(fila.c.id);
+    setAviso("");
+    try {
+      const r = await enviarReporteCliente(token, fila.c.id, periodo);
+      setAviso(r.mensaje || "Reporte enviado.");
+      await cargar();
+    } catch (err) {
+      setAviso("Error: " + err.message);
+    } finally {
+      setEnviandoId(null);
+    }
+  };
 
   const disparaCorte = async () => {
     if (
@@ -369,7 +392,7 @@ const ReportesCorreosMicrositios = () => {
                     {f.correo || "—"}
                   </td>
                   <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                    {f.corte ? `día ${new Date(f.corte).getDate()}` : "—"}
+                    {f.diaCorte ? `día ${f.diaCorte}` : "—"}
                   </td>
                   <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
                     {fmtFecha(f.fechaEnvio)}
@@ -406,6 +429,14 @@ const ReportesCorreosMicrositios = () => {
                         title="Enviar prueba"
                       >
                         <IoSend size={18} />
+                      </button>
+                      <button
+                        onClick={() => enviarReal(f)}
+                        disabled={enviandoId === f.c.id}
+                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 cursor-pointer disabled:opacity-40"
+                        title="Enviar reporte REAL ahora y marcarlo como enviado"
+                      >
+                        <IoRocket size={18} className={enviandoId === f.c.id ? "animate-pulse" : ""} />
                       </button>
                       <button
                         onClick={() =>

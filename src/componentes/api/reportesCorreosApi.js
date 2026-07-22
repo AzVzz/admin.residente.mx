@@ -63,6 +63,17 @@ export const enviarPruebaReporte = async (token, b2bId, to) => {
   return parse(res);
 };
 
+// Envía el reporte REAL de UN cliente para el periodo dado (YYYYMM) y lo marca
+// como enviado en el historial. Idempotente: si ya está enviado, no reenvía.
+export const enviarReporteCliente = async (token, b2bId, periodo) => {
+  const qs = `?b2b_id=${b2bId}${periodo ? `&periodo=${periodo}` : ""}`;
+  const res = await fetch(
+    `${urlApi}api/newsletter/reportes/enviar${qs}`,
+    { method: "POST", headers: authHeaders(token) },
+  );
+  return parse(res);
+};
+
 // Dispara el envío REAL a los clientes cuyo día de corte coincide con `dia`
 // (default backend: mañana = un día antes del cobro). Idempotente por periodo.
 export const enviarCorte = async (token, dia) => {
