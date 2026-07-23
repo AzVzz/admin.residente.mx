@@ -17,6 +17,7 @@ import ScorePerfilCard from "./ScorePerfilCard";
 import {
   bannerTrack,
   getBannerBySlotPublic,
+  bannerGetStats,
 } from "../../api/bannersApi";
 
 // Cache de modulo (TTL 10min) para suscripcion y datos del usuario B2B.
@@ -139,6 +140,19 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [b2bUser, setB2bUser] = useState(null);
   const [showFormularioPromo, setShowFormularioPromo] = useState(false);
 
+  // ⚠️ DEMO TEMPORAL: datos hardcodeados para el micrositio (ej: LIYPE) mientras
+  // se juntan datos reales de tracking. Poner USAR_DATOS_DEMO_MICROSITIO = false
+  // para volver a los contadores reales (usuarios_b2b.vistas/clicks, notas, banner).
+  const USAR_DATOS_DEMO_MICROSITIO = true;
+  const DEMO_MICROSITIO = {
+    vistas: 1240,
+    clicks: 312,
+    notas_vistas: 4580,
+    notas_clicks: 890,
+    banner_impresiones: 3120,
+    banner_clicks: 214,
+  };
+
   // 🆕 Estado para productos y selección
   const [productos, setProductos] = useState([]);
   const [seleccionados, setSeleccionados] = useState({});
@@ -156,6 +170,14 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
   // Estado para stats de notas del usuario (autor)
   const [notaStats, setNotaStats] = useState(null);
+
+  // Stats de notas de un micrositio B2B sin restaurante (ej: LIYPE). Se buscan
+  // por el nombre del micrositio en el campo nombre_restaurante de las notas.
+  const [micrositioNotaStats, setMicrositioNotaStats] = useState(null);
+
+  // Stats del banner de /b2b (slot b2b_top_desktop) para micrositios sin
+  // restaurante (ej: LIYPE). Impresiones/clicks vienen de la tabla banners.
+  const [micrositioBannerStats, setMicrositioBannerStats] = useState(null);
 
   // 🆕 Estado para mostrar mensaje de pago exitoso
   const [pagoRealizado, setPagoRealizado] = useState(false);
@@ -735,6 +757,46 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     fetchNotaStats();
   }, [usuario, viewAsUserId]);
 
+  // Stats de notas del micrositio B2B (proveedores sin restaurante, ej: LIYPE).
+  // Las notas se identifican por su campo de texto nombre_restaurante = nombre
+  // del micrositio (match case-insensitive en el backend).
+  useEffect(() => {
+    const fetchMicrositioNotaStats = async () => {
+      const nombre = b2bUser?.nombre_responsable_restaurante;
+      if (!b2bUser?.micrositio_url || !nombre) return;
+      try {
+        const response = await fetch(
+          `${urlApi}api/notas/micrositio/stats?nombre=${encodeURIComponent(nombre)}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setMicrositioNotaStats(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener stats de notas del micrositio:", error);
+      }
+    };
+    fetchMicrositioNotaStats();
+  }, [b2bUser]);
+
+  // Stats del banner de /b2b (slot b2b_top_desktop) para micrositios sin
+  // restaurante (ej: LIYPE). Se toma el banner activo del slot y se leen sus
+  // impresiones/clicks. Mismo slot que se renderiza en residente.mx/b2b.
+  useEffect(() => {
+    const fetchMicrositioBannerStats = async () => {
+      if (!b2bUser?.micrositio_url || !token) return;
+      try {
+        const banner = await getBannerBySlotPublic("b2b_top_desktop");
+        if (!banner?.id) return;
+        const stats = await bannerGetStats(token, banner.id);
+        setMicrositioBannerStats(stats);
+      } catch (error) {
+        console.error("Error al obtener stats del banner del micrositio:", error);
+      }
+    };
+    fetchMicrositioBannerStats();
+  }, [b2bUser, token]);
+
   // Las notas etiquetadas se cargan dentro del hook useRestaurantesB2B.
 
   // 🆕 Obtener datos de Google Analytics
@@ -1040,7 +1102,10 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
           Cuando hay 2+ restaurantes, el header funciona como switcher
           (flechas + dots) que controla TODO el dashboard. */}
       {(restauranteActivo?.nombre_restaurante ||
-        restaurante?.nombre_restaurante) && (
+        restaurante?.nombre_restaurante ||
+        (b2bUser?.micrositio_url &&
+          restaurantes.length === 0 &&
+          b2bUser?.nombre_responsable_restaurante)) && (
         <div className="w-full flex flex-col justify-center items-center py-0.5 mb-6">
           <img
             src="https://residente.mx/fotos/fotos-estaticas/CLUB%20RESIDENTE-FACIL.png"
@@ -1077,7 +1142,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             </div>
           ) : (
             <h1 className="text-[80px] font-bold text-black text-center leading-[1]">
-              {restaurante.nombre_restaurante}
+              {restaurante?.nombre_restaurante ||
+                b2bUser?.nombre_responsable_restaurante}
             </h1>
           )}
           {tieneTotal && (
@@ -1643,6 +1709,96 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               onSlideChange={setSlideActivo}
               chatbotStats={chatbotStats}
             />
+
+            {/* Contadores del micrositio externo (proveedores sin restaurante, ej:
+                LIYPE → /liype). Vistas/clicks vienen de usuarios_b2b vía el mismo
+                sistema de tracking. Solo se muestran si el usuario tiene micrositio
+                y no tiene restaurantes (que ya muestran su propio carrusel). */}
+            {b2bUser?.micrositio_url && restaurantes.length === 0 && (
+              <div className="mt-2 mb-6">
+                <div>
+                  <p className="text-[40px] font-bold text-black leading-[1]">
+                    {(USAR_DATOS_DEMO_MICROSITIO
+                      ? DEMO_MICROSITIO.vistas
+                      : b2bUser.vistas || 0
+                    ).toLocaleString("es-MX")}
+                  </p>
+                  <p className="text-sm text-black">
+                    Vistas de tu micrositio
+                  </p>
+                </div>
+                <div className="mt-2">
+                  <p className="text-[40px] font-bold text-black leading-[1]">
+                    {(USAR_DATOS_DEMO_MICROSITIO
+                      ? DEMO_MICROSITIO.clicks
+                      : b2bUser.clicks || 0
+                    ).toLocaleString("es-MX")}
+                  </p>
+                  <p className="text-sm text-black">
+                    Clicks en tu micrositio
+                  </p>
+                </div>
+
+                {/* Vistas/clicks de las notas asociadas al micrositio (notas con
+                    nombre_restaurante = nombre del micrositio). */}
+                {(USAR_DATOS_DEMO_MICROSITIO ||
+                  (micrositioNotaStats &&
+                    micrositioNotaStats.total_notas > 0)) && (
+                  <>
+                    <div className="mt-2">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {(USAR_DATOS_DEMO_MICROSITIO
+                          ? DEMO_MICROSITIO.notas_vistas
+                          : micrositioNotaStats.total_vistas || 0
+                        ).toLocaleString("es-MX")}
+                      </p>
+                      <p className="text-sm text-black">
+                        Vistas de tus notas
+                      </p>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {(USAR_DATOS_DEMO_MICROSITIO
+                          ? DEMO_MICROSITIO.notas_clicks
+                          : micrositioNotaStats.total_clicks || 0
+                        ).toLocaleString("es-MX")}
+                      </p>
+                      <p className="text-sm text-black">
+                        Clicks en tus notas
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {/* Impresiones/clicks del banner de /b2b (slot b2b_top_desktop). */}
+                {(USAR_DATOS_DEMO_MICROSITIO || micrositioBannerStats) && (
+                  <>
+                    <div className="mt-2">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {(USAR_DATOS_DEMO_MICROSITIO
+                          ? DEMO_MICROSITIO.banner_impresiones
+                          : micrositioBannerStats.impresiones || 0
+                        ).toLocaleString("es-MX")}
+                      </p>
+                      <p className="text-sm text-black">
+                        Impresiones de tu banner
+                      </p>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-[40px] font-bold text-black leading-[1]">
+                        {(USAR_DATOS_DEMO_MICROSITIO
+                          ? DEMO_MICROSITIO.banner_clicks
+                          : micrositioBannerStats.clicks || 0
+                        ).toLocaleString("es-MX")}
+                      </p>
+                      <p className="text-sm text-black">
+                        Clicks en tu banner
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Notas individuales del usuario (autor de notas, no etiquetadas a restaurante). */}
             {notaStats && notaStats.total > 0 && (
