@@ -143,7 +143,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // ⚠️ DEMO TEMPORAL: datos hardcodeados para el micrositio (ej: LIYPE) mientras
   // se juntan datos reales de tracking. Poner USAR_DATOS_DEMO_MICROSITIO = false
   // para volver a los contadores reales (usuarios_b2b.vistas/clicks, notas, banner).
-  const USAR_DATOS_DEMO_MICROSITIO = false;
+  const USAR_DATOS_DEMO_MICROSITIO = true;
   const DEMO_MICROSITIO = {
     vistas: 1240,
     clicks: 312,
@@ -1770,14 +1770,18 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                   </>
                 )}
 
-                {/* Impresiones/clicks del banner de /b2b (slot b2b_top_desktop). */}
-                {(USAR_DATOS_DEMO_MICROSITIO || micrositioBannerStats) && (
+                {/* Impresiones/clicks del banner: se usan las vistas/clicks de las
+                    notas B2B, ya que el banner del micrositio se muestra dentro de
+                    esas notas (su alcance = alcance de las notas). */}
+                {(USAR_DATOS_DEMO_MICROSITIO ||
+                  (micrositioNotaStats &&
+                    micrositioNotaStats.total_notas > 0)) && (
                   <>
                     <div className="mt-2">
                       <p className="text-[40px] font-bold text-black leading-[1]">
                         {(USAR_DATOS_DEMO_MICROSITIO
                           ? DEMO_MICROSITIO.banner_impresiones
-                          : micrositioBannerStats.impresiones || 0
+                          : micrositioNotaStats.total_vistas || 0
                         ).toLocaleString("es-MX")}
                       </p>
                       <p className="text-sm text-black">
@@ -1788,7 +1792,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                       <p className="text-[40px] font-bold text-black leading-[1]">
                         {(USAR_DATOS_DEMO_MICROSITIO
                           ? DEMO_MICROSITIO.banner_clicks
-                          : micrositioBannerStats.clicks || 0
+                          : micrositioNotaStats.total_clicks || 0
                         ).toLocaleString("es-MX")}
                       </p>
                       <p className="text-sm text-black">
