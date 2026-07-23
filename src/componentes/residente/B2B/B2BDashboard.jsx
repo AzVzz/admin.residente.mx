@@ -143,7 +143,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // ⚠️ DEMO TEMPORAL: datos hardcodeados para el micrositio (ej: LIYPE) mientras
   // se juntan datos reales de tracking. Poner USAR_DATOS_DEMO_MICROSITIO = false
   // para volver a los contadores reales (usuarios_b2b.vistas/clicks, notas, banner).
-  const USAR_DATOS_DEMO_MICROSITIO = true;
+  const USAR_DATOS_DEMO_MICROSITIO = false;
   const DEMO_MICROSITIO = {
     vistas: 1240,
     clicks: 312,
