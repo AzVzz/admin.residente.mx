@@ -1519,8 +1519,8 @@ const NuevaCampana = () => {
               }}>
               <iframe srcDoc={previewHtml} title="Email preview" className="border-none block"
                 style={{
-                  width: vistaPreview === "mobile" ? "600px" : "100%",
-                  zoom: vistaPreview === "mobile" ? (375 / 600) : 1,
+                  width: vistaPreview === "mobile" ? "375px" : "100%",
+                  zoom: 1,
                   height: vistaPreview === "mobile" ? "1400px" : "85vh",
                   minHeight: "600px",
                   borderRadius: vistaPreview === "mobile" ? "20px" : "0",
