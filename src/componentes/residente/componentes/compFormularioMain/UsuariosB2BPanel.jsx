@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
+import { suspenderB2B } from "../../../api/suspensionB2B";
 import { IoStorefront } from "react-icons/io5";
 import { IoAddCircleOutline } from "react-icons/io5";
 import TablaUsuariosB2B from "./TodoB2bComponentes/TablaUsuariosB2B";
@@ -77,41 +78,20 @@ const UsuariosB2BPanel = () => {
     }
   };
 
+  // Suspensión temporal (reversible): oculta el contenido del cliente. NO toca Stripe,
+  // se le sigue cobrando normal hasta que pague. La reactivación se hace desde "Gestión de Usuarios".
   const desactivarUsuarioB2B = async (user) => {
-    const mensaje = `¿Estás seguro de que quieres DESACTIVAR COMPLETAMENTE a este usuario B2B?\n\nEsto desactivará:\n• Su suscripción B2B\n• Todos sus cupones/tickets\n• Su restaurante\n• Su cuenta de usuario\n\nUsuario: ${user.nombre_usuario}\n\nEsta acción puede ser revertida activando manualmente cada elemento.`;
+    const mensaje = `¿Suspender temporalmente a este cliente B2B?\n\nSe ocultarán su restaurante, cupones y notas y se bloqueará su cuenta.\n\n⚠️ La suscripción de Stripe NO se cancela: se le SIGUE COBRANDO normal hasta que pague.\n\nUsuario: ${user.nombre_usuario}\n\nPodrás reactivarlo desde "Gestión de Usuarios" cuando pague.`;
     if (!window.confirm(mensaje)) return;
 
     setLoading(true);
     setError("");
     try {
-      await fetch(`${urlApi}api/usuariosb2b/desactivar-por-usuario/${user.id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ suscripcion: false }),
-      });
-      await fetch(`${urlApi}api/tickets/desactivar-por-usuario/${user.id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ activo_manual: false }),
-      });
-      await fetch(`${urlApi}api/restaurante/desactivar-por-usuario/${user.id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ status: 0 }),
-      });
-      const usuarioResponse = await fetch(`${urlApi}api/usuarios/${user.id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ estado: "inactivo" }),
-      });
-      if (!usuarioResponse.ok) {
-        const errorData = await usuarioResponse.json();
-        throw new Error(errorData.error || "Error al desactivar la cuenta del usuario");
-      }
+      await suspenderB2B(token, user.id);
       await cargarUsuariosB2B();
-      alert("✅ Usuario B2B desactivado completamente");
+      alert("✅ Cliente B2B suspendido (su contenido quedó oculto; se le sigue cobrando)");
     } catch (err) {
-      setError("Error al desactivar usuario B2B: " + err.message);
+      setError("Error al suspender cliente B2B: " + err.message);
     } finally {
       setLoading(false);
     }

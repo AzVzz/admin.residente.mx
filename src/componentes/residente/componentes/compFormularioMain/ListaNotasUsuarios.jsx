@@ -3,9 +3,10 @@ import { useAuth } from '../../../Context';
 import { useClientesValidos } from '../../../../hooks/useClientesValidos';
 import { urlApi, imgApi } from '../../../api/url';
 import { Link } from 'react-router-dom';
-import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff, FaLink } from 'react-icons/fa';
+import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAlt, FaBan, FaPowerOff, FaLink, FaPause, FaPlay } from 'react-icons/fa';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 import ModalAsignarRecursos from './ModalAsignarRecursos';
+import { suspenderB2B, reactivarB2B } from '../../../api/suspensionB2B';
 
 const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
@@ -512,93 +513,54 @@ const ListaNotasUsuarios = () => {
     }
   };
 
-  // 🆕 Función para desactivar completamente un usuario B2B
-  // Desactiva: suscripción B2B, cupones/tickets, restaurantes y la cuenta de usuario
-  const desactivarUsuarioB2B = async (user) => {
-    const mensaje = `¿Estás seguro de que quieres DESACTIVAR COMPLETAMENTE a este usuario B2B?
+  // 🆕 Suspensión temporal de un cliente B2B (reversible, SIN cobrar el año restante).
+  // Oculta restaurante, cupones y notas, bloquea la cuenta y pausa el cobro en Stripe.
+  // El estado previo se guarda para restaurarlo EXACTAMENTE al reactivar.
+  const handleSuspenderB2B = async (user) => {
+    const mensaje = `¿Suspender temporalmente a este cliente B2B?
 
-Esto desactivará:
-• Su suscripción B2B
-• Todos sus cupones/tickets
-• Su restaurante
-• Su cuenta de usuario
+Se ocultarán su restaurante, cupones y notas y se bloqueará su cuenta.
+
+⚠️ La suscripción de Stripe NO se cancela: se le SIGUE COBRANDO normal hasta que pague.
 
 Usuario: ${user.nombre_usuario}
 Correo: ${user.correo || 'N/A'}
 
-Esta acción puede ser revertida activando manualmente cada elemento.`;
+Cuando pague, dale Reactivar y todo volverá a como estaba.`;
 
-    if (!window.confirm(mensaje)) {
-      return;
-    }
+    if (!window.confirm(mensaje)) return;
 
     setLoading(true);
     setError('');
-
     try {
-      // 1. Desactivar la suscripción B2B (usuarios_b2b.suscripcion = false)
-      const b2bResponse = await fetch(`${urlApi}api/usuariosb2b/desactivar-por-usuario/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ suscripcion: false })
-      });
-
-      if (!b2bResponse.ok) {
-        console.warn('No se encontró registro B2B o no se pudo actualizar');
-      }
-
-      // 2. Desactivar todos los cupones/tickets del usuario (activo_manual = false)
-      const ticketsResponse = await fetch(`${urlApi}api/tickets/desactivar-por-usuario/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ activo_manual: false })
-      });
-
-      if (!ticketsResponse.ok) {
-        console.warn('No se encontraron tickets o no se pudieron desactivar');
-      }
-
-      // 3. Desactivar el restaurante del usuario (status = 0)
-      const restauranteResponse = await fetch(`${urlApi}api/restaurante/desactivar-por-usuario/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: 0 })
-      });
-
-      if (!restauranteResponse.ok) {
-        console.warn('No se encontró restaurante o no se pudo desactivar');
-      }
-
-      // 4. Desactivar la cuenta del usuario (estado = 'inactivo')
-      const usuarioResponse = await fetch(`${urlApi}api/usuarios/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ estado: 'inactivo' })
-      });
-
-      if (!usuarioResponse.ok) {
-        const errorData = await usuarioResponse.json();
-        throw new Error(errorData.error || 'Error al desactivar la cuenta del usuario');
-      }
-
-      // Recargar la lista de usuarios
+      await suspenderB2B(token, user.id);
       await cargarUsuarios();
-      alert('✅ Usuario B2B desactivado completamente');
-
+      alert('✅ Cliente B2B suspendido (su contenido quedó oculto; se le sigue cobrando)');
     } catch (err) {
-      setError('Error al desactivar usuario B2B: ' + err.message);
+      setError('Error al suspender cliente B2B: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🆕 Reactivar un cliente B2B suspendido: restaura su contenido previo y reanuda Stripe.
+  const handleReactivarB2B = async (user) => {
+    const mensaje = `¿Reactivar a este cliente B2B?
+
+Se restaurará EXACTAMENTE el contenido que estaba visible antes de suspenderlo (restaurante, cupones y notas) y se desbloqueará su cuenta.
+
+Usuario: ${user.nombre_usuario}`;
+
+    if (!window.confirm(mensaje)) return;
+
+    setLoading(true);
+    setError('');
+    try {
+      await reactivarB2B(token, user.id);
+      await cargarUsuarios();
+      alert('✅ Cliente B2B reactivado');
+    } catch (err) {
+      setError('Error al reactivar cliente B2B: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -1112,9 +1074,11 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.estado === 'activo'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                          : user.rol === 'b2b'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-red-100 text-red-800'
                           }`}>
-                          {user.estado}
+                          {user.estado !== 'activo' && user.rol === 'b2b' ? 'suspendido' : user.estado}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -1168,24 +1132,35 @@ Esta acción puede ser revertida activando manualmente cada elemento.`;
                           >
                             <FaEdit />
                           </button>
-                          <button
-                            onClick={() => toggleUserStatus(user.id, user.estado)}
-                            className={`${user.estado === 'activo'
-                              ? 'text-red-600 hover:text-red-900 cursor-pointer'
-                              : 'text-green-600 hover:text-green-900'
-                              }`}
-                            title={user.estado === 'activo' ? 'Desactivar' : 'Activar'}
-                          >
-                            {user.estado === 'activo' ? <FaTimes /> : <FaCheck />}
-                          </button>
-                          {/* Botón especial para desactivar usuarios B2B completamente */}
-                          {user.rol === 'b2b' && user.estado === 'activo' && (
+                          {user.rol === 'b2b' ? (
+                            /* Clientes B2B: suspender/reactivar temporalmente (sin cobrar el año) */
+                            user.estado === 'activo' ? (
+                              <button
+                                onClick={() => handleSuspenderB2B(user)}
+                                className="text-orange-600 hover:text-orange-900 cursor-pointer"
+                                title="Suspender temporalmente (oculta contenido y pausa Stripe, sin cobrar el año)"
+                              >
+                                <FaPause />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleReactivarB2B(user)}
+                                className="text-green-600 hover:text-green-900 cursor-pointer"
+                                title="Reactivar cliente B2B (restaura contenido previo y reanuda Stripe)"
+                              >
+                                <FaPlay />
+                              </button>
+                            )
+                          ) : (
                             <button
-                              onClick={() => desactivarUsuarioB2B(user)}
-                              className="text-orange-600 hover:text-orange-900 cursor-pointer"
-                              title="Desactivar B2B Completo (suscripción, cupones, restaurante y cuenta)"
+                              onClick={() => toggleUserStatus(user.id, user.estado)}
+                              className={`${user.estado === 'activo'
+                                ? 'text-red-600 hover:text-red-900 cursor-pointer'
+                                : 'text-green-600 hover:text-green-900'
+                                }`}
+                              title={user.estado === 'activo' ? 'Desactivar' : 'Activar'}
                             >
-                              <FaBan />
+                              {user.estado === 'activo' ? <FaTimes /> : <FaCheck />}
                             </button>
                           )}
                           <button
