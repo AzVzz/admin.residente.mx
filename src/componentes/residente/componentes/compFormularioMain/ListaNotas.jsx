@@ -35,6 +35,7 @@ import Fade from "@mui/material/Fade";
 
 import FiltroEstadoNota from "./FiltroEstadoNota";
 import FiltroTipoCliente from "./FiltroTipoCliente";
+import FiltroFormatoNota from "./FiltroFormatoNota";
 import FiltroAutor from "./FiltroAutor";
 import FiltroFechas from "./FiltroFechas";
 import FiltroVistas from "./FiltroVistas";
@@ -138,6 +139,7 @@ const ListaNotas = () => {
   };
   const [estado, setEstado] = useState("");
   const [tipoCliente, setTipoCliente] = useState("");
+  const [formatoNota, setFormatoNota] = useState("");
   const [autor, setAutor] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [fechaRange, setFechaRange] = useState({ desde: "", hasta: "" });
@@ -326,6 +328,7 @@ const ListaNotas = () => {
       const tipoNotaEsperado = mapeoPermisosATipoNota[tipoCliente] || tipoCliente;
       filtros.tipo_nota = tipoNotaEsperado;
     }
+    if (formatoNota) filtros.formato_nota = formatoNota;
     if (debouncedSearchTerm?.trim()) {
       filtros.q = debouncedSearchTerm.trim();
     }
@@ -334,7 +337,7 @@ const ListaNotas = () => {
     if (vistas) filtros.vistas = vistas;
     if (ordenVistas) filtros.orden = ordenVistas;
     return filtros;
-  }, [estado, autor, tipoCliente, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
+  }, [estado, autor, tipoCliente, formatoNota, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
 
   const fetchTodasLasNotas = async (usarCache = true) => {
     setCargando(true);
@@ -522,7 +525,7 @@ const ListaNotas = () => {
     // Solo cargar notas, sin prefetch automático para mejorar rendimiento inicial
     fetchTodasLasNotas();
     // eslint-disable-next-line
-  }, [paginaActual, estado, tipoCliente, autor, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
+  }, [paginaActual, estado, tipoCliente, formatoNota, autor, debouncedSearchTerm, fechaRange, vistas, ordenVistas]);
 
   // Wrappers para setters que resetean la página y el caché al cambiar filtros
   const handleSetEstado = useCallback((val) => {
@@ -532,6 +535,11 @@ const ListaNotas = () => {
 
   const handleSetTipoCliente = useCallback((val) => {
     setTipoCliente(val);
+    setPaginaActual(1);
+  }, []);
+
+  const handleSetFormatoNota = useCallback((val) => {
+    setFormatoNota(val);
     setPaginaActual(1);
   }, []);
 
@@ -1098,6 +1106,7 @@ const ListaNotas = () => {
                   <div className="flex gap-2 mt-2 flex-wrap">
                     <FiltroEstadoNota estado={estado} setEstado={handleSetEstado} />
                     <FiltroTipoCliente tipoCliente={tipoCliente} setTipoCliente={handleSetTipoCliente} />
+                    <FiltroFormatoNota formatoNota={formatoNota} setFormatoNota={handleSetFormatoNota} />
                     <FiltroAutor autor={autor} setAutor={handleSetAutor} />
                     <FiltroFechas fechaRange={fechaRange} setFechaRange={handleSetFechaRange} />
                     <FiltroVistas vistas={vistas} setVistas={handleSetVistas} ordenVistas={ordenVistas} setOrdenVistas={handleSetOrdenVistas} />
