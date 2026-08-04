@@ -14,6 +14,7 @@ import { BENEFICIOS_INFO } from "./beneficiosConfig";
 import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
 import CarruselRestaurantes from "./CarruselRestaurantes";
 import ScorePerfilCard from "./ScorePerfilCard";
+import { getMetricasBoost } from "./metricasBoost";
 import {
   bannerTrack,
   getBannerBySlotPublic,
@@ -887,17 +888,20 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // valor por usar un promedio sobre los clicks/views agregados.
   const roiDeRestaurante = (r) => {
     const ticket = r?.ticket_promedio || 0;
+    const boost = getMetricasBoost(r);
     const cuponesR = cupones.filter(
       (c) => Number(c?.restaurante_id) === Number(r?.id),
     );
     const clicks =
       (r?.clicks || 0) +
       (r?.notasStats?.total_clicks || 0) +
-      cuponesR.reduce((s, c) => s + (c.clicks || 0), 0);
+      cuponesR.reduce((s, c) => s + (c.clicks || 0), 0) +
+      boost.clicks;
     const views =
       (r?.views || 0) +
       (r?.notasStats?.total_vistas || 0) +
-      cuponesR.reduce((s, c) => s + (c.views || 0), 0);
+      cuponesR.reduce((s, c) => s + (c.views || 0), 0) +
+      boost.vistas;
     return {
       conversion: clicks * ticket * 2.8 * 0.02,
       fidelizacion: views * ticket * 2.8 * 0.0035,

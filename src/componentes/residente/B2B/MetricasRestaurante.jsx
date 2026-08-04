@@ -1,5 +1,40 @@
 import React, { useState } from "react";
 
+// Boost forzado de métricas (pedido comercial).
+// Barama: +2000/+100 | Romito: +2000/+100
+const BOOST_POR_RESTAURANTE = [
+  {
+    match: (r) => {
+      const slug = String(r?.slug || "").toLowerCase();
+      const nombre = String(r?.nombre_restaurante || r?.nombre || "").toLowerCase();
+      return slug === "barama" || nombre.includes("barama") || Number(r?.id) === 700;
+    },
+    vistas: 2000,
+    clicks: 100,
+  },
+  {
+    match: (r) => {
+      const slug = String(r?.slug || "").toLowerCase();
+      const nombre = String(r?.nombre_restaurante || r?.nombre || "").toLowerCase();
+      return (
+        slug === "romito-pizzeria" ||
+        nombre.includes("romito") ||
+        Number(r?.id) === 692
+      );
+    },
+    vistas: 2000,
+    clicks: 100,
+  },
+];
+
+const getBoost = (r) => {
+  if (!r) return { vistas: 0, clicks: 0 };
+  const found = BOOST_POR_RESTAURANTE.find((b) => b.match(r));
+  return found
+    ? { vistas: found.vistas, clicks: found.clicks }
+    : { vistas: 0, clicks: 0 };
+};
+
 // Sub-componente reutilizable: renderiza la sección "Checa tus Resultados"
 // para un solo restaurante o para la vista TOTAL agregada.
 //
@@ -26,14 +61,21 @@ const MetricasRestaurante = ({
   const restaurantesParaSumar = esTotal ? todosLosRestaurantes : restaurante ? [restaurante] : [];
   const cuponesParaSumar = esTotal ? todosLosCupones : cupones;
 
-  const sumViewsRestaurante = restaurantesParaSumar.reduce(
-    (s, r) => s + (r?.views || 0),
+  const boostVistas = restaurantesParaSumar.reduce(
+    (s, r) => s + getBoost(r).vistas,
     0,
   );
-  const sumClicksRestaurante = restaurantesParaSumar.reduce(
-    (s, r) => s + (r?.clicks || 0),
+  const boostClicks = restaurantesParaSumar.reduce(
+    (s, r) => s + getBoost(r).clicks,
     0,
   );
+
+  const sumViewsRestaurante =
+    restaurantesParaSumar.reduce((s, r) => s + Number(r?.views || 0), 0) +
+    boostVistas;
+  const sumClicksRestaurante =
+    restaurantesParaSumar.reduce((s, r) => s + Number(r?.clicks || 0), 0) +
+    boostClicks;
   const sumNotasVistas = esTotal
     ? todosLosRestaurantes.reduce(
         (s, r) => s + (r?.notasStats?.total_vistas || 0),

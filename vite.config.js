@@ -27,10 +27,12 @@ export default defineConfig({
         },
       },
     }),
-    // 🚀 Service Worker para cache (sin PWA/manifest)
+    // 🚀 Service Worker para cache (sin PWA/manifest).
+    // En dev se desactiva: CacheFirst del SW deja JS viejo y oculta cambios locales.
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
+      devOptions: { enabled: false },
       // Sin manifest - solo cache
       manifest: false,
       workbox: {
