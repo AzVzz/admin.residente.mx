@@ -141,17 +141,14 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [b2bUser, setB2bUser] = useState(null);
   const [showFormularioPromo, setShowFormularioPromo] = useState(false);
 
-  // ⚠️ DEMO TEMPORAL: datos hardcodeados para el micrositio (ej: LIYPE) mientras
-  // se juntan datos reales de tracking. Poner USAR_DATOS_DEMO_MICROSITIO = false
-  // para volver a los contadores reales (usuarios_b2b.vistas/clicks, notas, banner).
-  const USAR_DATOS_DEMO_MICROSITIO = true;
+  // Contadores reales del micrositio (usuarios_b2b.vistas/clicks) y notas.
+  // Banner sidebar ya usa métricas reales (slot liype_sidebar_b2b).
+  const USAR_DATOS_DEMO_MICROSITIO = false;
   const DEMO_MICROSITIO = {
     vistas: 1240,
     clicks: 312,
     notas_vistas: 4580,
     notas_clicks: 890,
-    banner_impresiones: 3120,
-    banner_clicks: 214,
   };
 
   // 🆕 Estado para productos y selección
@@ -176,8 +173,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // por el nombre del micrositio en el campo nombre_restaurante de las notas.
   const [micrositioNotaStats, setMicrositioNotaStats] = useState(null);
 
-  // Stats del banner de /b2b (slot b2b_top_desktop) para micrositios sin
-  // restaurante (ej: LIYPE). Impresiones/clicks vienen de la tabla banners.
+  // Stats del banner LIYPE en sidebar B2B (slot liype_sidebar_b2b).
+  // Impresiones/clicks vienen de la tabla banners / BannerClick.
   const [micrositioBannerStats, setMicrositioBannerStats] = useState(null);
 
   // 🆕 Estado para mostrar mensaje de pago exitoso
@@ -780,17 +777,31 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     fetchMicrositioNotaStats();
   }, [b2bUser]);
 
-  // Stats del banner de /b2b (slot b2b_top_desktop) para micrositios sin
-  // restaurante (ej: LIYPE). Se toma el banner activo del slot y se leen sus
-  // impresiones/clicks. Mismo slot que se renderiza en residente.mx/b2b.
+  // Stats del banner LIYPE sidebar B2B (slot liype_sidebar_b2b).
+  // Prioriza contadores denormalizados (incl. backfill) y cae a /stats si hay más.
   useEffect(() => {
     const fetchMicrositioBannerStats = async () => {
       if (!b2bUser?.micrositio_url || !token) return;
       try {
-        const banner = await getBannerBySlotPublic("b2b_top_desktop");
-        if (!banner?.id) return;
-        const stats = await bannerGetStats(token, banner.id);
-        setMicrositioBannerStats(stats);
+        const banner = await getBannerBySlotPublic("liype_sidebar_b2b");
+        if (!banner?.id) {
+          setMicrositioBannerStats(null);
+          return;
+        }
+        let impresiones = banner.impresiones || 0;
+        let clicks = banner.clicks || 0;
+        try {
+          const stats = await bannerGetStats(token, banner.id);
+          impresiones = Math.max(impresiones, stats?.impresiones || 0);
+          clicks = Math.max(clicks, stats?.clicks || 0);
+        } catch {
+          /* /stats opcional: bastan los contadores del banner */
+        }
+        setMicrositioBannerStats({
+          banner_id: banner.id,
+          impresiones,
+          clicks,
+        });
       } catch (error) {
         console.error("Error al obtener stats del banner del micrositio:", error);
       }
@@ -1774,36 +1785,32 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                   </>
                 )}
 
-                {/* Impresiones/clicks del banner: se usan las vistas/clicks de las
-                    notas B2B, ya que el banner del micrositio se muestra dentro de
-                    esas notas (su alcance = alcance de las notas). */}
-                {(USAR_DATOS_DEMO_MICROSITIO ||
-                  (micrositioNotaStats &&
-                    micrositioNotaStats.total_notas > 0)) && (
-                  <>
+                {/* Banner LIYPE sidebar: ubicación + métricas reales (sin imagen). */}
+                {micrositioBannerStats && (
+                  <div className="mt-4">
+                    <p className="text-sm font-semibold text-black uppercase tracking-wide">
+                      Tu banner
+                    </p>
+                    <p className="text-sm text-black mt-0.5">
+                      Ubicación: Sidebar B2B · residente.mx/b2b
+                    </p>
                     <div className="mt-2">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {(USAR_DATOS_DEMO_MICROSITIO
-                          ? DEMO_MICROSITIO.banner_impresiones
-                          : micrositioNotaStats.total_vistas || 0
+                        {(
+                          micrositioBannerStats.impresiones || 0
                         ).toLocaleString("es-MX")}
                       </p>
-                      <p className="text-sm text-black">
-                        Impresiones de tu banner
-                      </p>
+                      <p className="text-sm text-black">Views</p>
                     </div>
                     <div className="mt-2">
                       <p className="text-[40px] font-bold text-black leading-[1]">
-                        {(USAR_DATOS_DEMO_MICROSITIO
-                          ? DEMO_MICROSITIO.banner_clicks
-                          : micrositioNotaStats.total_clicks || 0
-                        ).toLocaleString("es-MX")}
+                        {(micrositioBannerStats.clicks || 0).toLocaleString(
+                          "es-MX",
+                        )}
                       </p>
-                      <p className="text-sm text-black">
-                        Clicks en tu banner
-                      </p>
+                      <p className="text-sm text-black">Clicks</p>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             )}
