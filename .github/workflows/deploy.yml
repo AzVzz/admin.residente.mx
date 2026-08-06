@@ -1,5 +1,6 @@
 name: Deploy admin.residente.mx (Docker)
 
+# Redeploy bump: 2026-08-06 (LIYPE metricas B2B)
 on:
   push:
     branches: [main]
