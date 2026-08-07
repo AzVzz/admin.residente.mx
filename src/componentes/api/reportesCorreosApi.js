@@ -84,3 +84,24 @@ export const enviarCorte = async (token, dia) => {
   );
   return parse(res);
 };
+
+// Perfiles vendedor/residente para el selector "Inscrito por".
+export const listarVendedores = async (token) => {
+  const res = await fetch(`${urlApi}api/usuariosb2b/vendedores`, {
+    method: "GET",
+    headers: authHeaders(token),
+  });
+  return parse(res);
+};
+
+// Asigna (o limpia) el perfil que inscribió al cliente B2B.
+export const asignarVendedorB2B = async (token, b2bId, vendedorId) => {
+  const res = await fetch(`${urlApi}api/usuariosb2b/${b2bId}/vendedor`, {
+    method: "PUT",
+    headers: authHeaders(token),
+    body: JSON.stringify({
+      vendedor_id: vendedorId === "" || vendedorId == null ? null : Number(vendedorId),
+    }),
+  });
+  return parse(res);
+};

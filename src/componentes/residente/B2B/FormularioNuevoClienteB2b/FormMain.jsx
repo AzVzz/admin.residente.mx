@@ -48,7 +48,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
   });
   const [successMsg, setSuccessMsg] = useState("");
   const accountCreationInProgress = useRef(false);
-  const { saveToken, saveUsuario } = useAuth();
+  const { saveToken, saveUsuario, usuario: usuarioSesion } = useAuth();
 
   // Precios de fallback (se usan si el endpoint no está disponible)
   const PRECIOS_FALLBACK = [
@@ -908,6 +908,13 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       const numeroSucursalesParaBackend =
         sucursalesPlan === "5+" ? 5 : parseInt(sucursalesPlan) || 1;
 
+      const rolSesion = (usuarioSesion?.rol || "").toLowerCase();
+      const vendedorIdSesion =
+        (rolSesion === "vendedor" || rolSesion === "residente") &&
+        usuarioSesion?.id
+          ? Number(usuarioSesion.id)
+          : null;
+
       const requestBody = {
         numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
@@ -930,6 +937,8 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
           clienteEditorialId:
             editorialData?.clienteEditorialId || planInicial?.clienteEditorialId,
         }),
+        // Perfil que inscribe → copia del reporte de métricas
+        ...(vendedorIdSesion && { vendedor_id: vendedorIdSesion }),
       };
 
       const res = await fetch(apiUrl, {

@@ -5,6 +5,8 @@ import {
   estadoMesReportes,
   enviarCorte,
   enviarReporteCliente,
+  listarVendedores,
+  asignarVendedorB2B,
 } from "../../api/reportesCorreosApi";
 import PreviewCorreoModal from "../componentes/compFormularioMain/PreviewCorreoModal";
 import EnviarPruebaModal from "./EnviarPruebaModal";
@@ -87,6 +89,7 @@ const badgeDe = (estado, fechaEnvio, hoyKey) => {
 const ReportesCorreosMicrositios = () => {
   const { token } = useAuth();
   const [clientes, setClientes] = useState([]);
+  const [vendedores, setVendedores] = useState([]);
   const [estadoPorCliente, setEstadoPorCliente] = useState({}); // b2b_id -> registro del periodo
   const [periodo, setPeriodo] = useState(periodoActual);
   const [loading, setLoading] = useState(true);
@@ -95,6 +98,7 @@ const ReportesCorreosMicrositios = () => {
   const [soloConCorte, setSoloConCorte] = useState(true);
   const [disparando, setDisparando] = useState(false);
   const [enviandoId, setEnviandoId] = useState(null);
+  const [guardandoVendedorId, setGuardandoVendedorId] = useState(null);
   const [aviso, setAviso] = useState("");
 
   // Modales activos.
@@ -106,11 +110,13 @@ const ReportesCorreosMicrositios = () => {
     setLoading(true);
     setError("");
     try {
-      const [lista, res] = await Promise.all([
+      const [lista, res, listaVend] = await Promise.all([
         listarClientesB2B(token),
         estadoMesReportes(token, [periodo]),
+        listarVendedores(token).catch(() => []),
       ]);
       setClientes(Array.isArray(lista) ? lista : []);
+      setVendedores(Array.isArray(listaVend) ? listaVend : []);
       // Un registro por cliente para el periodo seleccionado.
       const map = {};
       (res?.rows || []).forEach((r) => {
@@ -162,14 +168,44 @@ const ReportesCorreosMicrositios = () => {
       .filter((f) => (soloConCorte ? f.corte : true))
       .filter((f) => {
         if (!q) return true;
+        const vendNombre = (f.c.vendedor?.nombre_usuario || "").toLowerCase();
         return (
           f.nombre.toLowerCase().includes(q) ||
-          (f.correo || "").toLowerCase().includes(q)
+          (f.correo || "").toLowerCase().includes(q) ||
+          vendNombre.includes(q)
         );
       })
       // Del día de corte menor al mayor (los sin corte, al final).
       .sort((a, b) => (a.diaCorte ?? 99) - (b.diaCorte ?? 99));
   }, [clientes, estadoPorCliente, busqueda, soloConCorte, hoyKey]);
+
+  const cambiarVendedor = async (b2bId, vendedorId) => {
+    setGuardandoVendedorId(b2bId);
+    setAviso("");
+    try {
+      const r = await asignarVendedorB2B(token, b2bId, vendedorId);
+      setClientes((prev) =>
+        prev.map((c) =>
+          c.id === b2bId
+            ? {
+                ...c,
+                vendedor_id: r.vendedor_id,
+                vendedor: r.vendedor,
+              }
+            : c,
+        ),
+      );
+      setAviso(
+        r.vendedor
+          ? `Inscrito por actualizado: ${r.vendedor.nombre_usuario}`
+          : "Se quitó el perfil inscrito.",
+      );
+    } catch (err) {
+      setAviso("Error al asignar vendedor: " + err.message);
+    } finally {
+      setGuardandoVendedorId(null);
+    }
+  };
 
   const contadores = useMemo(() => {
     let enviados = 0;
@@ -256,7 +292,8 @@ const ReportesCorreosMicrositios = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Reporte mensual "Checa tus resultados". Se envía automáticamente{" "}
-            <b>un día antes</b> de la fecha de cobro de cada cliente.
+            <b>un día antes</b> de la fecha de cobro de cada cliente. En{" "}
+            <b>Inscrito por</b> asignas el perfil que recibe la copia del correo.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -371,6 +408,7 @@ const ReportesCorreosMicrositios = () => {
               <tr>
                 <th className="px-4 py-2 font-semibold">Cliente</th>
                 <th className="px-4 py-2 font-semibold">Correo</th>
+                <th className="px-4 py-2 font-semibold">Inscrito por</th>
                 <th className="px-4 py-2 font-semibold">Corte</th>
                 <th className="px-4 py-2 font-semibold">Se envía el</th>
                 <th className="px-4 py-2 font-semibold">Estado</th>
@@ -390,6 +428,31 @@ const ReportesCorreosMicrositios = () => {
                   </td>
                   <td className="px-4 py-2 text-gray-600 max-w-[190px] truncate" title={f.correo}>
                     {f.correo || "—"}
+                  </td>
+                  <td className="px-4 py-2 min-w-[180px]">
+                    <select
+                      value={f.c.vendedor_id || ""}
+                      disabled={guardandoVendedorId === f.c.id}
+                      onChange={(e) => cambiarVendedor(f.c.id, e.target.value)}
+                      className="w-full max-w-[220px] rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+                      title="Perfil que inscribió al cliente (recibe copia del reporte)"
+                    >
+                      <option value="">Sin asignar</option>
+                      {vendedores.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.nombre_usuario}
+                          {v.rol ? ` (${v.rol})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {f.c.vendedor?.correo && (
+                      <span
+                        className="block text-[11px] text-gray-400 mt-0.5 truncate max-w-[220px]"
+                        title={f.c.vendedor.correo}
+                      >
+                        {f.c.vendedor.correo}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
                     {f.diaCorte ? `día ${f.diaCorte}` : "—"}
