@@ -6,8 +6,9 @@ import {
   bannerGetNotasAsignadas,
   bannerAsignarNotas,
   bannerClearNotas,
+  bannerSetAutoAsignarNotas,
 } from "../../../api/bannersApi";
-import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye } from "react-icons/fa";
+import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye, FaMagic } from "react-icons/fa";
 import BannerForm from "./BannerForm";
 import ResponsiveImg from "../../../ResponsiveImg";
 
@@ -44,6 +45,7 @@ const BannersList = () => {
   const [asignarStats, setAsignarStats] = useState(null);
   const [asignarError, setAsignarError] = useState(null);
   const [asignarSuccess, setAsignarSuccess] = useState(null);
+  const [isTogglingAuto, setIsTogglingAuto] = useState(false);
 
   const fetchBanners = async () => {
     setIsLoading(true);
@@ -160,6 +162,27 @@ const BannersList = () => {
       fetchBanners();
     } catch {
       setAsignarError("Error al limpiar asignaciones.");
+    }
+  };
+
+  const handleToggleAutoAsignar = async (banner) => {
+    if (!banner?.id || isTogglingAuto) return;
+    const next = !banner.auto_asignar_notas;
+    setIsTogglingAuto(true);
+    setAsignarError(null);
+    setAsignarSuccess(null);
+    try {
+      const res = await bannerSetAutoAsignarNotas(token, banner.id, next);
+      setAsignarSuccess(res.message);
+      setBanners((prev) =>
+        prev.map((b) =>
+          b.id === banner.id ? { ...b, auto_asignar_notas: next } : b
+        )
+      );
+    } catch {
+      setAsignarError("Error al actualizar auto-asignación.");
+    } finally {
+      setIsTogglingAuto(false);
     }
   };
 
@@ -406,6 +429,11 @@ const BannersList = () => {
                         Default Sección
                       </span>
                     )}
+                    {b.auto_asignar_notas && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200">
+                        Auto notas
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -518,6 +546,32 @@ const BannersList = () => {
                         {asignarError}
                       </div>
                     )}
+
+                    {/* Auto-asignar a notas nuevas */}
+                    <button
+                      onClick={() => handleToggleAutoAsignar(b)}
+                      disabled={isTogglingAuto}
+                      className={`w-full flex items-center justify-between gap-2 mb-3 px-2.5 py-2 rounded-md border text-[11px] cursor-pointer transition-colors disabled:opacity-50 ${
+                        b.auto_asignar_notas
+                          ? "bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900"
+                          : "bg-white border-purple-200 text-purple-800 hover:bg-purple-100"
+                      }`}
+                      title="Si está activo, cada nota nueva publicada recibirá este banner automáticamente"
+                    >
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <FaMagic className="text-[10px]" />
+                        Auto a notas nuevas
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          b.auto_asignar_notas
+                            ? "bg-fuchsia-600 text-white"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {isTogglingAuto ? "..." : b.auto_asignar_notas ? "ON" : "OFF"}
+                      </span>
+                    </button>
 
                     {/* Mode tabs */}
                     <div className="flex gap-1.5 mb-2">

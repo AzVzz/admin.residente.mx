@@ -88,6 +88,16 @@ export const bannerClearNotas = async (token, id) => {
   return await res.json();
 };
 
+export const bannerSetAutoAsignarNotas = async (token, id, enabled) => {
+  const res = await fetch(`${urlApi}api/banners/${id}/auto-asignar-notas`, {
+    method: "PUT",
+    headers: authHeaders(token),
+    body: JSON.stringify({ auto_asignar_notas: enabled }),
+  });
+  if (!res.ok) throw new Error("Error al actualizar auto-asignación");
+  return await res.json();
+};
+
 export const bannerGetStats = async (token, id) => {
   const res = await fetch(`${urlApi}api/banners/${id}/stats`, {
     headers: authHeaders(token),
