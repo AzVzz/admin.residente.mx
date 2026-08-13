@@ -6,6 +6,21 @@ export const BOOST_METRICAS = {
   692: { vistas: 2000, clicks: 100 },
 };
 
+// LIYPE no tiene restaurante ni ticket_promedio; sin esto el ROI queda en $0.
+// Misma fórmula: clicks→conversión, vistas→fidelización.
+export const LIYPE_TICKET_PROMEDIO = 500;
+
+export function esLiypeB2B(b2bUser) {
+  if (!b2bUser) return false;
+  const url = String(b2bUser.micrositio_url || "").toLowerCase();
+  const nombre = String(
+    b2bUser.nombre_responsable_restaurante || b2bUser.nombre_responsable || "",
+  )
+    .trim()
+    .toLowerCase();
+  return url.includes("liype") || nombre.includes("liype");
+}
+
 export function getMetricasBoost(restaurante) {
   if (!restaurante) return { vistas: 0, clicks: 0 };
   const bySlug = BOOST_METRICAS[restaurante.slug];

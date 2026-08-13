@@ -14,7 +14,11 @@ import { BENEFICIOS_INFO } from "./beneficiosConfig";
 import { useRestaurantesB2B } from "./hooks/useRestaurantesB2B";
 import CarruselRestaurantes from "./CarruselRestaurantes";
 import ScorePerfilCard from "./ScorePerfilCard";
-import { getMetricasBoost } from "./metricasBoost";
+import {
+  getMetricasBoost,
+  esLiypeB2B,
+  LIYPE_TICKET_PROMEDIO,
+} from "./metricasBoost";
 import {
   bannerTrack,
   getBannerBySlotPublic,
@@ -921,7 +925,31 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
   let conversionROI;
   let fidelizacionROI;
-  if (restauranteActivo) {
+  const esLiype = esLiypeB2B(b2bUser);
+
+  // Solo LIYPE: sin restaurantes el ROI normal queda en $0. Aquí se convierte
+  // clicks→conversión y vistas→fidelización (micrositio + notas + banner).
+  if (esLiype && restaurantes.length === 0) {
+    const ticket = LIYPE_TICKET_PROMEDIO;
+    const vistasMicrositio = USAR_DATOS_DEMO_MICROSITIO
+      ? DEMO_MICROSITIO.vistas
+      : b2bUser?.vistas || 0;
+    const clicksMicrositio = USAR_DATOS_DEMO_MICROSITIO
+      ? DEMO_MICROSITIO.clicks
+      : b2bUser?.clicks || 0;
+    const vistasNotas = USAR_DATOS_DEMO_MICROSITIO
+      ? DEMO_MICROSITIO.notas_vistas
+      : micrositioNotaStats?.total_vistas || 0;
+    const clicksNotas = USAR_DATOS_DEMO_MICROSITIO
+      ? DEMO_MICROSITIO.notas_clicks
+      : micrositioNotaStats?.total_clicks || 0;
+    const vistasBanner = micrositioBannerStats?.impresiones || 0;
+    const clicksBanner = micrositioBannerStats?.clicks || 0;
+    const clicks = clicksMicrositio + clicksNotas + clicksBanner;
+    const views = vistasMicrositio + vistasNotas + vistasBanner;
+    conversionROI = clicks * ticket * 2.8 * 0.02;
+    fidelizacionROI = views * ticket * 2.8 * 0.0035;
+  } else if (restauranteActivo) {
     const r = roiDeRestaurante(restauranteActivo);
     conversionROI = r.conversion;
     fidelizacionROI = r.fidelizacion;
@@ -1739,7 +1767,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                     ).toLocaleString("es-MX")}
                   </p>
                   <p className="text-sm text-black">
-                    Vistas de tu micrositio
+                    {esLiype
+                      ? "Fidelización de tu micrositio"
+                      : "Vistas de tu micrositio"}
                   </p>
                 </div>
                 <div className="mt-2">
@@ -1750,7 +1780,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                     ).toLocaleString("es-MX")}
                   </p>
                   <p className="text-sm text-black">
-                    Clicks en tu micrositio
+                    {esLiype
+                      ? "Conversión de tu micrositio"
+                      : "Clicks en tu micrositio"}
                   </p>
                 </div>
 
@@ -1768,7 +1800,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                         ).toLocaleString("es-MX")}
                       </p>
                       <p className="text-sm text-black">
-                        Vistas de tus notas
+                        {esLiype
+                          ? "Fidelización de tus notas"
+                          : "Vistas de tus notas"}
                       </p>
                     </div>
                     <div className="mt-2">
@@ -1779,7 +1813,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                         ).toLocaleString("es-MX")}
                       </p>
                       <p className="text-sm text-black">
-                        Clicks en tus notas
+                        {esLiype
+                          ? "Conversión de tus notas"
+                          : "Clicks en tus notas"}
                       </p>
                     </div>
                   </>
@@ -1800,7 +1836,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                           micrositioBannerStats.impresiones || 0
                         ).toLocaleString("es-MX")}
                       </p>
-                      <p className="text-sm text-black">Views</p>
+                      <p className="text-sm text-black">
+                        {esLiype ? "Fidelización" : "Views"}
+                      </p>
                     </div>
                     <div className="mt-2">
                       <p className="text-[40px] font-bold text-black leading-[1]">
@@ -1808,7 +1846,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                           "es-MX",
                         )}
                       </p>
-                      <p className="text-sm text-black">Clicks</p>
+                      <p className="text-sm text-black">
+                        {esLiype ? "Conversión" : "Clicks"}
+                      </p>
                     </div>
                   </div>
                 )}
