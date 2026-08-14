@@ -70,6 +70,7 @@ const CampanasNewsletter = lazy(() => import("../../Newsletter/CampanasNewslette
 const ListaMediainc = lazy(() => import("../../../mediainc/ListaMediainc.jsx"));
 const TematicasDashboard = lazy(() => import("./TematicasDashboard.jsx"));
 const CentroNoticiasDashboard = lazy(() => import("./CentroNoticiasDashboard.jsx"));
+const CentroEntrevistasDashboard = lazy(() => import("./CentroEntrevistasDashboard.jsx"));
 
 import useDebounce from "../../../../hooks/useDebounce";
 
@@ -622,8 +623,11 @@ const ListaNotas = () => {
       return;
     }
 
-    // "Centro" (noticias del formulario público): permitido a residente
-    if (vistaActiva === "centro" && rolLc === "residente") {
+    // "Centro" / "Entrevistas" (formularios públicos): permitido a residente
+    if (
+      (vistaActiva === "centro" || vistaActiva === "entrevistas") &&
+      rolLc === "residente"
+    ) {
       return;
     }
 
@@ -679,6 +683,11 @@ const ListaNotas = () => {
       key: "centro",
       label: "Noticia",
       icon: <IoNewspaper className="mr-2" />,
+    },
+    {
+      key: "entrevistas",
+      label: "Entrevista",
+      icon: <FaBookOpen className="mr-2" />,
     },
     {
       key: "tematicas",
@@ -856,6 +865,7 @@ const ListaNotas = () => {
         (usuario?.rol === "residente" && option.key === "mediainc") ||
         (usuario?.rol === "residente" && option.key === "tematicas") ||
         (usuario?.rol === "residente" && option.key === "centro") ||
+        (usuario?.rol === "residente" && option.key === "entrevistas") ||
         (usuario?.rol === "residente" && option.key === "vetados") ||
         (usuario?.rol === "residente" && option.key === "descargas_b2c")
       );
@@ -1594,6 +1604,12 @@ const ListaNotas = () => {
         {vistaActiva === "centro" && (
           <Suspense fallback={<LazyFallback />}>
             <CentroNoticiasDashboard />
+          </Suspense>
+        )}
+
+        {vistaActiva === "entrevistas" && (
+          <Suspense fallback={<LazyFallback />}>
+            <CentroEntrevistasDashboard />
           </Suspense>
         )}
 

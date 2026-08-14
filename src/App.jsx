@@ -265,6 +265,9 @@ const GestionCodigos = lazy(
 const CentroNoticias = lazy(
   () => import("./componentes/residente/CentroNoticias/CentroNoticias"),
 );
+const CentroEntrevistas = lazy(
+  () => import("./componentes/residente/CentroEntrevistas/CentroEntrevistas"),
+);
 const CampanasNewsletter = lazy(
   () => import("./componentes/residente/Newsletter/CampanasNewsletter"),
 );
@@ -770,6 +773,16 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <CentroNoticias />
+                  </div>
+                }
+              />
+
+              {/* Centro de Entrevistas — formulario público (sin login) */}
+              <Route
+                path="/centro-de-entrevistas"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <CentroEntrevistas />
                   </div>
                 }
               />
