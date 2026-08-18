@@ -168,6 +168,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      "/api/cliente-media": {
+        target: process.env.VITE_API_URL || "https://admin.residente.mx",
+        changeOrigin: true,
+        secure: true,
+      },
       "/api/productos-b2c": {
         target: process.env.VITE_API_URL || "https://admin.residente.mx",
         changeOrigin: true,

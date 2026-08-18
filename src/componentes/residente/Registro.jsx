@@ -45,6 +45,8 @@ const Registro = () => {
 
     if (rol === "colaborador_eventos") {
       navigate("/dashboard-eventos-colab");
+    } else if (rol === "cliente_media") {
+      navigate("/dashboard-cliente");
     } else if (rol === "b2b") {
       navigate("/dashboardb2b");
     } else if (rol === "colaborador") {

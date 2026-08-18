@@ -255,6 +255,12 @@ const ListaNotas = () => {
       return;
     }
 
+    // Redirect clientes media a su portal
+    if (usuario?.rol?.toLowerCase() === "cliente_media") {
+      navigate("/dashboard-cliente", { replace: true });
+      return;
+    }
+
     if (!token || !usuario) {
       navigate(`/registro`, { replace: true });
     }

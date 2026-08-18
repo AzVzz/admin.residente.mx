@@ -9,7 +9,7 @@ import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
 import SlugInput from "./componentes/SlugInput";
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   notaCrear,
   notaEditar,
@@ -39,6 +39,8 @@ import { FaRobot } from "react-icons/fa";
 import SmartTagsInput from "../SmartTagsInput.jsx";
 import { urlApi } from "../../../../componentes/api/url";
 import TematicaSelector from "./componentes/TematicaSelector.jsx";
+import useAutoguardado from "../../../../hooks/useAutoguardado.js";
+import BannerRecuperacion from "./componentes/BannerRecuperacion.jsx";
 
 const tipoNotaPorPermiso = {
   "mama-de-rocco": "Mamá de Rocco",
@@ -94,6 +96,34 @@ const FormMainResidente = () => {
     }
   }, [usuario, navigate]);
 
+  const esClienteMedia = usuario?.rol?.toLowerCase() === "cliente_media";
+  const dashboardVolver = esClienteMedia ? "/dashboard-cliente" : "/dashboard";
+  const [tipoNotaClienteMedia, setTipoNotaClienteMedia] = useState("");
+
+  useEffect(() => {
+    if (!esClienteMedia || !token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${urlApi}api/cliente-media/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const me = await res.json();
+        if (!cancelled && me?.perfil?.tipo_nota) {
+          setTipoNotaClienteMedia(me.perfil.tipo_nota);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [esClienteMedia, token]);
+
+  const tipoNotaEfectivo = tipoNotaClienteMedia || tipoNotaUsuario;
+
   // Si no hay token, muestra el login
   if (!token) {
     return (
@@ -113,7 +143,7 @@ const FormMainResidente = () => {
       sticker: [],
       opcionPublicacion: "publicada",
       fechaProgramada: "",
-      tipoDeNotaSeleccionada: tipoNotaUsuario || "",
+      tipoDeNotaSeleccionada: tipoNotaEfectivo || "",
       categoriasSeleccionadas: {},
       imagen: null,
       imagen_recorte: null,
@@ -121,7 +151,7 @@ const FormMainResidente = () => {
       programarInstafoto: false,
       fechaProgramadaInstafoto: "",
       destacada: false,
-      tiposDeNotaSeleccionadas: "",
+      tiposDeNotaSeleccionadas: tipoNotaEfectivo || "",
       zonas: [],
       slug: "",
       seo_alt_text: "",
@@ -138,6 +168,19 @@ const FormMainResidente = () => {
   });
 
   const { handleSubmit, reset, control, watch, setValue } = methods;
+
+  // Auto-guardado de borrador para recuperación (por si se cierra la pestaña o
+  // se va el internet). Guarda solo texto; las imágenes se re-adjuntan.
+  const [searchParams] = useSearchParams();
+  const borradorParam = searchParams.get("borrador");
+  const { borradorPendiente, recuperar, descartar, limpiar } = useAutoguardado({
+    tipo: "nota",
+    watch,
+    reset,
+    recordId: id,
+    borradorParam,
+    getTitulo: (v) => v?.titulo,
+  });
 
   // Estados para manejo de API
   const [notaId, setNotaId] = useState(null);
@@ -578,10 +621,11 @@ const FormMainResidente = () => {
   // 2. Cuando obtengas tipoNotaUsuario del contexto, actualiza el valor del formulario
   useEffect(() => {
     // Si hay tipoNotaUsuario, fuerza el valor en el formulario
-    if (tipoNotaUsuario) {
-      setValue("tipoDeNotaSeleccionada", tipoNotaUsuario);
+    if (tipoNotaEfectivo) {
+      setValue("tipoDeNotaSeleccionada", tipoNotaEfectivo);
+      setValue("tiposDeNotaSeleccionadas", tipoNotaEfectivo);
     }
-  }, [tipoNotaUsuario, setValue]);
+  }, [tipoNotaEfectivo, setValue]);
 
   // Función de envío modificada
   const onSubmit = async (data, actualizarFecha) => {
@@ -623,7 +667,7 @@ const FormMainResidente = () => {
     try {
       // ✅ DECLARAR PRIMERO tipoNotaFinal
       const tipoNotaFinal =
-        tipoNotaUsuario || data.tiposDeNotaSeleccionadas || null;
+        tipoNotaEfectivo || data.tiposDeNotaSeleccionadas || null;
 
       let seccionesCategorias = [];
 
@@ -746,7 +790,10 @@ const FormMainResidente = () => {
         });
       }
 
-      setTimeout(() => navigate("/dashboard"), 1);
+      // Publicación exitosa: eliminar el borrador de recuperación.
+      limpiar();
+
+      setTimeout(() => navigate(dashboardVolver), 1);
     } catch (error) {
       setPostError(error.message || "Error al guardar la nota");
     } finally {
@@ -763,7 +810,7 @@ const FormMainResidente = () => {
       try {
         await notaDelete(notaId, token); // Llama a la API para eliminar la nota
         alert("Nota eliminada con éxito.");
-        navigate("/dashboard"); // Redirige a la lista de notas
+        navigate(dashboardVolver); // Redirige a la lista de notas
       } catch (error) {
         alert("Error al eliminar la nota.");
       } finally {
@@ -796,10 +843,26 @@ const FormMainResidente = () => {
     <div className="py-8">
       <div className="mx-auto max-w-[1800px]">
         <FormProvider {...methods}>
+          <BannerRecuperacion
+            borrador={borradorPendiente}
+            onRecuperar={recuperar}
+            onDescartar={descartar}
+          />
           {/* Cambiar el form para usar el handleSubmit genérico */}
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="">
               <div className="mb-4 text-center">
+                {esClienteMedia && (
+                  <div className="mb-3 text-left">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/dashboard-cliente")}
+                      className="text-sm font-semibold text-gray-700 underline"
+                    >
+                      ← Volver al dashboard
+                    </button>
+                  </div>
+                )}
                 <h1 className="leading-tight text-2xl font-bold">
                   {notaId ? "Editar Nota" : "Nueva Nota"}
                 </h1>

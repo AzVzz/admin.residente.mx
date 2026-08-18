@@ -7,6 +7,7 @@ import { FaUser, FaUserPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaExternalLinkAl
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 import ModalAsignarRecursos from './ModalAsignarRecursos';
 import { suspenderB2B, reactivarB2B } from '../../../api/suspensionB2B';
+import { clienteMediaCreate } from '../../../api/clienteMediaApi';
 
 const ListaNotasUsuarios = () => {
   const { token, usuario } = useAuth();
@@ -71,7 +72,13 @@ const ListaNotasUsuarios = () => {
     rfc: '',
     direccion: '',
     terminos: false,
-    logo_url: null
+    logo_url: null,
+    // Cliente media
+    cm_nombre_display: '',
+    cm_slug: '',
+    cm_tipo_nota: '',
+    cm_puede_banners: true,
+    cm_puede_notas: true,
   });
 
   // Estados para filtros
@@ -159,6 +166,7 @@ const ListaNotasUsuarios = () => {
       if (value === 'todos') nuevoRol = 'residente';
       else if (value === 'b2b') nuevoRol = 'b2b';
       else if (value === 'vendedor') nuevoRol = 'vendedor';
+      else if (value === 'cliente-media') nuevoRol = 'cliente_media';
       else if (value === 'mama-de-rocco') nuevoRol = 'colaborador';
       else nuevoRol = 'invitado'; // Por defecto para nuevo cliente y otros clientes existentes
 
@@ -167,7 +175,7 @@ const ListaNotasUsuarios = () => {
         permisos: value,
         rol: nuevoRol
       }));
-    } else if (name === 'terminos') {
+    } else if (name === 'terminos' || name === 'cm_puede_banners' || name === 'cm_puede_notas') {
       setFormData(prev => ({
         ...prev,
         [name]: e.target.checked
@@ -197,7 +205,12 @@ const ListaNotasUsuarios = () => {
       rfc: '',
       direccion: '',
       terminos: false,
-      logo_url: null
+      logo_url: null,
+      cm_nombre_display: '',
+      cm_slug: '',
+      cm_tipo_nota: '',
+      cm_puede_banners: true,
+      cm_puede_notas: true,
     });
     setPermisoPersonalizado('');
     setLogoFile(null);
@@ -321,6 +334,11 @@ const ListaNotasUsuarios = () => {
       return;
     }
 
+    if (formData.permisos === 'cliente-media' && !formData.cm_nombre_display.trim()) {
+      setError('Debes escribir el nombre display del cliente media');
+      return;
+    }
+
     try {
       const url = editingUser
         ? `${urlApi}api/usuarios/${editingUser.id}`
@@ -331,6 +349,14 @@ const ListaNotasUsuarios = () => {
       // Lógica para evitar error de DB con B2B
       // Si el rol es B2B, enviamos permiso 'b2b' (o lo que esté seleccionado)
       let permisosEnvio = formData.permisos === 'nuevo-cliente' ? permisoPersonalizado : formData.permisos;
+      if (formData.permisos === 'cliente-media') {
+        permisosEnvio = (formData.cm_slug || formData.cm_nombre_display || formData.nombre_usuario)
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
 
       // Generar correo automático si no se proporciona uno
       // Usar formato válido de email estándar para evitar problemas con validaciones del backend
@@ -414,6 +440,22 @@ const ListaNotasUsuarios = () => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al procesar la solicitud');
+      }
+
+      const result = await response.json();
+
+      // Si es cliente media, crear perfil y vincular banners por slug
+      if (formData.rol === 'cliente_media' && result?.usuario?.id && !editingUser) {
+        await clienteMediaCreate(token, {
+          usuario_id: result.usuario.id,
+          nombre_display: formData.cm_nombre_display.trim(),
+          slug: formData.cm_slug || formData.cm_nombre_display,
+          tipo_nota: formData.cm_tipo_nota || formData.cm_nombre_display.trim(),
+          puede_banners: !!formData.cm_puede_banners,
+          puede_notas: !!formData.cm_puede_notas,
+          logo_url: formData.logo_url || null,
+          vincular_banners_slug: formData.cm_slug || formData.cm_nombre_display,
+        });
       }
 
       // Recargar la lista de usuarios y clientes
@@ -629,6 +671,7 @@ Usuario: ${user.nombre_usuario}`;
               <option value="invitado">Invitado</option>
               <option value="b2b">B2B</option>
               <option value="vendedor">Vendedor</option>
+              <option value="cliente_media">Cliente media</option>
             </select>
           </div>
 
@@ -717,12 +760,77 @@ Usuario: ${user.nombre_usuario}`;
                     <option value="mama-de-rocco">Colaborador</option>
                     <option value="b2b">Usuario B2B</option>
                     <option value="vendedor">Vendedor</option>
+                    <option value="cliente-media">Cliente media (banner/notas)</option>
                   </select>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Los permisos son los nombres de tus clientes. Cada cliente tendrá acceso solo a su contenido.
                 </p>
               </div>
+
+              {formData.permisos === 'cliente-media' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre display (ej. Sensira)
+                    </label>
+                    <input
+                      type="text"
+                      name="cm_nombre_display"
+                      value={formData.cm_nombre_display}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Slug banner (ej. sensira)
+                    </label>
+                    <input
+                      type="text"
+                      name="cm_slug"
+                      value={formData.cm_slug}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Se genera del nombre si lo dejas vacío"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo nota (exacto en BD)
+                    </label>
+                    <input
+                      type="text"
+                      name="cm_tipo_nota"
+                      value={formData.cm_tipo_nota}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ej. Sensira"
+                    />
+                  </div>
+                  <div className="flex items-center gap-6 md:col-span-2">
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="cm_puede_banners"
+                        checked={!!formData.cm_puede_banners}
+                        onChange={handleInputChange}
+                      />
+                      Puede banners
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="cm_puede_notas"
+                        checked={!!formData.cm_puede_notas}
+                        onChange={handleInputChange}
+                      />
+                      Puede notas
+                    </label>
+                  </div>
+                </>
+              )}
 
               {formData.permisos === 'vendedor' && (
                 <>

@@ -42,6 +42,7 @@ import B2BRoute from "./componentes/rutas/B2BRoute.jsx";
 import ResidenteRoute from "./componentes/rutas/ResidenteRoute.jsx";
 import SuperadminRoute from "./componentes/rutas/SuperadminRoute.jsx";
 import EventosColaboradoresRoute from "./componentes/rutas/EventosColaboradoresRoute.jsx";
+import ClienteMediaRoute from "./componentes/rutas/ClienteMediaRoute.jsx";
 // import TerminosyCondiciones from "./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"; // Converted to lazy
 // import Registro from "./componentes/residente/Registro.jsx"; // Converted to lazy
 // import FormularioAnuncioRevista from "./componentes/residente/B2B/FormularioAnuncioRevista.jsx"; // Converted to lazy
@@ -202,6 +203,15 @@ const ListaNotas = lazy(
   () =>
     import("./componentes/residente/componentes/compFormularioMain/ListaNotas"),
 );
+const ClienteMediaDashboard = lazy(
+  () => import("./componentes/residente/clienteMedia/ClienteMediaDashboard"),
+);
+const ListaBorradores = lazy(
+  () =>
+    import(
+      "./componentes/residente/componentes/compFormularioMain/ListaBorradores"
+    ),
+);
 const PreguntasSemanales = lazy(
   () =>
     import("./componentes/residente/componentes/compFormularioMain/componentesPrincipales/PreguntasSemanales"),
@@ -361,12 +371,13 @@ function App() {
   const isCulturalAccess = location.pathname === "/culturallaccess";
   const isLinkInBio = location.pathname === "/linkinbio";
   const isB2BDashboard = location.pathname === "/dashboardb2b";
+  const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
 
   return (
     <DataProvider>
       <ViewportAdjuster />
       <div className="min-h-screen flex flex-col">
-        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && (
+        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && !isClienteMediaDash && (
           <div
             className={`transition-all duration-300 relative z-20 ${
               showMegaMenu
@@ -380,7 +391,8 @@ function App() {
         )}
         {/* MegaMenu con transición de entrada */}
         {location.pathname !== "/culturallaccess" &&
-          location.pathname !== "/linkinbio" && (
+          location.pathname !== "/linkinbio" &&
+          !isClienteMediaDash && (
             <div
               className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
                 showMegaMenu
@@ -393,7 +405,7 @@ function App() {
             </div>
           )}
         <main
-          className={`flex-grow min-h-[70vh] ${isB2BDashboard ? "overflow-x-auto" : "overflow-x-clip"} w-full relative z-10 ${isLinkInBio ? "" : "px-10 sm:px-0"}`}
+          className={`flex-grow min-h-[70vh] ${isB2BDashboard ? "overflow-x-auto" : "overflow-x-clip"} w-full relative z-10 ${isLinkInBio || isClienteMediaDash ? "" : "px-10 sm:px-0"}`}
         >
           {/* min-h-[70vh] reserva altura para que el footer no shiftee
               cuando Suspense pasa del fallback "Cargando..." al contenido
@@ -799,6 +811,46 @@ function App() {
                 }
               />
 
+              {/* Dashboard cliente media (banners + notas) */}
+              <Route
+                path="/dashboard-cliente"
+                element={
+                  <ClienteMediaRoute>
+                    <ClienteMediaDashboard />
+                  </ClienteMediaRoute>
+                }
+              />
+              <Route
+                path="/dashboard-cliente/nueva"
+                element={
+                  <ClienteMediaRoute>
+                    <div className="max-w-[1080px] mx-auto px-4 py-6">
+                      <FormMainResidente />
+                    </div>
+                  </ClienteMediaRoute>
+                }
+              />
+              <Route
+                path="/dashboard-cliente/editar/:id"
+                element={
+                  <ClienteMediaRoute>
+                    <div className="max-w-[1080px] mx-auto px-4 py-6">
+                      <FormMainResidente />
+                    </div>
+                  </ClienteMediaRoute>
+                }
+              />
+
+              {/* Dashboard - Recuperación de borradores */}
+              <Route
+                path="/dashboard/recuperacion"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <ListaBorradores />
+                  </div>
+                }
+              />
+
               {/* Dashboard - Nota Nueva */}
               <Route
                 path="dashboard/nota/nueva"
@@ -1086,7 +1138,8 @@ function App() {
         {/* Botón flotante para ir arriba */}
         <BotonScroll />
         {location.pathname !== "/culturallaccess" &&
-          location.pathname !== "/linkinbio" && (
+          location.pathname !== "/linkinbio" &&
+          !isClienteMediaDash && (
             <footer
               className={
                 location.pathname === "/registrob2b" ||
