@@ -175,11 +175,19 @@ const ClienteMediaDashboard = () => {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <img
-              src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
-              alt="Residente"
-              className="h-10 w-auto"
-            />
+            <a
+              href="https://residente.mx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 hover:opacity-80 transition-opacity"
+              aria-label="Ir a residente.mx"
+            >
+              <img
+                src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
+                alt="Residente"
+                className="h-10 w-auto"
+              />
+            </a>
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-wide text-gray-500">
                 Dashboard
