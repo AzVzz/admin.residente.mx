@@ -179,6 +179,10 @@ const BannersList = () => {
           b.id === banner.id ? { ...b, auto_asignar_notas: next } : b
         )
       );
+      if (next && asignarId === banner.id) {
+        const stats = await bannerGetNotasAsignadas(token, banner.id);
+        setAsignarStats(stats);
+      }
     } catch {
       setAsignarError("Error al actualizar auto-asignación.");
     } finally {
@@ -516,7 +520,7 @@ const BannersList = () => {
                         )}
                       </div>
                       <div className="bg-white rounded px-2 py-1.5 border border-purple-200 text-[11px]">
-                        <span className="text-gray-500">Disponibles: </span>
+                        <span className="text-gray-500">Disponibles (sin banner): </span>
                         {asignarStats === null ? (
                           <span className="text-gray-400">...</span>
                         ) : (
