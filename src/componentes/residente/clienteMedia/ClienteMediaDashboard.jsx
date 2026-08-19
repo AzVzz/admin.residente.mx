@@ -374,70 +374,90 @@ const ClienteMediaDashboard = () => {
                 clicks.
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {banners.map((b) => {
                   const bannerPreview =
                     b.imagen_desktop || b.imagen_mobile || null;
 
                   return (
-                  <div
-                    key={b.id}
-                    className="bg-white border border-gray-200 p-4 space-y-4"
-                  >
-                    {bannerPreview ? (
-                      <div className="w-full aspect-[16/9] md:aspect-[3/1] bg-gray-50 border overflow-hidden">
-                        <img
-                          src={bannerPreview}
-                          alt={b.nombre}
-                          className="w-full h-full object-contain"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full aspect-[16/9] md:aspect-[3/1] bg-gray-100 flex items-center justify-center text-xs text-gray-400 border">
-                        Sin imagen
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-bold text-base leading-tight">
-                            {b.nombre}
+                    <div
+                      key={b.id}
+                      className="bg-white border border-gray-200 p-4 md:p-5"
+                    >
+                      <div className="flex flex-col md:flex-row gap-5 md:gap-6">
+                        <div className="mx-auto md:mx-0 w-full max-w-[340px] shrink-0">
+                          <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2 text-center md:text-left">
+                            Vista previa
                           </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {b.slug} · {b.estatus}
-                          </p>
+                          {bannerPreview ? (
+                            <div className="rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white p-4 shadow-sm">
+                              <div className="flex items-center justify-center min-h-[112px]">
+                                <img
+                                  src={bannerPreview}
+                                  alt={b.nombre}
+                                  className="max-w-full max-h-28 w-auto h-auto object-contain"
+                                  loading="lazy"
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 min-h-[112px] flex items-center justify-center text-xs text-gray-400">
+                              Sin imagen
+                            </div>
+                          )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => openEditBanner(b)}
-                          className="text-xs font-semibold border border-black px-2 py-1 shrink-0"
-                        >
-                          Editar
-                        </button>
-                      </div>
-                      <div className="flex gap-6 mt-3">
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {(b.impresiones || 0).toLocaleString("es-MX")}
-                          </p>
-                          <p className="text-xs text-gray-600">Vistas</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {(b.clicks || 0).toLocaleString("es-MX")}
-                          </p>
-                          <p className="text-xs text-gray-600">Clicks</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {b.ctr || 0}%
-                          </p>
-                          <p className="text-xs text-gray-600">CTR</p>
+
+                        <div className="flex-1 min-w-0 flex flex-col justify-between gap-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-bold text-lg leading-tight">
+                                {b.nombre}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1 truncate">
+                                {b.slug}
+                              </p>
+                              <span
+                                className={`inline-block mt-2 text-[10px] uppercase tracking-wide px-2 py-0.5 ${
+                                  b.estatus === "activo"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {b.estatus}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => openEditBanner(b)}
+                              className="text-xs font-semibold border border-black px-3 py-1.5 shrink-0 hover:bg-black hover:text-white transition-colors"
+                            >
+                              Editar
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-100">
+                            <div className="text-center md:text-left">
+                              <p className="text-xl font-bold leading-none">
+                                {(b.impresiones || 0).toLocaleString("es-MX")}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">Vistas</p>
+                            </div>
+                            <div className="text-center md:text-left">
+                              <p className="text-xl font-bold leading-none">
+                                {(b.clicks || 0).toLocaleString("es-MX")}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">Clicks</p>
+                            </div>
+                            <div className="text-center md:text-left">
+                              <p className="text-xl font-bold leading-none">
+                                {b.ctr || 0}%
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">CTR</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                   );
                 })}
               </div>
