@@ -375,23 +375,30 @@ const ClienteMediaDashboard = () => {
               </p>
             ) : (
               <div className="space-y-3">
-                {banners.map((b) => (
+                {banners.map((b) => {
+                  const bannerPreview =
+                    b.imagen_desktop || b.imagen_mobile || null;
+
+                  return (
                   <div
                     key={b.id}
-                    className="bg-white border border-gray-200 p-4 flex flex-col md:flex-row gap-4"
+                    className="bg-white border border-gray-200 p-4 space-y-4"
                   >
-                    {b.imagen_desktop ? (
-                      <img
-                        src={b.imagen_desktop}
-                        alt={b.nombre}
-                        className="w-full md:w-48 h-28 object-cover border"
-                      />
+                    {bannerPreview ? (
+                      <div className="w-full aspect-[16/9] md:aspect-[3/1] bg-gray-50 border overflow-hidden">
+                        <img
+                          src={bannerPreview}
+                          alt={b.nombre}
+                          className="w-full h-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
                     ) : (
-                      <div className="w-full md:w-48 h-28 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                      <div className="w-full aspect-[16/9] md:aspect-[3/1] bg-gray-100 flex items-center justify-center text-xs text-gray-400 border">
                         Sin imagen
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="font-bold text-base leading-tight">
@@ -431,7 +438,8 @@ const ClienteMediaDashboard = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
