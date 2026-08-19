@@ -382,79 +382,75 @@ const ClienteMediaDashboard = () => {
                   return (
                     <div
                       key={b.id}
-                      className="bg-white border border-gray-200 p-4 md:p-5"
+                      className="bg-white border border-gray-200 p-4 md:p-5 space-y-4"
                     >
-                      <div className="flex flex-col md:flex-row gap-5 md:gap-6">
-                        <div className="mx-auto md:mx-0 w-full max-w-[340px] shrink-0">
-                          <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2 text-center md:text-left">
-                            Vista previa
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2">
+                          Vista previa
+                        </p>
+                        {bannerPreview ? (
+                          <div className="rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white px-4 py-5 md:px-6 md:py-6 shadow-sm">
+                            <div className="flex items-center justify-center min-h-[130px] md:min-h-[160px]">
+                              <img
+                                src={bannerPreview}
+                                alt={b.nombre}
+                                className="max-w-full max-h-32 md:max-h-44 w-auto h-auto object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 min-h-[130px] md:min-h-[160px] flex items-center justify-center text-xs text-gray-400">
+                            Sin imagen
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pt-1 border-t border-gray-100">
+                        <div className="min-w-0">
+                          <p className="font-bold text-lg leading-tight">
+                            {b.nombre}
                           </p>
-                          {bannerPreview ? (
-                            <div className="rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white p-4 shadow-sm">
-                              <div className="flex items-center justify-center min-h-[112px]">
-                                <img
-                                  src={bannerPreview}
-                                  alt={b.nombre}
-                                  className="max-w-full max-h-28 w-auto h-auto object-contain"
-                                  loading="lazy"
-                                />
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 min-h-[112px] flex items-center justify-center text-xs text-gray-400">
-                              Sin imagen
-                            </div>
-                          )}
+                          <p className="text-xs text-gray-500 mt-1 truncate">
+                            {b.slug}
+                          </p>
+                          <span
+                            className={`inline-block mt-2 text-[10px] uppercase tracking-wide px-2 py-0.5 ${
+                              b.estatus === "activo"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {b.estatus}
+                          </span>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => openEditBanner(b)}
+                          className="text-xs font-semibold border border-black px-3 py-1.5 shrink-0 self-start hover:bg-black hover:text-white transition-colors"
+                        >
+                          Editar
+                        </button>
+                      </div>
 
-                        <div className="flex-1 min-w-0 flex flex-col justify-between gap-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="font-bold text-lg leading-tight">
-                                {b.nombre}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1 truncate">
-                                {b.slug}
-                              </p>
-                              <span
-                                className={`inline-block mt-2 text-[10px] uppercase tracking-wide px-2 py-0.5 ${
-                                  b.estatus === "activo"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-gray-100 text-gray-600"
-                                }`}
-                              >
-                                {b.estatus}
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => openEditBanner(b)}
-                              className="text-xs font-semibold border border-black px-3 py-1.5 shrink-0 hover:bg-black hover:text-white transition-colors"
-                            >
-                              Editar
-                            </button>
-                          </div>
-
-                          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-100">
-                            <div className="text-center md:text-left">
-                              <p className="text-xl font-bold leading-none">
-                                {(b.impresiones || 0).toLocaleString("es-MX")}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">Vistas</p>
-                            </div>
-                            <div className="text-center md:text-left">
-                              <p className="text-xl font-bold leading-none">
-                                {(b.clicks || 0).toLocaleString("es-MX")}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">Clicks</p>
-                            </div>
-                            <div className="text-center md:text-left">
-                              <p className="text-xl font-bold leading-none">
-                                {b.ctr || 0}%
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">CTR</p>
-                            </div>
-                          </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <p className="text-xl font-bold leading-none">
+                            {(b.impresiones || 0).toLocaleString("es-MX")}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">Vistas</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold leading-none">
+                            {(b.clicks || 0).toLocaleString("es-MX")}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">Clicks</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold leading-none">
+                            {b.ctr || 0}%
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">CTR</p>
                         </div>
                       </div>
                     </div>
