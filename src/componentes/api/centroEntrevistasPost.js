@@ -12,6 +12,7 @@ import { urlApi } from "./url.js";
  * @param {string} d.sabesHoy
  * @param {string} d.genteSienta
  * @param {string} d.favoritos
+ * @param {File}   [d.imagen] — foto opcional
  * @returns {Promise<object>}
  */
 export const centroEntrevistasEnviar = async ({
@@ -22,19 +23,22 @@ export const centroEntrevistasEnviar = async ({
   sabesHoy,
   genteSienta,
   favoritos,
+  imagen,
 }) => {
+  const formData = new FormData();
+  formData.append("dejar_todo", dejarTodo);
+  formData.append("dejaste_atras", dejasteAtras);
+  formData.append("casi_no_logras", casiNoLogras);
+  formData.append("mentor_senal", mentorSenal);
+  formData.append("sabes_hoy", sabesHoy);
+  formData.append("gente_sienta", genteSienta);
+  formData.append("favoritos", favoritos);
+  if (imagen) formData.append("imagen", imagen);
+
   const response = await fetch(`${urlApi}api/notas/centro-entrevistas`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      dejar_todo: dejarTodo,
-      dejaste_atras: dejasteAtras,
-      casi_no_logras: casiNoLogras,
-      mentor_senal: mentorSenal,
-      sabes_hoy: sabesHoy,
-      gente_sienta: genteSienta,
-      favoritos,
-    }),
+    // Sin Content-Type: el navegador arma el boundary de multipart.
+    body: formData,
   });
 
   const data = await response.json().catch(() => ({}));

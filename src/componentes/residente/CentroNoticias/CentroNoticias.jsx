@@ -161,7 +161,7 @@ const CentroNoticias = () => {
         {/* Nombre */}
         <div>
           <label htmlFor="nombre" className="block text-sm font-semibold mb-1.5">
-            Nombre <span className="text-red-500">*</span>
+            Nombre Restaurante <span className="text-red-500">*</span>
           </label>
           <input
             id="nombre"

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { centroEntrevistasEnviar } from "../../api/centroEntrevistasPost";
 
 /**
  * Centro de Entrevistas — formulario PÚBLICO (sin login).
  *
- * Título editorial: LA ENTREVISTA x RESIDENTE. Siete preguntas. La entrevista
- * entra como borrador y un editor la revisa en el dashboard (pestaña Entrevista).
+ * Título editorial: LA ENTREVISTA x RESIDENTE. Siete preguntas + imagen
+ * opcional. La entrevista entra como borrador y un editor la revisa en el
+ * dashboard (pestaña Entrevista).
  */
 
 const PREGUNTAS = [
@@ -51,17 +52,35 @@ const ESTADO_INICIAL = {
 
 const CentroEntrevistas = () => {
   const [form, setForm] = useState(ESTADO_INICIAL);
+  const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImagen = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("El archivo debe ser una imagen (JPG, PNG o WEBP).");
+      return;
+    }
+    setError("");
+    setImagen(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
   const resetear = () => {
     setForm(ESTADO_INICIAL);
+    setImagen(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e) => {
@@ -84,6 +103,7 @@ const CentroEntrevistas = () => {
         sabesHoy: form.sabesHoy.trim(),
         genteSienta: form.genteSienta.trim(),
         favoritos: form.favoritos.trim(),
+        imagen,
       });
       setExito(true);
       resetear();
@@ -151,6 +171,33 @@ const CentroEntrevistas = () => {
             />
           </div>
         ))}
+
+        {/* Imagen opcional */}
+        <div>
+          <label htmlFor="imagen" className="block text-sm font-semibold mb-1.5">
+            Foto{" "}
+            <span className="text-black/40 font-normal">(opcional)</span>
+          </label>
+          <input
+            id="imagen"
+            ref={fileInputRef}
+            name="imagen"
+            type="file"
+            accept="image/*"
+            onChange={handleImagen}
+            className="w-full text-sm text-black/70 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-black/80"
+          />
+          {preview && (
+            <img
+              src={preview}
+              alt="Vista previa"
+              className="mt-3 max-h-56 w-auto rounded-lg border border-black/10 object-contain"
+            />
+          )}
+          <p className="mt-1.5 text-xs text-black/50">
+            JPG, PNG o WEBP. Máximo 8 MB.
+          </p>
+        </div>
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
