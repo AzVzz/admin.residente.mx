@@ -4,9 +4,9 @@ import { centroEntrevistasEnviar } from "../../api/centroEntrevistasPost";
 /**
  * Centro de Entrevistas — formulario PÚBLICO (sin login).
  *
- * Título editorial: LA ENTREVISTA x RESIDENTE. Siete preguntas + imagen
- * opcional. La entrevista entra como borrador y un editor la revisa en el
- * dashboard (pestaña Entrevista).
+ * Título editorial: LA ENTREVISTA x RESIDENTE. Siete preguntas + material
+ * visual (imagen). La entrevista entra como borrador y un editor la revisa
+ * en el dashboard (pestaña Entrevista).
  */
 
 const PREGUNTAS = [
@@ -172,11 +172,10 @@ const CentroEntrevistas = () => {
           </div>
         ))}
 
-        {/* Imagen opcional */}
+        {/* Material visual — imagen */}
         <div>
           <label htmlFor="imagen" className="block text-sm font-semibold mb-1.5">
-            Foto{" "}
-            <span className="text-black/40 font-normal">(opcional)</span>
+            Material visual — imagen
           </label>
           <input
             id="imagen"
@@ -194,9 +193,6 @@ const CentroEntrevistas = () => {
               className="mt-3 max-h-56 w-auto rounded-lg border border-black/10 object-contain"
             />
           )}
-          <p className="mt-1.5 text-xs text-black/50">
-            JPG, PNG o WEBP. Máximo 8 MB.
-          </p>
         </div>
 
         {error && (
