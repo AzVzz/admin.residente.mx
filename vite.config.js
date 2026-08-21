@@ -31,8 +31,7 @@ export default defineConfig({
     // deploy deja la version vieja pegada y Ctrl+R no alcanza.
     VitePWA({
       registerType: "autoUpdate",
-      // Registro manual en main.jsx (poll de updates + reload).
-      injectRegister: false,
+      injectRegister: "auto",
       devOptions: { enabled: false },
       manifest: false,
       workbox: {
