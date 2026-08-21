@@ -5,6 +5,7 @@ import { urlApi } from "./url.js";
  * (sin login). Entra como BORRADOR con tipo_nota2="centro-entrevistas".
  *
  * @param {Object} d
+ * @param {string} d.nombreRestaurante
  * @param {string} d.dejarTodo
  * @param {string} d.dejasteAtras
  * @param {string} d.casiNoLogras
@@ -16,6 +17,7 @@ import { urlApi } from "./url.js";
  * @returns {Promise<object>}
  */
 export const centroEntrevistasEnviar = async ({
+  nombreRestaurante,
   dejarTodo,
   dejasteAtras,
   casiNoLogras,
@@ -26,6 +28,7 @@ export const centroEntrevistasEnviar = async ({
   imagen,
 }) => {
   const formData = new FormData();
+  formData.append("nombre_restaurante", nombreRestaurante);
   formData.append("dejar_todo", dejarTodo);
   formData.append("dejaste_atras", dejasteAtras);
   formData.append("casi_no_logras", casiNoLogras);

@@ -41,6 +41,7 @@ const PREGUNTAS = [
 ];
 
 const ESTADO_INICIAL = {
+  nombreRestaurante: "",
   dejarTodo: "",
   dejasteAtras: "",
   casiNoLogras: "",
@@ -87,6 +88,11 @@ const CentroEntrevistas = () => {
     e.preventDefault();
     setError("");
 
+    if (!form.nombreRestaurante.trim()) {
+      setError("Completa el nombre del restaurante (marcado con *).");
+      return;
+    }
+
     const faltantes = PREGUNTAS.filter((p) => !form[p.name].trim());
     if (faltantes.length) {
       setError("Completa las siete preguntas (marcadas con *).");
@@ -96,6 +102,7 @@ const CentroEntrevistas = () => {
     setLoading(true);
     try {
       await centroEntrevistasEnviar({
+        nombreRestaurante: form.nombreRestaurante.trim(),
         dejarTodo: form.dejarTodo.trim(),
         dejasteAtras: form.dejasteAtras.trim(),
         casiNoLogras: form.casiNoLogras.trim(),
@@ -153,6 +160,26 @@ const CentroEntrevistas = () => {
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl shadow-sm border border-black/10 p-6 sm:p-8 flex flex-col gap-5"
       >
+        {/* Nombre Restaurante */}
+        <div>
+          <label
+            htmlFor="nombreRestaurante"
+            className="block text-sm font-semibold mb-1.5"
+          >
+            Nombre Restaurante <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="nombreRestaurante"
+            name="nombreRestaurante"
+            type="text"
+            value={form.nombreRestaurante}
+            onChange={handleChange}
+            maxLength={255}
+            placeholder="Nombre o marca de tu negocio, tal como quieres que aparezca en la entrevista"
+            className={inputCls}
+          />
+        </div>
+
         {PREGUNTAS.map((p) => (
           <div key={p.name}>
             <label
