@@ -4,9 +4,9 @@ import { centroEntrevistasEnviar } from "../../api/centroEntrevistasPost";
 /**
  * Centro de Entrevistas — formulario PÚBLICO (sin login).
  *
- * Título editorial: LA ENTREVISTA x RESIDENTE. Siete preguntas + material
- * visual (imagen). La entrevista entra como borrador y un editor la revisa
- * en el dashboard (pestaña Entrevista).
+ * Título editorial: LA ENTREVISTA x RESIDENTE. Campos opcionales (nombre,
+ * preguntas, imagen). La entrevista entra como borrador y un editor la
+ * revisa en el dashboard (pestaña Entrevista).
  */
 
 const PREGUNTAS = [
@@ -88,14 +88,11 @@ const CentroEntrevistas = () => {
     e.preventDefault();
     setError("");
 
-    if (!form.nombreRestaurante.trim()) {
-      setError("Completa el nombre del restaurante (marcado con *).");
-      return;
-    }
-
-    const faltantes = PREGUNTAS.filter((p) => !form[p.name].trim());
-    if (faltantes.length) {
-      setError("Completa las siete preguntas (marcadas con *).");
+    const hayTexto =
+      form.nombreRestaurante.trim() ||
+      PREGUNTAS.some((p) => form[p.name].trim());
+    if (!hayTexto && !imagen) {
+      setError("Escribe al menos un campo o adjunta una imagen.");
       return;
     }
 
@@ -166,7 +163,7 @@ const CentroEntrevistas = () => {
             htmlFor="nombreRestaurante"
             className="block text-sm font-semibold mb-1.5"
           >
-            Nombre Restaurante <span className="text-red-500">*</span>
+            Nombre Restaurante
           </label>
           <input
             id="nombreRestaurante"
@@ -186,7 +183,7 @@ const CentroEntrevistas = () => {
               htmlFor={p.name}
               className="block text-sm font-semibold mb-1.5"
             >
-              {p.label} <span className="text-red-500">*</span>
+              {p.label}
             </label>
             <textarea
               id={p.name}
