@@ -27,48 +27,78 @@ export default defineConfig({
         },
       },
     }),
-    // 🚀 Service Worker para cache (sin PWA/manifest).
-    // En dev se desactiva: CacheFirst del SW deja JS viejo y oculta cambios locales.
+    // Service Worker (sin manifest). NO usar CacheFirst en JS/HTML: tras un
+    // deploy deja la version vieja pegada y Ctrl+R no alcanza.
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "auto",
+      // Registro manual en main.jsx (poll de updates + reload).
+      injectRegister: false,
       devOptions: { enabled: false },
-      // Sin manifest - solo cache
       manifest: false,
       workbox: {
-        // Forzar activacion inmediata del SW nuevo (sin esperar reload).
-        // Sin esto, despues de un deploy los users siguen con el SW viejo
-        // hasta que reinicien el browser.
         skipWaiting: true,
         clientsClaim: true,
-        // Archivos a precachear
+        // Borra precache de builds anteriores al activar el SW nuevo.
+        cleanupOutdatedCaches: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
-        // Ruta correcta para SPA fallback con base /admin/
         navigateFallback: "/admin/index.html",
-        // CRITICO: NO interceptar archivos con extension. Sin esto, despues
-        // de un deploy nuevo, el browser pide chunks viejos (.js con hash
-        // antiguo) que ya no existen -> SW sirve index.html (text/html) ->
-        // "Failed to load module script" + pagina en blanco.
-        // Solo el / (root) y rutas SPA deben caer en el fallback.
+        // No interceptar archivos con extension (evita SPA fallback en .js).
         navigateFallbackDenylist: [
           /^\/api\//,
           /\.(js|css|map|json|webp|avif|jpg|jpeg|png|gif|svg|woff2?|ttf|ico)(\?.*)?$/i,
         ],
-        // 🚀 Estrategias de cache en runtime
         runtimeCaching: [
-          // Assets estáticos - CacheFirst (sirve del cache, muy rápido)
+          // Shell HTML + SW: red primero para pillar el deploy nuevo.
           {
-            urlPattern: /\.(js|css|woff2?)$/i,
-            handler: "CacheFirst",
+            urlPattern: /\/admin\/(index\.html)?$/i,
+            handler: "NetworkFirst",
             options: {
-              cacheName: "static-assets",
+              cacheName: "html-shell",
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 año
+                maxEntries: 4,
+                maxAgeSeconds: 60 * 60,
               },
             },
           },
-          // Imágenes locales - StaleWhileRevalidate
+          {
+            urlPattern: /\/admin\/sw\.js$/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-shell",
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 2,
+                maxAgeSeconds: 60,
+              },
+            },
+          },
+          // JS/CSS: NetworkFirst (CacheFirst de 1 año dejaba chunks viejos vivos).
+          {
+            urlPattern: /\.(js|css)$/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "static-assets",
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 80,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+            },
+          },
+          // Fuentes
+          {
+            urlPattern: /\.woff2?$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "fonts",
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          // Imágenes locales
           {
             urlPattern: /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i,
             handler: "StaleWhileRevalidate",
@@ -76,11 +106,11 @@ export default defineConfig({
               cacheName: "images",
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 días
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
             },
           },
-          // API Notas - NetworkFirst (intenta red, fallback cache)
+          // APIs
           {
             urlPattern: /\/api\/notas/i,
             handler: "NetworkFirst",
@@ -88,12 +118,11 @@ export default defineConfig({
               cacheName: "api-notas",
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60, // 1 hora
+                maxAgeSeconds: 60 * 60,
               },
               networkTimeoutSeconds: 5,
             },
           },
-          // API Recetas - NetworkFirst
           {
             urlPattern: /\/api\/recetas/i,
             handler: "NetworkFirst",
@@ -101,12 +130,11 @@ export default defineConfig({
               cacheName: "api-recetas",
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60, // 1 hora
+                maxAgeSeconds: 60 * 60,
               },
               networkTimeoutSeconds: 5,
             },
           },
-          // API Usuarios - NetworkFirst
           {
             urlPattern: /\/api\/usuarios/i,
             handler: "NetworkFirst",
@@ -114,7 +142,7 @@ export default defineConfig({
               cacheName: "api-usuarios",
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 30, // 30 minutos
+                maxAgeSeconds: 60 * 30,
               },
               networkTimeoutSeconds: 5,
             },
