@@ -20,9 +20,9 @@ const NuevasSeccionesCategorias = () => {
     "Bebidas", "Bebida"
   ];
 
-  // Si es Food & Drink, ocultar también Nivel de gasto y Tipo de comida
+  // Si es Food & Drink, ocultar también Nivel gastro y Tipo de comida
   if (esFoodDrink) {
-    seccionesOcultas.push("Nivel de gasto", "Tipo de comida");
+    seccionesOcultas.push("Nivel gastro", "Nivel de gasto", "Tipo de comida");
   }
 
   if (loading) return <p>Cargando opciones...</p>;
@@ -56,9 +56,10 @@ const NuevasSeccionesCategorias = () => {
                   // ----- RADIOS: Nivel de gasto / Tipo de comida / Experiencia
                   if (!isZona) {
                     // Si es Hotel, todo es opcional
-                    // Si no, solo "Nivel de gasto" es obligatorio
+                    // Si no, solo "Nivel gastro" es obligatorio
                     const esRequerida =
-                      !esHotel && seccionName === 'Nivel de gasto';
+                      !esHotel &&
+                      (seccionName === 'Nivel gastro' || seccionName === 'Nivel de gasto');
 
                     const rules = esRequerida
                       ? {

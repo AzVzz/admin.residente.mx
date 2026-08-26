@@ -1,10 +1,11 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import RestaurantPoster from "../api/RestaurantPoster";
 import { useEffect, useRef, useMemo, useState } from "react";
 import { useAuth } from "../Context";
 import Login from "../Login";
-import { useFormStorage } from "../../hooks/useFormStorage";
+import useAutoguardado from "../../hooks/useAutoguardado";
+import BannerRecuperacion from "../residente/componentes/compFormularioMain/componentes/BannerRecuperacion.jsx";
 import { urlApi } from "../api/url.js";
 
 import "./FormularioMain.css";
@@ -38,17 +39,6 @@ import FormularioPromoExt from "../promociones/componentes/FormularioPromoExt.js
 import { useGeminiSEO } from "../../hooks/useGeminiSEO.js";
 import SmartTagsInput from "../residente/componentes/SmartTagsInput.jsx";
 
-// Helper to get a stable ID for new forms across page reloads
-const getNewFormId = () => {
-  const NEW_FORM_ID_KEY = "newRestaurantFormId";
-  let formId = sessionStorage.getItem(NEW_FORM_ID_KEY);
-  if (!formId) {
-    formId = `nuevo_${Date.now()}`;
-    sessionStorage.setItem(NEW_FORM_ID_KEY, formId);
-  }
-  return formId;
-};
-
 // Definir campos de reseñas
 const reseñasFields = [
   "fundadores",
@@ -61,18 +51,11 @@ const reseñasFields = [
 const FormularioMain = ({ restaurante, esEdicion }) => {
   const { idNegocio } = useParams();
   const navigate = useNavigate();
-
-  // Usar useMemo para que el ID cambie si cambia el idNegocio (navegación)
-  const formId = useMemo(() => {
-    return idNegocio || getNewFormId();
-  }, [idNegocio]);
+  const [searchParams] = useSearchParams();
+  const borradorParam = searchParams.get("borrador");
 
   const { usuario, token } = useAuth();
   const { optimizarRestaurante, loading: geminiLoading } = useGeminiSEO();
-  const { loadedData, saveFormData, removeFormData } = useFormStorage(
-    formId,
-    { disabled: true }, // Deshabilitado para evitar persistencia no deseada
-  );
 
   // ⚠️ TODOS LOS HOOKS DEBEN ESTAR AL PRINCIPIO ANTES DE CUALQUIER RETURN
   // Estado para verificar si el usuario B2B ya tiene un restaurante
@@ -135,10 +118,12 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
     // Helper para normalizar nombres de secciones (Mapear BD -> Frontend JSON)
     const normalizeSeccionName = (name) => {
       const map = {
-        "nivel de gasto": "Nivel de gasto",
-        "nivel de precio": "Nivel de gasto",
-        precio: "Nivel de gasto",
-        gasto: "Nivel de gasto",
+        "nivel de gasto": "Nivel gastro",
+        "nivel gastro": "Nivel gastro",
+        "nivel de precio": "Nivel gastro",
+        precio: "Nivel gastro",
+        gasto: "Nivel gastro",
+        gastro: "Nivel gastro",
         "tipo de comida": "Tipo de comida",
         tipo: "Tipo de comida",
         zona: "Zona",
@@ -312,21 +297,27 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   const methods = useForm({ defaultValues: baseDefaults, mode: "onChange" });
   const { watch, reset, setValue } = methods;
 
+  // Auto-guardado de borrador para recuperación (por si se cierra la pestaña o
+  // se va el internet). Guarda solo texto; las imágenes se re-adjuntan.
+  const { borradorPendiente, recuperar, descartar, limpiar } = useAutoguardado({
+    tipo: "restaurante",
+    watch,
+    reset,
+    recordId: idNegocio,
+    borradorParam,
+    getTitulo: (v) => v?.nombre_restaurante,
+  });
+
   // Estados para Gemini AI
 
   // Efecto para resetear el formulario cuando los datos del restaurante (props) cambian.
   // Esto es crucial para el modo de edición, para poblar el form después de la carga asíncrona.
   useEffect(() => {
+    // Si venimos desde el apartado de Recuperación (?borrador=), no
+    // sobreescribir: el borrador lo carga useAutoguardado.
+    if (borradorParam) return;
     reset(baseDefaults);
-  }, [restaurante, reset, baseDefaults]);
-
-  useEffect(() => {
-    // Solo resetear el form con datos locales si existen (no es un objeto vacío)
-    if (loadedData && Object.keys(loadedData).length > 0) {
-      // Esto sobreescribe los datos iniciales con los cambios locales guardados.
-      reset(loadedData);
-    }
-  }, [loadedData, reset]);
+  }, [restaurante, reset, baseDefaults, borradorParam]);
 
   // --- AUTO-GENERACIÓN SEO (Frontend Eliminada) ---
   /*
@@ -379,13 +370,7 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   */
   // ---------------------------
 
-  // Auto-guardado: Suscribirse a cambios en el formulario
-  useEffect(() => {
-    const subscription = watch((value) => {
-      saveFormData(value);
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, saveFormData]);
+  // (El auto-guardado del borrador lo maneja useAutoguardado arriba.)
 
   // Verificar si el usuario B2B puede crear otro restaurante (solo para creación, no edición)
   const [limiteRestaurantes, setLimiteRestaurantes] = useState(1);
@@ -517,6 +502,11 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
   return (
     <div className="form-container">
       <FormProvider {...methods}>
+        <BannerRecuperacion
+          borrador={borradorPendiente}
+          onRecuperar={recuperar}
+          onDescartar={descartar}
+        />
         <RestaurantPoster
           method={esEdicion ? "PUT" : "POST"}
           slug={restaurante?.slug}
@@ -917,10 +907,8 @@ const FormularioMain = ({ restaurante, esEdicion }) => {
                     await postLogo(restaurantId, formDataLogo);
                   }
 
-                  removeFormData();
-                  if (!esEdicion) {
-                    sessionStorage.removeItem("newRestaurantFormId");
-                  }
+                  // Publicación exitosa: eliminar el borrador de recuperación.
+                  limpiar();
                   console.log("Proceso completo.");
 
                   const finalSlug =

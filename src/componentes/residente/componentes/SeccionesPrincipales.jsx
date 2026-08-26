@@ -175,9 +175,14 @@ const SeccionesPrincipales = () => {
   // ====== Config editable: ancho por columna (md y arriba) y layout interno ======
   // Cambia colWidth a tu gusto (usa fr, px, %, minmax, etc.)
   const seccionesConfig = {
-    "Nivel de gasto": {
+    "Nivel gastro": {
       colWidth: "0.5fr", // <- ancho de esta columna
       listTemplate: "1fr", // <- layout interno de la lista
+      gap: "gap-x-0 gap-y-1",
+    },
+    "Nivel de gasto": {
+      colWidth: "0.5fr",
+      listTemplate: "1fr",
       gap: "gap-x-0 gap-y-1",
     },
     "Tipo de comida": {

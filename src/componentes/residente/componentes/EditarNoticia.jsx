@@ -6,7 +6,7 @@ const TIPOS_NOTA = [
   'Residente', 'Acervo', 'Giveaway', 'Uanl'
 ];
 
-const NIVELES_GASTO = ['Fine Dining', 'Premium', 'Casual', 'Económico'];
+const NIVELES_GASTO = ['TOP', 'Cadenas', 'Únicos', 'Casual', 'Taquerías Icónicas', 'Cafés', 'Antojería'];
 
 const TIPOS_COMIDA = [
   'Mexicana', 'Tacos', 'Comfort food', 'Mariscos', 'Oriental', 
@@ -137,7 +137,7 @@ const EditarNoticia = ({ nota, onVolver, formatDate, estatus, onCambiarEstatus }
                 {/* Nivel de gasto */}
                 <div className="bg-white p-4 rounded-lg">
                   <h3 className="font-bold text-[#1a365d] text-sm mb-3 text-center border-b pb-2">
-                    Nivel de gasto
+                    Nivel gastro
                   </h3>
                   <div className="space-y-2">
                     {NIVELES_GASTO.map((nivel) => (
