@@ -9,6 +9,7 @@ import {
   asignarVendedorB2B,
 } from "../../api/reportesCorreosApi";
 import PreviewCorreoModal from "../componentes/compFormularioMain/PreviewCorreoModal";
+import PreviewCorreoVendedorModal from "./PreviewCorreoVendedorModal";
 import EnviarPruebaModal from "./EnviarPruebaModal";
 import HistorialCorreosModal from "./HistorialCorreosModal";
 import {
@@ -84,13 +85,13 @@ const badgeDe = (estado, fechaEnvio, hoyKey) => {
 // Muestra, por cada ciclo mensual, el estado de envío del reporte "Checa tus
 // resultados" de cada cliente (log leído de email_eventos_b2b), con navegación
 // entre meses. Permite previsualizar el correo, mandar una prueba, ver el
-// historial y disparar el envío de corte. El envío real lo hace el cron un día
-// antes de la fecha de cobro de cada cliente.
+// historial y disparar el envío de corte. El cron envía al vendedor 7 días antes
+// del corte y al cliente 1 día antes.
 const ReportesCorreosMicrositios = () => {
   const { token } = useAuth();
   const [clientes, setClientes] = useState([]);
   const [vendedores, setVendedores] = useState([]);
-  const [estadoPorCliente, setEstadoPorCliente] = useState({}); // b2b_id -> registro del periodo
+  const [estadoPorCliente, setEstadoPorCliente] = useState({}); // b2b_id -> { cliente, vendedor }
   const [periodo, setPeriodo] = useState(periodoActual);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -103,6 +104,7 @@ const ReportesCorreosMicrositios = () => {
 
   // Modales activos.
   const [preview, setPreview] = useState(null);
+  const [previewVendedor, setPreviewVendedor] = useState(null);
   const [prueba, setPrueba] = useState(null);
   const [historial, setHistorial] = useState(null);
 
@@ -117,10 +119,15 @@ const ReportesCorreosMicrositios = () => {
       ]);
       setClientes(Array.isArray(lista) ? lista : []);
       setVendedores(Array.isArray(listaVend) ? listaVend : []);
-      // Un registro por cliente para el periodo seleccionado.
+      // Dos registros por cliente: reporte_mensual (cliente) y reporte_vendedor_anticipado.
       const map = {};
       (res?.rows || []).forEach((r) => {
-        map[r.b2b_id] = r;
+        if (!map[r.b2b_id]) map[r.b2b_id] = { cliente: null, vendedor: null };
+        if (r.tipo_evento === "reporte_vendedor_anticipado") {
+          map[r.b2b_id].vendedor = r;
+        } else {
+          map[r.b2b_id].cliente = r;
+        }
       });
       setEstadoPorCliente(map);
     } catch (err) {
@@ -141,15 +148,22 @@ const ReportesCorreosMicrositios = () => {
     return clientes
       .map((c) => {
         const corte = c.suscripcion_datos?.fecha_fin_periodo_actual || null;
-        let fechaEnvio = null;
-        let periodoEnvio = null;
+        let fechaEnvioCliente = null;
+        let fechaEnvioVendedor = null;
+        let periodoEnvioCliente = null;
+        let periodoEnvioVendedor = null;
         if (corte) {
-          const d = new Date(corte);
-          d.setDate(d.getDate() - 1); // un día antes del corte (maneja fin de mes)
-          fechaEnvio = d;
-          periodoEnvio = d.getFullYear() * 100 + (d.getMonth() + 1);
+          const dCliente = new Date(corte);
+          dCliente.setDate(dCliente.getDate() - 1);
+          fechaEnvioCliente = dCliente;
+          periodoEnvioCliente = dCliente.getFullYear() * 100 + (dCliente.getMonth() + 1);
+
+          const dVendedor = new Date(corte);
+          dVendedor.setDate(dVendedor.getDate() - 7);
+          fechaEnvioVendedor = dVendedor;
+          periodoEnvioVendedor = dVendedor.getFullYear() * 100 + (dVendedor.getMonth() + 1);
         }
-        const estado = estadoPorCliente[c.id] || null;
+        const estados = estadoPorCliente[c.id] || { cliente: null, vendedor: null };
         return {
           c,
           nombre: nombreCliente(c),
@@ -157,10 +171,14 @@ const ReportesCorreosMicrositios = () => {
           estadoSub: c.suscripcion_datos?.estado || null,
           corte,
           diaCorte: corte ? new Date(corte).getDate() : null,
-          fechaEnvio,
-          periodoEnvio,
-          estado,
-          badge: badgeDe(estado, fechaEnvio, hoyKey),
+          fechaEnvioCliente,
+          fechaEnvioVendedor,
+          periodoEnvioCliente,
+          periodoEnvioVendedor,
+          estadoCliente: estados.cliente,
+          estadoVendedor: estados.vendedor,
+          badgeCliente: badgeDe(estados.cliente, fechaEnvioCliente, hoyKey),
+          badgeVendedor: badgeDe(estados.vendedor, fechaEnvioVendedor, hoyKey),
         };
       })
       // Se muestran TODOS los clientes con corte (no se filtran por mes). El mes
@@ -212,9 +230,11 @@ const ReportesCorreosMicrositios = () => {
     let programados = 0;
     let fallidos = 0;
     filas.forEach((f) => {
-      if (f.badge.grupo === "enviado") enviados += 1;
-      else if (f.badge.grupo === "programado") programados += 1;
-      else if (f.badge.grupo === "fallo") fallidos += 1;
+      [f.badgeCliente, f.badgeVendedor].forEach((badge) => {
+        if (badge.grupo === "enviado") enviados += 1;
+        else if (badge.grupo === "programado") programados += 1;
+        else if (badge.grupo === "fallo") fallidos += 1;
+      });
     });
     return { enviados, programados, fallidos };
   }, [filas]);
@@ -260,10 +280,13 @@ const ReportesCorreosMicrositios = () => {
     }
   };
 
-  const disparaCorte = async () => {
+  const disparaCorte = async (destino = "cliente") => {
+    const esVendedor = destino === "vendedor";
     if (
       !window.confirm(
-        "Esto ENVÍA correos reales a los clientes cuyo corte es mañana (un día antes de su cobro). ¿Continuar?",
+        esVendedor
+          ? "Esto ENVÍA correos reales SOLO a los vendedores de clientes cuyo corte es en 7 días. ¿Continuar?"
+          : "Esto ENVÍA correos reales a los clientes cuyo corte es mañana (1 día antes de su cobro). ¿Continuar?",
       )
     ) {
       return;
@@ -271,7 +294,7 @@ const ReportesCorreosMicrositios = () => {
     setDisparando(true);
     setAviso("");
     try {
-      const r = await enviarCorte(token);
+      const r = await enviarCorte(token, { destino });
       setAviso(r.mensaje || "Envío de corte disparado.");
       cargar();
     } catch (err) {
@@ -291,9 +314,9 @@ const ReportesCorreosMicrositios = () => {
             Reportes Correos Micrositios
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Reporte mensual "Checa tus resultados". Se envía automáticamente{" "}
-            <b>un día antes</b> de la fecha de cobro de cada cliente. En{" "}
-            <b>Inscrito por</b> asignas el perfil que recibe la copia del correo.
+            Reporte mensual "Checa tus resultados". El vendedor asignado lo recibe{" "}
+            <b>7 días antes</b> del corte; el cliente lo recibe <b>1 día antes</b>.
+            En <b>Inscrito por</b> asignas el perfil vendedor que recibe el anticipo.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -306,13 +329,22 @@ const ReportesCorreosMicrositios = () => {
             Actualizar
           </button>
           <button
-            onClick={disparaCorte}
+            onClick={() => disparaCorte("vendedor")}
             disabled={disparando}
-            className="px-3 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 cursor-pointer disabled:opacity-50 flex items-center gap-1"
-            title="Envía ahora el reporte a los clientes cuyo corte es mañana"
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-emerald-700 border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 cursor-pointer disabled:opacity-50 flex items-center gap-1"
+            title="Envía ahora el reporte a vendedores de clientes con corte en 7 días"
           >
             <IoSend />
-            {disparando ? "Enviando..." : "Disparar envío de corte"}
+            {disparando ? "Enviando..." : "Disparar corte vendedor"}
+          </button>
+          <button
+            onClick={() => disparaCorte("cliente")}
+            disabled={disparando}
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 cursor-pointer disabled:opacity-50 flex items-center gap-1"
+            title="Envía ahora el reporte a clientes cuyo corte es mañana"
+          >
+            <IoSend />
+            {disparando ? "Enviando..." : "Disparar corte cliente"}
           </button>
         </div>
       </div>
@@ -410,8 +442,8 @@ const ReportesCorreosMicrositios = () => {
                 <th className="px-4 py-2 font-semibold">Correo</th>
                 <th className="px-4 py-2 font-semibold">Inscrito por</th>
                 <th className="px-4 py-2 font-semibold">Corte</th>
-                <th className="px-4 py-2 font-semibold">Se envía el</th>
-                <th className="px-4 py-2 font-semibold">Estado</th>
+                <th className="px-4 py-2 font-semibold">Vendedor (7 días)</th>
+                <th className="px-4 py-2 font-semibold">Cliente (1 día)</th>
                 <th className="px-4 py-2 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
@@ -435,7 +467,7 @@ const ReportesCorreosMicrositios = () => {
                       disabled={guardandoVendedorId === f.c.id}
                       onChange={(e) => cambiarVendedor(f.c.id, e.target.value)}
                       className="w-full max-w-[220px] rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-                      title="Perfil que inscribió al cliente (recibe copia del reporte)"
+                      title="Perfil que inscribió al cliente (recibe el reporte 7 días antes del corte)"
                     >
                       <option value="">Sin asignar</option>
                       {vendedores.map((v) => (
@@ -457,19 +489,35 @@ const ReportesCorreosMicrositios = () => {
                   <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
                     {f.diaCorte ? `día ${f.diaCorte}` : "—"}
                   </td>
-                  <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
-                    {fmtFecha(f.fechaEnvio)}
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span className="block text-xs text-gray-500 mb-0.5">
+                      {fmtFecha(f.fechaEnvioVendedor)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${f.badgeVendedor.cls}`}
+                      title={f.badgeVendedor.title || ""}
+                    >
+                      {f.badgeVendedor.icon} {f.badgeVendedor.txt}
+                    </span>
+                    {f.badgeVendedor.detalle && (
+                      <span className="block text-xs text-gray-400 mt-0.5">
+                        {f.badgeVendedor.detalle}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${f.badge.cls}`}
-                      title={f.badge.title || ""}
-                    >
-                      {f.badge.icon} {f.badge.txt}
+                    <span className="block text-xs text-gray-500 mb-0.5">
+                      {fmtFecha(f.fechaEnvioCliente)}
                     </span>
-                    {f.badge.detalle && (
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${f.badgeCliente.cls}`}
+                      title={f.badgeCliente.title || ""}
+                    >
+                      {f.badgeCliente.icon} {f.badgeCliente.txt}
+                    </span>
+                    {f.badgeCliente.detalle && (
                       <span className="block text-xs text-gray-400 mt-0.5">
-                        {f.badge.detalle}
+                        {f.badgeCliente.detalle}
                       </span>
                     )}
                   </td>
@@ -477,19 +525,36 @@ const ReportesCorreosMicrositios = () => {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() =>
-                          setPreview({ b2b_id: f.c.id, nombre: f.nombre, correo: f.correo })
+                          setPreviewVendedor({
+                            b2b_id: f.c.id,
+                            nombre: f.nombre,
+                          })
                         }
-                        className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer"
-                        title="Ver correo"
+                        className="p-2 rounded-lg text-teal-600 hover:bg-teal-50 cursor-pointer"
+                        title="Ver correo anticipado al vendedor (7 días antes)"
                       >
                         <IoMailOpen size={18} />
                       </button>
                       <button
                         onClick={() =>
-                          setPrueba({ b2b_id: f.c.id, nombre: f.nombre, correo: f.correo })
+                          setPreview({ b2b_id: f.c.id, nombre: f.nombre, correo: f.correo })
+                        }
+                        className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+                        title="Ver correo al cliente (1 día antes)"
+                      >
+                        <IoMailOpen size={18} className="opacity-60" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setPrueba({
+                            b2b_id: f.c.id,
+                            nombre: f.nombre,
+                            correo: f.correo,
+                            vendedor: f.c.vendedor || null,
+                          })
                         }
                         className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 cursor-pointer"
-                        title="Enviar prueba"
+                        title="Enviar prueba al vendedor asignado"
                       >
                         <IoSend size={18} />
                       </button>
@@ -522,6 +587,12 @@ const ReportesCorreosMicrositios = () => {
       {/* Modales */}
       {preview && (
         <PreviewCorreoModal cliente={preview} onCerrar={() => setPreview(null)} />
+      )}
+      {previewVendedor && (
+        <PreviewCorreoVendedorModal
+          cliente={previewVendedor}
+          onCerrar={() => setPreviewVendedor(null)}
+        />
       )}
       {prueba && (
         <EnviarPruebaModal cliente={prueba} onCerrar={() => setPrueba(null)} />

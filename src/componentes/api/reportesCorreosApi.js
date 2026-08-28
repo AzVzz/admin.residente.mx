@@ -53,11 +53,14 @@ export const historialClienteB2B = async (token, b2bId) => {
   return parse(res);
 };
 
-// Envía el reporte EN VIVO de un cliente a un correo ARBITRARIO (prueba de
-// entregabilidad). No crea registro en historial ni respeta idempotencia.
+// Envía el reporte EN VIVO de un cliente SOLO al correo del vendedor (prueba).
+// El cliente no recibe nada. No crea registro en historial.
 export const enviarPruebaReporte = async (token, b2bId, to) => {
+  const correo = String(to || "").trim();
+  if (!correo) throw new Error("Falta el correo del vendedor");
+  const qs = `?to=${encodeURIComponent(correo)}`;
   const res = await fetch(
-    `${urlApi}api/newsletter/reportes/enviar-prueba/${b2bId}?to=${encodeURIComponent(to)}`,
+    `${urlApi}api/newsletter/reportes/enviar-prueba/${b2bId}${qs}`,
     { method: "POST", headers: authHeaders(token) },
   );
   return parse(res);
@@ -74,10 +77,13 @@ export const enviarReporteCliente = async (token, b2bId, periodo) => {
   return parse(res);
 };
 
-// Dispara el envío REAL a los clientes cuyo día de corte coincide con `dia`
-// (default backend: mañana = un día antes del cobro). Idempotente por periodo.
-export const enviarCorte = async (token, dia) => {
-  const qs = dia ? `?dia=${dia}` : "";
+// Dispara el envío REAL a los clientes cuyo día de corte coincide con el offset del destino
+// (default backend: mañana = cliente, hoy+7 = vendedor). Idempotente por periodo.
+export const enviarCorte = async (token, { dia, destino } = {}) => {
+  const params = new URLSearchParams();
+  if (dia) params.set("dia", String(dia));
+  if (destino) params.set("destino", destino);
+  const qs = params.toString() ? `?${params.toString()}` : "";
   const res = await fetch(
     `${urlApi}api/newsletter/reportes/enviar-corte${qs}`,
     { method: "POST", headers: authHeaders(token) },
