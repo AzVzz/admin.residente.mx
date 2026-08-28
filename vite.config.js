@@ -30,13 +30,15 @@ export default defineConfig({
     // Service Worker (sin manifest). NO usar CacheFirst en JS/HTML: tras un
     // deploy deja la version vieja pegada y Ctrl+R no alcanza.
     VitePWA({
-      registerType: "autoUpdate",
+      // prompt: no fuerza reload al detectar SW nuevo (autoUpdate + skipWaiting
+      // recargaba la pestaña a cada rato tras deploys / update checks).
+      registerType: "prompt",
       injectRegister: "auto",
       devOptions: { enabled: false },
       manifest: false,
       workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
+        skipWaiting: false,
+        clientsClaim: false,
         // Borra precache de builds anteriores al activar el SW nuevo.
         cleanupOutdatedCaches: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
