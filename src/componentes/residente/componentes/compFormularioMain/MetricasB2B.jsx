@@ -45,16 +45,19 @@ const MetricasB2B = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // Mostrar primero las ganancias en rojo (negativas), de la más negativa hacia
-  // arriba; el resto mantiene el orden que ya trae el backend (por ROI desc).
+  // Solo filas con ganancia real (pagaron) y sin cuentas de prueba.
+  // Rojos (< 0) primero; verdes (>= 0) después; ambos de menor a mayor.
   const ordenadas = useMemo(() => {
-    const esRojo = (f) => f.ganancia != null && f.ganancia < 0;
-    return [...filas].sort((a, b) => {
-      const ar = esRojo(a);
-      const br = esRojo(b);
+    const esPrueba = (f) =>
+      /^(prueba|test|demo)\b/i.test(
+        String(f.nombre || f.nombre_cuenta || "").trim(),
+      );
+    const validas = filas.filter((f) => f.ganancia != null && !esPrueba(f));
+    return [...validas].sort((a, b) => {
+      const ar = a.ganancia < 0;
+      const br = b.ganancia < 0;
       if (ar !== br) return ar ? -1 : 1;
-      if (ar && br) return a.ganancia - b.ganancia;
-      return 0;
+      return a.ganancia - b.ganancia;
     });
   }, [filas]);
 
@@ -66,8 +69,8 @@ const MetricasB2B = () => {
           Métricas B2B
         </h2>
         <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
-          {new Set(filas.map((f) => f.b2b_id)).size} clientes · {filas.length}{" "}
-          marcas
+          {new Set(ordenadas.map((f) => f.b2b_id)).size} clientes ·{" "}
+          {ordenadas.length} marcas
         </span>
       </div>
 
@@ -114,7 +117,7 @@ const MetricasB2B = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filas.length === 0 ? (
+                {ordenadas.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
                       No hay clientes B2B activos
