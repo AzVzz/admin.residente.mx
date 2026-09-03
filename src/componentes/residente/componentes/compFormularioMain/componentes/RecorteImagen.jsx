@@ -115,17 +115,26 @@ const RecorteImagen = ({ file, onChange }) => {
     const onPointerDown = (e) => {
         if (!nat) return;
         e.currentTarget.setPointerCapture(e.pointerId);
+
+        const rect =
+          e.currentTarget.getBoundingClientRect();
+
         dragRef.current = {
             sx: e.clientX,
             sy: e.clientY,
             ox: offset.x,
             oy: offset.y,
+            escalaX: FRAME_W / rect.width,
+            escalaY: FRAME_H / rect.height,
         };
     };
     const onPointerMove = (e) => {
         if (!dragRef.current) return;
-        const dx = e.clientX - dragRef.current.sx;
-        const dy = e.clientY - dragRef.current.sy;
+        const dx =
+         (e.clientX - dragRef.current.sx) *
+         dragRef.current.escalaX;
+        const dy =(e.clientY - dragRef.current.sy) *
+          dragRef.current.escalaY;
         setOffset(
             clamp(
                 { x: dragRef.current.ox + dx, y: dragRef.current.oy + dy },
@@ -148,7 +157,10 @@ const RecorteImagen = ({ file, onChange }) => {
     return (
         <div>
             <div
-                style={{ width: FRAME_W, height: FRAME_H }}
+                style={{
+                 width: "100%",
+                 maxWidth: FRAME_W,
+                 aspectRatio: `${OUT.w} / ${OUT.h}`, }}
                 className="relative mx-auto overflow-hidden rounded-lg bg-gray-900 cursor-move touch-none select-none"
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
@@ -163,10 +175,10 @@ const RecorteImagen = ({ file, onChange }) => {
                         draggable={false}
                         style={{
                             position: 'absolute',
-                            left: offset.x,
-                            top: offset.y,
-                            width: imgW,
-                            height: imgH,
+                            left: `${(offset.x / FRAME_W) * 100}%`,
+                            top: `${(offset.y / FRAME_H) * 100}%`,
+                            width: `${(imgW / FRAME_W) * 100}%`,
+                            height: `${(imgH / FRAME_H) * 100}%`,
                             maxWidth: 'none',
                         }}
                     />

@@ -15,7 +15,6 @@ import {
   notaEditar,
   notaImagenPut,
   notaInstafotoPut,
-  notaInstafotoDelete,
 } from "../../../../componentes/api/notaCrearPostPut.js";
 import { notaDelete } from "../../../api/notaDelete";
 import { notaGetById } from "../../../../componentes/api/notasCompletasGet.js";
@@ -1004,6 +1003,7 @@ const FormMainResidente = () => {
                     onImagenEliminada={() => setImagenActual(null)}
                   />
                   <InstafotoSelector
+                    imagenActual={imagenActual}
                     instafotoActual={instafotoActual}
                     notaId={notaId}
                     onInstafotoEliminada={() => setInstafotoActual(null)}
