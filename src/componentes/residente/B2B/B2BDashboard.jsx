@@ -1818,6 +1818,36 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                           : "Clicks en tus notas"}
                       </p>
                     </div>
+                    {!USAR_DATOS_DEMO_MICROSITIO &&
+                      Array.isArray(micrositioNotaStats?.notas) &&
+                      micrositioNotaStats.notas.length > 0 && (
+                        <div className="mt-3 space-y-0.5">
+                          <p className="text-[25px] leading-[1] underline mb-1">
+                            Notas
+                          </p>
+                          {micrositioNotaStats.notas.map((nota) => (
+                            <div
+                              key={nota.id}
+                              className="flex justify-between items-center text-xs py-0.5"
+                            >
+                              <a
+                                href={`https://residente.mx/notas/${nota.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="truncate max-w-[55%] text-black font-medium hover:text-gray-600 underline"
+                                title={nota.titulo}
+                              >
+                                {nota.titulo}
+                              </a>
+                              <span className="text-gray-600 whitespace-nowrap text-right">
+                                {(nota.vistas || 0).toLocaleString("es-MX")} v
+                                &middot;{" "}
+                                {(nota.clicks || 0).toLocaleString("es-MX")} cl
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                   </>
                 )}
 
