@@ -36,6 +36,98 @@ async function uploadImage(file) {
   return String(logoUrl).trim();
 }
 
+function BannerCard({ banner, compact = false, onEdit }) {
+  const bannerPreview = banner.imagen_desktop || banner.imagen_mobile || null;
+  const previewMinH = compact
+    ? "min-h-[90px] md:min-h-[110px]"
+    : "min-h-[130px] md:min-h-[160px]";
+  const previewImgMax = compact
+    ? "max-h-24 md:max-h-28"
+    : "max-h-32 md:max-h-44";
+  const titleClass = compact
+    ? "font-bold text-base leading-tight"
+    : "font-bold text-lg leading-tight";
+  const metricClass = compact
+    ? "text-lg font-bold leading-none"
+    : "text-xl font-bold leading-none";
+
+  return (
+    <div
+      className={`bg-white border border-gray-200 ${
+        compact ? "p-3 md:p-4 space-y-3" : "p-4 md:p-5 space-y-4"
+      }`}
+    >
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2">
+          Vista previa
+        </p>
+        {bannerPreview ? (
+          <div className="rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white px-3 py-3 md:px-5 md:py-5 shadow-sm">
+            <div
+              className={`flex items-center justify-center ${previewMinH}`}
+            >
+              <img
+                src={bannerPreview}
+                alt={banner.nombre}
+                className={`max-w-full ${previewImgMax} w-auto h-auto object-contain`}
+                loading="lazy"
+              />
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`rounded-lg border border-dashed border-gray-300 bg-gray-50 ${previewMinH} flex items-center justify-center text-xs text-gray-400`}
+          >
+            Sin imagen
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pt-1 border-t border-gray-100">
+        <div className="min-w-0">
+          <p className={titleClass}>{banner.nombre}</p>
+          <p className="text-xs text-gray-500 mt-1 truncate">{banner.slug}</p>
+          <span
+            className={`inline-block mt-2 text-[10px] uppercase tracking-wide px-2 py-0.5 ${
+              banner.estatus === "activo"
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {banner.estatus}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onEdit(banner)}
+          className="text-xs font-semibold border border-black px-3 py-1.5 shrink-0 self-start hover:bg-black hover:text-white transition-colors"
+        >
+          Editar
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <p className={metricClass}>
+            {(banner.impresiones || 0).toLocaleString("es-MX")}
+          </p>
+          <p className="text-xs text-gray-600 mt-1">Vistas</p>
+        </div>
+        <div>
+          <p className={metricClass}>
+            {(banner.clicks || 0).toLocaleString("es-MX")}
+          </p>
+          <p className="text-xs text-gray-600 mt-1">Clicks</p>
+        </div>
+        <div>
+          <p className={metricClass}>{banner.ctr || 0}%</p>
+          <p className="text-xs text-gray-600 mt-1">CTR</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const ClienteMediaDashboard = () => {
   const { token, usuario, logout } = useAuth();
   const navigate = useNavigate();
@@ -71,6 +163,12 @@ const ClienteMediaDashboard = () => {
   const bannersTotal = data?.banners?.total || {};
   const notas = data?.notas?.notas || [];
   const notasTotal = data?.notas?.total || {};
+
+  const bannerActivo = banners.find((b) => b.estatus === "activo") || null;
+  const bannerActual = bannerActivo || banners[0] || null;
+  const historialBanners = bannerActual
+    ? banners.filter((b) => b.id !== bannerActual.id)
+    : [];
 
   const openCreateBanner = () => {
     setCreatingBanner(true);
@@ -312,6 +410,7 @@ const ClienteMediaDashboard = () => {
                       <option value="borrador">Borrador</option>
                       <option value="activo">Activo</option>
                       <option value="programado">Programado</option>
+                      <option value="expirado">Expirado</option>
                     </select>
                   </label>
                 </div>
@@ -374,88 +473,31 @@ const ClienteMediaDashboard = () => {
                 clicks.
               </p>
             ) : (
-              <div className="space-y-4">
-                {banners.map((b) => {
-                  const bannerPreview =
-                    b.imagen_desktop || b.imagen_mobile || null;
+              <div className="space-y-6">
+                {bannerActual && (
+                  <BannerCard
+                    banner={bannerActual}
+                    onEdit={openEditBanner}
+                  />
+                )}
 
-                  return (
-                    <div
-                      key={b.id}
-                      className="bg-white border border-gray-200 p-4 md:p-5 space-y-4"
-                    >
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2">
-                          Vista previa
-                        </p>
-                        {bannerPreview ? (
-                          <div className="rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white px-4 py-5 md:px-6 md:py-6 shadow-sm">
-                            <div className="flex items-center justify-center min-h-[130px] md:min-h-[160px]">
-                              <img
-                                src={bannerPreview}
-                                alt={b.nombre}
-                                className="max-w-full max-h-32 md:max-h-44 w-auto h-auto object-contain"
-                                loading="lazy"
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 min-h-[130px] md:min-h-[160px] flex items-center justify-center text-xs text-gray-400">
-                            Sin imagen
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pt-1 border-t border-gray-100">
-                        <div className="min-w-0">
-                          <p className="font-bold text-lg leading-tight">
-                            {b.nombre}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1 truncate">
-                            {b.slug}
-                          </p>
-                          <span
-                            className={`inline-block mt-2 text-[10px] uppercase tracking-wide px-2 py-0.5 ${
-                              b.estatus === "activo"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {b.estatus}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => openEditBanner(b)}
-                          className="text-xs font-semibold border border-black px-3 py-1.5 shrink-0 self-start hover:bg-black hover:text-white transition-colors"
-                        >
-                          Editar
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {(b.impresiones || 0).toLocaleString("es-MX")}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">Vistas</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {(b.clicks || 0).toLocaleString("es-MX")}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">Clicks</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold leading-none">
-                            {b.ctr || 0}%
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">CTR</p>
-                        </div>
-                      </div>
+                {historialBanners.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                      Historial
+                    </h3>
+                    <div className="space-y-3">
+                      {historialBanners.map((b) => (
+                        <BannerCard
+                          key={b.id}
+                          banner={b}
+                          compact
+                          onEdit={openEditBanner}
+                        />
+                      ))}
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             )}
           </section>
