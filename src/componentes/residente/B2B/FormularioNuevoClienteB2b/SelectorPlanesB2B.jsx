@@ -443,8 +443,9 @@ const SelectorPlanesB2B = ({
   // Estado para mostrar/ocultar las tarjetas de planes
   const [mostrarPlanes, setMostrarPlanes] = useState(false);
 
-  // Estados para la opción "Otro" del dropdown
-  const [mostrarInputOtro, setMostrarInputOtro] = useState(false);
+  // Estados para "Otro": 'a' = Plan A, 'b' = Plan B, 'especiales' = precio B2B manual
+  const [modoOtro, setModoOtro] = useState(null); // null | 'a' | 'b' | 'especiales'
+  const mostrarInputOtro = modoOtro === "a" || modoOtro === "b";
   const [nombreOtro, setNombreOtro] = useState("");
   const [clienteDuplicado, setClienteDuplicado] = useState(null); // cliente que ya existe
 
@@ -554,19 +555,38 @@ const SelectorPlanesB2B = ({
 
   // Función para manejar la selección de cliente del dropdown
   const handleClienteChange = (clienteId) => {
-    if (clienteId === "__otro__") {
-      setMostrarInputOtro(true);
+    if (clienteId === "__otro__" || clienteId === "__otro_a__") {
+      setModoOtro(clienteId === "__otro_a__" ? "a" : "b");
       setClienteSeleccionado("");
       setMostrarPlanes(false);
       setNombreOtro("");
       setClienteDuplicado(null);
       return;
     }
-    setMostrarInputOtro(false);
+    if (clienteId === "__especiales__") {
+      setModoOtro("especiales");
+      setClienteSeleccionado("");
+      setMostrarPlanes(false);
+      setNombreOtro("");
+      setClienteDuplicado(null);
+      return;
+    }
+    setModoOtro(null);
     setNombreOtro("");
     setClienteDuplicado(null);
     setClienteSeleccionado(clienteId);
 
+    if (clienteId) {
+      setMostrarPlanes(true);
+    } else {
+      setMostrarPlanes(false);
+    }
+  };
+
+  const handleEspecialChange = (clienteId) => {
+    setClienteSeleccionado(clienteId);
+    setNombreOtro("");
+    setClienteDuplicado(null);
     if (clienteId) {
       setMostrarPlanes(true);
     } else {
@@ -608,15 +628,19 @@ const SelectorPlanesB2B = ({
     }
   };
 
-  // Confirmar nuevo cliente ("Otro")
+  // Confirmar nuevo cliente ("Otro" Plan A o B)
   const handleConfirmarOtro = () => {
     if (!nombreOtro.trim()) return;
-    // Mostrar planes con precio normal (sin override de cliente restringido)
     setMostrarPlanes(true);
   };
 
   const handleSelectPlan = (plan) => {
-    if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
+    if (
+      clienteSeleccionado &&
+      clienteSeleccionado !== "__otro__" &&
+      clienteSeleccionado !== "__otro_a__" &&
+      clienteSeleccionado !== "__especiales__"
+    ) {
       const cli = clientesVetados.find(
         (c) => c.id === parseInt(clienteSeleccionado),
       );
@@ -631,14 +655,27 @@ const SelectorPlanesB2B = ({
       };
       onSelectPlan(planConCliente);
     } else if (mostrarInputOtro && nombreOtro.trim()) {
-      // Nuevo cliente tecleado en "Otro": incluir el nombre para pre-rellenar el formulario
-      onSelectPlan({ ...plan, nombreRestauranteOtro: nombreOtro.trim() });
+      // Nuevo cliente tecleado: Plan A → restringido ($4,399); Plan B → nuevo ($2,199)
+      onSelectPlan({
+        ...plan,
+        nombreRestauranteOtro: nombreOtro.trim(),
+        ...(modoOtro === "a" && { esClienteRestringido: true }),
+      });
     } else {
       onSelectPlan(plan);
     }
   };
   // Filtrar solo los planes de 6, 9 y 12 meses (nuevo modelo)
   const planesPermitidos = [12]; // [6, 9, 12];
+
+  // Lista normal (sin precio dinámico) vs Especiales (precio B2B manual / dinámico)
+  const clientesEnDropdown = clientesVetados.filter(
+    (c) => !c.precio_dinamico_activo,
+  );
+  const clientesEspeciales = clientesVetados.filter(
+    (c) => !!c.precio_dinamico_activo && !!c.precio_mensual_centavos,
+  );
+  const modoEspeciales = modoOtro === "especiales";
 
   // Precios especiales cuando se selecciona un cliente del dropdown (caro)
   const PRECIOS_CLIENTE_RESTRINGIDO = {
@@ -661,10 +698,15 @@ const SelectorPlanesB2B = ({
             // Determinar qué precio usar:
             // - Cliente del dropdown con precio dinámico → ese precio por-restaurante
             // - Cliente del dropdown sin dinámico → precio caro ($4,399)
-            // - "Otro" (cliente nuevo) → precio barato ($2,199)
-            // - Sin seller / visitante con link → precio original de Stripe
+            // - "Otro (Plan A)" → $4,399
+            // - "Otro (Plan B)" / visitante → $2,199
             let precioOverride = null;
-            if (clienteSeleccionado && clienteSeleccionado !== "__otro__") {
+            if (
+              clienteSeleccionado &&
+              clienteSeleccionado !== "__otro__" &&
+              clienteSeleccionado !== "__otro_a__" &&
+              clienteSeleccionado !== "__especiales__"
+            ) {
               const cli = clientesVetados.find(
                 (c) => c.id === parseInt(clienteSeleccionado),
               );
@@ -673,7 +715,9 @@ const SelectorPlanesB2B = ({
               } else {
                 precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
               }
-            } else if (mostrarInputOtro || !esSeller) {
+            } else if (modoOtro === "a") {
+              precioOverride = PRECIOS_CLIENTE_RESTRINGIDO[mesesNum];
+            } else if (modoOtro === "b" || !esSeller) {
               precioOverride = PRECIOS_CLIENTE_NUEVO[mesesNum];
             }
             return {
@@ -759,7 +803,15 @@ const SelectorPlanesB2B = ({
             <div className="flex flex-col gap-3 justify-center items-center">
               <select
                 id="clienteVetado"
-                value={mostrarInputOtro ? "__otro__" : clienteSeleccionado}
+                value={
+                  modoOtro === "a"
+                    ? "__otro_a__"
+                    : modoOtro === "b"
+                      ? "__otro__"
+                      : modoEspeciales
+                        ? "__especiales__"
+                        : clienteSeleccionado
+                }
                 onChange={(e) => handleClienteChange(e.target.value)}
                 disabled={loadingClientes || !!errorClientes}
                 className="w-full px-4 py-2 bg-white disabled:cursor-not-allowed"
@@ -769,9 +821,9 @@ const SelectorPlanesB2B = ({
                     ? "Cargando..."
                     : errorClientes
                       ? "Error al cargar"
-                      : `Seleccionar (${clientesVetados.length})`}
+                      : `Seleccionar (${clientesEnDropdown.length})`}
                 </option>
-                {clientesVetados.map((cliente) => {
+                {clientesEnDropdown.map((cliente) => {
                   const nombreRestaurante = cliente.restaurante || "Sin nombre";
                   return (
                     <option
@@ -783,12 +835,65 @@ const SelectorPlanesB2B = ({
                     </option>
                   );
                 })}
-                <option value="__otro__">Otro...</option>
+                <option value="__otro_a__">Otro (Plan A)...</option>
+                <option value="__otro__">Otro (Plan B)...</option>
+                <option value="__especiales__">
+                  Especiales
+                  {clientesEspeciales.length
+                    ? ` (${clientesEspeciales.length})`
+                    : ""}
+                </option>
               </select>
+
+              {/* Segundo dropdown: clientes con precio B2B manual / dinámico */}
+              {modoEspeciales && (
+                <div className="w-full mt-3 animate-fadeIn">
+                  <label
+                    htmlFor="clienteEspecial"
+                    className="block text-xs font-medium text-gray-700 mb-1.5 text-left"
+                  >
+                    Cliente especial (precio manual)
+                  </label>
+                  <select
+                    id="clienteEspecial"
+                    value={clienteSeleccionado}
+                    onChange={(e) => handleEspecialChange(e.target.value)}
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                  >
+                    <option value="">
+                      {clientesEspeciales.length === 0
+                        ? "No hay clientes especiales"
+                        : `Seleccionar especial (${clientesEspeciales.length})`}
+                    </option>
+                    {clientesEspeciales.map((cliente) => {
+                      const nombreRestaurante =
+                        cliente.restaurante || "Sin nombre";
+                      const monto = Math.round(
+                        cliente.precio_mensual_centavos / 100,
+                      );
+                      return (
+                        <option
+                          key={cliente.id}
+                          value={cliente.id}
+                          title={nombreRestaurante}
+                        >
+                          {nombreRestaurante} · ${monto.toLocaleString("es-MX")}
+                          /mes
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
 
               {/* Input para nombre cuando se elige "Otro" */}
               {mostrarInputOtro && (
                 <div className="w-full mt-3 animate-fadeIn relative">
+                  <p className="text-xs text-gray-600 mb-1.5 text-left">
+                    {modoOtro === "a"
+                      ? "Plan A · $4,399 / mes"
+                      : "Plan B · $2,199 / mes"}
+                  </p>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -963,7 +1068,9 @@ const SelectorPlanesB2B = ({
                   onSelectPlan={handleSelectPlan}
                   esSeller={esSeller}
                   nombreRestauranteParaLink={
-                    clienteSeleccionado
+                    clienteSeleccionado &&
+                    clienteSeleccionado !== "__otro__" &&
+                    clienteSeleccionado !== "__otro_a__"
                       ? clientesVetados.find(
                           (c) => c.id === parseInt(clienteSeleccionado),
                         )?.restaurante
@@ -972,7 +1079,10 @@ const SelectorPlanesB2B = ({
                         : ""
                   }
                   esClienteRestringido={
-                    !!clienteSeleccionado && clienteSeleccionado !== "__otro__"
+                    modoOtro === "a" ||
+                    (!!clienteSeleccionado &&
+                      clienteSeleccionado !== "__otro__" &&
+                      clienteSeleccionado !== "__otro_a__")
                   }
                   clienteDinamico={(() => {
                     const c = clientesVetados.find(
@@ -986,7 +1096,9 @@ const SelectorPlanesB2B = ({
                     )?.enlace_token
                   }
                   clienteEditorialId={
-                    clienteSeleccionado && clienteSeleccionado !== "__otro__"
+                    clienteSeleccionado &&
+                    clienteSeleccionado !== "__otro__" &&
+                    clienteSeleccionado !== "__otro_a__"
                       ? parseInt(clienteSeleccionado)
                       : null
                   }
