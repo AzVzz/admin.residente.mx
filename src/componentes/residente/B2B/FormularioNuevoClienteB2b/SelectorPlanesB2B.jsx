@@ -886,9 +886,11 @@ const SelectorPlanesB2B = ({
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black"
                   >
                     <option value="">
-                      {clientesEspeciales.length === 0
-                        ? "No hay clientes especiales"
-                        : `Seleccionar especial (${clientesEspeciales.length})`}
+                      {precioManualCentavos == null
+                        ? "Cargando precio especial..."
+                        : clientesEspeciales.length === 0
+                          ? `No hay clientes a $${(precioManualCentavos / 100).toLocaleString("es-MX")}/mes (actívalo en Clientes Vetados)`
+                          : `Seleccionar especial (${clientesEspeciales.length})`}
                     </option>
                     {clientesEspeciales.map((cliente) => {
                       const nombreRestaurante =
