@@ -448,6 +448,8 @@ const SelectorPlanesB2B = ({
   const mostrarInputOtro = modoOtro === "a" || modoOtro === "b";
   const [nombreOtro, setNombreOtro] = useState("");
   const [clienteDuplicado, setClienteDuplicado] = useState(null); // cliente que ya existe
+  // Centavos del Price B2B manual (Stripe); Especiales solo muestra clientes con ese monto
+  const [precioManualCentavos, setPrecioManualCentavos] = useState(null);
 
   // Anuncios para sellers
   const [anunciosSeller, setAnunciosSeller] = useState([]);
@@ -465,6 +467,27 @@ const SelectorPlanesB2B = ({
       }
     };
     fetchAnunciosSeller();
+  }, [esSeller]);
+
+  useEffect(() => {
+    if (!esSeller) return;
+    let cancelado = false;
+    (async () => {
+      try {
+        const res = await fetch(`${urlApi}api/stripe/precios`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const centavos = data?.precioB2BManual?.precioMensualCentavos;
+        if (!cancelado && Number.isInteger(centavos) && centavos > 0) {
+          setPrecioManualCentavos(centavos);
+        }
+      } catch {
+        // silencioso
+      }
+    })();
+    return () => {
+      cancelado = true;
+    };
   }, [esSeller]);
 
   // Ref para hacer scroll a los planes
@@ -668,13 +691,15 @@ const SelectorPlanesB2B = ({
   // Filtrar solo los planes de 6, 9 y 12 meses (nuevo modelo)
   const planesPermitidos = [12]; // [6, 9, 12];
 
-  // Lista normal (sin precio dinámico) vs Especiales (precio B2B manual / dinámico)
-  const clientesEnDropdown = clientesVetados.filter(
-    (c) => !c.precio_dinamico_activo,
-  );
-  const clientesEspeciales = clientesVetados.filter(
-    (c) => !!c.precio_dinamico_activo && !!c.precio_mensual_centavos,
-  );
+  // Especiales = solo precio B2B manual (monto de Stripe). El resto vuelve a la lista normal.
+  const esClienteEspecial = (c) =>
+    !!c.precio_dinamico_activo &&
+    !!c.precio_mensual_centavos &&
+    precioManualCentavos != null &&
+    Number(c.precio_mensual_centavos) === Number(precioManualCentavos);
+
+  const clientesEspeciales = clientesVetados.filter(esClienteEspecial);
+  const clientesEnDropdown = clientesVetados.filter((c) => !esClienteEspecial(c));
   const modoEspeciales = modoOtro === "especiales";
 
   // Precios especiales cuando se selecciona un cliente del dropdown (caro)
