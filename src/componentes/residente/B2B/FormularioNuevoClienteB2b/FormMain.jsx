@@ -871,7 +871,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       // Guardar el estado del formulario en localStorage antes de ir al checkout
       localStorage.setItem("b2b_form_data", JSON.stringify(formData));
 
-      // Crear sesión de suscripción
+      // Crear sesión de suscripción (Stripe; Quincy se desvía a Conekta en el backend)
       const apiUrl = `${urlApi}api/stripe/create-subscription-session`;
 
       const currentPlanParam = new URLSearchParams(window.location.search).get("plan");
@@ -881,9 +881,14 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
 
       // Preparar los datos del usuario para enviar al backend
       // Formato exacto requerido por el backend
+      const correoLimpio = String(formData.correo || "")
+        .trim()
+        .replace(/["'`]/g, "")
+        .toLowerCase();
+
       const userData = {
         nombre_responsable_restaurante: formData.nombre_restaurante, // ✅ OBLIGATORIO - nombre del restaurante
-        correo: formData.correo, // ✅ OBLIGATORIO
+        correo: correoLimpio, // ✅ OBLIGATORIO
         telefono: formData.telefono || null, // Opcional
         nombre_responsable: formData.nombre_responsable_restaurante || null,
         razon_social: formData.razon_social || null,
@@ -899,6 +904,11 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
         setPaymentError(
           "Por favor completa todos los campos obligatorios antes de pagar.",
         );
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.correo)) {
+        setPaymentLoading(false);
+        setPaymentError("El correo no tiene un formato válido.");
         return;
       }
 
@@ -918,7 +928,7 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
       const requestBody = {
         numeroSucursales: numeroSucursalesParaBackend,
         userData: userData,
-        customerEmail: formData.correo || "",
+        customerEmail: correoLimpio,
         successUrl: successUrl,
         cancelUrl: cancelUrl,
         beneficiosSeleccionados: beneficiosSeleccionados,
