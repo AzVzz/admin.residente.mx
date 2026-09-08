@@ -751,11 +751,9 @@ const FormMainResidente = () => {
         ? data.restaurantes_ids
         : null;
 
-      // Programar instafoto
-      if (data.programarInstafoto && data.fechaProgramadaInstafoto) {
-        datosNota.programar_insta_imagen = data.fechaProgramadaInstafoto;
-      } else {
-        datosNota.programar_insta_imagen = null;
+      // El Post seleccionado se publica inmediatamente en LinkInBio
+      if (data.instafoto) {
+      datosNota.programar_instafoto = null;
       }
 
       let resultado;

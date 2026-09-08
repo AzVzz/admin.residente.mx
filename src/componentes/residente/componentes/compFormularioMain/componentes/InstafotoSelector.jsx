@@ -1,5 +1,9 @@
 import { useFormContext } from "react-hook-form";
 import { useEffect, useState } from "react";
+import {
+  notaInstafotoDelete,
+  notaInstafotoPut,
+} from "../../../../api/notaCrearPostPut";
 import { useAuth } from "../../../../Context";
 import { generarInstafoto, generarStory } from "./generarInstafoto";
 
@@ -27,12 +31,10 @@ const descargarArchivo = (archivo, nombre) => {
   enlace.remove();
   setTimeout(() => URL.revokeObjectURL(url), 0);
 };
+
 const prepararUrlImagenExistente = (url) => {
   try {
-    const imagenUrl = new URL(
-      url,
-      window.location.origin,
-    );
+    const imagenUrl = new URL(url, window.location.origin);
 
     if (imagenUrl.pathname.startsWith("/fotos/")) {
       return `${imagenUrl.pathname}${imagenUrl.search}`;
@@ -44,9 +46,14 @@ const prepararUrlImagenExistente = (url) => {
   }
 };
 
-const InstafotoSelector = ({ imagenActual }) => {
+const InstafotoSelector = ({
+  imagenActual,
+  instafotoActual,
+  notaId,
+  onInstafotoEliminada,
+}) => {
   const { watch } = useFormContext();
-  const { usuario } = useAuth();
+  const { usuario, token } = useAuth();
 
   const imagenPrincipal = watch("imagen");
   const titulo = watch("titulo");
@@ -63,6 +70,8 @@ const InstafotoSelector = ({ imagenActual }) => {
   const [generando, setGenerando] = useState(false);
   const [errorGeneracion, setErrorGeneracion] = useState("");
   const [regenerarClave, setRegenerarClave] = useState(0);
+  const [subiendoLinkInBio, setSubiendoLinkInBio] = useState(false);
+  const [instafotoSubidaEnSesion, setInstafotoSubidaEnSesion] = useState(false);
 
   const esImagenPrincipalNueva = Boolean(
     imagenPrincipal && typeof imagenPrincipal !== "string",
@@ -80,6 +89,45 @@ const InstafotoSelector = ({ imagenActual }) => {
     esImagenPrincipalNueva || urlImagenExistente,
   );
 
+  const hayInstafotoGuardada = Boolean(
+    instafotoActual || instafotoSubidaEnSesion,
+  );
+
+  const subirPostLinkInBio = async () => {
+    if (!postArchivo || !notaId || subiendoLinkInBio) return;
+
+    setSubiendoLinkInBio(true);
+
+    try {
+      await notaInstafotoPut(notaId, postArchivo, token);
+      setInstafotoSubidaEnSesion(true);
+      alert("El Post fue subido correctamente a LinkInBio.");
+    } catch (error) {
+      console.error("Error subiendo el Post a LinkInBio:", error);
+      alert(`No se pudo subir el Post: ${error.message}`);
+    } finally {
+      setSubiendoLinkInBio(false);
+    }
+  };
+
+  const eliminarInstafotoGuardada = async () => {
+    if (!hayInstafotoGuardada || !notaId) return;
+
+    if (!window.confirm("¿Seguro que deseas eliminar este Post de LinkInBio?")) {
+      return;
+    }
+
+    try {
+      await notaInstafotoDelete(notaId, token);
+      setInstafotoSubidaEnSesion(false);
+      onInstafotoEliminada?.();
+      alert("El Post fue eliminado de LinkInBio.");
+    } catch (error) {
+      console.error("Error eliminando el Post de LinkInBio:", error);
+      alert(`No se pudo eliminar el Post: ${error.message}`);
+    }
+  };
+
   useEffect(() => {
     if (esImagenPrincipalNueva || !urlImagenExistente) {
       setImagenExistenteArchivo(null);
@@ -95,7 +143,6 @@ const InstafotoSelector = ({ imagenActual }) => {
       setErrorImagenExistente("");
 
       try {
-
         const urlDescarga = prepararUrlImagenExistente(urlImagenExistente);
         const respuesta = await fetch(urlDescarga, {
           mode: "cors",
@@ -113,7 +160,8 @@ const InstafotoSelector = ({ imagenActual }) => {
           throw new Error("El archivo guardado no es una imagen válida");
         }
 
-        const extension = blob.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg";
+        const extension =
+          blob.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg";
         const archivo = new File([blob], `imagen-existente.${extension}`, {
           type: blob.type,
         });
@@ -162,12 +210,7 @@ const InstafotoSelector = ({ imagenActual }) => {
   useEffect(() => {
     if (usuario?.rol === "invitado") return undefined;
 
-    if (
-      !imagenParaGenerar ||
-      !titulo?.trim() ||
-      !formato ||
-      !tipoNota
-    ) {
+    if (!imagenParaGenerar || !titulo?.trim() || !formato || !tipoNota) {
       setPostArchivo(null);
       setStoryArchivo(null);
       return undefined;
@@ -224,8 +267,7 @@ const InstafotoSelector = ({ imagenActual }) => {
   if (usuario?.rol === "invitado") return null;
 
   const faltanDatos =
-    hayImagenDisponible &&
-    (!titulo?.trim() || !formato || !tipoNota);
+    hayImagenDisponible && (!titulo?.trim() || !formato || !tipoNota);
 
   return (
     <div>
@@ -234,7 +276,7 @@ const InstafotoSelector = ({ imagenActual }) => {
       </label>
 
       <p className="mb-3 text-xs text-gray-500">
-        Se generan para descarga; no se guardan dentro de la nota.
+        Puedes descargar ambas imágenes o subir este Post directamente a LinkInBio.
       </p>
 
       {cargandoImagenExistente && (
@@ -292,6 +334,29 @@ const InstafotoSelector = ({ imagenActual }) => {
               >
                 Descargar Post
               </button>
+
+              <button
+                type="button"
+                onClick={subirPostLinkInBio}
+                disabled={subiendoLinkInBio || !notaId}
+                className="mt-2 w-full rounded px-3 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  backgroundColor: "#16a34a",
+                  color: "#ffffff",
+                }}
+              >
+                {subiendoLinkInBio
+                  ? "Subiendo a LinkInBio..."
+                  : hayInstafotoGuardada
+                    ? "Reemplazar Post en LinkInBio"
+                    : "Subir Post a LinkInBio"}
+              </button>
+
+              {!notaId && (
+                <p className="mt-1 text-xs text-amber-700">
+                  En una nota nueva, guárdala una vez para obtener su ID.
+                </p>
+              )}
             </div>
           )}
 
@@ -319,6 +384,22 @@ const InstafotoSelector = ({ imagenActual }) => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {hayInstafotoGuardada && (
+        <div className="mt-4 rounded border border-red-200 bg-red-50 p-3">
+          <p className="mb-2 text-sm font-medium text-red-800">
+            Esta nota ya tiene un Post guardado en LinkInBio.
+          </p>
+
+          <button
+            type="button"
+            onClick={eliminarInstafotoGuardada}
+            className="rounded bg-red-600 px-3 py-2 text-sm font-bold text-white hover:bg-red-700"
+          >
+            Eliminar Post de LinkInBio
+          </button>
         </div>
       )}
 

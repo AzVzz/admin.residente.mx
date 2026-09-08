@@ -1,4 +1,4 @@
-const FUENTE_BOLD = "NeueHaasGroteskDisplayW02Bold";
+const FUENTE_BOLD = "NeueHaasGroteskDisplayPro75Bold";
 const FUENTE_ROMAN = "NeueHaasGroteskDisplayPro55Roman";
 
 const SALIDAS = {
@@ -10,8 +10,8 @@ const SALIDAS = {
     logoMedida: 76,
     webX: 171,
     webY: 91,
-    etiquetaY: 286,
-    tipoY: 394,
+    etiquetaY: 380,
+    tipoY: 492,
     primeraLinea: 535,
     nombre: "post",
   },
@@ -23,7 +23,7 @@ const SALIDAS = {
     logoMedida: 76,
     webX: 171,
     webY: 203,
-    etiquetaY: 660,
+    etiquetaY: 645,
     tipoY: 768,
     primeraLinea: 940,
     nombre: "story",
@@ -204,9 +204,9 @@ const dibujarTipoNota = (ctx, tipoNota, salida) => {
 };
 
 const dibujarTitulo = (ctx, titulo, salida) => {
-  const anchoTextoMaximo = salida.nombre === "story" ? 950 : 900;
+  const anchoTextoMaximo = salida.nombre === "story" ? 870 : 900;
   const maximoLineas = 7;
-  let tamano = salida.nombre === "story" ? 104 : 74;
+  let tamano = salida.nombre === "story" ? 90 : 74;
   let lineas = [];
 
   while (tamano >= 48) {
@@ -216,13 +216,25 @@ const dibujarTitulo = (ctx, titulo, salida) => {
     tamano -= 1;
   }
 
-  const interlineado = tamano * 1.21;
+  const interlineado = tamano * 1.05;
   ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
 
   const metricas = ctx.measureText("Ágj");
   const ascenso = metricas.actualBoundingBoxAscent || tamano * 0.8;
   const descenso = metricas.actualBoundingBoxDescent || tamano * 0.2;
-  const primeraLinea = salida.primeraLinea;
+  const centroVertical = salida.nombre === "story" ? 1160 : 770;
+  const altoBloque =
+  ascenso + descenso + (lineas.length - 1) * interlineado;
+  const primeraLineaCentrada =
+  centroVertical - altoBloque / 2 + ascenso;
+
+  const primeraLineaMinima =
+  salida.tipoY + 56 + 35 + ascenso;
+
+  const primeraLinea =
+  salida.nombre === "story"
+    ? Math.max(primeraLineaCentrada, primeraLineaMinima)
+    : primeraLineaCentrada;
   const paddingHorizontal = 32;
   const paddingVertical = 6;
   const solapeVertical = salida.nombre === "story" ? 12 : 0;
@@ -273,9 +285,10 @@ const dibujarTitulo = (ctx, titulo, salida) => {
   ctx.textBaseline = "alphabetic";
   ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
   ctx.fillStyle = "#FFFFFF";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-  ctx.shadowBlur = 3;
-  ctx.shadowOffsetY = 2;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
 
   lineas.forEach((linea, indice) => {
     ctx.fillText(linea, salida.ancho / 2, primeraLinea + indice * interlineado);
@@ -353,20 +366,23 @@ const generarImagenRedes = async ({
     ctx.fillStyle = degradado;
     ctx.fillRect(0, 0, salida.ancho, salida.alto);
 
-    const logoNegro = crearLogoNegro(logoOriginal);
-    ctx.drawImage(
-      logoNegro,
-      salida.logoX,
-      salida.logoY,
-      salida.logoMedida,
-      salida.logoMedida,
-    );
+    if (salida.nombre !== "story") {
+  const logoNegro = crearLogoNegro(logoOriginal);
 
-    ctx.fillStyle = "#000000";
-    ctx.font = `700 35px "${FUENTE_BOLD}"`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillText("www.residente.mx", salida.webX, salida.webY);
+  ctx.drawImage(
+    logoNegro,
+    salida.logoX,
+    salida.logoY,
+    salida.logoMedida,
+    salida.logoMedida,
+  );
+
+  ctx.fillStyle = "#000000";
+  ctx.font = `700 35px "${FUENTE_BOLD}"`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText("www.residente.mx", salida.webX, salida.webY);
+  }
 
     dibujarEtiqueta(ctx, formato, salida);
     dibujarTipoNota(ctx, tipoNota, salida);
