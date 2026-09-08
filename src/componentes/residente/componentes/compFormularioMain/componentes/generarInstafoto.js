@@ -222,19 +222,9 @@ const dibujarTitulo = (ctx, titulo, salida) => {
   const metricas = ctx.measureText("Ágj");
   const ascenso = metricas.actualBoundingBoxAscent || tamano * 0.8;
   const descenso = metricas.actualBoundingBoxDescent || tamano * 0.2;
-  const centroVertical = salida.nombre === "story" ? 1160 : 770;
-  const altoBloque =
-  ascenso + descenso + (lineas.length - 1) * interlineado;
-  const primeraLineaCentrada =
-  centroVertical - altoBloque / 2 + ascenso;
+  const inicioTitulo = salida.nombre === "story" ? 860 : 575;
+  const primeraLinea = inicioTitulo + ascenso;
 
-  const primeraLineaMinima =
-  salida.tipoY + 56 + 35 + ascenso;
-
-  const primeraLinea =
-  salida.nombre === "story"
-    ? Math.max(primeraLineaCentrada, primeraLineaMinima)
-    : primeraLineaCentrada;
   const paddingHorizontal = 32;
   const paddingVertical = 6;
   const solapeVertical = salida.nombre === "story" ? 12 : 0;
