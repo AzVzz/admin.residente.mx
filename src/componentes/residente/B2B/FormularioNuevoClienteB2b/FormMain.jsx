@@ -1463,7 +1463,8 @@ const FormMain = ({ planInicial = null, beneficiosSeleccionados = [], nombreRest
             Día del mes para el cobro recurrente (opcional)
           </label>
           <p className="text-sm text-gray-600 mb-2">
-            Elige tu día de cobro ideal a partir del segundo mes.
+            Hoy se cobra el primer mes. El día que elijas aplica a partir del
+            segundo mes (mínimo ~28 días después), no antes.
           </p>
           <select
             name="dia_cobro"
