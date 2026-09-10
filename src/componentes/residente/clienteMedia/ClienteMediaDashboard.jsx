@@ -16,6 +16,10 @@ const emptyBannerForm = {
   imagen_mobile: "",
 };
 
+const CLIENT_DISPLAY_NAMES = {
+  trebol21: "Trebol 21",
+};
+
 async function uploadImage(file) {
   const formDataUpload = new FormData();
   formDataUpload.append("imagen", file);
@@ -159,6 +163,10 @@ const ClienteMediaDashboard = () => {
   }, [load]);
 
   const perfil = data?.perfil;
+  const perfilDisplayName =
+    CLIENT_DISPLAY_NAMES[perfil?.slug] ||
+    perfil?.nombre_display ||
+    usuario?.nombre_usuario;
   const banners = data?.banners?.banners || [];
   const bannersTotal = data?.banners?.total || {};
   const notas = data?.notas?.notas || [];
@@ -175,7 +183,7 @@ const ClienteMediaDashboard = () => {
     setEditingBanner(null);
     setBannerForm({
       ...emptyBannerForm,
-      nombre: perfil?.nombre_display || "",
+      nombre: perfilDisplayName || "",
     });
     setBannerMsg("");
   };
@@ -291,7 +299,7 @@ const ClienteMediaDashboard = () => {
                 Dashboard
               </p>
               <h1 className="text-xl font-bold text-black truncate leading-tight">
-                {perfil?.nombre_display || usuario?.nombre_usuario}
+                {perfilDisplayName}
               </h1>
             </div>
           </div>
