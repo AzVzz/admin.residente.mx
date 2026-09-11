@@ -1351,6 +1351,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               className="w-60 aspect-[4/3] bg-black mb-6"
             />
 
+            {/* LIYPE no tiene inversión/ticket de restaurante: ocultar tarjeta ROI. */}
+            {!esLiype && (
             <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
               {/* Rango de fechas: desde la inscripción hasta hoy (hoy se actualiza solo) */}
               <p className="text-[13px] font-roman text-white/85 leading-tight mb-3">
@@ -1471,6 +1473,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 </div>
               )}
             </div>
+            )}
           </div>
           <address className="flex flex-col mt-auto pt-10">
             <p>Credenciales de Acceso</p>
