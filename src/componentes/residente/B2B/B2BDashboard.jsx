@@ -48,6 +48,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // Métricas del chatbot Resi (impressions/clicks por restaurante, nota, cupón).
   // Se carga una sola vez y se pasa por prop al carrusel para evitar N fetches.
   const [chatbotStats, setChatbotStats] = useState(null);
+  const [reservacionStats, setReservacionStats] = useState(null);
 
   // Banner Trebol21 del sidebar derecho (slot trebol_admin_b2b) — tracking views/clicks
   const [trebolBannerId, setTrebolBannerId] = useState(null);
@@ -123,6 +124,36 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     })();
     return () => ctrl.abort();
   }, [token]);
+
+  // La API resuelve el propietario exclusivamente desde el JWT. El modo
+  // superadmin no suplanta esta métrica para evitar cruces entre cuentas B2B.
+  useEffect(() => {
+    if (!token || viewAsUserId) {
+      setReservacionStats(null);
+      return;
+    }
+    setReservacionStats(null);
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        const response = await fetch(
+          `${urlApi}api/usuariosb2b/reservaciones/metricas`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: ctrl.signal,
+          },
+        );
+        if (!response.ok) return;
+        const data = await response.json();
+        setReservacionStats(data?.habilitada ? data : null);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.warn("[reservaciones B2B]", error.message);
+        }
+      }
+    })();
+    return () => ctrl.abort();
+  }, [token, viewAsUserId]);
 
   // Hook que carga TODOS los restaurantes del B2B con notas-stats por restaurante.
   const { restaurantes, loading: loadingRestaurante } = useRestaurantesB2B(
@@ -1755,6 +1786,17 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
               onSlideChange={setSlideActivo}
               chatbotStats={chatbotStats}
             />
+
+            {reservacionStats?.habilitada && (
+              <div className="mt-2 mb-6">
+                <p className="text-[40px] font-bold text-black leading-[1]">
+                  {(reservacionStats.total?.clicks || 0).toLocaleString(
+                    "es-MX",
+                  )}
+                </p>
+                <p className="text-sm text-black">Clics en Reserva aquí</p>
+              </div>
+            )}
 
             {/* Contadores del micrositio externo (proveedores sin restaurante, ej:
                 LIYPE → /liype). Vistas/clicks vienen de usuarios_b2b vía el mismo
