@@ -125,10 +125,8 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     return () => ctrl.abort();
   }, [token]);
 
-  // La API resuelve el propietario exclusivamente desde el JWT. El modo
-  // superadmin no suplanta esta métrica para evitar cruces entre cuentas B2B.
   useEffect(() => {
-    if (!token || viewAsUserId) {
+    if (!token) {
       setReservacionStats(null);
       return;
     }
@@ -136,8 +134,11 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
     const ctrl = new AbortController();
     (async () => {
       try {
+        const viewAsQuery = viewAsUserId
+          ? `?viewAsUserId=${encodeURIComponent(viewAsUserId)}`
+          : "";
         const response = await fetch(
-          `${urlApi}api/usuariosb2b/reservaciones/metricas`,
+          `${urlApi}api/usuariosb2b/reservaciones/metricas${viewAsQuery}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             signal: ctrl.signal,
