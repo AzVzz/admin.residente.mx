@@ -317,23 +317,23 @@ const PlanCard = ({
 const PDFS_CLUB_FACIL = [
   {
     titulo: "Lo que no resolvemos",
-    url: "https://residente.mx/assets/01_lo_que_no_resolvemos%20(1).pdf",
+    url: "https://residente.mx/fotos/fotos-estaticas/01_lo_que_no_resolvemos%20(1).pdf",
   },
   {
     titulo: "Qué problema resolvemos",
-    url: "https://residente.mx/assets/02_que_problema_resolvemos%20(1).pdf",
+    url: "https://residente.mx/fotos/fotos-estaticas/02_que_problema_resolvemos%20(1).pdf",
   },
   {
     titulo: "Beneficios",
-    url: "https://residente.mx/assets/03_beneficios%20(1).pdf",
+    url: "https://residente.mx/fotos/fotos-estaticas/03_beneficios%20(1).pdf",
   },
   {
     titulo: "Por qué casi ningún restaurante gasta en prestigio",
-    url: "https://residente.mx/assets/04_por_que_casi_ningun_restaurante_gasta_en_prestigio.pdf",
+    url: "https://residente.mx/fotos/fotos-estaticas/04_por_que_casi_ningun_restaurante_gasta_en_prestigio.pdf",
   },
   {
     titulo: "Cómo lo logramos",
-    url: "https://residente.mx/assets/05_como_lo_logramos.pdf",
+    url: "https://residente.mx/fotos/fotos-estaticas/05_como_lo_logramos.pdf",
   },
 ];
 
