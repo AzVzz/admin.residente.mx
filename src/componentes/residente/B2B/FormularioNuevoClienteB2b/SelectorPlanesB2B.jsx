@@ -314,6 +314,119 @@ const PlanCard = ({
   );
 };
 
+const PDFS_CLUB_FACIL = [
+  {
+    titulo: "Lo que no resolvemos",
+    url: "https://residente.mx/assets/01_lo_que_no_resolvemos%20(1).pdf",
+  },
+  {
+    titulo: "Qué problema resolvemos",
+    url: "https://residente.mx/assets/02_que_problema_resolvemos%20(1).pdf",
+  },
+  {
+    titulo: "Beneficios",
+    url: "https://residente.mx/assets/03_beneficios%20(1).pdf",
+  },
+  {
+    titulo: "Por qué casi ningún restaurante gasta en prestigio",
+    url: "https://residente.mx/assets/04_por_que_casi_ningun_restaurante_gasta_en_prestigio.pdf",
+  },
+  {
+    titulo: "Cómo lo logramos",
+    url: "https://residente.mx/assets/05_como_lo_logramos.pdf",
+  },
+];
+
+const CarruselPdfsClub = () => {
+  const [idx, setIdx] = useState(0);
+  const actual = PDFS_CLUB_FACIL[idx];
+
+  const irAnterior = () => {
+    setIdx((prev) => (prev === 0 ? PDFS_CLUB_FACIL.length - 1 : prev - 1));
+  };
+
+  const irSiguiente = () => {
+    setIdx((prev) => (prev === PDFS_CLUB_FACIL.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto mb-6">
+      <div className="relative bg-white rounded-md shadow-lg overflow-hidden">
+        <div className="flex items-center gap-2 px-3 py-2 bg-[#fff200]">
+          <button
+            type="button"
+            onClick={irAnterior}
+            className="shrink-0 p-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer"
+            aria-label="PDF anterior"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M15 6L9 12L15 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <p className="flex-1 text-sm font-bold text-center text-black leading-tight">
+            {actual.titulo}
+          </p>
+          <button
+            type="button"
+            onClick={irSiguiente}
+            className="shrink-0 p-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer"
+            aria-label="PDF siguiente"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 6L15 12L9 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <iframe
+          key={actual.url}
+          src={`${encodeURI(actual.url)}#toolbar=0&navpanes=0`}
+          className="w-full h-[520px] border-0 bg-gray-100"
+          title={actual.titulo}
+        />
+
+        <div className="flex flex-col items-center gap-3 px-3 py-3 bg-white border-t border-gray-100">
+          <div className="flex items-center gap-2">
+            {PDFS_CLUB_FACIL.map((pdf, i) => (
+              <button
+                key={pdf.url}
+                type="button"
+                onClick={() => setIdx(i)}
+                aria-label={`Ir a ${pdf.titulo}`}
+                className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                  i === idx
+                    ? "w-6 bg-[#fff200] border border-black"
+                    : "w-2.5 bg-gray-300 hover:bg-gray-400"
+                }`}
+              />
+            ))}
+          </div>
+          <a
+            href={actual.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-bold text-black underline hover:no-underline"
+          >
+            Abrir PDF en nueva pestaña ({idx + 1}/{PDFS_CLUB_FACIL.length})
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Componente Modal para mostrar el PDF
 const ModalPDF = ({ isOpen, onClose, pdfUrl }) => {
   const [pdfError, setPdfError] = useState(false);
@@ -990,6 +1103,8 @@ const SelectorPlanesB2B = ({
             Tu navegador no soporta la reproducción de video.
           </video>
         </div>
+
+        <CarruselPdfsClub />
 
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
