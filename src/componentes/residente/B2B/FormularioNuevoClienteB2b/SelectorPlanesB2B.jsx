@@ -314,75 +314,87 @@ const PlanCard = ({
   );
 };
 
-const PDFS_CLUB_FACIL = [
+const IMAGENES_CLUB_FACIL = [
   {
     titulo: "Lo que no resolvemos",
-    url: "https://residente.mx/fotos/fotos-estaticas/01_lo_que_no_resolvemos.pdf?v=4",
+    url: "https://residente.mx/fotos/fotos-estaticas/01_lo_que_no_resolvemos.jpg",
   },
   {
     titulo: "Qué problema resolvemos",
-    url: "https://residente.mx/fotos/fotos-estaticas/02_que_problema_resolvemos.pdf?v=4",
+    url: "https://residente.mx/fotos/fotos-estaticas/02_que_problema_resolvemos.jpg",
   },
   {
     titulo: "Beneficios",
-    url: "https://residente.mx/fotos/fotos-estaticas/03_beneficios.pdf?v=4",
+    url: "https://residente.mx/fotos/fotos-estaticas/03_beneficios.jpg",
   },
   {
     titulo: "Por qué casi ningún restaurante gasta en prestigio",
-    url: "https://residente.mx/fotos/fotos-estaticas/04_por_que_casi_ningun_restaurante_gasta_en_prestigio.pdf?v=4",
+    url: "https://residente.mx/fotos/fotos-estaticas/04_por_que_casi_ningun_restaurante_gasta_en_prestigio.jpg",
   },
   {
     titulo: "Cómo lo logramos",
-    url: "https://residente.mx/fotos/fotos-estaticas/05_como_lo_logramos.pdf?v=4",
+    url: "https://residente.mx/fotos/fotos-estaticas/05_como_lo_logramos.jpg",
   },
 ];
 
-const CarruselPdfsClub = () => {
+const CarruselImagenesClub = () => {
   const [idx, setIdx] = useState(0);
-  const actual = PDFS_CLUB_FACIL[idx];
+  const total = IMAGENES_CLUB_FACIL.length;
+  const actual = IMAGENES_CLUB_FACIL[idx];
 
   const irAnterior = () => {
-    setIdx((prev) => (prev === 0 ? PDFS_CLUB_FACIL.length - 1 : prev - 1));
+    setIdx((prev) => (prev === 0 ? total - 1 : prev - 1));
   };
 
   const irSiguiente = () => {
-    setIdx((prev) => (prev === PDFS_CLUB_FACIL.length - 1 ? 0 : prev + 1));
+    setIdx((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto mb-6">
-      <div className="relative bg-white rounded-md shadow-lg overflow-hidden">
-        <div className="flex items-center gap-2 px-3 py-2 bg-[#fff200]">
+      <div className="relative overflow-hidden rounded-md shadow-lg bg-black">
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] bg-gray-900">
+          {IMAGENES_CLUB_FACIL.map((img, i) => (
+            <img
+              key={img.url}
+              src={img.url}
+              alt={img.titulo}
+              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${
+                i === idx ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ))}
+
           <button
             type="button"
             onClick={irAnterior}
-            className="shrink-0 p-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer"
-            aria-label="PDF anterior"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[#fff200] hover:text-black transition-colors cursor-pointer"
+            aria-label="Imagen anterior"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path
                 d="M15 6L9 12L15 18"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           </button>
-          <p className="flex-1 text-sm font-bold text-center text-black leading-tight">
-            {actual.titulo}
-          </p>
+
           <button
             type="button"
             onClick={irSiguiente}
-            className="shrink-0 p-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer"
-            aria-label="PDF siguiente"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[#fff200] hover:text-black transition-colors cursor-pointer"
+            aria-label="Imagen siguiente"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path
                 d="M9 6L15 12L9 18"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -390,37 +402,28 @@ const CarruselPdfsClub = () => {
           </button>
         </div>
 
-        <iframe
-          key={actual.url}
-          src={`${actual.url}#toolbar=0&navpanes=0`}
-          className="w-full h-[520px] border-0 bg-gray-100"
-          title={actual.titulo}
-        />
-
-        <div className="flex flex-col items-center gap-3 px-3 py-3 bg-white border-t border-gray-100">
+        <div className="flex flex-col items-center gap-2 px-4 py-3 bg-[#fff200]">
+          <p className="text-sm font-bold text-center text-black leading-tight">
+            {actual.titulo}
+          </p>
           <div className="flex items-center gap-2">
-            {PDFS_CLUB_FACIL.map((pdf, i) => (
+            {IMAGENES_CLUB_FACIL.map((img, i) => (
               <button
-                key={pdf.url}
+                key={img.url}
                 type="button"
                 onClick={() => setIdx(i)}
-                aria-label={`Ir a ${pdf.titulo}`}
+                aria-label={`Ir a ${img.titulo}`}
                 className={`h-2.5 rounded-full transition-all cursor-pointer ${
                   i === idx
-                    ? "w-6 bg-[#fff200] border border-black"
-                    : "w-2.5 bg-gray-300 hover:bg-gray-400"
+                    ? "w-7 bg-black"
+                    : "w-2.5 bg-black/30 hover:bg-black/50"
                 }`}
               />
             ))}
           </div>
-          <a
-            href={actual.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-bold text-black underline hover:no-underline"
-          >
-            Abrir PDF en nueva pestaña ({idx + 1}/{PDFS_CLUB_FACIL.length})
-          </a>
+          <span className="text-xs font-semibold text-black/70">
+            {idx + 1} / {total}
+          </span>
         </div>
       </div>
     </div>
@@ -1104,7 +1107,7 @@ const SelectorPlanesB2B = ({
           </video>
         </div>
 
-        <CarruselPdfsClub />
+        <CarruselImagenesClub />
 
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           <div className="w-full max-w-2xl mx-auto">
