@@ -340,7 +340,6 @@ const IMAGENES_CLUB_FACIL = [
 const CarruselImagenesClub = () => {
   const [idx, setIdx] = useState(0);
   const total = IMAGENES_CLUB_FACIL.length;
-  const actual = IMAGENES_CLUB_FACIL[idx];
 
   const irAnterior = () => {
     setIdx((prev) => (prev === 0 ? total - 1 : prev - 1));
@@ -400,30 +399,6 @@ const CarruselImagenesClub = () => {
               />
             </svg>
           </button>
-        </div>
-
-        <div className="flex flex-col items-center gap-2 px-4 py-3 bg-[#fff200]">
-          <p className="text-sm font-bold text-center text-black leading-tight">
-            {actual.titulo}
-          </p>
-          <div className="flex items-center gap-2">
-            {IMAGENES_CLUB_FACIL.map((img, i) => (
-              <button
-                key={img.url}
-                type="button"
-                onClick={() => setIdx(i)}
-                aria-label={`Ir a ${img.titulo}`}
-                className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                  i === idx
-                    ? "w-7 bg-black"
-                    : "w-2.5 bg-black/30 hover:bg-black/50"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs font-semibold text-black/70">
-            {idx + 1} / {total}
-          </span>
         </div>
       </div>
     </div>
