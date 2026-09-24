@@ -664,23 +664,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        if (response.status === 404) {
-          if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-            setSubscriptionData({
-              suscripcionDB: {
-                estado: "active",
-                nombre_plan: "B2B Residente",
-                facturas: "month",
-              },
-              sincronizado: false,
-            });
-            setSubscriptionError(null);
-            return;
-          }
-          setSubscriptionError("No se encontró una suscripción activa");
-          return;
-        }
-        throw new Error("La respuesta del servidor no es válida");
+        // No hidratar stub sin monto/meses_pagados: eso deja INVERSIÓN en $0.
+        setSubscriptionError("No se encontró una suscripción activa");
+        return;
       }
 
       const data = await response.json();
@@ -697,19 +683,16 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
       ) {
         setSubscriptionData(data);
         setSubscriptionError(null);
-        // Cachear respuesta exitosa
-        _subCache.set(`sub-${b2bId}`, data);
-        _subCacheTime.set(`sub-${b2bId}`, Date.now());
-      } else {
-        if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-          setSubscriptionData({
-            suscripcionDB: { estado: "active" },
-            sincronizado: false,
-          });
-          setSubscriptionError(null);
-        } else {
-          setSubscriptionError("No se encontró una suscripción activa");
+        // Solo cachear si trae datos útiles para inversión (evita persistir stubs).
+        const tieneInversion =
+          Number(data.meses_pagados) > 0 ||
+          Number(data.suscripcionDB?.monto) > 0;
+        if (tieneInversion) {
+          _subCache.set(`sub-${b2bId}`, data);
+          _subCacheTime.set(`sub-${b2bId}`, Date.now());
         }
+      } else {
+        setSubscriptionError("No se encontró una suscripción activa");
       }
     } catch (error) {
       if (
@@ -726,23 +709,6 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
       setLoadingSubscription(false);
     }
   };
-
-  // Verificar suscripción inicial desde el objeto usuario
-  useEffect(() => {
-    if (usuario?.suscripcion === 1 || usuario?.suscripcion === true) {
-      if (!subscriptionData && !loadingSubscription) {
-        setSubscriptionData({
-          suscripcionDB: {
-            estado: "active",
-            nombre_plan: "B2B Residente",
-            facturas: "month",
-          },
-          sincronizado: false,
-        });
-        setSubscriptionError(null);
-      }
-    }
-  }, [usuario]);
 
   // Obtener información de suscripción cuando b2bId esté disponible
   useEffect(() => {
@@ -1007,7 +973,9 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   // En el slide TOTAL se usa la inversión completa de la cuenta.
   const precioMensual = subscriptionData?.suscripcionDB?.monto
     ? Number(subscriptionData.suscripcionDB.monto) / 100
-    : 0;
+    : b2bUser?.monto_suscripcion
+      ? Number(b2bUser.monto_suscripcion) / 100
+      : 0;
   const mesesPagados = Number(subscriptionData?.meses_pagados || 0);
   const inversionCuenta = precioMensual * mesesPagados;
   const numRestaurantes = Math.max(restaurantes.length, 1);
