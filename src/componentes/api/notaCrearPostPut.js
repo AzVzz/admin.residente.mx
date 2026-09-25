@@ -1,6 +1,20 @@
 import { urlApi, imgApi } from './url.js';
 
 /**
+ * Lee el mensaje de error del body de la API (`error` o `message`).
+ * @param {Response} response
+ * @param {string} fallback
+ */
+const mensajeErrorApi = async (response, fallback) => {
+    try {
+        const body = await response.json();
+        return body.error || body.message || fallback;
+    } catch {
+        return fallback;
+    }
+};
+
+/**
  * Actualiza la imagen de una nota usando PUT y form-data.
  * @param {string|number} id - ID de la nota.
  * @param {File} file - Archivo de imagen (File de input type="file").
@@ -18,8 +32,7 @@ export const notaCrear = async (datosNota, token) => {
         body: JSON.stringify(datosNota)
     });
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al crear la nota');
+        throw new Error(await mensajeErrorApi(response, 'Error al crear la nota'));
     }
     return await response.json();
 };
@@ -35,7 +48,9 @@ export const notaEditar = async (id, notaData, token) => {
             },
             body: JSON.stringify(notaData)
         });
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(await mensajeErrorApi(response, `Error HTTP: ${response.status}`));
+        }
         return await response.json();
     } catch (error) {
         console.error("Error editando nota:", error);
@@ -57,7 +72,9 @@ export const notaImagenPut = async (id, file, token, recorte = null) => {
             },
             body: formData
         });
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(await mensajeErrorApi(response, `Error HTTP: ${response.status}`));
+        }
         return await response.json();
     } catch (error) {
         console.error("Error actualizando imagen de nota:", error);
@@ -77,7 +94,9 @@ export const notaInstafotoPut = async (id, file, token) => {
             },
             body: formData
         });
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(await mensajeErrorApi(response, `Error HTTP: ${response.status}`));
+        }
         return await response.json();
     } catch (error) {
         console.error("Error actualizando instafoto de nota:", error);
@@ -103,7 +122,9 @@ export const notaInstafotoDelete = async (id, token) => {
             if (response.status === 404) {
                 throw new Error('Nota o instafoto no encontrada');
             }
-            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            throw new Error(
+                await mensajeErrorApi(response, `Error HTTP: ${response.status} - ${response.statusText}`),
+            );
         }
         
         //console.log('Instafoto eliminada exitosamente del servidor');
@@ -137,7 +158,9 @@ export const notaInstafotoDeleteAlternative = async (id, token) => {
             if (response.status === 404) {
                 throw new Error('Nota no encontrada');
             }
-            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            throw new Error(
+                await mensajeErrorApi(response, `Error HTTP: ${response.status} - ${response.statusText}`),
+            );
         }
         
         //console.log('Instafoto eliminada exitosamente del servidor (método alternativo)');
