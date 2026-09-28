@@ -7,8 +7,9 @@ import {
   bannerAsignarNotas,
   bannerClearNotas,
   bannerSetAutoAsignarNotas,
+  bannerSetMitadNotas,
 } from "../../../api/bannersApi";
-import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye, FaMagic } from "react-icons/fa";
+import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye, FaMagic, FaColumns } from "react-icons/fa";
 import BannerForm from "./BannerForm";
 import ResponsiveImg from "../../../ResponsiveImg";
 
@@ -46,6 +47,7 @@ const BannersList = () => {
   const [asignarError, setAsignarError] = useState(null);
   const [asignarSuccess, setAsignarSuccess] = useState(null);
   const [isTogglingAuto, setIsTogglingAuto] = useState(false);
+  const [isTogglingMitad, setIsTogglingMitad] = useState(false);
 
   const fetchBanners = async () => {
     setIsLoading(true);
@@ -187,6 +189,27 @@ const BannersList = () => {
       setAsignarError("Error al actualizar auto-asignación.");
     } finally {
       setIsTogglingAuto(false);
+    }
+  };
+
+  const handleToggleMitadNotas = async (banner) => {
+    if (!banner?.id || isTogglingMitad) return;
+    const next = !banner.mitad_notas;
+    setIsTogglingMitad(true);
+    setAsignarError(null);
+    setAsignarSuccess(null);
+    try {
+      const res = await bannerSetMitadNotas(token, banner.id, next);
+      setAsignarSuccess(res.message);
+      setBanners((prev) =>
+        prev.map((b) =>
+          b.id === banner.id ? { ...b, mitad_notas: next } : b
+        )
+      );
+    } catch {
+      setAsignarError("Error al actualizar mitad de notas.");
+    } finally {
+      setIsTogglingMitad(false);
     }
   };
 
@@ -438,6 +461,11 @@ const BannersList = () => {
                         Auto notas
                       </span>
                     )}
+                    {b.mitad_notas && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border bg-indigo-50 text-indigo-700 border-indigo-200">
+                        Mitad notas
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -574,6 +602,32 @@ const BannersList = () => {
                         }`}
                       >
                         {isTogglingAuto ? "..." : b.auto_asignar_notas ? "ON" : "OFF"}
+                      </span>
+                    </button>
+
+                    {/* Rotación a la mitad de las notas */}
+                    <button
+                      onClick={() => handleToggleMitadNotas(b)}
+                      disabled={isTogglingMitad}
+                      className={`w-full flex items-center justify-between gap-2 mb-3 px-2.5 py-2 rounded-md border text-[11px] cursor-pointer transition-colors disabled:opacity-50 ${
+                        b.mitad_notas
+                          ? "bg-indigo-100 border-indigo-300 text-indigo-900"
+                          : "bg-white border-purple-200 text-purple-800 hover:bg-purple-100"
+                      }`}
+                      title="Si está activo, este banner rota al azar (con los demás marcados) a la mitad del texto de todas las notas y deja de salir arriba"
+                    >
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <FaColumns className="text-[10px]" />
+                        Mitad de notas
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          b.mitad_notas
+                            ? "bg-indigo-600 text-white"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {isTogglingMitad ? "..." : b.mitad_notas ? "ON" : "OFF"}
                       </span>
                     </button>
 

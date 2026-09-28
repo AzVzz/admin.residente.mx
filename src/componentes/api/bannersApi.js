@@ -98,6 +98,16 @@ export const bannerSetAutoAsignarNotas = async (token, id, enabled) => {
   return await res.json();
 };
 
+export const bannerSetMitadNotas = async (token, id, enabled) => {
+  const res = await fetch(`${urlApi}api/banners/${id}/mitad-notas`, {
+    method: "PUT",
+    headers: authHeaders(token),
+    body: JSON.stringify({ mitad_notas: enabled }),
+  });
+  if (!res.ok) throw new Error("Error al actualizar mitad de notas");
+  return await res.json();
+};
+
 export const bannerGetStats = async (token, id) => {
   const res = await fetch(`${urlApi}api/banners/${id}/stats`, {
     headers: authHeaders(token),
