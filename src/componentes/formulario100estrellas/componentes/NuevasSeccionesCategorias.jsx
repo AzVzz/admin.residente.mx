@@ -1,6 +1,16 @@
 import { useFormContext } from 'react-hook-form';
 import { useJsonData } from '../../../componentes/api/SeccionesDataFetcher.jsx';
 
+// Solo cambia el texto visible: el valor guardado sigue siendo "TOP"
+// porque "Premium" en BD es el nombre legacy de Únicos.
+const ETIQUETAS_CATEGORIA = {
+  "Nivel gastro": { TOP: "Premium" },
+  "Nivel de gasto": { TOP: "Premium" },
+};
+
+const etiquetaCategoria = (seccionName, nombre) =>
+  ETIQUETAS_CATEGORIA[seccionName]?.[nombre] ?? nombre;
+
 const NuevasSeccionesCategorias = () => {
   const { data, loading, error } = useJsonData();
   const { register, formState: { errors }, watch, setValue } = useFormContext();
@@ -87,7 +97,7 @@ const NuevasSeccionesCategorias = () => {
                           htmlFor={`${seccionName}-${categoria.nombre}`}
                           className="ml-2 text-gray-700 hover:text-blue-600 cursor-pointer"
                         >
-                          {categoria.nombre}
+                          {etiquetaCategoria(seccionName, categoria.nombre)}
                         </label>
                       </div>
                     );
