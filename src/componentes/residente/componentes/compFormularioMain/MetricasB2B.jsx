@@ -106,6 +106,9 @@ const MetricasB2B = () => {
                     Precio pagado
                   </th>
                   <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
+                    Total pagado
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
                     Conversión
                   </th>
                   <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">
@@ -119,7 +122,7 @@ const MetricasB2B = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {ordenadas.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
+                    <td colSpan="7" className="px-4 py-4 text-center text-gray-500">
                       No hay clientes B2B activos
                     </td>
                   </tr>
@@ -162,6 +165,23 @@ const MetricasB2B = () => {
                         )}
                       </td>
                       <td className="px-3 py-2 align-top whitespace-nowrap">
+                        <span className="font-semibold text-gray-800">
+                          {formatMoneda(f.pagado)}
+                        </span>
+                        {f.pagado != null && (
+                          <span className="block text-[11px] text-gray-400 font-normal">
+                            {f.meses}{" "}
+                            {f.meses === 1 ? "mes pagado" : "meses pagados"}
+                            {f.es_compartida &&
+                              ` · ${
+                                f.num_restaurantes === 2
+                                  ? "½"
+                                  : `1/${f.num_restaurantes}`
+                              } de ${formatMoneda(f.meses * f.precio_cuenta)}`}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 align-top whitespace-nowrap">
                         <span className="font-semibold text-green-700">
                           {formatMoneda(f.conversion)}
                         </span>
@@ -178,7 +198,7 @@ const MetricasB2B = () => {
                           <span
                             title={`Conversión + Fidelización (${formatMoneda(
                               (f.conversion || 0) + (f.fidelizacion || 0),
-                            )}) − invertido (${f.meses} ${
+                            )}) − total pagado (${f.meses} ${
                               f.meses === 1 ? "mes pagado" : "meses pagados"
                             } × ${formatMoneda(f.precio)} = ${formatMoneda(
                               f.pagado,
@@ -190,11 +210,23 @@ const MetricasB2B = () => {
                             {formatMoneda(f.ganancia)}
                           </span>
                         )}
-                        {f.pagado != null && (
-                          <span className="block text-[11px] text-gray-400 font-normal">
-                            invertido {formatMoneda(f.pagado)} · {f.meses}m
-                          </span>
-                        )}
+                        {f.pagado > 0 &&
+                          (() => {
+                            const pct = Math.floor(
+                              (((f.conversion || 0) + (f.fidelizacion || 0)) /
+                                f.pagado) *
+                                100,
+                            );
+                            return (
+                              <span
+                                className={`block text-[11px] font-normal ${
+                                  pct < 100 ? "text-red-600" : "text-emerald-700"
+                                }`}
+                              >
+                                recuperado {pct}%
+                              </span>
+                            );
+                          })()}
                       </td>
                     </tr>
                   ))
