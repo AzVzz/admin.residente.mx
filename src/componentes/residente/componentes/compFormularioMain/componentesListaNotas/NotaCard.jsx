@@ -184,11 +184,8 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             <span className="font-roman font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
               {nota.fecha}
             </span>
-            <span
-              className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit"
-              title="Veces que se abrió la nota (una vez por persona al día, sin bots). Comparable con Views de Google Analytics."
-            >
-              views: {(nota.clicks ?? 0).toLocaleString("es-MX")}
+            <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
+              vistas: {nota.vistas}
             </span>
             <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
               Ultimo autor: {nota.autor}
