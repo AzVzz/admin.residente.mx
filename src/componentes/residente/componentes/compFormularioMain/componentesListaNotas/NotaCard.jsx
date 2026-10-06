@@ -186,9 +186,9 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             </span>
             <span
               className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit"
-              title="Views: veces que la tarjeta de la nota apareció en pantalla en el sitio. Clicks: veces que se abrió la nota. Una vez por persona al día, sin bots."
+              title="Veces que se abrió la nota (una vez por persona al día, sin bots). Comparable con Views de Google Analytics."
             >
-              views: {(nota.vistas ?? 0).toLocaleString("es-MX")} · clicks: {(nota.clicks ?? 0).toLocaleString("es-MX")}
+              views: {(nota.clicks ?? 0).toLocaleString("es-MX")}
             </span>
             <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
               Ultimo autor: {nota.autor}
