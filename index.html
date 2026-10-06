@@ -27,6 +27,45 @@
   <meta name="twitter:description" content="Entra al link y descarga el video de Etiqueta Restaurantera." />
   <meta name="twitter:image" content="https://residente.mx/fotos/fotos-estaticas/dashboard/Post-De-Instagram-Sorteo-Orden-De-Compra-Gradiente-Lila-404--1784140305327-orig.jpeg?v=20260715" />
 
+  <!-- Autorreparación: si el bundle principal llega roto (HTML guardado por el
+       service worker o la caché del navegador tras un deploy), limpia y recarga una vez. -->
+  <script>
+    (function () {
+      var KEY = "admin-autoreparar";
+      window.__adminAutoReparar = function () {
+        var ultimo = Number(sessionStorage.getItem(KEY)) || 0;
+        if (Date.now() - ultimo < 30000) return;
+        sessionStorage.setItem(KEY, String(Date.now()));
+        var urls = [].slice
+          .call(document.querySelectorAll('script[type="module"][src], link[rel="modulepreload"][href]'))
+          .map(function (el) { return el.src || el.href; });
+        var limpiar = [];
+        if (navigator.serviceWorker) {
+          limpiar.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (r) { return r.unregister(); }));
+          }));
+        }
+        if (window.caches) {
+          limpiar.push(caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          }));
+        }
+        Promise.all(limpiar)
+          .catch(function () {})
+          .then(function () {
+            return Promise.all(urls.map(function (u) {
+              return fetch(u, { cache: "reload" }).catch(function () {});
+            }));
+          })
+          .then(function () { location.reload(); });
+      };
+      window.addEventListener("error", function (e) {
+        var t = e.target;
+        if (t && t.tagName === "SCRIPT" && t.type === "module") window.__adminAutoReparar();
+      }, true);
+    })();
+  </script>
+
   <!-- Google Fonts para tipografías de tickets -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

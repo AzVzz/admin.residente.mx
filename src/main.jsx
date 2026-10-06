@@ -5,6 +5,9 @@ import { AuthProvider } from "./componentes/Context"; // importa tu AuthProvider
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 
+// Chunk lazy roto o de un deploy anterior: mismo flujo de autorreparación de index.html.
+window.addEventListener("vite:preloadError", () => window.__adminAutoReparar?.());
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
