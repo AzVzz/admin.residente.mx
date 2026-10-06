@@ -188,6 +188,9 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
               vistas: {nota.vistas}
             </span>
             <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
+              clicks: {nota.clicks ?? 0}
+            </span>
+            <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
               Ultimo autor: {nota.autor}
             </span>
           </div>
