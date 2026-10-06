@@ -186,21 +186,9 @@ const NotaCard = ({ nota, onEliminar, eliminando }) => (
             </span>
             <span
               className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit"
-              title={
-                nota.ga_actualizado_en
-                  ? `Visitas y usuarios según Google Analytics. Actualizado: ${new Date(nota.ga_actualizado_en).toLocaleString("es-MX")}`
-                  : "Aún sin datos de Google Analytics"
-              }
+              title="Views: veces que la tarjeta de la nota apareció en pantalla en el sitio. Clicks: veces que se abrió la nota. Una vez por persona al día, sin bots."
             >
-              {nota.ga_vistas != null
-                ? `visitas GA: ${nota.ga_vistas.toLocaleString("es-MX")} · ${(nota.ga_usuarios ?? 0).toLocaleString("es-MX")} usuarios`
-                : "visitas GA: sin datos"}
-            </span>
-            <span
-              className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit"
-              title="Contador interno. Lecturas: veces que se abrió la nota. Impresiones: veces que su tarjeta apareció en pantalla en el sitio."
-            >
-              lecturas: {(nota.clicks ?? 0).toLocaleString("es-MX")} · impresiones: {(nota.vistas ?? 0).toLocaleString("es-MX")}
+              views: {(nota.vistas ?? 0).toLocaleString("es-MX")} · clicks: {(nota.clicks ?? 0).toLocaleString("es-MX")}
             </span>
             <span className="font-sans font-semibold px-2 py-1 text-xs rounded-full bg-black/30 backdrop-blur-md text-white drop-shadow w-fit">
               Ultimo autor: {nota.autor}
