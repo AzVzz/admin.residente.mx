@@ -114,7 +114,7 @@ const FormularioFisl = () => {
   if (exito) {
     return (
       <div className="max-w-[680px] mx-auto py-16 px-4 text-center">
-        <div className="bg-white rounded-2xl shadow-sm border border-black/10 p-10">
+        <div>
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF200]">
             <span className="text-3xl">✓</span>
           </div>
@@ -138,8 +138,8 @@ const FormularioFisl = () => {
   // ── Formulario ──
   return (
     <div className="max-w-[680px] mx-auto py-10 px-4">
-      <header className="mb-8 text-center">
-        <h1 className="mb-3 flex justify-center">
+      <header className="mb-6">
+        <h1 className="flex justify-center">
           <img
             src="https://residente.mx/fotos/mtyibg/fisl-logo-140x55-1.png"
             alt="Festival Internacional Santa Lucía"
@@ -148,6 +148,9 @@ const FormularioFisl = () => {
             className="h-16 w-auto"
           />
         </h1>
+      </header>
+
+      <div className="mb-5">
         <div className="relative inline-block text-left">
           <button
             type="button"
@@ -178,7 +181,7 @@ const FormularioFisl = () => {
           </button>
 
           {verEntregas && inventario && (
-            <div className="absolute left-1/2 z-30 mt-2 w-[min(90vw,420px)] -translate-x-1/2 rounded-xl border border-black/10 bg-white p-4 shadow-lg">
+            <div className="absolute left-0 z-30 mt-2 w-[min(90vw,420px)] rounded-xl border border-black/10 bg-white p-4 shadow-lg">
               <p className="mb-3 text-sm text-black/60">
                 {inventario.usadas} de {inventario.total} cajas asignadas
               </p>
@@ -212,12 +215,9 @@ const FormularioFisl = () => {
         {errorInventario && (
           <p className="mt-2 text-sm text-red-600">{errorInventario}</p>
         )}
-      </header>
+      </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-sm border border-black/10 p-6 sm:p-8 flex flex-col gap-5"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Cantidad de cajas */}
         <div>
           <label
