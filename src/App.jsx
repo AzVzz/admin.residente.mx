@@ -192,6 +192,9 @@ const ReporteDescargasB2C = lazy(
 const GastroDestinos = lazy(
   () => import("./componentes/residente/B2C/GastroDestinos.jsx"),
 );
+const FormularioFisl = lazy(
+  () => import("./componentes/residente/FISL/FormularioFisl.jsx"),
+);
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -372,12 +375,13 @@ function App() {
   const isLinkInBio = location.pathname === "/linkinbio";
   const isB2BDashboard = location.pathname === "/dashboardb2b";
   const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
+  const isFisl = location.pathname === "/fisl";
 
   return (
     <DataProvider>
       <ViewportAdjuster />
       <div className="min-h-screen flex flex-col">
-        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && !isClienteMediaDash && (
+        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && !isClienteMediaDash && !isFisl && (
           <div
             className={`transition-all duration-300 relative z-20 ${
               showMegaMenu
@@ -392,7 +396,8 @@ function App() {
         {/* MegaMenu con transición de entrada */}
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" &&
-          !isClienteMediaDash && (
+          !isClienteMediaDash &&
+          !isFisl && (
             <div
               className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
                 showMegaMenu
@@ -534,6 +539,15 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <GastroDestinos />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/fisl"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormularioFisl />
                   </div>
                 }
               />
@@ -1139,7 +1153,8 @@ function App() {
         <BotonScroll />
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" &&
-          !isClienteMediaDash && (
+          !isClienteMediaDash &&
+          !isFisl && (
             <footer
               className={
                 location.pathname === "/registrob2b" ||
