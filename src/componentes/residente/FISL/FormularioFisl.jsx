@@ -16,11 +16,36 @@ const ESTADO_INICIAL = {
   observaciones: "",
 };
 
-const hoyLocal = () => {
-  const d = new Date();
+const aIso = (d) => {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   return `${d.getFullYear()}-${mm}-${dd}`;
+};
+
+const hoyLocal = () => aIso(new Date());
+
+const VIERNES = 5;
+const CANTIDAD_VIERNES = 12;
+
+// Las entregas solo se hacen en viernes: se ofrecen los próximos, incluido hoy si es viernes.
+const proximosViernes = () => {
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + ((VIERNES - d.getDay() + 7) % 7));
+  return Array.from({ length: CANTIDAD_VIERNES }, (_, i) => {
+    const viernes = new Date(d);
+    viernes.setDate(d.getDate() + i * 7);
+    const etiqueta = viernes.toLocaleDateString("es-MX", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    return {
+      value: aIso(viernes),
+      label: etiqueta.charAt(0).toUpperCase() + etiqueta.slice(1),
+    };
+  });
 };
 
 const FormularioFisl = () => {
@@ -289,15 +314,23 @@ const FormularioFisl = () => {
           >
             Fecha de entrega
           </label>
-          <input
+          <select
             id="fechaEntrega"
             name="fechaEntrega"
-            type="date"
-            min={hoyLocal()}
             value={form.fechaEntrega}
             onChange={handleChange}
-            className={inputCls}
-          />
+            className={`${inputCls} cursor-pointer`}
+          >
+            <option value="">Selecciona un viernes…</option>
+            {proximosViernes().map((v) => (
+              <option key={v.value} value={v.value}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-xs text-black/50">
+            Las entregas se realizan únicamente en viernes.
+          </p>
         </div>
 
         {/* Rango de horario */}
