@@ -17,6 +17,7 @@ import ScorePerfilCard from "./ScorePerfilCard";
 import {
   getMetricasBoost,
   esLiypeB2B,
+  ocultarRoiRestaurante,
   LIYPE_TICKET_PROMEDIO,
 } from "./metricasBoost";
 import {
@@ -1352,7 +1353,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
             />
 
             {/* LIYPE no tiene inversión/ticket de restaurante: ocultar tarjeta ROI. */}
-            {!esLiype && (
+            {!esLiype && !ocultarRoiRestaurante(restaurante) && (
             <div className="bg-black text-white text-center rounded w-60 px-3 py-3 mb-4">
               {/* Rango de fechas: desde la inscripción hasta hoy (hoy se actualiza solo) */}
               <p className="text-[13px] font-roman text-white/85 leading-tight mb-3">

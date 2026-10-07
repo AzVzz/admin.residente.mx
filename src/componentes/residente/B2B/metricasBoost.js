@@ -21,6 +21,17 @@ export function esLiypeB2B(b2bUser) {
   return url.includes("liype") || nombre.includes("liype");
 }
 
+// Restaurantes que no deben ver la tarjeta de Inversión / Retorno de inversión.
+const OCULTAR_ROI = new Set(["carnes-premium-xo", "763"]);
+
+export function ocultarRoiRestaurante(restaurante) {
+  if (!restaurante) return false;
+  return (
+    OCULTAR_ROI.has(String(restaurante.slug || "")) ||
+    OCULTAR_ROI.has(String(restaurante.id ?? ""))
+  );
+}
+
 export function getMetricasBoost(restaurante) {
   if (!restaurante) return { vistas: 0, clicks: 0 };
   const bySlug = BOOST_METRICAS[restaurante.slug];
