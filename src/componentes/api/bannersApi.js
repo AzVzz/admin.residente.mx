@@ -9,6 +9,17 @@ const authHeaders = (token) => ({
   "Content-Type": "application/json",
 });
 
+const throwApiError = async (res, fallback) => {
+  let message = fallback;
+  try {
+    const data = await res.json();
+    message = data?.error || data?.message || fallback;
+  } catch {
+    // Keep the actionable fallback when the server did not return JSON.
+  }
+  throw new Error(message);
+};
+
 // --- Banners CRUD ---
 
 export const bannersGet = async (token, { tipo, estatus, page = 1, limit = 50 } = {}) => {
@@ -39,7 +50,7 @@ export const bannerCreate = async (token, formData) => {
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
   });
-  if (!res.ok) throw new Error("Error al crear banner");
+  if (!res.ok) await throwApiError(res, "No se pudo crear el banner.");
   return await res.json();
 };
 
@@ -49,7 +60,7 @@ export const bannerUpdate = async (token, id, formData) => {
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
   });
-  if (!res.ok) throw new Error("Error al actualizar banner");
+  if (!res.ok) await throwApiError(res, "No se pudo actualizar el banner.");
   return await res.json();
 };
 
@@ -58,7 +69,7 @@ export const bannerDelete = async (token, id) => {
     method: "DELETE",
     headers: authHeaders(token),
   });
-  if (!res.ok) throw new Error("Error al eliminar banner");
+  if (!res.ok) await throwApiError(res, "El servidor no pudo eliminar el banner.");
 };
 
 export const bannerGetNotasAsignadas = async (token, id) => {
@@ -155,7 +166,7 @@ export const bannerTrack = async (bannerId, tipo = "impresion") => {
 
 /** Obtiene el primer banner activo de un slot público (sin auth) */
 export const getBannerBySlotPublic = async (slotKey) => {
-  const res = await fetch(`${urlApi}api/banners/public/slot/${encodeURIComponent(slotKey)}`);
+  const res = await fetch(`${urlApi}api/banners/public/slot/${encodeURIComponent(slotKey)}`, { cache: "no-store" });
   if (!res.ok) return null;
   const data = await res.json();
   return Array.isArray(data) && data.length > 0 ? data[0] : null;

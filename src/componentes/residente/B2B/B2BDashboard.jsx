@@ -52,15 +52,15 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
   const [reservacionStats, setReservacionStats] = useState(null);
 
   // Banner Trebol21 del sidebar derecho (slot trebol_admin_b2b) — tracking views/clicks
-  const [trebolBannerId, setTrebolBannerId] = useState(null);
+  const [trebolBanner, setTrebolBanner] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const banner = await getBannerBySlotPublic("trebol_admin_b2b");
-      if (cancelled || !banner?.id) return;
-      setTrebolBannerId(banner.id);
-      bannerTrack(banner.id, "impresion");
+      if (cancelled || !(banner?.imagen_desktop || banner?.imagen_mobile)) return;
+      setTrebolBanner(banner);
+      if (banner.id) bannerTrack(banner.id, "impresion");
     })();
     return () => {
       cancelled = true;
@@ -2023,23 +2023,25 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 Ir a pagar
               </button>
 
-              <a
-                href="https://trebol21.mx"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full mt-2 overflow-hidden hover:opacity-95 transition-opacity"
-                aria-label="Trebol21 - Dark Kitchens"
-                onClick={() => {
-                  if (trebolBannerId) bannerTrack(trebolBannerId, "click");
-                }}
-              >
-                <img
-                  src={`${imgApi}fotos/revistas/banners/trebol.png`}
-                  alt="Trebol21"
-                  className="w-full h-auto object-contain"
-                  loading="lazy"
-                />
-              </a>
+              {trebolBanner && (
+                <a
+                  href={trebolBanner.url_destino || undefined}
+                  target={trebolBanner.url_target || "_blank"}
+                  rel={(trebolBanner.url_target || "_blank") === "_blank" ? "noopener noreferrer" : undefined}
+                  className="mt-2 block w-full overflow-hidden hover:opacity-95 transition-opacity"
+                  aria-label={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
+                  onClick={() => {
+                    if (trebolBanner.id) bannerTrack(trebolBanner.id, "click");
+                  }}
+                >
+                  <img
+                    src={trebolBanner.imagen_desktop || trebolBanner.imagen_mobile}
+                    alt={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
+                    className="w-full h-auto object-contain"
+                    loading="lazy"
+                  />
+                </a>
+              )}
 
               {beneficiosMembresia.length > 0 && (
                 <div className="mb-7 mt-1">

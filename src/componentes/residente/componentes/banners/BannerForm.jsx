@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "../../../Context";
 import { bannerCreate, bannerUpdate } from "../../../api/bannersApi";
+import { formatMonterreyDateTimeLocal, validateMonterreyDateRange } from "../../../../utils/bannerDates";
 import { FaUpload, FaArrowLeft, FaTimes } from "react-icons/fa";
 
 const BannerEditorModal = lazy(() => import("./BannerEditor/BannerEditorModal.jsx"));
@@ -105,10 +106,8 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
         alt_text: banner.alt_text || "",
         titulo: banner.titulo || "",
         descripcion: banner.descripcion || "",
-        fecha_inicio: banner.fecha_inicio
-          ? banner.fecha_inicio.slice(0, 16)
-          : "",
-        fecha_fin: banner.fecha_fin ? banner.fecha_fin.slice(0, 16) : "",
+        fecha_inicio: formatMonterreyDateTimeLocal(banner.fecha_inicio),
+        fecha_fin: formatMonterreyDateTimeLocal(banner.fecha_fin),
         estatus: banner.estatus || "borrador",
         prioridad: banner.prioridad ?? 0,
         es_default_seccion: banner.es_default_seccion ?? false,
@@ -171,12 +170,15 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
     setIsSaving(true);
 
     try {
+      const bannerDates = validateMonterreyDateRange(form.fecha_inicio, form.fecha_fin);
       const formData = new FormData();
       Object.entries(form).forEach(([key, val]) => {
+        if (key === "fecha_inicio" || key === "fecha_fin") return;
         if (val !== "" && val !== null && val !== undefined) {
           formData.append(key, val);
         }
       });
+      formData.append("banner_data", JSON.stringify(bannerDates));
       Object.entries(files).forEach(([key, file]) => {
         if (file) formData.append(key, file);
       });
@@ -355,6 +357,7 @@ const BannerForm = ({ banner, onSave, onCancel }) => {
               type="datetime-local"
               name="fecha_fin"
               value={form.fecha_fin}
+              min={form.fecha_inicio || undefined}
               onChange={handleChange}
               className="border border-gray-300 rounded-md px-3 py-2 text-sm"
             />

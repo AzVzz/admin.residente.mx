@@ -12,6 +12,7 @@ import {
 import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspaper, FaDesktop, FaMobileAlt, FaBook, FaEye, FaMagic, FaColumns } from "react-icons/fa";
 import BannerForm from "./BannerForm";
 import ResponsiveImg from "../../../ResponsiveImg";
+import { deleteBannerThenUpdateList } from "../../../../utils/bannerDelete";
 
 const estatusBadge = {
   activo: "bg-green-100 text-green-800 border-green-200",
@@ -36,6 +37,9 @@ const BannersList = () => {
   const [showForm, setShowForm] = useState(false);
   const [editBanner, setEditBanner] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteSuccess, setDeleteSuccess] = useState("");
 
   // Estado del panel de asignacion
   const [asignarId, setAsignarId] = useState(null);
@@ -71,11 +75,17 @@ const BannersList = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar este banner?")) return;
+    setDeleteError("");
+    setDeleteSuccess("");
+    setDeletingId(id);
     try {
-      await bannerDelete(token, id);
-      fetchBanners();
+      await deleteBannerThenUpdateList(id, (bannerId) => bannerDelete(token, bannerId), setBanners);
+      setDeleteSuccess("Banner eliminado correctamente.");
+      await fetchBanners();
     } catch (error) {
-      console.error("Error al eliminar:", error);
+      setDeleteError(`No se pudo eliminar el banner: ${error.message || "Error de comunicación con el servidor."}`);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -268,6 +278,17 @@ const BannersList = () => {
           <FaPlus /> Nuevo Banner
         </button>
       </div>
+
+      {deleteError && (
+        <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {deleteError}
+        </div>
+      )}
+      {deleteSuccess && (
+        <div role="status" className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          {deleteSuccess}
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-12">
@@ -484,12 +505,12 @@ const BannersList = () => {
                   </span>
                   {b.fecha_inicio && (
                     <span title="Fecha inicio">
-                      {new Date(b.fecha_inicio).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                      {new Date(b.fecha_inicio).toLocaleDateString("es-MX", { timeZone: "America/Monterrey", day: "2-digit", month: "short" })}
                     </span>
                   )}
                   {b.fecha_fin && (
                     <span title="Fecha fin">
-                      → {new Date(b.fecha_fin).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                      → {new Date(b.fecha_fin).toLocaleDateString("es-MX", { timeZone: "America/Monterrey", day: "2-digit", month: "short" })}
                     </span>
                   )}
                 </div>
@@ -514,7 +535,9 @@ const BannersList = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(b.id)}
-                    className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2.5 py-1.5 rounded-md cursor-pointer transition-colors ml-auto"
+                    disabled={deletingId === b.id}
+                    aria-label={deletingId === b.id ? "Eliminando banner" : "Eliminar banner"}
+                    className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2.5 py-1.5 rounded-md cursor-pointer transition-colors ml-auto disabled:cursor-wait disabled:opacity-50"
                   >
                     <FaTrash className="text-[10px]" />
                   </button>
