@@ -3,7 +3,8 @@ import { urlApi } from "./url.js";
 /**
  * Cajas disponibles del formulario FISL y a dónde se han enviado.
  * @returns {Promise<{ total: number, usadas: number, disponibles: number,
- *   entregas: { id: number, cantidadCajas: number, domicilio: string, nombreRecibe: string }[] }>}
+ *   entregas: { id: number, cantidadCajas: number, domicilio: string, nombreRecibe: string,
+ *     fechaEntrega: string }[] }>} - fechaEntrega en formato YYYY-MM-DD.
  */
 export const fislInventarioGet = async () => {
   const response = await fetch(`${urlApi}api/fisl`);

@@ -24,6 +24,20 @@ const aIso = (d) => {
 
 const hoyLocal = () => aIso(new Date());
 
+const etiquetaFecha = (d) => {
+  const texto = d.toLocaleDateString("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+};
+
+// "YYYY-MM-DD" se interpreta al mediodía local para que la zona horaria no lo mueva de día.
+const etiquetaFechaIso = (iso) =>
+  iso ? etiquetaFecha(new Date(`${iso}T12:00:00`)) : "";
+
 const VIERNES = 5;
 const CANTIDAD_VIERNES = 12;
 
@@ -35,16 +49,7 @@ const proximosViernes = () => {
   return Array.from({ length: CANTIDAD_VIERNES }, (_, i) => {
     const viernes = new Date(d);
     viernes.setDate(d.getDate() + i * 7);
-    const etiqueta = viernes.toLocaleDateString("es-MX", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    return {
-      value: aIso(viernes),
-      label: etiqueta.charAt(0).toUpperCase() + etiqueta.slice(1),
-    };
+    return { value: aIso(viernes), label: etiquetaFecha(viernes) };
   });
 };
 
@@ -226,6 +231,11 @@ const FormularioFisl = () => {
                         <p className="whitespace-pre-line text-black/60">
                           {e.domicilio}
                         </p>
+                        {e.fechaEntrega && (
+                          <p className="text-black/60">
+                            {etiquetaFechaIso(e.fechaEntrega)}
+                          </p>
+                        )}
                       </div>
                       <span className="shrink-0 font-semibold">
                         {e.cantidadCajas} {e.cantidadCajas === 1 ? "caja" : "cajas"}
