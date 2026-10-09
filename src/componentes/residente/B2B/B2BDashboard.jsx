@@ -53,19 +53,42 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
 
   // Banner Trebol21 del sidebar derecho (slot trebol_admin_b2b) — tracking views/clicks
   const [trebolBanner, setTrebolBanner] = useState(null);
+  const bannerPreviewParams = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams();
+  const isBannerPreview = bannerPreviewParams.get("bannerPreview") === "1";
+  const isTrebolBannerPreviewTarget =
+    isBannerPreview && bannerPreviewParams.get("bannerPreviewSlot") === "trebol_admin_b2b";
+  const previewBannerId = Number(bannerPreviewParams.get("bannerPreviewId")) || null;
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const banner = await getBannerBySlotPublic("trebol_admin_b2b");
-      if (cancelled || !(banner?.imagen_desktop || banner?.imagen_mobile)) return;
-      setTrebolBanner(banner);
-      if (banner.id) bannerTrack(banner.id, "impresion");
+      try {
+        const banner = await getBannerBySlotPublic("trebol_admin_b2b");
+        if (cancelled || !(banner?.imagen_desktop || banner?.imagen_mobile)) return;
+        if (isTrebolBannerPreviewTarget && previewBannerId && Number(banner.id) !== previewBannerId) return;
+        setTrebolBanner(banner);
+        if (banner.id && !isBannerPreview) bannerTrack(banner.id, "impresion");
+      } catch {
+        if (!cancelled) setTrebolBanner(null);
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isBannerPreview, isTrebolBannerPreviewTarget, previewBannerId]);
+
+  useEffect(() => {
+    if (!isTrebolBannerPreviewTarget) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      document.querySelector('[data-banner-preview-key="trebol_admin_b2b"]')?.scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [isTrebolBannerPreviewTarget, trebolBanner]);
 
   useEffect(() => {
     if (openTooltip) {
@@ -2023,24 +2046,40 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                 Ir a pagar
               </button>
 
-              {trebolBanner && (
-                <a
-                  href={trebolBanner.url_destino || undefined}
-                  target={trebolBanner.url_target || "_blank"}
-                  rel={(trebolBanner.url_target || "_blank") === "_blank" ? "noopener noreferrer" : undefined}
-                  className="mt-2 block w-full overflow-hidden hover:opacity-95 transition-opacity"
-                  aria-label={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
-                  onClick={() => {
-                    if (trebolBanner.id) bannerTrack(trebolBanner.id, "click");
-                  }}
+              {(trebolBanner || isTrebolBannerPreviewTarget) && (
+                <div
+                  className={`relative mt-2 w-full ${isTrebolBannerPreviewTarget ? "outline outline-4 outline-red-500 outline-offset-2" : ""}`}
+                  data-banner-preview-key="trebol_admin_b2b"
                 >
-                  <img
-                    src={trebolBanner.imagen_desktop || trebolBanner.imagen_mobile}
-                    alt={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
-                    className="w-full h-auto object-contain"
-                    loading="lazy"
-                  />
-                </a>
+                  {isTrebolBannerPreviewTarget && (
+                    <span className="absolute left-0 top-0 z-10 bg-red-600 px-2 py-1 text-xs font-bold text-white">
+                      Ubicación del banner
+                    </span>
+                  )}
+                  {trebolBanner ? (
+                    <a
+                      href={trebolBanner.url_destino || undefined}
+                      target={trebolBanner.url_target || "_blank"}
+                      rel={(trebolBanner.url_target || "_blank") === "_blank" ? "noopener noreferrer" : undefined}
+                      className="block w-full overflow-hidden hover:opacity-95 transition-opacity"
+                      aria-label={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
+                      onClick={() => {
+                        if (trebolBanner.id && !isBannerPreview) bannerTrack(trebolBanner.id, "click");
+                      }}
+                    >
+                      <img
+                        src={trebolBanner.imagen_desktop || trebolBanner.imagen_mobile}
+                        alt={trebolBanner.alt_text || trebolBanner.nombre || "Banner"}
+                        className="w-full h-auto object-contain"
+                        loading="lazy"
+                      />
+                    </a>
+                  ) : (
+                    <div className="flex min-h-24 w-full items-center justify-center bg-gray-100 px-4 py-5 text-center text-sm text-gray-600">
+                      Este banner no está disponible en la respuesta pública actual.
+                    </div>
+                  )}
+                </div>
               )}
 
               {beneficiosMembresia.length > 0 && (

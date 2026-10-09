@@ -80,6 +80,50 @@ export const bannerGetNotasAsignadas = async (token, id) => {
   return await res.json();
 };
 
+export const bannerGetLocationContext = async (token, id) => {
+  const [assignmentStats, notesResponse] = await Promise.all([
+    bannerGetNotasAsignadas(token, id),
+    fetch(`${urlApi}api/notas?page=1&limit=100`, { cache: "no-store" }),
+  ]);
+
+  if (!notesResponse.ok) {
+    await throwApiError(notesResponse, `Error al obtener notas publicadas (HTTP ${notesResponse.status}).`);
+  }
+
+  const notesData = await notesResponse.json();
+  const notes = Array.isArray(notesData) ? notesData : notesData?.notas;
+  const publishedNotes = Array.isArray(notes)
+    ? notes.filter((note) => !note?.estatus || note.estatus === "publicada")
+    : [];
+  const typeOf = (value) => String(value || "").trim().toLowerCase();
+  const isB2BNote = (note) => typeOf(note?.tipo_nota || note?.tipo_nota2) === "b2b";
+  const autoExcludedTypes = new Set(["b2b", "acervo", "uanl"]);
+
+  // /api/notas devuelve notas publicadas y su paginación. La regla de
+  // autoasignación del backend excluye por tipo_nota; Astro excluye B2B para
+  // la rotación de mitad de notas.
+  return {
+    ...assignmentStats,
+    nota_publicada: publishedNotes[0] || null,
+    nota_auto_asignada: publishedNotes.find((note) => !autoExcludedTypes.has(typeOf(note.tipo_nota))) || null,
+    nota_mitad: publishedNotes.find((note) => !isB2BNote(note)) || null,
+    nota_b2b: publishedNotes.find(isB2BNote) || null,
+  };
+};
+
+export const bannerGetPublicNote = async (noteId) => {
+  const res = await fetch(`${urlApi}api/banners/public/nota/${encodeURIComponent(noteId)}`, { cache: "no-store" });
+  if (!res.ok) return undefined;
+  return await res.json();
+};
+
+export const bannerGetPublicMidNoteList = async () => {
+  const res = await fetch(`${urlApi}api/banners/public/mitad-notas`, { cache: "no-store" });
+  if (!res.ok) return undefined;
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+};
+
 export const bannerAsignarNotas = async (token, id, body) => {
   const res = await fetch(`${urlApi}api/banners/${id}/asignar-notas`, {
     method: "POST",
@@ -167,7 +211,7 @@ export const bannerTrack = async (bannerId, tipo = "impresion") => {
 /** Obtiene el primer banner activo de un slot público (sin auth) */
 export const getBannerBySlotPublic = async (slotKey) => {
   const res = await fetch(`${urlApi}api/banners/public/slot/${encodeURIComponent(slotKey)}`, { cache: "no-store" });
-  if (!res.ok) return null;
+  if (!res.ok) return undefined;
   const data = await res.json();
   return Array.isArray(data) && data.length > 0 ? data[0] : null;
 };

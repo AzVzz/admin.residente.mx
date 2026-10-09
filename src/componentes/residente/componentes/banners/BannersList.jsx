@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { lazy, Suspense, useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
 import {
   bannersGet,
@@ -13,6 +13,8 @@ import { FaPlus, FaTrash, FaEdit, FaRandom, FaList, FaCheck, FaTimes, FaNewspape
 import BannerForm from "./BannerForm";
 import ResponsiveImg from "../../../ResponsiveImg";
 import { deleteBannerThenUpdateList } from "../../../../utils/bannerDelete";
+
+const BannerLocationDetails = lazy(() => import("./BannerLocationDetails"));
 
 const estatusBadge = {
   activo: "bg-green-100 text-green-800 border-green-200",
@@ -356,6 +358,10 @@ const BannersList = () => {
               {/* Expanded detail */}
               {expandedId === b.id && (
                 <div className="border-t border-gray-100 bg-gray-50 p-3 space-y-3">
+                  <Suspense fallback={<p className="text-xs text-gray-500">Cargando detalle…</p>}>
+                    <BannerLocationDetails banner={b} token={token} />
+                  </Suspense>
+
                   {/* Revista: banner + titulo + descripcion */}
                   {b.tipo === "revista" && (
                     <>

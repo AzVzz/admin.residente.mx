@@ -4,6 +4,7 @@ import { bannerSceneLoadByToken } from "../../../api/bannerSceneApi.js";
 
 // Konva stays out of the main bundle — loaded only when editor opens.
 const BannerEditorModal = lazy(() => import("./BannerEditor/BannerEditorModal.jsx"));
+const BannerPurchasePreview = lazy(() => import("./BannerPurchasePreview.jsx"));
 
 const DRAFT_KEY = "banner_editor_draft_v1";
 
@@ -121,6 +122,19 @@ const ComprarBanner = () => {
   const isSlotTab = tab === "pagina_principal";
   const isSeccionTab = tab === "secciones";
   const isNotasTab = tab === "notas";
+  const pendingHomepageTopPurchase =
+    import.meta.env.DEV && selectedSlot?.slot_key === "homepage_top_desktop";
+  const pendingBannerInteriorPurchase =
+    ["homepage_fooddrink_desktop", "homepage_fooddrink_mobile"].includes(selectedSlot?.slot_key);
+  const pendingBannerRevistaDigitalPurchase =
+    ["homepage_antojos_desktop", "homepage_antojos_mobile"].includes(selectedSlot?.slot_key);
+  const pendingSlotPurchase = pendingHomepageTopPurchase || pendingBannerInteriorPurchase || pendingBannerRevistaDigitalPurchase;
+  const getSlotDisplayName = (slot) =>
+    ["homepage_fooddrink_desktop", "homepage_fooddrink_mobile"].includes(slot?.slot_key)
+      ? "Banner interior"
+      : ["homepage_antojos_desktop", "homepage_antojos_mobile", "homepage_revista_digital"].includes(slot?.slot_key)
+        ? "Banner Revista Digital"
+        : slot?.nombre || "Posición";
 
   const getSelectedPrice = () => {
     if (isNotasTab && selectedPaquete) {
@@ -139,6 +153,14 @@ const ComprarBanner = () => {
   const subtotal = promoOverride !== null ? promoOverride / 100 : subtotalBase;
   const iva = subtotal * ivaRate;
   const total = subtotal + iva;
+
+  const selectedPurchase = selectedSlot
+    ? { type: "slot", value: selectedSlot, key: `slot-${selectedSlot.id}` }
+    : selectedSeccion
+      ? { type: "section", value: selectedSeccion, key: `section-${selectedSeccion.slug_seccion}-${selectedSeccion.slug_categoria}` }
+      : selectedPaquete
+        ? { type: "notes", value: selectedPaquete, key: `notes-${selectedPaquete.id}` }
+        : null;
 
   const validarCodigo = async () => {
     const code = promoCode.trim().toUpperCase();
@@ -194,13 +216,18 @@ const ComprarBanner = () => {
   };
 
   const canContinue = () => {
-    if (isSlotTab) return selectedSlot && !selectedSlot.ocupado;
+    if (isSlotTab) return selectedSlot && !selectedSlot.ocupado && !pendingSlotPurchase;
     if (isSeccionTab) return selectedSeccion && !selectedSeccion.ocupado;
     if (isNotasTab) return !!selectedPaquete;
     return false;
   };
 
   const handleSubmit = async () => {
+    if (pendingSlotPurchase) {
+      setError("La compra está bloqueada hasta actualizar la configuración del espacio.");
+      setStep(1);
+      return;
+    }
     if (!imagenDesktop) return setError("La imagen desktop es obligatoria");
     if (!email.trim()) return setError("El email es obligatorio");
     if (!nombre.trim()) return setError("El nombre es obligatorio");
@@ -421,7 +448,16 @@ const ComprarBanner = () => {
             <div className="mb-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {(categorias[tab]?.slots || []).map((slot) => {
-                  const isOcupado = !!slot.ocupado;
+                  const isConfiguracionPendiente =
+                    [
+                      "homepage_fooddrink_desktop",
+                      "homepage_fooddrink_mobile",
+                      "homepage_antojos_desktop",
+                      "homepage_antojos_mobile",
+                    ].includes(slot.slot_key);
+                  // The old Antojos assignment belongs to the retired placement;
+                  // its occupancy does not describe the proposed Revista Digital slot.
+                  const isOcupado = !!slot.ocupado && !isConfiguracionPendiente;
                   const isSelected = selectedSlot?.id === slot.id;
                   const precio = slot.precios?.[duracion] || 0;
 
@@ -443,11 +479,15 @@ const ComprarBanner = () => {
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-semibold text-sm">
-                          {slot.nombre}
+                          {getSlotDisplayName(slot)}
                         </span>
                         {isOcupado ? (
                           <span className="text-[11px] bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded-full">
                             Ocupado
+                          </span>
+                        ) : isConfiguracionPendiente ? (
+                          <span className="text-[11px] bg-amber-100 text-amber-800 font-medium px-2 py-0.5 rounded-full">
+                            Configuración pendiente
                           </span>
                         ) : (
                           <span className="text-[11px] bg-green-100 text-green-600 font-medium px-2 py-0.5 rounded-full">
@@ -521,6 +561,25 @@ const ComprarBanner = () => {
             </div>
           )}
 
+          {selectedPurchase && (
+            <Suspense fallback={<p className="mb-6 text-sm text-gray-500">Preparando la vista previa…</p>}>
+              <BannerPurchasePreview
+                key={selectedPurchase.key}
+                selection={selectedPurchase}
+              />
+            </Suspense>
+          )}
+
+          {pendingSlotPurchase && (
+            <p role="status" className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              {pendingBannerRevistaDigitalPurchase
+                ? "Esta propuesta es solo visual. La compra permanece bloqueada hasta que el catálogo asigne este producto a la parte inferior del módulo de Revista Digital."
+                : pendingBannerInteriorPurchase
+                  ? "Esta propuesta es solo visual. La compra permanece bloqueada hasta que el catálogo asigne este producto al espacio interior de las notas."
+                  : "Esta propuesta es solo visual. La compra permanece bloqueada hasta que el catálogo asigne este producto a su nueva ubicación."}
+            </p>
+          )}
+
           {/* Price summary */}
           {(selectedSlot || selectedPaquete || selectedSeccion) && (
             <div>
@@ -544,7 +603,7 @@ const ComprarBanner = () => {
                     ? `${selectedPaquete.nombre} - ${DURACION_LABELS[duracion]}`
                     : selectedSeccion
                       ? `${selectedSeccion.nombre} - ${DURACION_LABELS[duracion]}`
-                      : `${selectedSlot.nombre} - ${DURACION_LABELS[duracion]}`
+                      : `${getSlotDisplayName(selectedSlot)} - ${DURACION_LABELS[duracion]}`
                 }
                 subtotal={subtotal}
                 iva={iva}
@@ -798,7 +857,7 @@ const ComprarBanner = () => {
                 ? `${selectedPaquete.nombre} - ${DURACION_LABELS[duracion]}`
                 : selectedSeccion
                   ? `${selectedSeccion.nombre} - ${DURACION_LABELS[duracion]}`
-                  : `${selectedSlot?.nombre || "Posicion"} - ${DURACION_LABELS[duracion]}`
+                  : `${getSlotDisplayName(selectedSlot)} - ${DURACION_LABELS[duracion]}`
             }
             subtotal={subtotal}
             iva={iva}
