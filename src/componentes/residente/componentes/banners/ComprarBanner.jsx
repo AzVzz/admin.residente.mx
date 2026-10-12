@@ -104,8 +104,9 @@ const ComprarBanner = () => {
       if (draft.nombre) setNombre(draft.nombre);
       if (draft.urlDestino) setUrlDestino(draft.urlDestino);
       setEditorMode("editor");
-      setReEditNotice("Recuperamos tu diseño sin guardar. Abre el editor y vuelve a guardar el diseño para generar las imágenes antes de pagar.");
-      setStep(2);
+      setReEditNotice("Encontramos un diseño pendiente en este navegador. Elige tu plan; después podrás abrir el editor para terminarlo.");
+      // A recovered design has no associated plan/slot selection. Keep the
+      // normal purchase flow on step 1; only an explicit edit-token link opens step 2.
     } catch { /* corrupt draft */ }
   }, []);
 
