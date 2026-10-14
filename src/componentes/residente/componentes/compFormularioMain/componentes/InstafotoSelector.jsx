@@ -61,16 +61,21 @@ const InstafotoSelector = ({
   const tipoNota = watch("tiposDeNotaSeleccionadas");
 
   const [postArchivo, setPostArchivo] = useState(null);
+  const [postClaroArchivo, setPostClaroArchivo] = useState(null);
   const [storyArchivo, setStoryArchivo] = useState(null);
+  const [storyClaroArchivo, setStoryClaroArchivo] = useState(null);
   const [imagenExistenteArchivo, setImagenExistenteArchivo] = useState(null);
   const [cargandoImagenExistente, setCargandoImagenExistente] = useState(false);
   const [errorImagenExistente, setErrorImagenExistente] = useState("");
   const [postUrl, setPostUrl] = useState(null);
+  const [postClaroUrl, setPostClaroUrl] = useState(null);
   const [storyUrl, setStoryUrl] = useState(null);
+  const [storyClaroUrl, setStoryClaroUrl] = useState(null);
   const [generando, setGenerando] = useState(false);
   const [errorGeneracion, setErrorGeneracion] = useState("");
   const [regenerarClave, setRegenerarClave] = useState(0);
   const [subiendoLinkInBio, setSubiendoLinkInBio] = useState(false);
+  const [mostrarSelectorVersion, setMostrarSelectorVersion] = useState(false);
   const [instafotoSubidaEnSesion, setInstafotoSubidaEnSesion] = useState(false);
 
   const esImagenPrincipalNueva = Boolean(
@@ -93,14 +98,15 @@ const InstafotoSelector = ({
     instafotoActual || instafotoSubidaEnSesion,
   );
 
-  const subirPostLinkInBio = async () => {
-    if (!postArchivo || !notaId || subiendoLinkInBio) return;
+  const subirPostLinkInBio = async (archivo) => {
+    if (!archivo || !notaId || subiendoLinkInBio) return;
 
     setSubiendoLinkInBio(true);
 
     try {
-      await notaInstafotoPut(notaId, postArchivo, token);
+      await notaInstafotoPut(notaId, archivo, token);
       setInstafotoSubidaEnSesion(true);
+      setMostrarSelectorVersion(false);
       alert("El Post fue subido correctamente a LinkInBio.");
     } catch (error) {
       console.error("Error subiendo el Post a LinkInBio:", error);
@@ -197,6 +203,17 @@ const InstafotoSelector = ({
   }, [postArchivo]);
 
   useEffect(() => {
+    if (!postClaroArchivo) {
+      setPostClaroUrl(null);
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(postClaroArchivo);
+    setPostClaroUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [postClaroArchivo]);
+
+  useEffect(() => {
     if (!storyArchivo) {
       setStoryUrl(null);
       return undefined;
@@ -208,11 +225,24 @@ const InstafotoSelector = ({
   }, [storyArchivo]);
 
   useEffect(() => {
+    if (!storyClaroArchivo) {
+      setStoryClaroUrl(null);
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(storyClaroArchivo);
+    setStoryClaroUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [storyClaroArchivo]);
+
+  useEffect(() => {
     if (usuario?.rol === "invitado") return undefined;
 
     if (!imagenParaGenerar || !titulo?.trim() || !formato || !tipoNota) {
       setPostArchivo(null);
+      setPostClaroArchivo(null);
       setStoryArchivo(null);
+      setStoryClaroArchivo(null);
       return undefined;
     }
 
@@ -230,21 +260,27 @@ const InstafotoSelector = ({
           tipoNota,
         };
 
-        const [post, story] = await Promise.all([
-          generarInstafoto(datos),
-          generarStory(datos),
+        const [post, postClaro, story, storyClaro] = await Promise.all([
+          generarInstafoto(datos, "oscuro"),
+          generarInstafoto(datos, "claro"),
+          generarStory(datos, "oscuro"),
+          generarStory(datos, "claro"),
         ]);
 
         if (!cancelado) {
           setPostArchivo(post);
+          setPostClaroArchivo(postClaro);
           setStoryArchivo(story);
+          setStoryClaroArchivo(storyClaro);
         }
       } catch (error) {
         if (!cancelado) {
           console.error("Error generando imágenes para redes:", error);
           setErrorGeneracion(error.message);
           setPostArchivo(null);
+          setPostClaroArchivo(null);
           setStoryArchivo(null);
+          setStoryClaroArchivo(null);
         }
       } finally {
         if (!cancelado) setGenerando(false);
@@ -276,7 +312,7 @@ const InstafotoSelector = ({
       </label>
 
       <p className="mb-3 text-xs text-gray-500">
-        Puedes descargar ambas imágenes o subir este Post directamente a LinkInBio.
+        Descarga las versiones con fondo negro o blanco. El Post con fondo negro también se puede subir directamente a LinkInBio.
       </p>
 
       {cargandoImagenExistente && (
@@ -300,7 +336,7 @@ const InstafotoSelector = ({
 
       {generando && (
         <p className="mt-2 text-sm font-medium text-blue-700">
-          Generando Post y Story automáticamente...
+          Generando las versiones para redes automáticamente...
         </p>
       )}
 
@@ -310,12 +346,12 @@ const InstafotoSelector = ({
         </p>
       )}
 
-      {(postUrl || storyUrl) && (
+      {(postUrl || postClaroUrl || storyUrl || storyClaroUrl) && (
         <div className="mt-3 grid grid-cols-2 items-start gap-3">
           {postUrl && (
             <div className="min-w-0">
               <p className="mb-1 text-center text-xs font-bold">
-                POST · 1080 × 1350
+                POST · FONDO NEGRO · 1080 × 1350
               </p>
               <img
                 src={postUrl}
@@ -337,7 +373,7 @@ const InstafotoSelector = ({
 
               <button
                 type="button"
-                onClick={subirPostLinkInBio}
+                onClick={() => setMostrarSelectorVersion(true)}
                 disabled={subiendoLinkInBio || !notaId}
                 className="mt-2 w-full rounded px-3 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
@@ -360,10 +396,35 @@ const InstafotoSelector = ({
             </div>
           )}
 
+          {postClaroUrl && (
+            <div className="min-w-0">
+              <p className="mb-1 text-center text-xs font-bold">
+                POST · FONDO BLANCO · 1080 × 1350
+              </p>
+              <img
+                src={postClaroUrl}
+                alt="Post para Instagram con fondo blanco"
+                className="h-auto w-full border shadow"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  descargarArchivo(
+                    postClaroArchivo,
+                    crearNombreSeguro(titulo, "post-blanco"),
+                  )
+                }
+                className="mt-2 w-full rounded bg-blue-600 px-3 py-2 text-sm font-bold text-white hover:bg-blue-700"
+              >
+                Descargar Post blanco
+              </button>
+            </div>
+          )}
+
           {storyUrl && (
             <div className="min-w-0">
               <p className="mb-1 text-center text-xs font-bold">
-                STORY · 1080 × 1920
+                STORY · FONDO NEGRO · 1080 × 1920
               </p>
               <img
                 src={storyUrl}
@@ -381,6 +442,31 @@ const InstafotoSelector = ({
                 className="mt-2 w-full rounded bg-purple-600 px-3 py-2 text-sm font-bold text-white hover:bg-purple-700"
               >
                 Descargar Story
+              </button>
+            </div>
+          )}
+
+          {storyClaroUrl && (
+            <div className="min-w-0">
+              <p className="mb-1 text-center text-xs font-bold">
+                STORY · FONDO BLANCO · 1080 × 1920
+              </p>
+              <img
+                src={storyClaroUrl}
+                alt="Story para Instagram con fondo blanco"
+                className="h-auto w-full border shadow"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  descargarArchivo(
+                    storyClaroArchivo,
+                    crearNombreSeguro(titulo, "story-blanco"),
+                  )
+                }
+                className="mt-2 w-full rounded bg-purple-600 px-3 py-2 text-sm font-bold text-white hover:bg-purple-700"
+              >
+                Descargar Story blanca
               </button>
             </div>
           )}
@@ -403,6 +489,55 @@ const InstafotoSelector = ({
         </div>
       )}
 
+      {mostrarSelectorVersion && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="selector-version-linkinbio-titulo"
+            className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl"
+          >
+            <h2
+              id="selector-version-linkinbio-titulo"
+              className="text-lg font-bold text-gray-900"
+            >
+              ¿Qué versión quieres subir?
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Elige el diseño del Post que aparecerá en LinkInBio.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => subirPostLinkInBio(postArchivo)}
+                disabled={subiendoLinkInBio || !postArchivo}
+                className="rounded bg-black px-3 py-3 text-sm font-bold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {subiendoLinkInBio ? "Subiendo..." : "Fondo negro"}
+              </button>
+              <button
+                type="button"
+                onClick={() => subirPostLinkInBio(postClaroArchivo)}
+                disabled={subiendoLinkInBio || !postClaroArchivo}
+                className="rounded border border-gray-400 bg-white px-3 py-3 text-sm font-bold text-black hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {subiendoLinkInBio ? "Subiendo..." : "Fondo blanco"}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setMostrarSelectorVersion(false)}
+              disabled={subiendoLinkInBio}
+              className="mt-3 w-full rounded px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
       {hayImagenDisponible && (
         <button
           type="button"
@@ -417,7 +552,7 @@ const InstafotoSelector = ({
           }
           className="mt-3 rounded bg-yellow-400 px-3 py-2 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {generando ? "Generando..." : "Regenerar ambas imágenes"}
+          {generando ? "Generando..." : "Regenerar las cuatro versiones"}
         </button>
       )}
     </div>

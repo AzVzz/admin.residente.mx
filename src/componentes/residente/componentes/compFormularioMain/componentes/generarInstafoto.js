@@ -1,6 +1,8 @@
 const FUENTE_BOLD = "NeueHaasGroteskDisplayPro75Bold";
-const FUENTE_ROMAN = "NeueHaasGroteskDisplayPro55Roman";
-
+const TEMAS = {
+  oscuro: { fondo: "#000000", texto: "#FFFFFF" },
+  claro: { fondo: "#FFFFFF", texto: "#000000" },
+};
 const SALIDAS = {
   post: {
     ancho: 1080,
@@ -45,41 +47,6 @@ const cargarImagen = (src) =>
     imagen.src = src;
   });
 
-const dibujarCover = (ctx, imagen, ancho, alto) => {
-  const anchoOriginal = imagen.naturalWidth || imagen.width;
-  const altoOriginal = imagen.naturalHeight || imagen.height;
-  const escala = Math.max(ancho / anchoOriginal, alto / altoOriginal);
-  const anchoDibujado = anchoOriginal * escala;
-  const altoDibujado = altoOriginal * escala;
-  const x = (ancho - anchoDibujado) / 2;
-  const y = (alto - altoDibujado) / 2;
-
-  ctx.drawImage(imagen, x, y, anchoDibujado, altoDibujado);
-};
-
-const dibujarRectanguloRedondeado = (
-  ctx,
-  x,
-  y,
-  ancho,
-  alto,
-  radio,
-) => {
-  const r = Math.min(radio, ancho / 2, alto / 2);
-
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + ancho - r, y);
-  ctx.quadraticCurveTo(x + ancho, y, x + ancho, y + r);
-  ctx.lineTo(x + ancho, y + alto - r);
-  ctx.quadraticCurveTo(x + ancho, y + alto, x + ancho - r, y + alto);
-  ctx.lineTo(x + r, y + alto);
-  ctx.quadraticCurveTo(x, y + alto, x, y + alto - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-};
-
 const crearLogoNegro = (imagenLogo) => {
   const medida = 96;
   const canvas = document.createElement("canvas");
@@ -106,6 +73,42 @@ const crearLogoNegro = (imagenLogo) => {
       pixeles[i + 1] * 0.587 +
       pixeles[i + 2] * 0.114;
     const color = luminosidad < 120 ? 255 : 0;
+
+    pixeles[i] = color;
+    pixeles[i + 1] = color;
+    pixeles[i + 2] = color;
+  }
+
+  ctx.putImageData(imagen, 0, 0);
+  return canvas;
+};
+
+const crearLogoBlanco = (imagenLogo) => {
+  const medida = 96;
+  const canvas = document.createElement("canvas");
+  canvas.width = medida;
+  canvas.height = medida;
+
+  const ctx = canvas.getContext("2d");
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(medida / 2, medida / 2, medida / 2, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(imagenLogo, 0, 0, medida, medida);
+  ctx.restore();
+
+  const imagen = ctx.getImageData(0, 0, medida, medida);
+  const pixeles = imagen.data;
+
+  for (let i = 0; i < pixeles.length; i += 4) {
+    if (pixeles[i + 3] === 0) continue;
+
+    const luminosidad =
+      pixeles[i] * 0.299 +
+      pixeles[i + 1] * 0.587 +
+      pixeles[i + 2] * 0.114;
+    const coberturaR = Math.max(0, Math.min(1, (luminosidad - 45) / 172));
+    const color = Math.round(coberturaR * 255);
 
     pixeles[i] = color;
     pixeles[i + 1] = color;
@@ -154,146 +157,184 @@ const obtenerTipoNota = (tipoNota) => {
   return tipo.toUpperCase();
 };
 
-const dibujarEtiqueta = (ctx, formato, salida) => {
+const dibujarCoverEnArea = (ctx, imagen, x, y, ancho, alto) => {
+  const anchoOriginal = imagen.naturalWidth || imagen.width;
+  const altoOriginal = imagen.naturalHeight || imagen.height;
+  const escala = Math.max(ancho / anchoOriginal, alto / altoOriginal);
+  const anchoDibujado = anchoOriginal * escala;
+  const altoDibujado = altoOriginal * escala;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, ancho, alto);
+  ctx.clip();
+  ctx.drawImage(
+    imagen,
+    x + (ancho - anchoDibujado) / 2,
+    y + (alto - altoDibujado) / 2,
+    anchoDibujado,
+    altoDibujado,
+  );
+  ctx.restore();
+};
+
+const dibujarPost = (
+  ctx,
+  imagenPrincipal,
+  logoOriginal,
+  titulo,
+  formato,
+  tipoNota,
+  tema,
+) => {
+  const margen = 78;
+  const imagen = { x: 64, y: 732, ancho: 952, alto: 618 };
+  const colores = TEMAS[tema];
+
+  ctx.fillStyle = colores.fondo;
+  ctx.fillRect(0, 0, 1080, 1350);
+
+  const logo = tema === "oscuro" ? crearLogoNegro(logoOriginal) : crearLogoBlanco(logoOriginal);
+  ctx.drawImage(logo, 76, 35, 72, 72);
+
+  ctx.fillStyle = colores.texto;
+  ctx.font = `700 30px "${FUENTE_BOLD}"`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText("www.residente.mx", 160, 80);
+
   const etiqueta = obtenerEtiquetaFormato(formato);
-
-  ctx.save();
-  ctx.font = `italic 700 58px "${FUENTE_BOLD}"`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-
-  const paddingHorizontal = 30;
-  const anchoTexto = ctx.measureText(etiqueta).width;
-  const anchoCaja = anchoTexto + paddingHorizontal * 2;
-  const altoCaja = 92;
-  const x = (salida.ancho - anchoCaja) / 2;
-  const y = salida.etiquetaY;
-
+  const etiquetaY = 156;
+  const etiquetaAlto = 75;
+  ctx.font = `italic 700 46px "${FUENTE_BOLD}"`;
+  const anchoEtiqueta = Math.max(174, ctx.measureText(etiqueta).width + 38);
   ctx.fillStyle = "#FFF200";
-  ctx.fillRect(x, y, anchoCaja, altoCaja);
-  ctx.fillStyle = "#080808";
-  ctx.fillText(etiqueta, salida.ancho / 2, y + 67);
-  ctx.restore();
-};
-
-const dibujarTipoNota = (ctx, tipoNota, salida) => {
-  const texto = obtenerTipoNota(tipoNota);
-
-  ctx.save();
-  ctx.font = `700 38px "${FUENTE_BOLD}"`;
-  ctx.textAlign = "center";
+  ctx.fillRect(margen, etiquetaY, anchoEtiqueta, etiquetaAlto);
+  ctx.fillStyle = "#000000";
   ctx.textBaseline = "alphabetic";
+  ctx.fillText(etiqueta, margen + 18, etiquetaY + 55);
 
-  const anchoTexto = ctx.measureText(texto).width;
-  const paddingHorizontal = 20;
-  const anchoCaja = anchoTexto + paddingHorizontal * 2;
-  const altoCaja = 56;
-  const x = (salida.ancho - anchoCaja) / 2;
-  const y = salida.tipoY;
+  ctx.fillStyle = colores.texto;
+  ctx.font = `700 40px "${FUENTE_BOLD}"`;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(obtenerTipoNota(tipoNota), margen, 322);
 
-  dibujarRectanguloRedondeado(ctx, x, y, anchoCaja, altoCaja, 13);
-  ctx.fillStyle = "rgba(50, 50, 50, 0.42)";
-  ctx.fill();
-
-  ctx.fillStyle = "#FFFFFF";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-  ctx.shadowBlur = 3;
-  ctx.shadowOffsetY = 2;
-  ctx.fillText(texto, salida.ancho / 2, y + 42);
-  ctx.restore();
-};
-
-const dibujarTitulo = (ctx, titulo, salida) => {
-  const anchoTextoMaximo = salida.nombre === "story" ? 870 : 900;
-  const maximoLineas = 7;
-  let tamano = salida.nombre === "story" ? 90 : 74;
+  const tituloTop = 367;
+  const anchoTitulo = 924;
+  let tamano = 64;
   let lineas = [];
+  let ascenso = 0;
+  let descenso = 0;
+  let interlineado = 0;
+  let altoTexto = 0;
 
-  while (tamano >= 48) {
+  while (tamano >= 32) {
     ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
-    lineas = dividirTexto(ctx, titulo, anchoTextoMaximo);
-    if (lineas.length <= maximoLineas) break;
+    lineas = dividirTexto(ctx, titulo.trim(), anchoTitulo);
+    const metricas = ctx.measureText("Ágj");
+    ascenso = metricas.actualBoundingBoxAscent || tamano * 0.8;
+    descenso = metricas.actualBoundingBoxDescent || tamano * 0.2;
+    interlineado = tamano * 1.04;
+    altoTexto = ascenso + descenso + (lineas.length - 1) * interlineado;
+
+    if (tituloTop + altoTexto + 40 <= imagen.y) break;
     tamano -= 1;
   }
 
-  const interlineado = tamano * 1.05;
-  ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
+  imagen.y = Math.max(600, Math.ceil(tituloTop + altoTexto + 40));
 
+  ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
+  ctx.fillStyle = colores.texto;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  lineas.forEach((linea, indice) => {
+    ctx.fillText(linea, margen, tituloTop + ascenso + indice * interlineado);
+  });
+
+  dibujarCoverEnArea(
+    ctx,
+    imagenPrincipal,
+    imagen.x,
+    imagen.y,
+    imagen.ancho,
+    imagen.alto,
+  );
+};
+
+const dibujarStory = (
+  ctx,
+  imagenPrincipal,
+  logoOriginal,
+  titulo,
+  formato,
+  tipoNota,
+  tema,
+) => {
+  const margen = 78;
+  const imagen = { x: 64, y: 0, ancho: 952, alto: 0 };
+  const colores = TEMAS[tema];
+
+  ctx.fillStyle = colores.fondo;
+  ctx.fillRect(0, 0, 1080, 1920);
+
+  const logo = tema === "oscuro" ? crearLogoNegro(logoOriginal) : crearLogoBlanco(logoOriginal);
+  ctx.drawImage(logo, 76, 50, 72, 72);
+
+  ctx.fillStyle = colores.texto;
+  ctx.font = `700 30px "${FUENTE_BOLD}"`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText("www.residente.mx", 160, 114);
+
+  const etiqueta = obtenerEtiquetaFormato(formato);
+  const etiquetaY = 186;
+  const etiquetaAlto = 64;
+  ctx.font = `italic 700 38px "${FUENTE_BOLD}"`;
+  const anchoEtiqueta = Math.max(174, ctx.measureText(etiqueta).width + 38);
+  ctx.fillStyle = "#FFF200";
+  ctx.fillRect(margen, etiquetaY, anchoEtiqueta, etiquetaAlto);
+  ctx.fillStyle = "#000000";
+  ctx.fillText(etiqueta, margen + 18, etiquetaY + 47);
+
+  ctx.fillStyle = colores.texto;
+  ctx.font = `700 40px "${FUENTE_BOLD}"`;
+  ctx.fillText(obtenerTipoNota(tipoNota), margen, 322);
+
+  const tituloTop = 394;
+  const anchoTitulo = 924;
+  const tamano = 76;
+  ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
+  const lineas = dividirTexto(ctx, titulo.trim(), anchoTitulo);
   const metricas = ctx.measureText("Ágj");
   const ascenso = metricas.actualBoundingBoxAscent || tamano * 0.8;
   const descenso = metricas.actualBoundingBoxDescent || tamano * 0.2;
-  const inicioTitulo = salida.nombre === "story" ? 860 : 575;
-  const primeraLinea = inicioTitulo + ascenso;
+  const interlineado = tamano * 1.04;
+  const altoTexto = ascenso + descenso + (lineas.length - 1) * interlineado;
 
-  const paddingHorizontal = 32;
-  const paddingVertical = 6;
-  const solapeVertical = salida.nombre === "story" ? 12 : 0;
+  imagen.y = Math.ceil(tituloTop + altoTexto + 57);
+  imagen.alto = 1920 - imagen.y - 190;
 
-  ctx.save();
-
-  // Los fondos se unen primero y la opacidad se aplica una sola vez.
-  const canvasFondo = document.createElement("canvas");
-  canvasFondo.width = salida.ancho;
-  canvasFondo.height = salida.alto;
-  const fondoCtx = canvasFondo.getContext("2d");
-  fondoCtx.fillStyle = "#2D2D2D";
-
-  lineas.forEach((linea, indice) => {
-    const yTexto = primeraLinea + indice * interlineado;
-    const anchoLinea = ctx.measureText(linea).width;
-    const anchoFondo = Math.min(
-      salida.ancho - 70,
-      anchoLinea + paddingHorizontal * 2,
-    );
-    const altoTexto = ascenso + descenso;
-    const altoFondoBase = altoTexto + paddingVertical * 2;
-    const altoFondo =
-      salida.nombre === "story"
-        ? Math.max(altoFondoBase, interlineado + solapeVertical)
-        : altoFondoBase;
-    const paddingFondoVertical = (altoFondo - altoTexto) / 2;
-    const xFondo = (salida.ancho - anchoFondo) / 2;
-    const yFondo = yTexto - ascenso - paddingFondoVertical;
-
-    dibujarRectanguloRedondeado(
-      fondoCtx,
-      xFondo,
-      yFondo,
-      anchoFondo,
-      altoFondo,
-      28,
-    );
-    fondoCtx.fill();
-  });
-
-  ctx.save();
-  ctx.globalAlpha = 0.42;
-  ctx.drawImage(canvasFondo, 0, 0);
-  ctx.restore();
-
-  ctx.textAlign = "center";
+  ctx.fillStyle = colores.texto;
+  ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.font = `700 ${tamano}px "${FUENTE_BOLD}"`;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetX = 3;
-  ctx.shadowOffsetY = 3;
-
   lineas.forEach((linea, indice) => {
-    ctx.fillText(linea, salida.ancho / 2, primeraLinea + indice * interlineado);
+    ctx.fillText(linea, margen, tituloTop + ascenso + indice * interlineado);
   });
 
-  ctx.restore();
+  dibujarCoverEnArea(
+    ctx,
+    imagenPrincipal,
+    imagen.x,
+    imagen.y,
+    imagen.ancho,
+    imagen.alto,
+  );
 };
 
 const esperarFuentes = async () => {
   if (!document.fonts) return;
 
-  await Promise.all([
-    document.fonts.load(`700 74px "${FUENTE_BOLD}"`),
-    document.fonts.load(`400 35px "${FUENTE_ROMAN}"`),
-  ]);
+  await document.fonts.load(`700 64px "${FUENTE_BOLD}"`);
 };
 
 const canvasAArchivo = (canvas, nombre) =>
@@ -322,6 +363,7 @@ const generarImagenRedes = async ({
   formato,
   tipoNota,
   tipoSalida,
+  tema,
 }) => {
   if (!(imagen instanceof Blob)) {
     throw new Error("La imagen principal no es un archivo válido");
@@ -347,45 +389,23 @@ const generarImagenRedes = async ({
     canvas.height = salida.alto;
     const ctx = canvas.getContext("2d");
 
-    dibujarCover(ctx, imagenPrincipal, salida.ancho, salida.alto);
+    if (tipoSalida === "post") {
+      dibujarPost(ctx, imagenPrincipal, logoOriginal, titulo, formato, tipoNota, tema);
+    } else {
+      dibujarStory(ctx, imagenPrincipal, logoOriginal, titulo, formato, tipoNota, tema);
+    }
 
-    const degradado = ctx.createLinearGradient(0, 250, 0, salida.alto);
-    degradado.addColorStop(0, "rgba(0, 0, 0, 0)");
-    degradado.addColorStop(0.45, "rgba(0, 0, 0, 0.03)");
-    degradado.addColorStop(1, "rgba(0, 0, 0, 0.13)");
-    ctx.fillStyle = degradado;
-    ctx.fillRect(0, 0, salida.ancho, salida.alto);
-
-    if (salida.nombre !== "story") {
-  const logoNegro = crearLogoNegro(logoOriginal);
-
-  ctx.drawImage(
-    logoNegro,
-    salida.logoX,
-    salida.logoY,
-    salida.logoMedida,
-    salida.logoMedida,
-  );
-
-  ctx.fillStyle = "#000000";
-  ctx.font = `700 35px "${FUENTE_BOLD}"`;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  ctx.fillText("www.residente.mx", salida.webX, salida.webY);
-  }
-
-    dibujarEtiqueta(ctx, formato, salida);
-    dibujarTipoNota(ctx, tipoNota, salida);
-    dibujarTitulo(ctx, titulo.trim(), salida);
-
-    return canvasAArchivo(canvas, salida.nombre);
+    return canvasAArchivo(
+      canvas,
+      tema === "claro" ? `${salida.nombre}-blanco` : salida.nombre,
+    );
   } finally {
     URL.revokeObjectURL(urlImagen);
   }
 };
 
-export const generarInstafoto = (datos) =>
-  generarImagenRedes({ ...datos, tipoSalida: "post" });
+export const generarInstafoto = (datos, tema = "oscuro") =>
+  generarImagenRedes({ ...datos, tema, tipoSalida: "post" });
 
-export const generarStory = (datos) =>
-  generarImagenRedes({ ...datos, tipoSalida: "story" });
+export const generarStory = (datos, tema = "oscuro") =>
+  generarImagenRedes({ ...datos, tema, tipoSalida: "story" });
