@@ -175,7 +175,7 @@ const FormularioFisl = () => {
             className="inline-flex items-center gap-2 text-2xl font-bold cursor-pointer disabled:cursor-default"
           >
             {inventario
-              ? `${disponibles} ${disponibles === 1 ? "caja" : "cajas"}`
+              ? `Inventario: ${disponibles} ${disponibles === 1 ? "caja" : "cajas"}`
               : errorInventario
                 ? "—"
                 : "Cargando…"}
