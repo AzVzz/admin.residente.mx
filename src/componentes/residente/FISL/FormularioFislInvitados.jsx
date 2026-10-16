@@ -1,0 +1,194 @@
+import React, { useState } from "react";
+import { fislInvitadoEnviar } from "../../api/fislPost";
+
+/**
+ * Formulario FISL — registro de invitados (sin login).
+ * Cada registro se guarda y se envía por correo.
+ */
+
+const ESTADO_INICIAL = {
+  nombre: "",
+  email: "",
+  restaurante: "",
+  acompanantes: "",
+};
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const FormularioFislInvitados = () => {
+  const [form, setForm] = useState(ESTADO_INICIAL);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [exito, setExito] = useState(false);
+  const [emailEnviado, setEmailEnviado] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const acompanantes = Number(form.acompanantes);
+    const email = form.email.trim();
+    if (!form.nombre.trim() || !email || !form.restaurante.trim() || form.acompanantes === "") {
+      setError("Completa todos los campos.");
+      return;
+    }
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      setError("Escribe un correo válido.");
+      return;
+    }
+    if (!Number.isInteger(acompanantes) || acompanantes < 0 || acompanantes > 50) {
+      setError("Los acompañantes deben ser un número entero entre 0 y 50.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await fislInvitadoEnviar({
+        nombre: form.nombre.trim(),
+        email,
+        restaurante: form.restaurante.trim(),
+        acompanantes,
+      });
+      setEmailEnviado(email);
+      setExito(true);
+      setForm(ESTADO_INICIAL);
+    } catch (err) {
+      setError(err.message || "Ocurrió un error al enviar el registro.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputCls =
+    "w-full rounded-lg border border-black/15 px-4 py-2.5 focus:border-black focus:outline-none focus:ring-2 focus:ring-[#FFF200]";
+
+  if (exito) {
+    return (
+      <div className="max-w-[680px] mx-auto py-16 px-4 text-center">
+        <div>
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF200]">
+            <span className="text-3xl">✓</span>
+          </div>
+          <h1 className="text-2xl font-bold mb-3">¡Registro enviado!</h1>
+          <p className="text-black/70 mb-8">
+            Te enviamos el boleto a {emailEnviado}.
+          </p>
+          <button
+            type="button"
+            onClick={() => setExito(false)}
+            className="inline-flex items-center justify-center rounded-lg bg-black px-6 py-3 text-white font-semibold hover:bg-black/80 transition-colors cursor-pointer"
+          >
+            Enviar otro registro
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[680px] mx-auto py-10 px-4">
+      <header className="@container mb-10 w-full">
+        <h1
+          className="text-[clamp(2rem,11.1cqi,4.5rem)] leading-[0.78] tracking-[-0.05em] text-black"
+          style={{ fontFamily: '"NeueHaasGroteskDisplayPro75Bold", sans-serif' }}
+        >
+          Crisis
+          <br />
+          Restaurantera
+        </h1>
+        <span className="mt-5 block h-1.5 w-16 bg-[#FFF200]" aria-hidden="true" />
+      </header>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div>
+          <label htmlFor="nombre" className="block text-sm font-semibold mb-1.5">
+            Nombre
+          </label>
+          <input
+            id="nombre"
+            name="nombre"
+            type="text"
+            value={form.nombre}
+            onChange={handleChange}
+            maxLength={150}
+            placeholder="Nombre completo"
+            className={inputCls}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-semibold mb-1.5">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            maxLength={254}
+            placeholder="correo@ejemplo.com"
+            autoComplete="email"
+            className={inputCls}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="restaurante" className="block text-sm font-semibold mb-1.5">
+            Restaurante
+          </label>
+          <input
+            id="restaurante"
+            name="restaurante"
+            type="text"
+            value={form.restaurante}
+            onChange={handleChange}
+            maxLength={200}
+            placeholder="Nombre del restaurante"
+            className={inputCls}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="acompanantes" className="block text-sm font-semibold mb-1.5">
+            ¿Cuántos acompañantes?
+          </label>
+          <input
+            id="acompanantes"
+            name="acompanantes"
+            type="number"
+            min={0}
+            max={50}
+            step={1}
+            inputMode="numeric"
+            value={form.acompanantes}
+            onChange={handleChange}
+            placeholder="Ej. 2"
+            className={inputCls}
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3 font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {loading ? "Enviando…" : "Enviar registro"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default FormularioFislInvitados;

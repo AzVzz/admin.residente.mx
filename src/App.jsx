@@ -195,6 +195,9 @@ const GastroDestinos = lazy(
 const FormularioFisl = lazy(
   () => import("./componentes/residente/FISL/FormularioFisl.jsx"),
 );
+const FormularioFislInvitados = lazy(
+  () => import("./componentes/residente/FISL/FormularioFislInvitados.jsx"),
+);
 // import FormularioBanner from "./componentes/residente/B2B/FormularioBanner.jsx";
 
 //Admin
@@ -375,7 +378,8 @@ function App() {
   const isLinkInBio = location.pathname === "/linkinbio";
   const isB2BDashboard = location.pathname === "/dashboardb2b";
   const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
-  const isFisl = location.pathname === "/fisl";
+  const isFisl =
+    location.pathname === "/fisl" || location.pathname === "/crisis-restaurantera";
 
   return (
     <DataProvider>
@@ -548,6 +552,15 @@ function App() {
                 element={
                   <div className="max-w-[1080px] mx-auto">
                     <FormularioFisl />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/crisis-restaurantera"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormularioFislInvitados />
                   </div>
                 }
               />

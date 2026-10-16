@@ -43,3 +43,28 @@ export const fislEnviar = async (datos) => {
   }
   return data;
 };
+
+/**
+ * Registra un invitado del formulario FISL (sin login).
+ * El backend lo guarda y lo manda por correo.
+ *
+ * @param {Object} d
+ * @param {string} d.nombre
+ * @param {string} d.email         - Correo al que se envía el boleto.
+ * @param {string} d.restaurante
+ * @param {number} d.acompanantes - Entero entre 0 y 50.
+ * @returns {Promise<object>}
+ */
+export const fislInvitadoEnviar = async (datos) => {
+  const response = await fetch(`${urlApi}api/fisl/invitados`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error HTTP: ${response.status}`);
+  }
+  return data;
+};
