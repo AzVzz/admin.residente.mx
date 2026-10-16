@@ -55,6 +55,19 @@ export const fislEnviar = async (datos) => {
  * @param {number} d.acompanantes - Entero entre 0 y 50.
  * @returns {Promise<object>}
  */
+/**
+ * Total de registros enviados del formulario de Crisis Restaurantera.
+ * @returns {Promise<{ success: boolean, total: number }>}
+ */
+export const fislInvitadosTotal = async () => {
+  const response = await fetch(`${urlApi}api/fisl/invitados`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error HTTP: ${response.status}`);
+  }
+  return data;
+};
+
 export const fislInvitadoEnviar = async (datos) => {
   const response = await fetch(`${urlApi}api/fisl/invitados`, {
     method: "POST",

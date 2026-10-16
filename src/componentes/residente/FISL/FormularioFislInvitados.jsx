@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { fislInvitadoEnviar } from "../../api/fislPost";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { fislInvitadoEnviar, fislInvitadosTotal } from "../../api/fislPost";
 
 /**
  * Formulario FISL — registro de invitados (sin login).
@@ -22,6 +22,20 @@ const FormularioFislInvitados = () => {
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
+  const [enviados, setEnviados] = useState(null);
+
+  const cargarEnviados = useCallback(async () => {
+    try {
+      const data = await fislInvitadosTotal();
+      setEnviados(Number(data.total) || 0);
+    } catch {
+      setEnviados(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarEnviados();
+  }, [cargarEnviados]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +72,9 @@ const FormularioFislInvitados = () => {
         acompanantes,
       });
       setEmailEnviado(email);
+      setEnviados((n) => (n == null ? 1 : n + 1));
       setExito(true);
+      cargarEnviados();
       setForm(ESTADO_INICIAL);
     } catch (err) {
       setError(err.message || "Ocurrió un error al enviar el registro.");
@@ -196,6 +212,11 @@ const FormularioFislInvitados = () => {
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
+        {enviados != null && (
+          <p className="mt-4 text-center text-xl font-bold">
+            {enviados} {enviados === 1 ? "registro enviado" : "registros enviados"}
+          </p>
+        )}
       </form>
     </div>
   );
