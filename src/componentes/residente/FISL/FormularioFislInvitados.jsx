@@ -123,7 +123,7 @@ const FormularioFislInvitados = () => {
 
         <div>
           <label htmlFor="email" className="block text-xl font-semibold mb-2">
-            Email
+            Correo donde se enviará la invitación
           </label>
           <input
             id="email"
