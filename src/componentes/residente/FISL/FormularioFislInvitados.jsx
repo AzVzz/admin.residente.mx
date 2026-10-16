@@ -208,7 +208,7 @@ const FormularioFislInvitados = () => {
         </button>
 
         <img
-          src="https://residente.mx/fotos/fotos-estaticas/crisis%20restaurantera.jpg"
+          src="https://residente.mx/fotos/imagen%20liga.jpg"
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
