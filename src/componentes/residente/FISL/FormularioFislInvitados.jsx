@@ -65,7 +65,7 @@ const FormularioFislInvitados = () => {
   };
 
   const inputCls =
-    "w-full rounded-lg border border-black/15 px-4 py-2.5 focus:border-black focus:outline-none focus:ring-2 focus:ring-[#FFF200]";
+    "w-full rounded-lg border border-black/15 px-4 py-3.5 text-xl focus:border-black focus:outline-none focus:ring-2 focus:ring-[#FFF200]";
 
   if (exito) {
     return (
@@ -106,7 +106,7 @@ const FormularioFislInvitados = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label htmlFor="nombre" className="block text-sm font-semibold mb-1.5">
+          <label htmlFor="nombre" className="block text-xl font-semibold mb-2">
             Nombre
           </label>
           <input
@@ -122,7 +122,7 @@ const FormularioFislInvitados = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-semibold mb-1.5">
+          <label htmlFor="email" className="block text-xl font-semibold mb-2">
             Email
           </label>
           <input
@@ -139,7 +139,7 @@ const FormularioFislInvitados = () => {
         </div>
 
         <div>
-          <label htmlFor="restaurante" className="block text-sm font-semibold mb-1.5">
+          <label htmlFor="restaurante" className="block text-xl font-semibold mb-2">
             Restaurante
           </label>
           <input
@@ -155,7 +155,7 @@ const FormularioFislInvitados = () => {
         </div>
 
         <div>
-          <label htmlFor="acompanantes" className="block text-sm font-semibold mb-1.5">
+          <label htmlFor="acompanantes" className="block text-xl font-semibold mb-2">
             ¿Cuántos acompañantes?
           </label>
           <input
@@ -182,10 +182,16 @@ const FormularioFislInvitados = () => {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3 font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-xl font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {loading ? "Enviando…" : "Enviar registro"}
         </button>
+
+        <img
+          src="https://residente.mx/fotos/fotos-estaticas/crisis%20restaurantera.jpg"
+          alt="Crisis Restaurantera"
+          className="mt-2 w-full h-auto"
+        />
       </form>
     </div>
   );
