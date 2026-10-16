@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { fislInvitadoEnviar } from "../../api/fislPost";
 
 /**
@@ -18,6 +18,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FormularioFislInvitados = () => {
   const [form, setForm] = useState(ESTADO_INICIAL);
   const [loading, setLoading] = useState(false);
+  const enviando = useRef(false);
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
@@ -46,6 +47,8 @@ const FormularioFislInvitados = () => {
       return;
     }
 
+    if (enviando.current) return;
+    enviando.current = true;
     setLoading(true);
     try {
       await fislInvitadoEnviar({
@@ -60,6 +63,7 @@ const FormularioFislInvitados = () => {
     } catch (err) {
       setError(err.message || "Ocurrió un error al enviar el registro.");
     } finally {
+      enviando.current = false;
       setLoading(false);
     }
   };
