@@ -114,14 +114,17 @@ const FormularioFislInvitados = () => {
     <div className="max-w-[680px] mx-auto py-10 px-4">
       <header className="@container mb-10 w-full">
         <h1
-          className="text-[clamp(2rem,11.1cqi,4.5rem)] leading-[0.78] tracking-[-0.05em] text-black"
+          className="text-[clamp(1.85rem,9cqi,3.6rem)] leading-[0.82] tracking-[-0.045em] text-black uppercase"
           style={{ fontFamily: '"NeueHaasGroteskDisplayPro75Bold", sans-serif' }}
         >
-          Crisis
+          La crisis
           <br />
-          Restaurantera
+          restaurantera:
+          <br />
+          ¿Cómo
+          <br />
+          resolverla?
         </h1>
-        <span className="mt-5 block h-1.5 w-16 bg-[#FFF200]" aria-hidden="true" />
       </header>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
