@@ -216,9 +216,7 @@ const FormularioFislInvitados = () => {
           className="mt-2 w-full h-auto"
         />
         {enviados != null && (
-          <p className="mt-4 text-center text-xl font-bold">
-            {enviados} {enviados === 1 ? "registro enviado" : "registros enviados"}
-          </p>
+          <p className="mt-4 text-center text-3xl font-bold">{enviados}</p>
         )}
       </form>
     </div>
