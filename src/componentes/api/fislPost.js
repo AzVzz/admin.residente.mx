@@ -53,10 +53,11 @@ export const fislEnviar = async (datos) => {
  * @param {string} d.email         - Correo al que se envía el boleto.
  * @param {string} d.restaurante
  * @param {number} d.acompanantes - Entero entre 0 y 50.
+ * @param {string} d.fechaEvento - 2026-10-27 o 2026-10-28.
  * @returns {Promise<object>}
  */
 /**
- * Total de registros enviados del formulario de Crisis Restaurantera.
+ * Total combinado de registros enviados para las dos fechas.
  * @returns {Promise<{ success: boolean, total: number }>}
  */
 export const fislInvitadosTotal = async () => {

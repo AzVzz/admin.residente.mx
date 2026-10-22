@@ -14,6 +14,10 @@ const ESTADO_INICIAL = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const FECHAS_EVENTO = {
+  "2026-10-27": "martes 27 de octubre",
+  "2026-10-28": "miércoles 28 de octubre",
+};
 
 const FormularioFislInvitados = () => {
   const [form, setForm] = useState(ESTADO_INICIAL);
@@ -22,6 +26,7 @@ const FormularioFislInvitados = () => {
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
+  const [fechaRegistrada, setFechaRegistrada] = useState("");
   const [enviados, setEnviados] = useState(null);
 
   const cargarEnviados = useCallback(async () => {
@@ -45,6 +50,11 @@ const FormularioFislInvitados = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const fechaEvento = e.nativeEvent.submitter?.value;
+    if (!Object.hasOwn(FECHAS_EVENTO, fechaEvento)) {
+      setError("Escoge la fecha en la que quieres registrarte.");
+      return;
+    }
 
     const acompanantes = Number(form.acompanantes);
     const email = form.email.trim();
@@ -70,8 +80,10 @@ const FormularioFislInvitados = () => {
         email,
         restaurante: form.restaurante.trim(),
         acompanantes,
+        fechaEvento,
       });
       setEmailEnviado(email);
+      setFechaRegistrada(FECHAS_EVENTO[fechaEvento]);
       setEnviados((n) => (n == null ? 1 : n + 1));
       setExito(true);
       cargarEnviados();
@@ -95,6 +107,7 @@ const FormularioFislInvitados = () => {
             <span className="text-3xl">✓</span>
           </div>
           <h1 className="text-2xl font-bold mb-3">¡Registro enviado!</h1>
+          <p className="mb-3 font-semibold">Registro para el {fechaRegistrada}.</p>
           <p className="text-black/70 mb-8">
             Te enviamos el boleto a {emailEnviado}.
           </p>
@@ -204,10 +217,22 @@ const FormularioFislInvitados = () => {
 
         <button
           type="submit"
+          name="fechaEvento"
+          value="2026-10-27"
           disabled={loading}
           className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-xl font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
-          {loading ? "Enviando…" : "Enviar registro"}
+          {loading ? "Enviando…" : "Registrarme para el martes 27"}
+        </button>
+
+        <button
+          type="submit"
+          name="fechaEvento"
+          value="2026-10-28"
+          disabled={loading}
+          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-xl font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
         </button>
 
         <img
