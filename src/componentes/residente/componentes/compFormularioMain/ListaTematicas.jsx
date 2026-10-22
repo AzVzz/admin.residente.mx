@@ -2,16 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../Context";
 import { tematicasGet, tematicaBorrar, tematicaEditar } from "../../../../componentes/api/tematicasApi.js";
+import { formatoFechaTematica, estadoTematica } from "../../../../utils/tematicasFechas.js";
 
-const ESTATUS_LABEL = { publicada: "Publicada", borrador: "Borrador" };
 const ESTATUS_COLOR = { publicada: "bg-green-100 text-green-800", borrador: "bg-gray-100 text-gray-600" };
 
-function formatFecha(f) {
-  if (!f) return "—";
-  return new Date(f).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 const ListaTematicas = () => {
+  const [ahora, setAhora] = useState(Date.now);
+  useEffect(() => {
+    const timer = setInterval(() => setAhora(Date.now()), 10_000);
+    return () => clearInterval(timer);
+  }, []);
   const { token } = useAuth();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -110,11 +110,11 @@ const ListaTematicas = () => {
                       className={`text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-opacity ${ESTATUS_COLOR[t.estatus]} hover:opacity-80 disabled:opacity-40`}
                       title="Click para cambiar estado"
                     >
-                      {toggling === t.id ? "…" : ESTATUS_LABEL[t.estatus]}
+                      {toggling === t.id ? "…" : estadoTematica(t, ahora)}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{formatFecha(t.fecha_inicio)}</td>
-                  <td className="px-4 py-3 text-gray-600">{formatFecha(t.fecha_fin)}</td>
+                  <td className="px-4 py-3 text-gray-600">{formatoFechaTematica(t.fecha_inicio)}</td>
+                  <td className="px-4 py-3 text-gray-600">{formatoFechaTematica(t.fecha_fin)}</td>
                   <td className="px-4 py-3">
                     <span
                       className="inline-block w-6 h-6 rounded border border-gray-300"

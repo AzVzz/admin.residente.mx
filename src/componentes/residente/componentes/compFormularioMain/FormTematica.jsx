@@ -6,6 +6,7 @@ import {
   tematicaEditar,
   tematicaGetById,
 } from "../../../../componentes/api/tematicasApi.js";
+import { fechaTematicaParaInput } from "../../../../utils/tematicasFechas.js";
 
 const FormTematica = () => {
   const { token } = useAuth();
@@ -38,8 +39,8 @@ const FormTematica = () => {
           color: data.color || "#FFF200",
           icon: data.icon || "",
           estatus: data.estatus || "borrador",
-          fecha_inicio: data.fecha_inicio ? data.fecha_inicio.slice(0, 16) : "",
-          fecha_fin: data.fecha_fin ? data.fecha_fin.slice(0, 16) : "",
+          fecha_inicio: fechaTematicaParaInput(data.fecha_inicio),
+          fecha_fin: fechaTematicaParaInput(data.fecha_fin),
         });
       } catch (err) {
         setError(err.message);
@@ -120,13 +121,14 @@ const FormTematica = () => {
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-1">
-                Solo las temáticas <strong>publicadas</strong> aparecen en el carrusel del sitio.
+                Selecciona Publicada para habilitar la edición. Un inicio futuro la programa
+                automáticamente en hora de Monterrey. Borrador permanece oculto hasta publicarlo.
               </p>
             </div>
 
             {/* Inicio */}
             <div className="pb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Inicio</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Inicio (Monterrey)</label>
               <input
                 type="datetime-local"
                 name="fecha_inicio"
@@ -139,7 +141,7 @@ const FormTematica = () => {
 
             {/* Fin */}
             <div className="pb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Fin</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Fin (Monterrey)</label>
               <input
                 type="datetime-local"
                 name="fecha_fin"

@@ -13,6 +13,7 @@ import {
   tematicaSetNotaDestacada,
   tematicaSetNotasOrden,
 } from "../../../../componentes/api/tematicasApi.js";
+import { fechaTematicaParaInput, formatoFechaTematica, estadoTematica } from "../../../../utils/tematicasFechas.js";
 import { restaurantesBasicosGet } from "../../../../componentes/api/restaurantesBasicosGet.js";
 import { imgApi } from "../../../../componentes/api/url.js";
 
@@ -20,25 +21,6 @@ const ESTATUS_COLOR = {
   publicada: "bg-green-100 text-green-800",
   borrador: "bg-gray-100 text-gray-600",
 };
-
-function formatFecha(f) {
-  if (!f) return "—";
-  return new Date(f).toLocaleDateString("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function toSlug(str) {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
 
 function logoUrl(r) {
   const u = r?.imagen || r?.url_logo;
@@ -276,8 +258,8 @@ const FormTematica = ({ id, onGuardado, onCancelar }) => {
           color: data.color || "#FFF200",
           icon: data.icon || "",
           estatus: data.estatus || "borrador",
-          fecha_inicio: data.fecha_inicio ? data.fecha_inicio.slice(0, 16) : "",
-          fecha_fin: data.fecha_fin ? data.fecha_fin.slice(0, 16) : "",
+          fecha_inicio: fechaTematicaParaInput(data.fecha_inicio),
+          fecha_fin: fechaTematicaParaInput(data.fecha_fin),
         });
       } catch (err) {
         setError(err.message);
@@ -368,15 +350,16 @@ const FormTematica = ({ id, onGuardado, onCancelar }) => {
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-1">
-                Solo las temáticas <strong>publicadas</strong> aparecen en el
-                carrusel del sitio.
+                Selecciona Publicada para habilitar la edición. Si tiene un inicio
+                futuro, se mostrará automáticamente a esa hora de Monterrey.
+                Borrador permanece oculto hasta que lo publiques.
               </p>
             </div>
 
             {/* Inicio */}
             <div className="pb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Inicio
+                Inicio (Monterrey)
               </label>
               <input
                 type="datetime-local"
@@ -391,7 +374,7 @@ const FormTematica = ({ id, onGuardado, onCancelar }) => {
             {/* Fin */}
             <div className="pb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Fin
+                Fin (Monterrey)
               </label>
               <input
                 type="datetime-local"
@@ -509,6 +492,11 @@ const FormTematica = ({ id, onGuardado, onCancelar }) => {
 const TematicasDashboard = () => {
   const { token } = useAuth();
   const [subVista, setSubVista] = useState("lista"); // "lista" | "nueva" | "editar"
+  const [ahora, setAhora] = useState(Date.now);
+  useEffect(() => {
+    const timer = setInterval(() => setAhora(Date.now()), 10_000);
+    return () => clearInterval(timer);
+  }, []);
   const [editandoId, setEditandoId] = useState(null);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -767,14 +755,12 @@ const TematicasDashboard = () => {
                         handleToggleEstatus(t);
                       }}
                       disabled={toggling === t.id}
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-opacity ${ESTATUS_COLOR[t.estatus]} hover:opacity-80 disabled:opacity-40`}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-opacity ${estadoTematica(t) === "Programada" ? "bg-blue-100 text-blue-800" : estadoTematica(t) === "Finalizada" ? ESTATUS_COLOR.borrador : ESTATUS_COLOR[t.estatus]} hover:opacity-80 disabled:opacity-40`}
                       title="Click para cambiar estado"
                     >
                       {toggling === t.id
                         ? "…"
-                        : t.estatus === "publicada"
-                        ? "Publicada"
-                        : "Borrador"}
+                        : estadoTematica(t, ahora)}
                     </button>
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -783,10 +769,10 @@ const TematicasDashboard = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {formatFecha(t.fecha_inicio)}
+                    {formatoFechaTematica(t.fecha_inicio)}
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {formatFecha(t.fecha_fin)}
+                    {formatoFechaTematica(t.fecha_fin)}
                   </td>
                   <td className="px-4 py-3">
                     <span
