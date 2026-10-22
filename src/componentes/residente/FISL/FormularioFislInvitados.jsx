@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { fislInvitadoEnviar } from "../../api/fislPost";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { fislInvitadoEnviar, fislInvitadosTotal } from "../../api/fislPost";
 
 /**
  * Formulario FISL — registro de invitados (sin login).
@@ -14,15 +14,39 @@ const ESTADO_INICIAL = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const FECHA_EVENTO = "2026-10-28";
+const DIAS = {
+  "2026-10-27": {
+    etiqueta: "martes 27 de octubre",
+    boton: "Registrarme para el martes 27",
+  },
+  "2026-10-28": {
+    etiqueta: "miércoles 28 de octubre",
+    boton: "Registrarme para el miércoles 28",
+  },
+};
 
-const FormularioFislInvitados = () => {
+const FormularioFislInvitados = ({ fechaEvento = "2026-10-28" }) => {
+  const dia = DIAS[fechaEvento] || DIAS["2026-10-28"];
   const [form, setForm] = useState(ESTADO_INICIAL);
   const [loading, setLoading] = useState(false);
   const enviando = useRef(false);
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
+  const [enviados, setEnviados] = useState(null);
+
+  const cargarEnviados = useCallback(async () => {
+    try {
+      const data = await fislInvitadosTotal(fechaEvento);
+      setEnviados(Number(data.total) || 0);
+    } catch {
+      setEnviados(null);
+    }
+  }, [fechaEvento]);
+
+  useEffect(() => {
+    cargarEnviados();
+  }, [cargarEnviados]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,10 +80,12 @@ const FormularioFislInvitados = () => {
         email,
         restaurante: form.restaurante.trim(),
         acompanantes,
-        fechaEvento: FECHA_EVENTO,
+        fechaEvento,
       });
       setEmailEnviado(email);
+      setEnviados((n) => (n == null ? 1 : n + 1));
       setExito(true);
+      cargarEnviados();
       setForm(ESTADO_INICIAL);
     } catch (err) {
       setError(err.message || "Ocurrió un error al enviar el registro.");
@@ -80,7 +106,7 @@ const FormularioFislInvitados = () => {
             <span className="text-3xl">✓</span>
           </div>
           <h1 className="text-2xl font-bold mb-3">¡Registro enviado!</h1>
-          <p className="mb-3 font-semibold">Registro para el miércoles 28 de octubre.</p>
+          <p className="mb-3 font-semibold">Registro para el {dia.etiqueta}.</p>
           <p className="text-black/70 mb-8">
             Te enviamos el boleto a {emailEnviado}.
           </p>
@@ -193,7 +219,7 @@ const FormularioFislInvitados = () => {
           disabled={loading}
           className="inline-flex w-full items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-center text-xl font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
-          {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
+          {loading ? "Enviando…" : dia.boton}
         </button>
 
         <img
@@ -201,6 +227,14 @@ const FormularioFislInvitados = () => {
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
+        {enviados != null && (
+          <div className="mt-1 flex w-full justify-end" aria-label="Registros">
+            <div className="flex min-w-12 flex-col items-center leading-none">
+              <span className="text-sm font-bold">{String(enviados).padStart(4, "0")}</span>
+              <span className="mt-1 text-xs text-black/60">{fechaEvento.slice(-2)}</span>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

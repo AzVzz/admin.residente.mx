@@ -379,7 +379,8 @@ function App() {
   const isB2BDashboard = location.pathname === "/dashboardb2b";
   const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
   const isFisl =
-    location.pathname === "/fisl" || location.pathname === "/crisis-restaurantera";
+    location.pathname === "/fisl" ||
+    location.pathname.startsWith("/crisis-restaurantera");
 
   return (
     <DataProvider>
@@ -560,7 +561,16 @@ function App() {
                 path="/crisis-restaurantera"
                 element={
                   <div className="max-w-[1080px] mx-auto">
-                    <FormularioFislInvitados />
+                    <FormularioFislInvitados fechaEvento="2026-10-28" />
+                  </div>
+                }
+              />
+
+              <Route
+                path="/crisis-restaurantera-martes"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <FormularioFislInvitados fechaEvento="2026-10-27" />
                   </div>
                 }
               />
