@@ -57,11 +57,13 @@ export const fislEnviar = async (datos) => {
  * @returns {Promise<object>}
  */
 /**
- * Total combinado de registros enviados para las dos fechas.
+ * Total de registros enviados. Puede filtrarse por fecha.
+ * @param {string} [fechaEvento] - Fecha del evento (YYYY-MM-DD).
  * @returns {Promise<{ success: boolean, total: number }>}
  */
-export const fislInvitadosTotal = async () => {
-  const response = await fetch(`${urlApi}api/fisl/invitados`);
+export const fislInvitadosTotal = async (fechaEvento) => {
+  const query = fechaEvento ? `?fechaEvento=${encodeURIComponent(fechaEvento)}` : "";
+  const response = await fetch(`${urlApi}api/fisl/invitados${query}`);
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(data.error || `Error HTTP: ${response.status}`);

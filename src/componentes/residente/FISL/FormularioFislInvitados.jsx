@@ -18,6 +18,7 @@ const FECHAS_EVENTO = {
   "2026-10-27": "martes 27 de octubre",
   "2026-10-28": "miércoles 28 de octubre",
 };
+const FECHAS_CONTADOR = Object.keys(FECHAS_EVENTO);
 
 const FormularioFislInvitados = () => {
   const [form, setForm] = useState(ESTADO_INICIAL);
@@ -27,14 +28,19 @@ const FormularioFislInvitados = () => {
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
   const [fechaRegistrada, setFechaRegistrada] = useState("");
-  const [enviados, setEnviados] = useState(null);
+  const [enviadosPorFecha, setEnviadosPorFecha] = useState(null);
 
   const cargarEnviados = useCallback(async () => {
     try {
-      const data = await fislInvitadosTotal();
-      setEnviados(Number(data.total) || 0);
+      const conteos = await Promise.all(
+        FECHAS_CONTADOR.map(async (fechaEvento) => {
+          const data = await fislInvitadosTotal(fechaEvento);
+          return [fechaEvento, Number(data.total) || 0];
+        }),
+      );
+      setEnviadosPorFecha(Object.fromEntries(conteos));
     } catch {
-      setEnviados(null);
+      setEnviadosPorFecha(null);
     }
   }, []);
 
@@ -84,7 +90,11 @@ const FormularioFislInvitados = () => {
       });
       setEmailEnviado(email);
       setFechaRegistrada(FECHAS_EVENTO[fechaEvento]);
-      setEnviados((n) => (n == null ? 1 : n + 1));
+      setEnviadosPorFecha((conteos) =>
+        conteos
+          ? { ...conteos, [fechaEvento]: (conteos[fechaEvento] || 0) + 1 }
+          : conteos,
+      );
       setExito(true);
       cargarEnviados();
       setForm(ESTADO_INICIAL);
@@ -242,10 +252,17 @@ const FormularioFislInvitados = () => {
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
-        {enviados != null && (
-          <p className="mt-1 w-full text-right text-sm font-bold leading-none">
-            {String(enviados).padStart(4, "0")}
-          </p>
+        {enviadosPorFecha != null && (
+          <div className="mt-1 flex w-full justify-end gap-4" aria-label="Registros por fecha">
+            {FECHAS_CONTADOR.map((fechaEvento) => (
+              <div key={fechaEvento} className="flex min-w-12 flex-col items-center text-right leading-none">
+                <span className="text-sm font-bold">
+                  {String(enviadosPorFecha[fechaEvento] || 0).padStart(4, "0")}
+                </span>
+                <span className="mt-1 text-xs text-black/60">{fechaEvento.slice(-2)}</span>
+              </div>
+            ))}
+          </div>
         )}
       </form>
     </div>
