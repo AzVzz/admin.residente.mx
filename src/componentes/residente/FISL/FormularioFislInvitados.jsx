@@ -215,28 +215,30 @@ const FormularioFislInvitados = () => {
           </div>
         )}
 
-        <button
-          type="submit"
-          name="fechaEvento"
-          value="2026-10-27"
-          disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-xl font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {loading ? "Enviando…" : "Registrarme para el martes 27"}
-        </button>
+        <div className="flex w-full gap-3">
+          <button
+            type="submit"
+            name="fechaEvento"
+            value="2026-10-27"
+            disabled={loading}
+            className="inline-flex min-w-0 flex-1 items-center justify-center rounded-lg bg-[#FFF200] px-3 py-3.5 text-center text-base font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer sm:px-4 sm:text-lg"
+          >
+            {loading ? "Enviando…" : "Registrarme para el martes 27"}
+          </button>
 
-        <button
-          type="submit"
-          name="fechaEvento"
-          value="2026-10-28"
-          disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-xl font-bold text-black hover:brightness-95 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
-        </button>
+          <button
+            type="submit"
+            name="fechaEvento"
+            value="2026-10-28"
+            disabled={loading}
+            className="inline-flex min-w-0 flex-1 items-center justify-center rounded-lg bg-[#FFF200] px-3 py-3.5 text-center text-base font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer sm:px-4 sm:text-lg"
+          >
+            {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
+          </button>
+        </div>
 
         <img
-          src="https://residente.mx/fotos/imagen%20liga.jpg"
+          src={`${import.meta.env.BASE_URL}crisis-restaurantera-28-octubre.png`}
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
