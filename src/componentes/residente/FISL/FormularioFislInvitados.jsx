@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { fislInvitadoEnviar, fislInvitadosTotal } from "../../api/fislPost";
+import React, { useRef, useState } from "react";
+import { fislInvitadoEnviar } from "../../api/fislPost";
 
 /**
  * Formulario FISL — registro de invitados (sin login).
@@ -14,11 +14,7 @@ const ESTADO_INICIAL = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const FECHAS_EVENTO = {
-  "2026-10-27": "martes 27 de octubre",
-  "2026-10-28": "miércoles 28 de octubre",
-};
-const FECHAS_CONTADOR = Object.keys(FECHAS_EVENTO);
+const FECHA_EVENTO = "2026-10-28";
 
 const FormularioFislInvitados = () => {
   const [form, setForm] = useState(ESTADO_INICIAL);
@@ -27,26 +23,6 @@ const FormularioFislInvitados = () => {
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
-  const [fechaRegistrada, setFechaRegistrada] = useState("");
-  const [enviadosPorFecha, setEnviadosPorFecha] = useState(null);
-
-  const cargarEnviados = useCallback(async () => {
-    try {
-      const conteos = await Promise.all(
-        FECHAS_CONTADOR.map(async (fechaEvento) => {
-          const data = await fislInvitadosTotal(fechaEvento);
-          return [fechaEvento, Number(data.total) || 0];
-        }),
-      );
-      setEnviadosPorFecha(Object.fromEntries(conteos));
-    } catch {
-      setEnviadosPorFecha(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    cargarEnviados();
-  }, [cargarEnviados]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,12 +32,6 @@ const FormularioFislInvitados = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const fechaEvento = e.nativeEvent.submitter?.value;
-    if (!Object.hasOwn(FECHAS_EVENTO, fechaEvento)) {
-      setError("Escoge la fecha en la que quieres registrarte.");
-      return;
-    }
-
     const acompanantes = Number(form.acompanantes);
     const email = form.email.trim();
     if (!form.nombre.trim() || !email || !form.restaurante.trim() || form.acompanantes === "") {
@@ -86,17 +56,10 @@ const FormularioFislInvitados = () => {
         email,
         restaurante: form.restaurante.trim(),
         acompanantes,
-        fechaEvento,
+        fechaEvento: FECHA_EVENTO,
       });
       setEmailEnviado(email);
-      setFechaRegistrada(FECHAS_EVENTO[fechaEvento]);
-      setEnviadosPorFecha((conteos) =>
-        conteos
-          ? { ...conteos, [fechaEvento]: (conteos[fechaEvento] || 0) + 1 }
-          : conteos,
-      );
       setExito(true);
-      cargarEnviados();
       setForm(ESTADO_INICIAL);
     } catch (err) {
       setError(err.message || "Ocurrió un error al enviar el registro.");
@@ -117,7 +80,7 @@ const FormularioFislInvitados = () => {
             <span className="text-3xl">✓</span>
           </div>
           <h1 className="text-2xl font-bold mb-3">¡Registro enviado!</h1>
-          <p className="mb-3 font-semibold">Registro para el {fechaRegistrada}.</p>
+          <p className="mb-3 font-semibold">Registro para el miércoles 28 de octubre.</p>
           <p className="text-black/70 mb-8">
             Te enviamos el boleto a {emailEnviado}.
           </p>
@@ -225,45 +188,19 @@ const FormularioFislInvitados = () => {
           </div>
         )}
 
-        <div className="flex w-full gap-3">
-          <button
-            type="submit"
-            name="fechaEvento"
-            value="2026-10-27"
-            disabled={loading}
-            className="inline-flex min-w-0 flex-1 items-center justify-center rounded-lg bg-[#FFF200] px-3 py-3.5 text-center text-base font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer sm:px-4 sm:text-lg"
-          >
-            {loading ? "Enviando…" : "Registrarme para el martes 27"}
-          </button>
-
-          <button
-            type="submit"
-            name="fechaEvento"
-            value="2026-10-28"
-            disabled={loading}
-            className="inline-flex min-w-0 flex-1 items-center justify-center rounded-lg bg-[#FFF200] px-3 py-3.5 text-center text-base font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer sm:px-4 sm:text-lg"
-          >
-            {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex w-full items-center justify-center rounded-lg bg-[#FFF200] px-6 py-3.5 text-center text-xl font-bold text-black shadow-sm transition hover:brightness-95 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {loading ? "Enviando…" : "Registrarme para el miércoles 28"}
+        </button>
 
         <img
           src={`${import.meta.env.BASE_URL}crisis-restaurantera-28-octubre.png`}
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
-        {enviadosPorFecha != null && (
-          <div className="mt-1 flex w-full justify-end gap-4" aria-label="Registros por fecha">
-            {FECHAS_CONTADOR.map((fechaEvento) => (
-              <div key={fechaEvento} className="flex min-w-12 flex-col items-center text-right leading-none">
-                <span className="text-sm font-bold">
-                  {String(enviadosPorFecha[fechaEvento] || 0).padStart(4, "0")}
-                </span>
-                <span className="mt-1 text-xs text-black/60">{fechaEvento.slice(-2)}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </form>
     </div>
   );
