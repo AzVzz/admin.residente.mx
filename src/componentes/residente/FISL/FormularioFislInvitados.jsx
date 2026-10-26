@@ -223,7 +223,7 @@ const FormularioFislInvitados = ({ fechaEvento = "2026-10-28" }) => {
         </button>
 
         <img
-          src={`${import.meta.env.BASE_URL}crisis-restaurantera-28-octubre.png`}
+          src={`${import.meta.env.BASE_URL}crisis-restaurantera-28-octubre.jpg`}
           alt="Crisis Restaurantera"
           className="mt-2 w-full h-auto"
         />
