@@ -18,10 +18,12 @@ const DIAS = {
   "2026-10-27": {
     etiqueta: "martes 27 de octubre",
     boton: "Registrarme para el martes 27",
+    poster: "crisis-restaurantera-27-octubre.jpg",
   },
   "2026-10-28": {
     etiqueta: "miércoles 28 de octubre",
     boton: "Registrarme para el miércoles 28",
+    poster: "crisis-restaurantera-28-octubre.jpg",
   },
 };
 
@@ -223,8 +225,8 @@ const FormularioFislInvitados = ({ fechaEvento = "2026-10-28" }) => {
         </button>
 
         <img
-          src={`${import.meta.env.BASE_URL}crisis-restaurantera-28-octubre.jpg`}
-          alt="Crisis Restaurantera"
+          src={`${import.meta.env.BASE_URL}${dia.poster}`}
+          alt={`Crisis Restaurantera — ${dia.etiqueta}`}
           className="mt-2 w-full h-auto"
         />
         {enviados != null && (

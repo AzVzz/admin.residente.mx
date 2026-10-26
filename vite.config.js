@@ -1,7 +1,67 @@
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
+
+// WhatsApp no ejecuta React: cada enlace necesita su propio HTML con og:image.
+const CRISIS_OG_PAGES = [
+  {
+    file: "og/miercoles-28.html",
+    url: "https://residente.mx/admin/crisis-restaurantera",
+    image:
+      "https://residente.mx/admin/crisis-restaurantera-28-octubre.jpg?v=20261026",
+    alt: "Crisis Restaurantera — miércoles 28 de octubre",
+    description:
+      "Miércoles 28 de octubre, 8:30 p.m. Hotel Hilton Monterrey Valle. Solicita tu invitación.",
+  },
+  {
+    file: "og/martes-27.html",
+    url: "https://residente.mx/admin/crisis-restaurantera-martes",
+    image:
+      "https://residente.mx/admin/crisis-restaurantera-27-octubre.jpg?v=20261026c",
+    alt: "Crisis Restaurantera — martes 27 de octubre",
+    description:
+      "Martes 27 de octubre, 8:30 p.m. Hotel Hilton Monterrey Valle. Solicita tu invitación.",
+  },
+];
+
+function reemplazarMeta(html, attr, key, value) {
+  const pattern = new RegExp(
+    `<meta ${attr}="${key}" content="[^"]*" \\/>`,
+  );
+  if (!pattern.test(html)) {
+    throw new Error(`No se encontró meta ${key} para la vista previa`);
+  }
+  return html.replace(pattern, `<meta ${attr}="${key}" content="${value}" />`);
+}
+
+function crisisOgPages() {
+  return {
+    name: "crisis-og-pages",
+    apply: "build",
+    writeBundle(options) {
+      const outDir = options.dir;
+      if (!outDir) return;
+      const html = fs.readFileSync(path.join(outDir, "index.html"), "utf8");
+      for (const page of CRISIS_OG_PAGES) {
+        let next = html;
+        next = reemplazarMeta(next, "property", "og:url", page.url);
+        next = reemplazarMeta(next, "property", "og:description", page.description);
+        next = reemplazarMeta(next, "property", "og:image", page.image);
+        next = reemplazarMeta(next, "property", "og:image:secure_url", page.image);
+        next = reemplazarMeta(next, "property", "og:image:alt", page.alt);
+        next = reemplazarMeta(next, "name", "description", page.description);
+        next = reemplazarMeta(next, "name", "twitter:description", page.description);
+        next = reemplazarMeta(next, "name", "twitter:image", page.image);
+        const dest = path.join(outDir, page.file);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.writeFileSync(dest, next);
+      }
+    },
+  };
+}
 
 // https://vite.dev/config/
 
@@ -151,6 +211,7 @@ export default defineConfig({
         ],
       },
     }),
+    crisisOgPages(),
   ],
   server: {
     host: "0.0.0.0", // Permite acceso desde fuera del contenedor

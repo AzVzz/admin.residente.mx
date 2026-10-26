@@ -42,6 +42,42 @@ jobs:
           script: |
             docker pull residentemx/residente-admin-mx:latest
 
+            # El nginx de produccion es /root/admin-nginx.conf, no el de la imagen.
+            # Sin estas rutas, WhatsApp recibe el mismo HTML para el 27 y el 28.
+            CONF=/root/admin-nginx.conf
+            if ! grep -q CRISIS_OG_ROUTES "$CONF"; then
+              cp "$CONF" "${CONF}.bak-crisis-og"
+              awk '
+                BEGIN { done = 0 }
+                done == 0 && index($0, "location /admin/") {
+                  print "    # CRISIS_OG_ROUTES: vista previa distinta para cada fecha"
+                  print "    location = /admin/crisis-restaurantera {"
+                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
+                  print "        try_files /admin/og/miercoles-28.html =404;"
+                  print "    }"
+                  print "    location = /admin/crisis-restaurantera/ {"
+                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
+                  print "        try_files /admin/og/miercoles-28.html =404;"
+                  print "    }"
+                  print "    location = /admin/crisis-restaurantera-martes {"
+                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
+                  print "        try_files /admin/og/martes-27.html =404;"
+                  print "    }"
+                  print "    location = /admin/crisis-restaurantera-martes/ {"
+                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
+                  print "        try_files /admin/og/martes-27.html =404;"
+                  print "    }"
+                  done = 1
+                }
+                { print }
+                END { if (done == 0) exit 1 }
+              ' "$CONF" > "${CONF}.new"
+              docker run --rm --network host \
+                -v "${CONF}.new":/etc/nginx/conf.d/default.conf:ro \
+                residentemx/residente-admin-mx:latest nginx -t
+              mv "${CONF}.new" "$CONF"
+            fi
+
             docker stop residente-admin 2>/dev/null || true
             docker rm residente-admin 2>/dev/null || true
 
