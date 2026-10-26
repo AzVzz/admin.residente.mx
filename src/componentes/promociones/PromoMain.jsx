@@ -6,6 +6,7 @@ import { toPng } from "html-to-image";
 import FormularioPromo from "./componentes/FormularioPromo";
 import TicketPromo from "./componentes/TicketPromo";
 import FormularioPromoExt from "./componentes/FormularioPromoExt";
+import { imgApi } from "../api/url.js";
 import { cuponCrear } from "../../componentes/api/cuponesGet";
 import { restaurantesBasicosGet } from "../../componentes/api/restaurantesBasicosGet.js";
 import { Iconografia } from "../../componentes/utils/Iconografia.jsx";
@@ -57,6 +58,8 @@ const PromoMain = () => {
     espaciadoLetras: 0, // Letter spacing en px (-5 a 10)
     espaciadoLineas: 1, // Line height (0.8 a 2)
     logoPersonalizado: null, // Logo personalizado (base64) o null para usar el default
+    condiciones: "",
+    vigenciaTexto: "",
     logoEscala: 100,
     colorTexto: "#000000",
     colorBarra: "#000000",
@@ -145,6 +148,7 @@ const PromoMain = () => {
     setFormData((prev) => ({
       ...prev,
       restaurantName: info ? info.nombre_restaurante : "",
+      logoPersonalizado: null,
     }));
   };
 
@@ -313,6 +317,10 @@ const PromoMain = () => {
       titulo: formData.promoName,
       subtitulo: formData.promoSubtitle,
       descripcion: formData.descPromo,
+      condiciones: formData.condiciones || null,
+      vigencia_texto: formData.vigenciaTexto || formData.fechaValidez || (formData.esPermanente ? "PERMANENTE" : null),
+      logo_base64: formData.logoPersonalizado || undefined,
+      restaurante_logo: restauranteSeleccionado?.url_logo || null,
       icon: stickerClave,
       email: formData.emailPromos || "",
       tipo: "promocion",
@@ -352,6 +360,8 @@ const PromoMain = () => {
     setIsPosting(true);
 
     try {
+      if (!formData.restaurantName?.trim() || !formData.promoName?.trim()) throw new Error("Escribe el restaurante y el título de la promoción.");
+      if (!formData.logoPersonalizado && !restauranteInfo?.url_logo) throw new Error("Sube el logo del negocio o selecciona un restaurante con logo. Esto no crea una ficha nueva.");
       if (!ticketRef.current)
         throw new Error("No se encontró el ticket para generar la imagen");
 
@@ -445,14 +455,14 @@ const PromoMain = () => {
             nombrePromo={formData.promoName}
             subPromo={formData.promoSubtitle}
             descripcionPromo={formData.descPromo}
-            validezPromo={formData.fechaValidez}
+            validezPromo={formData.vigenciaTexto || formData.fechaValidez}
             stickerUrl={getStickerUrls()[0]}
             tipografia={formData.tipografia}
             tipografiaBold={formData.tipografia_bold}
             colorFondo={formData.colorFondo}
             espaciadoLetras={formData.espaciadoLetras}
             espaciadoLineas={formData.espaciadoLineas}
-            logoPersonalizado={formData.logoPersonalizado}
+            logoPersonalizado={formData.logoPersonalizado || (restauranteInfo?.url_logo ? new URL(restauranteInfo.url_logo, imgApi).href : null)}
             logoEscala={formData.logoEscala}
             colorTexto={formData.colorTexto}
             colorBarra={formData.colorBarra}

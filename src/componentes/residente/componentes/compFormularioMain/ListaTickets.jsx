@@ -35,6 +35,7 @@ const ListaTickets = () => {
   const [restaurantes, setRestaurantes] = useState([]);
   const [restauranteBusqueda, setRestauranteBusqueda] = useState("");
   const [restauranteSeleccionado, setRestauranteSeleccionado] = useState(null);
+  const [logoAsignacion, setLogoAsignacion] = useState(null);
   const [savingAsignacion, setSavingAsignacion] = useState(false);
 
   const rolActual = usuario?.rol?.toLowerCase();
@@ -213,9 +214,10 @@ const ListaTickets = () => {
 
   const handleAbrirAsignacion = (cupon) => {
     setAsignandoCupon(cupon);
+    setLogoAsignacion(null);
     setRestauranteBusqueda(cupon.nombre_restaurante || "");
     setRestauranteSeleccionado(
-      cupon.restaurante_id ? restaurantes.find((r) => r.id === cupon.restaurante_id) || null : null
+      cupon.restaurante_id ? restaurantes.find((r) => String(r.id) === String(cupon.restaurante_id)) || null : null
     );
   };
 
@@ -225,7 +227,7 @@ const ListaTickets = () => {
     try {
       await cuponAsignar(
         asignandoCupon.id,
-        { restaurante_id: restauranteSeleccionado?.id || null },
+        { restaurante_id: restauranteSeleccionado?.id || null, logo_base64: logoAsignacion || undefined },
         token
       );
       // Actualizar local
@@ -573,6 +575,7 @@ const ListaTickets = () => {
                     key={r.id}
                     onClick={() => {
                       setRestauranteSeleccionado(r);
+                      setLogoAsignacion(null);
                       setRestauranteBusqueda(r.nombre_restaurante);
                     }}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-indigo-50 border-b border-gray-100 last:border-0 cursor-pointer ${
@@ -586,6 +589,19 @@ const ListaTickets = () => {
               </div>
             )}
 
+            <div className="mb-4 space-y-2">
+              <p className="text-sm text-gray-700">Logo del negocio (PNG, JPG o WEBP; máximo 2 MB). No crea una ficha nueva.</p>
+              <button className="text-sm underline" type="button" onClick={() => { setRestauranteSeleccionado(null); setRestauranteBusqueda(""); }}>Mantener como negocio sin ficha</button>
+              <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) { alert("Sube un logo PNG, JPG o WEBP de hasta 2 MB."); e.target.value = ""; return; }
+                const reader = new FileReader();
+                reader.onload = () => setLogoAsignacion(reader.result);
+                reader.readAsDataURL(file);
+              }} />
+              {logoAsignacion && <img src={logoAsignacion} alt="Logo del negocio" className="h-16 w-16 object-contain" />}
+            </div>
             {restauranteSeleccionado && (
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 text-sm">
                 <p className="font-semibold text-indigo-800">✓ Seleccionado: {restauranteSeleccionado.nombre_restaurante}</p>
@@ -598,7 +614,7 @@ const ListaTickets = () => {
             <div className="flex gap-2">
               <button
                 onClick={handleConfirmarAsignacion}
-                disabled={savingAsignacion || !restauranteSeleccionado}
+                disabled={savingAsignacion || (!restauranteSeleccionado && !logoAsignacion)}
                 className="flex-1 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {savingAsignacion ? "Asignando..." : "Confirmar Asignación"}

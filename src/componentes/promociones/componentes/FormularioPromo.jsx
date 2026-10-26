@@ -154,18 +154,29 @@ const FormularioPromo = ({
                 </div>
             </div>
 
-            {/* Logo personalizado */}
+            <div className="flex flex-col gap-3">
+                <p className="text-sm">Puedes usar un negocio sin ficha. Subir su logo no lo registra en el catálogo de clientes.</p>
+                <button type="button" className="bg-white rounded-lg p-2" onClick={() => onRestauranteChange({ target: { value: "" } })}>Usar negocio sin ficha</button>
+                <label className="text-lg">Condiciones
+                    <textarea className="w-full bg-white rounded-lg p-2" value={formData.condiciones || ""} onChange={(e) => onFieldChange("condiciones", e.target.value)} />
+                </label>
+                <label className="text-lg">Vigencia visible
+                    <input className="w-full bg-white rounded-lg p-2" maxLength={255} placeholder="Ej. Lunes a viernes / Permanente" value={formData.vigenciaTexto || ""} onChange={(e) => onFieldChange("vigenciaTexto", e.target.value)} />
+                </label>
+            </div>
+            {/* Custom merchant logo is stored separately from the poster. */}
             <div className="flex flex-col pb-0">
                 <label className="block text-xl font-medium text-gray-950 mb-1">Logo personalizado</label>
                 <div className="flex gap-3 items-center">
                     <label className="flex-1 bg-white rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors text-lg text-center">
                         <input
                             type="file"
-                            accept="image/*"
+                            accept="image/png,image/jpeg,image/webp"
                             className="hidden"
                             onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
+                                    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) { alert("Sube un logo PNG, JPG o WEBP de hasta 2 MB."); e.target.value = ""; return; }
                                     const reader = new FileReader();
                                     reader.onloadend = () => {
                                         onFieldChange("logoPersonalizado", reader.result);
@@ -287,6 +298,8 @@ const FormularioPromo = ({
                 <input
                     type="text"
                     value={formData.restaurantName}
+                    readOnly={Boolean(selectedRestauranteId)}
+                    maxLength={255}
                     onChange={(e) => onFieldChange("restaurantName", e.target.value)}
                     placeholder="Ej. Residente Restaurant"
                     className="bg-white w-full px-3 py-2 border border-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-lg"

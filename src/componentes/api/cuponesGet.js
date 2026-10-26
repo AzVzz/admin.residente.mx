@@ -48,14 +48,14 @@ export async function cuponesGetStatsB2B(token, viewAsUserId = null) {
     return await response.json();
 }
 
-export async function cuponAsignar(id, { restaurante_id, user_id } = {}, token) {
+export async function cuponAsignar(id, { restaurante_id, user_id, logo_base64 } = {}, token) {
     const response = await fetch(`${urlApi}api/tickets/${id}/asignar-usuario`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: JSON.stringify({ restaurante_id, user_id }),
+        body: JSON.stringify({ restaurante_id, user_id, logo_base64 }),
     });
     if (!response.ok) {
         const err = await response.json();
