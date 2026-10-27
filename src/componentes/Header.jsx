@@ -323,25 +323,27 @@ const Header = () => {
       <div className="hidden sm:block">
         <div className="max-w-[1080px] mx-auto w-full">
           {/* Banner superior */}
-          <div className="pt-8 relative z-30">
-            {location.pathname === "/heybanco" ? (
-              <a>
-                <img src="https://residente.mx/fotos/fotos-estaticas/BANNER HeyBanco.webp" alt="Banner HeyBanco" />
-              </a>
-            ) : ultimaRevista?.imagen_banner ? (
-              <a href={ultimaRevista.pdf || "#"} target="_blank" rel="noopener noreferrer" onClick={handleBannerClick}>
-                <ResponsiveImg
-                  src={ultimaRevista.imagen_banner}
-                  alt={ultimaRevista.titulo || "Banner Principal"}
-                  width={1200}
-                  height={200}
-                  widths={[400, 800, 1200]}
-                  sizes="(max-width: 768px) 100vw, 1200px"
-                  loading="eager"
-                />
-              </a>
-            ) : null}
-          </div>
+          {location.pathname !== "/dashboard" && (
+            <div className="pt-8 relative z-30">
+              {location.pathname === "/heybanco" ? (
+                <a>
+                  <img src="https://residente.mx/fotos/fotos-estaticas/BANNER HeyBanco.webp" alt="Banner HeyBanco" />
+                </a>
+              ) : ultimaRevista?.imagen_banner ? (
+                <a href={ultimaRevista.pdf || "#"} target="_blank" rel="noopener noreferrer" onClick={handleBannerClick}>
+                  <ResponsiveImg
+                    src={ultimaRevista.imagen_banner}
+                    alt={ultimaRevista.titulo || "Banner Principal"}
+                    width={1200}
+                    height={200}
+                    widths={[400, 800, 1200]}
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    loading="eager"
+                  />
+                </a>
+              ) : null}
+            </div>
+          )}
 
           <div className="flex pb-0 pt-8">
             {/* Logo R */}
