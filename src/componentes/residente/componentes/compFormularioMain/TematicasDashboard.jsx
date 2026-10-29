@@ -442,6 +442,14 @@ const FormTematica = ({ id, onGuardado, onCancelar }) => {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              <p className="mt-1.5 text-xs text-gray-500">
+                Para paneles del home, usa nombre/slug:{" "}
+                <span className="font-mono">
+                  top-of-the-top, grandes-restaurantes, pal-diario,
+                  taquerias-iconicas, cafes, mundo-dulce
+                </span>
+                .
+              </p>
             </div>
 
             {/* Descripción */}
@@ -678,6 +686,25 @@ const TematicasDashboard = () => {
         >
           + Nueva Temática
         </button>
+      </div>
+
+      {/* Paneles del home (FilaTiposComida): publicar 6 temáticas con estos
+          slugs (o nombres equivalentes). El front hace match case-insensitive
+          por slug/nombre. Curar color, nota destacada, restaurantes y orden. */}
+      <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <p className="font-semibold mb-1">Paneles del home (tipos de comida)</p>
+        <p className="text-amber-900/90 mb-2">
+          Crea/publica una temática por tipo. El slug (o el nombre) debe coincidir
+          con uno de estos valores para alimentar el overlay del home:
+        </p>
+        <ul className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 font-mono text-xs text-amber-950">
+          <li>top-of-the-top</li>
+          <li>grandes-restaurantes</li>
+          <li>pal-diario</li>
+          <li>taquerias-iconicas</li>
+          <li>cafes</li>
+          <li>mundo-dulce</li>
+        </ul>
       </div>
 
       {items.length === 0 ? (

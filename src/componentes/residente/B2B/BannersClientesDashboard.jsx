@@ -12,8 +12,9 @@ import {
  * - Al elegir uno: Checa tus Resultados con Alcance Total + lista de banners
  *
  * Convención: banners con slug "{cliente}-{ubicacion}"
- * (ej. trebol21-portada, heypago-sidebar). Para un cliente nuevo solo hay que
- * dar de alta sus banners con ese prefijo; aparecen solos aquí.
+ * (ej. trebol21-portada, heypago-sidebar). También acepta slug = nombre del
+ * cliente (ej. sensira). Para un cliente nuevo, dar de alta el banner y
+ * aparece solo aquí.
  */
 const BannersClientesDashboard = () => {
   const { token } = useAuth();
@@ -112,9 +113,9 @@ const BannersClientesDashboard = () => {
 
         {clientes.length === 0 ? (
           <p className="text-xs text-gray-400">
-            Aún no hay clientes con banners. Registra banners con slug{" "}
-            <code className="text-[11px]">cliente-ubicacion</code> (ej.{" "}
-            <code className="text-[11px]">trebol21-portada</code>).
+            Aún no hay clientes con banners. Registra un banner de imagen con
+            nombre del cliente (ej. Sensira) o slug{" "}
+            <code className="text-[11px]">cliente-ubicacion</code>.
           </p>
         ) : (
           <div className="space-y-2">

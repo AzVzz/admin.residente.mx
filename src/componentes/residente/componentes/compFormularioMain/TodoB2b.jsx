@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
-import { suspenderB2B } from "../../../api/suspensionB2B";
+import { suspenderB2B, reactivarB2B } from "../../../api/suspensionB2B";
+import { actualizarBeneficiosB2B } from "../../../api/beneficiosB2B";
 import { IoStorefront } from "react-icons/io5";
 import TablaUsuariosB2B from "./TodoB2bComponentes/TablaUsuariosB2B";
 import FormGoogleAnalytics from "./TodoB2bComponentes/FormGoogleAnalytics";
@@ -79,8 +80,21 @@ const TodoB2b = () => {
     }
   };
 
-  const toggleUserStatus = async (userId, currentStatus) => {
+  // Activar CUENTA: si el B2B está suspendido o fuera de métricas (suscripcion=false),
+  // usar reactivar completo para que vuelva a Métricas B2B. Solo desactivar cuenta = PUT estado.
+  const toggleUserStatus = async (user) => {
     try {
+      const userId = user.id;
+      const currentStatus = user.estado;
+      const fueraDeMetricas =
+        !!user.b2b && (!!user.b2b.suspendido || !user.b2b.suscripcion);
+
+      if (fueraDeMetricas) {
+        await reactivarB2B(token, userId);
+        await cargarUsuariosB2B();
+        return;
+      }
+
       const response = await fetch(`${urlApi}api/usuarios/${userId}`, {
         method: "PUT",
         headers: {
@@ -165,6 +179,16 @@ Podrás reactivarlo desde "Gestión de Usuarios" cuando pague.`;
     }
   };
 
+  const onToggleBeneficio = async (b2bId, key, valor) => {
+    try {
+      await actualizarBeneficiosB2B(token, b2bId, { [key]: valor });
+      await cargarUsuariosB2B();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -212,6 +236,7 @@ Podrás reactivarlo desde "Gestión de Usuarios" cuando pague.`;
                 toggleUserStatus={toggleUserStatus}
                 desactivarUsuarioB2B={desactivarUsuarioB2B}
                 handleDelete={handleDelete}
+                onToggleBeneficio={onToggleBeneficio}
               />
             </div>
           </div>

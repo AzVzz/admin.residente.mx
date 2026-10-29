@@ -3,6 +3,8 @@ import { useAuth } from "../../../Context";
 import { historialB2bGet } from "../../../api/historialB2bGet";
 import { IoClose } from "react-icons/io5";
 
+const TZ_MX = "America/Mexico_City";
+
 const formatMoneda = (valor) => {
   if (valor == null || isNaN(Number(valor))) return "—";
   return new Intl.NumberFormat("es-MX", {
@@ -19,7 +21,24 @@ const formatFecha = (fecha) => {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: TZ_MX,
   });
+};
+
+// Año-mes en CDMX (evita que un cobro 1 ago 00:00 UTC caiga en julio local).
+const anioMesCDMX = (fecha) => {
+  if (!fecha) return null;
+  const d = new Date(fecha);
+  if (isNaN(d.getTime())) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ_MX,
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(d);
+  const y = Number(parts.find((p) => p.type === "year")?.value);
+  const m = Number(parts.find((p) => p.type === "month")?.value) - 1;
+  if (!y || m < 0) return null;
+  return `${y}-${m}`;
 };
 
 // Estilo del cobro real de Stripe según su estado.
@@ -30,12 +49,24 @@ const PAGO_CONFIG = {
   unpaid: { label: "Sin pagar", cls: "bg-gray-200 text-gray-700" },
 };
 
+const ESTADO_SUSC_CONFIG = {
+  active: { label: "Al día", cls: "bg-green-100 text-green-800" },
+  trialing: { label: "Periodo prueba", cls: "bg-blue-100 text-blue-800" },
+  past_due: { label: "Atrasada", cls: "bg-amber-100 text-amber-800" },
+  unpaid: { label: "Sin pagar", cls: "bg-red-100 text-red-800" },
+  paused: { label: "Pausada", cls: "bg-gray-100 text-gray-700" },
+  canceled: { label: "Cancelada", cls: "bg-red-100 text-red-800" },
+};
+
 // Fecha de arranque del historial: la inscripción; si no hay, el pago real más
 // antiguo (algunos clientes tienen pagos pero sin registro de alta de suscripción).
 const fechaInicioEfectiva = (fechaInscripcion, pagos) => {
   if (fechaInscripcion) return fechaInscripcion;
   const fechas = (pagos || [])
-    .map((p) => p.fecha_facturacion || p.fecha_pago)
+    .map(
+      (p) =>
+        p.fecha_inicio_periodo || p.fecha_facturacion || p.fecha_pago,
+    )
     .filter(Boolean)
     .map((x) => new Date(x).getTime())
     .filter((t) => !isNaN(t));
@@ -47,39 +78,49 @@ const fechaInicioEfectiva = (fechaInscripcion, pagos) => {
 // acumulando el precio y cruzando con el cobro real de Stripe de ese mes.
 const construirMeses = (fechaInicio, precio, pagos) => {
   if (!fechaInicio || precio == null) return [];
-  const inicio = new Date(fechaInicio);
-  const ahora = new Date();
-  if (isNaN(inicio.getTime())) return [];
+  const inicioKey = anioMesCDMX(fechaInicio);
+  const ahoraKey = anioMesCDMX(new Date());
+  if (!inicioKey || !ahoraKey) return [];
 
-  // Indexar pagos por año-mes de la fecha de facturación (o de pago como respaldo)
+  const [y0, m0] = inicioKey.split("-").map(Number);
+  const [yFin, mFin] = ahoraKey.split("-").map(Number);
+
+  // Preferir inicio de periodo (mes cubierto); facturación/pago como respaldo.
   const pagoPorMes = new Map();
   for (const p of pagos || []) {
-    const base = p.fecha_facturacion || p.fecha_pago;
-    if (!base) continue;
-    const f = new Date(base);
-    if (isNaN(f.getTime())) continue;
-    const key = `${f.getFullYear()}-${f.getMonth()}`;
+    const key =
+      anioMesCDMX(p.fecha_inicio_periodo) ||
+      anioMesCDMX(p.fecha_facturacion) ||
+      anioMesCDMX(p.fecha_pago);
+    if (!key) continue;
     const prev = pagoPorMes.get(key);
-    // Preferir un pago "paid" si hay varios en el mismo mes
-    if (!prev || (prev.estado_pago !== "paid" && p.estado_pago === "paid")) {
+    // Preferir "paid" sobre fallidos del mismo mes; si solo hay failed, mostrarlo
+    if (!prev) {
+      pagoPorMes.set(key, p);
+    } else if (prev.estado_pago !== "paid" && p.estado_pago === "paid") {
+      pagoPorMes.set(key, p);
+    } else if (
+      prev.estado_pago !== "paid" &&
+      prev.estado_pago !== "failed" &&
+      p.estado_pago === "failed"
+    ) {
       pagoPorMes.set(key, p);
     }
   }
 
   const meses = [];
   let acumulado = 0;
-  let y = inicio.getFullYear();
-  let m = inicio.getMonth();
-  const yFin = ahora.getFullYear();
-  const mFin = ahora.getMonth();
+  let y = y0;
+  let m = m0;
   let guard = 0;
   while ((y < yFin || (y === yFin && m <= mFin)) && guard < 240) {
     acumulado += precio;
     meses.push({
       key: `${y}-${m}`,
-      etiqueta: new Date(y, m, 1).toLocaleDateString("es-MX", {
+      etiqueta: new Date(Date.UTC(y, m, 1)).toLocaleDateString("es-MX", {
         month: "long",
         year: "numeric",
+        timeZone: "UTC",
       }),
       precio,
       acumulado,
@@ -131,6 +172,11 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
 
   // Resumen tomado de la fila (ROI/ganancia actuales ya calculados en la lista)
   const roi = (cliente.conversion || 0) + (cliente.fidelizacion || 0);
+  const estadoSusc =
+    ESTADO_SUSC_CONFIG[data?.estado_suscripcion] ||
+    (data?.estado_suscripcion
+      ? { label: data.estado_suscripcion, cls: "bg-gray-100 text-gray-700" }
+      : null);
 
   return (
     <div
@@ -152,6 +198,13 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
                 ? `Cuenta compartida · ${cliente.num_restaurantes} marcas`
                 : "Historial desde la inscripción"}
             </p>
+            {estadoSusc && (
+              <span
+                className={`inline-flex mt-2 px-2 py-0.5 text-xs font-semibold rounded ${estadoSusc.cls}`}
+              >
+                {estadoSusc.label}
+              </span>
+            )}
           </div>
           <button
             onClick={onCerrar}
@@ -280,9 +333,13 @@ const HistorialB2BModal = ({ cliente, onCerrar }) => {
                             <span className="text-gray-600 text-xs">
                               {formatMoneda(pago.monto)}
                             </span>
-                            {pago.fecha_pago && (
+                            {(pago.fecha_pago ||
+                              (pago.estado_pago === "failed" &&
+                                pago.fecha_facturacion)) && (
                               <span className="text-gray-400 text-xs">
-                                {formatFecha(pago.fecha_pago)}
+                                {formatFecha(
+                                  pago.fecha_pago || pago.fecha_facturacion,
+                                )}
                               </span>
                             )}
                             {pago.url_recibo && (

@@ -36,7 +36,19 @@ const RestaurantPoster = ({ children, method = 'POST', slug = null, token = null
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                let details = '';
+                try {
+                    const errBody = await response.json();
+                    details = errBody.details || errBody.error || '';
+                    if (errBody.validationErrors?.length) {
+                        details = [details, ...errBody.validationErrors].filter(Boolean).join(' | ');
+                    }
+                } catch (_) { /* ignore */ }
+                throw new Error(
+                    details
+                        ? `HTTP ${response.status}: ${details}`
+                        : `HTTP error! status: ${response.status}`
+                );
             }
 
             const result = await response.json();
