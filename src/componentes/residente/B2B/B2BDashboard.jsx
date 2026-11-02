@@ -1555,7 +1555,7 @@ const B2BDashboard = ({ viewAsUserId = null } = {}) => {
                           hoy.getDate();
                         const rand = ((seed * 9301 + 49297) % 233280) / 233280;
                         return Math.floor(
-                          63133 + rand * (68970 - 63133),
+                          76650 + rand * (79640 - 76650),
                         ).toLocaleString("es-MX");
                       })()}
                     </p>
