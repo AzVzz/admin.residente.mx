@@ -163,6 +163,13 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, onMover, plantilla
                 className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
             </div>
           </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Link del CTA (opcional)</label>
+            <input type="text" value={bloque.link || ""} onChange={(e) => onChange(idx, "link", e.target.value)}
+              placeholder="Vacío = ir a la nota en residente.mx"
+              className="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-gray-400" />
+            <p className="mt-1 text-[11px] text-gray-400">Si lo llenas, el botón y los clics de esta nota en el correo van a esa URL (solo en este envío).</p>
+          </div>
           <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
             <input type="checkbox" checked={bloque.mostrar_imagen !== false} onChange={(e) => onChange(idx, "mostrar_imagen", e.target.checked)} className="rounded" />
             {esEditorial ? "Mostrar imagen rectangular" : "Mostrar imagen circular"}
@@ -1082,7 +1089,7 @@ const NuevaCampana = () => {
 
     setForm((prev) => ({
       ...prev,
-      notas: [...prev.notas, { tipo, id: nota.id, titulo: nota.titulo || "", descripcion, imagen: nota.imagen || nota.imagen_mediana || nota.imagen_grande || "", slug: nota.slug || "", cta_texto: "", etiqueta: "", mostrar_imagen: true }],
+      notas: [...prev.notas, { tipo, id: nota.id, titulo: nota.titulo || "", descripcion, imagen: nota.imagen || nota.imagen_mediana || nota.imagen_grande || "", slug: nota.slug || "", link: "", cta_texto: "", etiqueta: "", mostrar_imagen: true }],
     }));
   };
 
