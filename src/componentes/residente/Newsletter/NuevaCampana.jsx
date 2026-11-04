@@ -116,8 +116,9 @@ function moverBloqueA(arr, from, to) {
 // ── Componente: Bloque Nota ──────────────────────────────────────────────────
 
 const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, onMover, plantilla }) => {
-  const [expandido, setExpandido] = useState(false);
+  const [expandido, setExpandido] = useState(Boolean(bloque.link));
   const esEditorial = plantilla === "editorial";
+  const tieneLinkCustom = Boolean((bloque.link || "").trim());
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -133,6 +134,11 @@ const BloqueNota = ({ bloque, idx, total, onChange, onQuitar, onMover, plantilla
           />
         )}
         <span className="flex-1 text-xs font-medium truncate">{bloque.titulo}</span>
+        {tieneLinkCustom && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 shrink-0" title={bloque.link}>
+            Link CTA
+          </span>
+        )}
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onChange(idx, "tipo", bloque.tipo === "principal" ? "secundaria" : "principal")}
