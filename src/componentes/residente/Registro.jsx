@@ -72,16 +72,27 @@ const Registro = () => {
               Ó registrate como...
             </h2>
             <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center gap-3">
                 <a
                   href="/admin/registrob2b"
                   className="group w-full flex flex-col items-center"
                 >
                   <button
-                    type="submit"
+                    type="button"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
                     RESTAURANTE
+                  </button>
+                </a>
+                <a
+                  href="/admin/registrob2b-texas"
+                  className="group w-full flex flex-col items-center"
+                >
+                  <button
+                    type="button"
+                    className="font-bold py-2 px-3 rounded w-full cursor-pointer max-w-[200px] min-h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
+                  >
+                    RESTAURANTES TEXAS
                   </button>
                 </a>
               </div>
@@ -92,7 +103,7 @@ const Registro = () => {
                   className="group w-full flex flex-col items-center"
                 >
                   <button
-                    type="submit"
+                    type="button"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
                     INVITADO
@@ -106,7 +117,7 @@ const Registro = () => {
                   className="group w-full flex flex-col items-center"
                 >
                   <button
-                    type="submit"
+                    type="button"
                     className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   >
                     COLABORADOR

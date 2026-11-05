@@ -140,6 +140,10 @@ const RegistroB2BConPlanes = lazy(
   () =>
     import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroB2BConPlanes.jsx"),
 );
+const RegistroTexasConPlanes = lazy(
+  () =>
+    import("./componentes/residente/B2B/FormularioTexasB2b/RegistroTexasConPlanes.jsx"),
+);
 const TerminosyCondiciones = lazy(
   () =>
     import("./componentes/residente/B2B/FormularioNuevoClienteB2b/TerminosyCondiciones.jsx"),
@@ -797,6 +801,10 @@ function App() {
                 element={<RegistroB2BConPlanes modoPrueba />}
               />
               <Route path="/registrob2b" element={<RegistroB2BConPlanes />} />
+              <Route
+                path="/registrob2b-texas"
+                element={<RegistroTexasConPlanes />}
+              />
 
               <Route
                 path="/registro"
@@ -1181,6 +1189,7 @@ function App() {
             <footer
               className={
                 location.pathname === "/registrob2b" ||
+                location.pathname === "/registrob2b-texas" ||
                 location.pathname === "/registroinvitados" ||
                 location.pathname === "/registrocolaboradores"
                   ? "hidden sm:block"
