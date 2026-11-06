@@ -334,7 +334,7 @@ const ClienteMediaDashboard = () => {
                 </div>
               </>
             )}
-            {perfil?.puede_notas && (
+            {(perfil?.puede_notas || perfil?.puede_banners) && (
               <>
                 <div className="bg-white border border-gray-200 p-4">
                   <p className="text-2xl font-bold leading-none">
@@ -560,6 +560,67 @@ const ClienteMediaDashboard = () => {
                       </p>
                     </div>
                   </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {perfil?.puede_banners && !perfil?.puede_notas && (
+          <section>
+            <div className="mb-3">
+              <h2 className="text-lg font-bold">
+                Nota asociada
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Estadísticas de solo lectura
+              </p>
+            </div>
+
+            {notas.length === 0 ? (
+              <p className="text-sm text-gray-500 bg-white border border-gray-200 p-4">
+                Aún no hay una nota asignada a este perfil.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {notas.map((n) => (
+                  <article
+                    key={n.id}
+                    className="bg-white border border-gray-200 overflow-hidden"
+                  >
+                    {n.imagen_chica || n.imagen || n.imagen_mini ? (
+                      <img
+                        src={n.imagen_chica || n.imagen || n.imagen_mini}
+                        alt=""
+                        className="w-full h-36 object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-36 bg-gray-100" />
+                    )}
+                    <div className="p-3">
+                      <p className="text-[10px] uppercase tracking-wide text-gray-500 mb-1">
+                        Publicada
+                      </p>
+                      <p className="font-semibold text-sm leading-snug line-clamp-3">
+                        {n.titulo}
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
+                        <div>
+                          <p className="text-lg font-bold leading-none">
+                            {(n.vistas || 0).toLocaleString("es-MX")}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">Vistas</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold leading-none">
+                            {(n.clicks || 0).toLocaleString("es-MX")}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">Clicks</p>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
                 ))}
               </div>
             )}
