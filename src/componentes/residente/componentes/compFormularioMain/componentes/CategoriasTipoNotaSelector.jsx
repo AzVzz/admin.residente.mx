@@ -25,6 +25,7 @@ const CategoriasTipoNotaSelector = ({
   // Detectar tipo de nota seleccionada
   const tipoNotaSeleccionada = watch("tiposDeNotaSeleccionadas");
   const esFoodDrink = tipoNotaSeleccionada === "Food & Drink";
+  const categoriasSeleccionadas = watch("categoriasSeleccionadas") || {};
 
   // Ocultar si el usuario es invitado
   const esInvitado = usuario?.rol === "invitado";
@@ -63,11 +64,21 @@ const CategoriasTipoNotaSelector = ({
       descripcion: "",
     };
 
-    // Mostrar solo Zona y Food & Drink
+    const categoriasInicio = {
+      seccion: "Categorías del inicio",
+      categorias: [
+        { nombre: "Premium" },
+        { nombre: "Cadenas" },
+        { nombre: "Únicos" },
+        { nombre: "Mundo Dulce" },
+        { nombre: "Casual" },
+        { nombre: "Taquerías" },
+        { nombre: "Cafés" },
+        { nombre: "Antros y Bares" },
+      ],
+    };
     const seccionZona = secciones.find((s) => s.seccion === "Zona");
-    seccionesFiltradas = seccionZona
-      ? [seccionFoodDrink, seccionZona]
-      : [seccionFoodDrink];
+    seccionesFiltradas = [seccionFoodDrink, categoriasInicio, seccionZona].filter(Boolean);
   } else {
     // Debug: ver qué está llegando
     console.log("Secciones disponibles (API):", secciones.map(s => s.seccion));
@@ -79,8 +90,28 @@ const CategoriasTipoNotaSelector = ({
     console.log("Secciones filtradas finales:", seccionesFiltradas.map(s => s.seccion));
   }
 
+  const categoriasParaMostrar = (() => {
+    if (esFoodDrink) {
+      return categoriasSeleccionadas["Food & Drink"] ? ["Food & Drink"] : [];
+    }
+
+    return Object.entries(categoriasSeleccionadas)
+      .filter(([seccion, categoria]) =>
+        Boolean(categoria) &&
+        !["tipo de comida", "zona", "experiencia", "food & drink"].includes(
+          seccion.trim().toLowerCase(),
+        ),
+      )
+      .map(([seccion, categoria]) =>
+        seccion === "Nivel gastro" && ["TOP", "Fine Dining"].includes(categoria)
+          ? "Premium"
+          : categoria,
+      );
+  })();
+
   return (
-    <div className="grid grid-cols-5 gap-2 justify-center mb-6 pb-4">
+    <>
+    <div className="grid grid-cols-5 gap-2 justify-center mb-3 pb-1">
       {/* Solo muestra el campo de tipo de nota si ocultarTipoNota es falso */}
       {!ocultarTipoNota && (
         <div className="p-1 border border-gray-200 rounded-md bg-white flex flex-col h-full">
@@ -171,7 +202,7 @@ const CategoriasTipoNotaSelector = ({
             className="p-1 border border-gray-200 rounded-md bg-white flex flex-col h-full"
           >
             <h2 className="mb-2 text-lg font-bold bg-gray-100 p-1 text-center rounded text-gray-700">
-              {seccion.seccion}
+              {seccion.seccion === "Categorías del inicio" ? "Categorías" : seccion.seccion}
             </h2>
             <div className="flex-1 overflow-y-auto max-h-96 px-1">
               {seccion.categorias.map((categoria) => (
@@ -214,7 +245,9 @@ const CategoriasTipoNotaSelector = ({
                   ) : (
                     // Lógica para otras secciones (Radio / Single-select)
                     <Controller
-                      name={`categoriasSeleccionadas.${seccion.seccion}`}
+                      name={seccion.seccion === "Categorías del inicio"
+                        ? "categoriaInicioFoodDrink"
+                        : `categoriasSeleccionadas.${seccion.seccion}`}
                       control={control}
                       render={({ field }) => (
                         <input
@@ -244,6 +277,28 @@ const CategoriasTipoNotaSelector = ({
         );
       })}
     </div>
+    <section
+      className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
+      aria-live="polite"
+      aria-labelledby="destino-publicacion-titulo"
+    >
+      <h3 id="destino-publicacion-titulo" className="font-bold text-gray-900">
+        ¿Dónde saldrá esta nota?
+      </h3>
+      <p className="mt-1 text-gray-700">
+        Así quedaría clasificada con lo que elegiste arriba:
+      </p>
+
+      <p className="mt-3">
+        <span className="font-semibold">
+          {esFoodDrink ? "Sección:" : "Categoría:"}
+        </span>{" "}
+        {categoriasParaMostrar.length > 0
+          ? categoriasParaMostrar.join(", ")
+          : <span className="text-gray-600">Sin categoría seleccionada</span>}
+      </p>
+    </section>
+    </>
   );
 };
 
