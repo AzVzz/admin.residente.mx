@@ -680,9 +680,10 @@ const FormMainResidente = () => {
       let seccionesCategorias = [];
 
       if (tipoNotaFinal === "Food & Drink") {
-        for (const seccion of ["Nivel gastro", "Tipo de comida", "Experiencia"]) {
-          const categoria = data.categoriasSeleccionadas[seccion];
-          if (categoria) seccionesCategorias.push({ seccion, categoria });
+        for (const [seccion, categoria] of Object.entries(data.categoriasSeleccionadas)) {
+          if (seccion !== "Food & Drink" && categoria) {
+            seccionesCategorias.push({ seccion, categoria });
+          }
         }
         const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
         const zonasSeleccionadas = data.zonas || [];
@@ -707,7 +708,10 @@ const FormMainResidente = () => {
           });
 
           // ✅ AGREGAR ENTRADAS TRANSFORMADAS (para el directorio)
-          if (zonasSeleccionadas.length > 0) {
+          const seccionDesmarcada = Object.prototype.hasOwnProperty.call(
+            data.categoriasSeleccionadas, seccionFinal,
+          ) && !data.categoriasSeleccionadas[seccionFinal];
+          if (zonasSeleccionadas.length > 0 && !seccionDesmarcada) {
             zonasSeleccionadas.forEach((zona) => {
               seccionesCategorias.push({
                 seccion: seccionFinal,
@@ -721,6 +725,10 @@ const FormMainResidente = () => {
           .filter(([_, categoria]) => categoria)
           .map(([seccion, categoria]) => ({ seccion, categoria }));
       }
+
+      seccionesCategorias = Array.from(new Map(
+        seccionesCategorias.map((entrada) => [JSON.stringify([entrada.seccion, entrada.categoria]), entrada]),
+      ).values());
 
       const tipoNotaSecundaria = null;
       const datosNota = {

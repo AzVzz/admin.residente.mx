@@ -30,7 +30,7 @@ const CategoriasTipoNotaSelector = ({
   secciones,
   ocultarTipoNota,
 }) => {
-  const { control, watch } = useFormContext();
+  const { control, watch, formState } = useFormContext();
   const { usuario } = useAuth();
 
   const etiquetas = [["Restaurantes", "Restaurantes"], ["Food & Drink", "Food & Drink"], ["Antojos", "Antojos"], ["B2B", "B2B"], ["Gastro Destinos", "Viajes"]];
@@ -68,6 +68,20 @@ const CategoriasTipoNotaSelector = ({
     ({ seccion }) => seccion.trim() !== "Zona" && !seccionesOcultas.includes(seccion.trim()),
   );
   seccionesFiltradas.splice(ocultarTipoNota ? 2 : 1, 0, zona);
+
+  const esCategoriaAnterior = (seccion, categoria) => {
+    const columna = seccionesFiltradas.find((item) => item.seccion === seccion);
+    if (!columna || seccion === "Zona") return true;
+    const opciones = seccion === "Nivel gastro" ? opcionesOcasion : columna.categorias;
+    return !opciones.some((opcion) => opcion.nombre === categoria);
+  };
+  // Keep original options available so an unchecked legacy category can be restored.
+  const categoriasAnteriores = Array.from(new Map(
+    [formState.defaultValues?.categoriasSeleccionadas || {}, categoriasSeleccionadas]
+      .flatMap((seleccionadas) => Object.entries(seleccionadas))
+      .filter(([seccion, categoria]) => categoria && esCategoriaAnterior(seccion, categoria))
+      .map(([seccion, categoria]) => [JSON.stringify([seccion, categoria]), { seccion, categoria }]),
+  ).values());
 
   const categoriasParaMostrar = (() => {
 
@@ -251,6 +265,35 @@ const CategoriasTipoNotaSelector = ({
           ? categoriasParaMostrar.join(", ")
           : <span className="text-gray-600">Sin categoría seleccionada</span>}
       </p>
+      {categoriasAnteriores.length > 0 && (
+        <fieldset className="mt-4 border-t border-gray-200 pt-3">
+          <legend className="font-semibold">Categorías anteriores</legend>
+          <p className="mb-2 text-gray-600">
+            Desmarca las que quieras quitar de esta nota y guarda los cambios.
+          </p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {categoriasAnteriores.map(({ seccion, categoria }) => (
+              <Controller
+                key={JSON.stringify([seccion, categoria])}
+                name={`categoriasSeleccionadas.${seccion}`}
+                control={control}
+                render={({ field }) => (
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={field.value === categoria}
+                      onChange={(event) => field.onChange(event.target.checked ? categoria : "")}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                    />
+                    <span>{categoria} <span className="text-xs text-gray-500">({seccion})</span></span>
+                  </label>
+                )}
+              />
+            ))}
+          </div>
+        </fieldset>
+      )}
     </section>
     </>
   );
