@@ -19,7 +19,7 @@ const opcionesDefault = [
   { value: "Restaurantes", label: "Restaurantes" },
   { value: "Food & Drink", label: "Food & Drink" },
   { value: "Antojos", label: "Antojos" },
-  { value: "Gastro-Destinos", label: "Gastro-Destinos" },
+  { value: "Viajes", label: "Viajes" },
   { value: "Residente", label: "Residente" },
   { value: "Acervo", label: "Acervo" },
   { value: "Giveaway", label: "Giveaway" },

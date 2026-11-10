@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 // Opciones de categorías
 const TIPOS_NOTA = [
-  'Restaurantes', 'Food & Drink', 'Antojos', 'B2B', 'Gastro-Destinos', 
+  'Restaurantes', 'Food & Drink', 'Antojos', 'B2B', 'Viajes',
   'Residente', 'Acervo', 'Giveaway', 'Uanl'
 ];
 

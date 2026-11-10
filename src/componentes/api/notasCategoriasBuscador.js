@@ -7,7 +7,7 @@ export const obtenerNotasTodasCategorias = async () => {
       'restaurantes',
       'food-drink', 
       'antojos',
-      'gastro-destinos'
+      'viajes'
     ];
     
     const todasLasNotas = [];

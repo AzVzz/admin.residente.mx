@@ -1,30 +1,42 @@
-import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useAuth } from "../../../../Context";
+
+const opcionesOcasion = [
+  { nombre: "Premium", aliases: ["TOP", "Fine Dining"] },
+  { nombre: "Cadenas" },
+  { nombre: "Casual" },
+  { nombre: "Únicos" },
+  { nombre: "Taquerías", aliases: ["Taquerías Icónicas"] },
+  { nombre: "Cafés" },
+  { nombre: "Mundo Dulce" },
+  { nombre: "Antros y Bares" },
+  { nombre: "Saludable" },
+  { nombre: "Antojos" },
+  { nombre: "Desayunos" },
+  { nombre: "Hoteles" },
+];
+
+const zonasBase = [
+  "Zona Tec", "Cumbres", "San Pedro", "Guadalupe",
+  "Monterrey Centro", "Norte", "Carretera", "San Nicolás",
+];
+const zonasViajes = [
+  "Nuevo León", "Austin", "San Antonio", "Valle",
+  "SPI", "Laredo", "Rivera Maya", "Ciudad de México",
+];
 
 const CategoriasTipoNotaSelector = ({
   tipoDeNota,
   secciones,
-  opcionesFoodDrink,
   ocultarTipoNota,
 }) => {
   const { control, watch } = useFormContext();
   const { usuario } = useAuth();
 
-  // Tipos de nota secundarios: se ocultan tras "Mostrar más" para no saturar.
-  const TIPOS_SECUNDARIOS = [
-    "B2B",
-    "Gastro Destinos",
-    "Residente",
-    "Acervo",
-    "Giveaway",
-    "Uanl",
-  ];
-  const [mostrarMasTipos, setMostrarMasTipos] = useState(false);
+  const etiquetas = [["Restaurantes", "Restaurantes"], ["Food & Drink", "Food & Drink"], ["Antojos", "Antojos"], ["B2B", "B2B"], ["Gastro Destinos", "Viajes"]];
 
   // Detectar tipo de nota seleccionada
   const tipoNotaSeleccionada = watch("tiposDeNotaSeleccionadas");
-  const esFoodDrink = tipoNotaSeleccionada === "Food & Drink";
   const categoriasSeleccionadas = watch("categoriasSeleccionadas") || {};
 
   // Ocultar si el usuario es invitado
@@ -35,13 +47,9 @@ const CategoriasTipoNotaSelector = ({
     return null;
   }
 
-  // Filtrar secciones según tipo de nota
-  // Si es Food & Drink: solo mostrar "Zona" y crear sección Food & Drink de las opciones independientes
-  // Si es otro tipo: mostrar todas las secciones EXCEPTO "Food & Drink"
-  let seccionesFiltradas;
-
   // Secciones que NO queremos mostrar en el formulario
   const seccionesOcultas = [
+    "Experiencia",
     "Food & Drink",
     "Cafetería", "Cafeteria", "Cafés", "Cafe", "Café", "Cafes",
     "Bar", "Bares",
@@ -50,50 +58,18 @@ const CategoriasTipoNotaSelector = ({
     "Bebidas", "Bebida"
   ];
 
-  if (esFoodDrink) {
-    // Opciones Food & Drink hardcodeadas en el frontend
-    const seccionFoodDrink = {
-      seccion: "Food & Drink",
-      categorias: [
-        { nombre: "Postres", descripcion: "Pasteles, helados, dulces y más" },
-        { nombre: "Cafés", descripcion: "Cafeterías y bebidas de café" },
-        { nombre: "Bares", descripcion: "Bares, cocteles y bebidas" },
-        { nombre: "Snacks", descripcion: "Botanas y snacks" },
-      ],
-      cols: 2,
-      descripcion: "",
-    };
-
-    const categoriasInicio = {
-      seccion: "Categorías del inicio",
-      categorias: [
-        { nombre: "Premium" },
-        { nombre: "Cadenas" },
-        { nombre: "Únicos" },
-        { nombre: "Mundo Dulce" },
-        { nombre: "Casual" },
-        { nombre: "Taquerías" },
-        { nombre: "Cafés" },
-        { nombre: "Antros y Bares" },
-      ],
-    };
-    const seccionZona = secciones.find((s) => s.seccion === "Zona");
-    seccionesFiltradas = [seccionFoodDrink, categoriasInicio, seccionZona].filter(Boolean);
-  } else {
-    // Debug: ver qué está llegando
-    console.log("Secciones disponibles (API):", secciones.map(s => s.seccion));
-    console.log("Secciones ocultas:", seccionesOcultas);
-
-    // Mostrar todas las secciones excepto las ocultas (con trim para evitar errores de espacios)
-    seccionesFiltradas = secciones.filter((s) => !seccionesOcultas.includes(s.seccion.trim()));
-
-    console.log("Secciones filtradas finales:", seccionesFiltradas.map(s => s.seccion));
-  }
+  const zona = {
+    seccion: "Zona",
+    categorias: (["Viajes", "Gastro Destinos", "Gastro-Destinos"].includes(tipoNotaSeleccionada)
+      ? [...zonasBase, ...zonasViajes]
+      : zonasBase).map((nombre) => ({ nombre })),
+  };
+  const seccionesFiltradas = secciones.filter(
+    ({ seccion }) => seccion.trim() !== "Zona" && !seccionesOcultas.includes(seccion.trim()),
+  );
+  seccionesFiltradas.splice(ocultarTipoNota ? 2 : 1, 0, zona);
 
   const categoriasParaMostrar = (() => {
-    if (esFoodDrink) {
-      return categoriasSeleccionadas["Food & Drink"] ? ["Food & Drink"] : [];
-    }
 
     return Object.entries(categoriasSeleccionadas)
       .filter(([seccion, categoria]) =>
@@ -105,7 +81,7 @@ const CategoriasTipoNotaSelector = ({
       .map(([seccion, categoria]) =>
         seccion === "Nivel gastro" && ["TOP", "Fine Dining"].includes(categoria)
           ? "Premium"
-          : categoria,
+          : seccion === "Nivel gastro" && categoria === "Taquerías Icónicas" ? "Taquerías" : categoria,
       );
   })();
 
@@ -116,7 +92,7 @@ const CategoriasTipoNotaSelector = ({
       {!ocultarTipoNota && (
         <div className="p-1 border border-gray-200 rounded-md bg-white flex flex-col h-full">
           <p className="mb-2 text-lg font-bold bg-gray-100 p-1 text-center rounded text-gray-700">
-            Tipo de Nota
+            Etiqueta
           </p>
           <div className="flex-1 overflow-y-auto max-h-96 px-1">
             <Controller
@@ -124,23 +100,9 @@ const CategoriasTipoNotaSelector = ({
               control={control}
               defaultValue=""
               render={({ field }) => {
-                const esSecundario = (nombre) =>
-                  TIPOS_SECUNDARIOS.includes(nombre);
-                const principales = tipoDeNota.filter(
-                  (o) => !esSecundario(o.nombre),
-                );
-                const secundarios = tipoDeNota.filter((o) =>
-                  esSecundario(o.nombre),
-                );
-                // Si hay uno secundario ya seleccionado (al editar), se sigue
-                // mostrando aunque el dropdown esté colapsado.
-                const secundariosVisibles = mostrarMasTipos
-                  ? secundarios
-                  : secundarios.filter((o) => o.nombre === field.value);
-
-                const renderOpcion = (opcion, idx) => (
+                const renderOpcion = (opcion, etiqueta) => (
                   <label
-                    key={`tipo-${opcion.nombre}-${idx}`}
+                    key={opcion.nombre}
                     className="block mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded text-sm"
                   >
                     <input
@@ -160,26 +122,18 @@ const CategoriasTipoNotaSelector = ({
                       }}
                       className="mr-1.5 align-middle"
                     />
-                    <span className="align-middle">{opcion.nombre}</span>
+                    <span className="align-middle">{etiqueta}</span>
                   </label>
                 );
 
                 return (
                   <>
-                    {principales.map((opcion, idx) => renderOpcion(opcion, idx))}
-                    {secundariosVisibles.map((opcion, idx) =>
-                      renderOpcion(opcion, idx),
-                    )}
-
-                    {secundarios.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setMostrarMasTipos((v) => !v)}
-                        className="w-full mt-1 mb-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-gray-50 rounded p-1 cursor-pointer text-center"
-                      >
-                        {mostrarMasTipos ? "▲ Mostrar menos" : "▼ Mostrar más"}
-                      </button>
-                    )}
+                    {etiquetas.map(([nombre, etiqueta]) => {
+                      const opcion = etiqueta === "Viajes"
+                        ? { nombre: "Viajes" }
+                        : tipoDeNota.find((tipo) => tipo.nombre === nombre);
+                      return opcion ? renderOpcion(opcion, etiqueta) : null;
+                    })}
 
                     <div className="text-xs text-gray-400 mt-2 italic text-center">
                       Selecciona una.
@@ -195,6 +149,8 @@ const CategoriasTipoNotaSelector = ({
       {/* Mostrar las categorías filtradas según tipo de nota */}
       {seccionesFiltradas.map((seccion) => {
         const isZona = seccion.seccion === "Zona";
+        const esOcasion = seccion.seccion === "Nivel gastro";
+        const categorias = esOcasion ? opcionesOcasion : seccion.categorias;
 
         return (
           <div
@@ -202,10 +158,10 @@ const CategoriasTipoNotaSelector = ({
             className="p-1 border border-gray-200 rounded-md bg-white flex flex-col h-full"
           >
             <h2 className="mb-2 text-lg font-bold bg-gray-100 p-1 text-center rounded text-gray-700">
-              {seccion.seccion === "Categorías del inicio" ? "Categorías" : seccion.seccion}
+              {esOcasion ? "Ocasión" : seccion.seccion}
             </h2>
             <div className="flex-1 overflow-y-auto max-h-96 px-1">
-              {seccion.categorias.map((categoria) => (
+              {categorias.map((categoria) => (
                 <label
                   key={`${seccion.seccion}-${categoria.nombre}`}
                   className="block mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded text-sm"
@@ -245,17 +201,15 @@ const CategoriasTipoNotaSelector = ({
                   ) : (
                     // Lógica para otras secciones (Radio / Single-select)
                     <Controller
-                      name={seccion.seccion === "Categorías del inicio"
-                        ? "categoriaInicioFoodDrink"
-                        : `categoriasSeleccionadas.${seccion.seccion}`}
+                      name={`categoriasSeleccionadas.${seccion.seccion}`}
                       control={control}
                       render={({ field }) => (
                         <input
                           type="radio"
                           value={categoria.nombre}
-                          checked={field.value === categoria.nombre}
+                          checked={field.value === categoria.nombre || categoria.aliases?.includes(field.value) === true}
                           onClick={() => {
-                            if (field.value === categoria.nombre) {
+                            if (field.value === categoria.nombre || categoria.aliases?.includes(field.value)) {
                               field.onChange("");
                             }
                           }}
@@ -269,7 +223,7 @@ const CategoriasTipoNotaSelector = ({
                       )}
                     />
                   )}
-                  <span className="align-middle">{categoria.nombre}</span>
+                  <span className="align-middle">{categoria.etiqueta || categoria.nombre}</span>
                 </label>
               ))}
             </div>
@@ -291,7 +245,7 @@ const CategoriasTipoNotaSelector = ({
 
       <p className="mt-3">
         <span className="font-semibold">
-          {esFoodDrink ? "Sección:" : "Categoría:"}
+          Categoría:
         </span>{" "}
         {categoriasParaMostrar.length > 0
           ? categoriasParaMostrar.join(", ")

@@ -591,7 +591,7 @@ const FormMainResidente = () => {
               if (typeof ids === "string") try { ids = JSON.parse(ids); } catch { ids = []; }
               return Array.isArray(ids) ? ids.map(Number) : [];
             })(),
-            tiposDeNotaSeleccionadas: data.tipo_nota || "",
+            tiposDeNotaSeleccionadas: /^gastro[ -]destinos$/i.test(data.tipo_nota || "") ? "Viajes" : data.tipo_nota || "",
             zonas: data.zonas
               ? typeof data.zonas === "string"
                 ? JSON.parse(data.zonas)
@@ -680,6 +680,10 @@ const FormMainResidente = () => {
       let seccionesCategorias = [];
 
       if (tipoNotaFinal === "Food & Drink") {
+        for (const seccion of ["Nivel gastro", "Tipo de comida", "Experiencia"]) {
+          const categoria = data.categoriasSeleccionadas[seccion];
+          if (categoria) seccionesCategorias.push({ seccion, categoria });
+        }
         const categoriaFoodDrink = data.categoriasSeleccionadas["Food & Drink"];
         const zonasSeleccionadas = data.zonas || [];
 
@@ -721,7 +725,7 @@ const FormMainResidente = () => {
       const tipoNotaSecundaria = null;
       const datosNota = {
         slug: data.slug?.trim() || null,
-        tipo_nota: tipoNotaFinal,
+        tipo_nota: /^gastro[ -]destinos$/i.test(tipoNotaFinal || "") ? "Viajes" : tipoNotaFinal,
         tipo_nota2: tipoNotaSecundaria,
         secciones_categorias: seccionesCategorias,
         titulo: data.titulo,
