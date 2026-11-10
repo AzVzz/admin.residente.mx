@@ -764,7 +764,7 @@ const ListaNotas = () => {
       label: "Mis Restaurantes",
       icon: <FaStore className="mr-2" />,
     },
-    { key: "ednl", label: "Ednl", icon: <FaStar className="mr-2" /> },
+    { key: "ednl", label: "Micrositios", icon: <FaStar className="mr-2" /> },
     {
       key: "codigos_admin",
       label: "Códigos",

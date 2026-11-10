@@ -1,12 +1,14 @@
 // src/componentes/ListaRestaurantes.jsx
 import { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { FaEdit, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaEdit, FaToggleOn, FaToggleOff, FaInstagram, FaFacebook, FaEnvelope } from 'react-icons/fa';
 import './ListaRestaurantes.css'
 
 
 import { urlApi, imgApi } from '../../componentes/api/url.js';
 import { useAuth } from '../Context';
+import NotasRelacionadas from './NotasRelacionadas';
 
 
 const topofthetop = `${imgApi}fotos/fotos-estaticas/listado-iconos-100estrellas/topofthetop.avif`;
@@ -40,6 +42,25 @@ const ListaRestaurantes = () => {
   const [categoriasAgrupadas, setCategoriasAgrupadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mensajeCopia, setMensajeCopia] = useState('');
+
+  const copiarEnlace = async (restaurante, slug, canal) => {
+    const url = new URL(`https://residente.mx/restaurantes/${encodeURIComponent(slug)}`);
+    url.searchParams.set('utm_source', canal.source);
+    url.searchParams.set('utm_medium', canal.medium);
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setMensajeCopia(`Enlace de ${canal.nombre} copiado al portapapeles`);
+    } catch {
+      setMensajeCopia('No se pudo copiar el enlace. Revisa los permisos del navegador.');
+    }
+  };
+
+  useEffect(() => {
+    if (!mensajeCopia) return;
+    const timeout = setTimeout(() => setMensajeCopia(''), 3000);
+    return () => clearTimeout(timeout);
+  }, [mensajeCopia]);
 
   // Definición de categorías con título e imagen
   const categorias = [
@@ -146,6 +167,12 @@ const ListaRestaurantes = () => {
 
   return (
     <div className="lista-restaurantes">
+      {mensajeCopia && createPortal(
+        <div role="status" aria-live="polite" className="fixed bottom-4 right-4 z-[9999] rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white shadow-lg">
+          {mensajeCopia}
+        </div>,
+        document.body,
+      )}
       <div className="lista-logos">
         <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/grises/magazine-logo-gris.webp`} alt="Residente Restaurant Magazine Logo" />
         <img src={`${imgApi}fotos/fotos-estaticas/residente-logos/estrellasdenuevoleon.webp`} alt="Estrellas de Nuevo León Logo" />
@@ -153,16 +180,16 @@ const ListaRestaurantes = () => {
       </div>
       <p className="text-global">Desde 2016 y con una metodología probada, <b className="font-grotesk">Residente Food&Drink-Media</b> realiza constantemente estudios de mercado entre el público, críticos y expertos de la industria. Estos estudios nos permiten entender y balancear por geografía, edad y poder de compra las preferencias de los consumidores. A continuación se presentan las <b className="font-grotesk">“Estrellas de Nuevo León”</b>, aquellos restaurantes que han logrado distinguirse y posicionarse, por muy diversas razones, dentro del gusto de los consumidores. Los nombres que <b className="font-grotesk">aquí aparecen representan lo mejor de lo mejor, el 1% de la oferta gastronómica de Nuevo León.</b> Esta, no es una lista comercial ni una preferencia amistosa, mucho menos un capricho editorial, sino el resultado de años de estudio y del conocimiento profundo de la cultura culinaria de nuestro estado.</p>
 
-      <div className="categorias-container">
+      <div className="categorias-container w-full sm:relative sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:max-w-[1600px] sm:-translate-x-1/2 md:grid-cols-2! xl:grid-cols-3!">
         {categoriasAgrupadas.map((categoria, index) => (
-          <div className="categoria-grupo" key={index}>
+          <div className="categoria-grupo min-w-0" key={index}>
             <div className="categoria-grupo-titulo">
               <h2 className="lista-categorias">{categoria.titulo}</h2>
             </div>
             <div className="categoria-contenido">
               <img src={categoria.imagen} className="categoria-imagen" alt={categoria.titulo} />
               {categoria.restaurantes.length > 0 ? (
-                <ul>
+                <ul className="min-w-0 flex-1">
                   {categoria.restaurantes.map((restaurante, i) => {
                     const slug = restaurante.slug || restaurante.nombre_restaurante
                       .toLowerCase()
@@ -175,36 +202,52 @@ const ListaRestaurantes = () => {
                       .replace(/^-+|-+$/g, '');   // quita guiones al inicio/fin
 
                     return (
-                      <li key={i} className={`flex items-center justify-end gap-2 ${restaurante.status === 0 ? 'opacity-75' : ''}`}>
+                      <li key={i} className={restaurante.status === 0 ? 'opacity-75' : ''}>
+                        <div className="flex items-center justify-end gap-2">
+                          {(usuario?.rol === 'residente' || usuario?.permisos === 'todos') && (
+                            <>
+                              <button
+                                onClick={() => handleToggleStatus(restaurante)}
+                                className="text-gray-500 hover:text-blue-500 transition-colors focus:outline-none mr-2"
+                                title={restaurante.status === 1 ? "Desactivar" : "Activar"}
+                              >
+                                {restaurante.status === 1 ? (
+                                  <FaToggleOn size={22} className="text-green-600" />
+                                ) : (
+                                  <FaToggleOff size={22} className="text-red-500" />
+                                )}
+                              </button>
+                              {[
+                                { nombre: 'Instagram', source: 'instagram', medium: 'social', Icono: FaInstagram },
+                                { nombre: 'Facebook', source: 'facebook', medium: 'social', Icono: FaFacebook },
+                                { nombre: 'Correo', source: 'newsletter', medium: 'email', Icono: FaEnvelope },
+                              ].map(({ Icono, ...canal }) => (
+                                <button key={canal.source} type="button" onClick={() => copiarEnlace(restaurante, slug, canal)}
+                                  className="shrink-0 text-gray-500 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                                  title={`Copiar enlace para ${canal.nombre}`} aria-label={`Copiar enlace de ${restaurante.nombre_restaurante} para ${canal.nombre}`}>
+                                  <Icono size={14} aria-hidden="true" />
+                                </button>
+                              ))}
+                              <Link
+                                to={`/formulario/${slug}`}
+                                className="text-gray-400 hover:text-blue-500 transition-colors"
+                                title="Editar Restaurante"
+                              >
+                                <FaEdit size={14} />
+                              </Link>
+                            </>
+                          )}
+                          <Link
+                            to={`/restaurantes/${slug}`}
+                            className={`enlace-restaurante ${restaurante.status === 0 ? 'text-red-800 line-through decoration-red-500' : ''}`}
+                            title={restaurante.status === 0 ? "Restaurante Inactivo" : ""}
+                          >
+                            {formatearNombre(restaurante.nombre_restaurante)}
+                          </Link>
+                        </div>
                         {(usuario?.rol === 'residente' || usuario?.permisos === 'todos') && (
-                          <>
-                            <button
-                              onClick={() => handleToggleStatus(restaurante)}
-                              className="text-gray-500 hover:text-blue-500 transition-colors focus:outline-none mr-2"
-                              title={restaurante.status === 1 ? "Desactivar" : "Activar"}
-                            >
-                              {restaurante.status === 1 ? (
-                                <FaToggleOn size={22} className="text-green-600" />
-                              ) : (
-                                <FaToggleOff size={22} className="text-red-500" />
-                              )}
-                            </button>
-                            <Link
-                              to={`/formulario/${slug}`}
-                              className="text-gray-400 hover:text-blue-500 transition-colors"
-                              title="Editar Restaurante"
-                            >
-                              <FaEdit size={14} />
-                            </Link>
-                          </>
+                          <NotasRelacionadas restaurante={restaurante} slug={slug} />
                         )}
-                        <Link
-                          to={`/restaurantes/${slug}`}
-                          className={`enlace-restaurante ${restaurante.status === 0 ? 'text-red-800 line-through decoration-red-500' : ''}`}
-                          title={restaurante.status === 0 ? "Restaurante Inactivo" : ""}
-                        >
-                          {formatearNombre(restaurante.nombre_restaurante)}
-                        </Link>
                       </li>
                     );
                   })}

@@ -8,6 +8,7 @@ import OpcionesPublicacion from "./componentes/OpcionesPublicacion";
 import Subtitulo from "./componentes/Subtitulo";
 import Titulo from "./componentes/Titulo";
 import SlugInput from "./componentes/SlugInput";
+import EnlacesCompartirNota from "./componentes/EnlacesCompartirNota.jsx";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -153,6 +154,9 @@ const FormMainResidente = () => {
       tiposDeNotaSeleccionadas: tipoNotaEfectivo || "",
       zonas: [],
       slug: "",
+      utm_campaign: "",
+      utm_source: null,
+      utm_medium: null,
       seo_alt_text: "",
       seo_title: "",
       seo_keyword: "",
@@ -183,6 +187,7 @@ const FormMainResidente = () => {
 
   // Estados para manejo de API
   const [notaId, setNotaId] = useState(null);
+  const [slugGuardado, setSlugGuardado] = useState("");
   const [secciones, setSecciones] = useState([]);
   const [tipoDeNota, setTipoDeNota] = useState([]);
   const [opcionesFoodDrink, setOpcionesFoodDrink] = useState(null);
@@ -487,6 +492,7 @@ const FormMainResidente = () => {
           if (!data) throw new Error("Nota no encontrada");
 
           setNotaId(data.id);
+          setSlugGuardado(data.slug || "");
 
           // --- CONVERSIÓN DE FECHA ---
           let fechaProgramada = "";
@@ -592,6 +598,9 @@ const FormMainResidente = () => {
                 : data.zonas
               : [],
             slug: data.slug || "",
+            utm_campaign: data.utm_campaign || "",
+            utm_source: data.utm_source || null,
+            utm_medium: data.utm_medium || null,
             seo_alt_text: data.seo_alt_text || "",
             seo_title: data.seo_title || "",
             seo_keyword: data.seo_keyword || "",
@@ -1082,6 +1091,8 @@ const FormMainResidente = () => {
                 <div className="pb-4">
                   <SlugInput />
                 </div>
+
+                <EnlacesCompartirNota notaId={notaId} slug={slugGuardado} fuentes={watch("utm_source")} medios={watch("utm_medium")} />
 
                 <div className="pb-4">
                   <StickersNotaSelector
