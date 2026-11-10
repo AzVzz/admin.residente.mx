@@ -1422,9 +1422,7 @@ const ListaNotas = () => {
 
         {vistaActiva === "videos" && (
           <Suspense fallback={<LazyFallback />}>
-            <div className="text-center text-lg">
-              <VideosDashboard />
-            </div>
+            <VideosDashboard />
           </Suspense>
         )}
 

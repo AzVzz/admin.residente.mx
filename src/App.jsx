@@ -986,6 +986,14 @@ function App() {
                   </div>
                 }
               />
+              <Route
+                path="/videosFormulario/:id"
+                element={
+                  <div className="max-w-[1080px] mx-auto">
+                    <Videos />
+                  </div>
+                }
+              />
 
               {/* Admin */}
               <Route path="/" element={<Navigate to="/registro" replace />} />

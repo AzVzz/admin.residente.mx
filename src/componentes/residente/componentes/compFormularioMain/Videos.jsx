@@ -17,8 +17,9 @@ const Videos = () => {
 
   const [formData, setFormData] = useState({
     imagen: null,
-    url: "",
-    fecha: "",
+    video: null,
+    titulo: "",
+    fecha: new Date().toISOString().split("T")[0],
     activo: true, // Por defecto, los videos se crean como activos
     tipo: 'editorial' // Por defecto, los videos se crean como editoriales
   });
@@ -28,6 +29,8 @@ const Videos = () => {
   const [error, setError] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
   const [imagenActual, setImagenActual] = useState(null); // Para mostrar la imagen actual en modo edición
+  const [tieneArchivo, setTieneArchivo] = useState(false);
+  const [nombreVideo, setNombreVideo] = useState("");
 
   // Verificar autenticación
   if (!token || !usuario) {
@@ -55,11 +58,13 @@ const Videos = () => {
 
       setFormData({
         imagen: null, // No cargar imagen en el input, solo mostrar preview
-        url: video.url || "",
+        video: null,
+        titulo: video.titulo || "",
         fecha: fechaFormateada,
         activo: video.activo !== undefined ? video.activo : video.estado,
         tipo: video.tipo || 'editorial'
       });
+      setTieneArchivo(Boolean(video.archivo));
 
       // Mostrar la imagen actual
       setImagenActual(video.imagen);
@@ -98,34 +103,41 @@ const Videos = () => {
     }
   };
 
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setFormData((prev) => ({ ...prev, video: file }));
+    setNombreVideo(file.name);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
     setError(null);
 
     try {
-      // Validar que todos los campos estén llenos
-      if (!formData.url || !formData.fecha || !formData.tipo) {
-        setError("Por favor, completa todos los campos requeridos.");
+      if (!formData.titulo.trim() || !formData.fecha || !formData.tipo) {
+        setError("El título, la fecha y el tipo son obligatorios.");
         setCargando(false);
         return;
       }
 
-      // En modo edición, la imagen no es obligatoria si no se cambia
-      if (!esModoEdicion && !formData.imagen) {
-        setError("La imagen es obligatoria para crear un nuevo video.");
+      if (!esModoEdicion && !formData.video) {
+        setError("Sube el archivo de video.");
         setCargando(false);
         return;
       }
 
-      // Crear FormData para enviar archivos
       const formDataToSend = new FormData();
 
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
       }
+      if (formData.video) {
+        formDataToSend.append('video', formData.video);
+      }
 
-      formDataToSend.append('url', formData.url);
+      formDataToSend.append('titulo', formData.titulo.trim());
       formDataToSend.append('fecha', formData.fecha);
       formDataToSend.append('tipo', formData.tipo);
       formDataToSend.append('estado', formData.activo.toString());
@@ -158,13 +170,16 @@ const Videos = () => {
       // Éxito - limpiar el formulario
       setFormData({
         imagen: null,
-        url: "",
-        fecha: "",
+        video: null,
+        titulo: "",
+        fecha: new Date().toISOString().split("T")[0],
         tipo: 'editorial',
         activo: true
       });
       setImagenPreview(null);
       setImagenActual(null);
+      setNombreVideo("");
+      setTieneArchivo(false);
 
       // Redirigir a la lista de videos
       navigate("/videosDashboard");
@@ -211,10 +226,46 @@ const Videos = () => {
         {/* Formulario */}
         <div className="bg-white rounded-lg shadow p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-base font-medium text-gray-700 mb-2">
+                Título *
+              </label>
+              <input
+                type="text"
+                name="titulo"
+                value={formData.titulo}
+                onChange={handleInputChange}
+                placeholder="Título que aparece debajo del video"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-base font-medium text-gray-700 mb-2">
+                {esModoEdicion ? "Reemplazar video (opcional)" : "Archivo de video *"}
+              </label>
+              <input
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+                onChange={handleVideoChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                MP4, MOV o WEBM, hasta 200 MB. Se comprime al guardar para que se vea nítido y pese menos.
+                {nombreVideo ? ` Seleccionado: ${nombreVideo}` : ""}
+              </p>
+              {esModoEdicion && tieneArchivo && !formData.video && (
+                <p className="mt-1 text-sm text-gray-500">
+                  Este video ya tiene un archivo. Súbelo de nuevo solo si quieres reemplazarlo.
+                </p>
+              )}
+            </div>
+
             {/* Imagen */}
             <div>
               <label className="block text-base font-medium text-gray-700 mb-2">
-                {esModoEdicion ? 'Nueva Imagen (opcional)' : 'Imagen del Video *'}
+                Portada (opcional)
               </label>
               <div className="flex items-center space-x-4">
                 <input
@@ -233,27 +284,14 @@ const Videos = () => {
                   </div>
                 )}
               </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Si no subes portada, se toma un frame del video.
+              </p>
               {esModoEdicion && imagenActual && !formData.imagen && (
                 <p className="mt-2 text-sm text-gray-500">
                   Imagen actual: {imagenActual.split('/').pop()}
                 </p>
               )}
-            </div>
-
-            {/* URL */}
-            <div>
-              <label className="block text-base font-medium text-gray-700 mb-2">
-                URL del Video *
-              </label>
-              <input
-                type="url"
-                name="url"
-                value={formData.url}
-                onChange={handleInputChange}
-                placeholder="https://www.instagram.com/reel/..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
             </div>
 
             {/* Fecha */}
@@ -336,7 +374,7 @@ const Videos = () => {
               {cargando ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {esModoEdicion ? 'Editando...' : 'Creando...'}
+                  {esModoEdicion ? 'Guardando y comprimiendo...' : 'Subiendo y comprimiendo...'}
                 </div>
               ) : (
                 esModoEdicion ? 'Guardar Cambios' : 'Crear Video'
