@@ -44,7 +44,7 @@ const Registro = () => {
     const rol = respuesta.usuario?.rol?.toLowerCase();
 
     if (rol === "colaborador_eventos") {
-      navigate("/dashboard-eventos-colab");
+      navigate("/dashboard-vivir-convivir/notas");
     } else if (rol === "cliente_media") {
       navigate("/dashboard-cliente");
     } else if (rol === "b2b") {

@@ -14,6 +14,31 @@ export async function eventosColaboradoresGetTodas(token, { sortBy, sortOrder, e
   return await response.json();
 }
 
+// Las rutas guardadas son relativas (/fotos/eventos-colaboradores/...): se sirven
+// desde el gateway/nginx (urlApi), igual en local y en producción.
+export function urlImagenEvento(ruta) {
+  if (!ruta) return null;
+  if (/^https?:\/\//i.test(ruta) || ruta.startsWith("data:") || ruta.startsWith("blob:")) return ruta;
+  return `${urlApi}${ruta.replace(/^\//, "")}`;
+}
+
+// Sube una foto (multipart, igual que el Subidor). El backend la convierte a AVIF
+// y devuelve { imagen_url, imagen_miniatura_url, bytes, bytes_original }.
+export async function eventoColaboradorSubirImagen(file, token) {
+  const formData = new FormData();
+  formData.append("imagen", file);
+  const response = await fetch(`${urlApi}api/eventos-colaboradores/imagen`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Error al subir la imagen");
+  }
+  return await response.json();
+}
+
 export async function eventoColaboradorCrear(data, token) {
   const response = await fetch(`${urlApi}api/eventos-colaboradores`, {
     method: "POST",
@@ -49,8 +74,8 @@ export async function eventoColaboradorBorrar(id, token) {
   return await response.json();
 }
 
-export async function eventoColaboradorGet(id) {
-  const response = await fetch(`${urlApi}api/eventos-colaboradores/${id}`);
+export async function eventoColaboradorGet(id, token) {
+  const response = await fetch(`${urlApi}api/eventos-colaboradores/admin/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
   if (!response.ok) throw new Error("Error al obtener el evento");
   return await response.json();
 }

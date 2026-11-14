@@ -14,7 +14,7 @@ const generarSlug = (texto) => {
     .replace(/-+/g, "-");
 };
 
-const SlugInput = () => {
+const SlugInput = ({ prefijo = "residente.mx/notas/" }) => {
   const {
     register,
     watch,
@@ -66,7 +66,7 @@ const SlugInput = () => {
       </div>
       <div className="flex items-center gap-0">
         <span className="px-3 py-2 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-sm text-gray-500 select-none">
-          residente.mx/notas/
+          {prefijo}
         </span>
         <input
           type="text"
@@ -91,7 +91,7 @@ const SlugInput = () => {
       )}
       {slugValue && (
         <p className="text-xs text-gray-400 mt-1">
-          URL final: residente.mx/notas/{slugValue}
+          URL final: {prefijo}{slugValue}
         </p>
       )}
       {!slugValue && (

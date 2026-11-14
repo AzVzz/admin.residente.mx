@@ -54,7 +54,7 @@ const RestauranteMention = Mention.extend({
     },
 });
 
-const Contenido = () => {
+const Contenido = ({ subirImagen = null, sinMenciones = false }) => {
     const { control, setValue, getValues, watch, formState: { errors } } = useFormContext();
     const contenidoValue = watch('contenido');
     const fileInputRef = useRef(null);
@@ -65,6 +65,7 @@ const Contenido = () => {
 
     // Fetch restaurantes for @ mentions
     useEffect(() => {
+        if (sinMenciones) return;
         restaurantesBasicosGet()
             .then((data) => {
                 restaurantesRef.current = Array.isArray(data) ? data : [];
@@ -100,12 +101,14 @@ const Contenido = () => {
                     rel: 'noopener noreferrer',
                 },
             }),
-            RestauranteMention.configure({
-                HTMLAttributes: {
-                    class: 'mention-restaurante',
-                },
-                suggestion: createSuggestion(restaurantesRef),
-            }),
+            ...(sinMenciones ? [] : [
+                RestauranteMention.configure({
+                    HTMLAttributes: {
+                        class: 'mention-restaurante',
+                    },
+                    suggestion: createSuggestion(restaurantesRef),
+                }),
+            ]),
         ],
         content: contenidoValue || '',
         onUpdate: ({ editor }) => {
@@ -155,6 +158,12 @@ const Contenido = () => {
         }
 
         try {
+            // Subida personalizada (p. ej. Vivir y Convivir): devuelve la URL final.
+            if (subirImagen) {
+                const url = await subirImagen(file);
+                editor.chain().focus().setImage({ src: url, alt: '', title: '', descripcion: url }).run();
+                return;
+            }
             const formData = new FormData();
             formData.append('imagen', file);
 
@@ -292,9 +301,11 @@ const Contenido = () => {
                             >
                                 Enlace
                             </button>
-                            <span className="text-xs text-gray-400 ml-2">
-                                Escribe @ para mencionar un restaurante
-                            </span>
+                            {!sinMenciones && (
+                                <span className="text-xs text-gray-400 ml-2">
+                                    Escribe @ para mencionar un restaurante
+                                </span>
+                            )}
                             <span className="text-xs text-gray-500 ml-auto whitespace-nowrap">
                                 {(() => {
                                     const texto = editor?.getText()?.trim() || '';

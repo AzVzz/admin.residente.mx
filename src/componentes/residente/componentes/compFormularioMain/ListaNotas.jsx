@@ -750,7 +750,7 @@ const ListaNotas = () => {
     },
     {
       key: "eventos",
-      label: "Eventos",
+      label: "Vivir y Convivir",
       icon: <FaCalendarDays className="mr-2" />,
     },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
@@ -1078,7 +1078,7 @@ const ListaNotas = () => {
                     } else if (option.key === "cupones") {
                       navigate("/dashboardtickets");
                     } else if (option.key === "eventos") {
-                      navigate("/dashboardeventos");
+                      navigate("/dashboard-vivir-convivir/notas");
                     } else if (option.key === "tematicas") {
                       setVistaActiva("tematicas");
                     } else if (option.key === "codigos_admin") {

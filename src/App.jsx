@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Suspense, lazy } from "react";
 
@@ -249,6 +249,11 @@ const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
 const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
 const EventoColaboradorMain = lazy(() => import("./componentes/eventos-colaboradores/EventoColaboradorMain"));
 const ListaEventosColaboradores = lazy(() => import("./componentes/eventos-colaboradores/ListaEventosColaboradores"));
+const EventosDashboardLayout = lazy(() => import("./componentes/eventos-colaboradores/EventosDashboardLayout"));
+const RedirectEditarNotaEvento = () => {
+  const { id } = useParams();
+  return <Navigate to={`/dashboard-vivir-convivir/notas/editar/${id}`} replace />;
+};
 const ListaTematicas = lazy(
   () => import("./componentes/residente/componentes/compFormularioMain/ListaTematicas")
 );
@@ -1113,31 +1118,23 @@ function App() {
 
               {/* Dashboard separado — Eventos de colaboradores (rol "colaborador_eventos"; Ticketpolis es el primero, cada colaborador ve solo lo suyo) */}
               <Route
-                path="/dashboard-eventos-colab"
+                path="/dashboard-vivir-convivir"
                 element={
                   <EventosColaboradoresRoute>
-                    <div className="max-w-[1080px] mx-auto">
-                      <ListaEventosColaboradores />
-                    </div>
+                    <EventosDashboardLayout />
                   </EventosColaboradoresRoute>
                 }
-              />
-              <Route
-                path="/dashboard-eventos-colab/nuevo"
-                element={
-                  <EventosColaboradoresRoute>
-                    <EventoColaboradorMain />
-                  </EventosColaboradoresRoute>
-                }
-              />
-              <Route
-                path="/dashboard-eventos-colab/editar/:id"
-                element={
-                  <EventosColaboradoresRoute>
-                    <EventoColaboradorMain />
-                  </EventosColaboradoresRoute>
-                }
-              />
+              >
+                <Route index element={<Navigate to="notas" replace />} />
+                <Route path="notas" element={<ListaEventosColaboradores modo="notas" />} />
+                <Route path="notas/nueva" element={<EventoColaboradorMain />} />
+                <Route path="notas/editar/:id" element={<EventoColaboradorMain />} />
+                <Route path="eventos" element={<ListaEventosColaboradores modo="eventos" />} />
+              </Route>
+              {/* Rutas anteriores (compatibilidad) */}
+              <Route path="/dashboard-eventos-colab" element={<Navigate to="/dashboard-vivir-convivir/notas" replace />} />
+              <Route path="/dashboard-eventos-colab/nuevo" element={<Navigate to="/dashboard-vivir-convivir/notas/nueva" replace />} />
+              <Route path="/dashboard-eventos-colab/editar/:id" element={<RedirectEditarNotaEvento />} />
 
 
               {/* Admin */}

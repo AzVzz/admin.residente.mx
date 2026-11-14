@@ -8,7 +8,7 @@ const EventosColaboradoresRoute = ({ children }) => {
     return <Navigate to="/registro" replace />;
   }
 
-  if (usuario.rol?.toLowerCase() !== "colaborador_eventos") {
+  if (!["colaborador_eventos", "residente"].includes(usuario.rol?.toLowerCase()) && !["todo", "todos"].includes(usuario.permisos?.toLowerCase())) {
     return (
       <div className="max-w-[1080px] mx-auto py-10">
         <p className="text-red-600 font-semibold mb-4">
