@@ -102,31 +102,50 @@ jobs:
             # Plesk sirve el admin desde httpdocs (ver README). El container solo
             # no basta: hay que copiar el build o /admin/assets/*.js cae al
             # index.html (Content-Type text/html) y Cloudflare lo cachea roto.
+            echo "Buscando httpdocs..."
+            ls -la "$HOME" 2>/dev/null | head -40 || true
+            ls -la /var/www/vhosts 2>/dev/null | head -40 || true
             HTTPDOCS=""
             for d in \
               "$HOME/admin.residente.mx/httpdocs" \
               "/var/www/vhosts/admin.residente.mx/httpdocs" \
-              "/var/www/vhosts/residente.mx/subdomains/admin/httpdocs"
+              "/var/www/vhosts/residente.mx/subdomains/admin/httpdocs" \
+              "/var/www/vhosts/residente.mx/httpdocs/admin" \
+              "/home/*/admin.residente.mx/httpdocs"
             do
-              if [ -d "$d" ]; then HTTPDOCS="$d"; break; fi
+              # Expandir globs
+              for e in $d; do
+                if [ -d "$e" ]; then HTTPDOCS="$e"; break 2; fi
+              done
             done
-            if [ -n "$HTTPDOCS" ]; then
-              echo "Sync build -> $HTTPDOCS"
-              mkdir -p "$HTTPDOCS/assets"
-              # Copia atomica-ish: extrae a tmp y rsync/cp
-              TMPDIR=$(mktemp -d)
-              docker cp residente-admin:/usr/share/nginx/html/admin/. "$TMPDIR/"
-              cp -a "$TMPDIR/." "$HTTPDOCS/"
-              rm -rf "$TMPDIR"
-              JS_NAME=$(basename "$(ls "$HTTPDOCS/assets"/index-*.js 2>/dev/null | head -1)")
-              echo "OK httpdocs index: $JS_NAME"
-              # Evitar que un index.html viejo apunte a un hash que ya no existe
-              if [ -n "$JS_NAME" ] && [ -f "$HTTPDOCS/assets/$JS_NAME" ]; then
-                CT=$(file -b --mime-type "$HTTPDOCS/assets/$JS_NAME" || true)
-                echo "mime $JS_NAME: $CT"
+            # Fallback: localizar index.html de admin en el host
+            if [ -z "$HTTPDOCS" ]; then
+              FOUND=$(find /var/www/vhosts "$HOME" -maxdepth 5 -type f -path '*/admin/index.html' 2>/dev/null | head -1 || true)
+              if [ -n "$FOUND" ]; then
+                HTTPDOCS=$(dirname "$FOUND")
               fi
-            else
-              echo "WARN: no se encontro httpdocs de Plesk; solo queda el container Docker"
             fi
+            if [ -z "$HTTPDOCS" ]; then
+              echo "ERROR: no se encontro httpdocs de Plesk para sync"
+              exit 1
+            fi
+            echo "Sync build -> $HTTPDOCS"
+            TMPDIR=$(mktemp -d)
+            docker cp residente-admin:/usr/share/nginx/html/admin/. "$TMPDIR/"
+            # Debe existir el bundle dentro de la imagen
+            JS_SRC=$(ls "$TMPDIR/assets"/index-*.js 2>/dev/null | head -1 || true)
+            if [ -z "$JS_SRC" ]; then
+              echo "ERROR: la imagen Docker no trae assets/index-*.js"
+              ls -la "$TMPDIR" "$TMPDIR/assets" 2>/dev/null || true
+              rm -rf "$TMPDIR"
+              exit 1
+            fi
+            echo "Bundle en imagen: $(basename "$JS_SRC") ($(wc -c < "$JS_SRC") bytes)"
+            mkdir -p "$HTTPDOCS/assets"
+            cp -a "$TMPDIR/." "$HTTPDOCS/"
+            DATE_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            echo "sha=${{ github.sha }} at=$DATE_UTC js=$(basename "$JS_SRC")" > "$HTTPDOCS/deploy-version.txt"
+            rm -rf "$TMPDIR"
+            echo "OK sync httpdocs + deploy-version.txt"
 
             docker image prune -f
