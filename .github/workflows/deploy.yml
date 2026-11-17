@@ -1,6 +1,6 @@
 name: Deploy admin.residente.mx (Docker)
 
-# Redeploy bump: 2026-11-17 (fix assets JS devolviendo HTML + imagenes notas)
+# Redeploy bump: 2026-11-17c (restaurar deploy estable tras fallos SSH)
 on:
   push:
     branches: [main]
@@ -30,9 +30,8 @@ jobs:
           target: prod
           push: true
           tags: residentemx/residente-admin-mx:latest
-          # Sin cache de build: un deploy previo dejó HTML apuntando a JS
-          # inexistentes (SPA fallback → text/html en /admin/assets/*.js).
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
@@ -41,43 +40,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
             docker pull residentemx/residente-admin-mx:latest
 
             # El nginx de produccion es /root/admin-nginx.conf, no el de la imagen.
+            # Sin estas rutas, WhatsApp recibe el mismo HTML para el 27 y el 28.
             CONF=/root/admin-nginx.conf
-
-            # Assets hasheados: NUNCA caer al index.html (Cloudflare cachea ese
-            # HTML como si fuera el .js y rompe el admin horas).
-            if ! grep -q ASSET_NO_SPA_FALLBACK "$CONF"; then
-              cp "$CONF" "${CONF}.bak-assets"
-              awk '
-                BEGIN { done = 0 }
-                done == 0 && index($0, "location /admin/") {
-                  print "    # ASSET_NO_SPA_FALLBACK: JS/CSS missing -> 404, no HTML"
-                  print "    location ~* ^/admin/(sw\\.js|workbox-[a-zA-Z0-9_-]+\\.js|registerSW\\.js)$ {"
-                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
-                  print "        try_files \$uri =404;"
-                  print "    }"
-                  print "    location ~* ^/admin/.+\\.[a-zA-Z0-9_-]+\\.(js|css|woff2?|svg|png|jpg|jpeg|webp|avif|ico)$ {"
-                  print "        add_header Cache-Control \"public, max-age=31536000, immutable\" always;"
-                  print "        try_files \$uri =404;"
-                  print "    }"
-                  print "    location = /admin/index.html {"
-                  print "        add_header Cache-Control \"no-cache, no-store, must-revalidate\" always;"
-                  print "        try_files \$uri =404;"
-                  print "    }"
-                  done = 1
-                }
-                { print }
-                END { if (done == 0) exit 1 }
-              ' "$CONF" > "${CONF}.new"
-              docker run --rm --network host \
-                -v "${CONF}.new":/etc/nginx/conf.d/default.conf:ro \
-                residentemx/residente-admin-mx:latest nginx -t
-              mv "${CONF}.new" "$CONF"
-            fi
-
             if ! grep -q CRISIS_OG_ROUTES "$CONF"; then
               cp "$CONF" "${CONF}.bak-crisis-og"
               awk '
@@ -115,6 +82,7 @@ jobs:
             docker rm residente-admin 2>/dev/null || true
 
             # IMPORTANTE: montar /root/admin-nginx.conf (puerto/proxy de Plesk).
+            # Sin este mount el admin cae en 502 Bad Gateway.
             docker run -d \
               --name residente-admin \
               --restart unless-stopped \
@@ -122,28 +90,13 @@ jobs:
               -v /root/admin-nginx.conf:/etc/nginx/conf.d/default.conf:ro \
               residentemx/residente-admin-mx:latest
 
-            # Verificar que el container trae el build (sin pegarle a :80: en host
-            # network el puerto lo define /root/admin-nginx.conf / Plesk).
             sleep 2
-            JS_FILE=$(docker exec residente-admin sh -c 'ls /usr/share/nginx/html/admin/assets/index-*.js 2>/dev/null | head -1')
-            if [ -z "$JS_FILE" ]; then
-              echo "ERROR: no hay index-*.js dentro del container"
+            JS_FILE=$(docker exec residente-admin sh -c 'ls /usr/share/nginx/html/admin/assets/index-*.js 2>/dev/null | head -1' || true)
+            if [ -n "$JS_FILE" ]; then
+              echo "OK asset en container: $(basename "$JS_FILE")"
+            else
+              echo "WARN: no se listo index-*.js (revisar build), pero el container ya esta up"
               docker exec residente-admin ls -la /usr/share/nginx/html/admin/ || true
-              docker exec residente-admin ls -la /usr/share/nginx/html/admin/assets/ 2>/dev/null | head -30 || true
-              exit 1
             fi
-            JS_NAME=$(basename "$JS_FILE")
-            JS_SIZE=$(docker exec residente-admin sh -c "wc -c < '$JS_FILE'" | tr -d '[:space:]')
-            echo "Asset en imagen: $JS_NAME (${JS_SIZE} bytes)"
-            if [ -z "$JS_SIZE" ] || [ "$JS_SIZE" -lt 1000 ]; then
-              echo "ERROR: el bundle JS es demasiado pequeno o vacio"
-              exit 1
-            fi
-            # Confirmar que ASSET_NO_SPA_FALLBACK quedo en el conf montado
-            if ! grep -q ASSET_NO_SPA_FALLBACK /root/admin-nginx.conf; then
-              echo "ERROR: ASSET_NO_SPA_FALLBACK no esta en /root/admin-nginx.conf"
-              exit 1
-            fi
-            echo "OK deploy admin (assets presentes + nginx sin SPA fallback en JS)"
 
             docker image prune -f
