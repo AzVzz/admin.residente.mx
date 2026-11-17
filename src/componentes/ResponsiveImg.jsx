@@ -17,7 +17,7 @@
 //     loading="lazy"
 //   />
 
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import { imgSrcset } from "./utils/imgSrcset";
 
 function ResponsiveImg({
@@ -37,32 +37,7 @@ function ResponsiveImg({
   onLoad,
   draggable,
 }) {
-  const [failed, setFailed] = useState(false);
   const set = imgSrcset(src, { widths, sizes, defaultWidth: width });
-
-  useEffect(() => {
-    setFailed(false);
-  }, [src]);
-
-  // Si la URL falla, no mostramos icono roto + alt encima del layout.
-  if (!src || failed) {
-    return (
-      <div
-        aria-hidden="true"
-        className={className}
-        style={{
-          ...style,
-          background:
-            "linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%)",
-        }}
-      />
-    );
-  }
-
-  const handleError = (event) => {
-    setFailed(true);
-    if (onError) onError(event);
-  };
 
   const imgProps = {
     src: set.src,
@@ -73,9 +48,9 @@ function ResponsiveImg({
     loading,
     decoding,
     style,
-    onError: handleError,
   };
   if (fetchPriority) imgProps.fetchPriority = fetchPriority;
+  if (onError) imgProps.onError = onError;
   if (onClick) imgProps.onClick = onClick;
   if (onLoad) imgProps.onLoad = onLoad;
   if (draggable !== undefined) imgProps.draggable = draggable;

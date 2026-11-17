@@ -10,15 +10,9 @@ import RecorteImagen from './RecorteImagen';
 const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
     const { control, setValue, watch } = useFormContext();
     const imagenSeleccionada = watch('imagen');
-    // Solo File cuenta como "archivo nuevo". Antes cualquier no-string (p.ej. {})
-    // activaba el editor y podía dejar la nota con imagen inválida.
-    const esArchivoNuevo = imagenSeleccionada instanceof File;
+    const esArchivoNuevo =
+        imagenSeleccionada && typeof imagenSeleccionada !== 'string';
     const [borrada, setBorrada] = useState(false);
-    const [previewRota, setPreviewRota] = useState(false);
-
-    useEffect(() => {
-        setPreviewRota(false);
-    }, [imagenActual]);
 
     // Al cambiar de archivo se limpia el recorte previo (se regenera en el editor).
     useEffect(() => {
@@ -59,8 +53,8 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
-                            const file = e.target.files?.[0] || null;
-                            field.onChange(file instanceof File ? file : null);
+                            const file = e.target.files[0];
+                            field.onChange(file);
                         }}
                         className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer bg-white"
                     />
@@ -89,19 +83,11 @@ const ImagenNotaSelector = ({ imagenActual, notaId, onImagenEliminada }) => {
             {/* Imagen actual guardada (modo edición, sin foto nueva) */}
             {mostrarActual && (
                 <div className="mt-2">
-                    {previewRota ? (
-                        <div className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                            La imagen guardada no se pudo cargar. Vuelve a
-                            seleccionar un archivo y guarda la nota.
-                        </div>
-                    ) : (
-                        <img
-                            src={imagenActual}
-                            alt="Imagen de la nota"
-                            className="max-h-68 shadow border mb-2"
-                            onError={() => setPreviewRota(true)}
-                        />
-                    )}
+                    <img
+                        src={imagenActual}
+                        alt="Imagen de la nota"
+                        className="max-h-68 shadow border mb-2"
+                    />
                     <button
                         type="button"
                         onClick={handleEliminarImagen}
