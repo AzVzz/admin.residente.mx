@@ -785,17 +785,29 @@ const FormMainResidente = () => {
         setNotaId(resultado.id);
       }
 
-      if (data.imagen && (notaId || resultado.id)) {
-        await notaImagenPut(
-          notaId || resultado.id,
-          data.imagen,
+      const idNota = notaId || resultado.id;
+      const archivoImagen = data.imagen instanceof File ? data.imagen : null;
+      const archivoRecorte =
+        data.imagen_recorte instanceof Blob ? data.imagen_recorte : null;
+
+      // Si el usuario eligió imagen, la subida DEBE funcionar. Si falla,
+      // abortamos el "éxito" para no dejar notas con URL/imagen rota.
+      if (archivoImagen && idNota) {
+        const subida = await notaImagenPut(
+          idNota,
+          archivoImagen,
           token,
-          data.imagen_recorte,
+          archivoRecorte,
+        );
+        if (subida?.imagenUrl) setImagenActual(subida.imagenUrl);
+      } else if (data.imagen && !(data.imagen instanceof File)) {
+        throw new Error(
+          "La imagen seleccionada no es un archivo válido. Vuelve a elegirla e inténtalo de nuevo.",
         );
       }
 
-      if (data.instafoto && (notaId || resultado.id)) {
-        await notaInstafotoPut(notaId || resultado.id, data.instafoto, token);
+      if (data.instafoto instanceof File && idNota) {
+        await notaInstafotoPut(idNota, data.instafoto, token);
       }
 
       setPostResponse(resultado);

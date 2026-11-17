@@ -59,10 +59,18 @@ export const notaEditar = async (id, notaData, token) => {
 };
 
 export const notaImagenPut = async (id, file, token, recorte = null) => {
+    // Solo aceptamos File/Blob reales. Un string/URL o {} haría que Multer
+    // no reciba archivo y la nota quedaría con imagen rota o sin actualizar.
+    if (!(file instanceof Blob)) {
+        throw new Error('La imagen debe ser un archivo válido');
+    }
+
     const formData = new FormData();
     formData.append('imagen', file); // 'imagen' = archivo ORIGINAL
     // 'recorte' = versión 680x418 ya recortada en el navegador (opcional).
-    if (recorte) formData.append('recorte', recorte, 'recorte.webp');
+    if (recorte instanceof Blob) {
+        formData.append('recorte', recorte, 'recorte.webp');
+    }
 
     try {
         const response = await fetch(`${urlApi}api/notas/imagen/${id}`, {
@@ -75,7 +83,11 @@ export const notaImagenPut = async (id, file, token, recorte = null) => {
         if (!response.ok) {
             throw new Error(await mensajeErrorApi(response, `Error HTTP: ${response.status}`));
         }
-        return await response.json();
+        const data = await response.json();
+        if (!data?.imagenUrl) {
+            throw new Error('La API no devolvió la URL de la imagen subida');
+        }
+        return data;
     } catch (error) {
         console.error("Error actualizando imagen de nota:", error);
         throw error;
