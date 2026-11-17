@@ -1,6 +1,6 @@
 name: Deploy admin.residente.mx (Docker)
 
-# Redeploy bump: 2026-11-17c (restaurar deploy estable tras fallos SSH)
+# Redeploy bump: 2026-11-17d (sync build a Plesk httpdocs)
 on:
   push:
     branches: [main]
@@ -97,6 +97,36 @@ jobs:
             else
               echo "WARN: no se listo index-*.js (revisar build), pero el container ya esta up"
               docker exec residente-admin ls -la /usr/share/nginx/html/admin/ || true
+            fi
+
+            # Plesk sirve el admin desde httpdocs (ver README). El container solo
+            # no basta: hay que copiar el build o /admin/assets/*.js cae al
+            # index.html (Content-Type text/html) y Cloudflare lo cachea roto.
+            HTTPDOCS=""
+            for d in \
+              "$HOME/admin.residente.mx/httpdocs" \
+              "/var/www/vhosts/admin.residente.mx/httpdocs" \
+              "/var/www/vhosts/residente.mx/subdomains/admin/httpdocs"
+            do
+              if [ -d "$d" ]; then HTTPDOCS="$d"; break; fi
+            done
+            if [ -n "$HTTPDOCS" ]; then
+              echo "Sync build -> $HTTPDOCS"
+              mkdir -p "$HTTPDOCS/assets"
+              # Copia atomica-ish: extrae a tmp y rsync/cp
+              TMPDIR=$(mktemp -d)
+              docker cp residente-admin:/usr/share/nginx/html/admin/. "$TMPDIR/"
+              cp -a "$TMPDIR/." "$HTTPDOCS/"
+              rm -rf "$TMPDIR"
+              JS_NAME=$(basename "$(ls "$HTTPDOCS/assets"/index-*.js 2>/dev/null | head -1)")
+              echo "OK httpdocs index: $JS_NAME"
+              # Evitar que un index.html viejo apunte a un hash que ya no existe
+              if [ -n "$JS_NAME" ] && [ -f "$HTTPDOCS/assets/$JS_NAME" ]; then
+                CT=$(file -b --mime-type "$HTTPDOCS/assets/$JS_NAME" || true)
+                echo "mime $JS_NAME: $CT"
+              fi
+            else
+              echo "WARN: no se encontro httpdocs de Plesk; solo queda el container Docker"
             fi
 
             docker image prune -f
