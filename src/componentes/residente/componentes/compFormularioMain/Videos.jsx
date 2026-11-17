@@ -21,7 +21,9 @@ const Videos = () => {
     titulo: "",
     fecha: new Date().toISOString().split("T")[0],
     activo: true, // Por defecto, los videos se crean como activos
-    tipo: 'editorial' // Por defecto, los videos se crean como editoriales
+    tipo: 'editorial', // Por defecto, los videos se crean como editoriales
+    mandar_b2b: false,
+    tendencia_consumidor: false,
   });
 
   const [cargando, setCargando] = useState(false);
@@ -62,7 +64,9 @@ const Videos = () => {
         titulo: video.titulo || "",
         fecha: fechaFormateada,
         activo: video.activo !== undefined ? video.activo : video.estado,
-        tipo: video.tipo || 'editorial'
+        tipo: video.tipo || 'editorial',
+        mandar_b2b: Boolean(video.mandar_b2b),
+        tendencia_consumidor: Boolean(video.tendencia_consumidor),
       });
       setTieneArchivo(Boolean(video.archivo));
 
@@ -141,6 +145,8 @@ const Videos = () => {
       formDataToSend.append('fecha', formData.fecha);
       formDataToSend.append('tipo', formData.tipo);
       formDataToSend.append('estado', formData.activo.toString());
+      formDataToSend.append('mandar_b2b', formData.mandar_b2b.toString());
+      formDataToSend.append('tendencia_consumidor', formData.tendencia_consumidor.toString());
 
       //console.log('=== DEBUG FORMULARIO ===');
       //console.log('Modo:', esModoEdicion ? 'EDICIÓN' : 'CREACIÓN');
@@ -174,7 +180,9 @@ const Videos = () => {
         titulo: "",
         fecha: new Date().toISOString().split("T")[0],
         tipo: 'editorial',
-        activo: true
+        activo: true,
+        mandar_b2b: false,
+        tendencia_consumidor: false,
       });
       setImagenPreview(null);
       setImagenActual(null);
@@ -353,6 +361,37 @@ const Videos = () => {
               <label className="ml-2 block text-base font-medium text-gray-700">
                 Marcar video como activo (visible en la página principal)
               </label>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="text-base font-medium text-gray-700">Publicar en B2B</p>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="mandar_b2b"
+                  checked={formData.mandar_b2b}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-base text-gray-700">
+                  Mandar a B2B
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="tendencia_consumidor"
+                  checked={formData.tendencia_consumidor}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-base text-gray-700">
+                  Tendencia del consumidor
+                </label>
+              </div>
+              <p className="text-sm text-gray-500">
+                Si marcas tendencia del consumidor, el video aparece en ese carrusel de notas B2B como una nota. Al abrirlo se reproduce el video.
+              </p>
             </div>
 
             {/* Mensajes de error y éxito */}

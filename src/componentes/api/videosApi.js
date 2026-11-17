@@ -26,7 +26,9 @@ const handleResponse = async (response) => {
 const mapVideo = (video) => ({
   ...video,
   activo: video.activo !== undefined ? video.activo : video.estado,
-  tipo: video.tipo || 'editorial'
+  tipo: video.tipo || 'editorial',
+  mandar_b2b: Boolean(video.mandar_b2b),
+  tendencia_consumidor: Boolean(video.tendencia_consumidor),
 });
 
 // Función helper para simular respuesta

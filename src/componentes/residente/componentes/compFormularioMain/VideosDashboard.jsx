@@ -55,7 +55,7 @@ const VideoCard = ({
             <FaPlay className="translate-x-0.5" />
           </span>
         </div>
-        <div className="absolute left-2 top-2">
+        <div className="absolute left-2 top-2 flex flex-col gap-1">
           <span
             className={`inline-flex px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
               video.tipo === "editorial"
@@ -65,6 +65,16 @@ const VideoCard = ({
           >
             {video.tipo === "editorial" ? "Editorial" : "Comercial"}
           </span>
+          {video.mandar_b2b && (
+            <span className="inline-flex px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-black text-white">
+              B2B
+            </span>
+          )}
+          {video.tendencia_consumidor && (
+            <span className="inline-flex px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-sky-600 text-white">
+              Tendencia
+            </span>
+          )}
         </div>
         <div className="absolute right-2 top-2">
           <span
