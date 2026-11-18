@@ -34,7 +34,14 @@ const Videos = () => {
   const [tieneArchivo, setTieneArchivo] = useState(false);
   const [nombreVideo, setNombreVideo] = useState("");
   const [progresoSubida, setProgresoSubida] = useState(0);
+  const [bytesSubidos, setBytesSubidos] = useState(0);
+  const [bytesTotales, setBytesTotales] = useState(0);
   const [faseProceso, setFaseProceso] = useState(""); // "subiendo" | "comprimiendo" | ""
+
+  const formatearMB = (bytes) => {
+    if (!bytes || bytes <= 0) return "0 MB";
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   // Verificar autenticación
   if (!token || !usuario) {
@@ -131,6 +138,8 @@ const Videos = () => {
     setCargando(true);
     setError(null);
     setProgresoSubida(0);
+    setBytesSubidos(0);
+    setBytesTotales(0);
     setFaseProceso(formData.video ? "subiendo" : "guardando");
 
     try {
@@ -164,8 +173,13 @@ const Videos = () => {
       formDataToSend.append('mandar_b2b', formData.mandar_b2b.toString());
       formDataToSend.append('crisis_restaurantera', formData.crisis_restaurantera.toString());
 
-      const onProgress = (pct) => {
+      const onProgress = (info) => {
+        const pct = typeof info === "number" ? info : info?.pct || 0;
+        const loaded = typeof info === "number" ? 0 : info?.loaded || 0;
+        const total = typeof info === "number" ? 0 : info?.total || 0;
         setProgresoSubida(pct);
+        setBytesSubidos(loaded);
+        setBytesTotales(total);
         if (pct >= 100 && formData.video) {
           setFaseProceso("comprimiendo");
         }
@@ -419,7 +433,9 @@ const Videos = () => {
                         : "Subiendo video…"}
                   </span>
                   <span>
-                    {faseProceso === "comprimiendo" ? "100%" : `${progresoSubida}%`}
+                    {faseProceso === "comprimiendo"
+                      ? "100%"
+                      : `${progresoSubida}% (${formatearMB(bytesSubidos)} / ${formatearMB(bytesTotales)})`}
                   </span>
                 </div>
                 <div className="h-3 w-full overflow-hidden rounded-full bg-blue-100">

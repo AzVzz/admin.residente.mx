@@ -3,17 +3,24 @@ import { urlApi, imgApi } from './url';
 
 const SIMULAR_API = false;
 
-/** Subida multipart con progreso (0–100). */
+/** Subida multipart con progreso. onProgress({ pct, loaded, total }) */
 const subirVideoConProgreso = async (method, url, formData, token, onProgress) => {
   const { data } = await axios({
     method,
     url,
     data: formData,
+    timeout: 0,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     onUploadProgress: (event) => {
-      if (!onProgress || !event.total) return;
-      const pct = Math.min(100, Math.round((event.loaded * 100) / event.total));
-      onProgress(pct);
+      if (!onProgress) return;
+      const total = event.total || 0;
+      const loaded = event.loaded || 0;
+      const pct = total
+        ? Math.min(100, Math.round((loaded * 100) / total))
+        : 0;
+      onProgress({ pct, loaded, total });
     },
   });
   return data;
