@@ -13,6 +13,7 @@ import {
 import { CATEGORIAS, FORMATOS } from "./ListaEventosColaboradores";
 import { EVENTOS_DASHBOARD_BASE } from "./EventosDashboardLayout";
 import EventosEtiquetados from "./EventosEtiquetados";
+import PreviewNotaVivirConvivir from "./PreviewNotaVivirConvivir";
 // Mismos componentes del editor de notas de Residente.
 import Titulo from "../residente/componentes/compFormularioMain/componentes/Titulo";
 import Subtitulo from "../residente/componentes/compFormularioMain/componentes/Subtitulo";
@@ -95,6 +96,23 @@ const EventoColaboradorMain = () => {
   const formato = watch("formato");
   const esEvento = formato === "evento_destacado";
   const listaDestino = esEvento ? `${EVENTOS_DASHBOARD_BASE}/eventos` : LISTA;
+
+  const tituloPreview = watch("titulo");
+  const subtituloPreview = watch("subtitulo");
+  const autorPreview = watch("autor");
+  const contenidoPreview = watch("contenido");
+  const categoriaPreview = watch("categoria");
+  const stickersPreview = watch("sticker");
+  const fechaInicioPreview = watch("fecha_inicio_evento");
+  const fechaFinPreview = watch("fecha_fin_evento");
+  const lugarPreview = watch("lugar_evento");
+  const linkPreview = watch("link_boletos");
+  const opcionPublicacion = watch("opcionPublicacion");
+  const fechaProgramada = watch("fechaProgramada");
+  const fechaPublicacionPreview =
+    opcionPublicacion === "programar" && fechaProgramada
+      ? fechaProgramada
+      : new Date().toISOString();
 
   // ---- Cargar nota (edición) ----
   useEffect(() => {
@@ -515,6 +533,33 @@ const EventoColaboradorMain = () => {
           </div>
         </form>
       </FormProvider>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Vista previa de tu nota
+        </h2>
+        <div className="flex justify-center">
+          <div className="w-full max-w-[820px]">
+            <PreviewNotaVivirConvivir
+              titulo={tituloPreview}
+              subtitulo={subtituloPreview}
+              autor={autorPreview}
+              contenido={contenidoPreview}
+              imagenUrl={
+                imagen && !previewRota ? urlImagenEvento(imagen.imagen_url) : null
+              }
+              categoria={categoriaPreview}
+              stickers={stickersPreview}
+              esEvento={esEvento}
+              fechaInicio={fechaInicioPreview}
+              fechaFin={fechaFinPreview}
+              lugar={lugarPreview}
+              linkBoletos={linkPreview}
+              fechaPublicacion={fechaPublicacionPreview}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
