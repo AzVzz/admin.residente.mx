@@ -22,6 +22,7 @@ import Contenido from "../residente/componentes/compFormularioMain/componentes/C
 import SlugInput from "../residente/componentes/compFormularioMain/componentes/SlugInput";
 import StickersNotaSelector from "../residente/componentes/compFormularioMain/componentes/StickersNotaSelector";
 import BotonSubmitNota from "../residente/componentes/compFormularioMain/componentes/BotonSubmitNota";
+import RecorteImagen from "../residente/componentes/compFormularioMain/componentes/RecorteImagen";
 
 const LISTA = `${EVENTOS_DASHBOARD_BASE}/notas`;
 const FORMATOS_VALIDOS = FORMATOS.map(([v]) => v);
@@ -86,12 +87,14 @@ const EventoColaboradorMain = () => {
   const [imagenCambiada, setImagenCambiada] = useState(false);
   const [imagenInfo, setImagenInfo] = useState(null);
   const [previewRota, setPreviewRota] = useState(false);
+  const [archivoLocal, setArchivoLocal] = useState(null); // File original para el cropper
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [loading, setLoading] = useState(esEdicion);
   const [isPosting, setIsPosting] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [error, setError] = useState(null);
   const fileRef = useRef(null);
+  const uploadRecorteRef = useRef(null);
 
   const formato = watch("formato");
   const esEvento = formato === "evento_destacado";
@@ -146,33 +149,68 @@ const EventoColaboradorMain = () => {
       .finally(() => setLoading(false));
   }, [id, esEdicion, token, reset]);
 
-  // ---- Imagen de la nota: se sube al elegirla; el servidor la convierte a AVIF ----
-  const subirImagenNota = async (file) => {
+  // ---- Imagen: elegir archivo → arrastrar/zoom (RecorteImagen) → subir el recorte a AVIF ----
+  const elegirArchivoImagen = (file) => {
     if (!(file instanceof File) || !file.type.startsWith("image/")) {
       if (file) setError("La imagen debe ser un archivo válido");
       return;
     }
+    if (uploadRecorteRef.current) clearTimeout(uploadRecorteRef.current);
+    setError(null);
+    setArchivoLocal(file);
+    setImagenInfo(null);
+    setPreviewRota(false);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const subirImagenNota = async (file) => {
+    if (!(file instanceof File) && !(file instanceof Blob)) {
+      setError("La imagen debe ser un archivo válido");
+      return;
+    }
+    const toUpload =
+      file instanceof File
+        ? file
+        : new File([file], "recorte.webp", { type: file.type || "image/webp" });
     setError(null);
     setSubiendoImagen(true);
     try {
-      const r = await eventoColaboradorSubirImagen(file, token);
+      const r = await eventoColaboradorSubirImagen(toUpload, token);
       setImagen({ imagen_url: r.imagen_url, imagen_miniatura_url: r.imagen_miniatura_url });
       setPreviewRota(false);
       setImagenCambiada(true);
-      setImagenInfo(`Original ${formatoPeso(r.bytes_original)} → AVIF ${formatoPeso(r.bytes)}`);
+      setImagenInfo(`Recorte ${formatoPeso(r.bytes_original)} → AVIF ${formatoPeso(r.bytes)}`);
     } catch (err) {
       setError(err.message || "No se pudo subir la imagen");
     } finally {
       setSubiendoImagen(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   };
+
+  const onRecorteListo = ({ blob }) => {
+    if (!blob) return;
+    if (uploadRecorteRef.current) clearTimeout(uploadRecorteRef.current);
+    // Espera a que dejen de mover/zoom antes de subir (el cropper ya debouncea 200ms).
+    uploadRecorteRef.current = setTimeout(() => {
+      subirImagenNota(blob);
+    }, 500);
+  };
+
   const quitarImagen = () => {
+    if (uploadRecorteRef.current) clearTimeout(uploadRecorteRef.current);
+    setArchivoLocal(null);
     setImagen(null);
     setPreviewRota(false);
     setImagenCambiada(true);
     setImagenInfo(null);
   };
+
+  useEffect(
+    () => () => {
+      if (uploadRecorteRef.current) clearTimeout(uploadRecorteRef.current);
+    },
+    [],
+  );
   // Imágenes dentro del contenido: misma conversión y carpeta de Vivir y Convivir.
   const subirImagenContenido = async (file) => {
     if (!(file instanceof File)) throw new Error("La imagen debe ser un archivo válido");
@@ -337,19 +375,35 @@ const EventoColaboradorMain = () => {
                 <Contenido subirImagen={subirImagenContenido} sinMenciones />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Imagen de la nota</label>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => subirImagenNota(e.target.files?.[0])}
-                    className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer bg-white"
-                  />
-                  {subiendoImagen && <p className="text-xs text-gray-500 mt-1">Subiendo y optimizando…</p>}
-                  {imagenInfo && <p className="text-xs text-gray-500 mt-1">{imagenInfo}</p>}
-                  {imagen && (
+              <div className="pb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen de la nota</label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => elegirArchivoImagen(e.target.files?.[0])}
+                  className="block w-full text-sm rounded-md py-2 px-3 border border-gray-300 text-gray-500 cursor-pointer bg-white"
+                />
+                {subiendoImagen && (
+                  <p className="text-xs text-gray-500 mt-1">Subiendo y optimizando…</p>
+                )}
+                {imagenInfo && <p className="text-xs text-gray-500 mt-1">{imagenInfo}</p>}
+
+                {archivoLocal ? (
+                  <div className="mt-3">
+                    <RecorteImagen file={archivoLocal} onChange={onRecorteListo} />
+                    <div className="text-center mt-2">
+                      <button
+                        type="button"
+                        onClick={quitarImagen}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
+                      >
+                        Quitar imagen
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  imagen && (
                     <div className="mt-2">
                       {previewRota ? (
                         <div className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -364,6 +418,9 @@ const EventoColaboradorMain = () => {
                           onError={() => setPreviewRota(true)}
                         />
                       )}
+                      <p className="text-[11px] text-gray-400 mb-2">
+                        Elige otro archivo para mover, hacer zoom y recortar.
+                      </p>
                       <button
                         type="button"
                         onClick={quitarImagen}
@@ -372,8 +429,8 @@ const EventoColaboradorMain = () => {
                         Quitar imagen
                       </button>
                     </div>
-                  )}
-                </div>
+                  )
+                )}
               </div>
 
               {/* Categoría (mismo diseño que las tarjetas de Etiqueta / Ocasión) */}
