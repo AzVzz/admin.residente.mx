@@ -112,6 +112,16 @@ const Videos = () => {
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const maxBytes = 300 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      const mb = (file.size / (1024 * 1024)).toFixed(1);
+      setError(`El video pesa ${mb} MB. El máximo permitido es 300 MB.`);
+      e.target.value = "";
+      setFormData((prev) => ({ ...prev, video: null }));
+      setNombreVideo("");
+      return;
+    }
+    setError(null);
     setFormData((prev) => ({ ...prev, video: file }));
     setNombreVideo(file.name);
   };
@@ -257,7 +267,7 @@ const Videos = () => {
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
               <p className="mt-2 text-sm text-gray-500">
-                MP4, MOV o WEBM, hasta 200 MB. Se comprime al guardar para que se vea nítido y pese menos.
+                MP4, MOV o WEBM, hasta 300 MB. Se comprime al guardar para que se vea nítido y pese menos.
                 {nombreVideo ? ` Seleccionado: ${nombreVideo}` : ""}
               </p>
               {esModoEdicion && tieneArchivo && !formData.video && (
