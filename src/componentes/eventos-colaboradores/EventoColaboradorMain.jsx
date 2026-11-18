@@ -84,6 +84,7 @@ const EventoColaboradorMain = () => {
   const [imagen, setImagen] = useState(null); // { imagen_url, imagen_miniatura_url } de la foto actual
   const [imagenCambiada, setImagenCambiada] = useState(false);
   const [imagenInfo, setImagenInfo] = useState(null);
+  const [previewRota, setPreviewRota] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [loading, setLoading] = useState(esEdicion);
   const [isPosting, setIsPosting] = useState(false);
@@ -118,7 +119,10 @@ const EventoColaboradorMain = () => {
           lugar_evento: n.lugar_evento || "",
           link_boletos: n.link_boletos || "",
         });
-        if (n.imagen_url) setImagen({ imagen_url: n.imagen_url, imagen_miniatura_url: n.imagen_miniatura_url });
+        if (n.imagen_url) {
+          setImagen({ imagen_url: n.imagen_url, imagen_miniatura_url: n.imagen_miniatura_url });
+          setPreviewRota(false);
+        }
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -126,12 +130,16 @@ const EventoColaboradorMain = () => {
 
   // ---- Imagen de la nota: se sube al elegirla; el servidor la convierte a AVIF ----
   const subirImagenNota = async (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!(file instanceof File) || !file.type.startsWith("image/")) {
+      if (file) setError("La imagen debe ser un archivo válido");
+      return;
+    }
     setError(null);
     setSubiendoImagen(true);
     try {
       const r = await eventoColaboradorSubirImagen(file, token);
       setImagen({ imagen_url: r.imagen_url, imagen_miniatura_url: r.imagen_miniatura_url });
+      setPreviewRota(false);
       setImagenCambiada(true);
       setImagenInfo(`Original ${formatoPeso(r.bytes_original)} → AVIF ${formatoPeso(r.bytes)}`);
     } catch (err) {
@@ -143,11 +151,13 @@ const EventoColaboradorMain = () => {
   };
   const quitarImagen = () => {
     setImagen(null);
+    setPreviewRota(false);
     setImagenCambiada(true);
     setImagenInfo(null);
   };
   // Imágenes dentro del contenido: misma conversión y carpeta de Vivir y Convivir.
   const subirImagenContenido = async (file) => {
+    if (!(file instanceof File)) throw new Error("La imagen debe ser un archivo válido");
     const r = await eventoColaboradorSubirImagen(file, token);
     return urlImagenEvento(r.imagen_url);
   };
@@ -323,11 +333,19 @@ const EventoColaboradorMain = () => {
                   {imagenInfo && <p className="text-xs text-gray-500 mt-1">{imagenInfo}</p>}
                   {imagen && (
                     <div className="mt-2">
-                      <img
-                        src={urlImagenEvento(imagen.imagen_url)}
-                        alt="Imagen de la nota"
-                        className="max-h-68 shadow border mb-2"
-                      />
+                      {previewRota ? (
+                        <div className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                          La imagen guardada no se pudo cargar. Vuelve a
+                          seleccionar un archivo.
+                        </div>
+                      ) : (
+                        <img
+                          src={urlImagenEvento(imagen.imagen_url)}
+                          alt="Imagen de la nota"
+                          className="max-h-68 shadow border mb-2"
+                          onError={() => setPreviewRota(true)}
+                        />
+                      )}
                       <button
                         type="button"
                         onClick={quitarImagen}

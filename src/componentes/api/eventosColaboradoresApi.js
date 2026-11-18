@@ -1,4 +1,4 @@
-import { urlApi } from "./url.js";
+import { urlApi, imgApi } from "./url.js";
 
 export async function eventosColaboradoresGetTodas(token, { sortBy, sortOrder, estado, page, limit } = {}) {
   const params = new URLSearchParams();
@@ -14,17 +14,21 @@ export async function eventosColaboradoresGetTodas(token, { sortBy, sortOrder, e
   return await response.json();
 }
 
-// Las rutas guardadas son relativas (/fotos/eventos-colaboradores/...): se sirven
-// desde el gateway/nginx (urlApi), igual en local y en producción.
+// Rutas relativas (/fotos-vivir-convivir/...): se sirven en el sitio público
+// (imgApi = https://residente.mx/), no en la API (urlApi = admin).
 export function urlImagenEvento(ruta) {
   if (!ruta) return null;
   if (/^https?:\/\//i.test(ruta) || ruta.startsWith("data:") || ruta.startsWith("blob:")) return ruta;
-  return `${urlApi}${ruta.replace(/^\//, "")}`;
+  return `${imgApi}${ruta.replace(/^\//, "")}`;
 }
 
 // Sube una foto (multipart, igual que el Subidor). El backend la convierte a AVIF
 // y devuelve { imagen_url, imagen_miniatura_url, bytes, bytes_original }.
 export async function eventoColaboradorSubirImagen(file, token) {
+  // Solo File/Blob reales: un string/URL haría Multer fallar y dejaría preview roto.
+  if (!(file instanceof Blob)) {
+    throw new Error("La imagen debe ser un archivo válido");
+  }
   const formData = new FormData();
   formData.append("imagen", file);
   const response = await fetch(`${urlApi}api/eventos-colaboradores/imagen`, {
@@ -36,7 +40,11 @@ export async function eventoColaboradorSubirImagen(file, token) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || "Error al subir la imagen");
   }
-  return await response.json();
+  const data = await response.json();
+  if (!data?.imagen_url) {
+    throw new Error("La API no devolvió la URL de la imagen subida");
+  }
+  return data;
 }
 
 export async function eventoColaboradorCrear(data, token) {

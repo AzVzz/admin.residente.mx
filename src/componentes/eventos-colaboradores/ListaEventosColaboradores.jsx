@@ -27,6 +27,35 @@ export const FORMATOS = [
 const nombreCategoria = (id) => CATEGORIAS.find(([v]) => v === id)?.[1] ?? "Sin categoría";
 const nombreFormato = (id) => FORMATOS.find(([v]) => v === id)?.[1] ?? id;
 
+/** Portada de tarjeta: si la URL falla, degradado (sin icono roto + alt). */
+const PortadaEvento = ({ nota }) => {
+  const [rota, setRota] = useState(false);
+  const src = urlImagenEvento(nota.imagen_miniatura_url || nota.imagen_url);
+  if (!nota.imagen_url || rota || !src) {
+    return (
+      <div
+        className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-200 to-gray-400"
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      />
+    );
+  }
+  return (
+    <ResponsiveImg
+      src={src}
+      alt={nota.titulo}
+      width={400}
+      height={240}
+      widths={[200, 400]}
+      sizes="400px"
+      loading="lazy"
+      onError={() => setRota(true)}
+      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105 motion-reduce:transition-none"
+      style={{ zIndex: 0 }}
+    />
+  );
+};
+
 const selectClass =
   "border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none";
 
@@ -159,21 +188,7 @@ const ListaEventosColaboradores = ({ modo = "notas" }) => {
                       className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col group relative cursor-pointer"
                       style={{ minHeight: "320px" }}
                     >
-                      {nota.imagen_url ? (
-                        <ResponsiveImg
-                          src={urlImagenEvento(nota.imagen_miniatura_url || nota.imagen_url)}
-                          alt={nota.titulo}
-                          width={400}
-                          height={240}
-                          widths={[200, 400]}
-                          sizes="400px"
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105 motion-reduce:transition-none"
-                          style={{ zIndex: 0 }}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-200 to-gray-400" style={{ zIndex: 0 }} />
-                      )}
+                      <PortadaEvento nota={nota} />
 
                       <div className="flex flex-col justify-between items-end h-full relative z-10">
                         <div className="absolute top-0 right-0 z-20">
