@@ -1,6 +1,7 @@
 import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
+import UserProfileMenu from "../../../UserProfileMenu";
 import {
   Link,
   useLocation,
@@ -1034,12 +1035,7 @@ const ListaNotas = () => {
               >
                 Cerrar sesión
               </button>
-              <span className="inline-flex items-center px-4 py-2 shadow-sm text-sm font-bold text-white bg-black rounded-xl">
-                <FaUser className="text-sm -mt-0.5 mr-2" />
-                <span className="flex items-center">
-                  {usuario?.nombre_usuario}
-                </span>
-              </span>
+              <UserProfileMenu />
             </div>
           )}
         </div>

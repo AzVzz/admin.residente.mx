@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { FaUser } from "react-icons/fa6";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
+import UserProfileMenu from "./UserProfileMenu";
 
 const Login = () => {
   const [nombre_usuario, setNombreUsuario] = useState("");
@@ -76,21 +76,6 @@ const Login = () => {
     }
   }, [token, saveToken, saveUsuario]);
 
-  // Si ya está logeado y el token es válido, muestra el usuario
-  if (usuario && token && !isTokenExpired(token)) {
-    return (
-      <span className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-bold text-white bg-black">
-        <FaUser className="text-sm -mt-0.5 mr-2" />
-        <span className="flex items-center mr-2">
-          {usuario?.nombre_usuario}
-        </span>
-        <span className="text-xs uppercase tracking-wide">
-          {usuario.rol}
-        </span>
-      </span>
-    );
-  }
-
   // Si no está logeado y no está en /login, redirige a /login con redirectTo
   useEffect(() => {
     if (!usuario && location.pathname !== "/login") {
@@ -100,6 +85,35 @@ const Login = () => {
       );
     }
   }, [usuario, location, navigate]);
+
+  // Si ya está logeado y el token es válido, pastilla con dropdown "Borrar perfil"
+  if (usuario && token && !isTokenExpired(token)) {
+    if (location.pathname === "/login") {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <img
+            src="https://residente.mx/fotos/fotos-estaticas/residente-logos/negros/logo-r-residente-negro.webp"
+            alt="Logo Residente"
+            className="h-16 w-auto"
+          />
+          <UserProfileMenu showRole />
+          <button
+            type="button"
+            onClick={() =>
+              navigate(getFallbackByRole(usuario.rol, usuario.permisos), {
+                replace: true,
+              })
+            }
+            className="bg-[#fff200] hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded"
+          >
+            Ir al panel
+          </button>
+        </div>
+      );
+    }
+
+    return <UserProfileMenu showRole />;
+  }
 
   // --------- handleSubmit con redirección por rol y mensaje de no-permiso ---------
   const handleSubmit = async (e) => {

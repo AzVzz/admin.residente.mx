@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
-import { FaUser } from "react-icons/fa6";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
+import UserProfileMenu from "./UserProfileMenu";
 
 const isTokenExpired = (token) => {
   try {
@@ -47,17 +47,9 @@ export default function LoginForm({
     }
   }, [token, saveToken, saveUsuario]);
 
-  // si ya está logeado y quieres badge
+  // si ya está logeado: pastilla con dropdown "Borrar perfil"
   if (showLoggedBadge && usuario && token && !isTokenExpired(token)) {
-    return (
-      <span className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-bold text-white bg-black">
-        <FaUser className="text-sm -mt-0.5 mr-2" />
-        <span className="flex items-center mr-2">
-          {usuario?.nombre_usuario}
-        </span>
-        <span className="text-xs uppercase tracking-wide">{usuario.rol}</span>
-      </span>
-    );
+    return <UserProfileMenu showRole />;
   }
 
   const handleSubmit = async (e) => {
