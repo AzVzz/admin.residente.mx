@@ -14,12 +14,18 @@ export async function eventosColaboradoresGetTodas(token, { sortBy, sortOrder, e
   return await response.json();
 }
 
-// Rutas relativas (/fotos-vivir-convivir/...): se sirven en el sitio público
-// (imgApi = https://residente.mx/), no en la API (urlApi = admin).
+// Resuelve la URL pública de una imagen de Vivir&Convivir.
+// - /fotos/vivir-convivir/... → sitio público (imgApi), location Nginx /fotos/
+// - /fotos-vivir-convivir/... (legacy) → API /archivo (el volumen no tiene location pública)
 export function urlImagenEvento(ruta) {
   if (!ruta) return null;
   if (/^https?:\/\//i.test(ruta) || ruta.startsWith("data:") || ruta.startsWith("blob:")) return ruta;
-  return `${imgApi}${ruta.replace(/^\//, "")}`;
+  const clean = ruta.replace(/^\//, "");
+  const legacy = clean.match(/^fotos-vivir-convivir\/(.+)$/i);
+  if (legacy) {
+    return `${urlApi}api/eventos-colaboradores/archivo?p=${encodeURIComponent(legacy[1])}`;
+  }
+  return `${imgApi}${clean}`;
 }
 
 // Sube una foto (multipart, igual que el Subidor). El backend la convierte a AVIF
