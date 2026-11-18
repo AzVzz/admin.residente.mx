@@ -1130,10 +1130,12 @@ function App() {
                 <Route path="notas/nueva" element={<EventoColaboradorMain />} />
                 <Route path="notas/editar/:id" element={<EventoColaboradorMain />} />
                 <Route path="eventos" element={<ListaEventosColaboradores modo="eventos" />} />
+                <Route path="eventos/nueva" element={<EventoColaboradorMain />} />
+                <Route path="eventos/editar/:id" element={<EventoColaboradorMain />} />
               </Route>
               {/* Rutas anteriores (compatibilidad) */}
               <Route path="/dashboard-eventos-colab" element={<Navigate to="/dashboard-vivir-convivir/notas" replace />} />
-              <Route path="/dashboard-eventos-colab/nuevo" element={<Navigate to="/dashboard-vivir-convivir/notas/nueva" replace />} />
+              <Route path="/dashboard-eventos-colab/nuevo" element={<Navigate to="/dashboard-vivir-convivir/eventos/nueva" replace />} />
               <Route path="/dashboard-eventos-colab/editar/:id" element={<RedirectEditarNotaEvento />} />
 
 

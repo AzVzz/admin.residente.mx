@@ -183,7 +183,14 @@ const ListaEventosColaboradores = ({ modo = "notas" }) => {
               filtradas.map((nota) => {
                 const publicado = nota.estado_editorial === "publicado";
                 return (
-                  <Link key={nota.id} to={`${EVENTOS_DASHBOARD_BASE}/notas/editar/${nota.id}`}>
+                  <Link
+                    key={nota.id}
+                    to={
+                      esEventos
+                        ? `${EVENTOS_DASHBOARD_BASE}/eventos/editar/${nota.id}`
+                        : `${EVENTOS_DASHBOARD_BASE}/notas/editar/${nota.id}`
+                    }
+                  >
                     <div
                       className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col group relative cursor-pointer"
                       style={{ minHeight: "320px" }}

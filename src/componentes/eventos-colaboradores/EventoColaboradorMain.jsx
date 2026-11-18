@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useAuth } from "../Context";
 import {
@@ -70,15 +70,24 @@ const VALORES_INICIALES = {
 const EventoColaboradorMain = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { id } = useParams();
   const esEdicion = !!id;
   const [searchParams] = useSearchParams();
   const formatoQuery = searchParams.get("formato");
+  // Ruta /eventos/... o ?formato=evento_destacado → modo evento (no nota).
+  const desdeEventos =
+    pathname.includes("/eventos/") || formatoQuery === "evento_destacado";
+  const formatoInicial = desdeEventos
+    ? "evento_destacado"
+    : FORMATOS_VALIDOS.includes(formatoQuery)
+      ? formatoQuery
+      : VALORES_INICIALES.formato;
 
   const methods = useForm({
     defaultValues: {
       ...VALORES_INICIALES,
-      ...(FORMATOS_VALIDOS.includes(formatoQuery) ? { formato: formatoQuery } : {}),
+      formato: formatoInicial,
     },
   });
   const { register, watch, setValue, reset, getValues } = methods;
@@ -97,8 +106,13 @@ const EventoColaboradorMain = () => {
   const uploadRecorteRef = useRef(null);
 
   const formato = watch("formato");
-  const esEvento = formato === "evento_destacado";
+  const esEvento = formato === "evento_destacado" || desdeEventos;
   const listaDestino = esEvento ? `${EVENTOS_DASHBOARD_BASE}/eventos` : LISTA;
+
+  // Si entran por /eventos/nueva, fijar formato evento (aunque cambien el select).
+  useEffect(() => {
+    if (!esEdicion && desdeEventos) setValue("formato", "evento_destacado");
+  }, [desdeEventos, esEdicion, setValue]);
 
   const tituloPreview = watch("titulo");
   const subtituloPreview = watch("subtitulo");
@@ -253,7 +267,7 @@ const EventoColaboradorMain = () => {
       slug: d.slug?.trim() || null,
       contenido: sinHtml(d.contenido) ? d.contenido : null,
       categoria: d.categoria || null,
-      formato: d.formato,
+      formato: desdeEventos ? "evento_destacado" : d.formato,
       estado_editorial: estado,
       fecha_publicacion: estado === "programado" ? new Date(d.fechaProgramada).toISOString() : null,
       stickers: d.sticker || [],
@@ -284,7 +298,7 @@ const EventoColaboradorMain = () => {
   };
 
   const eliminar = async () => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta nota?")) return;
+    if (!window.confirm(esEvento ? "¿Seguro que deseas eliminar este evento?" : "¿Seguro que deseas eliminar esta nota?")) return;
     setEliminando(true);
     try {
       await eventoColaboradorBorrar(id, token);
@@ -310,9 +324,23 @@ const EventoColaboradorMain = () => {
       <FormProvider {...methods}>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="mb-4 text-center">
-            <h2 className="leading-tight text-2xl font-bold">{esEdicion ? "Editar Nota" : "Nueva Nota"}</h2>
+            <h2 className="leading-tight text-2xl font-bold">
+              {esEvento
+                ? esEdicion
+                  ? "Editar Evento"
+                  : "Nuevo Evento"
+                : esEdicion
+                  ? "Editar Nota"
+                  : "Nueva Nota"}
+            </h2>
             <p className="text-gray-600 mt-2">
-              {esEdicion ? "Edita la publicación existente" : "Crea una nueva publicación completando los siguientes campos"}
+              {esEdicion
+                ? esEvento
+                  ? "Edita el evento existente"
+                  : "Edita la publicación existente"
+                : esEvento
+                  ? "Crea un nuevo evento completando los siguientes campos"
+                  : "Crea una nueva publicación completando los siguientes campos"}
             </p>
           </div>
 
@@ -320,8 +348,12 @@ const EventoColaboradorMain = () => {
             {/* Columna izquierda */}
             <aside className="w-72 shrink-0">
               <div className="pb-4">
-                <label className={labelAside}>Formato de nota</label>
-                <select {...register("formato")} className={campoAside}>
+                <label className={labelAside}>{esEvento ? "Formato" : "Formato de nota"}</label>
+                <select
+                  {...register("formato")}
+                  className={campoAside}
+                  disabled={desdeEventos}
+                >
                   {FORMATOS.map(([val, label]) => (
                     <option key={val} value={val}>{label}</option>
                   ))}
@@ -376,7 +408,9 @@ const EventoColaboradorMain = () => {
               </div>
 
               <div className="pb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen de la nota</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {esEvento ? "Imagen del evento" : "Imagen de la nota"}
+                </label>
                 <input
                   ref={fileRef}
                   type="file"
@@ -565,7 +599,7 @@ const EventoColaboradorMain = () => {
                       eliminando ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                     }`}
                   >
-                    {eliminando ? "Eliminando..." : "Eliminar Nota"}
+                    {eliminando ? "Eliminando..." : esEvento ? "Eliminar Evento" : "Eliminar Nota"}
                   </button>
                 </div>
               )}
@@ -593,7 +627,7 @@ const EventoColaboradorMain = () => {
 
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Vista previa de tu nota
+          {esEvento ? "Vista previa de tu evento" : "Vista previa de tu nota"}
         </h2>
         <div className="flex justify-center">
           <div className="w-full max-w-[820px]">

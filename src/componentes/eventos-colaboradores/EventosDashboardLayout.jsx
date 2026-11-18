@@ -19,7 +19,7 @@ const EventosDashboardLayout = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const esColaborador = usuario?.rol?.toLowerCase() === "colaborador_eventos";
-  const enFormulario = /\/notas\/(nueva|editar)/.test(pathname);
+  const enFormulario = /\/(notas|eventos)\/(nueva|editar)/.test(pathname);
   const enEventos = pathname.startsWith(`${EVENTOS_DASHBOARD_BASE}/eventos`);
 
   return (
@@ -47,7 +47,13 @@ const EventosDashboardLayout = () => {
             />
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            {enFormulario ? "Editor de nota" : enEventos ? "Eventos" : "Notas"}
+            {enFormulario
+              ? enEventos
+                ? "Editor de evento"
+                : "Editor de nota"
+              : enEventos
+                ? "Eventos"
+                : "Notas"}
           </p>
         </div>
         <div className="flex items-center justify-end">
@@ -55,7 +61,7 @@ const EventosDashboardLayout = () => {
             <Link
               to={
                 enEventos
-                  ? `${EVENTOS_DASHBOARD_BASE}/notas/nueva?formato=evento_destacado`
+                  ? `${EVENTOS_DASHBOARD_BASE}/eventos/nueva`
                   : `${EVENTOS_DASHBOARD_BASE}/notas/nueva`
               }
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm flex items-center gap-2"
