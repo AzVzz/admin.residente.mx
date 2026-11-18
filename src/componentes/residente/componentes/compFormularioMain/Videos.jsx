@@ -33,6 +33,8 @@ const Videos = () => {
   const [imagenActual, setImagenActual] = useState(null); // Para mostrar la imagen actual en modo edición
   const [tieneArchivo, setTieneArchivo] = useState(false);
   const [nombreVideo, setNombreVideo] = useState("");
+  const [progresoSubida, setProgresoSubida] = useState(0);
+  const [faseProceso, setFaseProceso] = useState(""); // "subiendo" | "comprimiendo" | ""
 
   // Verificar autenticación
   if (!token || !usuario) {
@@ -118,17 +120,21 @@ const Videos = () => {
     e.preventDefault();
     setCargando(true);
     setError(null);
+    setProgresoSubida(0);
+    setFaseProceso(formData.video ? "subiendo" : "guardando");
 
     try {
       if (!formData.titulo.trim() || !formData.fecha || !formData.tipo) {
         setError("El título, la fecha y el tipo son obligatorios.");
         setCargando(false);
+        setFaseProceso("");
         return;
       }
 
       if (!esModoEdicion && !formData.video) {
         setError("Sube el archivo de video.");
         setCargando(false);
+        setFaseProceso("");
         return;
       }
 
@@ -148,32 +154,21 @@ const Videos = () => {
       formDataToSend.append('mandar_b2b', formData.mandar_b2b.toString());
       formDataToSend.append('crisis_restaurantera', formData.crisis_restaurantera.toString());
 
-      //console.log('=== DEBUG FORMULARIO ===');
-      //console.log('Modo:', esModoEdicion ? 'EDICIÓN' : 'CREACIÓN');
-      //console.log('Token:', token ? 'Presente' : 'Ausente');
-      //console.log('Usuario:', usuario);
-      //console.log('FormData a enviar:');
-      for (let [key, value] of formDataToSend.entries()) {
-        //console.log(`${key}:`, value);
-      }
-
-      let resultado;
+      const onProgress = (pct) => {
+        setProgresoSubida(pct);
+        if (pct >= 100 && formData.video) {
+          setFaseProceso("comprimiendo");
+        }
+      };
 
       if (esModoEdicion) {
-        // Modo edición
-        //console.log('Iniciando edición de video...');
-        resultado = await editarVideo(id, formDataToSend, token);
-        //console.log("Video editado exitosamente:", resultado);
+        await editarVideo(id, formDataToSend, token, onProgress);
         alert("¡Video editado exitosamente!");
       } else {
-        // Modo creación
-        //console.log('Iniciando creación de video...');
-        resultado = await crearVideo(formDataToSend, token);
-        //console.log("Video creado exitosamente:", resultado);
+        await crearVideo(formDataToSend, token, onProgress);
         alert("¡Video agregado exitosamente!");
       }
 
-      // Éxito - limpiar el formulario
       setFormData({
         imagen: null,
         video: null,
@@ -188,13 +183,15 @@ const Videos = () => {
       setImagenActual(null);
       setNombreVideo("");
       setTieneArchivo(false);
+      setProgresoSubida(0);
+      setFaseProceso("");
 
-      // Redirigir a la lista de videos
       navigate("/videosDashboard");
 
     } catch (err) {
       console.error('Error en el formulario:', err);
       setError(err.message || "Error al procesar el video");
+      setFaseProceso("");
     } finally {
       setCargando(false);
     }
@@ -401,6 +398,38 @@ const Videos = () => {
               </div>
             )}
 
+            {cargando && (
+              <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="flex items-center justify-between text-sm font-medium text-blue-900">
+                  <span>
+                    {faseProceso === "comprimiendo"
+                      ? "Subida completa. Comprimiendo en el servidor…"
+                      : faseProceso === "guardando"
+                        ? "Guardando cambios…"
+                        : "Subiendo video…"}
+                  </span>
+                  <span>
+                    {faseProceso === "comprimiendo" ? "100%" : `${progresoSubida}%`}
+                  </span>
+                </div>
+                <div className="h-3 w-full overflow-hidden rounded-full bg-blue-100">
+                  <div
+                    className={`h-full rounded-full bg-blue-600 transition-all duration-200 ${
+                      faseProceso === "comprimiendo" ? "animate-pulse" : ""
+                    }`}
+                    style={{
+                      width: `${faseProceso === "comprimiendo" ? 100 : progresoSubida}%`,
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-blue-800">
+                  {faseProceso === "comprimiendo"
+                    ? "Esto puede tardar varios minutos según el tamaño del archivo. No cierres esta ventana."
+                    : "El porcentaje es de la subida al servidor. Después viene la compresión."}
+                </p>
+              </div>
+            )}
+
             {/* Botón de envío */}
             <button
               type="submit"
@@ -413,7 +442,11 @@ const Videos = () => {
               {cargando ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {esModoEdicion ? 'Guardando y comprimiendo...' : 'Subiendo y comprimiendo...'}
+                  {faseProceso === "comprimiendo"
+                    ? "Comprimiendo video…"
+                    : esModoEdicion
+                      ? `Guardando… ${progresoSubida}%`
+                      : `Subiendo… ${progresoSubida}%`}
                 </div>
               ) : (
                 esModoEdicion ? 'Guardar Cambios' : 'Crear Video'

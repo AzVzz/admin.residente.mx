@@ -1,6 +1,23 @@
+import axios from 'axios';
 import { urlApi, imgApi } from './url';
 
 const SIMULAR_API = false;
+
+/** Subida multipart con progreso (0–100). */
+const subirVideoConProgreso = async (method, url, formData, token, onProgress) => {
+  const { data } = await axios({
+    method,
+    url,
+    data: formData,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    onUploadProgress: (event) => {
+      if (!onProgress || !event.total) return;
+      const pct = Math.min(100, Math.round((event.loaded * 100) / event.total));
+      onProgress(pct);
+    },
+  });
+  return data;
+};
 
 // Datos de ejemplo para cuando no hay videos en el backend
 const getVideosEjemplo = () => [];
@@ -35,8 +52,8 @@ const mapVideo = (video) => ({
 const simulateResponse = (data, delay = 150) => 
   SIMULAR_API ? new Promise(resolve => setTimeout(() => resolve(data), delay)) : Promise.resolve(data);
 
-// Crear un nuevo video
-export const crearVideo = async (formData, token) => {
+// Crear un nuevo video (onProgress: (0-100) => void)
+export const crearVideo = async (formData, token, onProgress) => {
   if (SIMULAR_API) {
     return simulateResponse({
       id: Date.now(),
@@ -50,14 +67,20 @@ export const crearVideo = async (formData, token) => {
   }
 
   try {
-    const response = await fetch(`${urlApi}api/video`, {
-      method: 'POST',
-      headers: createHeaders(token, null),
-      body: formData
-    });
-    return await handleResponse(response);
+    return await subirVideoConProgreso(
+      'post',
+      `${urlApi}api/video`,
+      formData,
+      token,
+      onProgress,
+    );
   } catch (error) {
-    throw error;
+    const msg =
+      error?.response?.data?.error ||
+      error?.response?.data?.details ||
+      error?.message ||
+      'Error al crear el video';
+    throw new Error(msg);
   }
 };
 
@@ -100,8 +123,8 @@ export const obtenerVideoPorId = async (id, token = null) => {
   }
 };
 
-// Editar/actualizar video
-export const editarVideo = async (id, formData, token) => {
+// Editar/actualizar video (onProgress: (0-100) => void)
+export const editarVideo = async (id, formData, token, onProgress) => {
   if (SIMULAR_API) {
     return simulateResponse({
       success: true, mensaje: 'Video actualizado exitosamente (simulado)', id,
@@ -114,15 +137,21 @@ export const editarVideo = async (id, formData, token) => {
   }
 
   try {
-    const response = await fetch(`${urlApi}api/video/${id}`, {
-      method: 'PUT',
-      headers: createHeaders(token, null),
-      body: formData
-    });
-    const data = await handleResponse(response);
+    const data = await subirVideoConProgreso(
+      'put',
+      `${urlApi}api/video/${id}`,
+      formData,
+      token,
+      onProgress,
+    );
     return { success: true, mensaje: data.mensaje || 'Video actualizado exitosamente', ...data, ...mapVideo(data) };
   } catch (error) {
-    throw error;
+    const msg =
+      error?.response?.data?.error ||
+      error?.response?.data?.details ||
+      error?.message ||
+      'Error al actualizar el video';
+    throw new Error(msg);
   }
 };
 
