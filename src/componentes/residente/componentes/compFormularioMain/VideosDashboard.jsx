@@ -70,9 +70,9 @@ const VideoCard = ({
               B2B
             </span>
           )}
-          {video.tendencia_consumidor && (
+          {video.crisis_restaurantera && (
             <span className="inline-flex px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-sky-600 text-white">
-              Tendencia
+              Crisis
             </span>
           )}
         </div>
