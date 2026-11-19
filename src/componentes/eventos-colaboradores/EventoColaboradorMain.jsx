@@ -630,7 +630,7 @@ const EventoColaboradorMain = () => {
           {esEvento ? "Vista previa de tu evento" : "Vista previa de tu nota"}
         </h2>
         <div className="flex justify-center">
-          <div className="w-full max-w-[820px]">
+          <div className="w-full max-w-[1200px]">
             <PreviewNotaVivirConvivir
               titulo={tituloPreview}
               subtitulo={subtituloPreview}
