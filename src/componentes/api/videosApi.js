@@ -39,18 +39,18 @@ const subirVideoConProgreso = async (method, url, formData, token, onProgress) =
   return data;
 };
 
-const putChunkConReintentos = async (url, blob, token) => {
+const postChunkConReintentos = async (url, blob, token) => {
   let lastError;
   for (let intento = 1; intento <= CHUNK_RETRIES; intento++) {
     try {
-      await axios.put(url, blob, {
+      // POST + FormData: menos fricción con CORS/preflight en Plesk que PUT binario
+      const body = new FormData();
+      body.append('chunk', blob, 'chunk.bin');
+      await axios.post(url, body, {
         timeout: 120000,
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
-        headers: {
-          ...authHeaders(token),
-          'Content-Type': 'application/octet-stream',
-        },
+        headers: authHeaders(token),
       });
       return;
     } catch (error) {
@@ -92,7 +92,7 @@ const subirVideoPorChunks = async ({
     const end = Math.min(start + CHUNK_SIZE, videoFile.size);
     const blob = videoFile.slice(start, end);
 
-    await putChunkConReintentos(
+    await postChunkConReintentos(
       `${urlApi}api/video/upload/${uploadId}/chunk/${index}`,
       blob,
       token,
