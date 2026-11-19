@@ -39,6 +39,10 @@ import { FaRobot } from "react-icons/fa";
 import SmartTagsInput from "../SmartTagsInput.jsx";
 import { urlApi } from "../../../../componentes/api/url";
 import TematicaSelector from "./componentes/TematicaSelector.jsx";
+import {
+  tematicaGetById,
+  tematicaSetNotaDestacada,
+} from "../../../../componentes/api/tematicasApi.js";
 import useAutoguardado from "../../../../hooks/useAutoguardado.js";
 import BannerRecuperacion from "./componentes/BannerRecuperacion.jsx";
 
@@ -167,6 +171,7 @@ const FormMainResidente = () => {
       restaurantes_ids: [],
       formato_nota: "",
       tematica_id: "",
+      revista_como_principal: false,
     },
   });
 
@@ -200,6 +205,9 @@ const FormMainResidente = () => {
   const [instafotoActual, setInstafotoActual] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
   const imagenPreviewUrlRef = useRef(null);
+  /** Si al cargar la nota ya era la principal de su temática. */
+  const eraPrincipalRevistaRef = useRef(false);
+  const tematicaIdCargadaRef = useRef(null);
 
   // ★ Etiquetas editoriales ya usadas en otras notas (api/notas/etiquetas).
   // Se muestran como sugerencias clickeables en el campo "# Etiquetas" para
@@ -608,6 +616,7 @@ const FormMainResidente = () => {
             destacada_invitado: data.destacada_invitado || 0,
             formato_nota: data.formato_nota || "",
             tematica_id: data.tematica_id != null ? String(data.tematica_id) : "",
+            revista_como_principal: false,
             programarInstafoto: !!data.programar_insta_imagen,
             fechaProgramadaInstafoto: fechaProgramadaInstafoto,
             smart_tags: data.smart_tags || [],
@@ -615,6 +624,25 @@ const FormMainResidente = () => {
           });
           setImagenActual(data.imagen || null);
           setInstafotoActual(data.insta_imagen || null);
+
+          // Si esta nota es la destacada de su temática, marcar el checkbox.
+          eraPrincipalRevistaRef.current = false;
+          tematicaIdCargadaRef.current =
+            data.tematica_id != null ? Number(data.tematica_id) : null;
+          if (data.tematica_id != null) {
+            try {
+              const tematica = await tematicaGetById(data.tematica_id, token);
+              if (
+                tematica?.nota_destacada_id != null &&
+                String(tematica.nota_destacada_id) === String(data.id)
+              ) {
+                eraPrincipalRevistaRef.current = true;
+                setValue("revista_como_principal", true);
+              }
+            } catch {
+              /* ignore */
+            }
+          }
         } catch (error) {
           console.error("Error detallado:", error);
           setPostError("Error cargando nota: " + error.message);
@@ -796,6 +824,30 @@ const FormMainResidente = () => {
 
       if (data.instafoto && (notaId || resultado.id)) {
         await notaInstafotoPut(notaId || resultado.id, data.instafoto, token);
+      }
+
+      // Revista Digital: solo tocar nota_destacada si el usuario la pidió
+      // o si esta nota era la principal y la desmarcó / sacó de la temática.
+      const idNotaGuardada = notaId || resultado.id;
+      const tid = data.tematica_id ? parseInt(data.tematica_id, 10) : null;
+      const quierePrincipal = Boolean(data.revista_como_principal) && Boolean(tid);
+      try {
+        if (quierePrincipal && idNotaGuardada) {
+          await tematicaSetNotaDestacada(tid, idNotaGuardada, token);
+          eraPrincipalRevistaRef.current = true;
+          tematicaIdCargadaRef.current = tid;
+        } else if (eraPrincipalRevistaRef.current) {
+          const tidLimpiar = tid || tematicaIdCargadaRef.current;
+          if (tidLimpiar) {
+            await tematicaSetNotaDestacada(tidLimpiar, null, token);
+          }
+          eraPrincipalRevistaRef.current = false;
+          tematicaIdCargadaRef.current = tid;
+        } else {
+          tematicaIdCargadaRef.current = tid;
+        }
+      } catch (err) {
+        console.warn("No se pudo actualizar nota principal de temática:", err);
       }
 
       setPostResponse(resultado);

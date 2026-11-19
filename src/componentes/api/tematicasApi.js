@@ -8,6 +8,15 @@ export const tematicasGet = async (token) => {
   return res.json();
 };
 
+/** Público: ediciones vigentes de Revista Digital (main). */
+export const tematicasActivasGet = async () => {
+  const res = await fetch(`${urlApi}api/tematicas/activas`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+  return res.json();
+};
+
 export const tematicaGetById = async (id, token) => {
   const res = await fetch(`${urlApi}api/tematicas/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
