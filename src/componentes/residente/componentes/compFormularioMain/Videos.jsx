@@ -336,7 +336,7 @@ const Videos = () => {
               <p className="mt-2 text-sm text-gray-500">
                 MP4, MOV o WEBM, hasta 300 MB. Si pesa más de{" "}
                 {formatearMB(UMBRAL_COMPRESION_BYTES)}, se comprime aquí en el
-                navegador (resolución nativa, menos peso) antes de subir.
+                navegador (~720p) antes de subir.
                 {nombreVideo ? ` Seleccionado: ${nombreVideo}` : ""}
               </p>
               {infoCompresion && (
@@ -515,7 +515,7 @@ const Videos = () => {
                 </div>
                 <p className="text-xs text-blue-800">
                   {faseProceso === "comprimiendo_local"
-                    ? "Reduce el peso manteniendo la resolución original. No cierres esta pestaña."
+                    ? "Baja a ~720p para que la subida no se atasque. No cierres esta pestaña."
                     : faseProceso === "comprimiendo"
                       ? "Esto puede tardar varios minutos según el tamaño del archivo. No cierres esta ventana."
                       : "El porcentaje es de la subida al servidor. Después viene la compresión."}
