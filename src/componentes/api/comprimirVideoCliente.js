@@ -31,8 +31,8 @@ const cargarVideo = (file) =>
   });
 
 /**
- * Reencodea a ~720p / bitrate bajo con MediaRecorder.
- * Sirve para videos pesados sin cargar todo en WASM.
+ * Reencodea a resolución nativa con bitrate más bajo (MediaRecorder).
+ * No escala a 720p: mantiene el tamaño original del video.
  */
 export async function comprimirVideoCliente(file, { onProgress } = {}) {
   if (!file || file.size <= UMBRAL_COMPRESION_BYTES) {
@@ -48,10 +48,14 @@ export async function comprimirVideoCliente(file, { onProgress } = {}) {
   }
 
   const { video, url } = await cargarVideo(file);
-  const maxW = 1280;
-  const scale = Math.min(1, maxW / (video.videoWidth || maxW));
-  const width = Math.max(2, Math.round(((video.videoWidth || 1280) * scale) / 2) * 2);
-  const height = Math.max(2, Math.round(((video.videoHeight || 720) * scale) / 2) * 2);
+  const width = Math.max(2, Math.round((video.videoWidth || 1920) / 2) * 2);
+  const height = Math.max(2, Math.round((video.videoHeight || 1080) / 2) * 2);
+  // Bitrate según resolución nativa (sigue bajando peso sin recortar px)
+  const pixels = width * height;
+  const videoBits = Math.min(
+    8_000_000,
+    Math.max(2_500_000, Math.round(pixels * 0.08)),
+  );
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -85,8 +89,8 @@ export async function comprimirVideoCliente(file, { onProgress } = {}) {
   const chunks = [];
   const recorder = new MediaRecorder(stream, {
     mimeType: mime,
-    videoBitsPerSecond: 1_200_000,
-    audioBitsPerSecond: 96_000,
+    videoBitsPerSecond: videoBits,
+    audioBitsPerSecond: 128_000,
   });
 
   recorder.ondataavailable = (event) => {
