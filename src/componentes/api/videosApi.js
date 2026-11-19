@@ -3,6 +3,19 @@ import { urlApi, imgApi } from './url';
 
 const SIMULAR_API = false;
 
+/** Chunks chicos para evitar el freeze de Plesk/nginx ~5 MB */
+const CHUNK_SIZE = 2 * 1024 * 1024;
+const CHUNK_RETRIES = 3;
+
+const authHeaders = (token) =>
+  token ? { Authorization: `Bearer ${token}` } : undefined;
+
+const mensajeErrorAxios = (error, fallback) =>
+  error?.response?.data?.error ||
+  error?.response?.data?.details ||
+  error?.message ||
+  fallback;
+
 /** Subida multipart con progreso. onProgress({ pct, loaded, total }) */
 const subirVideoConProgreso = async (method, url, formData, token, onProgress) => {
   const { data } = await axios({
@@ -12,7 +25,7 @@ const subirVideoConProgreso = async (method, url, formData, token, onProgress) =
     timeout: 0,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    headers: authHeaders(token),
     onUploadProgress: (event) => {
       if (!onProgress) return;
       const total = event.total || 0;
@@ -24,6 +37,122 @@ const subirVideoConProgreso = async (method, url, formData, token, onProgress) =
     },
   });
   return data;
+};
+
+const putChunkConReintentos = async (url, blob, token) => {
+  let lastError;
+  for (let intento = 1; intento <= CHUNK_RETRIES; intento++) {
+    try {
+      await axios.put(url, blob, {
+        timeout: 120000,
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        headers: {
+          ...authHeaders(token),
+          'Content-Type': 'application/octet-stream',
+        },
+      });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (intento < CHUNK_RETRIES) {
+        await new Promise((r) => setTimeout(r, 400 * intento));
+      }
+    }
+  }
+  throw lastError;
+};
+
+/** Sube el video en chunks y luego manda metadata + portada */
+const subirVideoPorChunks = async ({
+  method,
+  videoFile,
+  formData,
+  token,
+  onProgress,
+  videoId,
+}) => {
+  const totalChunks = Math.ceil(videoFile.size / CHUNK_SIZE) || 1;
+
+  const { data: init } = await axios.post(
+    `${urlApi}api/video/upload/init`,
+    {
+      fileName: videoFile.name || 'video.mp4',
+      fileSize: videoFile.size,
+      totalChunks,
+    },
+    { headers: authHeaders(token), timeout: 30000 },
+  );
+
+  const uploadId = init.uploadId;
+  let loaded = 0;
+
+  for (let index = 0; index < totalChunks; index++) {
+    const start = index * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, videoFile.size);
+    const blob = videoFile.slice(start, end);
+
+    await putChunkConReintentos(
+      `${urlApi}api/video/upload/${uploadId}/chunk/${index}`,
+      blob,
+      token,
+    );
+
+    loaded = end;
+    if (onProgress) {
+      onProgress({
+        pct: Math.min(99, Math.round((loaded * 100) / videoFile.size)),
+        loaded,
+        total: videoFile.size,
+      });
+    }
+  }
+
+  const meta = new FormData();
+  for (const [key, value] of formData.entries()) {
+    if (key === 'video') continue;
+    meta.append(key, value);
+  }
+
+  const completeUrl =
+    method === 'put' && videoId
+      ? `${urlApi}api/video/upload/${uploadId}/complete/${videoId}`
+      : `${urlApi}api/video/upload/${uploadId}/complete`;
+
+  if (onProgress) {
+    onProgress({ pct: 100, loaded: videoFile.size, total: videoFile.size });
+  }
+
+  const { data } = await axios.post(completeUrl, meta, {
+    timeout: 0,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+    headers: authHeaders(token),
+  });
+
+  return data;
+};
+
+const subirVideoInteligente = async ({
+  method,
+  url,
+  formData,
+  token,
+  onProgress,
+  videoId,
+}) => {
+  const videoFile = formData.get('video');
+  if (videoFile && typeof videoFile === 'object' && videoFile.size > 0) {
+    return subirVideoPorChunks({
+      method,
+      videoFile,
+      formData,
+      token,
+      onProgress,
+      videoId,
+    });
+  }
+  return subirVideoConProgreso(method, url, formData, token, onProgress);
 };
 
 // Datos de ejemplo para cuando no hay videos en el backend
@@ -74,20 +203,15 @@ export const crearVideo = async (formData, token, onProgress) => {
   }
 
   try {
-    return await subirVideoConProgreso(
-      'post',
-      `${urlApi}api/video`,
+    return await subirVideoInteligente({
+      method: 'post',
+      url: `${urlApi}api/video`,
       formData,
       token,
       onProgress,
-    );
+    });
   } catch (error) {
-    const msg =
-      error?.response?.data?.error ||
-      error?.response?.data?.details ||
-      error?.message ||
-      'Error al crear el video';
-    throw new Error(msg);
+    throw new Error(mensajeErrorAxios(error, 'Error al crear el video'));
   }
 };
 
@@ -144,21 +268,17 @@ export const editarVideo = async (id, formData, token, onProgress) => {
   }
 
   try {
-    const data = await subirVideoConProgreso(
-      'put',
-      `${urlApi}api/video/${id}`,
+    const data = await subirVideoInteligente({
+      method: 'put',
+      url: `${urlApi}api/video/${id}`,
       formData,
       token,
       onProgress,
-    );
+      videoId: id,
+    });
     return { success: true, mensaje: data.mensaje || 'Video actualizado exitosamente', ...data, ...mapVideo(data) };
   } catch (error) {
-    const msg =
-      error?.response?.data?.error ||
-      error?.response?.data?.details ||
-      error?.message ||
-      'Error al actualizar el video';
-    throw new Error(msg);
+    throw new Error(mensajeErrorAxios(error, 'Error al actualizar el video'));
   }
 };
 
