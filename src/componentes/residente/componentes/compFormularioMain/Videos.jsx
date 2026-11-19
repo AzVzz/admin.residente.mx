@@ -25,6 +25,7 @@ const Videos = () => {
     tipo: 'editorial', // Por defecto, los videos se crean como editoriales
     mandar_b2b: false,
     crisis_restaurantera: false,
+    revista_digital: false,
   });
 
   const [cargando, setCargando] = useState(false);
@@ -79,6 +80,7 @@ const Videos = () => {
         tipo: video.tipo || 'editorial',
         mandar_b2b: Boolean(video.mandar_b2b),
         crisis_restaurantera: Boolean(video.crisis_restaurantera),
+        revista_digital: Boolean(video.revista_digital),
       });
       setTieneArchivo(Boolean(video.archivo));
 
@@ -223,6 +225,7 @@ const Videos = () => {
       formDataToSend.append('estado', formData.activo.toString());
       formDataToSend.append('mandar_b2b', formData.mandar_b2b.toString());
       formDataToSend.append('crisis_restaurantera', formData.crisis_restaurantera.toString());
+      formDataToSend.append('revista_digital', formData.revista_digital.toString());
 
       const onProgress = (info) => {
         const pct = typeof info === "number" ? info : info?.pct || 0;
@@ -253,6 +256,7 @@ const Videos = () => {
         activo: true,
         mandar_b2b: false,
         crisis_restaurantera: false,
+        revista_digital: false,
       });
       setImagenPreview(null);
       setImagenActual(null);
@@ -443,6 +447,25 @@ const Videos = () => {
               <label className="ml-2 block text-base font-medium text-gray-700">
                 Marcar video como activo (visible en la página principal)
               </label>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="text-base font-medium text-gray-700">Revista Digital (main)</p>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="revista_digital"
+                  checked={formData.revista_digital}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-base text-gray-700">
+                  Mostrar en la Revista Digital del main
+                </label>
+              </div>
+              <p className="text-sm text-gray-500">
+                Si lo marcas, este video aparece como la primera diapositiva del carrusel de la Revista Digital en el home. Si hay varios marcados, se usa el más reciente.
+              </p>
             </div>
 
             <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">

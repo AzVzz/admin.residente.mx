@@ -182,6 +182,7 @@ const mapVideo = (video) => ({
   tipo: video.tipo || 'editorial',
   mandar_b2b: Boolean(video.mandar_b2b),
   crisis_restaurantera: Boolean(video.crisis_restaurantera),
+  revista_digital: Boolean(video.revista_digital),
 });
 
 // Función helper para simular respuesta

@@ -75,6 +75,11 @@ const VideoCard = ({
               Crisis
             </span>
           )}
+          {video.revista_digital && (
+            <span className="inline-flex px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-amber-500 text-black">
+              Revista
+            </span>
+          )}
         </div>
         <div className="absolute right-2 top-2">
           <span
