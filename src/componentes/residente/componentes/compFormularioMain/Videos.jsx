@@ -6,6 +6,8 @@ import { crearVideo, obtenerVideoPorId, editarVideo } from "../../../api/videosA
 import {
   comprimirVideoCliente,
   UMBRAL_COMPRESION_BYTES,
+  MAX_ORIGINAL_BYTES,
+  MAX_UPLOAD_BYTES,
 } from "../../../api/comprimirVideoCliente";
 
 const Videos = () => {
@@ -126,10 +128,11 @@ const Videos = () => {
     const file = input.files?.[0];
     if (!file) return;
 
-    const maxBytes = 300 * 1024 * 1024;
-    if (file.size > maxBytes) {
+    if (file.size > MAX_ORIGINAL_BYTES) {
       const mb = (file.size / (1024 * 1024)).toFixed(1);
-      setError(`El video pesa ${mb} MB. El máximo permitido es 300 MB.`);
+      setError(
+        `El video pesa ${mb} MB. El máximo permitido es ${formatearMB(MAX_ORIGINAL_BYTES)}.`,
+      );
       input.value = "";
       setFormData((prev) => ({ ...prev, video: null }));
       setNombreVideo("");
@@ -156,6 +159,12 @@ const Videos = () => {
       const resultado = await comprimirVideoCliente(file, {
         onProgress: (pct) => setProgresoSubida(pct),
       });
+      if (resultado.file.size > MAX_UPLOAD_BYTES) {
+        const mb = (resultado.file.size / (1024 * 1024)).toFixed(1);
+        throw new Error(
+          `Tras comprimir sigue pesando ${mb} MB (máximo ${formatearMB(MAX_UPLOAD_BYTES)}). Prueba un video más corto.`,
+        );
+      }
       setFormData((prev) => ({ ...prev, video: resultado.file }));
       setNombreVideo(
         `${resultado.file.name} (${formatearMB(resultado.file.size)})`,
@@ -338,9 +347,9 @@ const Videos = () => {
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-60"
               />
               <p className="mt-2 text-sm text-gray-500">
-                MP4, MOV o WEBM, hasta 300 MB. Si pesa más de{" "}
-                {formatearMB(UMBRAL_COMPRESION_BYTES)}, se comprime aquí en el
-                navegador (~720p) antes de subir.
+                MP4, MOV o WEBM, hasta {formatearMB(MAX_ORIGINAL_BYTES)}. Si
+                pesa más de {formatearMB(UMBRAL_COMPRESION_BYTES)}, se comprime
+                aquí en el navegador (~720p) antes de subir.
                 {nombreVideo ? ` Seleccionado: ${nombreVideo}` : ""}
               </p>
               {infoCompresion && (

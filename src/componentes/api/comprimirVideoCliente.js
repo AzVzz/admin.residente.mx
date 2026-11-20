@@ -1,5 +1,9 @@
 /** Peso a partir del cual conviene comprimir en el navegador antes de subir */
 export const UMBRAL_COMPRESION_BYTES = 20 * 1024 * 1024;
+/** Límite del archivo original al elegirlo (luego se comprime). Alinear con nginx. */
+export const MAX_ORIGINAL_BYTES = 600 * 1024 * 1024;
+/** Límite del archivo que se sube (después de comprimir). */
+export const MAX_UPLOAD_BYTES = 600 * 1024 * 1024;
 
 const elegirMime = () => {
   const candidatos = [
