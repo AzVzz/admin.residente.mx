@@ -124,8 +124,9 @@ export async function comprimirVideoCliente(file, { onProgress } = {}) {
   };
 
   try {
-    // Más rápido que tiempo real; 4x suele ir bien en Chrome/Edge
-    video.playbackRate = 4;
+    // IMPORTANTE: siempre 1x. MediaRecorder graba tiempo de reloj; si
+    // playbackRate > 1 el archivo queda más corto y se ve acelerado.
+    video.playbackRate = 1;
     recorder.start(1000);
     await video.play();
     pintar();
