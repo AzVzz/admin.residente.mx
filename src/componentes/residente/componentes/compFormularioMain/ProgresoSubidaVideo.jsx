@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from "react";
 import { formatearMB, formatearTiempo } from "./formatoSubida";
+import { useEstimacionSubida } from "./useEstimacionSubida";
 
 const MB = 1024 * 1024;
-/** Ventana para calcular la velocidad actual (no el promedio de toda la subida). */
-const VENTANA_VELOCIDAD_MS = 10000;
 
 const Dato = ({ etiqueta, valor }) => (
   <div className="rounded-md bg-white/70 px-3 py-2">
@@ -19,59 +17,12 @@ const Dato = ({ etiqueta, valor }) => (
  *   Paso 1: el navegador manda el archivo al servidor (MB, velocidad, tiempo que falta).
  *   Paso 2: el servidor lo procesa (porcentaje real que reporta ffmpeg).
  *
- * progreso = { fase: "subiendo" | "procesando", pct, loaded, total, mensaje }
+ * progreso = { fase: "subiendo" | "procesando", pct, loaded, total, mensaje,
+ *              faseServidor, inicio?, inicioFase? }
  */
 const ProgresoSubidaVideo = ({ progreso }) => {
-  const [ahora, setAhora] = useState(Date.now());
-  const inicioTotal = useRef(Date.now());
-  const faseActual = useRef({ fase: null, desde: Date.now() });
-  const muestras = useRef([]); // [{ t, loaded }] de la fase "subiendo"
-
-  // Reloj: refresca cada segundo para que el tiempo transcurrido avance solo.
-  useEffect(() => {
-    const id = setInterval(() => setAhora(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const fase = progreso?.fase === "procesando" ? "procesando" : "subiendo";
-  if (faseActual.current.fase !== fase) {
-    faseActual.current = { fase, desde: Date.now() };
-  }
-
-  const pct = Math.max(0, Math.min(100, Math.round(progreso?.pct || 0)));
-  const segFase = (ahora - faseActual.current.desde) / 1000;
-  const segTotal = (ahora - inicioTotal.current) / 1000;
-
-  let velocidad = 0;
-  let faltan = null;
-
-  if (fase === "subiendo") {
-    const loaded = progreso?.loaded || 0;
-    const ultima = muestras.current[muestras.current.length - 1];
-    if (!ultima || ultima.loaded !== loaded) {
-      muestras.current.push({ t: Date.now(), loaded });
-      const limite = Date.now() - VENTANA_VELOCIDAD_MS;
-      while (muestras.current.length > 2 && muestras.current[0].t < limite) {
-        muestras.current.shift();
-      }
-    }
-    const primera = muestras.current[0];
-    const spanSeg = (Date.now() - primera.t) / 1000;
-    if (spanSeg >= 2 && loaded > primera.loaded) {
-      velocidad = (loaded - primera.loaded) / spanSeg;
-    } else if (segFase >= 2 && loaded > 0) {
-      velocidad = loaded / segFase;
-    }
-    const total = progreso?.total || 0;
-    if (velocidad > 0 && total > loaded) {
-      faltan = (total - loaded) / velocidad;
-    }
-  } else if (pct >= 8) {
-    // Con ≥8% ya hay base para estimar; antes sería adivinar.
-    faltan = (segFase * (100 - pct)) / pct;
-  }
-
-  const enCola = fase === "procesando" && progreso?.faseServidor === "en_cola";
+  const { fase, pct, velocidad, faltan, segFase, segTotal, enCola } =
+    useEstimacionSubida(progreso);
 
   return (
     <div
@@ -137,7 +88,7 @@ const ProgresoSubidaVideo = ({ progreso }) => {
 
       <p className="text-xs text-blue-800">
         {fase === "subiendo"
-          ? "No cierres ni recargues esta ventana mientras sube. Después, el servidor se encarga solo."
+          ? "Puedes ir a otras pantallas del admin, pero no cierres ni recargues esta pestaña mientras se envía el archivo."
           : "Ya llegó todo. El servidor sigue trabajando aunque cierres esta ventana; el video aparecerá en el dashboard cuando termine."}
         {" "}Tiempo total: {formatearTiempo(segTotal)}.
       </p>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaArrowLeft,
   FaPlus,
@@ -15,6 +15,7 @@ import {
   eliminarVideo,
   toggleVideoEstadoInteligente,
 } from "../../../api/videosApi";
+import BarraSubidasVideo from "./BarraSubidasVideo";
 
 const etiquetaTitulo = (video) => {
   if (video.titulo?.trim()) return video.titulo.trim();
@@ -148,6 +149,7 @@ const VideoCard = ({
 const VideosDashboard = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [videos, setVideos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -164,19 +166,37 @@ const VideosDashboard = () => {
 
   useEffect(() => {
     cargarVideos();
+    // Si llegamos desde la pantalla de seguimiento porque terminó una subida
+    const terminado = location.state?.videoListo;
+    if (terminado !== undefined) {
+      setMensajeExito(
+        terminado ? `«${terminado}» ya está en el dashboard` : "El video ya está en el dashboard",
+      );
+      limpiarMensajes();
+      navigate(location.pathname + location.search, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cargarVideos = async () => {
+  // silencioso: refresca la lista sin tapar la pantalla con el "Cargando…"
+  const cargarVideos = async ({ silencioso = false } = {}) => {
     try {
-      setCargando(true);
+      if (!silencioso) setCargando(true);
       const videosData = await obtenerVideos(token);
       setVideos(videosData);
     } catch (err) {
-      setError("Error al cargar los videos");
+      if (!silencioso) setError("Error al cargar los videos");
       console.error(err);
     } finally {
-      setCargando(false);
+      if (!silencioso) setCargando(false);
     }
+  };
+
+  // La barra avisa cuando termina una subida: se actualiza la lista sola.
+  const alTerminarSubida = async (titulo) => {
+    await cargarVideos({ silencioso: true });
+    setMensajeExito(titulo ? `«${titulo}» ya está en el dashboard` : "Un video nuevo ya está en el dashboard");
+    limpiarMensajes();
   };
 
   const toggleEstado = async (id) => {
@@ -331,6 +351,7 @@ const VideosDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">
             Dashboard de Videos
           </h1>
+          <BarraSubidasVideo onVideoListo={alTerminarSubida} />
           <div className="flex flex-wrap items-center justify-between gap-2">
             <button
               type="button"
@@ -343,7 +364,7 @@ const VideosDashboard = () => {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={cargarVideos}
+                onClick={() => cargarVideos()}
                 className="inline-flex items-center rounded-lg border border-yellow-300 bg-yellow-100 px-4 py-2 text-gray-700 hover:bg-yellow-200"
               >
                 Recargar

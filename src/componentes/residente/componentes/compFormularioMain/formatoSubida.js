@@ -4,6 +4,10 @@ const MB = 1024 * 1024;
 export const formatearMB = (bytes) =>
   !bytes || bytes <= 0 ? "0 MB" : `${(bytes / MB).toFixed(1)} MB`;
 
+/** Pantalla de seguimiento de una subida (la que abre la barra del dashboard). */
+export const rutaSeguimiento = ({ id, esEdicion, videoId }) =>
+  `/videosFormulario${esEdicion && videoId ? `/${videoId}` : ""}?subida=${id}`;
+
 /** 125 → "2 min 05 s" */
 export const formatearTiempo = (segundos) => {
   if (!Number.isFinite(segundos) || segundos < 0) return "—";

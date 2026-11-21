@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../Context";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { crearVideo, obtenerVideoPorId, editarVideo } from "../../../api/videosApi";
+import { obtenerVideoPorId, editarVideo } from "../../../api/videosApi";
+import { iniciarSubida } from "../../../api/subidasVideoStore";
 import { MAX_UPLOAD_BYTES } from "../../../api/videoLimites";
-import ProgresoSubidaVideo from "./ProgresoSubidaVideo";
+import SeguimientoSubidaVideo from "./SeguimientoSubidaVideo";
 import { formatearMB } from "./formatoSubida";
 
-const Videos = () => {
+const FormularioVideo = () => {
   const { token, usuario } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams(); // Obtener el ID de la URL si existe
@@ -34,8 +35,6 @@ const Videos = () => {
   const [imagenActual, setImagenActual] = useState(null); // Para mostrar la imagen actual en modo edición
   const [tieneArchivo, setTieneArchivo] = useState(false);
   const [nombreVideo, setNombreVideo] = useState("");
-  // { fase: "subiendo" | "procesando", pct, loaded, total, mensaje } mientras se guarda
-  const [progreso, setProgreso] = useState(null);
 
   // Verificar autenticación
   if (!token || !usuario) {
@@ -136,22 +135,17 @@ const Videos = () => {
     e.preventDefault();
     setCargando(true);
     setError(null);
-    setProgreso(
-      formData.video ? { fase: "subiendo", pct: 0, loaded: 0, total: formData.video.size } : null,
-    );
 
     try {
       if (!formData.titulo.trim() || !formData.fecha || !formData.tipo) {
         setError("El título, la fecha y el tipo son obligatorios.");
         setCargando(false);
-        setProgreso(null);
         return;
       }
 
       if (!esModoEdicion && !formData.video) {
         setError("Sube el archivo de video.");
         setCargando(false);
-        setProgreso(null);
         return;
       }
 
@@ -172,40 +166,33 @@ const Videos = () => {
       formDataToSend.append("crisis_restaurantera", formData.crisis_restaurantera.toString());
       formDataToSend.append("revista_digital", formData.revista_digital.toString());
 
-      // Solo hay barra cuando se sube un archivo de video
-      const onProgress = formData.video ? (info) => setProgreso(info) : undefined;
-
-      if (esModoEdicion) {
-        await editarVideo(id, formDataToSend, token, onProgress);
-        alert("¡Video editado exitosamente!");
+      if (formData.video) {
+        // Con archivo: la subida corre aparte (sigue aunque cambies de pantalla)
+        // y esta pantalla pasa a mostrar su avance.
+        const uploadId = await iniciarSubida({
+          formData: formDataToSend,
+          token,
+          titulo: formData.titulo.trim(),
+          esEdicion: esModoEdicion,
+          videoId: id,
+        });
+        if (uploadId) {
+          navigate(
+            `${esModoEdicion ? `/videosFormulario/${id}` : "/videosFormulario"}?subida=${uploadId}`,
+            { replace: true },
+          );
+          return;
+        }
       } else {
-        await crearVideo(formDataToSend, token, onProgress);
-        alert("¡Video agregado exitosamente!");
+        await editarVideo(id, formDataToSend, token);
+        alert("¡Video editado exitosamente!");
       }
-
-      setFormData({
-        imagen: null,
-        video: null,
-        titulo: "",
-        fecha: new Date().toISOString().split("T")[0],
-        tipo: "editorial",
-        activo: true,
-        mandar_b2b: false,
-        crisis_restaurantera: false,
-        revista_digital: false,
-      });
-      setImagenPreview(null);
-      setImagenActual(null);
-      setNombreVideo("");
-      setTieneArchivo(false);
-      setProgreso(null);
 
       navigate("/videosDashboard");
 
     } catch (err) {
       console.error('Error en el formulario:', err);
       setError(err.message || "Error al procesar el video");
-      setProgreso(null);
     } finally {
       setCargando(false);
     }
@@ -433,8 +420,6 @@ const Videos = () => {
               </div>
             )}
 
-            {cargando && progreso && <ProgresoSubidaVideo progreso={progreso} />}
-
             {/* Botón de envío */}
             <button
               type="submit"
@@ -448,11 +433,7 @@ const Videos = () => {
               {cargando ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {progreso?.fase === "procesando"
-                    ? `Procesando en el servidor… ${Math.round(progreso.pct || 0)}%`
-                    : progreso?.fase === "subiendo"
-                      ? `Subiendo… ${Math.round(progreso.pct || 0)}%`
-                      : "Guardando…"}
+                  {formData.video ? "Iniciando la subida…" : "Guardando…"}
                 </div>
               ) : (
                 esModoEdicion ? "Guardar Cambios" : "Crear Video"
@@ -463,6 +444,27 @@ const Videos = () => {
       </div>
     </div>
   );
+};
+
+/**
+ * /videosFormulario[/:id]            → formulario.
+ * /videosFormulario[/:id]?subida=ID  → avance de esa subida (a donde lleva la
+ *                                      barra del dashboard).
+ */
+const Videos = () => {
+  const [params] = useSearchParams();
+  const { id } = useParams();
+  const subida = params.get("subida");
+
+  if (subida) {
+    return (
+      <SeguimientoSubidaVideo
+        uploadId={subida}
+        rutaFormulario={id ? `/videosFormulario/${id}` : "/videosFormulario"}
+      />
+    );
+  }
+  return <FormularioVideo />;
 };
 
 export default Videos;

@@ -188,6 +188,35 @@ const esperarProcesamiento = async ({ uploadId, token, onProgress }) => {
 };
 
 /**
+ * Videos que el servidor está procesando o terminó hace poco (<30 min).
+ * Devuelve [] si el servidor es anterior a este endpoint o no responde.
+ */
+export const obtenerSubidasActivas = async () => {
+  try {
+    const { data } = await axios.get(`${urlApi}api/video/upload/activos`, {
+      timeout: 15000,
+    });
+    return Array.isArray(data?.jobs) ? data.jobs : [];
+  } catch {
+    return [];
+  }
+};
+
+/** Estado de una subida concreta. null = el servidor ya no la recuerda (404). */
+export const consultarEstadoSubida = async (uploadId) => {
+  try {
+    const { data } = await axios.get(
+      `${urlApi}api/video/upload/${uploadId}/status`,
+      { timeout: 15000 },
+    );
+    return data;
+  } catch (error) {
+    if (error?.response?.status === 404) return null;
+    throw error;
+  }
+};
+
+/**
  * Sube el video original en pedazos y deja que el servidor lo procese
  * (sin comprimir en el navegador). Reporta dos fases a onProgress:
  *   { fase: 'subiendo',   pct, loaded, total }
@@ -214,16 +243,20 @@ const subirVideoPorChunks = async ({
   );
 
   const uploadId = init.uploadId;
+  // Todos los avisos llevan el uploadId: así el dashboard puede identificar la subida.
+  const avisar = (info) => onProgress?.({ ...info, uploadId });
+
+  avisar({ fase: 'subiendo', pct: 0, loaded: 0, total: videoFile.size });
 
   await subirChunksEnParalelo({
     videoFile,
     totalChunks,
     uploadId,
     token,
-    onProgress,
+    onProgress: avisar,
   });
 
-  onProgress?.({
+  avisar({
     fase: 'subiendo',
     pct: 100,
     loaded: videoFile.size,
@@ -241,7 +274,7 @@ const subirVideoPorChunks = async ({
       ? `${urlApi}api/video/upload/${uploadId}/complete/${videoId}`
       : `${urlApi}api/video/upload/${uploadId}/complete`;
 
-  onProgress?.({
+  avisar({
     fase: 'procesando',
     pct: 0,
     mensaje: 'Avisando al servidor que ya llegó todo',
@@ -256,7 +289,11 @@ const subirVideoPorChunks = async ({
 
   // Servidor nuevo: responde 202 y procesa en segundo plano.
   if (status === 202 && data?.uploadId) {
-    return esperarProcesamiento({ uploadId: data.uploadId, token, onProgress });
+    return esperarProcesamiento({
+      uploadId: data.uploadId,
+      token,
+      onProgress: avisar,
+    });
   }
   // Servidor anterior: responde ya con el video procesado.
   return data;
