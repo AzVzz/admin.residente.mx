@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaBookOpen, FaCoins, FaShoppingCart, FaWhatsapp } from "react-icons/fa";
+import HeroLegado from "./HeroLegado";
 import { ArquitecturaEditorial, CanastoDeValor, SeleccionLegado, SeleccionVanguardia } from "./SeccionesLegado";
 import "./legado.css"; // paleta y tipografía (variables y clases) de esta landing
 
@@ -55,6 +56,9 @@ const RegistroLegado = () => {
         />
       )}
       <div className="legado-escalonado relative mx-auto flex w-full max-w-[1200px] flex-col items-center">
+        {/* Portada */}
+        <HeroLegado />
+
         {/* Encabezado */}
         <p
           className="legado-ui tracking-[0.35em]"
