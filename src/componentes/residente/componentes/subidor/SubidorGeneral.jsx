@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
 import { urlApi } from "../../../api/url";
@@ -90,9 +90,7 @@ const SubidorGeneral = () => {
   }, [selected]);
 
   // Paso 1: elegir archivo -> leer resolucion/peso y proponer destino.
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // permite re-elegir el mismo archivo
+  const procesarArchivo = (file) => {
     if (!file) return;
     setError("");
     const url = URL.createObjectURL(file);
@@ -112,6 +110,33 @@ const SubidorGeneral = () => {
     };
     img.src = url;
   };
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permite re-elegir el mismo archivo
+    procesarArchivo(file);
+  };
+
+  // Pegar una imagen con Ctrl+V (captura de pantalla o imagen copiada).
+  // Se usa un ref para que el listener siempre llame a la versión actual.
+  const procesarRef = useRef(procesarArchivo);
+  procesarRef.current = procesarArchivo;
+  useEffect(() => {
+    const onPaste = (e) => {
+      if (selected) return; // modal de detalle abierto
+      const el = e.target;
+      const escribiendo =
+        el instanceof HTMLElement &&
+        (el.isContentEditable || (el.tagName === "INPUT" && el.type !== "file") || el.tagName === "TEXTAREA");
+      if (escribiendo) return;
+      const archivo = [...(e.clipboardData?.files || [])].find((f) => f.type.startsWith("image/"));
+      if (!archivo) return;
+      e.preventDefault();
+      procesarRef.current(archivo);
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, [selected]);
 
   const cancelPending = () => {
     if (pending?.url) URL.revokeObjectURL(pending.url);
@@ -210,7 +235,7 @@ const SubidorGeneral = () => {
       <h2 className="text-xl font-bold mb-1">Subidor General al servidor</h2>
       <p className="text-sm text-gray-500 mb-6">
         Sube una foto: se guarda el original y se generan versiones optimizadas
-        (WebP) sin recortar. La liga final se copia para usarla en el código.
+        (WebP) sin recortar. La liga final se copia para usarla en el código. También puedes pegar una imagen con Ctrl+V.
       </p>
 
       {/* Paso 1: elegir foto (cuando no hay nada pendiente) */}
