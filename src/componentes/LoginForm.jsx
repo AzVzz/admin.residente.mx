@@ -4,7 +4,6 @@ import { loginPost } from "./api/loginPost";
 import { useAuth } from "./Context";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
-import UserProfileMenu from "./UserProfileMenu";
 
 const isTokenExpired = (token) => {
   try {
@@ -47,9 +46,9 @@ export default function LoginForm({
     }
   }, [token, saveToken, saveUsuario]);
 
-  // si ya está logeado: pastilla con dropdown "Borrar perfil"
+  // si ya está logeado no se muestra el formulario (ni ninguna opción de borrar perfil)
   if (showLoggedBadge && usuario && token && !isTokenExpired(token)) {
-    return <UserProfileMenu showRole />;
+    return null;
   }
 
   const handleSubmit = async (e) => {

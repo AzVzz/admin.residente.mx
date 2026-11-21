@@ -1,7 +1,6 @@
 import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../../../Context";
-import UserProfileMenu from "../../../UserProfileMenu";
 import {
   Link,
   useLocation,
@@ -1035,7 +1034,6 @@ const ListaNotas = () => {
               >
                 Cerrar sesión
               </button>
-              <UserProfileMenu />
             </div>
           )}
         </div>

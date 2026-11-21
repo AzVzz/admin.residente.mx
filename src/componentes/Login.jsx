@@ -4,7 +4,6 @@ import { useAuth } from "./Context";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
-import UserProfileMenu from "./UserProfileMenu";
 
 const Login = () => {
   const [nombre_usuario, setNombreUsuario] = useState("");
@@ -86,7 +85,7 @@ const Login = () => {
     }
   }, [usuario, location, navigate]);
 
-  // Si ya está logeado y el token es válido, pastilla con dropdown "Borrar perfil"
+  // Si ya está logeado y el token es válido, no se muestra el formulario
   if (usuario && token && !isTokenExpired(token)) {
     if (location.pathname === "/login") {
       return (
@@ -96,7 +95,6 @@ const Login = () => {
             alt="Logo Residente"
             className="h-16 w-auto"
           />
-          <UserProfileMenu showRole />
           <button
             type="button"
             onClick={() =>
@@ -112,7 +110,7 @@ const Login = () => {
       );
     }
 
-    return <UserProfileMenu showRole />;
+    return null;
   }
 
   // --------- handleSubmit con redirección por rol y mensaje de no-permiso ---------
