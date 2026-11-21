@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Suspense, lazy } from "react";
 
 import Header from "./componentes/Header";
@@ -139,6 +139,10 @@ const FormMain = lazy(
 const RegistroB2BConPlanes = lazy(
   () =>
     import("./componentes/residente/B2B/FormularioNuevoClienteB2b/RegistroB2BConPlanes.jsx"),
+);
+import LogeadoRoute from "./componentes/rutas/LogeadoRoute.jsx";
+const RegistroLegado = lazy(
+  () => import("./componentes/residente/B2B/Legado/RegistroLegado.jsx"),
 );
 const RegistroTexasConPlanes = lazy(
   () =>
@@ -335,11 +339,24 @@ const notasPrueba = [
   },
 ];
 
+// Avisa cuándo la pantalla de la ruta ya terminó de cargar. Dentro de un
+// <Suspense> no se monta hasta que todo lo demás esté listo, y si la ruta
+// vuelve a suspenderse se desmonta, así que sirve de señal de "ya cargó".
+const MarcarRutaLista = ({ onCambio }) => {
+  useLayoutEffect(() => {
+    onCambio(true);
+    return () => onCambio(false);
+  }, [onCambio]);
+  return null;
+};
+
 function App() {
   usePageTracking();
 
   const location = useLocation();
   const [showMegaMenu, setShowMegaMenu] = useState(false);
+  // false mientras carga la pantalla (así el footer no aparece solo y luego salta)
+  const [rutaLista, setRutaLista] = useState(false);
   const { clientesValidos, loading: clientesLoading } = useClientesValidos();
 
   // Fallback para clientes válidos
@@ -385,6 +402,8 @@ function App() {
   const isSeccionRoute = location.pathname.startsWith("/seccion/");
   const isCulturalAccess = location.pathname === "/culturallaccess";
   const isLinkInBio = location.pathname === "/linkinbio";
+  // La landing de Legado va sin header
+  const isLegado = location.pathname === "/registrob2b-legado";
   const isB2BDashboard = location.pathname === "/dashboardb2b";
   const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
   const isFisl =
@@ -395,12 +414,12 @@ function App() {
     <DataProvider>
       <ViewportAdjuster />
       <div className="min-h-screen flex flex-col">
-        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && !isClienteMediaDash && !isFisl && (
+        {!isCulturalAccess && !isSeccionRoute && !isLinkInBio && !isClienteMediaDash && !isFisl && !isLegado && (
           <div
             className={`transition-all duration-300 relative z-20 ${
               showMegaMenu
                 ? "-translate-y-full opacity-0 pointer-events-none"
-                : "translate-y-0 opacity-100"
+                : "opacity-100" /* sin translate: crearía un contenedor que impide que la barra del header quede fija al hacer scroll */
             }`}
           >
             <div />
@@ -411,7 +430,8 @@ function App() {
         {location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" &&
           !isClienteMediaDash &&
-          !isFisl && (
+          !isFisl &&
+          !isLegado && (
             <div
               className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
                 showMegaMenu
@@ -430,11 +450,7 @@ function App() {
               cuando Suspense pasa del fallback "Cargando..." al contenido
               real de la ruta (que suele ser mas alto). Reduce CLS del SPA
               en desktop sin afectar paginas grandes (siguen creciendo). */}
-          <Suspense
-            fallback={
-              <div className="max-w-[1080px] mx-auto py-8">Cargando...</div>
-            }
-          >
+          <Suspense fallback={null}>
             <Routes>
               <Route
                 path="/antiguo-main"
@@ -809,6 +825,14 @@ function App() {
               <Route
                 path="/registrob2b-texas"
                 element={<RegistroTexasConPlanes />}
+              />
+              <Route
+                path="/registrob2b-legado"
+                element={
+                  <LogeadoRoute>
+                    <RegistroLegado />
+                  </LogeadoRoute>
+                }
               />
 
               <Route
@@ -1185,18 +1209,22 @@ function App() {
                 }
               />
             </Routes>
+            <MarcarRutaLista onCambio={setRutaLista} />
           </Suspense>
         </main>
         {/* Botón flotante para ir arriba */}
         <BotonScroll />
-        {location.pathname !== "/culturallaccess" &&
+        {rutaLista &&
+          location.pathname !== "/culturallaccess" &&
           location.pathname !== "/linkinbio" &&
           !isClienteMediaDash &&
-          !isFisl && (
+          !isFisl &&
+          !isLegado && (
             <footer
               className={
                 location.pathname === "/registrob2b" ||
                 location.pathname === "/registrob2b-texas" ||
+                location.pathname === "/registrob2b-legado" ||
                 location.pathname === "/registroinvitados" ||
                 location.pathname === "/registrocolaboradores"
                   ? "hidden sm:block"

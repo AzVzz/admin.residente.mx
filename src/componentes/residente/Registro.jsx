@@ -1,40 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Login from "../Login";
 import LoginForm from "../LoginForm";
 import BotonesAnunciateSuscribirme from "./componentes/componentesColumna1/BotonesAnunciateSuscribirme";
 import Infografia from "./componentes/componentesColumna1/Infografia";
 
-// =============================================================================
-// LAZY LOADING - Componentes de barra lateral (no críticos para primera pintura)
-// =============================================================================
-const DirectorioVertical = lazy(() => import("./componentes/componentesColumna2/DirectorioVertical"));
-const PortadaRevista = lazy(() => import("./componentes/componentesColumna2/PortadaRevista"));
-
-// Skeleton placeholder mientras cargan los componentes laterales
-const SidebarSkeleton = () => (
-  <div className="flex flex-col gap-10 w-full">
-    {/* Skeleton para DirectorioVertical */}
-    <div className="animate-pulse">
-      <div className="h-12 bg-gray-300 rounded w-3/4 mb-3"></div>
-      <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-      <div className="flex gap-2">
-        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
-        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
-        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
-        <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
-      </div>
-    </div>
-    {/* Skeleton para PortadaRevista */}
-    <div className="animate-pulse">
-      <div className="h-8 bg-gray-300 rounded w-1/2 mb-3"></div>
-      <div className="h-48 bg-gray-200 rounded w-full"></div>
-    </div>
-  </div>
-);
-
 const Registro = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,6 +15,13 @@ const Registro = () => {
 
   const handleLoginSuccess = (respuesta) => {
     const rol = respuesta.usuario?.rol?.toLowerCase();
+
+    // Si venía de una página protegida (p. ej. Legado), regresa ahí
+    const desde = location.state?.desde;
+    if (typeof desde === "string" && desde.startsWith("/")) {
+      navigate(desde, { replace: true });
+      return;
+    }
 
     if (rol === "colaborador_eventos") {
       navigate("/dashboard-vivir-convivir/notas");
@@ -60,8 +40,8 @@ const Registro = () => {
 
   return (
     <div className="max-w-[1080px] mx-auto py-8">
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-x-15 gap-y-9">
-        <div className="flex flex-col">
+      <div className="grid grid-cols-1 gap-y-9">
+        <div className="mx-auto flex w-full max-w-[720px] flex-col">
           <div className="mb-8">
             <div className="flex justify-center">
               <LoginForm onSuccess={handleLoginSuccess} />
@@ -69,71 +49,74 @@ const Registro = () => {
           </div>
           <div>
             <h2 className="text-[40px] text-center mb-8">
-              Ó registrate como...
+              Registro
             </h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center gap-3">
-                <a
-                  href="/admin/registrob2b"
-                  className="group w-full flex flex-col items-center"
+            {/* Línea 1: registro de restaurantes (botones) */}
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <a href="/admin/registrob2b" className="w-full max-w-[240px]">
+                <button
+                  type="button"
+                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  aria-label="Registro de restaurante"
                 >
-                  <button
-                    type="button"
-                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
-                  >
-                    RESTAURANTE
-                  </button>
-                </a>
-                <a
-                  href="/admin/registrob2b-texas"
-                  className="group w-full flex flex-col items-center"
+                  <img
+                    src="https://residente.mx/fotos/fotos-estaticas/dashboard/Club-Residente-negro-1795281969830.webp"
+                    alt="Club Residente"
+                    className="h-auto w-[168px] max-w-full shrink-0 object-contain"
+                    loading="lazy"
+                    decoding="async"
+                />
+                </button>
+              </a>
+              <a href="/admin/registrob2b-texas" className="w-full max-w-[240px]">
+                <button
+                  type="button"
+                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
+                  aria-label="Restaurantes Texas"
                 >
-                  <button
-                    type="button"
-                    className="font-bold py-2 px-3 rounded w-full cursor-pointer max-w-[200px] min-h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
-                  >
-                    RESTAURANTES TEXAS
-                  </button>
-                </a>
-              </div>
+                  <img
+                    src="https://residente.mx/fotos/fotos-estaticas/dashboard/sur-de-texas-hd-1795281416339.webp"
+                    alt="Sur de Texas"
+                    className="h-full w-auto max-w-full shrink-0 object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              </a>
+              <a href="/admin/registrob2b-legado" className="w-full max-w-[240px]">
+                <button
+                  type="button"
+                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  aria-label="Legado"
+                >
+                  <img
+                    src={`${import.meta.env.BASE_URL}legado/noreste-legado-boton.webp`}
+                    alt="Legado Noreste"
+                    width="520"
+                    height="203"
+                    className="h-9 w-auto max-w-full shrink-0 object-contain"
+                    decoding="async"
+                  />
+                </button>
+              </a>
+            </div>
 
-              <div className="flex flex-col items-center">
-                <a
-                  href="/admin/registroinvitados"
-                  className="group w-full flex flex-col items-center"
-                >
-                  <button
-                    type="button"
-                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
-                  >
-                    INVITADO
-                  </button>
-                </a>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <a
-                  href="/admin/registrocolaboradores"
-                  className="group w-full flex flex-col items-center"
-                >
-                  <button
-                    type="button"
-                    className="font-bold py-2 px-4 rounded w-full cursor-pointer max-w-[200px] h-[60px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
-                  >
-                    COLABORADOR
-                  </button>
-                </a>
-              </div>
+            {/* Línea 2: invitado y colaborador, solo texto */}
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <a
+                href="/admin/registroinvitados"
+                className="px-2 py-1 font-bold text-black hover:underline"
+              >
+                INVITADO
+              </a>
+              <a
+                href="/admin/registrocolaboradores"
+                className="px-2 py-1 font-bold text-black hover:underline"
+              >
+                COLABORADOR
+              </a>
             </div>
           </div>
-        </div>
-
-        {/* Barra lateral con lazy loading */}
-        <div className="flex flex-col items-end justify-start gap-10">
-          <Suspense fallback={<SidebarSkeleton />}>
-            <DirectorioVertical />
-            <PortadaRevista />
-          </Suspense>
         </div>
       </div>
     </div>

@@ -1,0 +1,96 @@
+/* Fuentes de la landing "Noreste: Legado" (/registrob2b-legado).
+   Solo se cargan en esta página porque este archivo lo importa únicamente ella. */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@400;500;600&display=swap");
+
+/* Paleta de la landing. Va aparte del resto de estilos para poder ajustarla
+   sin tocar el componente. */
+:root {
+  --bg-primary: #000000; /* Negro puro: fondo general */
+  --bg-surface-dark: #161616; /* Negro Carbón: portada Legado y caja Heineken, cards */
+  --bg-surface-light: #EAE6DF; /* Blanco Hueso / Crema: portada Vanguardia y caja Sigma */
+
+  --accent-gold: #D5C392; /* Dorado Champagne: títulos, cifras e íconos */
+  --accent-bronze: #A48E5B; /* Dorado Bronce: relieve y hover */
+
+  --text-primary: #F4F3EE; /* Blanco Humo: subtítulo */
+  --text-secondary: #D6D2C9; /* Gris claro cálido: párrafos y textos del pie (antes #9E9B93, se veía muy apagado) */
+  --border-subtle: #2E2C27; /* Gris Carbón Medio: líneas divisoras */
+
+  /* Tipografía */
+  --font-titulo: "Cinzel", "Cormorant Garamond", Georgia, serif;
+  --font-editorial: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-ui: "Montserrat", system-ui, sans-serif;
+}
+
+/* Van en la capa "components" de Tailwind para que clases como tracking-* o text-[...] puedan ajustarlas. */
+@layer components {
+  /* Títulos, cifras destacadas y logo: Cinzel, mayúsculas, tracking amplio */
+  .legado-titulo {
+    font-family: var(--font-titulo);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Subtítulos narrativos y párrafos: Cormorant Garamond, tamaño generoso */
+  .legado-editorial {
+    font-family: var(--font-editorial);
+    font-weight: 400;
+    line-height: 1.5;
+    font-variant-numeric: lining-nums; /* cifras de la misma altura que las mayúsculas (como en el media kit) */
+  }
+
+  /* Etiquetas, botones y textos legales: Montserrat chico, mayúsculas, tracking muy amplio */
+  .legado-ui {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+  }
+}
+
+/* ───── Animación de entrada ─────
+   1) La "cortina" negra sube desde abajo hasta cubrir la pantalla.
+   2) El contenido entra desde abajo, bloque por bloque, mientras sube. */
+@keyframes legado-sube {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes legado-entra {
+  from { opacity: 0; transform: translateY(56px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.legado-cortina {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-primary);
+  animation: legado-sube 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.legado-escalonado > * {
+  animation: legado-entra 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.35s;
+}
+.legado-escalonado > :nth-child(2) { animation-delay: 0.42s; }
+.legado-escalonado > :nth-child(3) { animation-delay: 0.49s; }
+.legado-escalonado > :nth-child(4) { animation-delay: 0.56s; }
+.legado-escalonado > :nth-child(5) { animation-delay: 0.63s; }
+.legado-escalonado > :nth-child(6) { animation-delay: 0.7s; }
+.legado-escalonado > :nth-child(7) { animation-delay: 0.77s; }
+.legado-escalonado > :nth-child(n + 8) { animation-delay: 0.84s; }
+
+/* Si la persona pidió menos movimiento, sin animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .legado-cortina,
+  .legado-escalonado > * {
+    animation: none;
+  }
+}
+
+/* La sección blanca de la landing ocupa todo el ancho de la pantalla; esto evita el scroll horizontal que provoca 100vw */
+html:has(.legado-landing) {
+  overflow-x: clip;
+}
