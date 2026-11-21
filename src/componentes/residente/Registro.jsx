@@ -41,7 +41,7 @@ const Registro = () => {
   return (
     <div className="max-w-[1080px] mx-auto py-8">
       <div className="grid grid-cols-1 gap-y-9">
-        <div className="mx-auto flex w-full max-w-[720px] flex-col">
+        <div className="mx-auto flex w-full max-w-[900px] flex-col">
           <div className="mb-8">
             <div className="flex justify-center">
               <LoginForm onSuccess={handleLoginSuccess} />
@@ -52,26 +52,26 @@ const Registro = () => {
               Registro
             </h2>
             {/* Línea 1: registro de restaurantes (botones) */}
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <a href="/admin/registrob2b" className="w-full max-w-[240px]">
+            <div className="grid grid-cols-3 items-center gap-2 sm:gap-4">
+              <a href="/admin/registrob2b" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   aria-label="Registro de restaurante"
                 >
                   <img
                     src="https://residente.mx/fotos/fotos-estaticas/dashboard/Club-Residente-negro-1795281969830.webp"
                     alt="Club Residente"
-                    className="h-auto w-[168px] max-w-full shrink-0 object-contain"
+                    className="h-auto w-[84%] max-w-[240px] shrink-0 object-contain"
                     loading="lazy"
                     decoding="async"
                 />
                 </button>
               </a>
-              <a href="/admin/registrob2b-texas" className="w-full max-w-[240px]">
+              <a href="/admin/registrob2b-texas" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
                   aria-label="Restaurantes Texas"
                 >
                   <img
@@ -83,10 +83,10 @@ const Registro = () => {
                   />
                 </button>
               </a>
-              <a href="/admin/registrob2b-legado" className="w-full max-w-[240px]">
+              <a href="/admin/registrob2b-legado" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-6 rounded w-full cursor-pointer h-[76px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   aria-label="Legado"
                 >
                   <img
@@ -94,7 +94,7 @@ const Registro = () => {
                     alt="Legado Noreste"
                     width="520"
                     height="203"
-                    className="h-9 w-auto max-w-full shrink-0 object-contain"
+                    className="h-6 sm:h-[52px] w-auto max-w-full shrink-0 object-contain"
                     decoding="async"
                   />
                 </button>
