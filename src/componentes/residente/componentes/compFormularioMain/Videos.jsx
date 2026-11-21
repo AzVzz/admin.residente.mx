@@ -3,12 +3,9 @@ import { useAuth } from "../../../Context";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { crearVideo, obtenerVideoPorId, editarVideo } from "../../../api/videosApi";
-import {
-  comprimirVideoCliente,
-  UMBRAL_COMPRESION_BYTES,
-  MAX_ORIGINAL_BYTES,
-  MAX_UPLOAD_BYTES,
-} from "../../../api/comprimirVideoCliente";
+import { MAX_UPLOAD_BYTES } from "../../../api/videoLimites";
+import ProgresoSubidaVideo from "./ProgresoSubidaVideo";
+import { formatearMB } from "./formatoSubida";
 
 const Videos = () => {
   const { token, usuario } = useAuth();
@@ -37,17 +34,8 @@ const Videos = () => {
   const [imagenActual, setImagenActual] = useState(null); // Para mostrar la imagen actual en modo edición
   const [tieneArchivo, setTieneArchivo] = useState(false);
   const [nombreVideo, setNombreVideo] = useState("");
-  const [progresoSubida, setProgresoSubida] = useState(0);
-  const [bytesSubidos, setBytesSubidos] = useState(0);
-  const [bytesTotales, setBytesTotales] = useState(0);
-  const [faseProceso, setFaseProceso] = useState(""); // "comprimiendo_local" | "subiendo" | "comprimiendo" | "guardando" | ""
-  const [infoCompresion, setInfoCompresion] = useState(null);
-  const [comprimiendoLocal, setComprimiendoLocal] = useState(false);
-
-  const formatearMB = (bytes) => {
-    if (!bytes || bytes <= 0) return "0 MB";
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  // { fase: "subiendo" | "procesando", pct, loaded, total, mensaje } mientras se guarda
+  const [progreso, setProgreso] = useState(null);
 
   // Verificar autenticación
   if (!token || !usuario) {
@@ -123,130 +111,69 @@ const Videos = () => {
     }
   };
 
-  const handleVideoChange = async (e) => {
+  const handleVideoChange = (e) => {
     const input = e.target;
     const file = input.files?.[0];
     if (!file) return;
 
-    if (file.size > MAX_ORIGINAL_BYTES) {
-      const mb = (file.size / (1024 * 1024)).toFixed(1);
+    if (file.size > MAX_UPLOAD_BYTES) {
       setError(
-        `El video pesa ${mb} MB. El máximo permitido es ${formatearMB(MAX_ORIGINAL_BYTES)}.`,
+        `El video pesa ${formatearMB(file.size)}. El máximo permitido es ${formatearMB(MAX_UPLOAD_BYTES)}.`,
       );
       input.value = "";
       setFormData((prev) => ({ ...prev, video: null }));
       setNombreVideo("");
-      setInfoCompresion(null);
       return;
     }
 
+    // Se sube tal cual; el servidor lo comprime.
     setError(null);
-    setInfoCompresion(null);
-
-    // Archivos livianos: se usan tal cual
-    if (file.size <= UMBRAL_COMPRESION_BYTES) {
-      setFormData((prev) => ({ ...prev, video: file }));
-      setNombreVideo(`${file.name} (${formatearMB(file.size)})`);
-      return;
-    }
-
-    setComprimiendoLocal(true);
-    setFaseProceso("comprimiendo_local");
-    setProgresoSubida(0);
-    setCargando(true);
-
-    try {
-      const resultado = await comprimirVideoCliente(file, {
-        onProgress: (pct) => setProgresoSubida(pct),
-      });
-      if (resultado.file.size > MAX_UPLOAD_BYTES) {
-        const mb = (resultado.file.size / (1024 * 1024)).toFixed(1);
-        throw new Error(
-          `Tras comprimir sigue pesando ${mb} MB (máximo ${formatearMB(MAX_UPLOAD_BYTES)}). Prueba un video más corto.`,
-        );
-      }
-      setFormData((prev) => ({ ...prev, video: resultado.file }));
-      setNombreVideo(
-        `${resultado.file.name} (${formatearMB(resultado.file.size)})`,
-      );
-      if (resultado.comprimido) {
-        setInfoCompresion({
-          original: resultado.originalBytes,
-          nuevo: resultado.nuevoBytes,
-        });
-      } else {
-        setInfoCompresion(null);
-      }
-    } catch (err) {
-      console.error("Compresión local de video:", err);
-      setError(
-        err.message ||
-          "No se pudo comprimir el video en el navegador. Prueba con un MP4 más liviano.",
-      );
-      input.value = "";
-      setFormData((prev) => ({ ...prev, video: null }));
-      setNombreVideo("");
-      setInfoCompresion(null);
-    } finally {
-      setComprimiendoLocal(false);
-      setCargando(false);
-      setFaseProceso("");
-      setProgresoSubida(0);
-    }
+    setFormData((prev) => ({ ...prev, video: file }));
+    setNombreVideo(`${file.name} (${formatearMB(file.size)})`);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
     setError(null);
-    setProgresoSubida(0);
-    setBytesSubidos(0);
-    setBytesTotales(0);
-    setFaseProceso(formData.video ? "subiendo" : "guardando");
+    setProgreso(
+      formData.video ? { fase: "subiendo", pct: 0, loaded: 0, total: formData.video.size } : null,
+    );
 
     try {
       if (!formData.titulo.trim() || !formData.fecha || !formData.tipo) {
         setError("El título, la fecha y el tipo son obligatorios.");
         setCargando(false);
-        setFaseProceso("");
+        setProgreso(null);
         return;
       }
 
       if (!esModoEdicion && !formData.video) {
         setError("Sube el archivo de video.");
         setCargando(false);
-        setFaseProceso("");
+        setProgreso(null);
         return;
       }
 
       const formDataToSend = new FormData();
 
       if (formData.imagen) {
-        formDataToSend.append('imagen', formData.imagen);
+        formDataToSend.append("imagen", formData.imagen);
       }
       if (formData.video) {
-        formDataToSend.append('video', formData.video);
+        formDataToSend.append("video", formData.video);
       }
 
-      formDataToSend.append('titulo', formData.titulo.trim());
-      formDataToSend.append('fecha', formData.fecha);
-      formDataToSend.append('tipo', formData.tipo);
-      formDataToSend.append('estado', formData.activo.toString());
-      formDataToSend.append('mandar_b2b', formData.mandar_b2b.toString());
-      formDataToSend.append('crisis_restaurantera', formData.crisis_restaurantera.toString());
-      formDataToSend.append('revista_digital', formData.revista_digital.toString());
+      formDataToSend.append("titulo", formData.titulo.trim());
+      formDataToSend.append("fecha", formData.fecha);
+      formDataToSend.append("tipo", formData.tipo);
+      formDataToSend.append("estado", formData.activo.toString());
+      formDataToSend.append("mandar_b2b", formData.mandar_b2b.toString());
+      formDataToSend.append("crisis_restaurantera", formData.crisis_restaurantera.toString());
+      formDataToSend.append("revista_digital", formData.revista_digital.toString());
 
-      const onProgress = (info) => {
-        const pct = typeof info === "number" ? info : info?.pct || 0;
-        const loaded = typeof info === "number" ? 0 : info?.loaded || 0;
-        const total = typeof info === "number" ? 0 : info?.total || 0;
-        setProgresoSubida(pct);
-        setBytesSubidos(loaded);
-        setBytesTotales(total);
-        if (pct >= 100 && formData.video) {
-          setFaseProceso("comprimiendo");
-        }
-      };
+      // Solo hay barra cuando se sube un archivo de video
+      const onProgress = formData.video ? (info) => setProgreso(info) : undefined;
 
       if (esModoEdicion) {
         await editarVideo(id, formDataToSend, token, onProgress);
@@ -261,7 +188,7 @@ const Videos = () => {
         video: null,
         titulo: "",
         fecha: new Date().toISOString().split("T")[0],
-        tipo: 'editorial',
+        tipo: "editorial",
         activo: true,
         mandar_b2b: false,
         crisis_restaurantera: false,
@@ -271,16 +198,14 @@ const Videos = () => {
       setImagenActual(null);
       setNombreVideo("");
       setTieneArchivo(false);
-      setProgresoSubida(0);
-      setFaseProceso("");
-      setInfoCompresion(null);
+      setProgreso(null);
 
       navigate("/videosDashboard");
 
     } catch (err) {
       console.error('Error en el formulario:', err);
       setError(err.message || "Error al procesar el video");
-      setFaseProceso("");
+      setProgreso(null);
     } finally {
       setCargando(false);
     }
@@ -343,21 +268,14 @@ const Videos = () => {
                 type="file"
                 accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
                 onChange={handleVideoChange}
-                disabled={comprimiendoLocal || cargando}
+                disabled={cargando}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-60"
               />
               <p className="mt-2 text-sm text-gray-500">
-                MP4, MOV o WEBM, hasta {formatearMB(MAX_ORIGINAL_BYTES)}. Si
-                pesa más de {formatearMB(UMBRAL_COMPRESION_BYTES)}, se comprime
-                aquí en el navegador (~720p) antes de subir.
+                MP4, MOV o WEBM, hasta {formatearMB(MAX_UPLOAD_BYTES)}. Se sube
+                tal cual y el servidor se encarga de comprimirlo.
                 {nombreVideo ? ` Seleccionado: ${nombreVideo}` : ""}
               </p>
-              {infoCompresion && (
-                <p className="mt-1 text-sm text-green-700">
-                  Comprimido: {formatearMB(infoCompresion.original)} →{" "}
-                  {formatearMB(infoCompresion.nuevo)}. Ya puedes guardar.
-                </p>
-              )}
               {esModoEdicion && tieneArchivo && !formData.video && (
                 <p className="mt-1 text-sm text-gray-500">
                   Este video ya tiene un archivo. Súbelo de nuevo solo si quieres reemplazarlo.
@@ -515,66 +433,26 @@ const Videos = () => {
               </div>
             )}
 
-            {(cargando || comprimiendoLocal) && (
-              <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-4">
-                <div className="flex items-center justify-between text-sm font-medium text-blue-900">
-                  <span>
-                    {faseProceso === "comprimiendo_local"
-                      ? "Comprimiendo en tu navegador…"
-                      : faseProceso === "comprimiendo"
-                        ? "Subida completa. Comprimiendo en el servidor…"
-                        : faseProceso === "guardando"
-                          ? "Guardando cambios…"
-                          : "Subiendo video…"}
-                  </span>
-                  <span>
-                    {faseProceso === "comprimiendo"
-                      ? "100%"
-                      : faseProceso === "comprimiendo_local"
-                        ? `${progresoSubida}%`
-                        : `${progresoSubida}% (${formatearMB(bytesSubidos)} / ${formatearMB(bytesTotales)})`}
-                  </span>
-                </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-blue-100">
-                  <div
-                    className={`h-full rounded-full bg-blue-600 transition-all duration-200 ${
-                      faseProceso === "comprimiendo" ? "animate-pulse" : ""
-                    }`}
-                    style={{
-                      width: `${faseProceso === "comprimiendo" ? 100 : progresoSubida}%`,
-                    }}
-                  />
-                </div>
-                <p className="text-xs text-blue-800">
-                  {faseProceso === "comprimiendo_local"
-                    ? "Baja a ~720p para que la subida no se atasque. No cierres esta pestaña."
-                    : faseProceso === "comprimiendo"
-                      ? "Esto puede tardar varios minutos según el tamaño del archivo. No cierres esta ventana."
-                      : "El porcentaje es de la subida al servidor. Después viene la compresión."}
-                </p>
-              </div>
-            )}
+            {cargando && progreso && <ProgresoSubidaVideo progreso={progreso} />}
 
             {/* Botón de envío */}
             <button
               type="submit"
-              disabled={cargando || comprimiendoLocal || (!formData.video && !esModoEdicion)}
+              disabled={cargando || (!formData.video && !esModoEdicion)}
               className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-                cargando || comprimiendoLocal
+                cargando
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {cargando || comprimiendoLocal ? (
+              {cargando ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {faseProceso === "comprimiendo_local"
-                    ? `Comprimiendo… ${progresoSubida}%`
-                    : faseProceso === "comprimiendo"
-                      ? "Comprimiendo en servidor…"
-                      : esModoEdicion
-                        ? `Guardando… ${progresoSubida}%`
-                        : `Subiendo… ${progresoSubida}%`}
+                  {progreso?.fase === "procesando"
+                    ? `Procesando en el servidor… ${Math.round(progreso.pct || 0)}%`
+                    : progreso?.fase === "subiendo"
+                      ? `Subiendo… ${Math.round(progreso.pct || 0)}%`
+                      : "Guardando…"}
                 </div>
               ) : (
                 esModoEdicion ? "Guardar Cambios" : "Crear Video"

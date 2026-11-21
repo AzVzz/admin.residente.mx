@@ -6,6 +6,12 @@ const SIMULAR_API = false;
 /** Chunks chicos para evitar el freeze de Plesk/nginx ~5 MB */
 const CHUNK_SIZE = 2 * 1024 * 1024;
 const CHUNK_RETRIES = 3;
+/** Cuántos pedazos se mandan a la vez (el servidor guarda cada uno por separado). */
+const CHUNKS_EN_PARALELO = 3;
+/** Cada cuánto se le pregunta al servidor cómo va el procesamiento. */
+const POLL_INTERVALO_MS = 1500;
+/** Fallos de red seguidos al preguntar el avance antes de rendirse. */
+const POLL_FALLOS_MAX = 8;
 
 const authHeaders = (token) =>
   token ? { Authorization: `Bearer ${token}` } : undefined;
@@ -33,13 +39,14 @@ const subirVideoConProgreso = async (method, url, formData, token, onProgress) =
       const pct = total
         ? Math.min(100, Math.round((loaded * 100) / total))
         : 0;
-      onProgress({ pct, loaded, total });
+      onProgress({ fase: 'subiendo', pct, loaded, total });
     },
   });
   return data;
 };
 
-const postChunkConReintentos = async (url, blob, token) => {
+/** Manda un pedazo con reintentos. onBytes(n) = bytes de ESTE pedazo ya enviados. */
+const postChunkConReintentos = async (url, blob, token, onBytes) => {
   let lastError;
   for (let intento = 1; intento <= CHUNK_RETRIES; intento++) {
     try {
@@ -51,10 +58,14 @@ const postChunkConReintentos = async (url, blob, token) => {
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
         headers: authHeaders(token),
+        onUploadProgress: (event) =>
+          onBytes?.(Math.min(event.loaded || 0, blob.size)),
       });
+      onBytes?.(blob.size);
       return;
     } catch (error) {
       lastError = error;
+      onBytes?.(0); // el reintento empieza de cero
       if (intento < CHUNK_RETRIES) {
         await new Promise((r) => setTimeout(r, 400 * intento));
       }
@@ -63,7 +74,125 @@ const postChunkConReintentos = async (url, blob, token) => {
   throw lastError;
 };
 
-/** Sube el video en chunks y luego manda metadata + portada */
+/** Sube todos los pedazos, CHUNKS_EN_PARALELO a la vez, avisando bytes enviados. */
+const subirChunksEnParalelo = async ({
+  videoFile,
+  totalChunks,
+  uploadId,
+  token,
+  onProgress,
+}) => {
+  const total = videoFile.size;
+  const enviadoPorChunk = new Array(totalChunks).fill(0);
+
+  const avisar = () => {
+    const loaded = enviadoPorChunk.reduce((suma, b) => suma + b, 0);
+    onProgress?.({
+      fase: 'subiendo',
+      pct: Math.min(100, Math.round((loaded * 100) / total)),
+      loaded,
+      total,
+    });
+  };
+
+  let siguiente = 0;
+  let fallo = null;
+
+  const trabajador = async () => {
+    while (!fallo) {
+      const index = siguiente++;
+      if (index >= totalChunks) return;
+      const start = index * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, total);
+      try {
+        await postChunkConReintentos(
+          `${urlApi}api/video/upload/${uploadId}/chunk/${index}`,
+          videoFile.slice(start, end),
+          token,
+          (bytes) => {
+            enviadoPorChunk[index] = bytes;
+            avisar();
+          },
+        );
+      } catch (error) {
+        fallo = fallo || error;
+        return;
+      }
+    }
+  };
+
+  await Promise.all(
+    Array.from({ length: Math.min(CHUNKS_EN_PARALELO, totalChunks) }, trabajador),
+  );
+  if (fallo) throw fallo;
+};
+
+/**
+ * El servidor ya recibió todo y procesa en segundo plano (juntar, comprimir,
+ * portada, guardar). Pregunta su avance hasta que termine y devuelve el video.
+ */
+const esperarProcesamiento = async ({ uploadId, token, onProgress }) => {
+  let fallosSeguidos = 0;
+
+  for (;;) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVALO_MS));
+
+    let job;
+    try {
+      const { data } = await axios.get(
+        `${urlApi}api/video/upload/${uploadId}/status`,
+        { headers: authHeaders(token), timeout: 20000 },
+      );
+      job = data;
+      fallosSeguidos = 0;
+    } catch (error) {
+      if (error?.response?.status === 404) {
+        throw new Error(
+          error.response.data?.error ||
+            'El servidor ya no tiene registro de este video. Revisa el dashboard.',
+        );
+      }
+      fallosSeguidos += 1;
+      if (fallosSeguidos >= POLL_FALLOS_MAX) {
+        throw new Error(
+          'Se perdió la conexión con el servidor. El video puede seguir procesándose: revisa el dashboard en unos minutos.',
+        );
+      }
+      continue;
+    }
+
+    if (job.estado === 'error') {
+      // Solo la última línea del detalle: ffmpeg suele traer mucho texto técnico.
+      const detalle = String(job.detalle || '')
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .pop();
+      throw new Error(
+        `El servidor no pudo procesar el video. Prueba con otro archivo (MP4 normal) y, si se repite, avisa al equipo técnico.${
+          detalle ? ` Detalle: ${detalle}` : ''
+        }`,
+      );
+    }
+
+    onProgress?.({
+      fase: 'procesando',
+      pct: job.estado === 'listo' ? 100 : job.porcentaje || 0,
+      mensaje: job.mensaje,
+      faseServidor: job.fase,
+      transcurridoServidor: job.transcurridoSeg,
+    });
+
+    if (job.estado === 'listo') return job.video;
+  }
+};
+
+/**
+ * Sube el video original en pedazos y deja que el servidor lo procese
+ * (sin comprimir en el navegador). Reporta dos fases a onProgress:
+ *   { fase: 'subiendo',   pct, loaded, total }
+ *   { fase: 'procesando', pct, mensaje, faseServidor, transcurridoServidor }
+ */
 const subirVideoPorChunks = async ({
   method,
   videoFile,
@@ -85,28 +214,21 @@ const subirVideoPorChunks = async ({
   );
 
   const uploadId = init.uploadId;
-  let loaded = 0;
 
-  for (let index = 0; index < totalChunks; index++) {
-    const start = index * CHUNK_SIZE;
-    const end = Math.min(start + CHUNK_SIZE, videoFile.size);
-    const blob = videoFile.slice(start, end);
+  await subirChunksEnParalelo({
+    videoFile,
+    totalChunks,
+    uploadId,
+    token,
+    onProgress,
+  });
 
-    await postChunkConReintentos(
-      `${urlApi}api/video/upload/${uploadId}/chunk/${index}`,
-      blob,
-      token,
-    );
-
-    loaded = end;
-    if (onProgress) {
-      onProgress({
-        pct: Math.min(99, Math.round((loaded * 100) / videoFile.size)),
-        loaded,
-        total: videoFile.size,
-      });
-    }
-  }
+  onProgress?.({
+    fase: 'subiendo',
+    pct: 100,
+    loaded: videoFile.size,
+    total: videoFile.size,
+  });
 
   const meta = new FormData();
   for (const [key, value] of formData.entries()) {
@@ -119,17 +241,24 @@ const subirVideoPorChunks = async ({
       ? `${urlApi}api/video/upload/${uploadId}/complete/${videoId}`
       : `${urlApi}api/video/upload/${uploadId}/complete`;
 
-  if (onProgress) {
-    onProgress({ pct: 100, loaded: videoFile.size, total: videoFile.size });
-  }
+  onProgress?.({
+    fase: 'procesando',
+    pct: 0,
+    mensaje: 'Avisando al servidor que ya llegó todo',
+  });
 
-  const { data } = await axios.post(completeUrl, meta, {
+  const { data, status } = await axios.post(completeUrl, meta, {
     timeout: 0,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
     headers: authHeaders(token),
   });
 
+  // Servidor nuevo: responde 202 y procesa en segundo plano.
+  if (status === 202 && data?.uploadId) {
+    return esperarProcesamiento({ uploadId: data.uploadId, token, onProgress });
+  }
+  // Servidor anterior: responde ya con el video procesado.
   return data;
 };
 
