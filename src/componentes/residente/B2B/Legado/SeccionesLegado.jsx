@@ -5,12 +5,10 @@ import {
   ARQUITECTURA,
   CANASTO,
   CANDIDATOS_LEGADO,
-  CANDIDATOS_VANGUARDIA,
   CRITERIOS_LEGADO,
   CRITERIO_COMERCIAL_LEGADO,
   OBJETIVOS_LEGADO,
   RESUMEN_LEGADO,
-  SELECCION_VANGUARDIA,
 } from "./legadoContenido";
 
 // Secciones del media kit (slides 2 a 7) con el mismo estilo oscuro de la
@@ -164,57 +162,22 @@ export const SeleccionLegado = () => (
 );
 
 // ───── Slide 3 ─────
+// Es una imagen del media kit (ya trae todo el texto). El fondo de la franja es
+// el mismo blanco de la imagen (#FCFAF8) y ocupa todo el ancho de la pantalla.
 export const SeleccionVanguardia = () => (
-  <section className="mt-20 w-full text-left">
-    <Encabezado
-      marca="NORESTE: VANGUARDIA · MEDIA KIT · LIBRO 2"
-      titulo="Selección por invitación"
-      destacado="40"
-      resto="grupos y marcas de innovación gastronómica de Nuevo León. Solo 25 lugares disponibles."
-      intro="Candidaturas para NORESTE: VANGUARDIA, el libro de las propuestas que están transformando la escena gastronómica."
+  <section
+    className="mt-20 ml-[calc(50%-50vw)] w-screen self-start pt-12 sm:pt-20"
+    style={{ backgroundColor: "#FCFAF8" }}
+  >
+    <img
+      src={`${import.meta.env.BASE_URL}legado/candidatos-vanguardia.webp`}
+      alt="NORESTE: Vanguardia / Premium. Candidatos por invitación: grupos restauranteros, chefs y proyectos de autor, grandes restaurantes, únicos, coctelería y bares premium, y restaurantes de Torreón, Saltillo, Parras, Tampico y Ciudad Victoria."
+      width="1713"
+      height="1192"
+      loading="lazy"
+      decoding="async"
+      className="mx-auto block h-auto w-full max-w-[1200px]"
     />
-
-    <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,330px)_1fr]">
-      <div>
-        <h3 className="legado-titulo text-[1.5rem]">Selección editorial</h3>
-        <Linea className="mt-3 max-w-[90px]" color={ORO} />
-        <ul className="mt-6">
-          {SELECCION_VANGUARDIA.map(({ numero, etiqueta }) => (
-            <li key={etiqueta} className="flex items-center gap-6 border-b py-5" style={{ borderColor: LINEA }}>
-              <span className="legado-editorial w-16 shrink-0 text-[3rem] leading-none" style={{ color: BRONCE }}>
-                {numero}
-              </span>
-              <span className="legado-editorial text-[1.2rem]" style={{ color: "var(--text-secondary)" }}>
-                {etiqueta}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <h3 className="legado-titulo mt-10 text-[1.1rem]">Participación por invitación</h3>
-        <p className="legado-editorial mt-3 text-[1.15rem]" style={{ color: "var(--text-secondary)" }}>
-          Residente invitará a 25 protagonistas de la innovación gastronómica de NL. No es una convocatoria abierta.
-        </p>
-
-        <Linea className="mt-8" color={BRONCE} />
-        <h3 className="legado-titulo mt-6 text-[1.1rem]">Inversión por restaurante</h3>
-        <p className="legado-titulo mt-2 text-[2rem]" style={{ color: ORO }}>
-          $100,000 MXN
-        </p>
-        <p className="legado-editorial mt-1 text-[1.1rem]" style={{ color: "var(--text-secondary)" }}>
-          25 participaciones: $2,500,000 brutos.
-        </p>
-      </div>
-
-      <div className="lg:border-l lg:pl-12" style={{ borderColor: LINEA }}>
-        <Candidatos lista={CANDIDATOS_VANGUARDIA} />
-      </div>
-    </div>
-
-    <Linea className="mt-12" />
-    <p className="legado-editorial mt-6 text-[1.1rem]" style={{ color: "var(--text-secondary)" }}>
-      <strong className="font-semibold" style={{ color: ORO }}>Objetivo editorial:</strong> 25 protagonistas de la innovación gastronómica de Nuevo León.
-    </p>
   </section>
 );
 

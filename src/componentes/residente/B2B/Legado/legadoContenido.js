@@ -52,69 +52,6 @@ export const OBJETIVOS_LEGADO = {
     "obtener 25 participaciones de $100,000 cada una, equivalentes a $2,500,000 en ingresos brutos para el proyecto editorial.",
 };
 
-// ───── Slide 3: Selección por invitación (Libro 2: Vanguardia) ─────
-export const SELECCION_VANGUARDIA = [
-  { numero: "40", etiqueta: "candidaturas preliminares" },
-  { numero: "25", etiqueta: "lugares en la colección" },
-  { numero: "8", etiqueta: "categorías gastronómicas" },
-];
-
-export const CANDIDATOS_VANGUARDIA = [
-  {
-    nombre: "Taquerías",
-    cantidad: 5,
-    items: [
-      { nombre: "Grupo Buenas Vibras", marcas: "Tacos Atarantados, Bárbaro, Orson, Fidencio" },
-      "Taquería Orinoco", "Tacos del Valle", "Los Tecatacos", "Rana Girasol",
-    ],
-  },
-  {
-    nombre: "Cadenas",
-    cantidad: 8,
-    items: [
-      { nombre: "Tanaka Hospitality (Grupo Kampai)", marcas: "Kampai, Señor Tanaka, Señora Tanaka, Bestia, Gagootz" },
-      { nombre: "Grupo Nikkori", marcas: "Nikkori" },
-      { nombre: "Grupo Alimentarium", marcas: "Super Salads, Holy Cow, Dobo, Cabo Grill, Shicken" },
-      { nombre: "Grupo Costeño", marcas: "Ryoshi, Hotaru, Ichikani, Tigre" },
-      { nombre: "I AM Hospitality", marcas: "Cuerno, Animal, Clavadito, Mika" },
-      { nombre: "BGE Group", marcas: "Tío Ben, Bennys, Uncle" },
-      { nombre: "Grill Team Group", marcas: "Grill Team Foods, SUAV, Japi Sushi" },
-      { nombre: "Grupo PRO", marcas: "Los Hidalgos, Los Nogales, Meet Social Grill" },
-    ],
-  },
-  { nombre: "Mundo dulce", cantidad: 5, items: ["BreAd Panaderos", "Panem Bakery & Bistro", "La Divinata", "Pan de Pan", "Mille Délices"] },
-  {
-    nombre: "Grandes restaurantes",
-    cantidad: 6,
-    items: [
-      { nombre: "Grupo Pangea", marcas: "Pangea, Bardot, Libertad, Chino Latino, Café Laurel" },
-      { nombre: "Grupo Barra", marcas: "La Buena Barra, La Gran Barra, Doble B" },
-      { nombre: "Grupo Máxima (EMWA)", marcas: "Mar del Zur, Zatziki" },
-      { nombre: "Proyectos Rivera Río", marcas: "Koli, Cometa" },
-      "La Torrada", "La Colonia",
-    ],
-  },
-  {
-    nombre: "Únicos",
-    cantidad: 6,
-    items: [
-      "Sibau",
-      { nombre: "Proyectos de Hugo Guajardo", marcas: "El Jonuco, Vernáculo" },
-      "Cara de Vaca", "Tatemate", "Nueve Fuegos", "Grand Cru",
-    ],
-  },
-  {
-    nombre: "Antros y bares",
-    cantidad: 4,
-    items: [
-      { nombre: "Grupo Blend", marcas: "Blend Wine Bar, Bar Coleman, Ronin, Nota Bar" },
-      "Maverick / Bar 1900", "Hemingway Bar", "Almacén 42",
-    ],
-  },
-  { nombre: "Cafés", cantidad: 3, items: ["Casa Benell", "Kali Coffee Roasters", "Café Belmonte"] },
-  { nombre: "Casuales", cantidad: 3, items: ["The Food Box", "Mr. Brown", "Pizza Studio"] },
-];
-
 // ───── Slides 4 a 7: Canasto de valor ─────
 export const CANASTO = [
   {
