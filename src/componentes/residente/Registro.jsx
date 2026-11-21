@@ -56,7 +56,7 @@ const Registro = () => {
               <a href="/admin/registrob2b" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[80px] sm:h-[132px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   aria-label="Registro de restaurante"
                 >
                   <img
@@ -71,7 +71,7 @@ const Registro = () => {
               <a href="/admin/registrob2b-texas" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[80px] sm:h-[132px] bg-[#fff200] text-black flex items-center justify-center leading-tight text-sm"
                   aria-label="Restaurantes Texas"
                 >
                   <img
@@ -86,7 +86,7 @@ const Registro = () => {
               <a href="/admin/registrob2b-legado" className="block w-full">
                 <button
                   type="button"
-                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[68px] sm:h-[108px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[80px] sm:h-[132px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
                   aria-label="Legado"
                 >
                   <img
@@ -94,7 +94,7 @@ const Registro = () => {
                     alt="Legado Noreste"
                     width="520"
                     height="203"
-                    className="h-6 sm:h-[52px] w-auto max-w-full shrink-0 object-contain"
+                    className="h-7 sm:h-[64px] w-auto max-w-full shrink-0 object-contain"
                     decoding="async"
                   />
                 </button>
