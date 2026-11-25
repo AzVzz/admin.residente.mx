@@ -753,6 +753,11 @@ const ListaNotas = () => {
       label: "Vivir y Convivir",
       icon: <FaCalendarDays className="mr-2" />,
     },
+    {
+      key: "proveedores_eventos",
+      label: "Proveedores eventos",
+      icon: <FaStore className="mr-2" />,
+    },
     { key: "recetas", label: "Recetas", icon: <FaUtensils className="mr-2" /> },
     {
       key: "restaurante_link",
@@ -862,6 +867,8 @@ const ListaNotas = () => {
         (option.key === "eventos" &&
           !esInvitado &&
           usuario?.rol !== "colaborador") ||
+        (option.key === "proveedores_eventos" &&
+          (esResidente || usuario?.rol === "colaborador_eventos")) ||
         (esResidente && option.key === "restaurante_link") ||
         (usuario?.rol === "residente" && option.key === "ednl") ||
         (usuario?.rol === "residente" && option.key === "codigos_admin") ||
@@ -1073,6 +1080,8 @@ const ListaNotas = () => {
                       navigate("/dashboardtickets");
                     } else if (option.key === "eventos") {
                       navigate("/dashboard-vivir-convivir/notas");
+                    } else if (option.key === "proveedores_eventos") {
+                      navigate("/proveedores-eventos");
                     } else if (option.key === "tematicas") {
                       setVistaActiva("tematicas");
                     } else if (option.key === "codigos_admin") {

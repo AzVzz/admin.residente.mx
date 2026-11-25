@@ -81,6 +81,9 @@ const EventosDashboardLayout = () => {
                 Eventos
               </NavLink>
             )}
+            <Link to="/proveedores-eventos" className={itemClass({ isActive: false })}>
+              Proveedores
+            </Link>
           </nav>
         </aside>
         )}
@@ -96,6 +99,9 @@ const EventosDashboardLayout = () => {
                 Eventos
               </NavLink>
             )}
+            <Link to="/proveedores-eventos" className={itemClass({ isActive: false })}>
+              Proveedores
+            </Link>
           </nav>
           <Outlet />
         </section>

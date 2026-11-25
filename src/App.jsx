@@ -248,6 +248,24 @@ const FormularioMain = lazy(
 const FormularioMainPage = lazy(
   () => import("./componentes/formulario100estrellas/FormularioMainPage"),
 );
+const FormularioProveedorEventos = lazy(
+  () =>
+    import(
+      "./componentes/formulario-proveedores-eventos/FormularioProveedorEventos"
+    ),
+);
+const FormularioProveedorEventosPage = lazy(
+  () =>
+    import(
+      "./componentes/formulario-proveedores-eventos/FormularioProveedorEventosPage"
+    ),
+);
+const ListaProveedoresEventos = lazy(
+  () =>
+    import(
+      "./componentes/formulario-proveedores-eventos/ListaProveedoresEventos"
+    ),
+);
 const PromoMain = lazy(() => import("./componentes/promociones/PromoMain"));
 const EventoMain = lazy(() => import("./componentes/eventos/EventoMain"));
 const ListaEventos = lazy(() => import("./componentes/eventos/ListaEventos"));
@@ -1073,6 +1091,28 @@ function App() {
                     <FormularioMainPage />
                   </div>
                 }
+              />
+
+              {/* Admin — Proveedores Vivir y Convivir (paralelo a /formulario) */}
+              <Route
+                path="/formulario-proveedor-eventos"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                    <FormularioProveedorEventos />
+                  </div>
+                }
+              />
+              <Route
+                path="/formulario-proveedor-eventos/:slug"
+                element={
+                  <div className="max-w-[1080px] mx-auto py-10 sm:px-0">
+                    <FormularioProveedorEventosPage />
+                  </div>
+                }
+              />
+              <Route
+                path="/proveedores-eventos"
+                element={<ListaProveedoresEventos />}
               />
 
               {/* Admin */}
