@@ -129,10 +129,16 @@ export default function ListaProveedoresEventos() {
       {loading ? <p>Cargando…</p> : null}
       {error ? <p className="text-red-600">{error}</p> : null}
 
+      {!loading && rows.length > 0 ? (
+        <p className="text-xs text-neutral-500 mb-3">
+          {rows.length} micrositio{rows.length === 1 ? "" : "s"}
+        </p>
+      ) : null}
+
       <div className="space-y-3">
         {rows.map((p) => (
           <article
-            key={p.id}
+            key={p.id || p.slug}
             className="flex flex-col sm:flex-row gap-3 rounded-xl border border-neutral-200 bg-white p-4"
           >
             <img
@@ -167,9 +173,9 @@ export default function ListaProveedoresEventos() {
               <div className="flex flex-wrap gap-2 mt-2 text-sm">
                 <Link
                   to={`/formulario-proveedor-eventos/${p.slug}`}
-                  className="underline"
+                  className="rounded-md bg-neutral-900 text-white px-3 py-1.5 no-underline"
                 >
-                  Editar
+                  Editar micrositio
                 </Link>
                 <a
                   href={`https://residente.mx/proveedores-eventos/${p.slug}${
@@ -177,9 +183,17 @@ export default function ListaProveedoresEventos() {
                   }`}
                   target="_blank"
                   rel="noreferrer"
-                  className="underline"
+                  className="underline self-center"
                 >
-                  Ver micrositio
+                  Ver público
+                </a>
+                <a
+                  href={`https://residente.mx/seccion/vivir-convivir/categoria/${p.categoria}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline self-center"
+                >
+                  Ver en categoría
                 </a>
                 {usuario?.rol === "residente" ||
                 usuario?.permisos === "residente" ||

@@ -16,16 +16,67 @@ export function mediaUrl(path) {
   return `${imgApi}${clean}`;
 }
 
+function normalizarLista(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.proveedores)) return payload.proveedores;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+}
+
 export async function proveedoresListar(token, params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${BASE}/todas${qs ? `?${qs}` : ""}`, {
-    headers: authHeaders(token),
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(body.error || body.details || "Error al listar proveedores");
+  const qs = new URLSearchParams(
+    Object.fromEntries(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+    )
+  ).toString();
+
+  let adminRows = [];
+  let adminError = null;
+  try {
+    const res = await fetch(`${BASE}/todas${qs ? `?${qs}` : ""}`, {
+      headers: authHeaders(token),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      adminError = body.error || body.details || "Error al listar proveedores";
+    } else {
+      adminRows = normalizarLista(body);
+    }
+  } catch (e) {
+    adminError = e.message || "Error al listar proveedores";
   }
-  return body;
+
+  // Si /todas viene vacío o falla (p. ej. filtro viejo por usuario_id en prod),
+  // completar con publicados de /activos para no perder micrositios editables.
+  if (adminRows.length === 0) {
+    try {
+      const activos = await proveedoresActivos(params.categoria);
+      const publicados = normalizarLista(activos);
+      const q = String(params.q || "")
+        .trim()
+        .toLowerCase();
+      const filtrados = q
+        ? publicados.filter((p) => {
+            const haystack = [p.nombre_comercial, p.municipio, p.slug]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+            return haystack.includes(q);
+          })
+        : publicados;
+      if (filtrados.length > 0) {
+        return { proveedores: filtrados, total: filtrados.length, fuente: "activos" };
+      }
+    } catch {
+      /* si activos también falla, devolvemos admin */
+    }
+  }
+
+  if (adminRows.length === 0 && adminError) {
+    throw new Error(adminError);
+  }
+
+  return { proveedores: adminRows, total: adminRows.length, fuente: "todas" };
 }
 
 export async function proveedoresActivos(categoria) {
