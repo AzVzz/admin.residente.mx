@@ -21,8 +21,11 @@ export async function proveedoresListar(token, params = {}) {
   const res = await fetch(`${BASE}/todas${qs ? `?${qs}` : ""}`, {
     headers: authHeaders(token),
   });
-  if (!res.ok) throw new Error("Error al listar proveedores");
-  return res.json();
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.error || body.details || "Error al listar proveedores");
+  }
+  return body;
 }
 
 export async function proveedoresActivos(categoria) {

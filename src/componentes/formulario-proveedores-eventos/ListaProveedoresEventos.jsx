@@ -181,7 +181,10 @@ export default function ListaProveedoresEventos() {
                 >
                   Ver micrositio
                 </a>
-                {usuario?.rol === "residente" ? (
+                {usuario?.rol === "residente" ||
+                usuario?.permisos === "residente" ||
+                usuario?.permisos === "todos" ||
+                usuario?.permisos === "todo" ? (
                   <>
                     <button type="button" onClick={() => toggle(p)} className="underline">
                       {p.status === 1 ? "Despublicar" : "Publicar"}
