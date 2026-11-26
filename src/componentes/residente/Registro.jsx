@@ -52,7 +52,7 @@ const Registro = () => {
               Registro
             </h2>
             {/* Línea 1: registro de restaurantes (botones) */}
-            <div className="grid grid-cols-3 items-center gap-2 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 sm:gap-4">
               <a href="/admin/registrob2b" className="block w-full">
                 <button
                   type="button"
@@ -95,6 +95,22 @@ const Registro = () => {
                     width="520"
                     height="203"
                     className="h-7 sm:h-[64px] w-auto max-w-full shrink-0 object-contain"
+                    decoding="async"
+                  />
+                </button>
+              </a>
+              <a href="/admin/registrob2b-cantinas" className="block w-full">
+                <button
+                  type="button"
+                  className="font-bold py-3 px-2 sm:px-6 rounded w-full cursor-pointer h-[80px] sm:h-[132px] bg-[#fff200] text-black flex items-center justify-center leading-tight"
+                  aria-label="Ruta de Cantinas"
+                >
+                  {/* Mismo logo que "RUTA DE CANTINAS" en la barra de marcas de arriba */}
+                  <img
+                    src="https://residente.mx/images/home-brands/ruta-de-cantinas-v2.png"
+                    alt="Ruta de Cantinas"
+                    className="h-auto w-[88%] max-w-[260px] shrink-0 object-contain"
+                    loading="lazy"
                     decoding="async"
                   />
                 </button>

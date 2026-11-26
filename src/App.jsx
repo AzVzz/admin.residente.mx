@@ -144,6 +144,9 @@ import LogeadoRoute from "./componentes/rutas/LogeadoRoute.jsx";
 const RegistroLegado = lazy(
   () => import("./componentes/residente/B2B/Legado/RegistroLegado.jsx"),
 );
+const RegistroCantinas = lazy(
+  () => import("./componentes/residente/B2B/Cantinas/RegistroCantinas.jsx"),
+);
 const RegistroTexasConPlanes = lazy(
   () =>
     import("./componentes/residente/B2B/FormularioTexasB2b/RegistroTexasConPlanes.jsx"),
@@ -421,7 +424,8 @@ function App() {
   const isCulturalAccess = location.pathname === "/culturallaccess";
   const isLinkInBio = location.pathname === "/linkinbio";
   // La landing de Legado va sin header
-  const isLegado = location.pathname === "/registrob2b-legado";
+  // Cantinas usa el mismo formato (sin header, megamenú ni footer)
+  const isLegado = ["/registrob2b-legado", "/registrob2b-cantinas"].includes(location.pathname);
   const isB2BDashboard = location.pathname === "/dashboardb2b";
   const isClienteMediaDash = location.pathname.startsWith("/dashboard-cliente");
   const isFisl =
@@ -852,6 +856,14 @@ function App() {
                   </LogeadoRoute>
                 }
               />
+              <Route
+                path="/registrob2b-cantinas"
+                element={
+                  <LogeadoRoute>
+                    <RegistroCantinas />
+                  </LogeadoRoute>
+                }
+              />
 
               <Route
                 path="/registro"
@@ -1265,6 +1277,7 @@ function App() {
                 location.pathname === "/registrob2b" ||
                 location.pathname === "/registrob2b-texas" ||
                 location.pathname === "/registrob2b-legado" ||
+                location.pathname === "/registrob2b-cantinas" ||
                 location.pathname === "/registroinvitados" ||
                 location.pathname === "/registrocolaboradores"
                   ? "hidden sm:block"

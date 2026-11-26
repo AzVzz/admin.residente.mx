@@ -1,0 +1,63 @@
+/* Landing "La Ruta de las Cantinas de Nuevo León" (/registrob2b-cantinas).
+   Fuentes y colores del media kit: blanco y negro, condensada pesada para titulares.
+   Solo se cargan en esta página porque este archivo lo importa únicamente ella. */
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600&display=swap");
+
+.cantinas-landing {
+  --c-bg: #ededed; /* Gris claro del media kit (mismo fondo que las fotos del libro) */
+  --c-ink: #0d0d0d; /* Negro de titulares y líneas */
+  --c-line: #0d0d0d;
+  color: var(--c-ink);
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+}
+
+/* En la capa "components" de Tailwind para que clases como text-[...] puedan ajustarlas. */
+@layer components {
+  /* Titulares: condensada pesada en mayúsculas */
+  .cantinas-titulo {
+    font-family: "Anton", "Oswald", Impact, sans-serif;
+    text-transform: uppercase;
+    line-height: 0.92;
+  }
+  /* Etiquetas y tiras de datos: espaciadas */
+  .cantinas-etiqueta {
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+  }
+  /* Párrafos */
+  .cantinas-texto {
+    font-family: "Oswald", sans-serif;
+    font-weight: 400;
+  }
+}
+
+/* Entrada como Legado: la cortina sube y el contenido entra desde abajo, bloque por bloque. */
+@keyframes cantinas-sube {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes cantinas-entra {
+  from { opacity: 0; transform: translateY(56px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cantinas-cortina {
+  position: fixed;
+  inset: 0;
+  background-color: var(--c-bg);
+  animation: cantinas-sube 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cantinas-escalonado > * {
+  animation: cantinas-entra 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.35s;
+}
+.cantinas-escalonado > :nth-child(2) { animation-delay: 0.45s; }
+.cantinas-escalonado > :nth-child(n + 3) { animation-delay: 0.55s; }
+@media (prefers-reduced-motion: reduce) {
+  .cantinas-cortina,
+  .cantinas-escalonado > * { animation: none; }
+}
+/* Toda la página con el fondo del media kit (sin header, como Legado) */
+html:has(.cantinas-landing) { overflow-x: clip; }
+html:has(.cantinas-landing) body { background-color: #ededed; }
